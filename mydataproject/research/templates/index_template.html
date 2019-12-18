@@ -1,0 +1,414 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+{% if not user.is_authenticated %}
+
+<!-- ORCID sign in-->
+
+<div class="row mt-3">
+    <div class="col">
+
+        <div class="alert alert-primary" role="alert">
+            Tutkimustietovarannon ORCID-integraation testisovellus.
+        </div>
+
+        <a href="{% url 'social:begin' 'orcid' %}?next={{ request.path }}">
+            <button id="connect-orcid-button">
+                <img id="orcid-id-icon"
+                    src="https://orcid.org/sites/default/files/images/orcid_24x24.png"
+                    width="24"
+                    height="24"
+                    alt="Kirjaudu ORCID-tunnuksella"/>Kirjaudu ORCID-tunnuksella
+            </button> 
+        </a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $( document ).ready(function() {
+        $('#connect-orcid-button').click(function(){
+            $('#overlay').show();
+        });
+    });
+</script>
+
+{% else %}
+
+<!-- JSON Viewer -->
+<script src="{% static 'research/jquery.json-viewer.js' %}"></script>
+
+<div class="px-3 pb-md-2 mx-auto text-center">
+    <h3 class="display-4">Profiili</h3>
+</div>
+
+<div class="accordion mb-5" id="researchProfileAccordion">
+    <div class="card">
+        <!-- Nimi ja tunnisteet -->
+        <div class="card-header d-flex" id="heading1">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                Nimi ja tunnisteet
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse1" class="collapse" aria-labelledby="heading1" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Sukunimi</dt><dd class="col-sm-9">{{ request.user.last_name }}</dd>
+                    <dt class="col-sm-3">Etunimi</dt><dd class="col-sm-9">{{ request.user.first_name }}</dd>
+                    <dt class="col-sm-3">Muut nimet</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_other_names | default:"-" }}</dd>
+                    <dt class="col-sm-3">ORCID-tunniste</dt><dd class="col-sm-9"><a href="https://orcid.org/{{ request.user.username }}" target="_blank">{{ request.user.username }}</a></dd>
+                    <dt class="col-sm-3">Muut tunnisteet</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_external_identifiers | default:"-" | safe }}</dd>
+                    <dt class="col-sm-3">Sähköpostiosoite</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_emails | default:"-" }}</dd>
+                    <dt class="col-sm-3">Verkko-osoite</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_researcher_urls | default:"-" | safe }}</dd>
+                    <dt class="col-sm-3">Puhelinnumero</dt><dd class="col-sm-9">-</dd>
+                    <dt class="col-sm-3">Sometilit / URL</dt><dd class="col-sm-9">-</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Tutkimustoiminnan kuvaus -->
+        <div class="card-header d-flex" id="heading2">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+            Tutkimustoiminnan kuvaus
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse2" class="collapse" aria-labelledby="heading2" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Kuvaus</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_biography | default:"-" }}</dd>
+                    <dt class="col-sm-3">Tieteenalat</dt></dt><dd class="col-sm-9">-</dd>
+                    <dt class="col-sm-3">Tutkimusalat</dt></dt><dd class="col-sm-9">-</dd>
+                    <dt class="col-sm-3">Avainsanat</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_keywords | default:"-" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Organisaatio -->
+        <div class="card-header d-flex" id="heading3">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+            Organisaatio
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse3" class="collapse" aria-labelledby="heading3" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <ul>
+                    <li>Organisaation nimi</li>
+                    <li>Laitoksen / yksikön nimi</li>
+                    <li>Nimike</li>
+                    <li>Alkamis- ja loppumispäivämäärä</li>
+                </ul>
+    
+                <pre class="orcid-json" id="json-renderer-employments"></pre>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Tutkinnot -->
+        <div class="card-header d-flex" id="heading4">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+            Tutkinnot
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse4" class="collapse" aria-labelledby="heading4" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <ul>
+                    <li>Tutkinnon nimi</li>
+                    <li>Tutkinnon organisaatio</li>
+                </ul>
+                <pre class="orcid-json" id="json-renderer-eductions"></pre>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Julkaisut -->
+        <div class="card-header d-flex" id="heading5">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+            Julkaisut
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="pub-list-tab" data-toggle="tab" href="#pub-list-tab-content" role="tab" aria-controls="pub-list-tab-content" aria-selected="true">
+                            Profiiliin liitetyt julkaisut
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="pub-search-tab" data-toggle="tab" href="#pub-search-tab-content" role="tab" aria-controls="pub-search-tab-content" aria-selected="false">
+                            Hae julkaisuja Tutkimustietovarannosta
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    
+                    <!-- Profile publications -->
+                    <div class="tab-pane fade show active" id="pub-list-tab-content" role="tabpanel" aria-labelledby="pub-list-tab">
+                        <div class="p-5">
+
+                            <div class="alert alert-info mb-5">
+                                Listauksessa näytetään kaikki Tutkimustietovarannosta ORCID-tunnuksella löytyneet julkaisut ja 
+                                ORCID:sta tuodut julkaisut. Valitse mitkä niistä liitetään profiiliisi. Voit lisätä julkaisuja Tutkimustietovarannosta
+                                <a href="#pub-search-tab-content" onclick="$('#myTab li:last-child a').tab('show')">haku-toiminnolla.</a>
+                            </div>
+
+                            <form>
+
+                                <!-- TTV -->
+                                <div class="publication-origin mb-5">
+                                    <h5>Tutkimustietovarannosta ORCID-tunnuksella löytyvät</h5>
+                                    {% if publications_ttv.count > 0 %}
+                                        {% for p_ttv in publications_ttv %}
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox">
+                                            <label class="form-check-label small"><strong>{{ p_ttv.name }}</strong><br>{{ p_ttv.publicationYear }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <i>Ei julkaisuja</i>
+                                    {% endif %}
+                                </div>
+                            
+                                <!-- ORCID -->
+                                <div class="publication-origin">
+                                    <h5>ORCID:sta haetut</h5>
+                                    {% if publications_orcid.count > 0 %}
+                                        {% for p_orcid in publications_orcid %}
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox">
+                                            <label class="form-check-label small"><strong>{{ p_orcid.name }}</strong><br>{{ p_orcid.publicationYear }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <i>Ei julkaisuja</i>
+                                    {% endif %}
+                                </div>
+                            </form>  
+                        </div>
+                    </div>
+                    <!-- Tutkimustietovaranto search -->
+                    <div class="tab-pane fade" id="pub-search-tab-content" role="tabpanel" aria-labelledby="pub-search-tab">
+                        <div class="p-5">
+
+                            <div class="alert alert-info mb-5">
+                                Vapaa tekstihaku Tutkimustietovarannon julkaisuista. Tuloksia ei rajata ORCID-tunnuksen perusteella.
+                            </div>
+
+                            <form class="form" onsubmit="return false;">
+                                <div class="form-row align-items-center">
+                                    <div class="col-sm-10">
+                                        <label class="sr-only" for="pubTtvSearchInput">Hakusana</label>
+                                        <input id="pubTtvSearchInput" type="text" class="form-control mb-2" id="pubTtvSearchInput" placeholder="Hakusana" autocomplete="off">
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button id="pubTtvSearchBtn" class="btn btn-block btn-primary mb-2">Hae</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="pubTtvSearchResult" class="px-5 pb-5">
+                            <!-- Search results -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Tutkimusaineistot -->
+        <div class="card-header d-flex" id="heading6">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
+            Tutkimusaineistot
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse6" class="collapse" aria-labelledby="heading6" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                -
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Hankkeet -->
+        <div class="card-header d-flex" id="heading7">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse7" aria-expanded="false" aria-controls="collapse7">
+            Hankkeet
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse7" class="collapse" aria-labelledby="heading7" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <pre class="orcid-json" id="json-renderer-fundings"></pre>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Tutkimusinfrastruktuurit -->
+        <div class="card-header d-flex" id="heading8">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse8" aria-expanded="false" aria-controls="collapse8">
+            Tutkimusinfrastruktuurit
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse8" class="collapse" aria-labelledby="heading8" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                -
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Muut tutkimusaktiviteetit -->
+        <div class="card-header d-flex" id="heading9">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse9" aria-expanded="false" aria-controls="collapse9">
+            Muut tutkimusaktiviteetit
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse9" class="collapse" aria-labelledby="heading9" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                -
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="px-3 pb-md-4 mx-auto text-center">
+    <h3 class="display-4">Lukuoikeudet</h3>
+</div>
+
+<div class="row justify-content-center mb-5">
+    <!--
+        Render permission table. Permissions are rows, trusted parties are columns.
+        Formset is used, in which one form represents permissions for one trusted party.
+    -->
+    <form method="post">
+        {% csrf_token %}
+        {{ portal_permission_formset.management_form }}
+
+        <table class="table table-striped table-responsive">  
+
+            <!-- Table header cells show names of the trusted parties -->
+            <thead>
+                <th></th>
+                {% for form in portal_permission_formset %}
+                <th>{{ form.instance.trusted_party.name }}</th>
+                {% endfor %}
+            </thead>
+
+            <!--
+                Table body rendering is a bit tricky, because the different forms (trusted parties) in the formset
+                should go to columns and not rows.
+            -->
+            <tbody>
+                {% for field_for_permission_name in portal_permission_formset.0.visible_fields %}
+                {% with forloop.counter0 as field_counter %}
+                <tr>
+                    <!-- The first cell in a row shows permission name.-->
+                    <td>{{ field_for_permission_name.label }}</td>
+                    <!-- Subsequent row cells show corresponding permission from each form (trusted party). -->
+                    {% for form in portal_permission_formset %}
+                        {% for field_for_permission_checkbox in form.visible_fields %}
+                            {% if forloop.counter0 == field_counter %}
+                            <td>{{ field_for_permission_checkbox }}</td>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+                {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <button id="saveChangesBtn" class="btn btn-primary float-right" type="submit">Tallenna oikeudet</button>
+    </form>
+</div>
+
+<hr>
+
+<div class="row">
+    <div class="col mt-2">
+        <a id="deleteProfileBtn" class="btn btn-outline-danger float-right" href="{% url 'delete_profile' %}" role="button">
+            <i class="fa fa-trash" aria-hidden="true"></i> Poista profiili
+        </a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $( document ).ready(function() {
+
+        $('#saveChangesBtn').click(function(){
+            $('#overlay').show();
+        });
+
+        $('#deleteProfileBtn').click(function(){
+            $('#overlay').show();
+        });
+
+        try {
+            $('#json-renderer-eductions').jsonViewer({{ request.user.researchprofile.activity_educations | safe }});
+        } catch (err) { console.error("jsonViewer activity_educations"); }
+
+        try {
+            $('#json-renderer-employments').jsonViewer({{ request.user.researchprofile.activity_employments | safe }});
+        } catch (err) { console.error("jsonViewer activity_employments"); }
+
+        try {
+            $('#json-renderer-fundings').jsonViewer({{ request.user.researchprofile.activity_fundings | safe }});
+        } catch (err) { console.error("jsonViewer activity_fundings"); }
+
+        // TTV Search
+        $('#pubTtvSearchBtn').click(function(){
+            // Clear old results
+            $('#pubTtvSearchResult').html('');
+
+            // New query
+            var query = $('#pubTtvSearchInput').val();
+            var search_url = '{{TTV_API_HOST}}/portalapi/publication/_search?size=20&q=' + query;
+            $.ajax({url: search_url, success: function(result){
+                console.log("Search result", result);
+
+                try {
+                    if (result.hits.hits.length > 0) {
+                        result.hits.hits.forEach(function (hit) {
+                            var authorsText = hit._source.authorsText;
+                            var publicationName = hit._source.publicationName;
+                            var publicationYear = hit._source.publicationYear;
+
+                            var publicationElementHtml = 
+                                '<div class="form-check mb-2"><input class="form-check-input" type="checkbox">' +
+                                '<label class="form-check-label small"><strong>' + publicationName + '</strong><br>' + 
+                                publicationYear + ' - ' + authorsText  + '</label></div>';
+
+                            $('#pubTtvSearchResult').append(publicationElementHtml);
+                        });
+                    } else {
+                        var noResultHtml = '<i>Ei hakutuloksia</i>';
+                        $('#pubTtvSearchResult').append(noResultHtml);
+                    }
+                } catch (err) { console.error("TTV search result"); }
+            }});
+        });
+    });
+</script>
+
+
+{% endif %}
+{% endblock content %}

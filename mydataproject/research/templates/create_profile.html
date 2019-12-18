@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="px-3 pb-md-2 mx-auto text-center">
+    <h3 class="display-4">Tutkijan tiedot</h3>
+    <p class="lead pt-3">
+        Hei {{ request.user.first_name }} {{ request.user.last_name }}.<br><br>
+        Luo itsellesi profiili Tutkimustietovarantoon.<br>
+        Valitse tiedot, jotka tuodaan ORCID-profiilistasi.
+    </p>
+</div>
+
+<hr>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-sm-3 offset-sm-3">
+            <h5>Tutkijan tiedot</h5>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="id_person_all">
+                <label class="custom-control-label" for="id_person_all">
+                    <i>Tuo kaikki</i>
+                </label>
+            </div>
+
+            <hr>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_addresses.id_for_label }}" name="{{ permission_form.get_person_addresses.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_addresses.id_for_label }}">
+                    {{ permission_form.get_person_addresses.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_biography.id_for_label }}" name="{{ permission_form.get_person_biography.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_biography.id_for_label }}">
+                    {{ permission_form.get_person_biography.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_emails.id_for_label }}" name="{{ permission_form.get_person_emails.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_emails.id_for_label }}">
+                    {{ permission_form.get_person_emails.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_external_identifiers.id_for_label }}" name="{{ permission_form.get_person_external_identifiers.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_external_identifiers.id_for_label }}">
+                    {{ permission_form.get_person_external_identifiers.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_keywords.id_for_label }}" name="{{ permission_form.get_person_keywords.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_keywords.id_for_label }}">
+                    {{ permission_form.get_person_keywords.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_other_names.id_for_label }}" name="{{ permission_form.get_person_other_names.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_other_names.id_for_label }}">
+                    {{ permission_form.get_person_other_names.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_researcher_urls.id_for_label }}" name="{{ permission_form.get_person_researcher_urls.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_researcher_urls.id_for_label }}">
+                    {{ permission_form.get_person_researcher_urls.label }}
+                </label>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <h5>Aktiviteetit</h5>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="id_activities_all">
+                <label class="custom-control-label" for="id_activities_all">
+                    <i>Tuo kaikki</i>
+                </label>
+            </div>
+
+            <hr>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_works.id_for_label }}" name="{{ permission_form.get_activities_works.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_works.id_for_label }}">
+                        {{ permission_form.get_activities_works.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_educations.id_for_label }}" name="{{ permission_form.get_activities_educations.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_educations.id_for_label }}">
+                    {{ permission_form.get_activities_educations.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_employments.id_for_label }}" name="{{ permission_form.get_activities_employments.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_employments.id_for_label }}">
+                    {{ permission_form.get_activities_employments.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_distinctions.id_for_label }}" name="{{ permission_form.get_activities_distinctions.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_distinctions.id_for_label }}">
+                    {{ permission_form.get_activities_distinctions.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_fundings.id_for_label }}" name="{{ permission_form.get_activities_fundings.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_fundings.id_for_label }}">
+                    {{ permission_form.get_activities_fundings.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_invited_positions.id_for_label }}" name="{{ permission_form.get_activities_invited_positions.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_invited_positions.id_for_label }}">
+                    {{ permission_form.get_activities_invited_positions.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_memberships.id_for_label }}" name="{{ permission_form.get_activities_memberships.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_memberships.id_for_label }}">
+                    {{ permission_form.get_activities_memberships.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_peer_reviews.id_for_label }}" name="{{ permission_form.get_activities_peer_reviews.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_peer_reviews.id_for_label }}">
+                    {{ permission_form.get_activities_peer_reviews.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_qualifications.id_for_label }}" name="{{ permission_form.get_activities_qualifications.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_qualifications.id_for_label }}">
+                        {{ permission_form.get_activities_qualifications.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_research_resources.id_for_label }}" name="{{ permission_form.get_activities_research_resources.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_research_resources.id_for_label }}">
+                    {{ permission_form.get_activities_research_resources.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-activities" id="{{ permission_form.get_activities_services.id_for_label }}" name="{{ permission_form.get_activities_services.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_activities_services.id_for_label }}">
+                        {{ permission_form.get_activities_services.label }}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6 offset-sm-3 mt-4">
+            <button id="createProfileBtn" type="submit" class="btn btn-primary btn-block">Luo profiili</button>
+        </div>
+    </div>
+</form>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Show busy indicator when profile create button is pressed.
+        $('#createProfileBtn').click(function(){
+            $('#overlay').show();
+        });
+
+        // Handle "select all" for person section
+        $('#id_person_all').click(function(){
+            var person_checked = $('#id_person_all').prop('checked');
+            $('.orcid-person').prop('checked', person_checked );
+        });
+
+        // Handle "select all" for activities section
+        $('#id_activities_all').click(function(){
+            var activities_checked = $('#id_activities_all').prop('checked');
+            $('.orcid-activities').prop('checked', activities_checked );
+        });
+    });
+</script>
+
+{% endblock content %}

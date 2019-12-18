@@ -1,0 +1,139 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: orcidtest
+  labels:
+    app: orcidtest-app
+    template: orcidtest
+objects:
+
+# Service
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: orcidtest
+    labels:
+      app: orcidtest-app
+    annotations:
+      description: For testing ORCID API integration
+  spec:
+    ports:
+      - name: orcidtest
+        port: 8080
+        targetPort: 8080
+    selector:
+      depcfg: orcidtest
+
+# ImageStream for devel
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: orcidtest-image
+    labels:
+      app: orcidtest-app
+
+# BuildConfig using Docker strategy
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: orcidtest-build
+    labels:
+      app: orcidtest-app
+  spec:
+    source:
+      git:
+        uri: https://github.com/CSCfi/research-fi-mydata
+        ref: demo
+    strategy:
+      dockerStrategy:
+        dockerfile: Dockerfile
+    output:
+      to:
+        kind: ImageStreamTag
+        name: orcidtest-image:latest
+    successfulBuildsHistoryLimit: 4 
+    failedBuildsHistoryLimit: 4
+
+# Deployment config
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: orcidtest-deployment
+    labels:
+     app: orcidtest-app
+  spec:
+    selector:
+      app: orcidtest-app
+      depcfg: orcidtest
+    template:
+      metadata:
+        labels:
+          app: orcidtest-app
+          depcfg: orcidtest
+      spec:
+        containers:
+          - name: orcidtest-container
+            image: researchfi/orcidtest-image
+            imagePullPolicy: Always
+            ports:
+              - containerPort: 8001
+                protocol: TCP
+            env:
+              - name: DJANGO_ENV_INSTALLATION_SECRET_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: orcidtest-secret
+                    key: django_env_installation_secret_key
+              - name: DJANGO_ENV_ORCID_API_CLIENT_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: orcidtest-secret
+                    key: django_env_orcid_api_client_id
+              - name: DJANGO_ENV_ORCID_API_CLIENT_SECRET
+                valueFrom:
+                  secretKeyRef:
+                    name: orcidtest-secret
+                    key: django_env_orcid_api_client_secret
+              - name: DJANGO_ENV_DATABASE_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: orcidtest-secret
+                    key: django_env_database_host
+              - name: DJANGO_ENV_DATABASE_PORT
+                valueFrom:
+                  secretKeyRef:
+                    name: orcidtest-secret
+                    key: django_env_database_port
+              - name: DJANGO_ENV_DATABASE_NAME
+                valueFrom:
+                  secretKeyRef:
+                    name: orcidtest-secret
+                    key: django_env_database_name
+              - name: DJANGO_ENV_DATABASE_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: orcidtest-secret
+                    key: django_env_database_user
+              - name: DJANGO_ENV_DATABASE_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: orcidtest-secret
+                    key: django_env_database_password
+              - name: DJANGO_ENV_TTV_API_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: orcidtest-secret
+                    key: django_env_ttv_api_host
+    replicas: 1
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - orcidtest-container
+        from:
+          kind: ImageStreamTag
+          name: orcidtest-image:latest
+    strategy:
+      type: Rolling

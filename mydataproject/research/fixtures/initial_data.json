@@ -1,0 +1,58 @@
+[
+    {
+      "model": "research.trustedparty",
+      "pk": 1,
+      "fields": {
+        "name": "Tutkimustietovaranto"
+      }
+    },
+    {
+      "model": "research.trustedparty",
+      "pk": 2,
+      "fields": {
+        "name": "Taho 1"
+      }
+    },
+    {
+      "model": "research.trustedparty",
+      "pk": 3,
+      "fields": {
+        "name": "Taho 2"
+      }
+    },
+    {
+      "model": "research.trustedparty",
+      "pk": 4,
+      "fields": {
+        "name": "Taho 3"
+      }
+    },
+    {
+      "model": "research.trustedparty",
+      "pk": 5,
+      "fields": {
+        "name": "Taho 4"
+      }
+    },
+    {
+      "model": "research.trustedparty",
+      "pk": 6,
+      "fields": {
+        "name": "Taho 5"
+      }
+    },
+    {
+      "model": "research.origin",
+      "pk": 1,
+      "fields": {
+        "name": "TTV"
+      }
+    },
+    {
+      "model": "research.origin",
+      "pk": 2,
+      "fields": {
+        "name": "ORCID"
+      }
+    }
+]
