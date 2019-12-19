@@ -45,6 +45,8 @@ def index(request):
 
             origin_ttv = Origin.objects.get(name="TTV")
             origin_orcid = Origin.objects.get(name="ORCID")
+            context["employments"] = request.user.researchprofile.employments.all()
+            context["educations"] = request.user.researchprofile.educations.all()
             context["publications_ttv"] = request.user.researchprofile.publications.filter(origin = origin_ttv)
             context["publications_orcid"] = request.user.researchprofile.publications.filter(origin = origin_orcid)
 

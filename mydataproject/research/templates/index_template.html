@@ -98,14 +98,22 @@
         </div>
         <div id="collapse3" class="collapse" aria-labelledby="heading3" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <ul>
-                    <li>Organisaation nimi</li>
-                    <li>Laitoksen / yksikön nimi</li>
-                    <li>Nimike</li>
-                    <li>Alkamis- ja loppumispäivämäärä</li>
-                </ul>
-    
-                <pre class="orcid-json" id="json-renderer-employments"></pre>
+                <div id="employments" class="mx-5">
+                    {% if employments.count > 0 %}
+                        {% for em in employments %}
+                        <div class="p-3">
+                            <strong>{{ em.roleTitle }}</strong><br>
+                            <span>{{ em.startYear | default:"" }} - {{ em.endYear | default:"" }}</span><br>
+                            <span>{{ em.organizationName }}
+                            <span>{{ em.departmentName }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-3">
+                            -
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -120,11 +128,20 @@
         </div>
         <div id="collapse4" class="collapse" aria-labelledby="heading4" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <ul>
-                    <li>Tutkinnon nimi</li>
-                    <li>Tutkinnon organisaatio</li>
-                </ul>
-                <pre class="orcid-json" id="json-renderer-eductions"></pre>
+                <div id="educations" class="mx-5">
+                    {% if educations.count > 0 %}
+                        {% for ed in educations %}
+                        <div class="p-3">
+                            <strong>{{ ed.roleTitle }}</strong><br>
+                            <span>{{ ed.endYear | default:"" }} {{ ed.organizationName }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-3">
+                            -
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -363,16 +380,8 @@
         });
 
         try {
-            $('#json-renderer-eductions').jsonViewer({{ request.user.researchprofile.activity_educations | safe }});
-        } catch (err) { console.error("jsonViewer activity_educations"); }
-
-        try {
-            $('#json-renderer-employments').jsonViewer({{ request.user.researchprofile.activity_employments | safe }});
-        } catch (err) { console.error("jsonViewer activity_employments"); }
-
-        try {
             $('#json-renderer-fundings').jsonViewer({{ request.user.researchprofile.activity_fundings | safe }});
-        } catch (err) { console.error("jsonViewer activity_fundings"); }
+        } catch (err) { console.error("jsonViewer activity_fundings", err); }
 
         // TTV Search
         $('#pubTtvSearchBtn').click(function(){
@@ -403,7 +412,7 @@
                         var noResultHtml = '<i>Ei hakutuloksia</i>';
                         $('#pubTtvSearchResult').append(noResultHtml);
                     }
-                } catch (err) { console.error("TTV search result"); }
+                } catch (err) { console.error("TTV search result", err); }
             }});
         });
     });

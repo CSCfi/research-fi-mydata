@@ -11,8 +11,6 @@ class ResearchProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='researchprofile')
     active = models.BooleanField(default=False)
     activity_distinctions = models.TextField(null=True, blank=True)
-    activity_educations = models.TextField(null=True, blank=True)
-    activity_employments = models.TextField(null=True, blank=True)
     activity_fundings = models.TextField(null=True, blank=True)
     activity_invited_positions = models.TextField(null=True, blank=True)
     activity_memberships = models.TextField(null=True, blank=True)
@@ -20,7 +18,6 @@ class ResearchProfile(models.Model):
     activity_qualifications = models.TextField(null=True, blank=True)
     activity_research_resources = models.TextField(null=True, blank=True)
     activity_services = models.TextField(null=True, blank=True)
-    activity_works = models.TextField(null=True, blank=True)
     person_addresses = models.TextField(null=True, blank=True)
     person_biography = models.TextField(null=True, blank=True)
     person_emails = models.TextField(null=True, blank=True)
@@ -37,10 +34,109 @@ class ResearchProfile(models.Model):
                 self.activity_distinctions = json.dumps(orcid_record["activities-summary"]["distinctions"]["affiliation-group"])
             # Educations
             if self.user.orcid_permission.get_activities_educations and len(orcid_record["activities-summary"]["educations"]["affiliation-group"]) > 0:
-                self.activity_educations = json.dumps(orcid_record["activities-summary"]["educations"]["affiliation-group"])
+                # Create education objects
+                for affiliationGroup in orcid_record["activities-summary"]["educations"]["affiliation-group"]:
+                    for summary in affiliationGroup['summaries']:
+                        if summary['education-summary']:
+                            # Role title
+                            try:
+                                if summary['education-summary']['role-title']:
+                                    roleTitle = summary['education-summary']['role-title']
+                                else:
+                                    roleTitle = ''
+                            except:
+                                print("Cannot get education-summary.role-title")
+                                roleTitle = ''
+                                pass
+
+                            # Organization name
+                            try:
+                                if summary['education-summary']['organization']['name']:
+                                    organizationName = summary['education-summary']['organization']['name']
+                                else:
+                                    organizationName = ''
+                            except:
+                                print("Cannot get education-summary.organization.name")
+                                organizationName = ''
+                                pass
+
+                            # End year
+                            try:
+                                endYear = summary['education-summary']['end-date']['year']['value']
+                            except:
+                                print("Cannot get education-summary.end-date.year.value")
+                                endYear = None
+                                pass
+
+                            Education.objects.create(
+                                researchprofile = self,
+                                roleTitle = roleTitle,
+                                organizationName = organizationName,
+                                endYear = endYear
+                            )
             # Employments
             if self.user.orcid_permission.get_activities_employments and len(orcid_record["activities-summary"]["employments"]["affiliation-group"]) > 0:
-                self.activity_employments = json.dumps(orcid_record["activities-summary"]["employments"]["affiliation-group"])
+                # Create employment objects
+                for affiliationGroup in orcid_record["activities-summary"]["employments"]["affiliation-group"]:
+                    for summary in affiliationGroup['summaries']:
+                        if summary['employment-summary']:
+                            # Role title
+                            try:
+                                if summary['employment-summary']['role-title']:
+                                    roleTitle = summary['employment-summary']['role-title']
+                                else:
+                                    roleTitle = ''
+                            except:
+                                print("Cannot get employment-summary.role-title")
+                                roleTitle = ''
+                                pass
+
+                            # Organization name
+                            try:
+                                if summary['employment-summary']['organization']['name']:
+                                    organizationName = summary['employment-summary']['organization']['name']
+                                else:
+                                    organizationName = ''
+                            except:
+                                print("Cannot get employment-summary.organization.name")
+                                organizationName = ''
+                                pass
+
+                            # Department name
+                            try:
+                                if summary['employment-summary']['department-name']:
+                                    departmentName = summary['employment-summary']['department-name']
+                                else:
+                                    departmentName = ''
+                            except:
+                                print("Cannot get employment-summary.department-name")
+                                departmentName = ''
+                                pass
+
+                            # Start year
+                            try:
+                                startYear = summary['employment-summary']['start-date']['year']['value']
+                            except:
+                                print("Cannot get employment-summary.start-date.year.value")
+                                startYear = None
+                                pass
+
+                            # End year
+                            try:
+                                endYear = summary['employment-summary']['end-date']['year']['value']
+                            except:
+                                print("Cannot get employment-summary.end-date.year.value")
+                                endYear = None
+                                pass
+ 
+                            Employment.objects.create(
+                                researchprofile = self,
+                                roleTitle = roleTitle,
+                                organizationName = organizationName,
+                                departmentName = departmentName,
+                                startYear = startYear,
+                                endYear = endYear
+                            )
             # Fundings
             if self.user.orcid_permission.get_activities_fundings and orcid_record["activities-summary"]["fundings"]:
                 self.activity_fundings = json.dumps(orcid_record["activities-summary"]["fundings"]["group"])
@@ -61,8 +157,6 @@ class ResearchProfile(models.Model):
                 self.activity_services = json.dumps(orcid_record["activities-summary"]["services"]["affiliation-group"])
             # Works
             if self.user.orcid_permission.get_activities_works and len(orcid_record["activities-summary"]["works"]["group"]) > 0:
-                self.activity_works = json.dumps(orcid_record["activities-summary"]["works"]["group"])
-
                 # Create publication objects
                 origin_orcid = Origin.objects.get(name="ORCID")
                 for obj in orcid_record["activities-summary"]["works"]["group"]:
@@ -219,10 +313,30 @@ post_save.connect(create_portal_permission, sender=User)
 
 class Publication(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='publications')
-    name = models.CharField(max_length=512)
+    name = models.CharField(max_length=512, blank=True)
     publicationYear = models.PositiveSmallIntegerField(null=True)
     origin = models.ForeignKey(Origin, on_delete=models.CASCADE, null=True)
     includeInProfile = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-publicationYear']
+
+class Education(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='educations')
+    roleTitle = models.CharField(max_length=512, blank=True)
+    organizationName = models.CharField(max_length=512, blank=True)
+    endYear = models.PositiveSmallIntegerField(null=True)
+
+    class Meta:
+        ordering = ['-endYear']
+
+class Employment(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='employments')
+    roleTitle = models.CharField(max_length=512, blank=True)
+    organizationName = models.CharField(max_length=512, blank=True)
+    departmentName = models.CharField(max_length=512, blank=True)
+    startYear = models.PositiveSmallIntegerField(null=True)
+    endYear = models.PositiveSmallIntegerField(null=True)
+
+    class Meta:
+        ordering = ['-endYear']
