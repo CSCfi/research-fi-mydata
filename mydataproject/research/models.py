@@ -3,8 +3,9 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 import requests, json
+from datetime import datetime
 
-class Origin(models.Model):
+class Datasource(models.Model):
     name = models.CharField(max_length=256)
 
 class ResearchProfile(models.Model):
@@ -28,6 +29,8 @@ class ResearchProfile(models.Model):
     virta_publications = models.TextField(null=True, blank=True, default='[]')
 
     def orcid_record_json_to_model(self, orcid_record):
+        datasource_orcid = Datasource.objects.get(name="ORCID")
+
         if orcid_record["activities-summary"]:
             # Distinctions
             if self.user.orcid_permission.get_activities_distinctions and orcid_record["activities-summary"]["distinctions"]:
@@ -70,6 +73,7 @@ class ResearchProfile(models.Model):
 
                             Education.objects.create(
                                 researchprofile = self,
+                                datasource = datasource_orcid,
                                 roleTitle = roleTitle,
                                 organizationName = organizationName,
                                 endYear = endYear
@@ -131,6 +135,7 @@ class ResearchProfile(models.Model):
  
                             Employment.objects.create(
                                 researchprofile = self,
+                                datasource = datasource_orcid,
                                 roleTitle = roleTitle,
                                 organizationName = organizationName,
                                 departmentName = departmentName,
@@ -144,8 +149,45 @@ class ResearchProfile(models.Model):
             if self.user.orcid_permission.get_activities_invited_positions and orcid_record["activities-summary"]["invited-positions"]:
                 self.activity_invited_positions = json.dumps(orcid_record["activities-summary"]["invited-positions"]["affiliation-group"])
             # Peer reviews
-            if self.user.orcid_permission.get_activities_peer_reviews and orcid_record["activities-summary"]["peer-reviews"]:
-                self.activity_peer_reviews = json.dumps(orcid_record["activities-summary"]["peer-reviews"]["group"])
+            if self.user.orcid_permission.get_activities_peer_reviews and len(orcid_record["activities-summary"]["peer-reviews"]["group"]) > 0:
+                for group in orcid_record["activities-summary"]["peer-reviews"]["group"]:
+                    for peerReviewGroup in group:
+                        for peerReviewSummary in peerReviewGroup:
+                            print("CCC peerReviewSummary 2")
+
+                            # Peer review completion date
+                            completionDate = None
+                            try:
+                                if peerReviewSummary['completion-date']:
+                                    date_year = peerReviewSummary['completion-date']['year'].get('value', None)
+                                    date_month = peerReviewSummary['completion-date']['month'].get('value', None)
+                                    date_day = peerReviewSummary['completion-date']['day'].get('value', None)
+
+                                    if date_year and date_month and date_day:
+                                        completionDate = datetime.date(date_year, date_month, date_day)
+                            except:
+                                pass
+                            print("CCC peerReviewSummary 3")
+                            print("datasource = ")
+                            print(datasource_orcid)
+                            print("reviewerRole = ")
+                            print(peerReviewSummary.get('reviewer-role', ''))
+                            print("reviewUrl = ")
+                            print(peerReviewSummary.get('review-url', ''))
+                            print("reviewType = ")
+                            print(peerReviewSummary.get('review-type', ''))
+                            print("completionDate = ")
+                            print(completionDate)
+
+                            PeerReview.objects.create(
+                                researchprofile = self,
+                                datasource = datasource_orcid,
+                                reviewerRole = peerReviewSummary.get('reviewer-role', ''),
+                                reviewUrl = peerReviewSummary.get('review-url', ''),
+                                reviewType = peerReviewSummary.get('review-type', ''),
+                                completionDate = completionDate
+                            )
+
             # Qualifications
             if self.user.orcid_permission.get_activities_works and orcid_record["activities-summary"]["qualifications"]:
                 self.activity_qualifications = json.dumps(orcid_record["activities-summary"]["qualifications"]["affiliation-group"])
@@ -158,13 +200,13 @@ class ResearchProfile(models.Model):
             # Works
             if self.user.orcid_permission.get_activities_works and len(orcid_record["activities-summary"]["works"]["group"]) > 0:
                 # Create publication objects
-                origin_orcid = Origin.objects.get(name="ORCID")
+                datasource_orcid = Datasource.objects.get(name="ORCID")
                 for obj in orcid_record["activities-summary"]["works"]["group"]:
                     Publication.objects.create(
                         researchprofile = self,
                         name = obj["work-summary"][0]["title"]["title"]["value"],
                         publicationYear = obj["work-summary"][0]["publication-date"]["year"]["value"],
-                        origin = origin_orcid,
+                        datasource = datasource_orcid,
                         includeInProfile = False
                     )
 
@@ -214,6 +256,9 @@ class ResearchProfile(models.Model):
         token = social.extra_data['access_token']
         orcid_id = self.user.username
 
+        #TMP
+        orcid_id = '0000-0002-1825-0097'
+
         # Get public data
         headers = {
             'Accept': 'application/json',
@@ -241,6 +286,9 @@ class ResearchProfile(models.Model):
     def get_virta_publications(self):
         orcid_id = self.user.username
 
+        #TMP
+        orcid_id = '0000-0002-1825-0097'
+
         headers = {
             'Accept': 'application/json',
         }
@@ -259,13 +307,13 @@ class ResearchProfile(models.Model):
                 self.save()
 
                 # Create publication objects
-                origin_ttv = Origin.objects.get(name="TTV")
+                datasource_ttv = Datasource.objects.get(name="TTV")
                 for obj in virta_json_data:
                     Publication.objects.create(
                         researchprofile = self,
                         name = obj["julkaisunNimi"],
                         publicationYear = obj["julkaisuVuosi"],
-                        origin = origin_ttv,
+                        datasource = datasource_ttv,
                         includeInProfile = False
                     )
             except:
@@ -311,18 +359,9 @@ def create_portal_permission(sender, instance, created, **kwargs):
 
 post_save.connect(create_portal_permission, sender=User)
 
-class Publication(models.Model):
-    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='publications')
-    name = models.CharField(max_length=512, blank=True)
-    publicationYear = models.PositiveSmallIntegerField(null=True)
-    origin = models.ForeignKey(Origin, on_delete=models.CASCADE, null=True)
-    includeInProfile = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ['-publicationYear']
-
 class Education(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='educations')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     roleTitle = models.CharField(max_length=512, blank=True)
     organizationName = models.CharField(max_length=512, blank=True)
     endYear = models.PositiveSmallIntegerField(null=True)
@@ -332,6 +371,7 @@ class Education(models.Model):
 
 class Employment(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='employments')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     roleTitle = models.CharField(max_length=512, blank=True)
     organizationName = models.CharField(max_length=512, blank=True)
     departmentName = models.CharField(max_length=512, blank=True)
@@ -340,3 +380,45 @@ class Employment(models.Model):
 
     class Meta:
         ordering = ['-endYear']
+
+class Funding(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='fundings')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+
+class InvitedPosition(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='invited_positions')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+
+class Membership(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='memberships')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+
+class PeerReview(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='peer_reviews')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+    reviewerRole = models.CharField(max_length=512, blank=True)
+    reviewUrl = models.CharField(max_length=512, blank=True)
+    reviewType = models.CharField(max_length=512, blank=True)
+    completionDate = models.DateField(auto_now=False, auto_now_add=False, blank=True)
+
+class Publication(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='publications')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=512, blank=True)
+    publicationYear = models.PositiveSmallIntegerField(null=True)
+    includeInProfile = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-publicationYear']
+
+class Qualifications(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='qualifications')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+
+class ResearchResouce(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='research_resources')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+
+class Service(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='services')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)

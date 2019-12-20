@@ -71,7 +71,7 @@
         <!-- Tutkimustoiminnan kuvaus -->
         <div class="card-header d-flex" id="heading2">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
-            Tutkimustoiminnan kuvaus
+                Tutkimustoiminnan kuvaus
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -91,7 +91,7 @@
         <!-- Organisaatio -->
         <div class="card-header d-flex" id="heading3">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
-            Organisaatio
+                Organisaatio
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -121,7 +121,7 @@
         <!-- Tutkinnot -->
         <div class="card-header d-flex" id="heading4">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
-            Tutkinnot
+                Tutkinnot
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -149,7 +149,7 @@
         <!-- Julkaisut -->
         <div class="card-header d-flex" id="heading5">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
-            Julkaisut
+                Julkaisut
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -183,7 +183,7 @@
                             <form>
 
                                 <!-- TTV -->
-                                <div class="publication-origin mb-5">
+                                <div class="mb-5">
                                     <h5>Tutkimustietovarannosta ORCID-tunnuksella löytyvät</h5>
                                     {% if publications_ttv.count > 0 %}
                                         {% for p_ttv in publications_ttv %}
@@ -198,7 +198,7 @@
                                 </div>
                             
                                 <!-- ORCID -->
-                                <div class="publication-origin">
+                                <div>
                                     <h5>ORCID:sta haetut</h5>
                                     {% if publications_orcid.count > 0 %}
                                         {% for p_orcid in publications_orcid %}
@@ -246,7 +246,7 @@
         <!-- Tutkimusaineistot -->
         <div class="card-header d-flex" id="heading6">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
-            Tutkimusaineistot
+                Tutkimusaineistot
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -261,7 +261,7 @@
         <!-- Hankkeet -->
         <div class="card-header d-flex" id="heading7">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse7" aria-expanded="false" aria-controls="collapse7">
-            Hankkeet
+                Hankkeet
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -276,7 +276,7 @@
         <!-- Tutkimusinfrastruktuurit -->
         <div class="card-header d-flex" id="heading8">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse8" aria-expanded="false" aria-controls="collapse8">
-            Tutkimusinfrastruktuurit
+                Tutkimusinfrastruktuurit
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -291,7 +291,7 @@
         <!-- Muut tutkimusaktiviteetit -->
         <div class="card-header d-flex" id="heading9">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse9" aria-expanded="false" aria-controls="collapse9">
-            Muut tutkimusaktiviteetit
+                Muut tutkimusaktiviteetit
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -299,6 +299,36 @@
         <div id="collapse9" class="collapse" aria-labelledby="heading9" data-parent="#researchProfileAccordion">
             <div class="card-body">
                 -
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Vertaisarviot -->
+        <div class="card-header d-flex" id="heading387dh3">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse387dh3" aria-expanded="false" aria-controls="collapse387dh3">
+                Vertaisarviot
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse387dh3" class="collapse" aria-labelledby="heading387dh3" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <div id="educations" class="mx-5">
+                    {% if peer_reviews.count > 0 %}
+                    {% for p in peer_reviews %}
+                    <div class="p-3">
+                        <span>{{ p.completionDate }}</span>
+                        <span>{{ p.reviewerRole }}</span>
+                        <span>{{ p.reviewerUrl }}</span>
+                        <span>{{ p.reviewerType }}</span>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="p-3">
+                        -
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
