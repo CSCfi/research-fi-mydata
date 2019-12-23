@@ -40,12 +40,6 @@ class ResearchProfile(models.Model):
             return None
 
     def getPositionObject(self, positionDict):
-        print("XXX getPositionObject")
-        print(positionDict['organization'].get('name', ''))
-        print(positionDict.get('department-name', ''))
-        print(positionDict.get('role-title', ''))
-        print(self.getDate(positionDict.get('start-date', None)))
-        print(self.getDate(positionDict.get('end-date', None)))
         try:
             return {
                 'researchprofile': self,
