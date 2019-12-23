@@ -42,14 +42,14 @@
       }
     },
     {
-      "model": "research.origin",
+      "model": "research.datasource",
       "pk": 1,
       "fields": {
         "name": "TTV"
       }
     },
     {
-      "model": "research.origin",
+      "model": "research.datasource",
       "pk": 2,
       "fields": {
         "name": "ORCID"

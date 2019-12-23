@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.forms import modelformset_factory
 from orciddata.models import Permission, PermissionForm
-from research.models import PortalPermission, Origin, Publication
+from research.models import PortalPermission, Datasource, Publication
 import json
 from .forms import PortalPermissionFormSet
 from django.conf import settings
@@ -42,13 +42,14 @@ def index(request):
                     return render(request, 'create_profile.html', context)
         elif request.user.researchprofile.active:
             context["TTV_API_HOST"] = getattr(settings, "TTV_API_HOST", None)
-
-            origin_ttv = Origin.objects.get(name="TTV")
-            origin_orcid = Origin.objects.get(name="ORCID")
-            context["employments"] = request.user.researchprofile.employments.all()
-            context["educations"] = request.user.researchprofile.educations.all()
-            context["publications_ttv"] = request.user.researchprofile.publications.filter(origin = origin_ttv)
-            context["publications_orcid"] = request.user.researchprofile.publications.filter(origin = origin_orcid)
+            datasource_ttv = Datasource.objects.get(name="TTV")
+            datasource_orcid = Datasource.objects.get(name="ORCID")
+            context["employments"] = request.user.researchprofile.employment.all()
+            context["educations"] = request.user.researchprofile.education.all()
+            context["publications_ttv"] = request.user.researchprofile.publications.filter(datasource = datasource_ttv)
+            context["publications_orcid"] = request.user.researchprofile.publications.filter(datasource = datasource_orcid)
+            context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
+            context["invited_positions"] = request.user.researchprofile.invitedposition.all()
 
             if request.method == "POST":
                 #old_portal_permission = PortalPermission.objects.get(user=request.user)

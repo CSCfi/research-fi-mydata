@@ -3,8 +3,9 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 import requests, json
+import datetime
 
-class Origin(models.Model):
+class Datasource(models.Model):
     name = models.CharField(max_length=256)
 
 class ResearchProfile(models.Model):
@@ -12,9 +13,7 @@ class ResearchProfile(models.Model):
     active = models.BooleanField(default=False)
     activity_distinctions = models.TextField(null=True, blank=True)
     activity_fundings = models.TextField(null=True, blank=True)
-    activity_invited_positions = models.TextField(null=True, blank=True)
     activity_memberships = models.TextField(null=True, blank=True)
-    activity_peer_reviews = models.TextField(null=True, blank=True)
     activity_qualifications = models.TextField(null=True, blank=True)
     activity_research_resources = models.TextField(null=True, blank=True)
     activity_services = models.TextField(null=True, blank=True)
@@ -27,7 +26,42 @@ class ResearchProfile(models.Model):
     person_researcher_urls = models.TextField(null=True, blank=True)
     virta_publications = models.TextField(null=True, blank=True, default='[]')
 
+    def getDate(self, dateDict):
+        if dateDict is not None:
+            date_year = dateDict['year'].get('value', None)
+            date_month = dateDict['month'].get('value', None)
+            date_day = dateDict['day'].get('value', None)
+
+            if date_year is not None and date_month is not None and date_day is not None:
+                return datetime.date(int(date_year), int(date_month), int(date_day))
+            else:
+                return None
+        else:
+            return None
+
+    def getPositionObject(self, positionDict):
+        print("XXX getPositionObject")
+        print(positionDict['organization'].get('name', ''))
+        print(positionDict.get('department-name', ''))
+        print(positionDict.get('role-title', ''))
+        print(self.getDate(positionDict.get('start-date', None)))
+        print(self.getDate(positionDict.get('end-date', None)))
+        try:
+            return {
+                'researchprofile': self,
+                'organizationName': positionDict['organization'].get('name', ''),
+                'departmentName': positionDict.get('department-name', ''),
+                'roleTitle': positionDict.get('role-title', ''),
+                'startDate': self.getDate(positionDict.get('start-date', None)),
+                'endDate': self.getDate(positionDict.get('end-date', None))
+            }
+        except Exception as e:
+            print(e)
+            return None
+
     def orcid_record_json_to_model(self, orcid_record):
+        datasource_orcid = Datasource.objects.get(name="ORCID")
+
         if orcid_record["activities-summary"]:
             # Distinctions
             if self.user.orcid_permission.get_activities_distinctions and orcid_record["activities-summary"]["distinctions"]:
@@ -37,115 +71,61 @@ class ResearchProfile(models.Model):
                 # Create education objects
                 for affiliationGroup in orcid_record["activities-summary"]["educations"]["affiliation-group"]:
                     for summary in affiliationGroup['summaries']:
-                        if summary['education-summary']:
-                            # Role title
+                        educationObj = self.getPositionObject(summary.get('education-summary', None))
+                        if educationObj is not None:
+                            educationObj['datasource'] = datasource_orcid
                             try:
-                                if summary['education-summary']['role-title']:
-                                    roleTitle = summary['education-summary']['role-title']
-                                else:
-                                    roleTitle = ''
-                            except:
-                                print("Cannot get education-summary.role-title")
-                                roleTitle = ''
+                                education = Education(**educationObj)
+                                education.save()
+                            except Exception as e:
+                                print(e)
                                 pass
 
-                            # Organization name
-                            try:
-                                if summary['education-summary']['organization']['name']:
-                                    organizationName = summary['education-summary']['organization']['name']
-                                else:
-                                    organizationName = ''
-                            except:
-                                print("Cannot get education-summary.organization.name")
-                                organizationName = ''
-                                pass
-
-                            # End year
-                            try:
-                                endYear = summary['education-summary']['end-date']['year']['value']
-                            except:
-                                print("Cannot get education-summary.end-date.year.value")
-                                endYear = None
-                                pass
-
-                            Education.objects.create(
-                                researchprofile = self,
-                                roleTitle = roleTitle,
-                                organizationName = organizationName,
-                                endYear = endYear
-                            )
             # Employments
             if self.user.orcid_permission.get_activities_employments and len(orcid_record["activities-summary"]["employments"]["affiliation-group"]) > 0:
                 # Create employment objects
                 for affiliationGroup in orcid_record["activities-summary"]["employments"]["affiliation-group"]:
                     for summary in affiliationGroup['summaries']:
-                        if summary['employment-summary']:
-                            # Role title
+                        employmentObj = self.getPositionObject(summary.get('employment-summary', None))
+                        if employmentObj is not None:
+                            employmentObj['datasource'] = datasource_orcid
                             try:
-                                if summary['employment-summary']['role-title']:
-                                    roleTitle = summary['employment-summary']['role-title']
-                                else:
-                                    roleTitle = ''
-                            except:
-                                print("Cannot get employment-summary.role-title")
-                                roleTitle = ''
+                                employment = Employment(**employmentObj)
+                                employment.save()
+                            except Exception as e:
+                                print(e)
                                 pass
-
-                            # Organization name
-                            try:
-                                if summary['employment-summary']['organization']['name']:
-                                    organizationName = summary['employment-summary']['organization']['name']
-                                else:
-                                    organizationName = ''
-                            except:
-                                print("Cannot get employment-summary.organization.name")
-                                organizationName = ''
-                                pass
-
-                            # Department name
-                            try:
-                                if summary['employment-summary']['department-name']:
-                                    departmentName = summary['employment-summary']['department-name']
-                                else:
-                                    departmentName = ''
-                            except:
-                                print("Cannot get employment-summary.department-name")
-                                departmentName = ''
-                                pass
-
-                            # Start year
-                            try:
-                                startYear = summary['employment-summary']['start-date']['year']['value']
-                            except:
-                                print("Cannot get employment-summary.start-date.year.value")
-                                startYear = None
-                                pass
-
-                            # End year
-                            try:
-                                endYear = summary['employment-summary']['end-date']['year']['value']
-                            except:
-                                print("Cannot get employment-summary.end-date.year.value")
-                                endYear = None
-                                pass
- 
-                            Employment.objects.create(
-                                researchprofile = self,
-                                roleTitle = roleTitle,
-                                organizationName = organizationName,
-                                departmentName = departmentName,
-                                startYear = startYear,
-                                endYear = endYear
-                            )
             # Fundings
             if self.user.orcid_permission.get_activities_fundings and orcid_record["activities-summary"]["fundings"]:
                 self.activity_fundings = json.dumps(orcid_record["activities-summary"]["fundings"]["group"])
             # Invited positions
-            if self.user.orcid_permission.get_activities_invited_positions and orcid_record["activities-summary"]["invited-positions"]:
-                self.activity_invited_positions = json.dumps(orcid_record["activities-summary"]["invited-positions"]["affiliation-group"])
+            if self.user.orcid_permission.get_activities_invited_positions and len(orcid_record["activities-summary"]["invited-positions"]["affiliation-group"]) > 0:
+                for affiliationGroup in orcid_record["activities-summary"]["invited-positions"]["affiliation-group"]:
+                    for summary in affiliationGroup['summaries']:
+                        invitedPositionObj = self.getPositionObject(summary.get('invited-position-summary', None))
+                        if invitedPositionObj is not None:
+                            invitedPositionObj['datasource'] = datasource_orcid
+                            try:
+                                invitedPosition = InvitedPosition(**invitedPositionObj)
+                                invitedPosition.save()
+                            except Exception as e:
+                                print(e)
+                                pass
+                
             # Peer reviews
-            if self.user.orcid_permission.get_activities_peer_reviews and orcid_record["activities-summary"]["peer-reviews"]:
-                self.activity_peer_reviews = json.dumps(orcid_record["activities-summary"]["peer-reviews"]["group"])
+            if self.user.orcid_permission.get_activities_peer_reviews and len(orcid_record["activities-summary"]["peer-reviews"]["group"]) > 0:
+                for group in orcid_record["activities-summary"]["peer-reviews"]["group"]:
+                    for peerReviewGroup in group["peer-review-group"]:
+                        for peerReviewSummary in peerReviewGroup["peer-review-summary"]:          
+                            PeerReview.objects.create(
+                                researchprofile = self,
+                                datasource = datasource_orcid,
+                                reviewerRole = peerReviewSummary.get('reviewer-role', ''),
+                                reviewUrl = peerReviewSummary.get('review-url', ''),
+                                reviewType = peerReviewSummary.get('review-type', ''),
+                                completionDate = self.getDate(peerReviewSummary['completion-date'])
+                            )
+
             # Qualifications
             if self.user.orcid_permission.get_activities_works and orcid_record["activities-summary"]["qualifications"]:
                 self.activity_qualifications = json.dumps(orcid_record["activities-summary"]["qualifications"]["affiliation-group"])
@@ -158,13 +138,13 @@ class ResearchProfile(models.Model):
             # Works
             if self.user.orcid_permission.get_activities_works and len(orcid_record["activities-summary"]["works"]["group"]) > 0:
                 # Create publication objects
-                origin_orcid = Origin.objects.get(name="ORCID")
+                datasource_orcid = Datasource.objects.get(name="ORCID")
                 for obj in orcid_record["activities-summary"]["works"]["group"]:
                     Publication.objects.create(
                         researchprofile = self,
                         name = obj["work-summary"][0]["title"]["title"]["value"],
                         publicationYear = obj["work-summary"][0]["publication-date"]["year"]["value"],
-                        origin = origin_orcid,
+                        datasource = datasource_orcid,
                         includeInProfile = False
                     )
 
@@ -230,10 +210,9 @@ class ResearchProfile(models.Model):
         if response.status_code == 200:
             try:
                 json_data = response.json()
-                print("ORCID record:")
-                print(json_data)
                 self.orcid_record_json_to_model(json_data)
-            except:
+            except Exception as e:
+                print(e)
                 pass
 
         return True
@@ -253,22 +232,21 @@ class ResearchProfile(models.Model):
         if response.status_code == 200:
             try:
                 virta_json_data = response.json()
-                print("VIRTA json:")
-                print(virta_json_data)
                 self.virta_publications = json.dumps(virta_json_data)
                 self.save()
 
                 # Create publication objects
-                origin_ttv = Origin.objects.get(name="TTV")
+                datasource_ttv = Datasource.objects.get(name="TTV")
                 for obj in virta_json_data:
                     Publication.objects.create(
                         researchprofile = self,
                         name = obj["julkaisunNimi"],
                         publicationYear = obj["julkaisuVuosi"],
-                        origin = origin_ttv,
+                        datasource = datasource_ttv,
                         includeInProfile = False
                     )
-            except:
+            except Exception as e:
+                print(e)
                 pass
 
         return True
@@ -311,32 +289,65 @@ def create_portal_permission(sender, instance, created, **kwargs):
 
 post_save.connect(create_portal_permission, sender=User)
 
+class Position(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='%(class)s')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+    roleTitle = models.CharField(max_length=512, blank=True)
+    organizationName = models.CharField(max_length=512, blank=True)
+    departmentName = models.CharField(max_length=512, blank=True)
+    startDate = models.DateField(auto_now=False, auto_now_add=False, blank=True, null=True)
+    endDate = models.DateField(auto_now=False, auto_now_add=False, blank=True, null=True)
+
+    class Meta:
+        abstract = True
+        ordering = ['-startDate']
+
+class Education(Position):
+    pass
+
+class Employment(Position):
+    pass
+
+class InvitedPosition(Position):
+    pass
+
+class Funding(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='fundings')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+
+class Membership(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='memberships')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+
+class PeerReview(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='peer_reviews')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+    reviewerRole = models.CharField(max_length=512, blank=True, null=True)
+    reviewUrl = models.CharField(max_length=512, blank=True, null=True)
+    reviewType = models.CharField(max_length=512, blank=True, null=True)
+    completionDate = models.DateField(auto_now=False, auto_now_add=False, blank=True, null=True)
+
+    class Meta:
+        ordering = ['-completionDate']
+
 class Publication(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='publications')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=512, blank=True)
     publicationYear = models.PositiveSmallIntegerField(null=True)
-    origin = models.ForeignKey(Origin, on_delete=models.CASCADE, null=True)
     includeInProfile = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-publicationYear']
 
-class Education(models.Model):
-    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='educations')
-    roleTitle = models.CharField(max_length=512, blank=True)
-    organizationName = models.CharField(max_length=512, blank=True)
-    endYear = models.PositiveSmallIntegerField(null=True)
+class Qualifications(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='qualifications')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
 
-    class Meta:
-        ordering = ['-endYear']
+class ResearchResouce(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='research_resources')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
 
-class Employment(models.Model):
-    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='employments')
-    roleTitle = models.CharField(max_length=512, blank=True)
-    organizationName = models.CharField(max_length=512, blank=True)
-    departmentName = models.CharField(max_length=512, blank=True)
-    startYear = models.PositiveSmallIntegerField(null=True)
-    endYear = models.PositiveSmallIntegerField(null=True)
-
-    class Meta:
-        ordering = ['-endYear']
+class Service(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='services')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
