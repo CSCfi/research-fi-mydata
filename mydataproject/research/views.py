@@ -42,14 +42,14 @@ def index(request):
                     return render(request, 'create_profile.html', context)
         elif request.user.researchprofile.active:
             context["TTV_API_HOST"] = getattr(settings, "TTV_API_HOST", None)
-
             datasource_ttv = Datasource.objects.get(name="TTV")
             datasource_orcid = Datasource.objects.get(name="ORCID")
-            context["employments"] = request.user.researchprofile.employments.all()
-            context["educations"] = request.user.researchprofile.educations.all()
+            context["employments"] = request.user.researchprofile.employment.all()
+            context["educations"] = request.user.researchprofile.education.all()
             context["publications_ttv"] = request.user.researchprofile.publications.filter(datasource = datasource_ttv)
             context["publications_orcid"] = request.user.researchprofile.publications.filter(datasource = datasource_orcid)
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
+            context["invited_positions"] = request.user.researchprofile.invitedposition.all()
 
             if request.method == "POST":
                 #old_portal_permission = PortalPermission.objects.get(user=request.user)

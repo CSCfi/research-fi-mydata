@@ -103,9 +103,8 @@
                         {% for em in employments %}
                         <div class="p-3">
                             <strong>{{ em.roleTitle }}</strong><br>
-                            <span>{{ em.startYear | default:"" }} - {{ em.endYear | default:"" }}</span><br>
-                            <span>{{ em.organizationName }}
-                            <span>{{ em.departmentName }}</span>
+                            <span>{{ em.startDate | date:"d.m.Y" }} - {{ em.endDate | date:"d.m.Y" }}</span><br>
+                            <span>{{ em.organizationName }}, {{ em.departmentName }}</span>
                         </div>
                         {% endfor %}
                     {% else %}
@@ -133,7 +132,8 @@
                         {% for ed in educations %}
                         <div class="p-3">
                             <strong>{{ ed.roleTitle }}</strong><br>
-                            <span>{{ ed.endYear | default:"" }} {{ ed.organizationName }}</span>
+                            <span>{{ ed.startDate | date:"d.m.Y" }} - {{ ed.endDate | date:"d.m.Y" }}</span><br>
+                            <span>{{ ed.organizationName }}, {{ ed.departmentName }}</span><br>
                         </div>
                         {% endfor %}
                     {% else %}
@@ -145,6 +145,35 @@
             </div>
         </div>
     </div>
+    <div class="card">
+            <!-- Kutsutut tehtävät -->
+            <div class="card-header d-flex" id="heading4234234">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse4234234" aria-expanded="false" aria-controls="collapse4234234">
+                    Kutsutut tehtävät
+                </button>
+                <span class="align-self-center ml-auto">
+                </span>
+            </div>
+            <div id="collapse4234234" class="collapse" aria-labelledby="heading4234234" data-parent="#researchProfileAccordion">
+                <div class="card-body">
+                    <div id="invited-positions" class="mx-5">
+                        {% if invited_positions.count > 0 %}
+                            {% for ip in invited_positions %}
+                            <div class="p-3">
+                                <strong>{{ ip.roleTitle }}</strong><br>
+                                <span>{{ ip.startDate | date:"d.m.Y" }} - {{ ip.endDate | date:"d.m.Y" }}</span><br>
+                                <span>{{ ip.organizationName }}, {{ ip.departmentName }}</span><br>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="p-3">
+                                -
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     <div class="card">
         <!-- Julkaisut -->
         <div class="card-header d-flex" id="heading5">
@@ -317,10 +346,7 @@
                     {% if peer_reviews.count > 0 %}
                     {% for p in peer_reviews %}
                     <div class="p-3">
-                        <span>{{ p.completionDate }}</span>
-                        <span>{{ p.reviewerRole }}</span>
-                        <span>{{ p.reviewerUrl }}</span>
-                        <span>{{ p.reviewerType }}</span>
+                        <span>{{ p.completionDate | date:"d.m.Y" }} {{ p.reviewerRole }} {{ p.reviewerUrl }} {{ p.reviewerType }}</span>
                     </div>
                     {% endfor %}
                     {% else %}
