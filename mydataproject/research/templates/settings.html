@@ -24,6 +24,8 @@
 
                 <form method="post">
                     {% csrf_token %}
+
+                    <input type="hidden" name="settings_form_type" value="orcid_permission">
                     <div class="row">
                         <div class="col-sm-3 offset-sm-3">
                             <h5>Tutkijan tiedot</h5>
@@ -266,6 +268,7 @@
                         Formset is used, in which one form represents permissions for one trusted party.
                     -->
                     <form method="post">
+                        <input type="hidden" name="settings_form_type" value="profile_read">
                         {% csrf_token %}
                         {{ portal_permission_formset.management_form }}
                 
