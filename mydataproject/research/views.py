@@ -81,3 +81,25 @@ def delete_profile(request):
     if request.user and request.user.is_authenticated:
         request.user.delete()
     return redirect('index')
+
+def settings(request):
+    if request.user.is_authenticated and request.user.researchprofile.active:
+        context = {}
+        if request.method == "GET":
+            # ORCID permissions
+            permission = Permission.objects.get(user=request.user)
+            context['permission_form'] = PermissionForm(instance=permission, label_suffix='')
+
+            # Sharing permissions
+            context['portal_permission_formset'] = PortalPermissionFormSet(queryset=PortalPermission.objects.filter(user=request.user))
+        elif request.method == "POST":
+            old_permission = Permission.objects.get(user=request.user)
+            permission_form = PermissionForm(request.POST, instance=old_permission)
+            
+            if permission_form.is_valid():
+                # Orcid permission form is valid
+                permission_form.save()
+                return redirect('settings')
+        return render(request, 'settings.html', context)
+    else:
+        return redirect('index')
