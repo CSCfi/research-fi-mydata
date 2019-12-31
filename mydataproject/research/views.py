@@ -81,3 +81,42 @@ def delete_profile(request):
     if request.user and request.user.is_authenticated:
         request.user.delete()
     return redirect('index')
+
+def settings(request):
+    if request.user.is_authenticated and request.user.researchprofile.active:
+        context = {}
+        if request.method == 'POST':
+            if request.POST['settings_form_type'] == 'orcid_permission':
+                # Handle ORCID permission form
+                old_permission = Permission.objects.get(user=request.user)
+                permission_form = PermissionForm(request.POST, instance=old_permission)
+                
+                if permission_form.is_valid():
+                    # Orcid permission form is valid
+                    permission_form.save()
+                    return redirect('settings')
+            elif request.POST['settings_form_type'] == 'profile_read':
+                # Handle profile read permission form
+                portal_permission_formset = PortalPermissionFormSet(request.POST, queryset=PortalPermission.objects.filter(user=request.user))
+
+                if portal_permission_formset.is_valid():
+                    # Portal permission form is valid
+                    portal_permission_formset.save()
+                    return redirect('settings')
+                else:
+                    # Portal permission form is not valid
+                    print(portal_permission_formset.errors)
+                    context['portal_permission_formset'] = portal_permission_formset
+
+        # ORCID permissions
+        if not 'permission_form' in context:
+            permission = Permission.objects.get(user=request.user)
+            context['permission_form'] = PermissionForm(instance=permission, label_suffix='')
+
+        # Sharing permissions
+        if not 'portal_permission_formset' in context:
+            context['portal_permission_formset'] = PortalPermissionFormSet(queryset=PortalPermission.objects.filter(user=request.user))
+
+        return render(request, 'settings.html', context)
+    else:
+        return redirect('index')

@@ -91,7 +91,7 @@
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary static-top">
             <div class="container">
-                <a class="navbar-brand" href="{% url 'logout_view' %}">ORCID testi</a>
+                <a class="navbar-brand" href="{% url 'index' %}">Tutkijan tiedot</a>
 
                 {% if user.is_authenticated %}
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,15 +100,19 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     
                     <span class="navbar-text ml-auto">
-                        {{ user.first_name }} {{ user.last_name }} {{ user.username }}
+                        <small style="color: #000">{{ user.first_name }} {{ user.last_name }} {{ user.username }}</small>
                     </span>
                     <ul class="navbar-nav ml-auto">
-
-                        
                         <li class="nav-item">
-                            <a id="logoutBtn" class="nav-link" href="{% url 'logout_view' %}">
-                                <i class="fas fa-power-off"></i> Kirjaudu ulos
-                            </a>
+                            <a class="nav-link" href="{% url 'index' %}">Profiili</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'settings' %}">Asetukset</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a id="logoutBtn" class="nav-link" href="{% url 'logout_view' %}">Kirjaudu ulos</a>
                         </li>
                     </ul>
                     
