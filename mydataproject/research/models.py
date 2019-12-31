@@ -188,9 +188,6 @@ class ResearchProfile(models.Model):
         token = social.extra_data['access_token']
         orcid_id = self.user.username
 
-        # TMP
-        #orcid_id = '0000-0003-4243-9591'
-
         # Get public data
         headers = {
             'Accept': 'application/json',
@@ -216,9 +213,6 @@ class ResearchProfile(models.Model):
 
     def get_virta_publications(self):
         orcid_id = self.user.username
-
-        # TMP
-        #orcid_id = '0000-0003-4243-9591'
 
         headers = {
             'Accept': 'application/json',

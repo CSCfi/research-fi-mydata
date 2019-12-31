@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
+<div class="px-3 pb-md-2 mx-auto text-center">
+    <h1>Asetukset</h1>
+</div>
+
 <div class="accordion mb-5" id="settingsAccordion">
     <div class="card">
         <!-- ORCID -->
@@ -14,9 +18,9 @@
         <div id="collapse23d" class="collapse" aria-labelledby="heading23d" data-parent="#settingsAccordion">
             <div class="card-body">
 
-                <div class="px-3 pb-md-2 mx-auto text-center">
+                <div class="px-3 pb-md-3 mx-auto text-center">
                     <p class="lead pt-3">
-                        Valitse tiedot, jotka tuodaan ORCID-profiilistasi.
+                        Valitse tiedot, jotka tuodaan ORCID:sta.
                     </p>
                 </div>
                 
@@ -235,7 +239,7 @@
                 
                     <div class="row">
                         <div class="col-sm-6 offset-sm-3 mt-4">
-                            <button id="createProfileBtn" type="submit" class="btn btn-primary btn-block">Päivitä</button>
+                            <button id="orcidFormBtn" type="submit" class="btn btn-primary btn-block">Tallenna</button>
                         </div>
                     </div>
                 </form>
@@ -256,9 +260,9 @@
         <div id="collapse5tr" class="collapse" aria-labelledby="heading5tr" data-parent="#settingsAccordion">
             <div class="card-body">
 
-                <div class="px-3 pb-md-2 mx-auto text-center">
+                <div class="px-3 pb-md-3 mx-auto text-center">
                     <p class="lead pt-3">
-                        Valitse mitä tietoja profiilista jaetaan
+                        Valitse mitä tietoja profiilista jaetaan.
                     </p>
                 </div>
                 
@@ -309,7 +313,7 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <button id="saveChangesBtn" class="btn btn-primary float-right" type="submit">Tallenna oikeudet</button>
+                        <button id="readpermissionFormBtn" class="btn btn-primary btn-block mt-5" type="submit">Tallenna</button>
                     </form>
                 </div>
 
@@ -319,13 +323,24 @@
 </div>
 
 
+<div class="row">
+    <div class="col mt-2">
+        <a id="deleteProfileBtn" class="btn btn-outline-danger float-right" href="{% url 'delete_profile' %}" role="button">
+            <i class="fa fa-trash" aria-hidden="true"></i> Poista profiili
+        </a>
+    </div>
+</div>
+
 
 
 
 <script type="text/javascript">
     $(document).ready(function() {
         // Show busy indicator when profile create button is pressed.
-        $('#createProfileBtn').click(function(){
+        $('#orcidFormBtn').click(function(){
+            $('#overlay').show();
+        });
+        $('#readpermissionFormBtn').click(function(){
             $('#overlay').show();
         });
 

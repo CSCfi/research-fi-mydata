@@ -38,7 +38,7 @@
 <script src="{% static 'research/jquery.json-viewer.js' %}"></script>
 
 <div class="px-3 pb-md-2 mx-auto text-center">
-    <h3 class="display-4">Profiili</h3>
+    <h1>Profiili</h1>
 </div>
 
 <div class="accordion mb-5" id="researchProfileAccordion">
@@ -357,70 +357,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="px-3 pb-md-4 mx-auto text-center">
-    <h3 class="display-4">Lukuoikeudet</h3>
-</div>
-
-<div class="row justify-content-center mb-5">
-    <!--
-        Render permission table. Permissions are rows, trusted parties are columns.
-        Formset is used, in which one form represents permissions for one trusted party.
-    -->
-    <form method="post">
-        {% csrf_token %}
-        {{ portal_permission_formset.management_form }}
-
-        <table class="table table-striped table-responsive">  
-
-            <!-- Table header cells show names of the trusted parties -->
-            <thead>
-                <th></th>
-                {% for form in portal_permission_formset %}
-                <th>{{ form.instance.trusted_party.name }}</th>
-                {% endfor %}
-            </thead>
-
-            <!--
-                Table body rendering is a bit tricky, because the different forms (trusted parties) in the formset
-                should go to columns and not rows.
-            -->
-            <tbody>
-                {% for field_for_permission_name in portal_permission_formset.0.visible_fields %}
-                {% with forloop.counter0 as field_counter %}
-                <tr>
-                    <!-- The first cell in a row shows permission name.-->
-                    <td>{{ field_for_permission_name.label }}</td>
-                    <!-- Subsequent row cells show corresponding permission from each form (trusted party). -->
-                    {% for form in portal_permission_formset %}
-                        {% for field_for_permission_checkbox in form.visible_fields %}
-                            {% if forloop.counter0 == field_counter %}
-                            <td>{{ field_for_permission_checkbox }}</td>
-                            {% endif %}
-                        {% endfor %}
-
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
-                        {% endfor %}
-                    {% endfor %}
-                </tr>
-                {% endwith %}
-                {% endfor %}
-            </tbody>
-        </table>
-        <button id="saveChangesBtn" class="btn btn-primary float-right" type="submit">Tallenna oikeudet</button>
-    </form>
-</div>
-
-<hr>
-
-<div class="row">
-    <div class="col mt-2">
-        <a id="deleteProfileBtn" class="btn btn-outline-danger float-right" href="{% url 'delete_profile' %}" role="button">
-            <i class="fa fa-trash" aria-hidden="true"></i> Poista profiili
-        </a>
     </div>
 </div>
 

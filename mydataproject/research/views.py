@@ -85,8 +85,8 @@ def delete_profile(request):
 def settings(request):
     if request.user.is_authenticated and request.user.researchprofile.active:
         context = {}
-        if request.method == "POST":
-            if request.POST["settings_form_type"] == "orcid_permission":
+        if request.method == 'POST':
+            if request.POST['settings_form_type'] == 'orcid_permission':
                 # Handle ORCID permission form
                 old_permission = Permission.objects.get(user=request.user)
                 permission_form = PermissionForm(request.POST, instance=old_permission)
@@ -95,7 +95,7 @@ def settings(request):
                     # Orcid permission form is valid
                     permission_form.save()
                     return redirect('settings')
-            elif request.POST["settings_form_type"] == "profile_read":
+            elif request.POST['settings_form_type'] == 'profile_read':
                 # Handle profile read permission form
                 portal_permission_formset = PortalPermissionFormSet(request.POST, queryset=PortalPermission.objects.filter(user=request.user))
 
