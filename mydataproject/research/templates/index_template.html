@@ -209,38 +209,32 @@
                                 <a href="#pub-search-tab-content" onclick="$('#myTab li:last-child a').tab('show')">haku-toiminnolla.</a>
                             </div>
 
-                            <form>
-
-                                <!-- TTV -->
-                                <div class="mb-5">
-                                    <h5>Tutkimustietovarannosta ORCID-tunnuksella löytyvät</h5>
-                                    {% if publications_ttv.count > 0 %}
-                                        {% for p_ttv in publications_ttv %}
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox">
-                                            <label class="form-check-label small"><strong>{{ p_ttv.name }}</strong><br>{{ p_ttv.publicationYear }}</label>
-                                        </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        <i>Ei julkaisuja</i>
-                                    {% endif %}
-                                </div>
-                            
-                                <!-- ORCID -->
-                                <div>
-                                    <h5>ORCID:sta haetut</h5>
-                                    {% if publications_orcid.count > 0 %}
-                                        {% for p_orcid in publications_orcid %}
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox">
-                                            <label class="form-check-label small"><strong>{{ p_orcid.name }}</strong><br>{{ p_orcid.publicationYear }}</label>
-                                        </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        <i>Ei julkaisuja</i>
-                                    {% endif %}
-                                </div>
-                            </form>  
+                            <table class="table table-hover table-sm">
+                                <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col">Vuosi</th>
+                                        <th scope="col">Nimi</th>
+                                        <th scope="col">DOI</th>
+                                        <th scope="col">TTV</th>
+                                        <th scope="col">ORCID</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in publications %}
+                                    <tr {% if p.doi is not None %}{% ifchanged p.doi %}{% else %}class="publication_duplicate"{% endifchanged %}{% endif %}>
+                                        <td><input type="checkbox" checked style="cursor: pointer;"></td>
+                                        <td>{{ p.publicationYear }}</td>
+                                        <td>{{ p.name }}</td>
+                                        <td>
+                                            {% if p.doi %}<br><a href="https://doi.org/{{ p.doi }}" target="_blank">{{ p.doi }}</a>{% endif %}
+                                        </td>
+                                        <td>{% if p.datasource == datasource_ttv %}X{% endif %}</td>
+                                        <td>{% if p.datasource == datasource_orcid %}X{% endif %}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <!-- Tutkimustietovaranto search -->

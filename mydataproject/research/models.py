@@ -132,12 +132,19 @@ class ResearchProfile(models.Model):
             # Works
             if self.user.orcid_permission.get_activities_works and len(orcid_record["activities-summary"]["works"]["group"]) > 0:
                 # Create publication objects
-                datasource_orcid = Datasource.objects.get(name="ORCID")
                 for obj in orcid_record["activities-summary"]["works"]["group"]:
+                    # doi
+                    doi = None
+                    if "external-id" in obj["external-ids"]:
+                        for external_id in obj["external-ids"]["external-id"]:
+                            if external_id["external-id-type"] == "doi":
+                                doi = external_id.get("external-id-value", None)
+
                     Publication.objects.create(
                         researchprofile = self,
                         name = obj["work-summary"][0]["title"]["title"]["value"],
                         publicationYear = obj["work-summary"][0]["publication-date"]["year"]["value"],
+                        doi = doi,
                         datasource = datasource_orcid,
                         includeInProfile = False
                     )
@@ -232,13 +239,18 @@ class ResearchProfile(models.Model):
                 # Create publication objects
                 datasource_ttv = Datasource.objects.get(name="TTV")
                 for obj in virta_json_data:
-                    Publication.objects.create(
-                        researchprofile = self,
-                        name = obj["julkaisunNimi"],
-                        publicationYear = obj["julkaisuVuosi"],
-                        datasource = datasource_ttv,
-                        includeInProfile = False
-                    )
+                    try:
+                        Publication.objects.create(
+                            researchprofile = self,
+                            name = obj.get("julkaisunNimi", None),
+                            publicationYear = obj.get("julkaisuVuosi", None),
+                            doi = obj.get("doi", None),
+                            datasource = datasource_ttv,
+                            includeInProfile = False
+                        )
+                    except Exception as e:
+                        print(e)
+                        pass
             except Exception as e:
                 print(e)
                 pass
@@ -329,10 +341,12 @@ class Publication(models.Model):
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=512, blank=True)
     publicationYear = models.PositiveSmallIntegerField(null=True)
+    doi = models.CharField(max_length=512, blank=True, null=True)
     includeInProfile = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-publicationYear']
+        unique_together = [['name', 'datasource']]
 
 class Qualifications(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='qualifications')
