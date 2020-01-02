@@ -54,5 +54,12 @@
       "fields": {
         "name": "ORCID"
       }
+    },
+    {
+      "model": "research.datasource",
+      "pk": 3,
+      "fields": {
+        "name": "MANUAL"
+      }
     }
 ]

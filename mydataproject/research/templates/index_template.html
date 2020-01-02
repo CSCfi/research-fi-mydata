@@ -259,6 +259,19 @@
                         </div>
                         <div id="pubTtvSearchResult" class="px-5 pb-5">
                             <!-- Search results -->
+                            <table id="pubTtvSearchResultTable" class="table table-hover table-sm">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Vuosi</th>
+                                        <th scope="col">Nimi</th>
+                                        <th scope="col">DOI</th>
+                                        <th scope="col">Tekijät</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pubTtvSearchResultTableBody">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -371,35 +384,58 @@
 
         // TTV Search
         $('#pubTtvSearchBtn').click(function(){
+            // Show indicator
+            $('#overlay').show();
+
             // Clear old results
-            $('#pubTtvSearchResult').html('');
+            $('#pubTtvSearchResultTableBody').html('');
 
             // New query
             var query = $('#pubTtvSearchInput').val();
             var search_url = '{{TTV_API_HOST}}/portalapi/publication/_search?size=20&q=' + query;
-            $.ajax({url: search_url, success: function(result){
-                console.log("Search result", result);
+            $.ajax({
+                url: search_url,
+                success: function(result) {
+                    console.log("Search result", result);
 
-                try {
-                    if (result.hits.hits.length > 0) {
-                        result.hits.hits.forEach(function (hit) {
-                            var authorsText = hit._source.authorsText;
-                            var publicationName = hit._source.publicationName;
-                            var publicationYear = hit._source.publicationYear;
+                    try {
+                        if (result.hits.hits.length > 0) {
+                            result.hits.hits.forEach(function (hit) {
+                                var authorsText = hit._source.authorsText;
+                                var publicationName = hit._source.publicationName;
+                                var publicationYear = hit._source.publicationYear;
+                                var doi = hit._source.doi;
+                                /*
+                                var publicationElementHtml = 
+                                    '<div class="form-check mb-2"><input class="form-check-input" type="checkbox">' +
+                                    '<label class="form-check-label small"><strong>' + publicationName + '</strong><br>' + 
+                                    publicationYear + ' - ' + authorsText  + '</label></div>';
 
-                            var publicationElementHtml = 
-                                '<div class="form-check mb-2"><input class="form-check-input" type="checkbox">' +
-                                '<label class="form-check-label small"><strong>' + publicationName + '</strong><br>' + 
-                                publicationYear + ' - ' + authorsText  + '</label></div>';
+                                $('#pubTtvSearchResult').append(publicationElementHtml);
+                                */
 
-                            $('#pubTtvSearchResult').append(publicationElementHtml);
-                        });
-                    } else {
-                        var noResultHtml = '<i>Ei hakutuloksia</i>';
-                        $('#pubTtvSearchResult').append(noResultHtml);
-                    }
-                } catch (err) { console.error("TTV search result", err); }
-            }});
+                                var publicationElementHtml =
+                                    '<tr>' +
+                                    '<td>' + publicationYear + '</td>' +
+                                    '<td>' + publicationName + '</td>' +
+                                    '<td><a href="https://doi.org/' + doi +'" target="_blank">' + doi + '</a></td>' +
+                                    '<td>' + authorsText + '</td>' +
+                                    '<td><button>+</button></td>' +
+                                    '</tr>';
+
+                                $('#pubTtvSearchResultTableBody').append(publicationElementHtml);
+                            });
+                        } else {
+                            var publicationElementHtml = '<tr><td colspan="5"><i>Ei hakutuloksia</i></td></tr>';
+                            $('#pubTtvSearchResultTableBody').append(publicationElementHtml);
+                        }
+                    } catch (err) { console.error("TTV search result", err); }
+                },
+                complete: function() {
+                    // Hide indicator
+                    $('#overlay').hide();
+                }
+            });
         });
     });
 </script>

@@ -41,7 +41,7 @@ def index(request):
                     # Orcid permission form is not valid
                     return render(request, 'create_profile.html', context)
         elif request.user.researchprofile.active:
-            context["TTV_API_HOST"] = getattr(settings, "TTV_API_HOST", None)
+            context["TTV_API_HOST"] = settings.TTV_API_HOST
             context["datasource_ttv"] = Datasource.objects.get(name="TTV")
             context["datasource_orcid"] = Datasource.objects.get(name="ORCID")
             context["employments"] = request.user.researchprofile.employment.all()
@@ -83,7 +83,7 @@ def delete_profile(request):
         request.user.delete()
     return redirect('index')
 
-def settings(request):
+def profile_settings(request):
     if request.user.is_authenticated and request.user.researchprofile.active:
         context = {}
         if request.method == 'POST':
@@ -95,7 +95,7 @@ def settings(request):
                 if permission_form.is_valid():
                     # Orcid permission form is valid
                     permission_form.save()
-                    return redirect('settings')
+                    return redirect('profile_settings')
             elif request.POST['settings_form_type'] == 'profile_read':
                 # Handle profile read permission form
                 portal_permission_formset = PortalPermissionFormSet(request.POST, queryset=PortalPermission.objects.filter(user=request.user))
@@ -103,7 +103,7 @@ def settings(request):
                 if portal_permission_formset.is_valid():
                     # Portal permission form is valid
                     portal_permission_formset.save()
-                    return redirect('settings')
+                    return redirect('profile_settings')
                 else:
                     # Portal permission form is not valid
                     print(portal_permission_formset.errors)
