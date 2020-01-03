@@ -176,16 +176,16 @@
         </div>
     <div class="card">
         <!-- Julkaisut -->
-        <div class="card-header d-flex" id="heading5">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+        <div class="card-header d-flex" id="headingPublications">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapsePublications" aria-expanded="false" aria-controls="collapsePublications">
                 Julkaisut
             </button>
             <span class="align-self-center ml-auto">
             </span>
         </div>
-        <div id="collapse5" class="collapse" aria-labelledby="heading5" data-parent="#researchProfileAccordion">
+        <div id="collapsePublications" class="collapse" aria-labelledby="headingPublications" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <ul class="nav nav-tabs" id="publicationTab" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" id="pub-list-tab" data-toggle="tab" href="#pub-list-tab-content" role="tab" aria-controls="pub-list-tab-content" aria-selected="true">
                             Profiiliin liitetyt julkaisut
@@ -197,7 +197,7 @@
                         </a>
                     </li>
                 </ul>
-                <div class="tab-content" id="myTabContent">
+                <div class="tab-content" id="publicationsTab">
                     
                     <!-- Profile publications -->
                     <div class="tab-pane fade show active" id="pub-list-tab-content" role="tabpanel" aria-labelledby="pub-list-tab">
@@ -206,7 +206,7 @@
                             <div class="alert alert-info mb-5">
                                 Listauksessa näytetään kaikki Tutkimustietovarannosta ORCID-tunnuksella löytyneet julkaisut ja 
                                 ORCID:sta tuodut julkaisut. Valitse mitkä niistä liitetään profiiliisi. Voit lisätä julkaisuja Tutkimustietovarannosta
-                                <a href="#pub-search-tab-content" onclick="$('#myTab li:last-child a').tab('show')">haku-toiminnolla.</a>
+                                <a href="#pub-search-tab-content" onclick="$('#publicationTab li:last-child a').tab('show')">haku-toiminnolla.</a>
                             </div>
 
                             <table class="table table-hover table-sm">
@@ -218,29 +218,11 @@
                                         <th scope="col">DOI</th>
                                         <th scope="col">TTV</th>
                                         <th scope="col">ORCID</th>
-                                        <th scope="col">OMA</th>
+                                        <th scope="col">Oma</th>
                                         <th scope="col"></th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {% for p in publications %}
-                                    <tr {% if p.doi is not None %}{% ifchanged p.doi %}{% else %}class="publication_duplicate"{% endifchanged %}{% endif %}>
-                                        <td><input type="checkbox" checked style="cursor: pointer;"></td>
-                                        <td>{{ p.publicationYear }}</td>
-                                        <td>{{ p.name }}</td>
-                                        <td>
-                                            {% if p.doi %}<br><a href="https://doi.org/{{ p.doi }}" target="_blank">{{ p.doi }}</a>{% endif %}
-                                        </td>
-                                        <td>{% if p.datasource == datasource_ttv %}X{% endif %}</td>
-                                        <td>{% if p.datasource == datasource_orcid %}X{% endif %}</td>
-                                        <td>{% if p.datasource == datasource_manual %}X{% endif %}</td>
-                                        <td>
-                                            {% if p.datasource == datasource_manual %}
-                                            <button onclick="deletePublication({{ p.id }})">-</button>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
+                                <tbody id="publicationTableBody">
                                 </tbody>
                             </table>
                         </div>
@@ -379,6 +361,44 @@
     // TTV publication search results
     var publicationSearchResults = [];
 
+    // Get publications
+    function getPublications() {
+        $.ajax({
+            type: 'POST',
+            url: '{% url "publication_list" %}',
+            data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+            beforeSend: function () {
+                $('#publicationTableBody').html('');
+            },
+            success: function(response) {
+                response.publications.forEach(function(p) {
+                    console.log(p);
+
+                    var checked = p.includeInProfile ? "checked" : "";
+                    var datasourceIcon = '<i class="fas fa-check"></i>';
+                    var datasource_ttv_value = (p.datasource_id === 1 ? datasourceIcon : '');
+                    var datasource_orcid_value = (p.datasource_id === 2 ? datasourceIcon: '');
+                    var datasource_manual_value = (p.datasource_id === 3 ? datasourceIcon: '');
+                    var publicationElementHtml =
+                        '<tr id="publication_' + p.id + '">' +
+                        '<td><input type="checkbox" style="cursor: pointer;" ' + checked + ' onclick="includePublication(' + p.id + ',' + p.includeInProfile +')"></td>' +
+                        '<td>' + p.publicationYear + '</td>' +
+                        '<td>' + p.name + '</td>' +
+                        '<td><a href="https://doi.org/' + p.doi +'" target="_blank">' + p.doi + '</a></td>' +
+                        '<td>' + datasource_ttv_value + '</td>' +
+                        '<td>' + datasource_orcid_value + '</td>' +
+                        '<td>' + datasource_manual_value + '</td>' +
+                        '<td><i class="far fa-trash-alt" onclick="deletePublication(' + p.id + ')" style="color:#f00;cursor:pointer;"></i></td>'
+                        '</tr>';
+                    $('#publicationTableBody').append(publicationElementHtml);
+                });
+            },
+            dataType: 'json'
+        }).done(function() {
+            console.log("DONE");
+        });
+    };
+
     // Add publication into research profile
     function addPublication(index) {
         var publication = {
@@ -416,6 +436,7 @@
             },
             success: function() {
                 console.log("publication deleted");
+                $('#publication_' + publicationId).remove();
             },
             dataType: 'json'
         }).done(function() {
@@ -423,7 +444,25 @@
         });
     };
 
-
+    // Include/exclude publication from research profile
+    function includePublication(publicationId, oldValue) {
+        var include = !oldValue;
+        $.ajax({
+            type: 'POST',
+            url: '{% url "publication_include" %}',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                publicationId: publicationId,
+                include: include
+            },
+            success: function() {
+                console.log("publication include status changed");
+            },
+            dataType: 'json'
+        }).done(function() {
+            console.log("DONE");
+        });
+    };
 
     $( document ).ready(function() {
         $('#saveChangesBtn').click(function(){
@@ -439,6 +478,15 @@
         //} catch (err) { console.error("jsonViewer activity_fundings", err); }
 
 
+        $('#collapsePublications').on('show.bs.collapse', function (e) {
+            getPublications();
+        });
+
+        $('#publicationTab').on('show.bs.tab', function (e) {
+            if (e.target.id === 'pub-list-tab') {
+                getPublications();
+            }
+        });
 
 
 
@@ -480,7 +528,8 @@
                                     '<td>' + publicationName + '</td>' +
                                     '<td><a href="https://doi.org/' + doi +'" target="_blank">' + doi + '</a></td>' +
                                     '<td>' + authorsText + '</td>' +
-                                    '<td><button onclick="addPublication(' + index + ')">+</button></td>' +
+                                    //'<td><button onclick="addPublication(' + index + ')">+</button></td>' +
+                                    '<td><i class="fas fa-plus-circle" onclick="addPublication(' + index + ')" style="color:#0a0; cursor:pointer;"></i></td>' +
                                     '</tr>';
 
                                 $('#pubTtvSearchResultTableBody').append(publicationElementHtml);

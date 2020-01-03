@@ -127,7 +127,13 @@ def profile_settings(request):
     else:
         return redirect('index')
 
-# Add publication
+# List user's publications
+@login_required
+def publication_list(request):
+    queryset = Publication.objects.filter(researchprofile = request.user.researchprofile).values()
+    return JsonResponse({"publications": list(queryset) })
+
+# Add publication into user's researchprofile
 @login_required
 def publication_add(request):
     newPublicationDict = json.loads(request.POST.get('publication'))
@@ -143,9 +149,20 @@ def publication_add(request):
     )
     return JsonResponse({})
 
-# Delete publication
+# Delete publication from user's researchprofile
 @login_required
 def publication_delete(request):
     publicationId = request.POST.get('publicationId')
     Publication.objects.filter(id=publicationId).delete()
+    return JsonResponse({})
+
+# Include or exclude publication from user's researchprofile
+@login_required
+def publication_include(request):
+    publicationId = request.POST.get('publicationId')
+    include_javascript_value = request.POST.get('include')
+    include = True if include_javascript_value == "true" else False
+    publication = Publication.objects.get(id=publicationId)
+    publication.includeInProfile = include
+    publication.save()
     return JsonResponse({})
