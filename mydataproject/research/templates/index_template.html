@@ -218,6 +218,7 @@
                                         <th scope="col">DOI</th>
                                         <th scope="col">TTV</th>
                                         <th scope="col">ORCID</th>
+                                        <th scope="col">OMA</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -231,6 +232,7 @@
                                         </td>
                                         <td>{% if p.datasource == datasource_ttv %}X{% endif %}</td>
                                         <td>{% if p.datasource == datasource_orcid %}X{% endif %}</td>
+                                        <td>{% if p.datasource == datasource_manual %}X{% endif %}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -368,8 +370,34 @@
 </div>
 
 <script type="text/javascript">
-    $( document ).ready(function() {
+    // TTV publication search
+    var publicationSearchResults = [];
+    function addPublication(index) {
+        var publication = {
+            authorsText: publicationSearchResults[index]._source.authorsText,
+            publicationName: publicationSearchResults[index]._source.publicationName,
+            publicationYear: publicationSearchResults[index]._source.publicationYear,
+            doi: publicationSearchResults[index]._source.doi
+        };
+        console.log("ADD PUB", publication);
 
+        $.ajax({
+            type: 'POST',
+            url: '{% url "publication_add" %}',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                publication: JSON.stringify(publication)
+            },
+            success: function() {
+                console.log("SUCCESS");
+            },
+            dataType: 'json'
+        }).done(function() {
+            console.log("DONE");
+        });
+    };
+
+    $( document ).ready(function() {
         $('#saveChangesBtn').click(function(){
             $('#overlay').show();
         });
@@ -378,11 +406,14 @@
             $('#overlay').show();
         });
 
-        try {
-            $('#json-renderer-fundings').jsonViewer({{ request.user.researchprofile.activity_fundings | safe }});
-        } catch (err) { console.error("jsonViewer activity_fundings", err); }
+        //try {
+        //    $('#json-renderer-fundings').jsonViewer({{ request.user.researchprofile.activity_fundings | safe }});
+        //} catch (err) { console.error("jsonViewer activity_fundings", err); }
 
-        // TTV Search
+
+
+
+
         $('#pubTtvSearchBtn').click(function(){
             // Show indicator
             $('#overlay').show();
@@ -400,11 +431,12 @@
 
                     try {
                         if (result.hits.hits.length > 0) {
-                            result.hits.hits.forEach(function (hit) {
-                                var authorsText = hit._source.authorsText;
-                                var publicationName = hit._source.publicationName;
-                                var publicationYear = hit._source.publicationYear;
-                                var doi = hit._source.doi;
+                            publicationSearchResults = result.hits.hits;
+                            result.hits.hits.forEach(function (publication, index) {
+                                var authorsText = publication._source.authorsText;
+                                var publicationName = publication._source.publicationName;
+                                var publicationYear = publication._source.publicationYear;
+                                var doi = publication._source.doi;
                                 /*
                                 var publicationElementHtml = 
                                     '<div class="form-check mb-2"><input class="form-check-input" type="checkbox">' +
@@ -420,12 +452,13 @@
                                     '<td>' + publicationName + '</td>' +
                                     '<td><a href="https://doi.org/' + doi +'" target="_blank">' + doi + '</a></td>' +
                                     '<td>' + authorsText + '</td>' +
-                                    '<td><button>+</button></td>' +
+                                    '<td><button onclick="addPublication(' + index + ')">+</button></td>' +
                                     '</tr>';
 
                                 $('#pubTtvSearchResultTableBody').append(publicationElementHtml);
                             });
                         } else {
+                            publicationSearchResults = [];
                             var publicationElementHtml = '<tr><td colspan="5"><i>Ei hakutuloksia</i></td></tr>';
                             $('#pubTtvSearchResultTableBody').append(publicationElementHtml);
                         }

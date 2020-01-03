@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.forms import modelformset_factory
+from django.http import JsonResponse
 from orciddata.models import Permission, PermissionForm
 from research.models import PortalPermission, Datasource, Publication
 import json
@@ -44,6 +46,7 @@ def index(request):
             context["TTV_API_HOST"] = settings.TTV_API_HOST
             context["datasource_ttv"] = Datasource.objects.get(name="TTV")
             context["datasource_orcid"] = Datasource.objects.get(name="ORCID")
+            context["datasource_manual"] = Datasource.objects.get(name="MANUAL")
             context["employments"] = request.user.researchprofile.employment.all()
             context["educations"] = request.user.researchprofile.education.all()
             context["publications"] = request.user.researchprofile.publications.all().order_by('-publicationYear', 'name')
@@ -78,11 +81,13 @@ def logout_view(request):
     logout(request)
     return redirect('index')
 
+@login_required
 def delete_profile(request):
     if request.user and request.user.is_authenticated:
         request.user.delete()
     return redirect('index')
 
+@login_required
 def profile_settings(request):
     if request.user.is_authenticated and request.user.researchprofile.active:
         context = {}
@@ -121,3 +126,25 @@ def profile_settings(request):
         return render(request, 'settings.html', context)
     else:
         return redirect('index')
+
+@login_required
+def publication_add(request):
+
+    print("publication_add")
+    print(request.POST.get('publication'))
+
+    newPublicationDict = json.loads(request.POST.get('publication'))
+    datasource = Datasource.objects.get(name="MANUAL")
+
+    Publication.objects.create(
+        researchprofile = request.user.researchprofile,
+        datasource = datasource,
+        name = newPublicationDict["publicationName"],
+        publicationYear = newPublicationDict["publicationYear"],
+        doi = newPublicationDict["doi"],
+        includeInProfile = True
+    )
+    data = {
+        'added': False
+    }
+    return JsonResponse(data)

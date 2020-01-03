@@ -107,6 +107,7 @@
                         <small style="color: #000">{{ user.first_name }} {{ user.last_name }} {{ user.username }}</small>
                     </span>
                     <ul class="navbar-nav ml-auto">
+                        {% if user.researchprofile.active %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'index' %}">Profiili</a>
                         </li>
@@ -114,6 +115,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'profile_settings' %}">Asetukset</a>
                         </li>
+                        {% endif %}
 
                         <li class="nav-item">
                             <a id="logoutBtn" class="nav-link" href="{% url 'logout_view' %}">Kirjaudu ulos</a>
