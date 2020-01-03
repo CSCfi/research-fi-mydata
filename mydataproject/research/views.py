@@ -127,12 +127,9 @@ def profile_settings(request):
     else:
         return redirect('index')
 
+# Add publication
 @login_required
 def publication_add(request):
-
-    print("publication_add")
-    print(request.POST.get('publication'))
-
     newPublicationDict = json.loads(request.POST.get('publication'))
     datasource = Datasource.objects.get(name="MANUAL")
 
@@ -144,7 +141,11 @@ def publication_add(request):
         doi = newPublicationDict["doi"],
         includeInProfile = True
     )
-    data = {
-        'added': False
-    }
-    return JsonResponse(data)
+    return JsonResponse({})
+
+# Delete publication
+@login_required
+def publication_delete(request):
+    publicationId = request.POST.get('publicationId')
+    Publication.objects.filter(id=publicationId).delete()
+    return JsonResponse({})

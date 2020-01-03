@@ -219,6 +219,7 @@
                                         <th scope="col">TTV</th>
                                         <th scope="col">ORCID</th>
                                         <th scope="col">OMA</th>
+                                        <th scope="col"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -233,6 +234,11 @@
                                         <td>{% if p.datasource == datasource_ttv %}X{% endif %}</td>
                                         <td>{% if p.datasource == datasource_orcid %}X{% endif %}</td>
                                         <td>{% if p.datasource == datasource_manual %}X{% endif %}</td>
+                                        <td>
+                                            {% if p.datasource == datasource_manual %}
+                                            <button onclick="deletePublication({{ p.id }})">-</button>
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -370,8 +376,10 @@
 </div>
 
 <script type="text/javascript">
-    // TTV publication search
+    // TTV publication search results
     var publicationSearchResults = [];
+
+    // Add publication into research profile
     function addPublication(index) {
         var publication = {
             authorsText: publicationSearchResults[index]._source.authorsText,
@@ -389,13 +397,33 @@
                 publication: JSON.stringify(publication)
             },
             success: function() {
-                console.log("SUCCESS");
+                console.log("publication added");
             },
             dataType: 'json'
         }).done(function() {
             console.log("DONE");
         });
     };
+
+    // Delete publication from research profile
+    function deletePublication(publicationId) {
+        $.ajax({
+            type: 'POST',
+            url: '{% url "publication_delete" %}',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                publicationId: publicationId
+            },
+            success: function() {
+                console.log("publication deleted");
+            },
+            dataType: 'json'
+        }).done(function() {
+            console.log("DONE");
+        });
+    };
+
+
 
     $( document ).ready(function() {
         $('#saveChangesBtn').click(function(){
