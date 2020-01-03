@@ -372,8 +372,6 @@
             },
             success: function(response) {
                 response.publications.forEach(function(p) {
-                    console.log(p);
-
                     var checked = p.includeInProfile ? "checked" : "";
                     var datasourceIcon = '<i class="fas fa-check"></i>';
                     var datasource_ttv_value = (p.datasource_id === 1 ? datasourceIcon : '');
@@ -395,7 +393,6 @@
             },
             dataType: 'json'
         }).done(function() {
-            console.log("DONE");
         });
     };
 
@@ -418,10 +415,10 @@
             },
             success: function() {
                 console.log("publication added");
+                $('#publicationSearchRow_' + index).remove();
             },
             dataType: 'json'
         }).done(function() {
-            console.log("DONE");
         });
     };
 
@@ -440,7 +437,6 @@
             },
             dataType: 'json'
         }).done(function() {
-            console.log("DONE");
         });
     };
 
@@ -523,7 +519,7 @@
                                 */
 
                                 var publicationElementHtml =
-                                    '<tr>' +
+                                    '<tr id="publicationSearchRow_' + index + '">' +
                                     '<td>' + publicationYear + '</td>' +
                                     '<td>' + publicationName + '</td>' +
                                     '<td><a href="https://doi.org/' + doi +'" target="_blank">' + doi + '</a></td>' +
