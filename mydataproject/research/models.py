@@ -190,6 +190,19 @@ class ResearchProfile(models.Model):
                 self.person_researcher_urls = ', '.join(urllist)
         self.save()
 
+    def delete_orcid_data(self):
+        datasource_orcid = Datasource.objects.get(name="ORCID")
+        Education.objects.filter(researchprofile = self).delete()
+        Employment.objects.filter(researchprofile = self).delete()
+        Funding.objects.filter(researchprofile = self).delete()
+        InvitedPosition.objects.filter(researchprofile = self).delete()
+        Membership.objects.filter(researchprofile = self).delete()
+        PeerReview.objects.filter(researchprofile = self).delete()
+        Publication.objects.filter(researchprofile = self, datasource=datasource_orcid).delete()
+        Qualifications.objects.filter(researchprofile = self).delete()
+        ResearchResouce.objects.filter(researchprofile = self).delete()
+        Service.objects.filter(researchprofile = self).delete()
+
     def get_orcid_data(self):
         social = self.user.social_auth.get(provider='orcid')
         token = social.extra_data['access_token']

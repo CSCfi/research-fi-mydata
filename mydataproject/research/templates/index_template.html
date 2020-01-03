@@ -377,17 +377,24 @@
                     var datasource_ttv_value = (p.datasource_id === 1 ? datasourceIcon : '');
                     var datasource_orcid_value = (p.datasource_id === 2 ? datasourceIcon: '');
                     var datasource_manual_value = (p.datasource_id === 3 ? datasourceIcon: '');
+                    var doi = p.doi && p.doi !== null ? p.doi : '';
                     var publicationElementHtml =
                         '<tr id="publication_' + p.id + '">' +
                         '<td><input type="checkbox" style="cursor: pointer;" ' + checked + ' onclick="includePublication(' + p.id + ',' + p.includeInProfile +')"></td>' +
                         '<td>' + p.publicationYear + '</td>' +
                         '<td>' + p.name + '</td>' +
-                        '<td><a href="https://doi.org/' + p.doi +'" target="_blank">' + p.doi + '</a></td>' +
+                        '<td><a href="https://doi.org/' + doi +'" target="_blank">' + doi + '</a></td>' +
                         '<td>' + datasource_ttv_value + '</td>' +
                         '<td>' + datasource_orcid_value + '</td>' +
-                        '<td>' + datasource_manual_value + '</td>' +
-                        '<td><i class="far fa-trash-alt" onclick="deletePublication(' + p.id + ')" style="color:#f00;cursor:pointer;"></i></td>'
-                        '</tr>';
+                        '<td>' + datasource_manual_value + '</td>';
+
+                        if (p.datasource_id === 3 ) {
+                            publicationElementHtml += '<td><i class="far fa-trash-alt" onclick="deletePublication(' + p.id + ')" style="color:#f00;cursor:pointer;"></i></td>';
+                        }
+                        else {
+                            publicationElementHtml += '<td></td>';
+                        }
+                        publicationElementHtml += '</tr>';
                     $('#publicationTableBody').append(publicationElementHtml);
                 });
             },

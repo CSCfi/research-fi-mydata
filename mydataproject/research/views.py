@@ -49,28 +49,28 @@ def index(request):
             context["datasource_manual"] = Datasource.objects.get(name="MANUAL")
             context["employments"] = request.user.researchprofile.employment.all()
             context["educations"] = request.user.researchprofile.education.all()
-            context["publications"] = request.user.researchprofile.publications.all().order_by('-publicationYear', 'name')
+            #context["publications"] = request.user.researchprofile.publications.all().order_by('-publicationYear', 'name')
             #context["publications_ttv"] = request.user.researchprofile.publications.filter(datasource = datasource_ttv)
             #context["publications_orcid"] = request.user.researchprofile.publications.filter(datasource = datasource_orcid)
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
             context["invited_positions"] = request.user.researchprofile.invitedposition.all()
 
-            if request.method == "POST":
+            #if request.method == "POST":
                 #old_portal_permission = PortalPermission.objects.get(user=request.user)
                 #portal_permission_form = PortalPermissionForm(request.POST, instance=old_portal_permission)
 
-                portal_permission_formset = PortalPermissionFormSet(request.POST, queryset=PortalPermission.objects.filter(user=request.user))
+            #    portal_permission_formset = PortalPermissionFormSet(request.POST, queryset=PortalPermission.objects.filter(user=request.user))
 
-                if portal_permission_formset.is_valid():
+            #    if portal_permission_formset.is_valid():
                     # Portal permission form is valid
-                    portal_permission_formset.save()
-                    return redirect('index')
-                else:
+            #        portal_permission_formset.save()
+            #        return redirect('index')
+            #    else:
                     # Portal permission form is not valid
-                    print(portal_permission_formset.errors)
-                    context['portal_permission_formset'] = portal_permission_formset
-            else:
-                context['portal_permission_formset'] = PortalPermissionFormSet(queryset=PortalPermission.objects.filter(user=request.user))
+            #        print(portal_permission_formset.errors)
+            #        context['portal_permission_formset'] = portal_permission_formset
+            #else:
+            #    context['portal_permission_formset'] = PortalPermissionFormSet(queryset=PortalPermission.objects.filter(user=request.user))
 
                 #portal_permission = PortalPermission.objects.get(user=request.user)
                 #context['portal_permission_form'] = PortalPermissionForm(instance=portal_permission, label_suffix='')
@@ -100,6 +100,11 @@ def profile_settings(request):
                 if permission_form.is_valid():
                     # Orcid permission form is valid
                     permission_form.save()
+
+                    # Update Orcid data
+                    request.user.researchprofile.delete_orcid_data()
+                    request.user.researchprofile.get_orcid_data()
+
                     return redirect('profile_settings')
             elif request.POST['settings_form_type'] == 'profile_read':
                 # Handle profile read permission form
@@ -130,7 +135,7 @@ def profile_settings(request):
 # List user's publications
 @login_required
 def publication_list(request):
-    queryset = Publication.objects.filter(researchprofile = request.user.researchprofile).values()
+    queryset = Publication.objects.filter(researchprofile = request.user.researchprofile).order_by('-publicationYear', 'name').values()
     return JsonResponse({"publications": list(queryset) })
 
 # Add publication into user's researchprofile
