@@ -26,28 +26,44 @@ class ResearchProfile(models.Model):
     person_researcher_urls = models.TextField(null=True, blank=True)
     virta_publications = models.TextField(null=True, blank=True, default='[]')
 
-    def getDate(self, dateDict):
-        if dateDict is not None:
-            date_year = dateDict['year'].get('value', None)
-            date_month = dateDict['month'].get('value', None)
-            date_day = dateDict['day'].get('value', None)
+    def getYearMonthDay(self, dateDict):
+        string_year = None
+        string_month = None
+        string_day = None
+        year = None
+        month = None
+        day = None
 
-            if date_year is not None and date_month is not None and date_day is not None:
-                return datetime.date(int(date_year), int(date_month), int(date_day))
-            else:
-                return None
-        else:
-            return None
+        if dateDict is not None:
+            if dateDict.get('year') is not None:
+                string_year = dateDict['year'].get('value', None)
+            if dateDict.get('month') is not None:
+                string_month = dateDict['month'].get('value', None)
+            if dateDict.get('day') is not None:
+                string_day = dateDict['day'].get('value', None)
+
+            year = int(string_year) if string_year is not None else None
+            month = int(string_month) if string_month is not None else None
+            day = int(string_day) if string_day is not None else None
+
+        return year, month, day
 
     def getPositionObject(self, positionDict):
         try:
+            startYear, startMonth, startDay = self.getYearMonthDay(positionDict.get('start-date', None))
+            endYear, endMonth, endDay = self.getYearMonthDay(positionDict.get('end-date', None))
+
             return {
                 'researchprofile': self,
                 'organizationName': positionDict['organization'].get('name', ''),
                 'departmentName': positionDict.get('department-name', ''),
                 'roleTitle': positionDict.get('role-title', ''),
-                'startDate': self.getDate(positionDict.get('start-date', None)),
-                'endDate': self.getDate(positionDict.get('end-date', None))
+                'startYear': startYear,
+                'startMonth': startMonth,
+                'startDay': startDay,
+                'endYear': endYear,
+                'endMonth': endMonth,
+                'endDay': endDay
             }
         except Exception as e:
             print(e)
@@ -311,15 +327,43 @@ post_save.connect(create_portal_permission, sender=User)
 class Position(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='%(class)s')
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
-    roleTitle = models.CharField(max_length=512, blank=True)
-    organizationName = models.CharField(max_length=512, blank=True)
-    departmentName = models.CharField(max_length=512, blank=True)
-    startDate = models.DateField(auto_now=False, auto_now_add=False, blank=True, null=True)
-    endDate = models.DateField(auto_now=False, auto_now_add=False, blank=True, null=True)
+    roleTitle = models.CharField(max_length=512, blank=True, null=True)
+    organizationName = models.CharField(max_length=512, blank=True, null=True)
+    departmentName = models.CharField(max_length=512, blank=True, null=True)
+    startYear = models.PositiveSmallIntegerField(null=True)
+    startMonth = models.PositiveSmallIntegerField(null=True)
+    startDay = models.PositiveSmallIntegerField(null=True)
+    endYear = models.PositiveSmallIntegerField(null=True)
+    endMonth = models.PositiveSmallIntegerField(null=True)
+    endDay = models.PositiveSmallIntegerField(null=True)
 
     class Meta:
         abstract = True
-        ordering = ['-startDate']
+        ordering = ['-startYear', '-startMonth', '-startDay']
+
+    def get_start_date_string(self):
+        startDateString = ''
+        if self.startYear is not None:
+            startDateString += str(self.startYear)
+            
+            if self.startMonth is not None:
+                startDateString = str(self.startMonth) + '.' + startDateString
+
+                if self.startDay is not None:
+                    startDateString = str(self.startDay) + '.' + startDateString
+        return startDateString
+
+    def get_end_date_string(self):
+        endDateString = ''
+        if self.endYear is not None:
+            endDateString += str(self.endYear)
+            
+            if self.endMonth is not None:
+                endDateString = str(self.endMonth) + '.' + endDateString
+
+                if self.endDay is not None:
+                    endDateString = str(self.endDay) + '.' + endDateString
+        return endDateString
 
 class Education(Position):
     pass

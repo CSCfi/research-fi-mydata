@@ -102,9 +102,10 @@
                     {% if employments.count > 0 %}
                         {% for em in employments %}
                         <div class="p-3">
-                            <strong>{{ em.roleTitle }}</strong><br>
-                            <span>{{ em.startDate | date:"d.m.Y" }} - {{ em.endDate | date:"d.m.Y" }}</span><br>
-                            <span>{{ em.organizationName }}, {{ em.departmentName }}</span>
+                            <strong>{{ em.organizationName }}</strong><br>
+                            {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
+                            {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
+                            <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
                         </div>
                         {% endfor %}
                     {% else %}
@@ -131,9 +132,10 @@
                     {% if educations.count > 0 %}
                         {% for ed in educations %}
                         <div class="p-3">
-                            <strong>{{ ed.roleTitle }}</strong><br>
-                            <span>{{ ed.startDate | date:"d.m.Y" }} - {{ ed.endDate | date:"d.m.Y" }}</span><br>
-                            <span>{{ ed.organizationName }}, {{ ed.departmentName }}</span><br>
+                            <strong>{{ ed.organizationName }}</strong><br>
+                            {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
+                            {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
+                            <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
                         </div>
                         {% endfor %}
                     {% else %}
