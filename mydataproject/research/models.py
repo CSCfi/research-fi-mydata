@@ -162,7 +162,7 @@ class ResearchProfile(models.Model):
                         publicationYear = obj["work-summary"][0]["publication-date"]["year"]["value"],
                         doi = doi,
                         datasource = datasource_orcid,
-                        includeInProfile = False
+                        includeInProfile = True
                     )
 
         if orcid_record["person"]:
@@ -275,7 +275,7 @@ class ResearchProfile(models.Model):
                             publicationYear = obj.get("julkaisuVuosi", None),
                             doi = obj.get("doi", None),
                             datasource = datasource_ttv,
-                            includeInProfile = False
+                            includeInProfile = True
                         )
                     except Exception as e:
                         print(e)
