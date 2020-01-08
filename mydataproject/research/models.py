@@ -5,6 +5,9 @@ from django.forms import ModelForm
 import requests, json
 import datetime
 
+# For quick testing
+orcid_id_test = None
+
 class Datasource(models.Model):
     name = models.CharField(max_length=256)
 
@@ -66,6 +69,7 @@ class ResearchProfile(models.Model):
                 'endDay': endDay
             }
         except Exception as e:
+            print("Exception in getPositionObject()")
             print(e)
             return None
 
@@ -88,6 +92,7 @@ class ResearchProfile(models.Model):
                                 education = Education(**educationObj)
                                 education.save()
                             except Exception as e:
+                                print("Exception in orcid_record_json_to_model() educations")
                                 print(e)
                                 pass
 
@@ -103,6 +108,7 @@ class ResearchProfile(models.Model):
                                 employment = Employment(**employmentObj)
                                 employment.save()
                             except Exception as e:
+                                print("Exception in orcid_record_json_to_model() employments")
                                 print(e)
                                 pass
             # Fundings
@@ -119,51 +125,92 @@ class ResearchProfile(models.Model):
                                 invitedPosition = InvitedPosition(**invitedPositionObj)
                                 invitedPosition.save()
                             except Exception as e:
+                                print("Exception in orcid_record_json_to_model() invited positions")
                                 print(e)
                                 pass
                 
             # Peer reviews
-            if self.user.orcid_permission.get_activities_peer_reviews and len(orcid_record["activities-summary"]["peer-reviews"]["group"]) > 0:
-                for group in orcid_record["activities-summary"]["peer-reviews"]["group"]:
-                    for peerReviewGroup in group["peer-review-group"]:
-                        for peerReviewSummary in peerReviewGroup["peer-review-summary"]:          
-                            PeerReview.objects.create(
-                                researchprofile = self,
-                                datasource = datasource_orcid,
-                                reviewerRole = peerReviewSummary.get('reviewer-role', ''),
-                                reviewUrl = peerReviewSummary.get('review-url', ''),
-                                reviewType = peerReviewSummary.get('review-type', ''),
-                                completionDate = self.getDate(peerReviewSummary['completion-date'])
-                            )
+            try:
+                if self.user.orcid_permission.get_activities_peer_reviews and len(orcid_record["activities-summary"]["peer-reviews"]["group"]) > 0:
+                        for group in orcid_record["activities-summary"]["peer-reviews"]["group"]:
+                            for peerReviewGroup in group["peer-review-group"]:
+                                for peerReviewSummary in peerReviewGroup["peer-review-summary"]:          
+                                    PeerReview.objects.create(
+                                        researchprofile = self,
+                                        datasource = datasource_orcid,
+                                        reviewerRole = peerReviewSummary.get('reviewer-role', ''),
+                                        reviewUrl = peerReviewSummary.get('review-url', ''),
+                                        reviewType = peerReviewSummary.get('review-type', ''),
+                                        completionDate = self.getDate(peerReviewSummary['completion-date'])
+                                )
+            except Exception as e:
+                print("Exception in orcid_record_json_to_model() peer reviews")
+                print(e)
+                pass
 
             # Qualifications
-            if self.user.orcid_permission.get_activities_works and orcid_record["activities-summary"]["qualifications"]:
-                self.activity_qualifications = json.dumps(orcid_record["activities-summary"]["qualifications"]["affiliation-group"])
-            # Research resources
-            if self.user.orcid_permission.get_activities_works and orcid_record["activities-summary"]["research-resources"]:
-                self.activity_research_resources = json.dumps(orcid_record["activities-summary"]["research-resources"]["group"])
-            # Services
-            if self.user.orcid_permission.get_activities_works and orcid_record["activities-summary"]["services"]:
-                self.activity_services = json.dumps(orcid_record["activities-summary"]["services"]["affiliation-group"])
-            # Works
-            if self.user.orcid_permission.get_activities_works and len(orcid_record["activities-summary"]["works"]["group"]) > 0:
-                # Create publication objects
-                for obj in orcid_record["activities-summary"]["works"]["group"]:
-                    # doi
-                    doi = None
-                    if "external-id" in obj["external-ids"]:
-                        for external_id in obj["external-ids"]["external-id"]:
-                            if external_id["external-id-type"] == "doi":
-                                doi = external_id.get("external-id-value", None)
+            try:
+                if self.user.orcid_permission.get_activities_works and orcid_record["activities-summary"]["qualifications"]:
+                    self.activity_qualifications = json.dumps(orcid_record["activities-summary"]["qualifications"]["affiliation-group"])
+            except Exception as e:
+                print("Exception in orcid_record_json_to_model() qualifications")
+                print(e)
+                pass
 
-                    Publication.objects.create(
-                        researchprofile = self,
-                        name = obj["work-summary"][0]["title"]["title"]["value"],
-                        publicationYear = obj["work-summary"][0]["publication-date"]["year"]["value"],
-                        doi = doi,
-                        datasource = datasource_orcid,
-                        includeInProfile = True
-                    )
+            # Research resources
+            try:
+                if self.user.orcid_permission.get_activities_works and orcid_record["activities-summary"]["research-resources"]:
+                    self.activity_research_resources = json.dumps(orcid_record["activities-summary"]["research-resources"]["group"])
+            except Exception as e:
+                print("Exception in orcid_record_json_to_model() research resources")
+                print(e)
+                pass
+
+            # Services
+            try:
+                if self.user.orcid_permission.get_activities_works and orcid_record["activities-summary"]["services"]:
+                    self.activity_services = json.dumps(orcid_record["activities-summary"]["services"]["affiliation-group"])
+            except Exception as e:
+                print("Exception in orcid_record_json_to_model() services")
+                print(e)
+                pass
+
+            # Works
+            try:
+                if self.user.orcid_permission.get_activities_works and len(orcid_record["activities-summary"]["works"]["group"]) > 0:
+                    # Create publication objects
+                    for obj in orcid_record["activities-summary"]["works"]["group"]:
+                        # Parse DOI
+                        try:
+                            doi = None
+                            if "external-id" in obj["external-ids"]:
+                                for external_id in obj["external-ids"]["external-id"]:
+                                    if external_id["external-id-type"] == "doi":
+                                        doi = external_id.get("external-id-value", None)
+                        except Exception as e:
+                            print("Exception in orcid_record_json_to_model() works, when parsing DOI")
+                            print(e)
+                            pass
+
+                        # Create object
+                        try:
+                            Publication.objects.create(
+                                researchprofile = self,
+                                name = obj["work-summary"][0]["title"]["title"]["value"],
+                                publicationYear = obj["work-summary"][0]["publication-date"]["year"]["value"] if obj["work-summary"][0]["publication-date"] is not None else None,
+                                doi = doi,
+                                datasource = datasource_orcid,
+                                includeInProfile = True
+                            )
+                        except Exception as e:
+                            print("Exception in orcid_record_json_to_model() works, when creating Publication object")
+                            print(e)
+                            pass
+
+            except Exception as e:
+                print("Exception in orcid_record_json_to_model() works")
+                print(e)
+                pass
 
         if orcid_record["person"]:
             # Addresses
@@ -222,7 +269,11 @@ class ResearchProfile(models.Model):
     def get_orcid_data(self):
         social = self.user.social_auth.get(provider='orcid')
         token = social.extra_data['access_token']
-        orcid_id = self.user.username
+
+        if orcid_id_test is not None:
+            orcid_id = orcid_id_test
+        else:
+            orcid_id = self.user.username
 
         # Get public data
         headers = {
@@ -242,13 +293,17 @@ class ResearchProfile(models.Model):
                 json_data = response.json()
                 self.orcid_record_json_to_model(json_data)
             except Exception as e:
+                print("Exception in get_orcid_data()")
                 print(e)
                 pass
 
         return True
 
     def get_virta_publications(self):
-        orcid_id = self.user.username
+        if orcid_id_test is not None:
+            orcid_id = orcid_id_test
+        else:
+            orcid_id = self.user.username
 
         headers = {
             'Accept': 'application/json',
@@ -278,9 +333,11 @@ class ResearchProfile(models.Model):
                             includeInProfile = True
                         )
                     except Exception as e:
+                        print("Exception when creating Publication objects from Virta json")
                         print(e)
                         pass
             except Exception as e:
+                print("Exception in get_virta_publications()")
                 print(e)
                 pass
 

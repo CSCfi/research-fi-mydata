@@ -383,7 +383,7 @@
                     var publicationElementHtml =
                         '<tr id="publication_' + p.id + '">' +
                         '<td><input type="checkbox" style="cursor: pointer;" ' + checked + ' onclick="includePublication(' + p.id + ',' + p.includeInProfile +')"></td>' +
-                        '<td>' + p.publicationYear + '</td>' +
+                        '<td>' + (p.publicationYear !== null ? p.publicationYear : '-') + '</td>' +
                         '<td>' + p.name + '</td>' +
                         '<td><a href="https://doi.org/' + doi +'" target="_blank">' + doi + '</a></td>' +
                         '<td>' + datasource_ttv_value + '</td>' +
