@@ -27,7 +27,7 @@
 <script type="text/javascript">
     $( document ).ready(function() {
         $('#connect-orcid-button').click(function(){
-            $('#overlay').show();
+            busyIndicatorShow();
         });
     });
 </script>
@@ -370,6 +370,16 @@
 
     var includeAllPublications = false;
 
+    // Show busy indicator
+    function busyIndicatorShow() {
+        $('#overlay').show();
+    }
+
+    // Hide busy indicator
+    function busyIndicatorHide() {
+        $('#overlay').hide();
+    }
+
     // Get publications
     function getPublications() {
         $.ajax({
@@ -388,8 +398,8 @@
                     var datasource_manual_value = (p.datasource_id === 3 ? datasourceIcon: '');
                     var doi = p.doi && p.doi !== null ? p.doi : '';
                     var publicationElementHtml =
-                        '<tr id="publication_' + p.id + '" class="publicationRow">' +
-                        '<td><input type="checkbox" style="cursor: pointer;" ' + checked + ' onclick="includePublication(' + p.id + ',' + p.includeInProfile +')"></td>' +
+                        '<tr id="publication_' + p.id + '">' +
+                        '<td><input class="publicationIncludeCheckbox" type="checkbox" style="cursor: pointer;" ' + checked + ' onclick="includePublication(' + p.id + ',' + p.includeInProfile +')"></td>' +
                         '<td>' + (p.publicationYear !== null ? p.publicationYear : '-') + '</td>' +
                         '<td>' + p.name + '</td>' +
                         '<td><a href="https://doi.org/' + doi +'" target="_blank">' + doi + '</a></td>' +
@@ -414,6 +424,8 @@
 
     // Add publication into research profile
     function addPublication(index) {
+        busyIndicatorShow();
+
         var publication = {
             authorsText: publicationSearchResults[index]._source.authorsText,
             publicationName: publicationSearchResults[index]._source.publicationName,
@@ -435,11 +447,14 @@
             },
             dataType: 'json'
         }).done(function() {
+            busyIndicatorHide();
         });
     };
 
     // Delete publication from research profile
     function deletePublication(publicationId) {
+        busyIndicatorShow();
+
         $.ajax({
             type: 'POST',
             url: '{% url "publication_delete" %}',
@@ -453,11 +468,14 @@
             },
             dataType: 'json'
         }).done(function() {
+            busyIndicatorHide();
         });
     };
 
     // Include/exclude publication from research profile
     function includePublication(publicationId, oldValue) {
+        busyIndicatorShow();
+
         var include = !oldValue;
         $.ajax({
             type: 'POST',
@@ -473,12 +491,15 @@
             dataType: 'json'
         }).done(function() {
             console.log("DONE");
+            busyIndicatorHide();
         });
     };
 
     // Toggle all publications
     function toggleAllPublications() {
         includeAllPublications = !includeAllPublications;
+
+        busyIndicatorShow();
 
         $.ajax({
             type: 'POST',
@@ -489,23 +510,23 @@
             },
             success: function() {
                 console.log("all publication include status changed");
-                $('.publicationRow').remove();
-                getPublications();
+                $('.publicationIncludeCheckbox').prop('checked', includeAllPublications);
             },
             dataType: 'json'
         }).done(function() {
             console.log("DONE");
+            busyIndicatorHide();
         });
 
     }
 
     $( document ).ready(function() {
         $('#saveChangesBtn').click(function(){
-            $('#overlay').show();
+            busyIndicatorShow();
         });
 
         $('#deleteProfileBtn').click(function(){
-            $('#overlay').show();
+            busyIndicatorShow();
         });
 
         //try {
@@ -527,7 +548,7 @@
 
         $('#pubTtvSearchBtn').click(function(){
             // Show indicator
-            $('#overlay').show();
+            busyIndicatorShow();
 
             // Clear old results
             $('#pubTtvSearchResultTableBody').html('');
@@ -578,7 +599,7 @@
                 },
                 complete: function() {
                     // Hide indicator
-                    $('#overlay').hide();
+                    busyIndicatorHide();
                 }
             });
         });
