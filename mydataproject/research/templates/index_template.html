@@ -43,10 +43,10 @@
 
 <div class="accordion mb-5" id="researchProfileAccordion">
     <div class="card">
-        <!-- Nimi ja tunnisteet -->
+        <!-- Yhteystiedot -->
         <div class="card-header d-flex" id="heading1">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
-                Nimi ja tunnisteet
+                Yhteystiedot
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -81,17 +81,16 @@
                 <dl class="row">
                     <dt class="col-sm-3">Kuvaus</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_biography | default:"-" }}</dd>
                     <dt class="col-sm-3">Tieteenalat</dt></dt><dd class="col-sm-9">-</dd>
-                    <dt class="col-sm-3">Tutkimusalat</dt></dt><dd class="col-sm-9">-</dd>
                     <dt class="col-sm-3">Avainsanat</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_keywords | default:"-" }}</dd>
                 </dl>
             </div>
         </div>
     </div>
     <div class="card">
-        <!-- Organisaatio -->
+        <!-- Affiliaatio -->
         <div class="card-header d-flex" id="heading3">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
-                Organisaatio
+                Affiliaatio
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -118,10 +117,10 @@
         </div>
     </div>
     <div class="card">
-        <!-- Tutkinnot -->
+        <!-- Koulutus -->
         <div class="card-header d-flex" id="heading4">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
-                Tutkinnot
+                Koulutus
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -132,9 +131,9 @@
                     {% if educations.count > 0 %}
                         {% for ed in educations %}
                         <div class="p-3">
-                            <strong>{{ ed.organizationName }}</strong><br>
+                            {% if ed.roleTitle %}<strong>{{ ed.roleTitle }}</strong><br>{% endif %}
+                            <span>{{ ed.organizationName }}</span><br>
                             {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
-                            {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
                             <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
                         </div>
                         {% endfor %}
@@ -147,35 +146,6 @@
             </div>
         </div>
     </div>
-    <div class="card">
-            <!-- Kutsutut tehtävät -->
-            <div class="card-header d-flex" id="heading4234234">
-                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse4234234" aria-expanded="false" aria-controls="collapse4234234">
-                    Kutsutut tehtävät
-                </button>
-                <span class="align-self-center ml-auto">
-                </span>
-            </div>
-            <div id="collapse4234234" class="collapse" aria-labelledby="heading4234234" data-parent="#researchProfileAccordion">
-                <div class="card-body">
-                    <div id="invited-positions" class="mx-5">
-                        {% if invited_positions.count > 0 %}
-                            {% for ip in invited_positions %}
-                            <div class="p-3">
-                                <strong>{{ ip.roleTitle }}</strong><br>
-                                <span>{{ ip.startDate | date:"d.m.Y" }} - {{ ip.endDate | date:"d.m.Y" }}</span><br>
-                                <span>{{ ip.organizationName }}, {{ ip.departmentName }}</span><br>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="p-3">
-                                -
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
     <div class="card">
         <!-- Julkaisut -->
         <div class="card-header d-flex" id="headingPublications">
@@ -330,8 +300,10 @@
             </div>
         </div>
     </div>
+
+    <!-- Vertaisarviot -->
+    <!--
     <div class="card">
-        <!-- Vertaisarviot -->
         <div class="card-header d-flex" id="heading387dh3">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse387dh3" aria-expanded="false" aria-controls="collapse387dh3">
                 Vertaisarviot
@@ -357,6 +329,39 @@
             </div>
         </div>
     </div>
+    -->
+    
+    <!-- Kutsutut tehtävät -->
+    <!--
+    <div class="card">
+        <div class="card-header d-flex" id="heading4234234">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse4234234" aria-expanded="false" aria-controls="collapse4234234">
+                Kutsutut tehtävät
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse4234234" class="collapse" aria-labelledby="heading4234234" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <div id="invited-positions" class="mx-5">
+                    {% if invited_positions.count > 0 %}
+                        {% for ip in invited_positions %}
+                        <div class="p-3">
+                            <strong>{{ ip.roleTitle }}</strong><br>
+                            <span>{{ ip.startDate | date:"d.m.Y" }} - {{ ip.endDate | date:"d.m.Y" }}</span><br>
+                            <span>{{ ip.organizationName }}, {{ ip.departmentName }}</span><br>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-3">
+                            -
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    -->
 </div>
 
 <script type="text/javascript">

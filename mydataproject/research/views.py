@@ -3,6 +3,8 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.forms import modelformset_factory
 from django.http import JsonResponse
+from django.db.models import Value
+from django.db.models.functions import Coalesce
 from orciddata.models import Permission, PermissionForm
 from research.models import PortalPermission, Datasource, Publication
 import json
@@ -47,34 +49,10 @@ def index(request):
             context["datasource_ttv"] = Datasource.objects.get(name="TTV")
             context["datasource_orcid"] = Datasource.objects.get(name="ORCID")
             context["datasource_manual"] = Datasource.objects.get(name="MANUAL")
-            context["employments"] = request.user.researchprofile.employment.all()
-            context["educations"] = request.user.researchprofile.education.all()
-            #context["publications"] = request.user.researchprofile.publications.all().order_by('-publicationYear', 'name')
-            #context["publications_ttv"] = request.user.researchprofile.publications.filter(datasource = datasource_ttv)
-            #context["publications_orcid"] = request.user.researchprofile.publications.filter(datasource = datasource_orcid)
+            context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
             context["invited_positions"] = request.user.researchprofile.invitedposition.all()
-
-            #if request.method == "POST":
-                #old_portal_permission = PortalPermission.objects.get(user=request.user)
-                #portal_permission_form = PortalPermissionForm(request.POST, instance=old_portal_permission)
-
-            #    portal_permission_formset = PortalPermissionFormSet(request.POST, queryset=PortalPermission.objects.filter(user=request.user))
-
-            #    if portal_permission_formset.is_valid():
-                    # Portal permission form is valid
-            #        portal_permission_formset.save()
-            #        return redirect('index')
-            #    else:
-                    # Portal permission form is not valid
-            #        print(portal_permission_formset.errors)
-            #        context['portal_permission_formset'] = portal_permission_formset
-            #else:
-            #    context['portal_permission_formset'] = PortalPermissionFormSet(queryset=PortalPermission.objects.filter(user=request.user))
-
-                #portal_permission = PortalPermission.objects.get(user=request.user)
-                #context['portal_permission_form'] = PortalPermissionForm(instance=portal_permission, label_suffix='')
-
     return render(request, 'index_template.html', context)
 
 def logout_view(request):
