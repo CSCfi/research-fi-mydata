@@ -358,10 +358,10 @@ class TrustedParty(models.Model):
 class PortalPermission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='portal_permission')
     trusted_party = models.ForeignKey(TrustedParty, on_delete=models.CASCADE, related_name='portal_permission')
-    show_person_info = models.BooleanField(default=True, verbose_name='Nimi ja tunnisteet')
+    show_person_info = models.BooleanField(default=True, verbose_name='Yhteystiedot')
     show_research_description = models.BooleanField(default=True, verbose_name='Tutkimustoiminnan kuvaus')
-    show_organization = models.BooleanField(default=True, verbose_name='Organisaatio')
-    show_education = models.BooleanField(default=True, verbose_name='Tutkinnot')
+    show_organization = models.BooleanField(default=True, verbose_name='Affiliaatio')
+    show_education = models.BooleanField(default=True, verbose_name='Koulutus')
     show_works = models.BooleanField(default=True, verbose_name='Julkaisut')
     show_research_resources = models.BooleanField(default=True, verbose_name='Tutkimusaineistot')
     show_fundings = models.BooleanField(default=True, verbose_name='Hankkeet')
