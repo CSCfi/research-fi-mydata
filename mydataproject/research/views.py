@@ -113,7 +113,7 @@ def profile_settings(request):
 # List user's publications
 @login_required
 def publication_list(request):
-    queryset = Publication.objects.filter(researchprofile = request.user.researchprofile).order_by('-publicationYear', 'name').values()
+    queryset = Publication.objects.filter(researchprofile = request.user.researchprofile).annotate(year_null=Coalesce('publicationYear', Value(-1))).order_by('-year_null', 'name').values()
     return JsonResponse({"publications": list(queryset) })
 
 # Add publication into user's researchprofile
@@ -136,16 +136,25 @@ def publication_add(request):
 @login_required
 def publication_delete(request):
     publicationId = request.POST.get('publicationId')
-    Publication.objects.filter(id=publicationId).delete()
+    Publication.objects.filter(id=publicationId, researchprofile=request.user.researchprofile).delete()
     return JsonResponse({})
 
-# Include or exclude publication from user's researchprofile
+# Include or exclude a single publication from user's researchprofile
 @login_required
 def publication_include(request):
     publicationId = request.POST.get('publicationId')
     include_javascript_value = request.POST.get('include')
     include = True if include_javascript_value == "true" else False
-    publication = Publication.objects.get(id=publicationId)
+    publication = Publication.objects.get(id=publicationId, researchprofile=request.user.researchprofile)
     publication.includeInProfile = include
     publication.save()
+    return JsonResponse({})
+
+# Include or exclude all publications from user's researchprofile
+@login_required
+def publication_include_all(request):
+    include_javascript_value = request.POST.get('include')
+    include = True if include_javascript_value == "true" else False
+    publications = Publication.objects.filter(researchprofile=request.user.researchprofile)
+    publications.update(includeInProfile = include)
     return JsonResponse({})

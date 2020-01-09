@@ -184,7 +184,7 @@
                             <table class="table table-hover table-sm">
                                 <thead>
                                     <tr>
-                                        <th scope="col"></th>
+                                        <th scope="col"><input onclick="toggleAllPublications()" type="checkbox"></th>
                                         <th scope="col">Vuosi</th>
                                         <th scope="col">Nimi</th>
                                         <th scope="col">DOI</th>
@@ -368,6 +368,8 @@
     // TTV publication search results
     var publicationSearchResults = [];
 
+    var includeAllPublications = false;
+
     // Get publications
     function getPublications() {
         $.ajax({
@@ -386,7 +388,7 @@
                     var datasource_manual_value = (p.datasource_id === 3 ? datasourceIcon: '');
                     var doi = p.doi && p.doi !== null ? p.doi : '';
                     var publicationElementHtml =
-                        '<tr id="publication_' + p.id + '">' +
+                        '<tr id="publication_' + p.id + '" class="publicationRow">' +
                         '<td><input type="checkbox" style="cursor: pointer;" ' + checked + ' onclick="includePublication(' + p.id + ',' + p.includeInProfile +')"></td>' +
                         '<td>' + (p.publicationYear !== null ? p.publicationYear : '-') + '</td>' +
                         '<td>' + p.name + '</td>' +
@@ -473,6 +475,29 @@
             console.log("DONE");
         });
     };
+
+    // Toggle all publications
+    function toggleAllPublications() {
+        includeAllPublications = !includeAllPublications;
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "publication_include_all" %}',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                include: includeAllPublications
+            },
+            success: function() {
+                console.log("all publication include status changed");
+                $('.publicationRow').remove();
+                getPublications();
+            },
+            dataType: 'json'
+        }).done(function() {
+            console.log("DONE");
+        });
+
+    }
 
     $( document ).ready(function() {
         $('#saveChangesBtn').click(function(){
