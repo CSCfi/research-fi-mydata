@@ -73,6 +73,31 @@ class ResearchProfile(models.Model):
             print(e)
             return None
 
+    def update_or_create_publication(self, p_doi, p_datasource, p_name, p_publicationYear, p_includeInProfile):
+        try:
+            if p_doi is not None and len(p_doi) > 10:
+                try:
+                    oldPublication = Publication.objects.get(doi=p_doi, researchprofile=self)
+                    oldPublication.datasources.add(p_datasource)
+                    oldPublication.save()
+                    return True
+                except Publication.DoesNotExist:
+                    pass
+            newPublication = Publication.objects.create(
+                researchprofile = self,
+                name = p_name,
+                publicationYear = p_publicationYear,
+                doi = p_doi,
+                includeInProfile = True
+            )
+            newPublication.datasources.add(p_datasource)
+            newPublication.save()
+        except Exception as e:
+            print("Exception in orcid_record_json_to_model() works, when creating Publication object")
+            print(e)
+            return False
+
+
     def orcid_record_json_to_model(self, orcid_record):
         datasource_orcid = Datasource.objects.get(name="ORCID")
 
@@ -193,20 +218,15 @@ class ResearchProfile(models.Model):
                             pass
 
                         # Create object
-                        try:
-                            Publication.objects.create(
-                                researchprofile = self,
-                                name = obj["work-summary"][0]["title"]["title"]["value"],
-                                publicationYear = obj["work-summary"][0]["publication-date"]["year"]["value"] if obj["work-summary"][0]["publication-date"] is not None else None,
-                                doi = doi,
-                                datasource = datasource_orcid,
-                                includeInProfile = True
-                            )
-                        except Exception as e:
-                            print("Exception in orcid_record_json_to_model() works, when creating Publication object")
-                            print(e)
-                            pass
-
+                        name = obj["work-summary"][0]["title"]["title"]["value"]
+                        publicationYear = obj["work-summary"][0]["publication-date"]["year"]["value"] if obj["work-summary"][0]["publication-date"] is not None else 0
+                        self.update_or_create_publication(
+                            doi,
+                            datasource_orcid,
+                            name,
+                            publicationYear,
+                            True
+                        )
             except Exception as e:
                 print("Exception in orcid_record_json_to_model() works")
                 print(e)
@@ -324,14 +344,11 @@ class ResearchProfile(models.Model):
                 datasource_ttv = Datasource.objects.get(name="TTV")
                 for obj in virta_json_data:
                     try:
-                        Publication.objects.create(
-                            researchprofile = self,
-                            name = obj.get("julkaisunNimi", None),
-                            publicationYear = obj.get("julkaisuVuosi", None),
-                            doi = obj.get("doi", None),
-                            datasource = datasource_ttv,
-                            includeInProfile = True
-                        )
+                        doi = obj.get("doi", None)
+                        name = obj.get("julkaisunNimi", None)
+                        publicationYear = obj.get("julkaisuVuosi", 0)
+                        
+                        self.update_or_create_publication(doi, datasource_ttv, name, publicationYear, True)
                     except Exception as e:
                         print("Exception when creating Publication objects from Virta json")
                         print(e)
@@ -452,7 +469,7 @@ class PeerReview(models.Model):
 
 class Publication(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='publications')
-    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+    datasources = models.ManyToManyField(Datasource)
     name = models.CharField(max_length=512, blank=True)
     publicationYear = models.PositiveSmallIntegerField(null=True)
     doi = models.CharField(max_length=512, blank=True, null=True)
@@ -460,7 +477,7 @@ class Publication(models.Model):
 
     class Meta:
         ordering = ['-publicationYear']
-        unique_together = [['name', 'datasource']]
+        unique_together = [['doi', 'name']]
 
 class Qualifications(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='qualifications')

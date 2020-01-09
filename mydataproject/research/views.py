@@ -10,6 +10,7 @@ from research.models import PortalPermission, Datasource, Publication
 import json
 from .forms import PortalPermissionFormSet
 from django.conf import settings
+from django.core import serializers
 
 def index(request):
     context = {}
@@ -113,30 +114,58 @@ def profile_settings(request):
 # List user's publications
 @login_required
 def publication_list(request):
-    queryset = Publication.objects.filter(researchprofile = request.user.researchprofile).annotate(year_null=Coalesce('publicationYear', Value(-1))).order_by('-year_null', 'name').values()
-    return JsonResponse({"publications": list(queryset) })
+    publications = Publication.objects.filter(researchprofile = request.user.researchprofile).order_by('-publicationYear', 'name')
+
+    data = serializers.serialize("json", publications)
+    #queryset = Publication.objects.filter(researchprofile = request.user.researchprofile).annotate(year_null=Coalesce('publicationYear', Value(-1))).order_by('-year_null', 'name').values()
+    return JsonResponse({"publications": json.loads(data) })
 
 # Add publication into user's researchprofile
 @login_required
 def publication_add(request):
     newPublicationDict = json.loads(request.POST.get('publication'))
-    datasource = Datasource.objects.get(name="MANUAL")
+    datasource_manual = Datasource.objects.get(name="MANUAL")
+    doi = newPublicationDict.get("doi", None)
 
-    Publication.objects.create(
+    if doi is not None and len(doi) > 10:
+        try:
+            print(doi)
+            oldPublication = Publication.objects.get(researchprofile=request.user.researchprofile, doi=doi)
+            oldPublication.datasources.add(datasource_manual)
+            oldPublication.save()
+            return JsonResponse({})
+        except Publication.DoesNotExist:
+            pass
+    newPublication = Publication.objects.create(
         researchprofile = request.user.researchprofile,
-        datasource = datasource,
-        name = newPublicationDict["publicationName"],
-        publicationYear = newPublicationDict["publicationYear"],
-        doi = newPublicationDict["doi"],
+        name = newPublicationDict.get("publicationName", None),
+        publicationYear = newPublicationDict.get("publicationYear", 0),
+        doi = doi,
         includeInProfile = True
     )
+    newPublication.datasources.add(datasource_manual)
+    newPublication.save()
     return JsonResponse({})
 
-# Delete publication from user's researchprofile
+# Delete manually added publication from user's researchprofile
 @login_required
 def publication_delete(request):
+    datasource_manual = Datasource.objects.get(name="MANUAL")
     publicationId = request.POST.get('publicationId')
-    Publication.objects.filter(id=publicationId, researchprofile=request.user.researchprofile).delete()
+
+    publication = Publication.objects.get(id=publicationId, researchprofile=request.user.researchprofile)
+    
+    # Remove data source "manual" from publication
+    publication.datasources.remove(datasource_manual)
+
+    # Check if there are other datasources left for the same publication.
+    if publication.datasources.count() > 0:
+        # There are other datasources, update publication.
+        publication.save()
+    else:
+        # There are no other datasources, delete publication
+        publication.delete()
+
     return JsonResponse({})
 
 # Include or exclude a single publication from user's researchprofile
