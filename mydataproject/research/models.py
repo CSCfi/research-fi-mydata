@@ -281,10 +281,18 @@ class ResearchProfile(models.Model):
         InvitedPosition.objects.filter(researchprofile = self).delete()
         Membership.objects.filter(researchprofile = self).delete()
         PeerReview.objects.filter(researchprofile = self).delete()
-        Publication.objects.filter(researchprofile = self, datasource=datasource_orcid).delete()
         Qualifications.objects.filter(researchprofile = self).delete()
         ResearchResouce.objects.filter(researchprofile = self).delete()
         Service.objects.filter(researchprofile = self).delete()
+
+        # Delete publications whose only data source is Orcid.
+        # If there are other data sources, keep the publication but remove the Orcid datasource.
+        publications = Publication.objects.filter(researchprofile = self, datasources=datasource_orcid)
+        for p in publications:
+            if p.datasources.count() == 1:
+                p.delete()
+            else:
+                p.datasources.remove(datasource_orcid)
 
     def get_orcid_data(self):
         social = self.user.social_auth.get(provider='orcid')
