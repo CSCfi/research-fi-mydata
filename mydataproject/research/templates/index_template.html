@@ -53,17 +53,70 @@
         </div>
         <div id="collapse1" class="collapse" aria-labelledby="heading1" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <dl class="row">
-                    <dt class="col-sm-3">Sukunimi</dt><dd class="col-sm-9">{{ request.user.last_name }}</dd>
-                    <dt class="col-sm-3">Etunimi</dt><dd class="col-sm-9">{{ request.user.first_name }}</dd>
-                    <dt class="col-sm-3">Muut nimet</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_other_names | default:"-" }}</dd>
-                    <dt class="col-sm-3">ORCID-tunniste</dt><dd class="col-sm-9"><a href="https://orcid.org/{{ request.user.username }}" target="_blank">{{ request.user.username }}</a></dd>
-                    <dt class="col-sm-3">Muut tunnisteet</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_external_identifiers | default:"-" | safe }}</dd>
-                    <dt class="col-sm-3">Sähköpostiosoite</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_emails | default:"-" }}</dd>
-                    <dt class="col-sm-3">Verkko-osoite</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_researcher_urls | default:"-" | safe }}</dd>
-                    <dt class="col-sm-3">Puhelinnumero</dt><dd class="col-sm-9">-</dd>
-                    <dt class="col-sm-3">Sometilit / URL</dt><dd class="col-sm-9">-</dd>
-                </dl>
+                <div class="mx-5 my-3">
+                    <table class="table" id="contactInfoTable">
+                        <thead class="thead-light">
+                            <th></th>
+                            <th>ORCID</th>
+                            <th>Kotiorganisaatio</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Sukunimi</th>
+                                <td>{{ request.user.last_name }}</td>
+                                <td>Virtanen</td>
+                            </tr>
+
+                            <tr>
+                                <th>Etunimi</th>
+                                <td>{{ request.user.first_name }}</td>
+                                <td>A</td>
+                            </tr>
+
+                            <tr>
+                                <th>Muut nimet</th>
+                                <td>{{ request.user.researchprofile.person_other_names | default:"-" }}</td>
+                                <td>AV, A.Virtanen</td>
+                            </tr>
+
+                            <tr>
+                                <th>ORCID-tunniste</th>
+                                <td><a href="https://orcid.org/{{ request.user.username }}" target="_blank">{{ request.user.username }}</a></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <th>Muut tunnisteet</th>
+                                <td>{{ request.user.researchprofile.person_external_identifiers | default:"-" | safe }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <th>Sähköpostiosoite</th>
+                                <td>{{ request.user.researchprofile.person_emails | default:"-" }}</td>
+                                <td>a.virtanen@example.comm</td>
+                            </tr>
+
+                            <tr>
+                                <th>Verkko-osoite</th>
+                                <td>{{ request.user.researchprofile.person_researcher_urls | default:"-" | safe }}</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <th>Puhelinnumero</th>
+                                <td>-</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <th>Sometilit / URL</th>
+                                <td>-</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -78,11 +131,13 @@
         </div>
         <div id="collapse2" class="collapse" aria-labelledby="heading2" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <dl class="row">
-                    <dt class="col-sm-3">Kuvaus</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_biography | default:"-" }}</dd>
-                    <dt class="col-sm-3">Tieteenalat</dt></dt><dd class="col-sm-9">-</dd>
-                    <dt class="col-sm-3">Avainsanat</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_keywords | default:"-" }}</dd>
-                </dl>
+                <div class="mx-5 my-3">
+                    <dl class="row">
+                        <dt class="col-sm-3">Kuvaus</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_biography | default:"-" }}</dd>
+                        <dt class="col-sm-3">Tieteenalat</dt></dt><dd class="col-sm-9">-</dd>
+                        <dt class="col-sm-3">Avainsanat</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_keywords | default:"-" }}</dd>
+                    </dl>
+                </div>
             </div>
         </div>
     </div>
@@ -251,7 +306,7 @@
         </div>
         <div id="collapse6" class="collapse" aria-labelledby="heading6" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                -
+                <div class="px-5">-</div>
             </div>
         </div>
     </div>
@@ -266,7 +321,7 @@
         </div>
         <div id="collapse7" class="collapse" aria-labelledby="heading7" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <pre class="orcid-json" id="json-renderer-fundings"></pre>
+                <div class="px-5">-</div>
             </div>
         </div>
     </div>
@@ -281,7 +336,7 @@
         </div>
         <div id="collapse8" class="collapse" aria-labelledby="heading8" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                -
+                <div class="px-5">-</div>
             </div>
         </div>
     </div>
@@ -296,7 +351,7 @@
         </div>
         <div id="collapse9" class="collapse" aria-labelledby="heading9" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                -
+                <div class="px-5">-</div>
             </div>
         </div>
     </div>
