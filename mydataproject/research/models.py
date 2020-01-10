@@ -275,6 +275,15 @@ class ResearchProfile(models.Model):
 
     def delete_orcid_data(self):
         datasource_orcid = Datasource.objects.get(name="ORCID")
+
+        self.person_addresses = None
+        self.person_biography = None
+        self.person_emails = None
+        self.person_external_identifiers = None
+        self.person_keywords = None
+        self.person_other_names = None
+        self.person_researcher_urls = None
+
         Education.objects.filter(researchprofile = self).delete()
         Employment.objects.filter(researchprofile = self).delete()
         Funding.objects.filter(researchprofile = self).delete()
@@ -293,6 +302,8 @@ class ResearchProfile(models.Model):
                 p.delete()
             else:
                 p.datasources.remove(datasource_orcid)
+
+        self.save()
 
     def get_orcid_data(self):
         social = self.user.social_auth.get(provider='orcid')
