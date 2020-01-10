@@ -118,7 +118,7 @@
                         {% endif %}
 
                         <li class="nav-item">
-                            <a id="logoutBtn" class="nav-link" href="{% url 'logout_view' %}">Kirjaudu ulos</a>
+                            <a class="nav-link" href="{% url 'logout_view' %}">Kirjaudu ulos</a>
                         </li>
                     </ul>
                     
@@ -141,10 +141,19 @@
     </body>
 
     <script type="text/javascript">
-        $( document ).ready(function() {
-            $('#logoutBtn').click(function(){
-                $('#overlay').show();
-            });
+        // Show busy indicator
+        function busyIndicatorShow() {
+            $('#overlay').show();
+        }
+
+        // Hide busy indicator
+        function busyIndicatorHide() {
+            $('#overlay').hide();
+        }
+
+        $(document).ready(function() {
+            // Show busy indicator when menu items are selected
+            $('.navbar a').click(busyIndicatorShow);
         });
     </script>
 </html>

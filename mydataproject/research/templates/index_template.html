@@ -184,7 +184,7 @@
                             <table class="table table-hover table-sm">
                                 <thead>
                                     <tr>
-                                        <th scope="col"><input onclick="toggleAllPublications()" type="checkbox"></th>
+                                        <th scope="col"><input id="toggleAllPublications" onclick="toggleAllPublications()" type="checkbox"></th>
                                         <th scope="col">Vuosi</th>
                                         <th scope="col">Nimi</th>
                                         <th scope="col">DOI</th>
@@ -375,16 +375,6 @@
 
     var includeAllPublications = false;
 
-    // Show busy indicator
-    function busyIndicatorShow() {
-        $('#overlay').show();
-    }
-
-    // Hide busy indicator
-    function busyIndicatorHide() {
-        $('#overlay').hide();
-    }
-
     // Get publications
     function getPublications() {
         busyIndicatorShow();
@@ -394,6 +384,9 @@
             url: '{% url "publication_list" %}',
             data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
             beforeSend: function () {
+                // Hide toggle all rows checkbox
+                $('#toggleAllPublications').hide();
+                // Remove old rows
                 $('#publicationTableBody').html('');
             },
             success: function(response) {
@@ -423,6 +416,11 @@
                         publicationElementHtml += '</tr>';
                     $('#publicationTableBody').append(publicationElementHtml);
                 });
+
+                // Show toggle all publications checkbox
+                if (response.publications.length > 1) {
+                    $('#toggleAllPublications').show();
+                }
             },
             dataType: 'json'
         }).done(function() {
@@ -440,7 +438,6 @@
             publicationYear: publicationSearchResults[index]._source.publicationYear,
             doi: publicationSearchResults[index]._source.doi
         };
-        console.log("ADD PUB", publication);
 
         $.ajax({
             type: 'POST',
@@ -450,7 +447,6 @@
                 publication: JSON.stringify(publication)
             },
             success: function() {
-                console.log("publication added");
                 $('#publicationSearchRow_' + index).remove();
             },
             dataType: 'json'
@@ -471,7 +467,6 @@
                 publicationId: publicationId
             },
             success: function() {
-                console.log("publication deleted");
                 $('#publication_' + publicationId).remove();
             },
             dataType: 'json'
@@ -494,11 +489,9 @@
                 include: include
             },
             success: function() {
-                console.log("publication include status changed");
             },
             dataType: 'json'
         }).done(function() {
-            console.log("DONE");
             busyIndicatorHide();
         });
     };
@@ -517,31 +510,16 @@
                 include: includeAllPublications
             },
             success: function() {
-                console.log("all publication include status changed");
                 $('.publicationIncludeCheckbox').prop('checked', includeAllPublications);
             },
             dataType: 'json'
         }).done(function() {
-            console.log("DONE");
             busyIndicatorHide();
         });
 
     }
 
-    $( document ).ready(function() {
-        $('#saveChangesBtn').click(function(){
-            busyIndicatorShow();
-        });
-
-        $('#deleteProfileBtn').click(function(){
-            busyIndicatorShow();
-        });
-
-        //try {
-        //    $('#json-renderer-fundings').jsonViewer({{ request.user.researchprofile.activity_fundings | safe }});
-        //} catch (err) { console.error("jsonViewer activity_fundings", err); }
-
-
+    $(document).ready(function() {
         $('#collapsePublications').on('show.bs.collapse', function (e) {
             getPublications();
         });
@@ -551,8 +529,6 @@
                 getPublications();
             }
         });
-
-
 
         $('#pubTtvSearchBtn').click(function(){
             // Show indicator

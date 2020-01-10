@@ -240,7 +240,7 @@
                 
                     <div class="row">
                         <div class="col-sm-6 offset-sm-3 mt-4">
-                            <button id="orcidFormBtn" type="submit" class="btn btn-primary btn-block">Tallenna</button>
+                            <button id="orcidFormBtn" type="submit" class="btn btn-primary btn-block" onclick="busyIndicatorShow();">Tallenna</button>
                         </div>
                     </div>
                 </form>
@@ -314,7 +314,7 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <button id="readpermissionFormBtn" class="btn btn-primary btn-block mt-5" type="submit">Tallenna</button>
+                        <button id="readpermissionFormBtn" class="btn btn-primary btn-block mt-5" type="submit" onclick="busyIndicatorShow();">Tallenna</button>
                     </form>
                 </div>
 
@@ -326,7 +326,7 @@
 
 <div class="row">
     <div class="col mt-2">
-        <a id="deleteProfileBtn" class="btn btn-outline-danger float-right" href="{% url 'delete_profile' %}" role="button">
+        <a id="deleteProfileBtn" class="btn btn-outline-danger float-right" href="{% url 'delete_profile' %}" role="button" onclick="busyIndicatorShow();">
             <i class="fa fa-trash-alt" aria-hidden="true"></i> Poista profiili
         </a>
     </div>
@@ -337,14 +337,6 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        // Show busy indicator when profile create button is pressed.
-        $('#orcidFormBtn').click(function(){
-            $('#overlay').show();
-        });
-        $('#readpermissionFormBtn').click(function(){
-            $('#overlay').show();
-        });
-
         // Handle "select all" for person section
         $('#id_person_all').click(function(){
             var person_checked = $('#id_person_all').prop('checked');
