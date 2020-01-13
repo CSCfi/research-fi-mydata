@@ -173,27 +173,4 @@
         </div>
     </div>
 </form>
-
-
-<script type="text/javascript">
-    $(document).ready(function() {
-        // Show busy indicator when profile create button is pressed.
-        $('#createProfileBtn').click(function(){
-            $('#overlay').show();
-        });
-
-        // Handle "select all" for person section
-        $('#id_person_all').click(function(){
-            var person_checked = $('#id_person_all').prop('checked');
-            $('.orcid-person').prop('checked', person_checked );
-        });
-
-        // Handle "select all" for activities section
-        $('#id_activities_all').click(function(){
-            var activities_checked = $('#id_activities_all').prop('checked');
-            $('.orcid-activities').prop('checked', activities_checked );
-        });
-    });
-</script>
-
 {% endblock content %}

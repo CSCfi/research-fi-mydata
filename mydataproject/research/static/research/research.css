@@ -1,0 +1,70 @@
+body {
+    background-color: #eee;
+}
+
+#main-content {
+    background-color: #fff;
+}
+
+#connect-orcid-button{
+    border: 1px solid #D3D3D3;
+    padding: .3em;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 1px 1px 3px #999;
+    cursor: pointer;
+    color: #999;
+    font-weight: bold;
+    font-size: .8em;
+    line-height: 24px;
+    vertical-align: middle;
+}
+
+#connect-orcid-button:hover{
+    border: 1px solid #338caf;
+    color: #338caf;
+}
+
+#orcid-id-icon{
+    display: block;
+    margin: 0 .5em 0 0;
+    padding: 0;
+    float: left;
+}
+
+#contactInfoTable td:hover {
+    background-color: #eee;
+    cursor: pointer;
+}
+
+#overlay {
+    background: #ffffff;
+    color: #666666;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    z-index: 5000;
+    top: 0;
+    left: 0;
+    float: left;
+    text-align: center;
+    padding-top: 25%;
+    opacity: .80;
+}
+.spinner {
+    margin: 0 auto;
+    height: 64px;
+    width: 64px;
+    animation: rotate 0.8s infinite linear;
+    border: 5px solid firebrick;
+    border-right-color: transparent;
+    border-radius: 50%;
+}
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -10,82 +10,13 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" crossorigin="anonymous">
         <link rel="stylesheet" href="{% static 'research/jquery.json-viewer.css' %}">
+        <link rel="stylesheet" href="{% static 'research/research.css' %}">
         
         <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-        <style>
-            body {
-                background-color: #eee;
-            }
 
-            #main-content {
-                background-color: #fff;
-            }
-
-            #connect-orcid-button{
-                border: 1px solid #D3D3D3;
-                padding: .3em;
-                background-color: #fff;
-                border-radius: 8px;
-                box-shadow: 1px 1px 3px #999;
-                cursor: pointer;
-                color: #999;
-                font-weight: bold;
-                font-size: .8em;
-                line-height: 24px;
-                vertical-align: middle;
-            }
-            
-            #connect-orcid-button:hover{
-                border: 1px solid #338caf;
-                color: #338caf;
-            }
-            
-            #orcid-id-icon{
-                display: block;
-                margin: 0 .5em 0 0;
-                padding: 0;
-                float: left;
-            }
-
-            #contactInfoTable td:hover {
-                background-color: #eee;
-                cursor: pointer;
-            }
-
-            #overlay {
-                background: #ffffff;
-                color: #666666;
-                position: fixed;
-                height: 100%;
-                width: 100%;
-                z-index: 5000;
-                top: 0;
-                left: 0;
-                float: left;
-                text-align: center;
-                padding-top: 25%;
-                opacity: .80;
-            }
-            .spinner {
-                margin: 0 auto;
-                height: 64px;
-                width: 64px;
-                animation: rotate 0.8s infinite linear;
-                border: 5px solid firebrick;
-                border-right-color: transparent;
-                border-radius: 50%;
-            }
-            @keyframes rotate {
-                0% {
-                    transform: rotate(0deg);
-                }
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-        </style>
+        <script src="{% static 'research/research.js' %}"></script>
     </head>
     <body class="h-100">
 
@@ -106,8 +37,14 @@
                     <ul class="navbar-nav ml-auto">
                         {% if user.researchprofile.active %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'index' %}">Profiili</a>
+                            <a class="nav-link" href="{% url 'index' %}">Muokkaus</a>
                         </li>
+
+                        <!--
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile_preview' %}">Esikatselu</a>
+                        </li>
+                        -->
 
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'profile_settings' %}">Asetukset</a>
@@ -136,22 +73,14 @@
             <div class="spinner"></div>
         </div>
     </body>
-
-    <script type="text/javascript">
-        // Show busy indicator
-        function busyIndicatorShow() {
-            $('#overlay').show();
-        }
-
-        // Hide busy indicator
-        function busyIndicatorHide() {
-            $('#overlay').hide();
-        }
-
-        $(document).ready(function() {
-            // Show busy indicator when menu items are selected
-            $('.navbar a').click(busyIndicatorShow);
-        });
-    </script>
 </html>
+
+<script type="text/javascript">
+    csrf_token = '{{ csrf_token }}';
+    url_publication_include_all = '{% url "publication_include_all" %}';
+    url_publication_include = '{% url "publication_include" %}';
+    url_publication_add = '{% url "publication_add" %}';
+    url_publication_delete = '{% url "publication_delete" %}';
+    url_publication_list = '{% url "publication_list" %}';
+</script>
 {% endspaceless %}

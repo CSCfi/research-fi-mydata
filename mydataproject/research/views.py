@@ -67,6 +67,11 @@ def delete_profile(request):
     return redirect('index')
 
 @login_required
+def profile_preview(request):
+    context = {}
+    return render(request, 'preview.html', context)
+
+@login_required
 def profile_settings(request):
     if request.user.is_authenticated and request.user.researchprofile.active:
         context = {}
