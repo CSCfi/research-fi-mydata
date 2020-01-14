@@ -43,26 +43,26 @@
                             </div>
                 
                             <hr>
-                
+
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" {% if permission_form.get_person_addresses.value %}checked{% endif %}
+                                <input type="checkbox" {% if permission_form.get_person_name.value %}checked{% endif %}
                                        class="custom-control-input orcid-person"
-                                       id="{{ permission_form.get_person_addresses.id_for_label }}"
-                                       name="{{ permission_form.get_person_addresses.name }}">
-                                <label class="custom-control-label" for="{{ permission_form.get_person_addresses.id_for_label }}">
-                                    {{ permission_form.get_person_addresses.label }}
+                                       id="{{ permission_form.get_person_name.id_for_label }}"
+                                       name="{{ permission_form.get_person_name.name }}">
+                                <label class="custom-control-label" for="{{ permission_form.get_person_name.id_for_label }}">
+                                    {{ permission_form.get_person_name.label }}
                                 </label>
                             </div>
-                
+                            
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" {% if permission_form.get_person_biography.value %}checked{% endif %}
+                                <input type="checkbox" {% if permission_form.get_person_other_names.value %}checked{% endif %}
                                        class="custom-control-input orcid-person"
-                                       id="{{ permission_form.get_person_biography.id_for_label }}"
-                                       name="{{ permission_form.get_person_biography.name }}">
-                                <label class="custom-control-label" for="{{ permission_form.get_person_biography.id_for_label }}">
-                                    {{ permission_form.get_person_biography.label }}
+                                       id="{{ permission_form.get_person_other_names.id_for_label }}"
+                                       name="{{ permission_form.get_person_other_names.name }}">
+                                <label class="custom-control-label" for="{{ permission_form.get_person_other_names.id_for_label }}">
+                                    {{ permission_form.get_person_other_names.label }}
                                 </label>
-                            </div>
+                            </div>                            
                 
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" {% if permission_form.get_person_emails.value %}checked{% endif %}
@@ -85,32 +85,32 @@
                             </div>
                 
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" {% if permission_form.get_person_keywords.value %}checked{% endif %}
-                                       class="custom-control-input orcid-person"
-                                       id="{{ permission_form.get_person_keywords.id_for_label }}"
-                                       name="{{ permission_form.get_person_keywords.name }}">
-                                <label class="custom-control-label" for="{{ permission_form.get_person_keywords.id_for_label }}">
-                                    {{ permission_form.get_person_keywords.label }}
-                                </label>
-                            </div>
-                
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" {% if permission_form.get_person_other_names.value %}checked{% endif %}
-                                       class="custom-control-input orcid-person"
-                                       id="{{ permission_form.get_person_other_names.id_for_label }}"
-                                       name="{{ permission_form.get_person_other_names.name }}">
-                                <label class="custom-control-label" for="{{ permission_form.get_person_other_names.id_for_label }}">
-                                    {{ permission_form.get_person_other_names.label }}
-                                </label>
-                            </div>
-                
-                            <div class="custom-control custom-checkbox">
                                 <input type="checkbox" {% if permission_form.get_person_researcher_urls.value %}checked{% endif %}
                                        class="custom-control-input orcid-person"
                                        id="{{ permission_form.get_person_researcher_urls.id_for_label }}"
                                        name="{{ permission_form.get_person_researcher_urls.name }}">
                                 <label class="custom-control-label" for="{{ permission_form.get_person_researcher_urls.id_for_label }}">
                                     {{ permission_form.get_person_researcher_urls.label }}
+                                </label>
+                            </div>
+
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" {% if permission_form.get_person_biography.value %}checked{% endif %}
+                                       class="custom-control-input orcid-person"
+                                       id="{{ permission_form.get_person_biography.id_for_label }}"
+                                       name="{{ permission_form.get_person_biography.name }}">
+                                <label class="custom-control-label" for="{{ permission_form.get_person_biography.id_for_label }}">
+                                    {{ permission_form.get_person_biography.label }}
+                                </label>
+                            </div>
+
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" {% if permission_form.get_person_keywords.value %}checked{% endif %}
+                                       class="custom-control-input orcid-person"
+                                       id="{{ permission_form.get_person_keywords.id_for_label }}"
+                                       name="{{ permission_form.get_person_keywords.name }}">
+                                <label class="custom-control-label" for="{{ permission_form.get_person_keywords.id_for_label }}">
+                                    {{ permission_form.get_person_keywords.label }}
                                 </label>
                             </div>
                         </div>
@@ -240,7 +240,7 @@
                 
                     <div class="row">
                         <div class="col-sm-6 offset-sm-3 mt-4">
-                            <button id="orcidFormBtn" type="submit" class="btn btn-primary btn-block" onclick="busyIndicatorShow();">Tallenna</button>
+                            <button id="orcidFormBtn" type="submit" class="btn btn-primary btn-block" onclick="busyIndicatorShow();">Päivitä ORCID-tiedot</button>
                         </div>
                     </div>
                 </form>
@@ -314,10 +314,37 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <button id="readpermissionFormBtn" class="btn btn-primary btn-block mt-5" type="submit" onclick="busyIndicatorShow();">Tallenna</button>
+                        <button id="readpermissionFormBtn" class="btn btn-primary btn-block mt-5" type="submit" onclick="busyIndicatorShow();">Päivitä muutokset</button>
                     </form>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <!-- Testaus toisella ORCID ID:llä  -->
+        <div class="card-header d-flex" id="heading8fg">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse8fg" aria-expanded="false" aria-controls="collapse8fg">
+                Testisovelluksen asetukset
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse8fg" class="collapse" aria-labelledby="heading8fg" data-parent="#settingsAccordion">
+            <div class="card-body">
+                <div class="px-3 pb-md-3 mx-auto text-center">
+                    <p class="lead pt-3">
+                        Testaa profiilia vapaavalintaisella ORCID ID:llä.<br>
+                        Profiilin kaikki tiedot haetaan uudelleen.
+                    </p>
+                </div>
+
+                <div class="px-3 pb-md-3 mx-auto text-center">
+                    <p class="lead pt-3">
+                       <input class="form-control" type="text" maxlength="19" size="19">
+                    </p>
+                </div>
             </div>
         </div>
     </div>

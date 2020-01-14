@@ -19,11 +19,11 @@ class Permission(models.Model):
     get_activities_research_resources = models.BooleanField(default=False)
     get_activities_services = models.BooleanField(default=False)
     get_activities_works = models.BooleanField(default=False)
-    get_person_addresses = models.BooleanField(default=False)
     get_person_biography = models.BooleanField(default=False)
     get_person_emails = models.BooleanField(default=False)
     get_person_external_identifiers = models.BooleanField(default=False)
     get_person_keywords = models.BooleanField(default=False)
+    get_person_name = models.BooleanField(default=False)
     get_person_other_names = models.BooleanField(default=False)
     get_person_researcher_urls = models.BooleanField(default=False)
 
@@ -37,11 +37,11 @@ class PermissionForm(ModelForm):
     class Meta:
         model = Permission
         fields = [
-            'get_person_addresses',
             'get_person_biography',
             'get_person_emails',
             'get_person_external_identifiers',
             'get_person_keywords',
+            'get_person_name',
             'get_person_other_names',
             'get_person_researcher_urls',
             'get_activities_distinctions',
@@ -57,11 +57,11 @@ class PermissionForm(ModelForm):
             'get_activities_works',
         ]
         labels = {
-            'get_person_addresses': _('Osoitteet'),
             'get_person_biography': _('Biografia'),
             'get_person_emails': _('Sähköpostiosoitteet'),
             'get_person_external_identifiers': _('Muut tunnisteet'),
             'get_person_keywords': _('Avainsanat'),
+            'get_person_name': _('Nimi'),
             'get_person_other_names': _('Muut nimet'),
             'get_person_researcher_urls': _('Verkko-osoitteet'),
             'get_activities_distinctions': _('Meriitit'),
