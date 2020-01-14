@@ -336,14 +336,28 @@
                 <div class="px-3 pb-md-3 mx-auto text-center">
                     <p class="lead pt-3">
                         Testaa profiilia vapaavalintaisella ORCID ID:llä.<br>
+                        Syötä tyhjä arvo käyttääksesi oman profiilisi tietoja.<br>
                         Profiilin kaikki tiedot haetaan uudelleen.
                     </p>
                 </div>
 
-                <div class="px-3 pb-md-3 mx-auto text-center">
-                    <p class="lead pt-3">
-                       <input class="form-control" type="text" maxlength="19" size="19">
-                    </p>
+                <div class="row justify-content-center mb-5">
+                    <form class="form-inline" method="POST" action="{% url 'test_orcid_id' %}">
+                        {% csrf_token %}
+                        <input  id="testOrcidId"
+                                class="form-control mb-2 mr-sm-2"
+                                type="text"
+                                maxlength="19"
+                                size="30"
+                                value="{{ test_orcid_id }}"
+                                name="test_orcid_id"w
+                                placeholder="xxxx-xxxx-xxxx-xxxx"
+                                onchange="validateTestOrcidId(this.value);">
+                        <button id="testOrcidIdSubmit"
+                                class="btn btn-primary mb-2"
+                                type="submit"
+                                onclick="busyIndicatorShow();">Ota käyttöön</button>
+                    </form>
                 </div>
             </div>
         </div>

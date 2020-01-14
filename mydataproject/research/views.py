@@ -35,11 +35,8 @@ def index(request):
                     request.user.researchprofile.active = True
                     request.user.researchprofile.save()
 
-                    # Get public data from ORCID
-                    request.user.researchprofile.get_orcid_data()
-
-                    # Get VIRTA publications
-                    request.user.researchprofile.get_virta_publications()
+                    # Get data
+                    request.user.researchprofile.get_all_data()
 
                     return redirect('index')
                 else:
@@ -87,6 +84,9 @@ def profile_preview(request):
 def profile_settings(request):
     if request.user.is_authenticated and request.user.researchprofile.active:
         context = {}
+
+        context["test_orcid_id"] = request.user.researchprofile.test_orcid_id
+
         if request.method == 'POST':
             if request.POST['settings_form_type'] == 'orcid_permission':
                 # Handle ORCID permission form
@@ -204,3 +204,16 @@ def publication_include_all(request):
     publications = Publication.objects.filter(researchprofile=request.user.researchprofile)
     publications.update(includeInProfile = include)
     return JsonResponse({})
+
+@login_required
+def test_orcid_id(request):
+    request.user.researchprofile.test_orcid_id = request.POST.get('test_orcid_id')
+    request.user.researchprofile.save()
+
+    # Delete old data
+    request.user.researchprofile.delete_all_data()
+
+    # Get new data
+    request.user.researchprofile.get_all_data()
+
+    return redirect('index')

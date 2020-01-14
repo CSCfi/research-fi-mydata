@@ -5,9 +5,6 @@ from django.forms import ModelForm
 import requests, json
 import datetime
 
-# For quick testing
-orcid_id_test = None
-
 class Datasource(models.Model):
     name = models.CharField(max_length=256)
 
@@ -22,6 +19,9 @@ class ResearchProfile(models.Model):
     activity_services = models.TextField(null=True, blank=True)
     virta_publications = models.TextField(null=True, blank=True, default='[]')
     test_orcid_id = models.CharField(max_length=20, blank=True)
+
+    def test_orcid_id_is_valid(self):
+        return self.test_orcid_id is not None and len(self.test_orcid_id) == 19
 
     def getYearMonthDay(self, dateDict):
         string_year = None
@@ -379,12 +379,41 @@ class ResearchProfile(models.Model):
 
         self.save()
 
+    def delete_ttv_data(self):
+        datasource_ttv = Datasource.objects.get(name="TTV")
+        # Delete publications whose only data source is TTV.
+        # If there are other data sources, keep the publication but remove the TTV datasource.
+        publications = Publication.objects.filter(researchprofile = self, datasources=datasource_ttv)
+        for p in publications:
+            if p.datasources.count() == 1:
+                p.delete()
+            else:
+                p.datasources.remove(datasource_ttv)
+        self.save()
+
+    def delete_manual_data(self):
+        datasource_manual = Datasource.objects.get(name="MANUAL")
+        # Delete publications added manually.
+        # If there are other data sources, keep the publication but remove the MANUAL datasource.
+        publications = Publication.objects.filter(researchprofile = self, datasources=datasource_manual)
+        for p in publications:
+            if p.datasources.count() == 1:
+                p.delete()
+            else:
+                p.datasources.remove(datasource_manual)
+        self.save()
+
+    def delete_all_data(self):
+        self.delete_orcid_data()
+        self.delete_ttv_data()
+        self.delete_manual_data()
+
     def get_orcid_data(self):
         social = self.user.social_auth.get(provider='orcid')
         token = social.extra_data['access_token']
 
-        if orcid_id_test is not None:
-            orcid_id = orcid_id_test
+        if self.test_orcid_id_is_valid():
+            orcid_id = self.test_orcid_id 
         else:
             orcid_id = self.user.username
 
@@ -413,8 +442,8 @@ class ResearchProfile(models.Model):
         return True
 
     def get_virta_publications(self):
-        if orcid_id_test is not None:
-            orcid_id = orcid_id_test
+        if self.test_orcid_id_is_valid():
+            orcid_id = self.test_orcid_id 
         else:
             orcid_id = self.user.username
 
@@ -452,6 +481,10 @@ class ResearchProfile(models.Model):
                 pass
 
         return True
+
+    def get_all_data(self):
+        self.get_orcid_data()
+        self.get_virta_publications()
 
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:
