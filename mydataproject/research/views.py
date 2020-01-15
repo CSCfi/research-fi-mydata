@@ -50,8 +50,8 @@ def index(request):
             datasource_orcid = Datasource.objects.get(name="ORCID")
             datasource_manual = Datasource.objects.get(name="MANUAL")
 
-            context["included_class"] = "btn-primary"
-            context["excluded_class"] = "btn-outline-dark"
+            context["included_class"] = "btn-included"
+            context["excluded_class"] = "btn-excluded"
 
             context["TTV_API_HOST"] = settings.TTV_API_HOST
             context["datasource_ttv"] = datasource_ttv
@@ -225,10 +225,12 @@ def test_orcid_id(request):
 
     # Delete old data
     request.user.researchprofile.delete_all_data()
+    request.user.researchprofile.include_orcid_id_in_profile = True
 
     # Get new data
     request.user.researchprofile.get_all_data()
 
+    request.user.researchprofile.save()
     return redirect('index')
 
 @login_required
@@ -274,4 +276,33 @@ def toggle_contact_info(request):
             obj = request.user.researchprofile.phones.get(id=objectId)
             response = { 'included': obj.toggleInclude() }
 
+    return JsonResponse(response)
+
+@login_required
+def toggle_contact_info_all(request):
+    response = {}
+    datasource_type = request.POST.get('datasourceType', None)
+    toggleJavascriptValue = request.POST.get('toggle', None)
+
+    # Convert Javascript boolean to Python boolean
+    if toggleJavascriptValue == 'true':
+        toggle = True
+    else:
+        toggle = False
+
+    if datasource_type == 'orcid':
+        datasource = Datasource.objects.get(name="ORCID")
+        request.user.researchprofile.include_orcid_id_in_profile = toggle
+    elif datasource_type == 'manual':
+        datasource = Datasource.objects.get(name="MANUAL")
+    else:
+        return JsonResponse(response)
+        
+    request.user.researchprofile.last_names.filter(datasource=datasource).update(includeInProfile=toggle)
+    request.user.researchprofile.first_names.filter(datasource=datasource).update(includeInProfile=toggle)
+    request.user.researchprofile.other_names.filter(datasource=datasource).update(includeInProfile=toggle)
+    request.user.researchprofile.links.filter(datasource=datasource).update(includeInProfile=toggle)
+    request.user.researchprofile.emails.filter(datasource=datasource).update(includeInProfile=toggle)
+    request.user.researchprofile.phones.filter(datasource=datasource).update(includeInProfile=toggle)
+    request.user.researchprofile.save()
     return JsonResponse(response)

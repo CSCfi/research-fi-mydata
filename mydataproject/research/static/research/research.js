@@ -16,6 +16,10 @@ var datasource_ttv = 1;
 var datasource_orcid = 2;
 var datasource_manual = 3;
 
+// CSS class names
+var includedClassName = 'btn-included';
+var excludedClassName = 'btn-excluded';
+
 // Show busy indicator
 function busyIndicatorShow() {
     $('#overlay').show();
@@ -279,12 +283,37 @@ $(document).ready(function() {
     });
 });
 
+function toggleContactInfoAll(datasourceType, toggle) {
+    busyIndicatorShow();
+    $.ajax({
+        type: 'POST',
+        url: url_toggle_contact_info_all,
+        data: {
+            csrfmiddlewaretoken: csrf_token,
+            datasourceType: datasourceType,
+            toggle: toggle 
+        },
+        success: function(response) {
+            var htmlElementClass = null;
+            if (datasourceType === 'orcid') {
+                htmlElementClass = 'contactInfoOrcid';
+            } else if (datasourceType === 'manual') {
+                htmlElementClass = 'contactInfoHomeorg';
+            }
+
+            if (toggle) {
+                $('.' + htmlElementClass).removeClass(excludedClassName).addClass(includedClassName);
+            } else {
+                $('.' + htmlElementClass).removeClass(includedClassName).addClass(excludedClassName);
+            }
+        },
+        dataType: 'json'
+    }).done(function() {
+        busyIndicatorHide();
+    });
+};
+
 function toggleContactInfo(objectType, objectId, htmlElementId) {
-    console.log("TOG", objectType, objectId, htmlElementId);
-
-    var includedClassName = 'btn-primary';
-    var excludedClassName = 'btn-outline-dark';
-
     busyIndicatorShow();
     $.ajax({
         type: 'POST',
