@@ -9,11 +9,16 @@ var url_publication_include = null;
 var url_publication_add = null;
 var url_publication_delete = null;
 var url_publication_list = null;
+var url_toggle_contact_info = null;
 
 // Datasources
 var datasource_ttv = 1;
 var datasource_orcid = 2;
 var datasource_manual = 3;
+
+// CSS class names
+var includedClassName = 'btn-included';
+var excludedClassName = 'btn-excluded';
 
 // Show busy indicator
 function busyIndicatorShow() {
@@ -185,7 +190,6 @@ function validateTestOrcidId(inputValue) {
     }
 };
 
-
 $(document).ready(function() {
     // Show busy indicator when menu items are selected
     $('.navbar a').click(busyIndicatorShow);
@@ -279,3 +283,57 @@ $(document).ready(function() {
     });
 });
 
+function toggleContactInfoAll(datasourceType, toggle) {
+    busyIndicatorShow();
+    $.ajax({
+        type: 'POST',
+        url: url_toggle_contact_info_all,
+        data: {
+            csrfmiddlewaretoken: csrf_token,
+            datasourceType: datasourceType,
+            toggle: toggle 
+        },
+        success: function(response) {
+            var htmlElementClass = null;
+            if (datasourceType === 'orcid') {
+                htmlElementClass = 'contactInfoOrcid';
+            } else if (datasourceType === 'manual') {
+                htmlElementClass = 'contactInfoHomeorg';
+            }
+
+            if (toggle) {
+                $('.' + htmlElementClass).removeClass(excludedClassName).addClass(includedClassName);
+            } else {
+                $('.' + htmlElementClass).removeClass(includedClassName).addClass(excludedClassName);
+            }
+        },
+        dataType: 'json'
+    }).done(function() {
+        busyIndicatorHide();
+    });
+};
+
+function toggleContactInfo(objectType, objectId, htmlElementId) {
+    busyIndicatorShow();
+    $.ajax({
+        type: 'POST',
+        url: url_toggle_contact_info,
+        data: {
+            csrfmiddlewaretoken: csrf_token,
+            objectType: objectType,
+            objectId: objectId
+        },
+        success: function(response) {
+            console.log(htmlElementId, response.included);
+
+            if (response.included) {
+                $('#' + htmlElementId).removeClass(excludedClassName).addClass(includedClassName);
+            } else {
+                $('#' + htmlElementId).removeClass(includedClassName).addClass(excludedClassName);
+            }
+        },
+        dataType: 'json'
+    }).done(function() {
+        busyIndicatorHide();
+    });
+};

@@ -54,35 +54,84 @@
                     <table class="table" id="contactInfoTable">
                         <thead class="thead-light">
                             <th></th>
-                            <th>ORCID</th>
-                            <th>Kotiorganisaatio</th>
+                            <th>
+                                ORCID&nbsp;
+                                <button onclick="toggleContactInfoAll('orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                                <button onclick="toggleContactInfoAll('orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                            </th>
+                            <th>
+                                Kotiorganisaatio&nbsp;
+                                <button onclick="toggleContactInfoAll('manual', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                                <button onclick="toggleContactInfoAll('manual', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                            </th>
                         </thead>
                         <tbody>
                             <tr>
                                 <th>Sukunimi</th>
-                                <td>{{ orcid_last_name.value | default:"-" }}</td>
-                                <td>Virtanen</td>
+                                <td>
+                                    {% for n in orcid_last_names %}
+                                    <button id="contactInfolastNameOrcid{{n.pk}}"
+                                            class="contactInfoOrcid btn btn-block btn-sm {% if n.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('lastName', {{n.pk}}, this.id)">{{ n.value }}</button>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for n in homeorg_last_names %}
+                                    <button id="contactInfolastNameHomeorg{{n.pk}}"
+                                            class="contactInfoHomeorg btn btn-block btn-sm {% if n.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('lastName', {{n.pk}}, this.id)">{{ n.value }}</button>
+                                    {% endfor %}
+                                </td>
                             </tr>
 
                             <tr>
                                 <th>Etunimi</th>
-                                <td>{{ orcid_first_name.value | default:"-" }}</td>
-                                <td>A</td>
+                                <td>
+                                    {% for n in orcid_first_names %}
+                                    <button id="contactInfofirstNameOrcid{{n.pk}}"
+                                            class="contactInfoOrcid btn btn-block btn-sm {% if n.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('firstName', {{n.pk}}, this.id)">{{ n.value }}</button>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for n in homeorg_first_names %}
+                                    <button id="contactInfofirstNameHomeorg{{n.pk}}"
+                                            class="contactInfoHomeorg btn btn-block btn-sm {% if n.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('firstName', {{n.pk}}, this.id)">{{ n.value }}</button>
+                                    {% endfor %}
+                                </td>
                             </tr>
 
                             <tr>
                                 <th>Muut nimet</th>
                                 <td>
                                     {% for n in orcid_other_names %}
-                                    {{ n.value }}{% if not forloop.last%}<br>{% endif %}
+                                    <button id="contactInfoOtherNameOrcid{{n.pk}}"
+                                            class="contactInfoOrcid btn btn-block btn-sm {% if n.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('otherName', {{n.pk}}, this.id)">{{ n.value }}</button>
                                     {% endfor %}
                                 </td>
-                                <td>AV<br>A.Virtanen</td>
+                                <td>
+                                    {% for n in homeorg_other_names %}
+                                    <button id="contactInfoOtherNameHomeorg{{n.pk}}"
+                                            class="contactInfoHomeorg btn btn-block btn-sm {% if n.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('otherName', {{n.pk}}, this.id)">{{ n.value }}</button>   
+                                    {% endfor %}
+                                </td>
                             </tr>
 
                             <tr>
                                 <th>ORCID-tunniste</th>
-                                <td><a href="https://orcid.org/{{ orcid_id }}" target="_blank">{{ orcid_id }}</a></td>
+                                <td>
+                                    <button id="contactInfoOrcidId"
+                                        class="contactInfoOrcid btn btn-block btn-sm {% if user.researchprofile.include_orcid_id_in_profile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                        onclick="toggleContactInfo('orcidId', 1, this.id)">
+                                        {{ orcid_id }}&nbsp;
+                                        <a href="https://orcid.org/{{ orcid_id }}" target="_blank">
+                                            <i class="fas fa-external-link-alt float-right"></i>
+                                        </a>
+                                    </button>
+                                </td>
                                 <td></td>
                             </tr>
 
@@ -90,30 +139,64 @@
                                 <th>Linkit</th>
                                 <td>
                                     {% for link in orcid_links %}
-                                    <a href="{{ link.url }}" target="_blank">{{ link.name }}</a>{% if not forloop.last %}<br>{% endif %}
+                                    <button id="contactInfoLinkOrcid{{link.pk}}"
+                                        class="contactInfoOrcid btn btn-block btn-sm {% if link.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                        onclick="toggleContactInfo('link', {{link.pk}}, this.id)">
+                                        {{ link.name }}&nbsp;
+                                        <a href="{{ link.url }}" target="_blank">
+                                            <i class="fas fa-external-link-alt float-right"></i>
+                                        </a>
+                                    </button>
                                     {% endfor %}
                                 </td>
-                                <td></td>
+                                <td>
+                                    {% for link in homeorg_links %}
+                                    <button id="contactInfoLinkHomeorg{{link.pk}}"
+                                        class="contactInfoHomeorg btn btn-block btn-sm {% if link.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                        onclick="toggleContactInfo('link', {{link.pk}}, this.id)">
+                                        {{ link.name }}&nbsp;
+                                        <a href="{{ link.url }}" target="_blank">
+                                            <i class="fas fa-external-link-alt float-right"></i>
+                                        </a>
+                                    </button>
+                                    {% endfor %}
+                                </td>
                             </tr>
 
                             <tr>
                                 <th>Sähköpostiosoite</th>
                                 <td>
                                     {% for email in orcid_emails %}
-                                    {{ email.value }}{% if not forloop.last%}<br>{% endif %}
+                                    <button id="contactInfoEmailOrcid{{email.pk}}"
+                                            class="contactInfoOrcid btn btn-block btn-sm {% if email.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('email', {{email.pk}}, this.id)">{{ email.value }}</button>
                                     {% endfor %}
                                 </td>
-                                <td>a.virtanen@example.comm</td>
+                                <td>
+                                    {% for email in homeorg_emails %}
+                                    <button id="contactInfoEmailHomeorg{{email.pk}}"
+                                            class="contactInfoHomeorg btn btn-block btn-sm {% if email.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('email', {{email.pk}}, this.id)">{{ email.value }}</button>
+                                    {% endfor %}
+                                </td>
                             </tr>
 
                             <tr>
                                 <th>Puhelinnumero</th>
                                 <td>
                                     {% for phone in orcid_phones %}
-                                    {{ phone.value }}{% if not forloop.last%}<br>{% endif %}
+                                    <button id="contactInfoPhoneOrcid{{phone.pk}}"
+                                            class="contactInfoOrcid btn btn-block btn-sm {% if phone.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('phone', {{phone.pk}}, this.id)">{{ phone.value }}</button>
                                     {% endfor %}
                                 </td>
-                                <td></td>
+                                <td>
+                                    {% for phone in homeorg_phones %}
+                                    <button id="contactInfoPhoneHomeorg{{phone.pk}}"
+                                            class="contactInfoHomeorg btn btn-block btn-sm {% if phone.includeInProfile %}{{ included_class }}{% else %}{{ excluded_class }}{% endif %}"
+                                            onclick="toggleContactInfo('phone', {{phone.pk}}, this.id)">{{ phone.value }}</button>
+                                    {% endfor %}
+                                </td>
                             </tr>
                         </tbody>
                     </table>

@@ -32,11 +32,6 @@ body {
     float: left;
 }
 
-#contactInfoTable td:hover {
-    background-color: #eee;
-    cursor: pointer;
-}
-
 #overlay {
     background: #ffffff;
     color: #666666;
@@ -67,4 +62,22 @@ body {
     100% {
         transform: rotate(360deg);
     }
+}
+
+button.btn-included {
+    background-color: #afa;
+    border: 1px solid black;
+}
+
+button.btn-included:hover {
+    opacity: 0.8;
+}
+
+button.btn-excluded {
+    background-color: #fee;
+    border: 1px solid black;
+}
+
+button.btn-excluded:hover {
+    opacity: 0.8;
 }
