@@ -28,16 +28,16 @@
             <hr>
 
             <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_addresses.id_for_label }}" name="{{ permission_form.get_person_addresses.name }}">
-                <label class="custom-control-label" for="{{ permission_form.get_person_addresses.id_for_label }}">
-                    {{ permission_form.get_person_addresses.label }}
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_name.id_for_label }}" name="{{ permission_form.get_person_name.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_name.id_for_label }}">
+                    {{ permission_form.get_person_name.label }}
                 </label>
             </div>
 
             <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_biography.id_for_label }}" name="{{ permission_form.get_person_biography.name }}">
-                <label class="custom-control-label" for="{{ permission_form.get_person_biography.id_for_label }}">
-                    {{ permission_form.get_person_biography.label }}
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_other_names.id_for_label }}" name="{{ permission_form.get_person_other_names.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_other_names.id_for_label }}">
+                    {{ permission_form.get_person_other_names.label }}
                 </label>
             </div>
 
@@ -56,23 +56,23 @@
             </div>
 
             <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_keywords.id_for_label }}" name="{{ permission_form.get_person_keywords.name }}">
-                <label class="custom-control-label" for="{{ permission_form.get_person_keywords.id_for_label }}">
-                    {{ permission_form.get_person_keywords.label }}
-                </label>
-            </div>
-
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_other_names.id_for_label }}" name="{{ permission_form.get_person_other_names.name }}">
-                <label class="custom-control-label" for="{{ permission_form.get_person_other_names.id_for_label }}">
-                    {{ permission_form.get_person_other_names.label }}
-                </label>
-            </div>
-
-            <div class="custom-control custom-checkbox">
                 <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_researcher_urls.id_for_label }}" name="{{ permission_form.get_person_researcher_urls.name }}">
                 <label class="custom-control-label" for="{{ permission_form.get_person_researcher_urls.id_for_label }}">
                     {{ permission_form.get_person_researcher_urls.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_biography.id_for_label }}" name="{{ permission_form.get_person_biography.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_biography.id_for_label }}">
+                    {{ permission_form.get_person_biography.label }}
+                </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input orcid-person" id="{{ permission_form.get_person_keywords.id_for_label }}" name="{{ permission_form.get_person_keywords.name }}">
+                <label class="custom-control-label" for="{{ permission_form.get_person_keywords.id_for_label }}">
+                    {{ permission_form.get_person_keywords.label }}
                 </label>
             </div>
         </div>

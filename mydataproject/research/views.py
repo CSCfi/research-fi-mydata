@@ -35,21 +35,30 @@ def index(request):
                     request.user.researchprofile.active = True
                     request.user.researchprofile.save()
 
-                    # Get public data from ORCID
-                    request.user.researchprofile.get_orcid_data()
-
-                    # Get VIRTA publications
-                    request.user.researchprofile.get_virta_publications()
+                    # Get data
+                    request.user.researchprofile.get_all_data()
 
                     return redirect('index')
                 else:
                     # Orcid permission form is not valid
                     return render(request, 'create_profile.html', context)
         elif request.user.researchprofile.active:
+            datasource_ttv = Datasource.objects.get(name="TTV")
+            datasource_orcid = Datasource.objects.get(name="ORCID")
+            datasource_manual = Datasource.objects.get(name="MANUAL")
+
             context["TTV_API_HOST"] = settings.TTV_API_HOST
-            context["datasource_ttv"] = Datasource.objects.get(name="TTV")
-            context["datasource_orcid"] = Datasource.objects.get(name="ORCID")
-            context["datasource_manual"] = Datasource.objects.get(name="MANUAL")
+            context["datasource_ttv"] = datasource_ttv
+            context["datasource_orcid"] = datasource_orcid
+            context["datasource_manual"] = datasource_manual
+            context["orcid_first_name"] = request.user.researchprofile.first_names.filter(datasource=datasource_orcid).first()
+            context["orcid_last_name"] = request.user.researchprofile.last_names.filter(datasource=datasource_orcid).first()
+            context["orcid_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_orcid)
+            context["orcid_links"] = request.user.researchprofile.links.filter(datasource=datasource_orcid)
+            context["orcid_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_orcid)
+            context["orcid_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_orcid)
+            context["orcid_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_orcid).first()
+            context["orcid_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_orcid)
             context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
@@ -75,6 +84,9 @@ def profile_preview(request):
 def profile_settings(request):
     if request.user.is_authenticated and request.user.researchprofile.active:
         context = {}
+
+        context["test_orcid_id"] = request.user.researchprofile.test_orcid_id
+
         if request.method == 'POST':
             if request.POST['settings_form_type'] == 'orcid_permission':
                 # Handle ORCID permission form
@@ -192,3 +204,16 @@ def publication_include_all(request):
     publications = Publication.objects.filter(researchprofile=request.user.researchprofile)
     publications.update(includeInProfile = include)
     return JsonResponse({})
+
+@login_required
+def test_orcid_id(request):
+    request.user.researchprofile.test_orcid_id = request.POST.get('test_orcid_id')
+    request.user.researchprofile.save()
+
+    # Delete old data
+    request.user.researchprofile.delete_all_data()
+
+    # Get new data
+    request.user.researchprofile.get_all_data()
+
+    return redirect('index')

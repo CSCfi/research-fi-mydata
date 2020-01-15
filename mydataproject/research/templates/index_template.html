@@ -60,20 +60,24 @@
                         <tbody>
                             <tr>
                                 <th>Sukunimi</th>
-                                <td>{{ request.user.last_name }}</td>
+                                <td>{{ orcid_last_name.value | default:"-" }}</td>
                                 <td>Virtanen</td>
                             </tr>
 
                             <tr>
                                 <th>Etunimi</th>
-                                <td>{{ request.user.first_name }}</td>
+                                <td>{{ orcid_first_name.value | default:"-" }}</td>
                                 <td>A</td>
                             </tr>
 
                             <tr>
                                 <th>Muut nimet</th>
-                                <td>{{ request.user.researchprofile.person_other_names | default:"-" }}</td>
-                                <td>AV, A.Virtanen</td>
+                                <td>
+                                    {% for n in orcid_other_names %}
+                                    {{ n.value }}{% if not forloop.last%}<br>{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>AV<br>A.Virtanen</td>
                             </tr>
 
                             <tr>
@@ -83,32 +87,32 @@
                             </tr>
 
                             <tr>
-                                <th>Muut tunnisteet</th>
-                                <td>{{ request.user.researchprofile.person_external_identifiers | default:"-" | safe }}</td>
+                                <th>Linkit</th>
+                                <td>
+                                    {% for link in orcid_links %}
+                                    <a href="{{ link.url }}" target="_blank">{{ link.name }}</a>{% if not forloop.last %}<br>{% endif %}
+                                    {% endfor %}
+                                </td>
                                 <td></td>
                             </tr>
 
                             <tr>
                                 <th>Sähköpostiosoite</th>
-                                <td>{{ request.user.researchprofile.person_emails | default:"-" }}</td>
+                                <td>
+                                    {% for email in orcid_emails %}
+                                    {{ email.value }}{% if not forloop.last%}<br>{% endif %}
+                                    {% endfor %}
+                                </td>
                                 <td>a.virtanen@example.comm</td>
                             </tr>
 
                             <tr>
-                                <th>Verkko-osoite</th>
-                                <td>{{ request.user.researchprofile.person_researcher_urls | default:"-" | safe }}</td>
-                                <td></td>
-                            </tr>
-
-                            <tr>
                                 <th>Puhelinnumero</th>
-                                <td>-</td>
-                                <td></td>
-                            </tr>
-
-                            <tr>
-                                <th>Sometilit / URL</th>
-                                <td>-</td>
+                                <td>
+                                    {% for phone in orcid_phones %}
+                                    {{ phone.value }}{% if not forloop.last%}<br>{% endif %}
+                                    {% endfor %}
+                                </td>
                                 <td></td>
                             </tr>
                         </tbody>
@@ -130,9 +134,13 @@
             <div class="card-body">
                 <div class="mx-5 my-3">
                     <dl class="row">
-                        <dt class="col-sm-3">Kuvaus</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_biography | default:"-" }}</dd>
+                        <dt class="col-sm-3">Kuvaus</dt><dd class="col-sm-9">{{ orcid_biography.value | default:"-" }}</dd>
                         <dt class="col-sm-3">Tieteenalat</dt></dt><dd class="col-sm-9">-</dd>
-                        <dt class="col-sm-3">Avainsanat</dt><dd class="col-sm-9">{{ request.user.researchprofile.person_keywords | default:"-" }}</dd>
+                        <dt class="col-sm-3">Avainsanat</dt><dd class="col-sm-9">
+                            {% for keyword in orcid_keywords %}
+                            {{ keyword.value }}{% if not forloop.last%}<br>{% endif %}
+                            {% endfor %}
+                        </dd>
                     </dl>
                 </div>
             </div>
