@@ -51,6 +51,7 @@ def index(request):
             context["datasource_ttv"] = datasource_ttv
             context["datasource_orcid"] = datasource_orcid
             context["datasource_manual"] = datasource_manual
+            context["orcid_id"] = request.user.researchprofile.get_visible_orcid_id()
             context["orcid_first_name"] = request.user.researchprofile.first_names.filter(datasource=datasource_orcid).first()
             context["orcid_last_name"] = request.user.researchprofile.last_names.filter(datasource=datasource_orcid).first()
             context["orcid_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_orcid)

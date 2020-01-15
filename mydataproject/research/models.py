@@ -23,6 +23,9 @@ class ResearchProfile(models.Model):
     def test_orcid_id_is_valid(self):
         return self.test_orcid_id is not None and len(self.test_orcid_id) == 19
 
+    def get_visible_orcid_id(self):
+        return self.test_orcid_id if self.test_orcid_id_is_valid() else self.user.username
+
     def getYearMonthDay(self, dateDict):
         string_year = None
         string_month = None
