@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.db.models import Value
 from django.db.models.functions import Coalesce
 from orciddata.models import Permission, PermissionForm
-from research.models import PortalPermission, Datasource, Publication
+from research.models import PortalPermission, Datasource, Publication, PersonLastName
 import json
 from .forms import PortalPermissionFormSet
 from django.conf import settings
@@ -38,6 +38,9 @@ def index(request):
                     # Get data
                     request.user.researchprofile.get_all_data()
 
+                    # Add dummy home organization data
+                    request.user.researchprofile.add_dummy_home_organization_data()
+
                     return redirect('index')
                 else:
                     # Orcid permission form is not valid
@@ -47,19 +50,28 @@ def index(request):
             datasource_orcid = Datasource.objects.get(name="ORCID")
             datasource_manual = Datasource.objects.get(name="MANUAL")
 
+            context["included_class"] = "btn-primary"
+            context["excluded_class"] = "btn-outline-dark"
+
             context["TTV_API_HOST"] = settings.TTV_API_HOST
             context["datasource_ttv"] = datasource_ttv
             context["datasource_orcid"] = datasource_orcid
             context["datasource_manual"] = datasource_manual
             context["orcid_id"] = request.user.researchprofile.get_visible_orcid_id()
-            context["orcid_first_name"] = request.user.researchprofile.first_names.filter(datasource=datasource_orcid).first()
-            context["orcid_last_name"] = request.user.researchprofile.last_names.filter(datasource=datasource_orcid).first()
+            context["orcid_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_orcid)
+            context["orcid_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_orcid)
             context["orcid_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_orcid)
             context["orcid_links"] = request.user.researchprofile.links.filter(datasource=datasource_orcid)
             context["orcid_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_orcid)
             context["orcid_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_orcid)
             context["orcid_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_orcid).first()
             context["orcid_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_orcid)
+            context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_manual)
+            context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_manual)
+            context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_manual)
+            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_manual)
+            context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_manual)
+            context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_manual)
             context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
@@ -218,3 +230,48 @@ def test_orcid_id(request):
     request.user.researchprofile.get_all_data()
 
     return redirect('index')
+
+@login_required
+def toggle_contact_info(request):
+    response = {}
+    objectType = request.POST.get('objectType', None)
+    objectId = int(request.POST.get('objectId', '0'))
+
+    if objectType is not None and objectId > 0:
+        # Last name
+        if objectType == 'lastName':
+            obj = request.user.researchprofile.last_names.get(id=objectId)
+            response = { 'included': obj.toggleInclude() }
+
+        # First name
+        elif objectType == 'firstName':
+            obj = request.user.researchprofile.first_names.get(id=objectId)
+            response = { 'included': obj.toggleInclude() }
+
+        # Other name
+        elif objectType == 'otherName':
+            obj = request.user.researchprofile.other_names.get(id=objectId)
+            response = { 'included': obj.toggleInclude() }
+    
+        # ORCID ID
+        elif objectType == 'orcidId':
+            request.user.researchprofile.include_orcid_id_in_profile = not request.user.researchprofile.include_orcid_id_in_profile
+            request.user.researchprofile.save()
+            response = { 'included': request.user.researchprofile.include_orcid_id_in_profile }
+
+        # Link
+        elif objectType == 'link':
+            obj = request.user.researchprofile.links.get(id=objectId)
+            response = { 'included': obj.toggleInclude() }
+
+        # Email
+        elif objectType == 'email':
+            obj = request.user.researchprofile.emails.get(id=objectId)
+            response = { 'included': obj.toggleInclude() }
+
+        # Phone
+        elif objectType == 'phone':
+            obj = request.user.researchprofile.phones.get(id=objectId)
+            response = { 'included': obj.toggleInclude() }
+
+    return JsonResponse(response)

@@ -9,6 +9,7 @@ var url_publication_include = null;
 var url_publication_add = null;
 var url_publication_delete = null;
 var url_publication_list = null;
+var url_toggle_contact_info = null;
 
 // Datasources
 var datasource_ttv = 1;
@@ -185,7 +186,6 @@ function validateTestOrcidId(inputValue) {
     }
 };
 
-
 $(document).ready(function() {
     // Show busy indicator when menu items are selected
     $('.navbar a').click(busyIndicatorShow);
@@ -279,3 +279,32 @@ $(document).ready(function() {
     });
 });
 
+function toggleContactInfo(objectType, objectId, htmlElementId) {
+    console.log("TOG", objectType, objectId, htmlElementId);
+
+    var includedClassName = 'btn-primary';
+    var excludedClassName = 'btn-outline-dark';
+
+    busyIndicatorShow();
+    $.ajax({
+        type: 'POST',
+        url: url_toggle_contact_info,
+        data: {
+            csrfmiddlewaretoken: csrf_token,
+            objectType: objectType,
+            objectId: objectId
+        },
+        success: function(response) {
+            console.log(htmlElementId, response.included);
+
+            if (response.included) {
+                $('#' + htmlElementId).removeClass(excludedClassName).addClass(includedClassName);
+            } else {
+                $('#' + htmlElementId).removeClass(includedClassName).addClass(excludedClassName);
+            }
+        },
+        dataType: 'json'
+    }).done(function() {
+        busyIndicatorHide();
+    });
+};

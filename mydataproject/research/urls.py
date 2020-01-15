@@ -13,5 +13,6 @@ urlpatterns = [
     path('publication_include_all', views.publication_include_all, name='publication_include_all'),
     path('publication_add', views.publication_add, name='publication_add'),
     path('publication_delete', views.publication_delete, name='publication_delete'),
+    path('toggle_contact_info', views.toggle_contact_info, name='toggle_contact_info'),
     path('', views.index, name='index'),
 ]

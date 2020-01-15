@@ -19,6 +19,7 @@ class ResearchProfile(models.Model):
     activity_services = models.TextField(null=True, blank=True)
     virta_publications = models.TextField(null=True, blank=True, default='[]')
     test_orcid_id = models.CharField(max_length=20, blank=True)
+    include_orcid_id_in_profile = models.BooleanField(default=True)
 
     def test_orcid_id_is_valid(self):
         return self.test_orcid_id is not None and len(self.test_orcid_id) == 19
@@ -489,6 +490,77 @@ class ResearchProfile(models.Model):
         self.get_orcid_data()
         self.get_virta_publications()
 
+
+    def add_dummy_home_organization_data(self):
+        datasource_manual = Datasource.objects.get(name="MANUAL")
+
+        # Dummy last name
+        lastName = PersonLastName.objects.create(
+            researchprofile = self,
+            datasource = datasource_manual,
+            includeInProfile = False,
+            value = 'Virtanen'
+        )
+        self.last_names.add(lastName)
+
+        # Dummy first name
+        firstName1 = PersonFirstName.objects.create(
+            researchprofile = self,
+            datasource = datasource_manual,
+            includeInProfile = False,
+            value = 'A'
+        )
+        firstName2 = PersonFirstName.objects.create(
+            researchprofile = self,
+            datasource = datasource_manual,
+            includeInProfile = False,
+            value = 'A.V.'
+        )
+        self.first_names.add(firstName1, firstName2)
+
+        # Dummy other name
+        otherName = PersonOtherName.objects.create(
+            researchprofile = self,
+            datasource = datasource_manual,
+            includeInProfile = False,
+            value = 'A.Virtanen'
+        )
+        self.other_names.add(otherName)
+
+        # Link
+        link = PersonLink.objects.create(
+            researchprofile = self,
+            datasource = datasource_manual,
+            includeInProfile = False,
+            url = 'https://www.google.fi',
+            name = 'Google'
+        )
+        self.links.add(link)
+
+        # Email
+        email = PersonEmail.objects.create(
+            researchprofile = self,
+            datasource = datasource_manual,
+            includeInProfile = False,
+            value = 'abcd@example.comm'
+        )
+        self.emails.add(email)
+
+        # Phone
+        phone1 = PersonPhone.objects.create(
+            researchprofile = self,
+            datasource = datasource_manual,
+            includeInProfile = False,
+            value = '+358 50 111 111 111'
+        )
+        phone2 = PersonPhone.objects.create(
+            researchprofile = self,
+            datasource = datasource_manual,
+            includeInProfile = False,
+            value = '05-54325432'
+        )
+        self.phones.add(phone1, phone2)
+
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:
         ResearchProfile.objects.create(user=instance)
@@ -626,17 +698,32 @@ class PersonLastName(models.Model):
     includeInProfile = models.BooleanField(default=False)
     value = models.CharField(max_length=256)
 
+    def toggleInclude(self):
+        self.includeInProfile = not self.includeInProfile
+        self.save()
+        return self.includeInProfile
+
 class PersonFirstName(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='first_names')
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     includeInProfile = models.BooleanField(default=False)
     value = models.CharField(max_length=256)
 
+    def toggleInclude(self):
+        self.includeInProfile = not self.includeInProfile
+        self.save()
+        return self.includeInProfile
+
 class PersonOtherName(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='other_names')
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     includeInProfile = models.BooleanField(default=False)
     value = models.CharField(max_length=256)
+
+    def toggleInclude(self):
+        self.includeInProfile = not self.includeInProfile
+        self.save()
+        return self.includeInProfile
 
 class PersonLink(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='links')
@@ -645,17 +732,32 @@ class PersonLink(models.Model):
     url = models.CharField(max_length=1024)
     name = models.CharField(max_length=1024)
 
+    def toggleInclude(self):
+        self.includeInProfile = not self.includeInProfile
+        self.save()
+        return self.includeInProfile
+
 class PersonEmail(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='emails')
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     includeInProfile = models.BooleanField(default=False)
     value = models.CharField(max_length=512)
 
+    def toggleInclude(self):
+        self.includeInProfile = not self.includeInProfile
+        self.save()
+        return self.includeInProfile
+
 class PersonPhone(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='phones')
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     includeInProfile = models.BooleanField(default=False)
     value = models.CharField(max_length=128)
+
+    def toggleInclude(self):
+        self.includeInProfile = not self.includeInProfile
+        self.save()
+        return self.includeInProfile
 
 class PersonBiography(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='biographies')
