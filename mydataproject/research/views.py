@@ -3,7 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.forms import modelformset_factory
 from django.http import JsonResponse
-from django.db.models import Value
+from django.db.models import Case, Value, When
 from django.db.models.functions import Coalesce
 from orciddata.models import Permission, PermissionForm
 from research.models import PortalPermission, Datasource, Publication, PersonLastName
@@ -58,20 +58,20 @@ def index(request):
             context["datasource_orcid"] = datasource_orcid
             context["datasource_manual"] = datasource_manual
             context["orcid_id"] = request.user.researchprofile.get_visible_orcid_id()
-            context["orcid_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_orcid)
-            context["orcid_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_orcid)
-            context["orcid_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_orcid)
-            context["orcid_links"] = request.user.researchprofile.links.filter(datasource=datasource_orcid)
-            context["orcid_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_orcid)
-            context["orcid_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_orcid)
+            context["orcid_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_orcid).first()
+            context["orcid_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_orcid).first()
+            context["orcid_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_orcid).first()
+            context["orcid_links"] = request.user.researchprofile.links.filter(datasource=datasource_orcid).first()
+            context["orcid_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_orcid).first()
+            context["orcid_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_orcid).first()
             context["orcid_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_orcid).first()
             context["orcid_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_orcid)
-            context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_manual)
-            context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_manual)
-            context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_manual)
-            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_manual)
-            context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_manual)
-            context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_manual)
+            context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_manual).first()
+            context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_manual).first()
+            context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_manual).first()
+            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_manual).first()
+            context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_manual).first()
+            context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_manual).first()
             context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
@@ -222,6 +222,7 @@ def publication_include_all(request):
 def test_orcid_id(request):
     request.user.researchprofile.test_orcid_id = request.POST.get('test_orcid_id')
     request.user.researchprofile.save()
+    print("Test ORCID ID = " + request.user.researchprofile.test_orcid_id)
 
     # Delete old data
     request.user.researchprofile.delete_all_data()
@@ -305,4 +306,70 @@ def toggle_contact_info_all(request):
     request.user.researchprofile.emails.filter(datasource=datasource).update(includeInProfile=toggle)
     request.user.researchprofile.phones.filter(datasource=datasource).update(includeInProfile=toggle)
     request.user.researchprofile.save()
+    return JsonResponse(response)
+
+@login_required
+def toggle_data(request):
+    response = {}
+
+    p_datasource = request.POST.get('datasource', None)
+    p_datatype = request.POST.get('datatype', None)
+
+    if p_datasource == 'orcid':
+        datasource = Datasource.objects.get(name="ORCID")
+    elif p_datasource == 'manual':
+        datasource = Datasource.objects.get(name="MANUAL")
+    else:
+        return JsonResponse(response)
+
+    if p_datatype == 'last_name':
+        request.user.researchprofile.last_names.filter(datasource=datasource).update(includeInProfile=Case(
+            When(includeInProfile=True, then=Value(False)),
+            When(includeInProfile=False, then=Value(True)),
+        ))
+        request.user.researchprofile.last_names.exclude(datasource=datasource).update(includeInProfile=False)
+        included = request.user.researchprofile.last_names.filter(datasource=datasource).first().includeInProfile
+        response["included"] = included
+        
+    elif p_datatype == 'first_name':
+        request.user.researchprofile.first_names.filter(datasource=datasource).update(includeInProfile=Case(
+            When(includeInProfile=True, then=Value(False)),
+            When(includeInProfile=False, then=Value(True)),
+        ))
+        request.user.researchprofile.first_names.exclude(datasource=datasource).update(includeInProfile=False)
+        included = request.user.researchprofile.first_names.filter(datasource=datasource).first().includeInProfile
+        response["included"] = included
+    elif p_datatype == 'other_name':
+        request.user.researchprofile.other_names.filter(datasource=datasource).update(includeInProfile=Case(
+            When(includeInProfile=True, then=Value(False)),
+            When(includeInProfile=False, then=Value(True)),
+        ))
+        request.user.researchprofile.other_names.exclude(datasource=datasource).update(includeInProfile=False)
+        included = request.user.researchprofile.other_names.filter(datasource=datasource).first().includeInProfile
+        response["included"] = included
+    elif p_datatype == 'link':
+        request.user.researchprofile.links.filter(datasource=datasource).update(includeInProfile=Case(
+            When(includeInProfile=True, then=Value(False)),
+            When(includeInProfile=False, then=Value(True)),
+        ))
+        request.user.researchprofile.links.exclude(datasource=datasource).update(includeInProfile=False)
+        included = request.user.researchprofile.links.filter(datasource=datasource).first().includeInProfile
+        response["included"] = included
+    elif p_datatype == 'email':
+        request.user.researchprofile.emails.filter(datasource=datasource).update(includeInProfile=Case(
+            When(includeInProfile=True, then=Value(False)),
+            When(includeInProfile=False, then=Value(True)),
+        ))
+        request.user.researchprofile.emails.exclude(datasource=datasource).update(includeInProfile=False)
+        included = request.user.researchprofile.emails.filter(datasource=datasource).first().includeInProfile
+        response["included"] = included
+    elif p_datatype == 'phone':
+        request.user.researchprofile.phones.filter(datasource=datasource).update(includeInProfile=Case(
+            When(includeInProfile=True, then=Value(False)),
+            When(includeInProfile=False, then=Value(True)),
+        ))
+        request.user.researchprofile.phones.exclude(datasource=datasource).update(includeInProfile=False)
+        included = request.user.researchprofile.phones.filter(datasource=datasource).first().includeInProfile
+        response["included"] = included
+
     return JsonResponse(response)

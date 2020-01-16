@@ -337,3 +337,25 @@ function toggleContactInfo(objectType, objectId, htmlElementId) {
         busyIndicatorHide();
     });
 };
+
+function toggleData(datasource, type, htmlElementId) {
+    busyIndicatorShow();
+    $.ajax({
+        type: 'POST',
+        url: url_toggle_data,
+        data: {
+            csrfmiddlewaretoken: csrf_token,
+            datasource: datasource,
+            datatype: type
+        },
+        success: function(response) {
+            $('.' + type).removeClass('included');
+            if (response.included) {
+                $('#' + htmlElementId).addClass('included');
+            }
+        },
+        dataType: 'json'
+    }).done(function() {
+        busyIndicatorHide();
+    });
+};

@@ -81,3 +81,15 @@ button.btn-excluded {
 button.btn-excluded:hover {
     opacity: 0.8;
 }
+
+td.togglable {
+    cursor: pointer;
+}
+
+td.togglable:hover {
+    border: 1px solid gray;
+}
+
+td.included {
+    background-color: #afa;
+}
