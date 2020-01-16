@@ -19,7 +19,7 @@ class ResearchProfile(models.Model):
     activity_services = models.TextField(null=True, blank=True)
     virta_publications = models.TextField(null=True, blank=True, default='[]')
     test_orcid_id = models.CharField(max_length=20, blank=True)
-    include_orcid_id_in_profile = models.BooleanField(default=True)
+    include_orcid_id_in_profile = models.BooleanField(default=False)
 
     def test_orcid_id_is_valid(self):
         return self.test_orcid_id is not None and len(self.test_orcid_id) == 19
@@ -242,7 +242,7 @@ class ResearchProfile(models.Model):
                     PersonFirstName.objects.create(
                         researchprofile = self,
                         datasource = datasource_orcid,
-                        includeInProfile = True,
+                        includeInProfile = False,
                         value = orcid_record["person"]["name"]["given-names"]["value"]
                     )
                 except Exception as e:
@@ -255,7 +255,7 @@ class ResearchProfile(models.Model):
                     PersonLastName.objects.create(
                         researchprofile = self,
                         datasource = datasource_orcid,
-                        includeInProfile = True,
+                        includeInProfile = False,
                         value = orcid_record["person"]["name"]["family-name"]["value"]
                     )
                 except Exception as e:
@@ -273,7 +273,7 @@ class ResearchProfile(models.Model):
                         PersonOtherName.objects.create(
                             researchprofile = self,
                             datasource = datasource_orcid,
-                            includeInProfile = True,
+                            includeInProfile = False,
                             value = "<br>".join(other_names)
                         )
                     except Exception as e:
@@ -287,7 +287,7 @@ class ResearchProfile(models.Model):
                     PersonBiography.objects.create(
                         researchprofile = self,
                         datasource = datasource_orcid,
-                        includeInProfile = True,
+                        includeInProfile = False,
                         value = orcid_record["person"]["biography"]["content"]
                     )
                 except Exception as e:
@@ -304,7 +304,7 @@ class ResearchProfile(models.Model):
                         PersonEmail.objects.create(
                             researchprofile = self,
                             datasource = datasource_orcid,
-                            includeInProfile = True,
+                            includeInProfile = False,
                             value = "<br>".join(email_list)
                         )
                     except Exception as e:
@@ -324,7 +324,7 @@ class ResearchProfile(models.Model):
                         PersonLink.objects.create(
                             researchprofile = self,
                             datasource = datasource_orcid,
-                            includeInProfile = True,
+                            includeInProfile = False,
                             value = "<br>".join(links)
                         )
                     except Exception as e:
@@ -338,7 +338,7 @@ class ResearchProfile(models.Model):
                         PersonKeyword.objects.create(
                             researchprofile = self,
                             datasource = datasource_orcid,
-                            includeInProfile = True,
+                            includeInProfile = False,
                             value = obj["content"]
                         )
                     except Exception as e:
@@ -358,7 +358,7 @@ class ResearchProfile(models.Model):
                         PersonLink.objects.create(
                             researchprofile = self,
                             datasource = datasource_orcid,
-                            includeInProfile = True,
+                            includeInProfile = False,
                             value = "<br>".join(links)
                         )
                     except Exception as e:
@@ -370,15 +370,16 @@ class ResearchProfile(models.Model):
     def delete_orcid_data(self):
         datasource_orcid = Datasource.objects.get(name="ORCID")
 
-        PersonBiography.objects.filter(researchprofile=self, datasource=datasource_orcid).delete()
-        PersonEmail.objects.filter(researchprofile=self, datasource=datasource_orcid).delete()
-        PersonLink.objects.filter(researchprofile=self, datasource=datasource_orcid).delete()
-        PersonPhone.objects.filter(researchprofile=self, datasource=datasource_orcid).delete()
-        PersonKeyword.objects.filter(researchprofile=self, datasource=datasource_orcid).delete()
-        PersonFirstName.objects.filter(researchprofile=self, datasource=datasource_orcid).delete()
-        PersonLastName.objects.filter(researchprofile=self, datasource=datasource_orcid).delete()
-        PersonOtherName.objects.filter(researchprofile=self, datasource=datasource_orcid).delete()
+        self.include_orcid_id_in_profile = False
 
+        self.biographies.filter(datasource=datasource_orcid).delete()
+        self.emails.filter(datasource=datasource_orcid).delete()
+        self.links.filter(datasource=datasource_orcid).delete()
+        self.phones.filter(datasource=datasource_orcid).delete()
+        self.keywords.filter(datasource=datasource_orcid).delete()
+        self.first_names.filter(datasource=datasource_orcid).delete()
+        self.last_names.filter(datasource=datasource_orcid).delete()
+        self.other_names.filter(datasource=datasource_orcid).delete()
 
         Education.objects.filter(researchprofile = self).delete()
         Employment.objects.filter(researchprofile = self).delete()
@@ -429,6 +430,7 @@ class ResearchProfile(models.Model):
         self.delete_orcid_data()
         self.delete_ttv_data()
         self.delete_manual_data()
+        self.delete_dummy_home_organization_data()
 
     def get_orcid_data(self):
         social = self.user.social_auth.get(provider='orcid')
@@ -507,7 +509,7 @@ class ResearchProfile(models.Model):
     def get_all_data(self):
         self.get_orcid_data()
         self.get_virta_publications()
-
+        self.add_dummy_home_organization_data()
 
     def add_dummy_home_organization_data(self):
         datasource_manual = Datasource.objects.get(name="MANUAL")
@@ -574,6 +576,15 @@ class ResearchProfile(models.Model):
             value = '+358 50 111 111 111<br>05-54325432'
         )
         self.phones.add(phoneObj)
+    
+    def delete_dummy_home_organization_data(self):
+        datasource_manual = Datasource.objects.get(name="MANUAL")
+        self.last_names.filter(datasource=datasource_manual).delete()
+        self.first_names.filter(datasource=datasource_manual).delete()
+        self.other_names.filter(datasource=datasource_manual).delete()
+        self.links.filter(datasource=datasource_manual).delete()
+        self.emails.filter(datasource=datasource_manual).delete()
+        self.phones.filter(datasource=datasource_manual).delete()        
 
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:
@@ -776,7 +787,7 @@ class PersonBiography(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='biographies')
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     includeInProfile = models.BooleanField(default=False)
-    value  = models.TextField(null=True, blank=True)
+    value = models.TextField(null=True, blank=True)
 
 class PersonKeyword(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='keywords')

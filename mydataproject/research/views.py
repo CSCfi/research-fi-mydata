@@ -37,10 +37,6 @@ def index(request):
 
                     # Get data
                     request.user.researchprofile.get_all_data()
-
-                    # Add dummy home organization data
-                    request.user.researchprofile.add_dummy_home_organization_data()
-
                     return redirect('index')
                 else:
                     # Orcid permission form is not valid
@@ -226,7 +222,6 @@ def test_orcid_id(request):
 
     # Delete old data
     request.user.researchprofile.delete_all_data()
-    request.user.researchprofile.include_orcid_id_in_profile = True
 
     # Get new data
     request.user.researchprofile.get_all_data()

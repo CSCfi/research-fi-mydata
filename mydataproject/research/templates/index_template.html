@@ -113,7 +113,7 @@
                                 <td id="orcidId"
                                     class="td_orcid orcid_id togglable {% if user.researchprofile.include_orcid_id_in_profile %} included{% endif %}"
                                     onclick="toggleData('orcid', 'orcid_id', this.id);">
-                                    {{ orcid_id }}
+                                    <a href="https://orcid.org/{{ orcid_id }}" target="_blank">{{ orcid_id }}</a>
                                 </td>
                                 <td></td>
                             </tr>
