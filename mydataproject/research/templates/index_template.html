@@ -70,12 +70,12 @@
                                 <th>Sukunimi</th>
                                 <td id="lastNameOrcid"
                                     class="td_orcid last_name {% if orcid_last_names.value %} togglable{% endif %} {% if orcid_last_names.includeInProfile %} included{% endif %}"
-                                    onclick="toggleData('orcid', 'last_name', this.id);">
+                                    {% if orcid_last_names.value %}onclick="toggleData('orcid', 'last_name', this.id);"{% endif %}>
                                     {{ orcid_last_names.value | safe }}
                                 </td>
                                 <td id="lastNameHomeorg"
                                     class="td_homeorg last_name {% if homeorg_last_names.value %} togglable{% endif %} {% if homeorg_last_names.includeInProfile %} included{% endif %}"
-                                    onclick="toggleData('manual', 'last_name', this.id);">
+                                    {% if homeorg_last_names.value %}onclick="toggleData('manual', 'last_name', this.id);"{% endif %}>
                                     {{ homeorg_last_names.value | safe }}
                                 </td>
                             </tr>
@@ -84,12 +84,12 @@
                                 <th>Etunimi</th>
                                 <td id="firstNameOrcid"
                                     class="td_orcid first_name {% if orcid_first_names.value %} togglable{% endif %} {% if orcid_first_names.includeInProfile %} included{% endif %}"
-                                    onclick="toggleData('orcid', 'first_name', this.id);">
+                                    {% if orcid_first_names.value %}onclick="toggleData('orcid', 'first_name', this.id);"{% endif %}>
                                     {{ orcid_first_names.value | safe }}
                                 </td>
                                 <td id="firstNameHomeorg"
                                     class="td_homeorg first_name {% if homeorg_first_names.value %} togglable{% endif %} {% if homeorg_first_names.includeInProfile %} included{% endif %}"
-                                    onclick="toggleData('manual', 'first_name', this.id);">
+                                    {% if homeorg_first_names.value %}onclick="toggleData('manual', 'first_name', this.id);"{% endif %}>
                                     {{ homeorg_first_names.value | safe }}
                                 </td>
                             </tr>
@@ -98,12 +98,12 @@
                                 <th>Muut nimet</th>
                                 <td id="otherNameOrcid"
                                     class="td_orcid other_name {% if orcid_other_names.value %} togglable{% endif %} {% if orcid_other_names.includeInProfile %} included{% endif %}"
-                                    onclick="toggleData('orcid', 'other_name', this.id);">
+                                    {% if orcid_other_names.value %}onclick="toggleData('orcid', 'other_name', this.id);"{% endif %}>
                                     {{ orcid_other_names.value | safe }}
                                 </td>
                                 <td id="otherNameHomeorg"
                                     class="td_homeorg other_name {% if homeorg_other_names.value %} togglable{% endif %} {% if homeorg_other_names.includeInProfile %} included{% endif %}"
-                                    onclick="toggleData('manual', 'other_name', this.id);">
+                                    {% if homeorg_other_names.value %}onclick="toggleData('manual', 'other_name', this.id);"{% endif %}>
                                     {{ homeorg_other_names.value | safe }} 
                                 </td>
                             </tr>
@@ -122,12 +122,12 @@
                                 <th>Linkit</th>
                                 <td id="linkOrcid"
                                     class="td_orcid link {% if orcid_links.value %} togglable{% endif %} {% if orcid_links.includeInProfile %} included{% endif %}"
-                                    onclick="toggleData('orcid', 'link', this.id);">
+                                    {% if orcid_links.value %}onclick="toggleData('orcid', 'link', this.id);"{% endif %}>
                                     {{ orcid_links.value | safe }}
                                 </td>
                                 <td id="linkHomeorg"
                                     class="td_homeorg link {% if homeorg_links.value %} togglable{% endif %} {% if homeorg_links.includeInProfile %} included{% endif %}"
-                                    onclick="toggleData('manual', 'link', this.id);">
+                                    {% if homeorg_links.value %}onclick="toggleData('manual', 'link', this.id);"{% endif %}>
                                     {{ homeorg_links.value | safe }}
                                 </td>
                             </tr>
@@ -136,12 +136,12 @@
                                 <th>Sähköpostiosoite</th>
                                 <td id="emailOrcid"
                                     class="td_orcid email {% if orcid_emails.value %} togglable{% endif %} {% if orcid_emails.includeInProfile %} included{% endif %}"
-                                    onclick="toggleData('orcid', 'email', this.id);">
+                                    {% if orcid_emails.value %}onclick="toggleData('orcid', 'email', this.id);"{% endif %}>
                                     {{ orcid_emails.value | safe }}
                                 </td>
                                 <td id="emailHomeorg"
                                     class="td_homeorg email {% if homeorg_emails.value %} togglable{% endif %} {% if homeorg_emails.includeInProfile %}included{% endif %}"
-                                    onclick="toggleData('manual', 'email', this.id);">
+                                    {% if homeorg_emails.value %}onclick="toggleData('manual', 'email', this.id);"{% endif %}>
                                     {{ homeorg_emails.value | safe }}
                                 </td>
                             </tr>

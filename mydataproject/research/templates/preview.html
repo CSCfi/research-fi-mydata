@@ -2,7 +2,36 @@
 {% block content %}
 
 <div class="px-3 pb-md-2 mx-auto text-center">
-    <h1>Esikatselu</h1>
+    <h1>Profiilin esikatselu</h1>
+</div>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Sukunimi</dt>
+        <dd class="col-sm-10">{% for n in last_names %}{{ n.value | safe }}{% endfor %}</dd>
+
+        <dt class="col-sm-2">Etunimi</dt>
+        <dd class="col-sm-10">{% for n in first_names %}{{ n.value | safe }}{% endfor %}</dd>
+
+        <dt class="col-sm-2">Muut nimet</dt>
+        <dd class="col-sm-10">{% for n in other_names %}{{ n.value | safe }}{% endfor %}</dd>
+
+        <dt class="col-sm-2">ORCID-tunniste</dt>
+        <dd class="col-sm-10">
+            {% if user.researchprofile.include_orcid_id_in_profile %}
+            <a href="https://orcid.org/{{ orcid_id }}" target="_blank">{{ orcid_id }}</a>
+            {% endif %}
+        </dd>
+
+        <dt class="col-sm-2">Linkit</dt>
+        <dd class="col-sm-10">{% for link in links %}{{ link.value | safe }}{% endfor %}</dd>
+
+        <dt class="col-sm-2">Sähköpostiosoite</dt>
+        <dd class="col-sm-10">{% for email in emails %}{{ email.value | safe }}{% endfor %}</dd>
+
+        <dt class="col-sm-2">Puhelinnumero</dt>
+        <dd class="col-sm-10">{% for phone in phones %}{{ phone.value | safe }}{% endfor %}</dd>
+    </dl>
 </div>
 
 {% endblock content %}

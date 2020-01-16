@@ -311,26 +311,6 @@ class ResearchProfile(models.Model):
                         print("Exception in orcid_record_json_to_model() email")
                         print(e)
                         pass
-            # External identifiers
-            if self.user.orcid_permission.get_person_external_identifiers and len(orcid_record["person"]["external-identifiers"]["external-identifier"]) > 0:
-                links = []
-                for obj in orcid_record["person"]["external-identifiers"]["external-identifier"]:
-                    url = obj["external-id-url"]["value"]
-                    name = obj["external-id-type"]
-                    linkHtml = self.getLinkHtml(url, name)
-                    links.append(linkHtml)
-                if len(links) > 0:
-                    try:
-                        PersonLink.objects.create(
-                            researchprofile = self,
-                            datasource = datasource_orcid,
-                            includeInProfile = False,
-                            value = "<br>".join(links)
-                        )
-                    except Exception as e:
-                        print("Exception in orcid_record_json_to_model() external identifiers")
-                        print(e)
-                        pass
             # Keywords
             if self.user.orcid_permission.get_person_keywords and len(orcid_record["person"]["keywords"]["keyword"]) > 0:
                 for obj in orcid_record["person"]["keywords"]["keyword"]:
@@ -345,26 +325,32 @@ class ResearchProfile(models.Model):
                         print("Exception in orcid_record_json_to_model() keywords")
                         print(e)
                         pass
-            # Researcher URLs
+            # External identifiers and Researcher URLs to links
+            links = []
             if self.user.orcid_permission.get_person_researcher_urls and len(orcid_record["person"]["researcher-urls"]["researcher-url"]) > 0:
-                links = []
                 for obj in orcid_record["person"]["researcher-urls"]["researcher-url"]:
                     url = obj["url"]["value"]
                     name = obj["url-name"]
                     linkHtml = self.getLinkHtml(url, name)
                     links.append(linkHtml)
-                if len(links) > 0:
-                    try:
-                        PersonLink.objects.create(
-                            researchprofile = self,
-                            datasource = datasource_orcid,
-                            includeInProfile = False,
-                            value = "<br>".join(links)
-                        )
-                    except Exception as e:
-                        print("Exception in orcid_record_json_to_model() researcher URLs")
-                        print(e)
-                        pass
+            if self.user.orcid_permission.get_person_external_identifiers and len(orcid_record["person"]["external-identifiers"]["external-identifier"]) > 0:
+                for obj in orcid_record["person"]["external-identifiers"]["external-identifier"]:
+                    url = obj["external-id-url"]["value"]
+                    name = obj["external-id-type"]
+                    linkHtml = self.getLinkHtml(url, name)
+                    links.append(linkHtml)
+            if len(links) > 0:
+                try:
+                    PersonLink.objects.create(
+                        researchprofile = self,
+                        datasource = datasource_orcid,
+                        includeInProfile = False,
+                        value = "<br>".join(links)
+                    )
+                except Exception as e:
+                    print("Exception in orcid_record_json_to_model() external identifiers")
+                    print(e)
+                    pass
         self.save()
 
     def delete_orcid_data(self):
