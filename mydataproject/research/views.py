@@ -347,6 +347,10 @@ def toggle_data(request):
         request.user.researchprofile.other_names.exclude(datasource=datasource).update(includeInProfile=False)
         included = request.user.researchprofile.other_names.filter(datasource=datasource).first().includeInProfile
         response["included"] = included
+    elif p_datatype == 'orcid_id':
+        request.user.researchprofile.include_orcid_id_in_profile = not request.user.researchprofile.include_orcid_id_in_profile
+        request.user.researchprofile.save()
+        response["included"] = request.user.researchprofile.include_orcid_id_in_profile
     elif p_datatype == 'link':
         request.user.researchprofile.links.filter(datasource=datasource).update(includeInProfile=Case(
             When(includeInProfile=True, then=Value(False)),
