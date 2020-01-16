@@ -17,8 +17,7 @@ var datasource_orcid = 2;
 var datasource_manual = 3;
 
 // CSS class names
-var includedClassName = 'btn-included';
-var excludedClassName = 'btn-excluded';
+var includedClassName = 'included';
 
 // Show busy indicator
 function busyIndicatorShow() {
@@ -295,16 +294,22 @@ function toggleContactInfoAll(datasourceType, toggle) {
         },
         success: function(response) {
             var htmlElementClass = null;
+            var $elements = null;
             if (datasourceType === 'orcid') {
-                htmlElementClass = 'contactInfoOrcid';
+                htmlElementClass = 'td_orcid';
             } else if (datasourceType === 'manual') {
-                htmlElementClass = 'contactInfoHomeorg';
+                htmlElementClass = 'td_homeorg';
             }
 
-            if (toggle) {
-                $('.' + htmlElementClass).removeClass(excludedClassName).addClass(includedClassName);
+            if (datasourceType === 'manual') {
+                $('.td_orcid').not('.orcid_id').removeClass(includedClassName);
             } else {
-                $('.' + htmlElementClass).removeClass(includedClassName).addClass(excludedClassName);
+                $('.td_orcid').removeClass(includedClassName);
+            }
+            $('.td_homeorg').removeClass(includedClassName);
+
+            if (toggle) {
+                $('.' + htmlElementClass).addClass(includedClassName);
             }
         },
         dataType: 'json'

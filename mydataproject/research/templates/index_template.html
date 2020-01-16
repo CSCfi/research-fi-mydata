@@ -69,12 +69,12 @@
                             <tr>
                                 <th>Sukunimi</th>
                                 <td id="lastNameOrcid"
-                                    class="last_name {% if orcid_last_names.value %} togglable{% endif %} {% if orcid_last_names.includeInProfile %} included{% endif %}"
+                                    class="td_orcid last_name {% if orcid_last_names.value %} togglable{% endif %} {% if orcid_last_names.includeInProfile %} included{% endif %}"
                                     onclick="toggleData('orcid', 'last_name', this.id);">
                                     {{ orcid_last_names.value | safe }}
                                 </td>
                                 <td id="lastNameHomeorg"
-                                    class="last_name {% if orcid_last_names.value %} togglable{% endif %} {% if orcid_last_names.includeInProfile %} included{% endif %}"
+                                    class="td_homeorg last_name {% if homeorg_last_names.value %} togglable{% endif %} {% if homeorg_last_names.includeInProfile %} included{% endif %}"
                                     onclick="toggleData('manual', 'last_name', this.id);">
                                     {{ homeorg_last_names.value | safe }}
                                 </td>
@@ -83,12 +83,12 @@
                             <tr>
                                 <th>Etunimi</th>
                                 <td id="firstNameOrcid"
-                                    class="first_name {% if orcid_first_names.value %} togglable{% endif %} {% if orcid_first_names.includeInProfile %} included{% endif %}"
+                                    class="td_orcid first_name {% if orcid_first_names.value %} togglable{% endif %} {% if orcid_first_names.includeInProfile %} included{% endif %}"
                                     onclick="toggleData('orcid', 'first_name', this.id);">
                                     {{ orcid_first_names.value | safe }}
                                 </td>
                                 <td id="firstNameHomeorg"
-                                    class="first_name {% if homeorg_first_names.value %} togglable{% endif %} {% if homeorg_first_names.includeInProfile %} included{% endif %}"
+                                    class="td_homeorg first_name {% if homeorg_first_names.value %} togglable{% endif %} {% if homeorg_first_names.includeInProfile %} included{% endif %}"
                                     onclick="toggleData('manual', 'first_name', this.id);">
                                     {{ homeorg_first_names.value | safe }}
                                 </td>
@@ -97,12 +97,12 @@
                             <tr>
                                 <th>Muut nimet</th>
                                 <td id="otherNameOrcid"
-                                    class="other_name {% if orcid_other_names.value %} togglable{% endif %} {% if orcid_other_names.includeInProfile %} included{% endif %}"
+                                    class="td_orcid other_name {% if orcid_other_names.value %} togglable{% endif %} {% if orcid_other_names.includeInProfile %} included{% endif %}"
                                     onclick="toggleData('orcid', 'other_name', this.id);">
                                     {{ orcid_other_names.value | safe }}
                                 </td>
                                 <td id="otherNameHomeorg"
-                                    class="other_name {% if homeorg_other_names.value %} togglable{% endif %} {% if homeorg_other_names.includeInProfile %} included{% endif %}"
+                                    class="td_homeorg other_name {% if homeorg_other_names.value %} togglable{% endif %} {% if homeorg_other_names.includeInProfile %} included{% endif %}"
                                     onclick="toggleData('manual', 'other_name', this.id);">
                                     {{ homeorg_other_names.value | safe }} 
                                 </td>
@@ -111,7 +111,7 @@
                             <tr>
                                 <th>ORCID-tunniste</th>
                                 <td id="orcidId"
-                                    class="orcid_id togglable {% if user.researchprofile.include_orcid_id_in_profile %} included{% endif %}"
+                                    class="td_orcid orcid_id togglable {% if user.researchprofile.include_orcid_id_in_profile %} included{% endif %}"
                                     onclick="toggleData('orcid', 'orcid_id', this.id);">
                                     {{ orcid_id }}
                                 </td>
@@ -121,12 +121,12 @@
                             <tr>
                                 <th>Linkit</th>
                                 <td id="linkOrcid"
-                                    class="link {% if orcid_links.value %} togglable{% endif %} {% if orcid_links.includeInProfile %} included{% endif %}"
+                                    class="td_orcid link {% if orcid_links.value %} togglable{% endif %} {% if orcid_links.includeInProfile %} included{% endif %}"
                                     onclick="toggleData('orcid', 'link', this.id);">
                                     {{ orcid_links.value | safe }}
                                 </td>
                                 <td id="linkHomeorg"
-                                    class="link {% if homeorg_links.value %} togglable{% endif %} {% if homeorg_links.includeInProfile %} included{% endif %}"
+                                    class="td_homeorg link {% if homeorg_links.value %} togglable{% endif %} {% if homeorg_links.includeInProfile %} included{% endif %}"
                                     onclick="toggleData('manual', 'link', this.id);">
                                     {{ homeorg_links.value | safe }}
                                 </td>
@@ -135,12 +135,12 @@
                             <tr>
                                 <th>Sähköpostiosoite</th>
                                 <td id="emailOrcid"
-                                    class="email {% if orcid_emails.value %} togglable{% endif %} {% if orcid_emails.includeInProfile %} included{% endif %}"
+                                    class="td_orcid email {% if orcid_emails.value %} togglable{% endif %} {% if orcid_emails.includeInProfile %} included{% endif %}"
                                     onclick="toggleData('orcid', 'email', this.id);">
                                     {{ orcid_emails.value | safe }}
                                 </td>
                                 <td id="emailHomeorg"
-                                    class="email {% if homeorg_emails.value %} togglable{% endif %} {% if homeorg_emails.includeInProfile %}included{% endif %}"
+                                    class="td_homeorg email {% if homeorg_emails.value %} togglable{% endif %} {% if homeorg_emails.includeInProfile %}included{% endif %}"
                                     onclick="toggleData('manual', 'email', this.id);">
                                     {{ homeorg_emails.value | safe }}
                                 </td>
@@ -149,12 +149,12 @@
                             <tr>
                                 <th>Puhelinnumero</th>
                                 <td id="phoneOrcid"
-                                    class="phone {% if orcid_phones.value %} togglable{% endif %}{% if orcid_phones.includeInProfile %} included{% endif %}"
+                                    class="td_orcid phone {% if orcid_phones.value %} togglable{% endif %}{% if orcid_phones.includeInProfile %} included{% endif %}"
                                     {% if orcid_phones.value %}onclick="toggleData('orcid', 'phone', this.id);"{% endif %}>
                                     {{ orcid_phones.value | safe }}
                                 </td>
                                 <td id="phoneHomeorg"
-                                    class="phone {% if homeorg_phones.value %} togglable{% endif %}{% if homeorg_phones.includeInProfile %} included{% endif %}"
+                                    class="td_homeorg phone {% if homeorg_phones.value %} togglable{% endif %}{% if homeorg_phones.includeInProfile %} included{% endif %}"
                                     {% if homeorg_phones.value %}onclick="toggleData('manual', 'phone', this.id);"{% endif %}>
                                     {{ homeorg_phones.value | safe }}
                                 </td>

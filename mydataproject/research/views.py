@@ -305,6 +305,15 @@ def toggle_contact_info_all(request):
     request.user.researchprofile.links.filter(datasource=datasource).update(includeInProfile=toggle)
     request.user.researchprofile.emails.filter(datasource=datasource).update(includeInProfile=toggle)
     request.user.researchprofile.phones.filter(datasource=datasource).update(includeInProfile=toggle)
+
+    if toggle:
+        request.user.researchprofile.last_names.exclude(datasource=datasource).update(includeInProfile=False)
+        request.user.researchprofile.first_names.exclude(datasource=datasource).update(includeInProfile=False)
+        request.user.researchprofile.other_names.exclude(datasource=datasource).update(includeInProfile=False)
+        request.user.researchprofile.links.exclude(datasource=datasource).update(includeInProfile=False)
+        request.user.researchprofile.emails.exclude(datasource=datasource).update(includeInProfile=False)
+        request.user.researchprofile.phones.exclude(datasource=datasource).update(includeInProfile=False)
+
     request.user.researchprofile.save()
     return JsonResponse(response)
 
