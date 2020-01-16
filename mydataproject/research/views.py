@@ -87,6 +87,18 @@ def delete_profile(request):
 @login_required
 def profile_preview(request):
     context = {}
+    context["orcid_id"] = request.user.researchprofile.get_visible_orcid_id()
+    context["first_names"] = request.user.researchprofile.first_names.filter(includeInProfile=True)
+    context["last_names"] = request.user.researchprofile.last_names.filter(includeInProfile=True)
+    context["other_names"] = request.user.researchprofile.other_names.filter(includeInProfile=True)
+    context["links"] = request.user.researchprofile.links.filter(includeInProfile=True)
+    context["emails"] = request.user.researchprofile.emails.filter(includeInProfile=True)
+    context["phones"] = request.user.researchprofile.phones.filter(includeInProfile=True)
+    context["biographies"] = request.user.researchprofile.biographies.filter(includeInProfile=True)
+    context["keywords"] = request.user.researchprofile.keywords.filter(includeInProfile=True)
+    context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+    context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+    context["publications"] = request.user.researchprofile.publications.all().annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null')
     return render(request, 'preview.html', context)
 
 @login_required
