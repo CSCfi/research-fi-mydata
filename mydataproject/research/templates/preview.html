@@ -107,10 +107,16 @@
         <tbody>
             {% for p in publications %}
             <tr>
-                <td>{{ p.publicationYear }}</td>
+                <td>
+                    {% if p.publicationYear > 0 %}
+                    {{ p.publicationYear }}
+                    {% endif %}
+                </td>
                 <td>{{ p.name }}</td>
                 <td>
+                    {% if p.doi %}
                     <a href="https://doi.org/' + {{ p.doi }} +'" target="_blank">{{ p.doi }}</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
