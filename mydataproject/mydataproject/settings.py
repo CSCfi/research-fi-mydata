@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'orciddata',
     'research',
+    'aalto',
     'social_django',
 ]
 
