@@ -4,9 +4,13 @@ from django.contrib.auth.models import User
 from django.forms import ModelForm
 import requests, json
 import datetime
+from aalto.models import Person
 
 class Datasource(models.Model):
     name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.name
 
 class ResearchProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='researchprofile')
@@ -20,9 +24,16 @@ class ResearchProfile(models.Model):
     virta_publications = models.TextField(null=True, blank=True, default='[]')
     test_orcid_id = models.CharField(max_length=20, blank=True)
     include_orcid_id_in_profile = models.BooleanField(default=False)
+    homeorg_datasource = models.ForeignKey(Datasource, null=True, on_delete=models.SET_NULL, related_name='researchprofile')
 
     def test_orcid_id_is_valid(self):
         return self.test_orcid_id is not None and len(self.test_orcid_id) == 19
+
+    def get_orcid_id(self):
+        if self.test_orcid_id_is_valid():
+            return self.test_orcid_id 
+        else:
+            return self.user.username
 
     def get_visible_orcid_id(self):
         return self.test_orcid_id if self.test_orcid_id_is_valid() else self.user.username
@@ -417,15 +428,11 @@ class ResearchProfile(models.Model):
         self.delete_ttv_data()
         self.delete_manual_data()
         self.delete_dummy_home_organization_data()
+        self.delete_aalto_data()
 
     def get_orcid_data(self):
         social = self.user.social_auth.get(provider='orcid')
         token = social.extra_data['access_token']
-
-        if self.test_orcid_id_is_valid():
-            orcid_id = self.test_orcid_id 
-        else:
-            orcid_id = self.user.username
 
         # Get public data
         headers = {
@@ -435,7 +442,7 @@ class ResearchProfile(models.Model):
         }
 
         # ORCID API URL
-        url = 'https://pub.orcid.org/v3.0/' + orcid_id + '/record'
+        url = 'https://pub.orcid.org/v3.0/' + self.get_orcid_id() + '/record'
         print("ORCID RECORD URL = " + url)
 
         response = requests.get(url, headers=headers)
@@ -452,17 +459,12 @@ class ResearchProfile(models.Model):
         return True
 
     def get_virta_publications(self):
-        if self.test_orcid_id_is_valid():
-            orcid_id = self.test_orcid_id 
-        else:
-            orcid_id = self.user.username
-
         headers = {
             'Accept': 'application/json',
         }
 
         # VIRTA API (json)
-        url = 'https://virta-jtp.csc.fi/api/julkaisut/haku?orcid=' + orcid_id
+        url = 'https://virta-jtp.csc.fi/api/julkaisut/haku?orcid=' + self.get_orcid_id()
         print("VIRTA URL = " + url)
         response = requests.get(url, headers=headers)
         print("VIRTA http response code " + str(response.status_code))
@@ -492,10 +494,33 @@ class ResearchProfile(models.Model):
 
         return True
 
+    def add_home_organization_data(self):
+        orcid_id = self.get_orcid_id()
+        datasource_manual = Datasource.objects.get(name="MANUAL")
+        datasource_aalto = Datasource.objects.get(name="AALTO")
+
+        print("------")
+        print("Search aalto data for ORCID " + orcid_id)
+        try:
+            aalto_person = Person.objects.get(orcid=orcid_id)
+        except Person.DoesNotExist:
+            aalto_person = None
+
+        if aalto_person is not None:
+            print("AALTO home org")
+            self.homeorg_datasource = datasource_aalto
+            self.save()
+            self.add_aalto_data(aalto_person)
+        else:
+            print("MANUAL home org")
+            self.homeorg_datasource = datasource_manual
+            self.save()
+            self.add_dummy_home_organization_data()
+
     def get_all_data(self):
         self.get_orcid_data()
         self.get_virta_publications()
-        self.add_dummy_home_organization_data()
+        self.add_home_organization_data()
 
     def add_dummy_home_organization_data(self):
         datasource_manual = Datasource.objects.get(name="MANUAL")
@@ -562,6 +587,8 @@ class ResearchProfile(models.Model):
             value = '+358 50 111 111 111<br>05-54325432'
         )
         self.phones.add(phoneObj)
+
+        
     
     def delete_dummy_home_organization_data(self):
         datasource_manual = Datasource.objects.get(name="MANUAL")
@@ -570,7 +597,50 @@ class ResearchProfile(models.Model):
         self.other_names.filter(datasource=datasource_manual).delete()
         self.links.filter(datasource=datasource_manual).delete()
         self.emails.filter(datasource=datasource_manual).delete()
-        self.phones.filter(datasource=datasource_manual).delete()        
+        self.phones.filter(datasource=datasource_manual).delete()
+
+    def add_aalto_data(self, person):
+        datasource_aalto = Datasource.objects.get(name="AALTO")
+
+        # Last name
+        lastName = PersonLastName.objects.create(
+            researchprofile = self,
+            datasource = datasource_aalto,
+            includeInProfile = False,
+            value = person.last_name
+        )
+        self.last_names.add(lastName)
+
+        # First name
+        firstName = PersonFirstName.objects.create(
+            researchprofile = self,
+            datasource = datasource_aalto,
+            includeInProfile = False,
+            value = person.first_name
+        )
+        self.first_names.add(firstName)
+
+        # Link
+        links = []
+        for link in person.links.all():
+            linkHtml = self.getLinkHtml(link.url, link.name)
+            links.append(linkHtml)
+
+            PersonLink.objects.create(
+                researchprofile = self,
+                datasource = datasource_aalto,
+                includeInProfile = False,
+                value = "<br>".join(links)
+            )
+
+    def delete_aalto_data(self):
+        datasource_aalto = Datasource.objects.get(name="AALTO")
+        self.last_names.filter(datasource=datasource_aalto).delete()
+        self.first_names.filter(datasource=datasource_aalto).delete()
+        self.other_names.filter(datasource=datasource_aalto).delete()
+        self.links.filter(datasource=datasource_aalto).delete()
+        self.emails.filter(datasource=datasource_aalto).delete()
+        self.phones.filter(datasource=datasource_aalto).delete()
 
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:

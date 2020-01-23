@@ -62,6 +62,7 @@ def index(request):
             context["orcid_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_orcid).first()
             context["orcid_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_orcid).first()
             context["orcid_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_orcid)
+            context["homeorg_datasource"] = request.user.researchprofile.homeorg_datasource
             context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_manual).first()
             context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_manual).first()
             context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_manual).first()

@@ -180,7 +180,7 @@ function getPublications() {
 // Validate test ORCID ID pattern, set enable or disable submit button.
 // Allow empty value or format 1234-5678-1234-5678
 function validateTestOrcidId(inputValue) {
-    if (inputValue.length === 0 || /^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$/.test(inputValue)) {
+    if (inputValue.length === 0 || /^[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}$/.test(inputValue)) {
         console.log("Valid");
         document.getElementById("testOrcidIdSubmit").disabled = false;
     } else {

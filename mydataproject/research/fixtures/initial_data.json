@@ -61,5 +61,12 @@
       "fields": {
         "name": "MANUAL"
       }
+    },
+    {
+      "model": "research.datasource",
+      "pk": 4,
+      "fields": {
+        "name": "AALTO"
+      }
     }
 ]
