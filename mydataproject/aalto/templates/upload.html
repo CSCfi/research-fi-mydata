@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="xmlfile">
+    <button type="submit">Upload</button>
+</form>
+
+{% endblock content %}

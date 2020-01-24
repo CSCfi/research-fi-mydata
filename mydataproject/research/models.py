@@ -626,6 +626,7 @@ class ResearchProfile(models.Model):
             linkHtml = self.getLinkHtml(link.url, link.name)
             links.append(linkHtml)
 
+        if len(links) > 0:
             PersonLink.objects.create(
                 researchprofile = self,
                 datasource = datasource_aalto,

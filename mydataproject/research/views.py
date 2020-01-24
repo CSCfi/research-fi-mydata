@@ -44,15 +44,9 @@ def index(request):
         elif request.user.researchprofile.active:
             datasource_ttv = Datasource.objects.get(name="TTV")
             datasource_orcid = Datasource.objects.get(name="ORCID")
-            datasource_manual = Datasource.objects.get(name="MANUAL")
-
-            context["included_class"] = "btn-included"
-            context["excluded_class"] = "btn-excluded"
+            datasource_homeorg = request.user.researchprofile.homeorg_datasource
 
             context["TTV_API_HOST"] = settings.TTV_API_HOST
-            context["datasource_ttv"] = datasource_ttv
-            context["datasource_orcid"] = datasource_orcid
-            context["datasource_manual"] = datasource_manual
             context["orcid_id"] = request.user.researchprofile.get_visible_orcid_id()
             context["orcid_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_orcid).first()
             context["orcid_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_orcid).first()
@@ -62,13 +56,13 @@ def index(request):
             context["orcid_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_orcid).first()
             context["orcid_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_orcid).first()
             context["orcid_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_orcid)
-            context["homeorg_datasource"] = request.user.researchprofile.homeorg_datasource
-            context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_manual).first()
-            context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_manual).first()
-            context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_manual).first()
-            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_manual).first()
-            context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_manual).first()
-            context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_manual).first()
+            context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_homeorg).first()
+            context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_homeorg).first()
+            context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_homeorg).first()
+            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_homeorg).first()
+            context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_homeorg).first()
+            context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_homeorg).first()
+            context["homeorg_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_homeorg).first()
             context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
@@ -302,8 +296,8 @@ def toggle_contact_info_all(request):
     if datasource_type == 'orcid':
         datasource = Datasource.objects.get(name="ORCID")
         request.user.researchprofile.include_orcid_id_in_profile = toggle
-    elif datasource_type == 'manual':
-        datasource = Datasource.objects.get(name="MANUAL")
+    elif datasource_type == 'homeorg':
+        datasource = request.user.researchprofile.homeorg_datasource
     else:
         return JsonResponse(response)
         
@@ -334,8 +328,8 @@ def toggle_data(request):
 
     if p_datasource == 'orcid':
         datasource = Datasource.objects.get(name="ORCID")
-    elif p_datasource == 'manual':
-        datasource = Datasource.objects.get(name="MANUAL")
+    elif p_datasource == 'homeorg':
+        datasource = request.user.researchprofile.homeorg_datasource
     else:
         return JsonResponse(response)
 

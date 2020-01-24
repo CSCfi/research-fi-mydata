@@ -297,11 +297,11 @@ function toggleContactInfoAll(datasourceType, toggle) {
             var $elements = null;
             if (datasourceType === 'orcid') {
                 htmlElementClass = 'td_orcid';
-            } else if (datasourceType === 'manual') {
+            } else if (datasourceType === 'homeorg') {
                 htmlElementClass = 'td_homeorg';
             }
 
-            if (datasourceType === 'manual') {
+            if (datasourceType === 'homeorg') {
                 $('.td_orcid').not('.orcid_id').removeClass(includedClassName);
             } else {
                 $('.td_orcid').removeClass(includedClassName);
