@@ -63,6 +63,7 @@ def index(request):
             context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_homeorg).first()
             context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_homeorg).first()
             context["homeorg_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_homeorg).first()
+            context["homeorg_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_homeorg)
             context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()

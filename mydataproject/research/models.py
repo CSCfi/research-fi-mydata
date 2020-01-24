@@ -599,7 +599,7 @@ class ResearchProfile(models.Model):
         self.emails.filter(datasource=datasource_manual).delete()
         self.phones.filter(datasource=datasource_manual).delete()
 
-    def add_aalto_data(self, person):
+    def add_aalto_data(self, aalto_person):
         datasource_aalto = Datasource.objects.get(name="AALTO")
 
         # Last name
@@ -607,7 +607,7 @@ class ResearchProfile(models.Model):
             researchprofile = self,
             datasource = datasource_aalto,
             includeInProfile = False,
-            value = person.last_name
+            value = aalto_person.last_name
         )
         self.last_names.add(lastName)
 
@@ -616,13 +616,22 @@ class ResearchProfile(models.Model):
             researchprofile = self,
             datasource = datasource_aalto,
             includeInProfile = False,
-            value = person.first_name
+            value = aalto_person.first_name
         )
         self.first_names.add(firstName)
 
-        # Link
+        # Email
+        if aalto_person.email is not None:
+            PersonEmail.objects.create(
+                researchprofile = self,
+                datasource = datasource_aalto,
+                includeInProfile = False,
+                value = aalto_person.email
+            )
+
+        # Links
         links = []
-        for link in person.links.all():
+        for link in aalto_person.links.all():
             linkHtml = self.getLinkHtml(link.url, link.name)
             links.append(linkHtml)
 
@@ -634,6 +643,25 @@ class ResearchProfile(models.Model):
                 value = "<br>".join(links)
             )
 
+        # Biography
+        if aalto_person.biography is not None:
+            PersonBiography.objects.create(
+                researchprofile = self,
+                datasource = datasource_aalto,
+                includeInProfile = False,
+                value = aalto_person.biography
+            )
+
+        # Keywords
+        keywords = []
+        for keyword in aalto_person.keywords.all():
+            PersonKeyword.objects.create(
+                researchprofile = self,
+                datasource = datasource_aalto,
+                includeInProfile = False,
+                value = keyword.value
+            )
+
     def delete_aalto_data(self):
         datasource_aalto = Datasource.objects.get(name="AALTO")
         self.last_names.filter(datasource=datasource_aalto).delete()
@@ -642,6 +670,8 @@ class ResearchProfile(models.Model):
         self.links.filter(datasource=datasource_aalto).delete()
         self.emails.filter(datasource=datasource_aalto).delete()
         self.phones.filter(datasource=datasource_aalto).delete()
+        self.biographies.filter(datasource=datasource_aalto).delete()
+        self.keywords.filter(datasource=datasource_aalto).delete()
 
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:

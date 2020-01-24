@@ -54,12 +54,12 @@
                     <table class="table" id="contactInfoTable">
                         <thead class="thead-light">
                             <th></th>
-                            <th>
+                            <th class="w-50">
                                 ORCID&nbsp;
                                 <button onclick="toggleContactInfoAll('orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
                                 <button onclick="toggleContactInfoAll('orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
                             </th>
-                            <th>
+                            <th class="w-50">
                                 Kotiorganisaatio&nbsp;
                                 <button onclick="toggleContactInfoAll('homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
                                 <button onclick="toggleContactInfoAll('homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
@@ -180,18 +180,18 @@
                     <table class="table" id="contactInfoTable">
                         <thead class="thead-light">
                             <th></th>
-                            <th>
+                            <th class="w-50">
                                 ORCID&nbsp;
                             </th>
-                            <th>
+                            <th class="w-50">
                                 Kotiorganisaatio&nbsp;
                             </th>
                         </thead>
                         <tbody>
                             <tr>
                                 <th>Kuvaus</th>
-                                <td>{{ orcid_biography.value | default:"-" }}</td>
-                                <td>{{ homeorg_biography.value | default:"-" }}</td>
+                                <td>{{ orcid_biography.value | safe | default:"-" }}</td>
+                                <td>{{ homeorg_biography.value | safe | default:"-" }}</td>
                             </tr>
                             <tr>
                                 <th>Tieteenalat</th>
