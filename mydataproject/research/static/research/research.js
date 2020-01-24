@@ -180,7 +180,7 @@ function getPublications() {
 // Validate test ORCID ID pattern, set enable or disable submit button.
 // Allow empty value or format 1234-5678-1234-5678
 function validateTestOrcidId(inputValue) {
-    if (inputValue.length === 0 || /^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$/.test(inputValue)) {
+    if (inputValue.length === 0 || /^[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}$/.test(inputValue)) {
         console.log("Valid");
         document.getElementById("testOrcidIdSubmit").disabled = false;
     } else {
@@ -297,11 +297,11 @@ function toggleContactInfoAll(datasourceType, toggle) {
             var $elements = null;
             if (datasourceType === 'orcid') {
                 htmlElementClass = 'td_orcid';
-            } else if (datasourceType === 'manual') {
+            } else if (datasourceType === 'homeorg') {
                 htmlElementClass = 'td_homeorg';
             }
 
-            if (datasourceType === 'manual') {
+            if (datasourceType === 'homeorg') {
                 $('.td_orcid').not('.orcid_id').removeClass(includedClassName);
             } else {
                 $('.td_orcid').removeClass(includedClassName);

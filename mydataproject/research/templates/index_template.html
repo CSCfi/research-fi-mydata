@@ -54,15 +54,15 @@
                     <table class="table" id="contactInfoTable">
                         <thead class="thead-light">
                             <th></th>
-                            <th>
+                            <th class="w-50">
                                 ORCID&nbsp;
                                 <button onclick="toggleContactInfoAll('orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
                                 <button onclick="toggleContactInfoAll('orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
                             </th>
-                            <th>
+                            <th class="w-50">
                                 Kotiorganisaatio&nbsp;
-                                <button onclick="toggleContactInfoAll('manual', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                                <button onclick="toggleContactInfoAll('manual', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                                <button onclick="toggleContactInfoAll('homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                                <button onclick="toggleContactInfoAll('homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
                             </th>
                         </thead>
                         <tbody>
@@ -75,7 +75,7 @@
                                 </td>
                                 <td id="lastNameHomeorg"
                                     class="td_homeorg last_name {% if homeorg_last_names.value %} togglable{% endif %} {% if homeorg_last_names.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_last_names.value %}onclick="toggleData('manual', 'last_name', this.id);"{% endif %}>
+                                    {% if homeorg_last_names.value %}onclick="toggleData('homeorg', 'last_name', this.id);"{% endif %}>
                                     {{ homeorg_last_names.value | safe }}
                                 </td>
                             </tr>
@@ -89,7 +89,7 @@
                                 </td>
                                 <td id="firstNameHomeorg"
                                     class="td_homeorg first_name {% if homeorg_first_names.value %} togglable{% endif %} {% if homeorg_first_names.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_first_names.value %}onclick="toggleData('manual', 'first_name', this.id);"{% endif %}>
+                                    {% if homeorg_first_names.value %}onclick="toggleData('homeorg', 'first_name', this.id);"{% endif %}>
                                     {{ homeorg_first_names.value | safe }}
                                 </td>
                             </tr>
@@ -103,7 +103,7 @@
                                 </td>
                                 <td id="otherNameHomeorg"
                                     class="td_homeorg other_name {% if homeorg_other_names.value %} togglable{% endif %} {% if homeorg_other_names.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_other_names.value %}onclick="toggleData('manual', 'other_name', this.id);"{% endif %}>
+                                    {% if homeorg_other_names.value %}onclick="toggleData('homeorg', 'other_name', this.id);"{% endif %}>
                                     {{ homeorg_other_names.value | safe }} 
                                 </td>
                             </tr>
@@ -127,7 +127,7 @@
                                 </td>
                                 <td id="linkHomeorg"
                                     class="td_homeorg link {% if homeorg_links.value %} togglable{% endif %} {% if homeorg_links.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_links.value %}onclick="toggleData('manual', 'link', this.id);"{% endif %}>
+                                    {% if homeorg_links.value %}onclick="toggleData('homeorg', 'link', this.id);"{% endif %}>
                                     {{ homeorg_links.value | safe }}
                                 </td>
                             </tr>
@@ -141,7 +141,7 @@
                                 </td>
                                 <td id="emailHomeorg"
                                     class="td_homeorg email {% if homeorg_emails.value %} togglable{% endif %} {% if homeorg_emails.includeInProfile %}included{% endif %}"
-                                    {% if homeorg_emails.value %}onclick="toggleData('manual', 'email', this.id);"{% endif %}>
+                                    {% if homeorg_emails.value %}onclick="toggleData('homeorg', 'email', this.id);"{% endif %}>
                                     {{ homeorg_emails.value | safe }}
                                 </td>
                             </tr>
@@ -155,7 +155,7 @@
                                 </td>
                                 <td id="phoneHomeorg"
                                     class="td_homeorg phone {% if homeorg_phones.value %} togglable{% endif %}{% if homeorg_phones.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_phones.value %}onclick="toggleData('manual', 'phone', this.id);"{% endif %}>
+                                    {% if homeorg_phones.value %}onclick="toggleData('homeorg', 'phone', this.id);"{% endif %}>
                                     {{ homeorg_phones.value | safe }}
                                 </td>
                             </tr>
@@ -177,15 +177,42 @@
         <div id="collapse2" class="collapse" aria-labelledby="heading2" data-parent="#researchProfileAccordion">
             <div class="card-body">
                 <div class="mx-5 my-3">
-                    <dl class="row">
-                        <dt class="col-sm-3">Kuvaus</dt><dd class="col-sm-9">{{ orcid_biography.value | default:"-" }}</dd>
-                        <dt class="col-sm-3">Tieteenalat</dt></dt><dd class="col-sm-9">-</dd>
-                        <dt class="col-sm-3">Avainsanat</dt><dd class="col-sm-9">
-                            {% for keyword in orcid_keywords %}
-                            {{ keyword.value }}{% if not forloop.last%}<br>{% endif %}
-                            {% endfor %}
-                        </dd>
-                    </dl>
+                    <table class="table" id="contactInfoTable">
+                        <thead class="thead-light">
+                            <th></th>
+                            <th class="w-50">
+                                ORCID&nbsp;
+                            </th>
+                            <th class="w-50">
+                                Kotiorganisaatio&nbsp;
+                            </th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Kuvaus</th>
+                                <td>{{ orcid_biography.value | safe | default:"-" }}</td>
+                                <td>{{ homeorg_biography.value | safe | default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Tieteenalat</th>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <th>Avainsanat</th>
+                                <td>
+                                    {% for keyword in orcid_keywords %}
+                                    {{ keyword.value }}{% if not forloop.last%}<br>{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for keyword in homeorg_keywords %}
+                                    {{ keyword.value }}{% if not forloop.last%}<br>{% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
