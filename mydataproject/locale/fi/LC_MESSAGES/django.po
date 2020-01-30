@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-02 12:27+0000\n"
+"POT-Creation-Date: 2020-01-30 09:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,74 +18,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: orciddata/models.py:60
-msgid "Osoitteet"
-msgstr ""
-
-#: orciddata/models.py:61
-msgid "Biografia"
-msgstr ""
-
-#: orciddata/models.py:62
-msgid "Sähköpostiosoitteet"
-msgstr ""
-
-#: orciddata/models.py:63
-msgid "Muut tunnisteet"
-msgstr ""
-
-#: orciddata/models.py:64
-msgid "Avainsanat"
-msgstr ""
-
-#: orciddata/models.py:65
-msgid "Muut nimet"
-msgstr ""
-
-#: orciddata/models.py:66
-msgid "Verkko-osoitteet"
-msgstr ""
-
-#: orciddata/models.py:67
-msgid "Meriitit"
-msgstr ""
-
-#: orciddata/models.py:68
-msgid "Tutkinnot"
-msgstr ""
-
-#: orciddata/models.py:69
-msgid "Organisaatiot"
-msgstr ""
-
-#: orciddata/models.py:70
-msgid "Rahoitukset"
-msgstr ""
-
-#: orciddata/models.py:71
-msgid "Kutsutut tehtävät"
-msgstr ""
-
-#: orciddata/models.py:72
-msgid "Jäsenyydet"
-msgstr ""
-
-#: orciddata/models.py:73
-msgid "Vertaisarviot"
-msgstr ""
-
-#: orciddata/models.py:74
-msgid "Pätevyydet"
-msgstr ""
-
-#: orciddata/models.py:75
-msgid "Tutkimusresurssit"
-msgstr ""
-
-#: orciddata/models.py:76
-msgid "Palvelut"
-msgstr ""
-
-#: orciddata/models.py:77
-msgid "Julkaisut"
+#: orciddata/models.py:26
+msgid "Kaikki tiedot"
 msgstr ""
