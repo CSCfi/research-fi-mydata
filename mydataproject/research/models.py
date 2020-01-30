@@ -200,7 +200,7 @@ class ResearchProfile(models.Model):
             self.add_dummy_home_organization_data()
 
     def get_all_data(self):
-        self.get_orcid_data()
+        orcidutils.get_orcid_data(self)
         self.get_virta_publications()
         self.add_home_organization_data()
 
