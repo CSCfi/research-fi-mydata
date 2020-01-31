@@ -297,19 +297,15 @@ function toggleContactInfoAll(datasourceType, toggle) {
             var $elements = null;
             if (datasourceType === 'orcid') {
                 htmlElementClass = 'td_orcid';
+                $('.togglable').removeClass(includedClassName);
             } else if (datasourceType === 'homeorg') {
                 htmlElementClass = 'td_homeorg';
+                $('.togglable').not('.orcid_id').removeClass(includedClassName);
             }
-
-            if (datasourceType === 'homeorg') {
-                $('.td_orcid').not('.orcid_id').removeClass(includedClassName);
-            } else {
-                $('.td_orcid').removeClass(includedClassName);
-            }
-            $('.td_homeorg').removeClass(includedClassName);
 
             if (toggle) {
-                $('.' + htmlElementClass).addClass(includedClassName);
+                $('.' + htmlElementClass + '.togglable').not('.link').addClass(includedClassName);
+                $('.' + htmlElementClass + ' .togglable').addClass(includedClassName);
             }
         },
         dataType: 'json'
@@ -343,7 +339,7 @@ function toggleContactInfo(objectType, objectId, htmlElementId) {
     });
 };
 
-function toggleData(datasource, type, htmlElementId) {
+function toggleData(datasource, type, htmlElementId, dataId) {
     busyIndicatorShow();
     $.ajax({
         type: 'POST',
@@ -351,10 +347,15 @@ function toggleData(datasource, type, htmlElementId) {
         data: {
             csrfmiddlewaretoken: csrf_token,
             datasource: datasource,
-            datatype: type
+            datatype: type,
+            dataId: dataId
         },
         success: function(response) {
-            $('.' + type).removeClass('included');
+            if (type === 'link') {
+                $('#' + htmlElementId).removeClass('included');
+            } else {
+                $('.' + type).removeClass('included');
+            }
             if (response.included) {
                 $('#' + htmlElementId).addClass('included');
             }

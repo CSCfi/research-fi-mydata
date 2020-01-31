@@ -234,19 +234,10 @@ class ResearchProfile(models.Model):
         )
         self.other_names.add(otherName)
 
-        # Link
-        dummyLinkList = [
-            self.getLinkHtml('https://www.google.fi', 'Google'),
-            self.getLinkHtml('https://www.facebook.com', 'Facebook'),
-            self.getLinkHtml('https://www.linkedin.com', 'LinkedIn'),
-        ]
-        linkObj = PersonLink.objects.create(
-            researchprofile = self,
-            datasource = datasource_manual,
-            includeInProfile = False,
-            value = "<br>".join(dummyLinkList)
-        )
-        self.links.add(linkObj)
+        # Links
+        PersonLink.objects.create(researchprofile=self, datasource=datasource_manual, includeInProfile=False, url='https://www.google.com', name='Google')
+        PersonLink.objects.create(researchprofile=self, datasource=datasource_manual, includeInProfile=False, url='https://www.facebook.com', name='Facebook')
+        PersonLink.objects.create(researchprofile=self, datasource=datasource_manual, includeInProfile=False, url='https://www.linkedin.com', name='LinkedIn')
 
         # Email
         email = PersonEmail.objects.create(
@@ -314,15 +305,12 @@ class ResearchProfile(models.Model):
         # Links
         links = []
         for link in aalto_person.links.all():
-            linkHtml = self.getLinkHtml(link.url, link.name)
-            links.append(linkHtml)
-
-        if len(links) > 0:
             PersonLink.objects.create(
                 researchprofile = self,
                 datasource = datasource_aalto,
                 includeInProfile = False,
-                value = "<br>".join(links)
+                url = link.url,
+                name = link.name
             )
 
         # Biography
@@ -523,7 +511,8 @@ class PersonLink(models.Model):
     researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='links')
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     includeInProfile = models.BooleanField(default=False)
-    value = models.CharField(max_length=2048)
+    url = models.CharField(max_length=2048, null=False)
+    name = models.CharField(max_length=512, null=False)
 
     def toggleInclude(self):
         self.includeInProfile = not self.includeInProfile

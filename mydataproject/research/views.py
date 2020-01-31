@@ -51,7 +51,7 @@ def index(request):
             context["orcid_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_orcid).first()
             context["orcid_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_orcid).first()
             context["orcid_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_orcid).first()
-            context["orcid_links"] = request.user.researchprofile.links.filter(datasource=datasource_orcid).first()
+            context["orcid_links"] = request.user.researchprofile.links.filter(datasource=datasource_orcid)
             context["orcid_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_orcid).first()
             context["orcid_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_orcid).first()
             context["orcid_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_orcid).first()
@@ -59,7 +59,7 @@ def index(request):
             context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_homeorg).first()
             context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_homeorg).first()
             context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_homeorg).first()
-            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_homeorg).first()
+            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_homeorg)
             context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_homeorg).first()
             context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_homeorg).first()
             context["homeorg_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_homeorg).first()
@@ -326,6 +326,7 @@ def toggle_data(request):
 
     p_datasource = request.POST.get('datasource', None)
     p_datatype = request.POST.get('datatype', None)
+    p_dataId = request.POST.get('dataId', None)
 
     if p_datasource == 'orcid':
         datasource = Datasource.objects.get(name="ORCID")
@@ -364,13 +365,10 @@ def toggle_data(request):
         request.user.researchprofile.save()
         response["included"] = request.user.researchprofile.include_orcid_id_in_profile
     elif p_datatype == 'link':
-        request.user.researchprofile.links.filter(datasource=datasource).update(includeInProfile=Case(
-            When(includeInProfile=True, then=Value(False)),
-            When(includeInProfile=False, then=Value(True)),
-        ))
-        request.user.researchprofile.links.exclude(datasource=datasource).update(includeInProfile=False)
-        included = request.user.researchprofile.links.filter(datasource=datasource).first().includeInProfile
-        response["included"] = included
+        link = request.user.researchprofile.links.get(datasource=datasource, pk=p_dataId)
+        link.includeInProfile = not link.includeInProfile
+        link.save()
+        response["included"] = link.includeInProfile
     elif p_datatype == 'email':
         request.user.researchprofile.emails.filter(datasource=datasource).update(includeInProfile=Case(
             When(includeInProfile=True, then=Value(False)),

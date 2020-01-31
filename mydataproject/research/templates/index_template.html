@@ -120,15 +120,29 @@
 
                             <tr>
                                 <th>Linkit</th>
-                                <td id="linkOrcid"
-                                    class="td_orcid link {% if orcid_links.value %} togglable{% endif %} {% if orcid_links.includeInProfile %} included{% endif %}"
-                                    {% if orcid_links.value %}onclick="toggleData('orcid', 'link', this.id);"{% endif %}>
-                                    {{ orcid_links.value | safe }}
+                                <td id="linkOrcid" class="td_orcid link">
+                                    {% for link in orcid_links %}
+                                    <button id="link_{{ link.pk }}" 
+                                            class="togglable btn btn-block btn-small btn-outline-secondary {% if link.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('orcid', 'link', this.id, {{link.pk}});">
+                                        {{ link.name }}
+                                        <a href="{{ link.url }}" target="_blank">
+                                            <i class="fas fa-external-link-alt float-right"></i>
+                                        </a>
+                                    </button>
+                                    {% endfor %}
                                 </td>
-                                <td id="linkHomeorg"
-                                    class="td_homeorg link {% if homeorg_links.value %} togglable{% endif %} {% if homeorg_links.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_links.value %}onclick="toggleData('homeorg', 'link', this.id);"{% endif %}>
-                                    {{ homeorg_links.value | safe }}
+                                <td id="linkHomeorg" class="td_homeorg link">
+                                    {% for link in homeorg_links %}
+                                    <button id="link_{{ link.pk }}"
+                                            class="togglable btn btn-block btn-small btn-outline-secondary {% if link.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('homeorg', 'link', this.id, {{link.pk}});">
+                                        {{ link.name }}
+                                        <a href="{{ link.url }}" target="_blank">
+                                            <i class="fas fa-external-link-alt float-right"></i>
+                                        </a>
+                                    </button>
+                                    {% endfor %}
                                 </td>
                             </tr>
 

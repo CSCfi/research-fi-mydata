@@ -90,6 +90,6 @@ td.togglable:hover {
     border: 1px solid gray;
 }
 
-td.included {
+.included {
     background-color: #afa;
 }
