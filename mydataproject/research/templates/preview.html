@@ -5,193 +5,193 @@
     <h1>Profiilin esikatselu</h1>
 </div>
 
-<div>
-    <table class="table">
-        <thead class="thead-light">
-            <th colspan=2>YHTEYSTIEDOT</th>
-        </thead>
-        <tbody>
-            <tr>
-                <th>Sukunimi</th>
-                <td>{% for n in last_names %}{{ n.value | safe }}{% endfor %}</td>
-            </tr>
-            <tr>
-                <th>Etunimi</th>
-                <td>{% for n in first_names %}{{ n.value | safe }}{% endfor %}</td>
-            </tr>
-            <tr>
-                <th>Muut nimet</th>
-                <td>{% for n in other_names %}{{ n.value | safe }}{% endfor %}</td>
-            </tr>
-            <tr>
-                <th>ORCID-tunniste</th>
-                <td>
-                    {% if user.researchprofile.include_orcid_id_in_profile %}
-                    <a href="https://orcid.org/{{ orcid_id }}" target="_blank">{{ orcid_id }}</a>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>Linkit</th>
-                <td>{% for link in links %}<a href="{{ link.url }}" target="_blank">{{ link.name }}</a>{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
-            </tr>
-            <tr>
-                <th>Sähköpostiosoite</th>
-                <td>{% for email in emails %}{{ email.value | safe }}{% endfor %}</td>
-            </tr>
-            <tr>
-                <th>Puhelinnumero</th>
-                <td>{% for phone in phones %}{{ phone.value | safe }}{% endfor %}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <table class="table">
-        <thead class="thead-light">
-            <th colspan="2">TUTKIMUSTOIMINNAN KUVAUS</th>
-        </thead>
-        <tbody>
-            <tr>
-                <th>Kuvaus</th>
-                <td>
-                    {% for b in biographies %}{{ b.value | safe }}{% endfor %}
-                </td>
-            </tr>
-            <tr>
-                <th>Tieteenalat</th>
-                <td>
-                    
-                </td>
-            </tr>
-            <tr>
-                <th>Avainsanat</th>
-                <td>
-                    {% for k in keywords %}
-                    {{ k.value | safe }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %} 
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <table class="table">
-        <thead class="thead-light">
-            <th>AFFILIAATIO</th>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    {% for em in employments %}
-                    <div class="p-3">
-                        <strong>{{ em.organizationName }}</strong><br>
-                        {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
-                        {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
-                        <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
-                    </div>
-                    {% endfor %}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <table class="table">
-        <thead class="thead-light">
-            <th>KOULUTUS</th>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    {% for ed in educations %}
-                    <div class="p-3">
-                        {% if ed.roleTitle %}<strong>{{ ed.roleTitle }}</strong><br>{% endif %}
-                        <span>{{ ed.organizationName }}</span><br>
-                        {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
-                        <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
-                    </div>
-                    {% endfor %}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <table class="table">
-        <thead class="thead-light">
-            <th colspan="3">JULKAISUT</th>
-        </thead>
-        <tbody>
-            {% for p in publications %}
-            <tr>
-                <td>
-                    {% if p.publicationYear > 0 %}
-                    {{ p.publicationYear }}
-                    {% endif %}
-                </td>
-                <td>{{ p.name }}</td>
-                <td>
-                    {% if p.doi %}
-                    <a href="https://doi.org/{{ p.doi }}" target="_blank">{{ p.doi }}</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <table class="table">
-        <thead class="thead-light">
-            <th colspan="2">TUTKIMUSAINEISTOT</th>
-        </thead>
-        <tbody>
-            <tr>
-                <th></th>
-                <td>
-
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <table class="table">
-        <thead class="thead-light">
-            <th colspan="2">HANKKEET</th>
-        </thead>
-        <tbody>
-            <tr>
-                <th></th>
-                <td>
-
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <table class="table">
-        <thead class="thead-light">
-            <th colspan="2">TUTKIMUSINFRASTRUKTUURIT</th>
-        </thead>
-        <tbody>
-            <tr>
-                <th></th>
-                <td>
-
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <table class="table">
-        <thead class="thead-light">
-            <th colspan="2">MUUT TUTKIMUSAKTIVITEETIT</th>
-        </thead>
-        <tbody>
-            <tr>
-                <th></th>
-                <td>
-
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<div class="preview_section">
+    <h5>Yhteystiedot</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th class="w-25">Sukunimi</th>
+                    <td>{% for n in last_names %}{{ n.value | safe }}{% endfor %}</td>
+                </tr>
+                <tr>
+                    <th>Etunimi</th>
+                    <td>{% for n in first_names %}{{ n.value | safe }}{% endfor %}</td>
+                </tr>
+                <tr>
+                    <th>Muut nimet</th>
+                    <td>{% for n in other_names %}{{ n.value | safe }}{% endfor %}</td>
+                </tr>
+                <tr>
+                    <th>ORCID-tunniste</th>
+                    <td>
+                        {% if user.researchprofile.include_orcid_id_in_profile %}
+                        <a href="https://orcid.org/{{ orcid_id }}" target="_blank">{{ orcid_id }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Linkit</th>
+                    <td>{% for link in links %}<a href="{{ link.url }}" target="_blank">{{ link.name }}</a>{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
+                </tr>
+                <tr>
+                    <th>Sähköpostiosoite</th>
+                    <td>{% for email in emails %}{{ email.value | safe }}{% endfor %}</td>
+                </tr>
+                <tr>
+                    <th>Puhelinnumero</th>
+                    <td>{% for phone in phones %}{{ phone.value | safe }}{% endfor %}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="preview_section">
+    <h5>Tutkimustoiminnan kuvaus</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th class="w-25">Kuvaus</th>
+                    <td>
+                        {% for b in biographies %}{{ b.value | safe }}{% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Tieteenalat</th>
+                    <td>
+                        
+                    </td>
+                </tr>
+                <tr>
+                    <th>Avainsanat</th>
+                    <td>
+                        {% for k in keywords %}
+                        {{ k.value | safe }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %} 
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="preview_section">
+    <h5>Affiliaatio</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td>
+                        {% for em in employments %}
+                        <div class="p-3">
+                            <strong>{{ em.organizationName }}</strong><br>
+                            {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
+                            {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
+                            <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
+                        </div>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="preview_section">
+    <h5>Koulutus</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td>
+                        {% for ed in educations %}
+                        <div class="p-3">
+                            {% if ed.roleTitle %}<strong>{{ ed.roleTitle }}</strong><br>{% endif %}
+                            <span>{{ ed.organizationName }}</span><br>
+                            {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
+                            <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
+                        </div>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="preview_section">
+    <h5>Julkaisut</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                {% for p in publications %}
+                <tr>
+                    <td>
+                        {% if p.publicationYear > 0 %}
+                        {{ p.publicationYear }}
+                        {% endif %}
+                    </td>
+                    <td>{{ p.name }}</td>
+                    <td>
+                        {% if p.doi %}
+                        <a href="https://doi.org/{{ p.doi }}" target="_blank">{{ p.doi }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="preview_section">
+    <h5>Tutkimusaineistot</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th></th>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="preview_section">
+    <h5>Hankkeet</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th></th>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="preview_section">
+    <h5>Tutkimusinfrastruktuurit</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th></th>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="preview_section">
+    <h5>Muut tutkimusaktiviteetit</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th></th>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock content %}

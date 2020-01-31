@@ -93,3 +93,11 @@ td.togglable:hover {
 .included {
     background-color: #afa;
 }
+
+.preview_section {
+    margin-bottom: 50px;
+}
+
+.preview_section_content {
+    padding-left: 30px;
+}
