@@ -282,8 +282,9 @@ $(document).ready(function() {
     });
 });
 
-function toggleContactInfoAll(datasourceType, toggle) {
+function toggleContactInfoAll(containerElementId, datasourceType, toggle) {
     busyIndicatorShow();
+    $containerElement = $('#' + containerElementId);
     $.ajax({
         type: 'POST',
         url: url_toggle_contact_info_all,
@@ -297,15 +298,15 @@ function toggleContactInfoAll(datasourceType, toggle) {
             var $elements = null;
             if (datasourceType === 'orcid') {
                 htmlElementClass = 'td_orcid';
-                $('.togglable').removeClass(includedClassName);
+                $containerElement.find('.togglable').removeClass(includedClassName);
             } else if (datasourceType === 'homeorg') {
                 htmlElementClass = 'td_homeorg';
-                $('.togglable').not('.orcid_id').removeClass(includedClassName);
+                $containerElement.find('.togglable').not('.orcid_id').removeClass(includedClassName);
             }
 
             if (toggle) {
-                $('.' + htmlElementClass + '.togglable').not('.link').addClass(includedClassName);
-                $('.' + htmlElementClass + ' .togglable').addClass(includedClassName);
+                $containerElement.find('.' + htmlElementClass + '.togglable').not('.link').addClass(includedClassName);
+                $containerElement.find('.' + htmlElementClass + ' .togglable').addClass(includedClassName);
             }
         },
         dataType: 'json'
@@ -314,33 +315,9 @@ function toggleContactInfoAll(datasourceType, toggle) {
     });
 };
 
-function toggleContactInfo(objectType, objectId, htmlElementId) {
+function toggleData(containerElementId, datasource, type, htmlElementId, dataId) {
     busyIndicatorShow();
-    $.ajax({
-        type: 'POST',
-        url: url_toggle_contact_info,
-        data: {
-            csrfmiddlewaretoken: csrf_token,
-            objectType: objectType,
-            objectId: objectId
-        },
-        success: function(response) {
-            console.log(htmlElementId, response.included);
-
-            if (response.included) {
-                $('#' + htmlElementId).removeClass(excludedClassName).addClass(includedClassName);
-            } else {
-                $('#' + htmlElementId).removeClass(includedClassName).addClass(excludedClassName);
-            }
-        },
-        dataType: 'json'
-    }).done(function() {
-        busyIndicatorHide();
-    });
-};
-
-function toggleData(datasource, type, htmlElementId, dataId) {
-    busyIndicatorShow();
+    $containerElement = $('#' + containerElementId);
     $.ajax({
         type: 'POST',
         url: url_toggle_data,
@@ -352,12 +329,12 @@ function toggleData(datasource, type, htmlElementId, dataId) {
         },
         success: function(response) {
             if (type === 'link') {
-                $('#' + htmlElementId).removeClass('included');
+                $containerElement.find('#' + htmlElementId).removeClass('included');
             } else {
-                $('.' + type).removeClass('included');
+                $containerElement.find('.' + type).removeClass('included');
             }
             if (response.included) {
-                $('#' + htmlElementId).addClass('included');
+                $containerElement.find('#' + htmlElementId).addClass('included');
             }
         },
         dataType: 'json'

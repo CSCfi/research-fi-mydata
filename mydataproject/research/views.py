@@ -90,8 +90,8 @@ def profile_preview(request):
     context["links"] = request.user.researchprofile.links.filter(includeInProfile=True)
     context["emails"] = request.user.researchprofile.emails.filter(includeInProfile=True)
     context["phones"] = request.user.researchprofile.phones.filter(includeInProfile=True)
-    context["biographies"] = request.user.researchprofile.biographies.all()
-    context["keywords"] = request.user.researchprofile.keywords.all()
+    context["biographies"] = request.user.researchprofile.biographies.filter(includeInProfile=True)
+    context["keywords"] = request.user.researchprofile.keywords.filter(includeInProfile=True)
     context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["publications"] = request.user.researchprofile.publications.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null', 'name')
@@ -384,6 +384,14 @@ def toggle_data(request):
         ))
         request.user.researchprofile.phones.exclude(datasource=datasource).update(includeInProfile=False)
         included = request.user.researchprofile.phones.filter(datasource=datasource).first().includeInProfile
+        response["included"] = included
+    elif p_datatype == 'biography':
+        request.user.researchprofile.biographies.filter(datasource=datasource).update(includeInProfile=Case(
+            When(includeInProfile=True, then=Value(False)),
+            When(includeInProfile=False, then=Value(True)),
+        ))
+        request.user.researchprofile.biographies.exclude(datasource=datasource).update(includeInProfile=False)
+        included = request.user.researchprofile.biographies.filter(datasource=datasource).first().includeInProfile
         response["included"] = included
 
     return JsonResponse(response)
