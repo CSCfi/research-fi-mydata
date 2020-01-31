@@ -229,23 +229,30 @@ def record_json_to_model(researchprofile, orcid_record, datasource_orcid):
             links = []
             if len(orcid_record["person"]["researcher-urls"]["researcher-url"]) > 0:
                 for obj in orcid_record["person"]["researcher-urls"]["researcher-url"]:
-                    url = obj["url"]["value"]
-                    name = obj["url-name"]
-                    linkHtml = researchprofile.getLinkHtml(url, name)
-                    links.append(linkHtml)
+                    #url = obj["url"]["value"]
+                    #name = obj["url-name"]
+                    #linkHtml = researchprofile.getLinkHtml(url, name)
+                    links.append({
+                        "url": obj["url"]["value"],
+                        "name": obj["url-name"]
+                    })
             if len(orcid_record["person"]["external-identifiers"]["external-identifier"]) > 0:
                 for obj in orcid_record["person"]["external-identifiers"]["external-identifier"]:
-                    url = obj["external-id-url"]["value"]
-                    name = obj["external-id-type"]
-                    linkHtml = researchprofile.getLinkHtml(url, name)
-                    links.append(linkHtml)
-            if len(links) > 0:
+                    #url = obj["external-id-url"]["value"]
+                    #name = obj["external-id-type"]
+                    #linkHtml = researchprofile.getLinkHtml(url, name)
+                    links.append({
+                        "url": obj["external-id-url"]["value"],
+                        "name": obj["external-id-type"]
+                    })
+            for link in links:
                 try:
                     researchmodels.PersonLink.objects.create(
                         researchprofile = researchprofile,
                         datasource = datasource_orcid,
                         includeInProfile = False,
-                        value = "<br>".join(links)
+                        url = link["url"],
+                        name = link["name"]
                     )
                 except Exception as e:
                     print("Exception in orcid_record_json_to_model() external identifiers")
