@@ -1,6 +1,51 @@
 import importlib, requests, json
 researchmodels = importlib.import_module("research.models")
 
+def getYearMonthDay(dateDict):
+    string_year = None
+    string_month = None
+    string_day = None
+    year = None
+    month = None
+    day = None
+
+    if dateDict is not None:
+        if dateDict.get('year') is not None:
+            string_year = dateDict['year'].get('value', None)
+        if dateDict.get('month') is not None:
+            string_month = dateDict['month'].get('value', None)
+        if dateDict.get('day') is not None:
+            string_day = dateDict['day'].get('value', None)
+
+        year = int(string_year) if string_year is not None else None
+        month = int(string_month) if string_month is not None else None
+        day = int(string_day) if string_day is not None else None
+
+    return year, month, day
+
+def getPositionObject(researchprofile, positionDict):
+    try:
+        startYear, startMonth, startDay = getYearMonthDay(positionDict.get('start-date', None))
+        endYear, endMonth, endDay = getYearMonthDay(positionDict.get('end-date', None))
+
+        return {
+            'researchprofile': researchprofile,
+            'organizationName': positionDict['organization'].get('name', ''),
+            'departmentName': positionDict.get('department-name', ''),
+            'roleTitle': positionDict.get('role-title', ''),
+            'startYear': startYear,
+            'startMonth': startMonth,
+            'startDay': startDay,
+            'endYear': endYear,
+            'endMonth': endMonth,
+            'endDay': endDay,
+            'includeInProfile': False
+        }
+    except Exception as e:
+        print("Exception in getPositionObject()")
+        print(e)
+        return None
+
 def record_json_to_model(researchprofile, orcid_record, datasource_orcid):
     if researchprofile.user.orcid_permission.read_all:
         if orcid_record["activities-summary"]:
@@ -12,7 +57,7 @@ def record_json_to_model(researchprofile, orcid_record, datasource_orcid):
                 # Create education objects
                 for affiliationGroup in orcid_record["activities-summary"]["educations"]["affiliation-group"]:
                     for summary in affiliationGroup['summaries']:
-                        educationObj = researchprofile.getPositionObject(summary.get('education-summary', None))
+                        educationObj = getPositionObject(researchprofile, summary.get('education-summary', None))
                         if educationObj is not None:
                             educationObj['datasource'] = datasource_orcid
                             try:
@@ -28,7 +73,7 @@ def record_json_to_model(researchprofile, orcid_record, datasource_orcid):
                 # Create employment objects
                 for affiliationGroup in orcid_record["activities-summary"]["employments"]["affiliation-group"]:
                     for summary in affiliationGroup['summaries']:
-                        employmentObj = researchprofile.getPositionObject(summary.get('employment-summary', None))
+                        employmentObj = getPositionObject(researchprofile, summary.get('employment-summary', None))
                         if employmentObj is not None:
                             employmentObj['datasource'] = datasource_orcid
                             try:
@@ -47,7 +92,7 @@ def record_json_to_model(researchprofile, orcid_record, datasource_orcid):
             #if len(orcid_record["activities-summary"]["invited-positions"]["affiliation-group"]) > 0:
             #    for affiliationGroup in orcid_record["activities-summary"]["invited-positions"]["affiliation-group"]:
             #        for summary in affiliationGroup['summaries']:
-            #            invitedPositionObj = researchprofile.getPositionObject(summary.get('invited-position-summary', None))
+            #            invitedPositionObj = getPositionObject(researchprofile, summary.get('invited-position-summary', None))
             #            if invitedPositionObj is not None:
             #                invitedPositionObj['datasource'] = datasource_orcid
             #                try:

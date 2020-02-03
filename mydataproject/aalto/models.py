@@ -25,7 +25,7 @@ class Keyword(models.Model):
 class Affiliation(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='affiliations')
     title = models.CharField(max_length=512, null=False)
-    organization_name = models.CharField(max_length=1024, null=False)
+    department_name = models.CharField(max_length=1024, null=False)
 
 class Education(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='educations')

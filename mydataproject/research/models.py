@@ -32,50 +32,6 @@ class ResearchProfile(models.Model):
     def get_visible_orcid_id(self):
         return self.test_orcid_id if self.test_orcid_id_is_valid() else self.user.username
 
-    def getYearMonthDay(self, dateDict):
-        string_year = None
-        string_month = None
-        string_day = None
-        year = None
-        month = None
-        day = None
-
-        if dateDict is not None:
-            if dateDict.get('year') is not None:
-                string_year = dateDict['year'].get('value', None)
-            if dateDict.get('month') is not None:
-                string_month = dateDict['month'].get('value', None)
-            if dateDict.get('day') is not None:
-                string_day = dateDict['day'].get('value', None)
-
-            year = int(string_year) if string_year is not None else None
-            month = int(string_month) if string_month is not None else None
-            day = int(string_day) if string_day is not None else None
-
-        return year, month, day
-
-    def getPositionObject(self, positionDict):
-        try:
-            startYear, startMonth, startDay = self.getYearMonthDay(positionDict.get('start-date', None))
-            endYear, endMonth, endDay = self.getYearMonthDay(positionDict.get('end-date', None))
-
-            return {
-                'researchprofile': self,
-                'organizationName': positionDict['organization'].get('name', ''),
-                'departmentName': positionDict.get('department-name', ''),
-                'roleTitle': positionDict.get('role-title', ''),
-                'startYear': startYear,
-                'startMonth': startMonth,
-                'startDay': startDay,
-                'endYear': endYear,
-                'endMonth': endMonth,
-                'endDay': endDay
-            }
-        except Exception as e:
-            print("Exception in getPositionObject()")
-            print(e)
-            return None
-
     def update_or_create_publication(self, p_doi, p_datasource, p_name, p_publicationYear, p_includeInProfile):
         try:
             if p_doi is not None and len(p_doi) > 10:
@@ -332,6 +288,31 @@ class ResearchProfile(models.Model):
                 value = keyword.value
             )
 
+        # Employment
+        for affiliation in aalto_person.affiliations.all():
+            employmentDict = {
+                'researchprofile': self,
+                'datasource': datasource_aalto,
+                'organizationName': 'Aalto',
+                'departmentName': affiliation.department_name,
+                'roleTitle': affiliation.title,
+                'startYear': None,
+                'startMonth': None,
+                'startDay': None,
+                'endYear': None,
+                'endMonth': None,
+                'endDay': None,
+                'includeInProfile': False
+            }
+
+            try:
+                employment = Employment(**employmentDict)
+                employment.save()
+            except Exception as e:
+                print("Exception in add_aalto_data() employments")
+                print(e)
+                pass
+
     def delete_aalto_data(self):
         datasource_aalto = Datasource.objects.get(name="AALTO")
         self.last_names.filter(datasource=datasource_aalto).delete()
@@ -393,6 +374,7 @@ class Position(models.Model):
     endYear = models.PositiveSmallIntegerField(null=True)
     endMonth = models.PositiveSmallIntegerField(null=True)
     endDay = models.PositiveSmallIntegerField(null=True)
+    includeInProfile = models.BooleanField(default=False)
 
     class Meta:
         abstract = True

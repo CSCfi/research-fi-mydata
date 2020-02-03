@@ -261,22 +261,48 @@
         </div>
         <div id="collapse3" class="collapse" aria-labelledby="heading3" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <div id="employments" class="mx-5">
-                    {% if employments.count > 0 %}
-                        {% for em in employments %}
-                        <div class="p-3">
-                            <strong>{{ em.organizationName }}</strong><br>
-                            {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
-                            {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
-                            <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="p-3">
-                            -
-                        </div>
-                    {% endif %}
-                </div>
+                <table class="table" id="sectionAffiliation">
+                    <thead class="thead-light">
+                        <th class="w-50">
+                            ORCID&nbsp;
+                            <button onclick="toggleSectionAll('sectionAffiliation', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionAffiliation', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                        <th class="w-50">
+                            Kotiorganisaatio&nbsp;
+                            <button onclick="toggleSectionAll('sectionAffiliation', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionAffiliation', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td_orcid employment">
+                                {% for em in orcid_employments %}
+                                <button id="employment_{{ em.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionAffiliation', 'orcid', 'employment', this.id, {{em.pk}});">
+                                    {{ em.organizationName }}<br>
+                                    {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
+                                    {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
+                                    <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
+                                </button>
+                                {% endfor %}
+                            </td>
+                            <td class="td_homeorg employment">
+                                {% for em in homeorg_employments %}
+                                <button id="employment_{{ em.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionAffiliation', 'homeorg', 'employment', this.id, {{em.pk}});">
+                                    {{ em.organizationName }}<br>
+                                    {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
+                                    {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
+                                    <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
+                                </button>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
