@@ -51,18 +51,18 @@
         <div id="collapse1" class="collapse" aria-labelledby="heading1" data-parent="#researchProfileAccordion">
             <div class="card-body">
                 <div class="mx-5 my-3">
-                    <table class="table" id="contactInfoTable">
+                    <table class="table" id="sectionContactInfo">
                         <thead class="thead-light">
                             <th></th>
                             <th class="w-50">
                                 ORCID&nbsp;
-                                <button onclick="toggleContactInfoAll('contactInfoTable', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                                <button onclick="toggleContactInfoAll('contactInfoTable', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                                <button onclick="toggleSectionAll('sectionContactInfo', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                                <button onclick="toggleSectionAll('sectionContactInfo', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
                             </th>
                             <th class="w-50">
                                 Kotiorganisaatio&nbsp;
-                                <button onclick="toggleContactInfoAll('contactInfoTable', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                                <button onclick="toggleContactInfoAll('contactInfoTable', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                                <button onclick="toggleSectionAll('sectionContactInfo', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                                <button onclick="toggleSectionAll('sectionContactInfo', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
                             </th>
                         </thead>
                         <tbody>
@@ -70,12 +70,12 @@
                                 <th>Sukunimi</th>
                                 <td id="lastNameOrcid"
                                     class="td_orcid last_name {% if orcid_last_names.value %} togglable{% endif %} {% if orcid_last_names.includeInProfile %} included{% endif %}"
-                                    {% if orcid_last_names.value %}onclick="toggleData('contactInfoTable', 'orcid', 'last_name', this.id);"{% endif %}>
+                                    {% if orcid_last_names.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'last_name', this.id);"{% endif %}>
                                     {{ orcid_last_names.value | safe }}
                                 </td>
                                 <td id="lastNameHomeorg"
                                     class="td_homeorg last_name {% if homeorg_last_names.value %} togglable{% endif %} {% if homeorg_last_names.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_last_names.value %}onclick="toggleData('contactInfoTable', 'homeorg', 'last_name', this.id);"{% endif %}>
+                                    {% if homeorg_last_names.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'last_name', this.id);"{% endif %}>
                                     {{ homeorg_last_names.value | safe }}
                                 </td>
                             </tr>
@@ -84,12 +84,12 @@
                                 <th>Etunimi</th>
                                 <td id="firstNameOrcid"
                                     class="td_orcid first_name {% if orcid_first_names.value %} togglable{% endif %} {% if orcid_first_names.includeInProfile %} included{% endif %}"
-                                    {% if orcid_first_names.value %}onclick="toggleData('contactInfoTable', 'orcid', 'first_name', this.id);"{% endif %}>
+                                    {% if orcid_first_names.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'first_name', this.id);"{% endif %}>
                                     {{ orcid_first_names.value | safe }}
                                 </td>
                                 <td id="firstNameHomeorg"
                                     class="td_homeorg first_name {% if homeorg_first_names.value %} togglable{% endif %} {% if homeorg_first_names.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_first_names.value %}onclick="toggleData('contactInfoTable', 'homeorg', 'first_name', this.id);"{% endif %}>
+                                    {% if homeorg_first_names.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'first_name', this.id);"{% endif %}>
                                     {{ homeorg_first_names.value | safe }}
                                 </td>
                             </tr>
@@ -98,12 +98,12 @@
                                 <th>Muut nimet</th>
                                 <td id="otherNameOrcid"
                                     class="td_orcid other_name {% if orcid_other_names.value %} togglable{% endif %} {% if orcid_other_names.includeInProfile %} included{% endif %}"
-                                    {% if orcid_other_names.value %}onclick="toggleData('contactInfoTable', 'orcid', 'other_name', this.id);"{% endif %}>
+                                    {% if orcid_other_names.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'other_name', this.id);"{% endif %}>
                                     {{ orcid_other_names.value | safe }}
                                 </td>
                                 <td id="otherNameHomeorg"
                                     class="td_homeorg other_name {% if homeorg_other_names.value %} togglable{% endif %} {% if homeorg_other_names.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_other_names.value %}onclick="toggleData('contactInfoTable', 'homeorg', 'other_name', this.id);"{% endif %}>
+                                    {% if homeorg_other_names.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'other_name', this.id);"{% endif %}>
                                     {{ homeorg_other_names.value | safe }} 
                                 </td>
                             </tr>
@@ -112,7 +112,7 @@
                                 <th>ORCID-tunniste</th>
                                 <td id="orcidId"
                                     class="td_orcid orcid_id togglable {% if user.researchprofile.include_orcid_id_in_profile %} included{% endif %}"
-                                    onclick="toggleData('contactInfoTable', 'orcid', 'orcid_id', this.id);">
+                                    onclick="toggleData('sectionContactInfo', 'orcid', 'orcid_id', this.id);">
                                     <a href="https://orcid.org/{{ orcid_id }}" target="_blank">{{ orcid_id }}</a>
                                 </td>
                                 <td></td>
@@ -123,8 +123,8 @@
                                 <td id="linkOrcid" class="td_orcid link">
                                     {% for link in orcid_links %}
                                     <button id="link_{{ link.pk }}" 
-                                            class="togglable btn btn-block btn-small btn-outline-secondary {% if link.includeInProfile %}included{% endif %}"
-                                            onclick="toggleData('contactInfoTable', 'orcid', 'link', this.id, {{link.pk}});">
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if link.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionContactInfo', 'orcid', 'link', this.id, {{link.pk}});">
                                         {{ link.name }}
                                         <a href="{{ link.url }}" target="_blank">
                                             <i class="fas fa-external-link-alt float-right"></i>
@@ -135,8 +135,8 @@
                                 <td id="linkHomeorg" class="td_homeorg link">
                                     {% for link in homeorg_links %}
                                     <button id="link_{{ link.pk }}"
-                                            class="togglable btn btn-block btn-small btn-outline-secondary {% if link.includeInProfile %}included{% endif %}"
-                                            onclick="toggleData('contactInfoTable', 'homeorg', 'link', this.id, {{link.pk}});">
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if link.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionContactInfo', 'homeorg', 'link', this.id, {{link.pk}});">
                                         {{ link.name }}
                                         <a href="{{ link.url }}" target="_blank">
                                             <i class="fas fa-external-link-alt float-right"></i>
@@ -150,12 +150,12 @@
                                 <th>Sähköpostiosoite</th>
                                 <td id="emailOrcid"
                                     class="td_orcid email {% if orcid_emails.value %} togglable{% endif %} {% if orcid_emails.includeInProfile %} included{% endif %}"
-                                    {% if orcid_emails.value %}onclick="toggleData('contactInfoTable', 'orcid', 'email', this.id);"{% endif %}>
+                                    {% if orcid_emails.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'email', this.id);"{% endif %}>
                                     {{ orcid_emails.value | safe }}
                                 </td>
                                 <td id="emailHomeorg"
                                     class="td_homeorg email {% if homeorg_emails.value %} togglable{% endif %} {% if homeorg_emails.includeInProfile %}included{% endif %}"
-                                    {% if homeorg_emails.value %}onclick="toggleData('contactInfoTable', 'homeorg', 'email', this.id);"{% endif %}>
+                                    {% if homeorg_emails.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'email', this.id);"{% endif %}>
                                     {{ homeorg_emails.value | safe }}
                                 </td>
                             </tr>
@@ -164,12 +164,12 @@
                                 <th>Puhelinnumero</th>
                                 <td id="phoneOrcid"
                                     class="td_orcid phone {% if orcid_phones.value %} togglable{% endif %}{% if orcid_phones.includeInProfile %} included{% endif %}"
-                                    {% if orcid_phones.value %}onclick="toggleData('contactInfoTable', 'orcid', 'phone', this.id);"{% endif %}>
+                                    {% if orcid_phones.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'phone', this.id);"{% endif %}>
                                     {{ orcid_phones.value | safe }}
                                 </td>
                                 <td id="phoneHomeorg"
                                     class="td_homeorg phone {% if homeorg_phones.value %} togglable{% endif %}{% if homeorg_phones.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_phones.value %}onclick="toggleData('contactInfoTable', 'homeorg', 'phone', this.id);"{% endif %}>
+                                    {% if homeorg_phones.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'phone', this.id);"{% endif %}>
                                     {{ homeorg_phones.value | safe }}
                                 </td>
                             </tr>
@@ -191,18 +191,18 @@
         <div id="collapse2" class="collapse" aria-labelledby="heading2" data-parent="#researchProfileAccordion">
             <div class="card-body">
                 <div class="mx-5 my-3">
-                    <table class="table" id="descriptionTable">
+                    <table class="table" id="sectionDescription">
                         <thead class="thead-light">
                             <th></th>
                             <th class="w-50">
                                 ORCID&nbsp;
-                                <button onclick="toggleContactInfoAll('descriptionTable', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                                <button onclick="toggleContactInfoAll('descriptionTable', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                                <button onclick="toggleSectionAll('sectionDescription', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                                <button onclick="toggleSectionAll('sectionDescription', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
                             </th>
                             <th class="w-50">
                                 Kotiorganisaatio&nbsp;
-                                <button onclick="toggleContactInfoAll('descriptionTable', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                                <button onclick="toggleContactInfoAll('descriptionTable', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                                <button onclick="toggleSectionAll('sectionDescription', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                                <button onclick="toggleSectionAll('sectionDescription', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
                             </th>
                         </thead>
                         <tbody>
@@ -210,11 +210,11 @@
                                 <th>Kuvaus</th>
                                 <td id="biographyOrcid"
                                     class="td_orcid biography {% if orcid_biography.value %} togglable{% endif %} {% if orcid_biography.includeInProfile %} included{% endif %}"
-                                    {% if orcid_biography.value %}onclick="toggleData('descriptionTable', 'orcid', 'biography', this.id);"{% endif %}>
+                                    {% if orcid_biography.value %}onclick="toggleData('sectionDescription', 'orcid', 'biography', this.id);"{% endif %}>
                                     {{ orcid_biography.value | safe }}</td>
                                 <td id="biographyHomeorg"
                                     class="td_homeorg biography {% if homeorg_biography.value %} togglable{% endif %} {% if homeorg_biography.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_biography.value %}onclick="toggleData('descriptionTable', 'homeorg', 'biography', this.id);"{% endif %}>
+                                    {% if homeorg_biography.value %}onclick="toggleData('sectionDescription', 'homeorg', 'biography', this.id);"{% endif %}>
                                     {{ homeorg_biography.value | safe }}</td>
                             </tr>
                             <tr>
@@ -224,14 +224,23 @@
                             </tr>
                             <tr>
                                 <th>Avainsanat</th>
-                                <td>
+
+                                <td id="keywordOrcid" class="td_orcid keyword">
                                     {% for keyword in orcid_keywords %}
-                                    {{ keyword.value }}{% if not forloop.last%}<br>{% endif %}
+                                    <button id="keyword_{{ keyword.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if keyword.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionDescription', 'orcid', 'keyword', this.id, {{keyword.pk}});">
+                                        {{ keyword.value }}
+                                    </button>
                                     {% endfor %}
                                 </td>
-                                <td>
+                                <td id="keywordHomeorg" class="td_homeorg keyword">
                                     {% for keyword in homeorg_keywords %}
-                                    {{ keyword.value }}{% if not forloop.last%}<br>{% endif %}
+                                    <button id="keyword_{{ keyword.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if keyword.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionDescription', 'homeorg', 'keyword', this.id, {{keyword.pk}});">
+                                        {{ keyword.value }}
+                                    </button>
                                     {% endfor %}
                                 </td>
                             </tr>

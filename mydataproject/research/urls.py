@@ -13,8 +13,7 @@ urlpatterns = [
     path('publication_include_all', views.publication_include_all, name='publication_include_all'),
     path('publication_add', views.publication_add, name='publication_add'),
     path('publication_delete', views.publication_delete, name='publication_delete'),
-    path('toggle_contact_info', views.toggle_contact_info, name='toggle_contact_info'),
-    path('toggle_contact_info_all', views.toggle_contact_info_all, name='toggle_contact_info_all'),
+    path('toggle_data_section_all', views.toggle_data_section_all, name='toggle_data_section_all'),
     path('toggle_data', views.toggle_data, name='toggle_data'),
     path('', views.index, name='index'),
 ]

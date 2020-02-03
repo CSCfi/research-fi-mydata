@@ -9,7 +9,6 @@ var url_publication_include = null;
 var url_publication_add = null;
 var url_publication_delete = null;
 var url_publication_list = null;
-var url_toggle_contact_info = null;
 
 // Datasources
 var datasource_ttv = 1;
@@ -282,16 +281,17 @@ $(document).ready(function() {
     });
 });
 
-function toggleContactInfoAll(containerElementId, datasourceType, toggle) {
+function toggleSectionAll(sectionElementId, datasourceType, toggle) {
     busyIndicatorShow();
-    $containerElement = $('#' + containerElementId);
+    $containerElement = $('#' + sectionElementId);
     $.ajax({
         type: 'POST',
-        url: url_toggle_contact_info_all,
+        url: url_toggle_data_section_all,
         data: {
             csrfmiddlewaretoken: csrf_token,
+            section: sectionElementId,
             datasourceType: datasourceType,
-            toggle: toggle 
+            toggle: toggle
         },
         success: function(response) {
             var htmlElementClass = null;
