@@ -238,53 +238,9 @@ def test_orcid_id(request):
     return redirect('index')
 
 @login_required
-def toggle_contact_info(request):
+def toggle_data_section_all(request):
     response = {}
-    objectType = request.POST.get('objectType', None)
-    objectId = int(request.POST.get('objectId', '0'))
-
-    if objectType is not None and objectId > 0:
-        # Last name
-        if objectType == 'lastName':
-            obj = request.user.researchprofile.last_names.get(id=objectId)
-            response = { 'included': obj.toggleInclude() }
-
-        # First name
-        elif objectType == 'firstName':
-            obj = request.user.researchprofile.first_names.get(id=objectId)
-            response = { 'included': obj.toggleInclude() }
-
-        # Other name
-        elif objectType == 'otherName':
-            obj = request.user.researchprofile.other_names.get(id=objectId)
-            response = { 'included': obj.toggleInclude() }
-    
-        # ORCID ID
-        elif objectType == 'orcidId':
-            request.user.researchprofile.include_orcid_id_in_profile = not request.user.researchprofile.include_orcid_id_in_profile
-            request.user.researchprofile.save()
-            response = { 'included': request.user.researchprofile.include_orcid_id_in_profile }
-
-        # Link
-        elif objectType == 'link':
-            obj = request.user.researchprofile.links.get(id=objectId)
-            response = { 'included': obj.toggleInclude() }
-
-        # Email
-        elif objectType == 'email':
-            obj = request.user.researchprofile.emails.get(id=objectId)
-            response = { 'included': obj.toggleInclude() }
-
-        # Phone
-        elif objectType == 'phone':
-            obj = request.user.researchprofile.phones.get(id=objectId)
-            response = { 'included': obj.toggleInclude() }
-
-    return JsonResponse(response)
-
-@login_required
-def toggle_contact_info_all(request):
-    response = {}
+    section = request.POST.get('section', None)
     datasource_type = request.POST.get('datasourceType', None)
     toggleJavascriptValue = request.POST.get('toggle', None)
 
@@ -294,28 +250,38 @@ def toggle_contact_info_all(request):
     else:
         toggle = False
 
+    # Datasource object
     if datasource_type == 'orcid':
         datasource = Datasource.objects.get(name="ORCID")
-        request.user.researchprofile.include_orcid_id_in_profile = toggle
     elif datasource_type == 'homeorg':
         datasource = request.user.researchprofile.homeorg_datasource
     else:
         return JsonResponse(response)
-        
-    request.user.researchprofile.last_names.filter(datasource=datasource).update(includeInProfile=toggle)
-    request.user.researchprofile.first_names.filter(datasource=datasource).update(includeInProfile=toggle)
-    request.user.researchprofile.other_names.filter(datasource=datasource).update(includeInProfile=toggle)
-    request.user.researchprofile.links.filter(datasource=datasource).update(includeInProfile=toggle)
-    request.user.researchprofile.emails.filter(datasource=datasource).update(includeInProfile=toggle)
-    request.user.researchprofile.phones.filter(datasource=datasource).update(includeInProfile=toggle)
 
-    if toggle:
-        request.user.researchprofile.last_names.exclude(datasource=datasource).update(includeInProfile=False)
-        request.user.researchprofile.first_names.exclude(datasource=datasource).update(includeInProfile=False)
-        request.user.researchprofile.other_names.exclude(datasource=datasource).update(includeInProfile=False)
-        request.user.researchprofile.links.exclude(datasource=datasource).update(includeInProfile=False)
-        request.user.researchprofile.emails.exclude(datasource=datasource).update(includeInProfile=False)
-        request.user.researchprofile.phones.exclude(datasource=datasource).update(includeInProfile=False)
+    # Contact info
+    if section == 'sectionContactInfo':
+        if datasource_type == 'orcid':
+            request.user.researchprofile.include_orcid_id_in_profile = toggle
+        request.user.researchprofile.last_names.filter(datasource=datasource).update(includeInProfile=toggle)
+        request.user.researchprofile.first_names.filter(datasource=datasource).update(includeInProfile=toggle)
+        request.user.researchprofile.other_names.filter(datasource=datasource).update(includeInProfile=toggle)
+        request.user.researchprofile.links.filter(datasource=datasource).update(includeInProfile=toggle)
+        request.user.researchprofile.emails.filter(datasource=datasource).update(includeInProfile=toggle)
+        request.user.researchprofile.phones.filter(datasource=datasource).update(includeInProfile=toggle)
+        if toggle:
+            request.user.researchprofile.last_names.exclude(datasource=datasource).update(includeInProfile=False)
+            request.user.researchprofile.first_names.exclude(datasource=datasource).update(includeInProfile=False)
+            request.user.researchprofile.other_names.exclude(datasource=datasource).update(includeInProfile=False)
+            request.user.researchprofile.links.exclude(datasource=datasource).update(includeInProfile=False)
+            request.user.researchprofile.emails.exclude(datasource=datasource).update(includeInProfile=False)
+            request.user.researchprofile.phones.exclude(datasource=datasource).update(includeInProfile=False)
+    # Description
+    elif section == 'sectionDescription':
+        request.user.researchprofile.biographies.filter(datasource=datasource).update(includeInProfile=toggle)
+        request.user.researchprofile.keywords.filter(datasource=datasource).update(includeInProfile=toggle)
+        if toggle:
+            request.user.researchprofile.biographies.exclude(datasource=datasource).update(includeInProfile=False)
+            request.user.researchprofile.keywords.exclude(datasource=datasource).update(includeInProfile=False)
 
     request.user.researchprofile.save()
     return JsonResponse(response)
@@ -335,6 +301,7 @@ def toggle_data(request):
     else:
         return JsonResponse(response)
 
+    # Last name
     if p_datatype == 'last_name':
         request.user.researchprofile.last_names.filter(datasource=datasource).update(includeInProfile=Case(
             When(includeInProfile=True, then=Value(False)),
@@ -343,7 +310,8 @@ def toggle_data(request):
         request.user.researchprofile.last_names.exclude(datasource=datasource).update(includeInProfile=False)
         included = request.user.researchprofile.last_names.filter(datasource=datasource).first().includeInProfile
         response["included"] = included
-        
+
+    # Fist name
     elif p_datatype == 'first_name':
         request.user.researchprofile.first_names.filter(datasource=datasource).update(includeInProfile=Case(
             When(includeInProfile=True, then=Value(False)),
@@ -352,6 +320,8 @@ def toggle_data(request):
         request.user.researchprofile.first_names.exclude(datasource=datasource).update(includeInProfile=False)
         included = request.user.researchprofile.first_names.filter(datasource=datasource).first().includeInProfile
         response["included"] = included
+
+    # Other name
     elif p_datatype == 'other_name':
         request.user.researchprofile.other_names.filter(datasource=datasource).update(includeInProfile=Case(
             When(includeInProfile=True, then=Value(False)),
@@ -360,15 +330,21 @@ def toggle_data(request):
         request.user.researchprofile.other_names.exclude(datasource=datasource).update(includeInProfile=False)
         included = request.user.researchprofile.other_names.filter(datasource=datasource).first().includeInProfile
         response["included"] = included
+
+    # ORCID ID
     elif p_datatype == 'orcid_id':
         request.user.researchprofile.include_orcid_id_in_profile = not request.user.researchprofile.include_orcid_id_in_profile
         request.user.researchprofile.save()
         response["included"] = request.user.researchprofile.include_orcid_id_in_profile
+
+    # Link
     elif p_datatype == 'link':
         link = request.user.researchprofile.links.get(datasource=datasource, pk=p_dataId)
         link.includeInProfile = not link.includeInProfile
         link.save()
         response["included"] = link.includeInProfile
+
+    # Email
     elif p_datatype == 'email':
         request.user.researchprofile.emails.filter(datasource=datasource).update(includeInProfile=Case(
             When(includeInProfile=True, then=Value(False)),
@@ -377,6 +353,8 @@ def toggle_data(request):
         request.user.researchprofile.emails.exclude(datasource=datasource).update(includeInProfile=False)
         included = request.user.researchprofile.emails.filter(datasource=datasource).first().includeInProfile
         response["included"] = included
+
+    # Phone
     elif p_datatype == 'phone':
         request.user.researchprofile.phones.filter(datasource=datasource).update(includeInProfile=Case(
             When(includeInProfile=True, then=Value(False)),
@@ -385,6 +363,8 @@ def toggle_data(request):
         request.user.researchprofile.phones.exclude(datasource=datasource).update(includeInProfile=False)
         included = request.user.researchprofile.phones.filter(datasource=datasource).first().includeInProfile
         response["included"] = included
+
+    # Biography
     elif p_datatype == 'biography':
         request.user.researchprofile.biographies.filter(datasource=datasource).update(includeInProfile=Case(
             When(includeInProfile=True, then=Value(False)),
@@ -393,5 +373,12 @@ def toggle_data(request):
         request.user.researchprofile.biographies.exclude(datasource=datasource).update(includeInProfile=False)
         included = request.user.researchprofile.biographies.filter(datasource=datasource).first().includeInProfile
         response["included"] = included
+
+    # Keyword
+    elif p_datatype == 'keyword':
+        keyword = request.user.researchprofile.keywords.get(datasource=datasource, pk=p_dataId)
+        keyword.includeInProfile = not keyword.includeInProfile
+        keyword.save()
+        response["included"] = keyword.includeInProfile
 
     return JsonResponse(response)

@@ -53,23 +53,15 @@
             <tbody>
                 <tr>
                     <th class="w-25">Kuvaus</th>
-                    <td>
-                        {% for b in biographies %}{{ b.value | safe }}{% endfor %}
-                    </td>
+                    <td>{% for b in biographies %}{{ b.value | safe }}{% endfor %}</td>
                 </tr>
                 <tr>
                     <th>Tieteenalat</th>
-                    <td>
-                        
-                    </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <th>Avainsanat</th>
-                    <td>
-                        {% for k in keywords %}
-                        {{ k.value | safe }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %} 
-                    </td>
+                    <td>{% for k in keywords %}{{ k.value }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
                 </tr>
             </tbody>
         </table>
