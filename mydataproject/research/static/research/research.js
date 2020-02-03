@@ -328,7 +328,7 @@ function toggleData(containerElementId, datasource, type, htmlElementId, dataId)
             dataId: dataId
         },
         success: function(response) {
-            if (type === 'link' || type === 'keyword') {
+            if (type === 'link' || type === 'keyword' || 'employment') {
                 $containerElement.find('#' + htmlElementId).removeClass('included');
             } else {
                 $containerElement.find('.' + type).removeClass('included');

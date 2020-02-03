@@ -58,7 +58,7 @@ def handle_upload(f):
                             if af_child.tag == 'TehtavanimikeNimi':
                                 affiliation['title'] = af_child.text
                             elif af_child.tag == 'YksikkoKoodi':
-                                affiliation['organization_name'] = af_child.text
+                                affiliation['department_name'] = af_child.text
                         affiliations.append(affiliation)
                 elif child.tag == 'Koulutukset':
                     for ko in child.findall('Koulutus'):
@@ -106,7 +106,7 @@ def handle_upload(f):
                     affiliation_obj, created = Affiliation.objects.update_or_create(
                         person = person_obj,
                         title = affiliation["title"],
-                        organization_name = affiliation["organization_name"],
+                        department_name = affiliation["department_name"],
                     )
 
                 # Create person's education objects

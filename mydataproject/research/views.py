@@ -56,6 +56,7 @@ def index(request):
             context["orcid_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_orcid).first()
             context["orcid_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_orcid).first()
             context["orcid_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_orcid)
+            context["orcid_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_homeorg).first()
             context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_homeorg).first()
             context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_homeorg).first()
@@ -64,7 +65,7 @@ def index(request):
             context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_homeorg).first()
             context["homeorg_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_homeorg).first()
             context["homeorg_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_homeorg)
-            context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["homeorg_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
             context["invited_positions"] = request.user.researchprofile.invitedposition.all()
@@ -92,7 +93,7 @@ def profile_preview(request):
     context["phones"] = request.user.researchprofile.phones.filter(includeInProfile=True)
     context["biographies"] = request.user.researchprofile.biographies.filter(includeInProfile=True)
     context["keywords"] = request.user.researchprofile.keywords.filter(includeInProfile=True)
-    context["employments"] = request.user.researchprofile.employment.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+    context["employments"] = request.user.researchprofile.employment.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["publications"] = request.user.researchprofile.publications.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null', 'name')
     return render(request, 'preview.html', context)
@@ -275,6 +276,7 @@ def toggle_data_section_all(request):
             request.user.researchprofile.links.exclude(datasource=datasource).update(includeInProfile=False)
             request.user.researchprofile.emails.exclude(datasource=datasource).update(includeInProfile=False)
             request.user.researchprofile.phones.exclude(datasource=datasource).update(includeInProfile=False)
+    
     # Description
     elif section == 'sectionDescription':
         request.user.researchprofile.biographies.filter(datasource=datasource).update(includeInProfile=toggle)
@@ -282,6 +284,14 @@ def toggle_data_section_all(request):
         if toggle:
             request.user.researchprofile.biographies.exclude(datasource=datasource).update(includeInProfile=False)
             request.user.researchprofile.keywords.exclude(datasource=datasource).update(includeInProfile=False)
+
+    # Employment (Affiliation)
+    elif section == 'sectionAffiliation':
+        request.user.researchprofile.employment.filter(datasource=datasource).update(includeInProfile=toggle)
+        request.user.researchprofile.employment.filter(datasource=datasource).update(includeInProfile=toggle)
+        if toggle:
+            request.user.researchprofile.employment.exclude(datasource=datasource).update(includeInProfile=False)
+            request.user.researchprofile.employment.exclude(datasource=datasource).update(includeInProfile=False)
 
     request.user.researchprofile.save()
     return JsonResponse(response)
@@ -380,5 +390,12 @@ def toggle_data(request):
         keyword.includeInProfile = not keyword.includeInProfile
         keyword.save()
         response["included"] = keyword.includeInProfile
+
+    # Employment
+    elif p_datatype == 'employment':
+        employment = request.user.researchprofile.employment.get(datasource=datasource, pk=p_dataId)
+        employment.includeInProfile = not employment.includeInProfile
+        employment.save()
+        response["included"] = employment.includeInProfile
 
     return JsonResponse(response)
