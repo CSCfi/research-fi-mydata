@@ -57,6 +57,7 @@ def index(request):
             context["orcid_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_orcid).first()
             context["orcid_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_orcid)
             context["orcid_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["orcid_educations"] = request.user.researchprofile.education.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_homeorg).first()
             context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_homeorg).first()
             context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_homeorg).first()
@@ -66,7 +67,7 @@ def index(request):
             context["homeorg_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_homeorg).first()
             context["homeorg_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_homeorg)
             context["homeorg_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["homeorg_educations"] = request.user.researchprofile.education.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
             context["invited_positions"] = request.user.researchprofile.invitedposition.all()
     return render(request, 'index_template.html', context)
@@ -94,7 +95,7 @@ def profile_preview(request):
     context["biographies"] = request.user.researchprofile.biographies.filter(includeInProfile=True)
     context["keywords"] = request.user.researchprofile.keywords.filter(includeInProfile=True)
     context["employments"] = request.user.researchprofile.employment.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-    context["educations"] = request.user.researchprofile.education.all().annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+    context["educations"] = request.user.researchprofile.education.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["publications"] = request.user.researchprofile.publications.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null', 'name')
     return render(request, 'preview.html', context)
 
@@ -293,6 +294,14 @@ def toggle_data_section_all(request):
             request.user.researchprofile.employment.exclude(datasource=datasource).update(includeInProfile=False)
             request.user.researchprofile.employment.exclude(datasource=datasource).update(includeInProfile=False)
 
+    # Education
+    elif section == 'sectionEducation':
+        request.user.researchprofile.education.filter(datasource=datasource).update(includeInProfile=toggle)
+        request.user.researchprofile.education.filter(datasource=datasource).update(includeInProfile=toggle)
+        if toggle:
+            request.user.researchprofile.education.exclude(datasource=datasource).update(includeInProfile=False)
+            request.user.researchprofile.education.exclude(datasource=datasource).update(includeInProfile=False)
+
     request.user.researchprofile.save()
     return JsonResponse(response)
 
@@ -397,5 +406,12 @@ def toggle_data(request):
         employment.includeInProfile = not employment.includeInProfile
         employment.save()
         response["included"] = employment.includeInProfile
+
+    # Education
+    elif p_datatype == 'education':
+        education = request.user.researchprofile.education.get(datasource=datasource, pk=p_dataId)
+        education.includeInProfile = not education.includeInProfile
+        education.save()
+        response["included"] = education.includeInProfile
 
     return JsonResponse(response)
