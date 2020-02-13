@@ -317,22 +317,49 @@
         </div>
         <div id="collapse4" class="collapse" aria-labelledby="heading4" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <div id="educations" class="mx-5">
-                    {% if educations.count > 0 %}
-                        {% for ed in educations %}
-                        <div class="p-3">
-                            {% if ed.roleTitle %}<strong>{{ ed.roleTitle }}</strong><br>{% endif %}
-                            <span>{{ ed.organizationName }}</span><br>
-                            {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
-                            <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="p-3">
-                            -
-                        </div>
-                    {% endif %}
-                </div>
+
+                <table class="table" id="sectionEducation">
+                    <thead class="thead-light">
+                        <th class="w-50">
+                            ORCID&nbsp;
+                            <button onclick="toggleSectionAll('sectionEducation', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionEducation', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                        <th class="w-50">
+                            Kotiorganisaatio&nbsp;
+                            <button onclick="toggleSectionAll('sectionEducation', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionEducation', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td_orcid education">
+                                {% for ed in orcid_educations %}
+                                <button id="education_{{ ed.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if ed.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionEducation', 'orcid', 'education', this.id, {{ed.pk}});">
+                                    {{ ed.organizationName }}<br>
+                                    {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
+                                    {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
+                                    <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
+                                </button>
+                                {% endfor %}
+                            </td>
+                            <td class="td_homeorg education">
+                                {% for ed in homeorg_educations %}
+                                <button id="education_{{ ed.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if ed.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionEducation', 'homeorg', 'education', this.id, {{ed.pk}});">
+                                    {{ ed.organizationName }}<br>
+                                    {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
+                                    {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
+                                    <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
+                                </button>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
