@@ -141,8 +141,15 @@
         <table class="table table-sm">
             <tbody>
                 <tr>
-                    <th></th>
-                    <td></td>
+                    <th class="w-25"></th>
+                    <td>
+                        {% for r in researchmaterials %}
+                        <div class="{% if not forloop.last %}mb-4{% endif %}">
+                            <strong>{{ r.name }}</strong><br>
+                            {{ r.description }}
+                        </div>
+                        {% endfor %}
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -468,7 +468,44 @@
         </div>
         <div id="collapse6" class="collapse" aria-labelledby="heading6" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <div class="px-5">-</div>
+                <table class="table" id="sectionResearchmaterial">
+                    <thead class="thead-light">
+                        <th class="w-50">
+                            ORCID&nbsp;
+                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                        <th class="w-50">
+                            Kotiorganisaatio&nbsp;
+                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td_orcid research_material">
+                                {% for rm in orcid_researchmaterials %}
+                                <button id="researchmaterial_{{ rm.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionResearchmaterial', 'orcid', 'research_material', this.id, {{rm.pk}});">
+                                    <b></b>{{ rm.name }}<br>
+                                    {{ rm.description }}<br>
+                                </button>
+                                {% endfor %}
+                            </td>
+                            <td class="td_homeorg research_material">
+                                {% for rm in homeorg_researchmaterials %}
+                                <button id="researchmaterial_{{ rm.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %}"
+                                            onclick="toggleData('sectionResearchmaterial', 'homeorg', 'research_material', this.id, {{rm.pk}});">
+                                    {{ rm.name }}<br>
+                                    {{ rm.description }}<br>
+                                </button>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

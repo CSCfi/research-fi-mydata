@@ -416,4 +416,11 @@ def toggle_data(request):
         education.save()
         response["included"] = education.includeInProfile
 
+    # Research material
+    elif p_datatype == 'research_material':
+        researchmaterial = request.user.researchprofile.research_materials.get(datasource=datasource, pk=p_dataId)
+        researchmaterial.includeInProfile = not researchmaterial.includeInProfile
+        researchmaterial.save()
+        response["included"] = researchmaterial.includeInProfile
+
     return JsonResponse(response)
