@@ -68,6 +68,7 @@ def index(request):
             context["homeorg_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_homeorg)
             context["homeorg_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["homeorg_educations"] = request.user.researchprofile.education.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["homeorg_researchmaterials"] = request.user.researchprofile.research_materials.filter(datasource=datasource_homeorg)
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
             context["invited_positions"] = request.user.researchprofile.invitedposition.all()
     return render(request, 'index_template.html', context)
@@ -97,6 +98,7 @@ def profile_preview(request):
     context["employments"] = request.user.researchprofile.employment.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["educations"] = request.user.researchprofile.education.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["publications"] = request.user.researchprofile.publications.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null', 'name')
+    context["researchmaterials"] = request.user.researchprofile.research_materials.filter(includeInProfile=True)
     return render(request, 'preview.html', context)
 
 @login_required
