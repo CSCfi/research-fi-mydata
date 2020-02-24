@@ -98,7 +98,7 @@ def profile_preview(request):
     context["employments"] = request.user.researchprofile.employment.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["educations"] = request.user.researchprofile.education.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["publications"] = request.user.researchprofile.publications.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null', 'name')
-    context["researchmaterials"] = request.user.researchprofile.research_materials.filter(includeInProfile=True)
+    context["researchmaterials"] = request.user.researchprofile.research_materials.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null')
     return render(request, 'preview.html', context)
 
 @login_required

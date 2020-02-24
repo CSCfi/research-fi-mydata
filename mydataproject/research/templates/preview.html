@@ -143,10 +143,12 @@
                 <tr>
                     <th class="w-25"></th>
                     <td>
-                        {% for r in researchmaterials %}
-                        <div class="{% if not forloop.last %}mb-4{% endif %}">
-                            <strong>{{ r.name }}</strong><br>
-                            {{ r.description }}
+                        {% for rm in researchmaterials %}
+                        <div class="py-3 {% if not forloop.last %}mb-4{% endif %}" style="border-bottom: 1px solid #eee">
+                            <strong>{{ rm.name }}</strong><br><br>
+                            {{ rm.description }}<br><br>
+                            {{ rm.publicationYear }} {{ rm.publisherName }}
+                            {% if rm.doi %}<a href="{{ rm.doi }}" target="_blank">{{ rm.doi }}</a>{% endif %}
                         </div>
                         {% endfor %}
                     </td>

@@ -279,9 +279,9 @@
                             <td class="td_orcid employment">
                                 {% for em in orcid_employments %}
                                 <button id="employment_{{ em.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %}"
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %} text-left"
                                             onclick="toggleData('sectionAffiliation', 'orcid', 'employment', this.id, {{em.pk}});">
-                                    {{ em.organizationName }}<br>
+                                    <strong>{{ em.organizationName }}</strong><br>
                                     {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
                                     {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
                                     <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
@@ -291,9 +291,9 @@
                             <td class="td_homeorg employment">
                                 {% for em in homeorg_employments %}
                                 <button id="employment_{{ em.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %}"
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %} text-left"
                                             onclick="toggleData('sectionAffiliation', 'homeorg', 'employment', this.id, {{em.pk}});">
-                                    {{ em.organizationName }}<br>
+                                    <strong>{{ em.organizationName }}</strong><br>
                                     {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
                                     {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
                                     <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
@@ -336,9 +336,9 @@
                             <td class="td_orcid education">
                                 {% for ed in orcid_educations %}
                                 <button id="education_{{ ed.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if ed.includeInProfile %}included{% endif %}"
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if ed.includeInProfile %}included{% endif %} text-left"
                                             onclick="toggleData('sectionEducation', 'orcid', 'education', this.id, {{ed.pk}});">
-                                    {{ ed.organizationName }}<br>
+                                    <strong>{{ ed.organizationName }}</strong><br>
                                     {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
                                     {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
                                     <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
@@ -348,9 +348,9 @@
                             <td class="td_homeorg education">
                                 {% for ed in homeorg_educations %}
                                 <button id="education_{{ ed.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if ed.includeInProfile %}included{% endif %}"
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if ed.includeInProfile %}included{% endif %} text-left"
                                             onclick="toggleData('sectionEducation', 'homeorg', 'education', this.id, {{ed.pk}});">
-                                    {{ ed.organizationName }}<br>
+                                    <strong>{{ ed.organizationName }}</strong><br>
                                     {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
                                     {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
                                     <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
@@ -486,20 +486,24 @@
                             <td class="td_orcid research_material">
                                 {% for rm in orcid_researchmaterials %}
                                 <button id="researchmaterial_{{ rm.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %}"
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %} text-left"
                                             onclick="toggleData('sectionResearchmaterial', 'orcid', 'research_material', this.id, {{rm.pk}});">
-                                    <b></b>{{ rm.name }}<br>
-                                    {{ rm.description }}<br>
+                                    <strong>{{ rm.name }}</strong><br><br>
+                                    {{ rm.description }}<br><br>
+                                    {{ rm.publicationYear }} {{ rm.publisherName }}
+                                    {% if rm.doi %}<a href="{{ rm.doi }}" target="_blank">{{ rm.doi }}</a>{% endif %}
                                 </button>
                                 {% endfor %}
                             </td>
                             <td class="td_homeorg research_material">
                                 {% for rm in homeorg_researchmaterials %}
                                 <button id="researchmaterial_{{ rm.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %}"
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %} text-left"
                                             onclick="toggleData('sectionResearchmaterial', 'homeorg', 'research_material', this.id, {{rm.pk}});">
-                                    {{ rm.name }}<br>
-                                    {{ rm.description }}<br>
+                                    <strong>{{ rm.name }}</strong><br><br>
+                                    {{ rm.description }}<br><br>
+                                    {{ rm.publicationYear }} {{ rm.publisherName }}
+                                    {% if rm.doi %}<a href="{{ rm.doi }}" target="_blank">{{ rm.doi }}</a>{% endif %}
                                 </button>
                                 {% endfor %}
                             </td>
