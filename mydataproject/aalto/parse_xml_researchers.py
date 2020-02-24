@@ -3,7 +3,7 @@
 import xml.etree.ElementTree as ET
 from aalto.models import *
 
-def handle_upload(f):
+def parse_researchers(f):
     count_new = 0
     count_update = 0
 

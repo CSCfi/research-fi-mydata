@@ -313,6 +313,32 @@ class ResearchProfile(models.Model):
                 print(e)
                 pass
 
+        # Research material
+        for r in aalto_person.research_materials.all():
+            researchmaterialDict = {
+                'researchprofile': self,
+                'datasource': datasource_aalto,
+                'organizationId': r.organizationId,
+                'name': r.name,
+                'description': r.description,
+                'coverageYearStart': r.coverageYearStart,
+                'coverageYearEnd': r.coverageYearEnd,
+                'publicationYear': r.publicationYear,
+                'publisherName': r.publisherName,
+                'doi': r.doi,
+                'linksCommaSeparated': r.linksCommaSeparated,
+                'orgUnitsCommaSeparated': r.orgUnitsCommaSeparated,
+                'rolesCommaSeparated': r.rolesCommaSeparated
+            }
+
+            try:
+                researchmaterial = ResearchMaterial(**researchmaterialDict)
+                researchmaterial.save()
+            except Exception as e:
+                print("Exception in add_aalto_data() researchmaterials")
+                print(e)
+                pass
+
     def delete_aalto_data(self):
         datasource_aalto = Datasource.objects.get(name="AALTO")
         self.last_names.filter(datasource=datasource_aalto).delete()
@@ -534,3 +560,19 @@ class PersonKeyword(models.Model):
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     includeInProfile = models.BooleanField(default=False)
     value = models.CharField(max_length=128)
+
+class ResearchMaterial(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='research_materials')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+    organizationId = models.PositiveSmallIntegerField(null=True)
+    name = models.CharField(max_length=512, blank=True)
+    description = models.TextField(blank=True)
+    coverageYearStart = models.PositiveSmallIntegerField(null=True) 
+    coverageYearEnd = models.PositiveSmallIntegerField(null=True)
+    publicationYear = models.PositiveSmallIntegerField(null=True)
+    publisherName = models.CharField(max_length=512, blank=True)
+    doi = models.CharField(max_length=512, blank=True, null=True)
+    linksCommaSeparated = models.CharField(max_length=2000, blank=True)
+    orgUnitsCommaSeparated = models.CharField(max_length=1000, blank=True)
+    rolesCommaSeparated = models.CharField(max_length=512, blank=True)
+    includeInProfile = models.BooleanField(default=False)
