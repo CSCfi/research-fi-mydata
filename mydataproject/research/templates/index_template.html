@@ -498,8 +498,20 @@
                                 <button id="merit_{{ m.pk }}" 
                                             class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %} text-left"
                                             onclick="toggleData('sectionMerit', 'homeorg', 'merit', this.id, {{m.pk}});">
+                                    <strong>{{ m.meritType }}</strong><br>
+                                    {% if m.role %}{{ m.role }}<br>{% endif %}
                                     {% if m.meritName %}{{ m.meritName }}<br>{% endif %}
-                                    {% if m.meritType %}{{ m.meritType }}<br>{% endif %}
+                                    {% if m.externalOrganizationName %}{{ m.externalOrganizationName }}<br>{% endif %}
+                                    {% if m.eventName %}
+                                        {{ m.eventName }}
+                                        {% if m.eventNumber %}{{ m.eventNumber }}{% endif %}
+                                        <br>
+                                    {% endif %}
+                                    {% if m.journalName %}{{ m.journalName }}<br>{% endif %}
+                                    <!-- {% if m.countryCode %}{{ m.countryCode }}<br>{% endif %} -->
+                                    {% if m.cityName %}{{ m.cityName }}<br>{% endif %}
+                                    {% if m.placeName %}{{ m.placeName }}<br>{% endif %}
+                                    {% if m.startYear or m.endYear %}{{ m.startYear | default:"" }} - {{ m.endYear | default:"" }}<br>{% endif %}
                                     {% if m.url %}<a href="{{ m.url }}" target="_blank"><i class="fas fa-external-link-alt float-right"></i></a>{% endif %}
                                 </button>
                                 {% endfor %}
