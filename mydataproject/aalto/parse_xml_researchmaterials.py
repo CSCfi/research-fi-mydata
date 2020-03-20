@@ -26,7 +26,6 @@ def parse_researchmaterials(f):
             try:
                 root = ET.fromstring(line)
             except Exception as e:
-                print("Exception when parsing file " + filename)
                 print(e)
                 continue
 
@@ -67,10 +66,10 @@ def parse_researchmaterials(f):
                                 roles.append(r.text)
 
             if orcid is not None:
-                # Get person object using orcid
-                person = Person.objects.get(orcid=orcid)
+                try:
+                    # Get person object using orcid
+                    person = Person.objects.get(orcid=orcid)
 
-                if person is not None:
                     # Create person object
                     researchmaterial_obj, created = ResearchMaterial.objects.update_or_create(
                         person = person,
@@ -86,10 +85,12 @@ def parse_researchmaterials(f):
                         orgUnitsCommaSeparated = ",".join(orgUnits),
                         rolesCommaSeparated = ",".join(roles)
                     )
+                    if created:
+                        count_new += 1
+                    else:
+                        count_update += 1
 
-                if created:
-                    count_new += 1
-                else:
-                    count_update += 1
+                except:
+                    pass
 
     print("created " + str(count_new) + ", updated " + str(count_update))
