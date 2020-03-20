@@ -458,6 +458,59 @@
         </div>
     </div>
     <div class="card">
+        <!-- Meriitit -->
+        <div class="card-header d-flex" id="heading637">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse637" aria-expanded="false" aria-controls="collapse637">
+                Meriitit
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse637" class="collapse" aria-labelledby="heading637" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <table class="table" id="sectionMerit">
+                    <thead class="thead-light">
+                        <th class="w-50">
+                            ORCID&nbsp;
+                            <button onclick="toggleSectionAll('sectionMerit', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionMerit', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                        <th class="w-50">
+                            Kotiorganisaatio&nbsp;
+                            <button onclick="toggleSectionAll('sectionMerit', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionMerit', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td_orcid merit">
+                                {% for m in orcid_merits %}
+                                <button id="merit_{{ m.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if m.includeInProfile %}included{% endif %} text-left"
+                                            onclick="toggleData('sectionMerit', 'orcid', 'merit', this.id, {{m.pk}});">
+                                    <strong>{{ m.meritName }}</strong><br><br>
+                                    {% if m.url %}<a href="{{ m.url }}" target="_blank"><i class="fas fa-external-link-alt float-right"></i></a>{% endif %}
+                                </button>
+                                {% endfor %}
+                            </td>
+                            <td class="td_homeorg merit">
+                                {% for m in homeorg_merits %}
+                                <button id="merit_{{ m.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %} text-left"
+                                            onclick="toggleData('sectionMerit', 'homeorg', 'merit', this.id, {{m.pk}});">
+                                    {% if m.meritName %}{{ m.meritName }}<br>{% endif %}
+                                    {% if m.meritType %}{{ m.meritType }}<br>{% endif %}
+                                    {% if m.url %}<a href="{{ m.url }}" target="_blank"><i class="fas fa-external-link-alt float-right"></i></a>{% endif %}
+                                </button>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card">
         <!-- Tutkimusaineistot -->
         <div class="card-header d-flex" id="heading6">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse6" aria-expanded="false" aria-controls="collapse6">

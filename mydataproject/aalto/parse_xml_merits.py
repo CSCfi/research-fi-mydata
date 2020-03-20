@@ -124,7 +124,8 @@ def parse_merits(f):
                     else:
                         count_update += 1
 
-                except:
+                except Exception as e:
+                    print(e)
                     pass
 
     print("created " + str(count_new) + ", updated " + str(count_update))
