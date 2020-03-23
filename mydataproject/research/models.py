@@ -410,7 +410,12 @@ class ResearchProfile(models.Model):
         self.emails.filter(datasource=datasource_aalto).delete()
         self.phones.filter(datasource=datasource_aalto).delete()
         self.biographies.filter(datasource=datasource_aalto).delete()
+        self.employment.filter(datasource=datasource_aalto).delete()
+        self.education.filter(datasource=datasource_aalto).delete()
         self.keywords.filter(datasource=datasource_aalto).delete()
+        self.merits.filter(datasource=datasource_aalto).delete()
+        self.projects.filter(datasource=datasource_aalto).delete()
+        self.research_materials.filter(datasource=datasource_aalto).delete()
 
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:
