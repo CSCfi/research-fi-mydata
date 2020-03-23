@@ -347,6 +347,34 @@ class ResearchProfile(models.Model):
                 print(e)
                 pass
 
+        # Project
+        for p in aalto_person.projects.all():
+            projectDict = {
+                'researchprofile': self,
+                'datasource': datasource_aalto,
+                'organizationId': p.organizationId,
+                'organizationUnitsCommaSeparated': p.organizationUnitsCommaSeparated,
+                'projectName': p.projectName,
+                'projectShortName': p.projectShortName,
+                'projectAbbreviation': p.projectAbbreviation,
+                'projectType': p.projectType,
+                'startYear': p.startYear,
+                'startMonth': p.startMonth,
+                'startDay': p.startDay,
+                'endYear': p.endYear,
+                'endMonth': p.endMonth,
+                'endDay': p.endDay,
+                'role': p.role,
+            }
+
+            try:
+                project = Project(**projectDict)
+                project.save()
+            except Exception as e:
+                print("Exception in add_aalto_data() projects")
+                print(e)
+                pass
+
         # Research material
         for r in aalto_person.research_materials.all():
             researchmaterialDict = {

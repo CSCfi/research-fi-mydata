@@ -196,8 +196,19 @@
         <table class="table table-sm">
             <tbody>
                 <tr>
-                    <th></th>
-                    <td></td>
+                    <th class="w-25"></th>
+                    <td>
+                        {% for p in projects %}
+                        <div class="py-3 {% if not forloop.last %}mb-4{% endif %}" style="border-bottom: 1px solid #eee">
+                            <strong>{{ p.projectName }}</strong><br><br>
+                            {{ p.getDateString }}<br>
+                            {% if p.role %}{{ p.role }}<br>{% endif %}
+                            {% if p.projectShortName %}{{ p.projectShortName }}<br>{% endif %}
+                            {% if p.projectAbbreviation %}{{ p.projectAbbreviation }}<br>{% endif %}
+                            {% if p.projectType %}{{ p.projectType }}<br>{% endif %}
+                        {% endfor %}
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </table>
