@@ -59,6 +59,7 @@ def index(request):
             context["orcid_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["orcid_educations"] = request.user.researchprofile.education.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["orcid_merits"] = request.user.researchprofile.merits.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["orcid_projects"] = request.user.researchprofile.projects.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_homeorg).first()
             context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_homeorg).first()
             context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_homeorg).first()
@@ -70,6 +71,7 @@ def index(request):
             context["homeorg_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["homeorg_educations"] = request.user.researchprofile.education.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["homeorg_merits"] = request.user.researchprofile.merits.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["homeorg_projects"] = request.user.researchprofile.projects.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["homeorg_researchmaterials"] = request.user.researchprofile.research_materials.filter(datasource=datasource_homeorg)
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
             context["invited_positions"] = request.user.researchprofile.invitedposition.all()
@@ -101,6 +103,7 @@ def profile_preview(request):
     context["educations"] = request.user.researchprofile.education.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["publications"] = request.user.researchprofile.publications.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null', 'name')
     context["merits"] = request.user.researchprofile.merits.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+    context["projects"] = request.user.researchprofile.projects.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["researchmaterials"] = request.user.researchprofile.research_materials.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null')
     return render(request, 'preview.html', context)
 
@@ -295,33 +298,31 @@ def toggle_data_section_all(request):
     # Employment (Affiliation)
     elif section == 'sectionAffiliation':
         request.user.researchprofile.employment.filter(datasource=datasource).update(includeInProfile=toggle)
-        request.user.researchprofile.employment.filter(datasource=datasource).update(includeInProfile=toggle)
         if toggle:
-            request.user.researchprofile.employment.exclude(datasource=datasource).update(includeInProfile=False)
             request.user.researchprofile.employment.exclude(datasource=datasource).update(includeInProfile=False)
 
     # Education
     elif section == 'sectionEducation':
         request.user.researchprofile.education.filter(datasource=datasource).update(includeInProfile=toggle)
-        request.user.researchprofile.education.filter(datasource=datasource).update(includeInProfile=toggle)
         if toggle:
-            request.user.researchprofile.education.exclude(datasource=datasource).update(includeInProfile=False)
             request.user.researchprofile.education.exclude(datasource=datasource).update(includeInProfile=False)
 
     # Merits
     elif section == 'sectionMerit':
         request.user.researchprofile.merits.filter(datasource=datasource).update(includeInProfile=toggle)
-        request.user.researchprofile.merits.filter(datasource=datasource).update(includeInProfile=toggle)
         if toggle:
             request.user.researchprofile.merits.exclude(datasource=datasource).update(includeInProfile=False)
-            request.user.researchprofile.merits.exclude(datasource=datasource).update(includeInProfile=False)
+
+    # Projects
+    elif section == 'sectionProject':
+        request.user.researchprofile.projects.filter(datasource=datasource).update(includeInProfile=toggle)
+        if toggle:
+            request.user.researchprofile.projects.exclude(datasource=datasource).update(includeInProfile=False)
 
     # Research material
     elif section == 'sectionResearchmaterial':
         request.user.researchprofile.research_materials.filter(datasource=datasource).update(includeInProfile=toggle)
-        request.user.researchprofile.research_materials.filter(datasource=datasource).update(includeInProfile=toggle)
         if toggle:
-            request.user.researchprofile.research_materials.exclude(datasource=datasource).update(includeInProfile=False)
             request.user.researchprofile.research_materials.exclude(datasource=datasource).update(includeInProfile=False)
 
     request.user.researchprofile.save()
@@ -442,6 +443,13 @@ def toggle_data(request):
         merit.includeInProfile = not merit.includeInProfile
         merit.save()
         response["included"] = merit.includeInProfile
+
+    # Project
+    elif p_datatype == 'project':
+        project = request.user.researchprofile.projects.get(datasource=datasource, pk=p_dataId)
+        project.includeInProfile = not project.includeInProfile
+        project.save()
+        response["included"] = project.includeInProfile
 
     # Research material
     elif p_datatype == 'research_material':

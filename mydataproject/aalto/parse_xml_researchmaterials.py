@@ -70,7 +70,7 @@ def parse_researchmaterials(f):
                     # Get person object using orcid
                     person = Person.objects.get(orcid=orcid)
 
-                    # Create person object
+                    # Create research material object
                     researchmaterial_obj, created = ResearchMaterial.objects.update_or_create(
                         person = person,
                         organizationId = organizationId,

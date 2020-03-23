@@ -347,6 +347,34 @@ class ResearchProfile(models.Model):
                 print(e)
                 pass
 
+        # Project
+        for p in aalto_person.projects.all():
+            projectDict = {
+                'researchprofile': self,
+                'datasource': datasource_aalto,
+                'organizationId': p.organizationId,
+                'organizationUnitsCommaSeparated': p.organizationUnitsCommaSeparated,
+                'projectName': p.projectName,
+                'projectShortName': p.projectShortName,
+                'projectAbbreviation': p.projectAbbreviation,
+                'projectType': p.projectType,
+                'startYear': p.startYear,
+                'startMonth': p.startMonth,
+                'startDay': p.startDay,
+                'endYear': p.endYear,
+                'endMonth': p.endMonth,
+                'endDay': p.endDay,
+                'role': p.role,
+            }
+
+            try:
+                project = Project(**projectDict)
+                project.save()
+            except Exception as e:
+                print("Exception in add_aalto_data() projects")
+                print(e)
+                pass
+
         # Research material
         for r in aalto_person.research_materials.all():
             researchmaterialDict = {
@@ -382,7 +410,12 @@ class ResearchProfile(models.Model):
         self.emails.filter(datasource=datasource_aalto).delete()
         self.phones.filter(datasource=datasource_aalto).delete()
         self.biographies.filter(datasource=datasource_aalto).delete()
+        self.employment.filter(datasource=datasource_aalto).delete()
+        self.education.filter(datasource=datasource_aalto).delete()
         self.keywords.filter(datasource=datasource_aalto).delete()
+        self.merits.filter(datasource=datasource_aalto).delete()
+        self.projects.filter(datasource=datasource_aalto).delete()
+        self.research_materials.filter(datasource=datasource_aalto).delete()
 
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:
@@ -633,6 +666,54 @@ class Merit(models.Model):
     endDay = models.PositiveSmallIntegerField(null=True)
     role = models.CharField(max_length=512, blank=True, null=True)
     url = models.CharField(max_length=512, blank=True, null=True)
+    includeInProfile = models.BooleanField(default=False)
+
+    def getDateString(self):
+        startStr = None
+        endStr = None
+        dateStr = None
+
+        if self.startYear is not None:
+            startStr = str(self.startYear)
+            if self.startMonth is not None:
+                startStr = str(self.startMonth) + '.' + startStr
+                if self.startDay is not None:
+                    startStr = str(self.startDay) + '.' + startStr
+
+        if self.endYear is not None:
+            endStr = str(self.endYear)
+            if self.endMonth is not None:
+                endStr = str(self.endMonth) + '.' + endStr
+                if self.endDay is not None:
+                    endStr = str(self.endDay) + '.' + endStr
+
+        if startStr is not None and endStr is not None and startStr == endStr:
+            dateStr = startStr
+        elif startStr is not None and endStr is not None:
+            dateStr = startStr + ' - ' + endStr
+        elif startStr is not None and endStr is None:
+            dateStr = startStr
+        elif startStr is None and endStr is not None:
+            dateStr = endStr
+
+        return dateStr
+
+class Project(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='projects')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+    organizationId = models.PositiveSmallIntegerField(null=True)
+    organizationUnitsCommaSeparated = models.CharField(max_length=512, blank=True, null=True)
+    projectName = models.CharField(max_length=512, blank=True, null=True)
+    projectShortName = models.CharField(max_length=512, blank=True, null=True)
+    projectAbbreviation = models.CharField(max_length=512, blank=True, null=True)
+    projectType = models.CharField(max_length=512, blank=True, null=True)
+    startYear = models.PositiveSmallIntegerField(null=True)
+    startMonth = models.PositiveSmallIntegerField(null=True)
+    startDay = models.PositiveSmallIntegerField(null=True)
+    endYear = models.PositiveSmallIntegerField(null=True)
+    endMonth = models.PositiveSmallIntegerField(null=True)
+    endDay = models.PositiveSmallIntegerField(null=True)
+    role = models.CharField(max_length=512, blank=True, null=True)
     includeInProfile = models.BooleanField(default=False)
 
     def getDateString(self):

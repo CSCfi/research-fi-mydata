@@ -566,16 +566,51 @@
     </div>
     <div class="card">
         <!-- Hankkeet -->
-        <div class="card-header d-flex" id="heading7">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse7" aria-expanded="false" aria-controls="collapse7">
+        <div class="card-header d-flex" id="heading54387">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse54387" aria-expanded="false" aria-controls="collapse54387">
                 Hankkeet
             </button>
             <span class="align-self-center ml-auto">
             </span>
         </div>
-        <div id="collapse7" class="collapse" aria-labelledby="heading7" data-parent="#researchProfileAccordion">
+        <div id="collapse54387" class="collapse" aria-labelledby="heading54387" data-parent="#researchProfileAccordion">
             <div class="card-body">
-                <div class="px-5">-</div>
+                <table class="table" id="sectionProject">
+                    <thead class="thead-light">
+                        <th class="w-50">
+                            ORCID&nbsp;
+                            <button onclick="toggleSectionAll('sectionProject', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionProject', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                        <th class="w-50">
+                            Kotiorganisaatio&nbsp;
+                            <button onclick="toggleSectionAll('sectionProject', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionProject', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td_orcid project">
+                                {% for p in orcid_projects %}
+                                {% endfor %}
+                            </td>
+                            <td class="td_homeorg project">
+                                {% for p in homeorg_projects %}
+                                <button id="project_{{ p.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if p.includeInProfile %}included{% endif %} text-left"
+                                            onclick="toggleData('sectionProject', 'homeorg', 'project', this.id, {{p.pk}});">
+                                    <strong>{{ p.projectName }}</strong><br>
+                                    {% if p.role %}{{ p.role }}<br>{% endif %}
+                                    {% if p.projectShortName %}{{ p.projectShortName }}<br>{% endif %}
+                                    {% if p.projectAbbreviation and p.projectAbbreviation != p.projectShortName %}{{ p.projectAbbreviation }}<br>{% endif %}
+                                    {% if p.projectType %}{{ p.projectType }}<br>{% endif %}
+                                    {{ p.getDateString }}
+                                </button>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
