@@ -136,6 +136,39 @@
     </div>
 </div>
 <div class="preview_section">
+    <h5>Meriitit</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th class="w-25"></th>
+                    <td>
+                        {% for m in merits %}
+                        <div class="py-3 {% if not forloop.last %}mb-4{% endif %}" style="border-bottom: 1px solid #eee">
+                            <strong>{{ m.meritType }}</strong><br><br>
+                            {% if m.role %}{{ m.role }}<br>{% endif %}
+                            {% if m.meritName %}{{ m.meritName }}<br>{% endif %}
+                            {% if m.externalOrganizationName %}{{ m.externalOrganizationName }}<br>{% endif %}
+                            {% if m.eventName %}
+                                {{ m.eventName }}
+                                {% if m.eventNumber %}{{ m.eventNumber }}{% endif %}
+                                <br>
+                            {% endif %}
+                            {% if m.journalName %}{{ m.journalName }}<br>{% endif %}
+                            <!-- {% if m.countryCode %}{{ m.countryCode }}<br>{% endif %} -->
+                            {% if m.cityName %}{{ m.cityName }}<br>{% endif %}
+                            {% if m.placeName %}{{ m.placeName }}<br>{% endif %}
+                            {{ m.getDateString }}<br>
+                            {% if m.url %}<a href="{{ m.url }}" target="_blank">{{ m.url }}</a>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="preview_section">
     <h5>Tutkimusaineistot</h5>
     <div class="preview_section_content">
         <table class="table table-sm">

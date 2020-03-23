@@ -634,3 +634,33 @@ class Merit(models.Model):
     role = models.CharField(max_length=512, blank=True, null=True)
     url = models.CharField(max_length=512, blank=True, null=True)
     includeInProfile = models.BooleanField(default=False)
+
+    def getDateString(self):
+        startStr = None
+        endStr = None
+        dateStr = None
+
+        if self.startYear is not None:
+            startStr = str(self.startYear)
+            if self.startMonth is not None:
+                startStr = str(self.startMonth) + '.' + startStr
+                if self.startDay is not None:
+                    startStr = str(self.startDay) + '.' + startStr
+
+        if self.endYear is not None:
+            endStr = str(self.endYear)
+            if self.endMonth is not None:
+                endStr = str(self.endMonth) + '.' + endStr
+                if self.endDay is not None:
+                    endStr = str(self.endDay) + '.' + endStr
+
+        if startStr is not None and endStr is not None and startStr == endStr:
+            dateStr = startStr
+        elif startStr is not None and endStr is not None:
+            dateStr = startStr + ' - ' + endStr
+        elif startStr is not None and endStr is None:
+            dateStr = startStr
+        elif startStr is None and endStr is not None:
+            dateStr = endStr
+
+        return dateStr

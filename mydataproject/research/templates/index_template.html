@@ -485,18 +485,12 @@
                         <tr>
                             <td class="td_orcid merit">
                                 {% for m in orcid_merits %}
-                                <button id="merit_{{ m.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if m.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionMerit', 'orcid', 'merit', this.id, {{m.pk}});">
-                                    <strong>{{ m.meritName }}</strong><br><br>
-                                    {% if m.url %}<a href="{{ m.url }}" target="_blank"><i class="fas fa-external-link-alt float-right"></i></a>{% endif %}
-                                </button>
                                 {% endfor %}
                             </td>
                             <td class="td_homeorg merit">
                                 {% for m in homeorg_merits %}
                                 <button id="merit_{{ m.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %} text-left"
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if m.includeInProfile %}included{% endif %} text-left"
                                             onclick="toggleData('sectionMerit', 'homeorg', 'merit', this.id, {{m.pk}});">
                                     <strong>{{ m.meritType }}</strong><br>
                                     {% if m.role %}{{ m.role }}<br>{% endif %}
@@ -511,7 +505,7 @@
                                     <!-- {% if m.countryCode %}{{ m.countryCode }}<br>{% endif %} -->
                                     {% if m.cityName %}{{ m.cityName }}<br>{% endif %}
                                     {% if m.placeName %}{{ m.placeName }}<br>{% endif %}
-                                    {% if m.startYear or m.endYear %}{{ m.startYear | default:"" }} - {{ m.endYear | default:"" }}<br>{% endif %}
+                                    {{ m.getDateString }}
                                     {% if m.url %}<a href="{{ m.url }}" target="_blank"><i class="fas fa-external-link-alt float-right"></i></a>{% endif %}
                                 </button>
                                 {% endfor %}
@@ -550,14 +544,6 @@
                         <tr>
                             <td class="td_orcid research_material">
                                 {% for rm in orcid_researchmaterials %}
-                                <button id="researchmaterial_{{ rm.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionResearchmaterial', 'orcid', 'research_material', this.id, {{rm.pk}});">
-                                    <strong>{{ rm.name }}</strong><br><br>
-                                    {{ rm.description }}<br><br>
-                                    {{ rm.publicationYear }} {{ rm.publisherName }}
-                                    {% if rm.doi %}<a href="{{ rm.doi }}" target="_blank">{{ rm.doi }}</a>{% endif %}
-                                </button>
                                 {% endfor %}
                             </td>
                             <td class="td_homeorg research_material">
