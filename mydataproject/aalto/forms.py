@@ -11,3 +11,6 @@ class UploadResearchmaterialsForm(forms.Form):
 
 class UploadMeritsForm(forms.Form):
     xmlfile = forms.FileField()
+
+class UploadProjectsForm(forms.Form):
+    xmlfile = forms.FileField()

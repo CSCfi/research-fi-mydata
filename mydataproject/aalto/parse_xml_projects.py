@@ -3,7 +3,7 @@
 import xml.etree.ElementTree as ET
 from aalto.models import *
 
-def parse_merits(f):
+def parse_projects(f):
     count_new = 0
     count_update = 0
 
@@ -11,15 +11,10 @@ def parse_merits(f):
         orcid = None
         organizationId = None
         organizationUnits = []
-        meritName = None
-        meritType = None
-        externalOrganizationName = None
-        eventName = None
-        eventNumber = None
-        journalName = None
-        countryCode = None
-        cityName = None
-        placeName = None
+        projectName = None
+        projectShortName = None
+        projectAbbreviation = None
+        projectType = None
         startYear = None
         startMonth = None
         startDay = None
@@ -27,9 +22,8 @@ def parse_merits(f):
         endMonth = None
         endDay = None
         role = None
-        url = None
 
-        if line.startswith(b'<Meriitti>'):
+        if line.startswith(b'<Projekti>'):
 
             try:
                 root = ET.fromstring(line)
@@ -40,30 +34,14 @@ def parse_merits(f):
             for child in root:
                 if child.tag == 'OrganisaatioTunnus':
                     organizationId = child.text
-                elif child.tag == 'OsallistuvatOrgYksikot':
-                    for o in child.findall('YksikkoKoodi'):
-                        organizationUnits.append(o.text)
-                    name = child.text
-                elif child.tag == 'MeriitinNimi':
-                    meritName = child.text
-                elif child.tag == 'MeriitinTyyppi':
-                    meritType = child.text
-                elif child.tag == 'UlkopuolinenOrganisaatio':
-                    externalOrganizationName = child.text
-                elif child.tag == 'LehdenNimi':
-                    journalName = child.text
-                elif child.tag == 'TapahtumanNimi':
-                    eventName = child.text
-                elif child.tag == 'TapahtumanNumero':
-                    eventNumber = child.text
-                elif child.tag == 'MaaKoodi':
-                    countryCode = child.text
-                elif child.tag == 'Kaupunki':
-                    cityName = child.text
-                elif child.tag == 'Paikka':
-                    placeName = child.text
-                elif child.tag == 'OsoiteTeksti':
-                    url = child.text
+                elif child.tag == 'ProjektinNimi':
+                    projectName = child.text
+                elif child.tag == 'ProjektinLyhytNimi':
+                    projectShortName = child.text
+                elif child.tag == 'ProjektinLyhenne':
+                    projectAbbreviation = child.text
+                elif child.tag == 'ProjektinTyyppi':
+                    projectType = child.text
                 elif child.tag == 'Alkamisaika':
                     for a_child in child:
                         if a_child.tag == 'Vuosi':
@@ -90,26 +68,22 @@ def parse_merits(f):
                 elif child.tag == 'OsallistuvatOrgYksikot':
                     for orgUnit in child.findall('YksikkoKoodi'):
                         organizationUnits.append(orgUnit.text)
+
             if orcid is not None:
                 try:
+                    print(organizationUnits)
                     # Get person object using orcid
                     person = Person.objects.get(orcid=orcid)
 
-                    # Create merit object
-                    merit_obj, created = Merit.objects.update_or_create(
+                    # Create project object
+                    project_obj, created = Project.objects.update_or_create(
                         person = person,
                         organizationId = organizationId,
                         organizationUnitsCommaSeparated = ",".join(organizationUnits),
-                        meritName = meritName,
-                        meritType = meritType,
-                        externalOrganizationName = externalOrganizationName,
-                        eventName = eventName,
-                        eventNumber = int(eventNumber) if eventNumber is not None else None,
-                        journalName = journalName,
-                        countryCode = int(countryCode) if countryCode is not None else None,
-                        cityName = cityName,
-                        placeName = placeName,
-                        url = url,
+                        projectName = projectName,
+                        projectShortName = projectShortName,
+                        projectAbbreviation = projectAbbreviation,
+                        projectType = projectType,
                         startYear = int(startYear) if startYear is not None else None,
                         startMonth = int(startMonth) if startMonth is not None else None,
                         startDay = int(startDay) if startDay is not None else None,
@@ -118,7 +92,6 @@ def parse_merits(f):
                         endDay = int(endDay) if endDay is not None else None,
                         role = role
                     )
-
                     if created:
                         count_new += 1
                     else:
