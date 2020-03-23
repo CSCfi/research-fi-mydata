@@ -23,7 +23,6 @@ def parse_researchers(f):
             try:
                 root = ET.fromstring(line)
             except Exception as e:
-                print("Exception when parsing file " + filename)
                 print(e)
                 continue
 

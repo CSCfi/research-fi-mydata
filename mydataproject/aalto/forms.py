@@ -8,3 +8,6 @@ class UploadPublicationsForm(forms.Form):
 
 class UploadResearchmaterialsForm(forms.Form):
     xmlfile = forms.FileField()
+
+class UploadMeritsForm(forms.Form):
+    xmlfile = forms.FileField()

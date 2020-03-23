@@ -18,7 +18,6 @@ def parse_publications(f):
             try:
                 root = ET.fromstring(line)
             except Exception as e:
-                print("Exception when parsing file " + filename)
                 print(e)
                 continue
 

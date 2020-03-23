@@ -313,6 +313,40 @@ class ResearchProfile(models.Model):
                 print(e)
                 pass
 
+        # Merit
+        for m in aalto_person.merits.all():
+            meritDict = {
+                'researchprofile': self,
+                'datasource': datasource_aalto,
+                'organizationId': m.organizationId,
+                'organizationUnitsCommaSeparated': m.organizationUnitsCommaSeparated,
+                'meritName': m.meritName,
+                'meritType': m.meritType,
+                'externalOrganizationName': m.externalOrganizationName,
+                'eventName': m.eventName,
+                'eventNumber': m.eventNumber,
+                'journalName': m.journalName,
+                'countryCode': m.countryCode,
+                'cityName': m.cityName,
+                'placeName': m.placeName,
+                'startYear': m.startYear,
+                'startMonth': m.startMonth,
+                'startDay': m.startDay,
+                'endYear': m.endYear,
+                'endMonth': m.endMonth,
+                'endDay': m.endDay,
+                'role': m.role,
+                'url': m.url,
+            }
+
+            try:
+                merit = Merit(**meritDict)
+                merit.save()
+            except Exception as e:
+                print("Exception in add_aalto_data() merits")
+                print(e)
+                pass
+
         # Research material
         for r in aalto_person.research_materials.all():
             researchmaterialDict = {
@@ -576,3 +610,57 @@ class ResearchMaterial(models.Model):
     orgUnitsCommaSeparated = models.CharField(max_length=1000, blank=True)
     rolesCommaSeparated = models.CharField(max_length=512, blank=True)
     includeInProfile = models.BooleanField(default=False)
+
+class Merit(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='merits')
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
+    organizationId = models.PositiveSmallIntegerField(null=True)
+    organizationUnitsCommaSeparated = models.CharField(max_length=512, blank=True, null=True)
+    meritName = models.CharField(max_length=512, blank=True, null=True)
+    meritType = models.CharField(max_length=512, blank=True, null=True)
+    externalOrganizationName = models.CharField(max_length=512, blank=True, null=True)
+    eventName = models.CharField(max_length=512, blank=True, null=True)
+    eventNumber = models.PositiveSmallIntegerField(null=True)
+    journalName = models.CharField(max_length=512, blank=True, null=True)
+    countryCode = models.PositiveSmallIntegerField(null=True)
+    cityName = models.CharField(max_length=256, blank=True, null=True)
+    placeName = models.CharField(max_length=256, blank=True, null=True)
+    startYear = models.PositiveSmallIntegerField(null=True)
+    startMonth = models.PositiveSmallIntegerField(null=True)
+    startDay = models.PositiveSmallIntegerField(null=True)
+    endYear = models.PositiveSmallIntegerField(null=True)
+    endMonth = models.PositiveSmallIntegerField(null=True)
+    endDay = models.PositiveSmallIntegerField(null=True)
+    role = models.CharField(max_length=512, blank=True, null=True)
+    url = models.CharField(max_length=512, blank=True, null=True)
+    includeInProfile = models.BooleanField(default=False)
+
+    def getDateString(self):
+        startStr = None
+        endStr = None
+        dateStr = None
+
+        if self.startYear is not None:
+            startStr = str(self.startYear)
+            if self.startMonth is not None:
+                startStr = str(self.startMonth) + '.' + startStr
+                if self.startDay is not None:
+                    startStr = str(self.startDay) + '.' + startStr
+
+        if self.endYear is not None:
+            endStr = str(self.endYear)
+            if self.endMonth is not None:
+                endStr = str(self.endMonth) + '.' + endStr
+                if self.endDay is not None:
+                    endStr = str(self.endDay) + '.' + endStr
+
+        if startStr is not None and endStr is not None and startStr == endStr:
+            dateStr = startStr
+        elif startStr is not None and endStr is not None:
+            dateStr = startStr + ' - ' + endStr
+        elif startStr is not None and endStr is None:
+            dateStr = startStr
+        elif startStr is None and endStr is not None:
+            dateStr = endStr
+
+        return dateStr
