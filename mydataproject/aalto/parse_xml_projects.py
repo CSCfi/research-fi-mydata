@@ -71,7 +71,6 @@ def parse_projects(f):
 
             if orcid is not None:
                 try:
-                    print(organizationUnits)
                     # Get person object using orcid
                     person = Person.objects.get(orcid=orcid)
 
