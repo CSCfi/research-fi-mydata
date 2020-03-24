@@ -355,7 +355,7 @@ def delete_data(researchprofile, datasource_orcid):
     researchmodels.ResearchResouce.objects.filter(researchprofile = researchprofile).delete()
     researchmodels.Service.objects.filter(researchprofile = researchprofile).delete()
     researchmodels.Merit.objects.filter(researchprofile = researchprofile).delete()
-    researchmodels.Project.objects.filter(researchprofile = researchprofile).delete()
+    researchmodels.OtherProject.objects.filter(researchprofile = researchprofile).delete()
 
     # Delete publications whose only data source is Orcid.
     # If there are other data sources, keep the publication but remove the Orcid datasource.

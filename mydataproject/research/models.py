@@ -347,9 +347,9 @@ class ResearchProfile(models.Model):
                 print(e)
                 pass
 
-        # Project
-        for p in aalto_person.projects.all():
-            projectDict = {
+        # Other Project
+        for p in aalto_person.other_projects.all():
+            otherprojectDict = {
                 'researchprofile': self,
                 'datasource': datasource_aalto,
                 'organizationId': p.organizationId,
@@ -368,8 +368,8 @@ class ResearchProfile(models.Model):
             }
 
             try:
-                project = Project(**projectDict)
-                project.save()
+                otherProject = OtherProject(**otherprojectDict)
+                otherProject.save()
             except Exception as e:
                 print("Exception in add_aalto_data() projects")
                 print(e)
@@ -414,7 +414,7 @@ class ResearchProfile(models.Model):
         self.education.filter(datasource=datasource_aalto).delete()
         self.keywords.filter(datasource=datasource_aalto).delete()
         self.merits.filter(datasource=datasource_aalto).delete()
-        self.projects.filter(datasource=datasource_aalto).delete()
+        self.other_projects.filter(datasource=datasource_aalto).delete()
         self.research_materials.filter(datasource=datasource_aalto).delete()
 
 def create_researchprofile(sender, instance, created, **kwargs):
@@ -698,8 +698,8 @@ class Merit(models.Model):
 
         return dateStr
 
-class Project(models.Model):
-    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='projects')
+class OtherProject(models.Model):
+    researchprofile = models.ForeignKey(ResearchProfile, on_delete=models.CASCADE, related_name='other_projects')
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE, null=True)
     organizationId = models.PositiveSmallIntegerField(null=True)
     organizationUnitsCommaSeparated = models.CharField(max_length=512, blank=True, null=True)

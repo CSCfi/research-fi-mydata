@@ -1,12 +1,12 @@
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from aalto.forms import UploadResearchersForm, UploadPublicationsForm, UploadResearchmaterialsForm, UploadMeritsForm, UploadProjectsForm
+from aalto.forms import UploadResearchersForm, UploadPublicationsForm, UploadResearchmaterialsForm, UploadMeritsForm, UploadOtherProjectsForm
 from aalto.parse_xml_publications import parse_publications
 from aalto.parse_xml_researchers import parse_researchers
 from aalto.parse_xml_researchmaterials import parse_researchmaterials
 from aalto.parse_xml_merits import parse_merits
-from aalto.parse_xml_projects import parse_projects
+from aalto.parse_xml_otherprojects import parse_otherprojects
 
 @login_required
 def upload_researchers(request):
@@ -53,12 +53,12 @@ def upload_merits(request):
     return render(request, 'upload_merits.html', {'form': form})
 
 @login_required
-def upload_projects(request):
+def upload_otherprojects(request):
     if request.method == 'POST':
-        form = UploadProjectsForm(request.POST, request.FILES)
+        form = UploadOtherProjectsForm(request.POST, request.FILES)
         if form.is_valid():
-            parse_projects(request.FILES['xmlfile'])
+            parse_otherprojects(request.FILES['xmlfile'])
             return redirect('index')
     else:
-        form = UploadProjectsForm()
-    return render(request, 'upload_projects.html', {'form': form})
+        form = UploadOtherProjectsForm()
+    return render(request, 'upload_otherprojects.html', {'form': form})

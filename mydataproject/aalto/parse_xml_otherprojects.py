@@ -3,7 +3,7 @@
 import xml.etree.ElementTree as ET
 from aalto.models import *
 
-def parse_projects(f):
+def parse_otherprojects(f):
     count_new = 0
     count_update = 0
 
@@ -74,8 +74,8 @@ def parse_projects(f):
                     # Get person object using orcid
                     person = Person.objects.get(orcid=orcid)
 
-                    # Create project object
-                    project_obj, created = Project.objects.update_or_create(
+                    # Create other project object
+                    otherproject_obj, created = OtherProject.objects.update_or_create(
                         person = person,
                         organizationId = organizationId,
                         organizationUnitsCommaSeparated = ",".join(organizationUnits),
