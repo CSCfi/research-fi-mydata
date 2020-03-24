@@ -74,8 +74,8 @@ class Merit(models.Model):
     role = models.CharField(max_length=512, blank=True, null=True)
     url = models.CharField(max_length=512, blank=True, null=True)
 
-class Project(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='projects')
+class OtherProject(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='other_projects')
     organizationId = models.PositiveSmallIntegerField(null=True)
     organizationUnitsCommaSeparated = models.CharField(max_length=512, blank=True, null=True)
     projectName = models.CharField(max_length=512, blank=True, null=True)

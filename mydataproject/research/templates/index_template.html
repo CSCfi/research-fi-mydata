@@ -458,6 +458,134 @@
         </div>
     </div>
     <div class="card">
+        <!-- Tutkimusaineistot -->
+        <div class="card-header d-flex" id="heading6">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
+                Tutkimusaineistot
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse6" class="collapse" aria-labelledby="heading6" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <table class="table" id="sectionResearchmaterial">
+                    <thead class="thead-light">
+                        <th class="w-50">
+                            ORCID&nbsp;
+                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                        <th class="w-50">
+                            Kotiorganisaatio&nbsp;
+                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td_orcid research_material">
+                                {% for rm in orcid_researchmaterials %}
+                                {% endfor %}
+                            </td>
+                            <td class="td_homeorg research_material">
+                                {% for rm in homeorg_researchmaterials %}
+                                <button id="researchmaterial_{{ rm.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %} text-left"
+                                            onclick="toggleData('sectionResearchmaterial', 'homeorg', 'research_material', this.id, {{rm.pk}});">
+                                    <strong>{{ rm.name }}</strong><br><br>
+                                    {{ rm.description }}<br><br>
+                                    {{ rm.publicationYear }} {{ rm.publisherName }}
+                                    {% if rm.doi %}<a href="{{ rm.doi }}" target="_blank">{{ rm.doi }}</a>{% endif %}
+                                </button>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Muut hankkeet -->
+        <div class="card-header d-flex" id="heading54387">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse54387" aria-expanded="false" aria-controls="collapse54387">
+                Muut hankkeet
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse54387" class="collapse" aria-labelledby="heading54387" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <table class="table" id="sectionOtherProject">
+                    <thead class="thead-light">
+                        <th class="w-50">
+                            ORCID&nbsp;
+                            <button onclick="toggleSectionAll('sectionOtherProject', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionOtherProject', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                        <th class="w-50">
+                            Kotiorganisaatio&nbsp;
+                            <button onclick="toggleSectionAll('sectionOtherProject', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
+                            <button onclick="toggleSectionAll('sectionOtherProject', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td_orcid project">
+                                {% for p in orcid_other_projects %}
+                                {% endfor %}
+                            </td>
+                            <td class="td_homeorg project">
+                                {% for p in homeorg_other_projects %}
+                                <button id="other_project_{{ p.pk }}" 
+                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if p.includeInProfile %}included{% endif %} text-left"
+                                            onclick="toggleData('sectionOtherProject', 'homeorg', 'other_project', this.id, {{p.pk}});">
+                                    <strong>{{ p.projectName }}</strong><br>
+                                    {% if p.role %}{{ p.role }}<br>{% endif %}
+                                    {% if p.projectShortName %}{{ p.projectShortName }}<br>{% endif %}
+                                    {% if p.projectAbbreviation and p.projectAbbreviation != p.projectShortName %}{{ p.projectAbbreviation }}<br>{% endif %}
+                                    {% if p.projectType %}{{ p.projectType }}<br>{% endif %}
+                                    {{ p.getDateString }}
+                                </button>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Tutkimusinfrastruktuurit -->
+        <div class="card-header d-flex" id="heading8">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse8" aria-expanded="false" aria-controls="collapse8">
+                Tutkimusinfrastruktuurit
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse8" class="collapse" aria-labelledby="heading8" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <div class="px-5">-</div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <!-- Muut tutkimusaktiviteetit -->
+        <div class="card-header d-flex" id="heading9">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse9" aria-expanded="false" aria-controls="collapse9">
+                Muut tutkimusaktiviteetit
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse9" class="collapse" aria-labelledby="heading9" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <div class="px-5">-</div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
         <!-- Meriitit -->
         <div class="card-header d-flex" id="heading637">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse637" aria-expanded="false" aria-controls="collapse637">
@@ -516,135 +644,6 @@
             </div>
         </div>
     </div>
-    <div class="card">
-        <!-- Tutkimusaineistot -->
-        <div class="card-header d-flex" id="heading6">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
-                Tutkimusaineistot
-            </button>
-            <span class="align-self-center ml-auto">
-            </span>
-        </div>
-        <div id="collapse6" class="collapse" aria-labelledby="heading6" data-parent="#researchProfileAccordion">
-            <div class="card-body">
-                <table class="table" id="sectionResearchmaterial">
-                    <thead class="thead-light">
-                        <th class="w-50">
-                            ORCID&nbsp;
-                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                        </th>
-                        <th class="w-50">
-                            Kotiorganisaatio&nbsp;
-                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                        </th>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="td_orcid research_material">
-                                {% for rm in orcid_researchmaterials %}
-                                {% endfor %}
-                            </td>
-                            <td class="td_homeorg research_material">
-                                {% for rm in homeorg_researchmaterials %}
-                                <button id="researchmaterial_{{ rm.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionResearchmaterial', 'homeorg', 'research_material', this.id, {{rm.pk}});">
-                                    <strong>{{ rm.name }}</strong><br><br>
-                                    {{ rm.description }}<br><br>
-                                    {{ rm.publicationYear }} {{ rm.publisherName }}
-                                    {% if rm.doi %}<a href="{{ rm.doi }}" target="_blank">{{ rm.doi }}</a>{% endif %}
-                                </button>
-                                {% endfor %}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <!-- Hankkeet -->
-        <div class="card-header d-flex" id="heading54387">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse54387" aria-expanded="false" aria-controls="collapse54387">
-                Hankkeet
-            </button>
-            <span class="align-self-center ml-auto">
-            </span>
-        </div>
-        <div id="collapse54387" class="collapse" aria-labelledby="heading54387" data-parent="#researchProfileAccordion">
-            <div class="card-body">
-                <table class="table" id="sectionProject">
-                    <thead class="thead-light">
-                        <th class="w-50">
-                            ORCID&nbsp;
-                            <button onclick="toggleSectionAll('sectionProject', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionProject', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                        </th>
-                        <th class="w-50">
-                            Kotiorganisaatio&nbsp;
-                            <button onclick="toggleSectionAll('sectionProject', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionProject', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                        </th>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="td_orcid project">
-                                {% for p in orcid_projects %}
-                                {% endfor %}
-                            </td>
-                            <td class="td_homeorg project">
-                                {% for p in homeorg_projects %}
-                                <button id="project_{{ p.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if p.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionProject', 'homeorg', 'project', this.id, {{p.pk}});">
-                                    <strong>{{ p.projectName }}</strong><br>
-                                    {% if p.role %}{{ p.role }}<br>{% endif %}
-                                    {% if p.projectShortName %}{{ p.projectShortName }}<br>{% endif %}
-                                    {% if p.projectAbbreviation and p.projectAbbreviation != p.projectShortName %}{{ p.projectAbbreviation }}<br>{% endif %}
-                                    {% if p.projectType %}{{ p.projectType }}<br>{% endif %}
-                                    {{ p.getDateString }}
-                                </button>
-                                {% endfor %}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <!-- Tutkimusinfrastruktuurit -->
-        <div class="card-header d-flex" id="heading8">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse8" aria-expanded="false" aria-controls="collapse8">
-                Tutkimusinfrastruktuurit
-            </button>
-            <span class="align-self-center ml-auto">
-            </span>
-        </div>
-        <div id="collapse8" class="collapse" aria-labelledby="heading8" data-parent="#researchProfileAccordion">
-            <div class="card-body">
-                <div class="px-5">-</div>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <!-- Muut tutkimusaktiviteetit -->
-        <div class="card-header d-flex" id="heading9">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse9" aria-expanded="false" aria-controls="collapse9">
-                Muut tutkimusaktiviteetit
-            </button>
-            <span class="align-self-center ml-auto">
-            </span>
-        </div>
-        <div id="collapse9" class="collapse" aria-labelledby="heading9" data-parent="#researchProfileAccordion">
-            <div class="card-body">
-                <div class="px-5">-</div>
-            </div>
-        </div>
-    </div>
-
     <!-- Vertaisarviot -->
     <!--
     <div class="card">
