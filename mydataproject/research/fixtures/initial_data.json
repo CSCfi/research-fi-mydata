@@ -68,5 +68,26 @@
       "fields": {
         "name": "AALTO"
       }
+    },
+    {
+      "model": "research.areaofinterest",
+      "pk": 1,
+      "fields": {
+        "name": "Kohde 1"
+      }
+    },
+    {
+      "model": "research.areaofinterest",
+      "pk": 2,
+      "fields": {
+        "name": "Kohde 2"
+      }
+    },
+    {
+      "model": "research.areaofinterest",
+      "pk": 3,
+      "fields": {
+        "name": "Kohde 3"
+      }
     }
 ]

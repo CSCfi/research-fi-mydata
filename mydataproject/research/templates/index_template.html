@@ -770,6 +770,34 @@
         </div>
     </div>
     -->
+
+    <div class="card">
+        <!-- Kiinnostukset kohteet -->
+        <div class="card-header d-flex" id="heading4234">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse4234" aria-expanded="false" aria-controls="collapse4234">
+                Kiinnostukset kohteet
+            </button>
+            <span class="align-self-center ml-auto">
+            </span>
+        </div>
+        <div id="collapse4234" class="collapse" aria-labelledby="heading4234" data-parent="#researchProfileAccordion">
+            <div class="card-body">
+                <div class="px-5">
+                    <form>
+                        {% for i in areas_of_interest %}
+                        <div class="form-check">
+                            <input {% if i.selected %}checked{% endif %} 
+                                class="form-check-input" type="checkbox" value="{{ i.obj.pk }}" id="area_of_interest_{{ i.obj.pk }}" onclick="toggleAreaOfInterest({{ i.obj.pk }}, this.checked )">
+                            <label class="form-check-label" for="area_of_interest_{{ i.obj.pk }}">
+                                {{ i.obj.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">

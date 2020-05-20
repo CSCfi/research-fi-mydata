@@ -342,3 +342,22 @@ function toggleData(containerElementId, datasource, type, htmlElementId, dataId)
         busyIndicatorHide();
     });
 };
+
+function toggleAreaOfInterest(dataId, checked) {
+    busyIndicatorShow();
+    $.ajax({
+        type: 'POST',
+        url: url_toggle_area_of_interest,
+        data: {
+            csrfmiddlewaretoken: csrf_token,
+            dataId: dataId,
+            checked: checked
+        },
+        success: function(response) {
+            console.log(response);
+        },
+        dataType: 'json'
+    }).done(function() {
+        busyIndicatorHide();
+    });
+}
