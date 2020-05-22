@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.db.models import Case, Value, When
 from django.db.models.functions import Coalesce
 from orciddata.models import Permission, PermissionForm
-from research.models import PortalPermission, Datasource, Publication, PersonLastName
+from research.models import PortalPermission, Datasource, Publication, PersonLastName, AreaOfInterest
 import json
 from .forms import PortalPermissionFormSet
 from django.conf import settings
@@ -75,6 +75,21 @@ def index(request):
             context["homeorg_researchmaterials"] = request.user.researchprofile.research_materials.filter(datasource=datasource_homeorg)
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
             context["invited_positions"] = request.user.researchprofile.invitedposition.all()
+            
+            # Areas of interest
+            areasOfInterestData = []
+            for i in AreaOfInterest.objects.all():
+                if i in request.user.researchprofile.areas_of_interest.all():
+                    areasOfInterestData.append({
+                        "obj": i,
+                        "selected": True
+                    })
+                else:
+                    areasOfInterestData.append({
+                        "obj": i,
+                        "selected": False
+                    })
+            context["areas_of_interest"] = areasOfInterestData
     return render(request, 'index_template.html', context)
 
 def logout_view(request):
@@ -105,6 +120,7 @@ def profile_preview(request):
     context["merits"] = request.user.researchprofile.merits.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["other_projects"] = request.user.researchprofile.other_projects.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["researchmaterials"] = request.user.researchprofile.research_materials.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null')
+    context["areas_of_interest"] = request.user.researchprofile.areas_of_interest.all()
     return render(request, 'preview.html', context)
 
 @login_required
@@ -457,5 +473,24 @@ def toggle_data(request):
         researchmaterial.includeInProfile = not researchmaterial.includeInProfile
         researchmaterial.save()
         response["included"] = researchmaterial.includeInProfile
+
+    return JsonResponse(response)
+
+@login_required
+def toggle_area_of_interest(request):
+    response = {}
+    p_dataId = request.POST.get('dataId', None)
+    p_checked = request.POST.get('checked', None)
+
+    try:
+        areaOfInterestObj = AreaOfInterest.objects.get(pk=p_dataId)
+        if p_checked == "true":
+            request.user.researchprofile.areas_of_interest.add(areaOfInterestObj)
+        else:
+            request.user.researchprofile.areas_of_interest.remove(areaOfInterestObj)
+    except Exception as e:
+        print("Error in toggling area of interest")
+        print(e)
+        pass
 
     return JsonResponse(response)

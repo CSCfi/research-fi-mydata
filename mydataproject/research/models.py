@@ -13,12 +13,20 @@ class Datasource(models.Model):
     def __str__(self):
         return self.name
 
+class AreaOfInterest(models.Model):
+    name = models.CharField(max_length=256)
+    order = models.PositiveSmallIntegerField
+
+    def __str__(self):
+        return self.name
+
 class ResearchProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='researchprofile')
     active = models.BooleanField(default=False)
     test_orcid_id = models.CharField(max_length=20, blank=True)
     include_orcid_id_in_profile = models.BooleanField(default=False)
     homeorg_datasource = models.ForeignKey(Datasource, null=True, on_delete=models.SET_NULL, related_name='researchprofile')
+    areas_of_interest = models.ManyToManyField(AreaOfInterest)
 
     def test_orcid_id_is_valid(self):
         return self.test_orcid_id is not None and len(self.test_orcid_id) == 19

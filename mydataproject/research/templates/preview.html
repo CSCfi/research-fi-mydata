@@ -254,4 +254,22 @@
     </div>
 </div>
 
+<div class="preview_section">
+    <h5>Kiinnostuksen kohteet</h5>
+    <div class="preview_section_content">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th class="w-25"></th>
+                    <td>
+                        {% for i in areas_of_interest %}
+                            {{ i }}<br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 {% endblock content %}
