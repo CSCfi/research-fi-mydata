@@ -73,21 +73,28 @@
       "model": "research.areaofinterest",
       "pk": 1,
       "fields": {
-        "name": "Kohde 1"
+        "name": "Tiedotusvälineet voivat ottaa minuun yhteyttä"
       }
     },
     {
       "model": "research.areaofinterest",
       "pk": 2,
       "fields": {
-        "name": "Kohde 2"
+        "name": "Olen kiinnostunut yhteistyöstä muiden tutkijoiden ja tutkimusryhmien kanssa"
       }
     },
     {
       "model": "research.areaofinterest",
       "pk": 3,
       "fields": {
-        "name": "Kohde 3"
+        "name": "Olen kiinnostunut yhteistyöstä yritysten kanssa"
+      }
+    },
+    {
+      "model": "research.areaofinterest",
+      "pk": 4,
+      "fields": {
+        "name": "Olen kiinnostunut toimimaan tieteellisten julkaisujen vertaisarvioijana"
       }
     }
 ]
