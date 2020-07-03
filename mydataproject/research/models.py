@@ -25,8 +25,13 @@ class ResearchProfile(models.Model):
     active = models.BooleanField(default=False)
     test_orcid_id = models.CharField(max_length=20, blank=True)
     include_orcid_id_in_profile = models.BooleanField(default=False)
-    homeorg_datasource = models.ForeignKey(Datasource, null=True, on_delete=models.SET_NULL, related_name='researchprofile')
+    datasource_org1 = models.ForeignKey(Datasource, null=True, on_delete=models.SET_NULL, related_name='+')
+    datasource_org2 = models.ForeignKey(Datasource, null=True, on_delete=models.SET_NULL, related_name='+')
+    priority_orcid = models.PositiveSmallIntegerField(null=True)
+    priority_org1 = models.PositiveSmallIntegerField(null=True)
+    priority_org2 = models.PositiveSmallIntegerField(null=True)
     areas_of_interest = models.ManyToManyField(AreaOfInterest)
+    is_aalto = models.BooleanField(default=False)
 
     def test_orcid_id_is_valid(self):
         return self.test_orcid_id is not None and len(self.test_orcid_id) == 19
@@ -99,7 +104,7 @@ class ResearchProfile(models.Model):
         self.delete_orcid_data()
         self.delete_ttv_data()
         self.delete_manual_data()
-        self.delete_dummy_home_organization_data()
+        self.delete_dummy_organization_data()
         self.delete_aalto_data()
 
     def get_orcid_data(self):
@@ -140,11 +145,18 @@ class ResearchProfile(models.Model):
 
         return True
 
-    def add_home_organization_data(self):
+    def add_organization_data(self):
         orcid_id = self.get_orcid_id()
-        datasource_manual = Datasource.objects.get(name="MANUAL")
-        datasource_aalto = Datasource.objects.get(name="AALTO")
+        datasource_org1 = None
+        datasource_org2 = None
 
+        # Set datasources according to permission
+        if self.user.orcid_permission.read_all_org1:
+            self.datasource_org1 = Datasource.objects.get(name="ORG1")
+        if self.user.orcid_permission.read_all_org2:
+            self.datasource_org2 = Datasource.objects.get(name="ORG2")
+
+        # Search Aalto data by ORCID ID
         print("------")
         print("Search aalto data for ORCID " + orcid_id)
         try:
@@ -153,28 +165,31 @@ class ResearchProfile(models.Model):
             aalto_person = None
 
         if aalto_person is not None:
-            print("AALTO home org")
-            self.homeorg_datasource = datasource_aalto
-            self.save()
             self.add_aalto_data(aalto_person)
-        else:
-            print("MANUAL home org")
-            self.homeorg_datasource = datasource_manual
-            self.save()
-            self.add_dummy_home_organization_data()
+
+        self.save()
+        self.add_dummy_organization_data()
+
+    def add_dummy_organization_data(self):
+        if not self.is_aalto:
+            if self.datasource_org1 is not None:
+                self.add_org1_data()
+        if self.datasource_org2 is not None:
+            self.add_org2_data()
+
 
     def get_all_data(self):
         self.get_orcid_data()
         self.get_virta_publications()
-        self.add_home_organization_data()
+        self.add_organization_data()
 
-    def add_dummy_home_organization_data(self):
-        datasource_manual = Datasource.objects.get(name="MANUAL")
+    def add_org1_data(self):
+        datasource = Datasource.objects.get(name="ORG1")
 
         # Dummy last name
         lastName = PersonLastName.objects.create(
             researchprofile = self,
-            datasource = datasource_manual,
+            datasource = datasource,
             includeInProfile = False,
             value = 'Virtanen'
         )
@@ -183,66 +198,124 @@ class ResearchProfile(models.Model):
         # Dummy first name
         firstName = PersonFirstName.objects.create(
             researchprofile = self,
-            datasource = datasource_manual,
+            datasource = datasource,
             includeInProfile = False,
             value = 'A'
         )
         self.first_names.add(firstName)
 
-        # Dummy other name
+        # Dummy other names
         otherName = PersonOtherName.objects.create(
             researchprofile = self,
-            datasource = datasource_manual,
+            datasource = datasource,
             includeInProfile = False,
-            value = 'A.Virtanen<br>John Smith'
+            value = 'A. Virtanen'
         )
         self.other_names.add(otherName)
 
+        otherName2 = PersonOtherName.objects.create(
+            researchprofile = self,
+            datasource = datasource,
+            includeInProfile = False,
+            value = 'B. Virtanen'
+        )
+        self.other_names.add(otherName2)
+
         # Links
-        PersonLink.objects.create(researchprofile=self, datasource=datasource_manual, includeInProfile=False, url='https://www.google.com', name='Google')
-        PersonLink.objects.create(researchprofile=self, datasource=datasource_manual, includeInProfile=False, url='https://www.facebook.com', name='Facebook')
-        PersonLink.objects.create(researchprofile=self, datasource=datasource_manual, includeInProfile=False, url='https://www.linkedin.com', name='LinkedIn')
+        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.google.com', name='Google')
+        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.facebook.com', name='Facebook')
+        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.linkedin.com', name='LinkedIn')
 
         # Email
         email = PersonEmail.objects.create(
             researchprofile = self,
-            datasource = datasource_manual,
+            datasource = datasource,
             includeInProfile = False,
             value = 'abcd@example.comm'
         )
         self.emails.add(email)
 
         # Phone
-        dummyPhoneList = [
-            '+358 50 111 111 111',
-            '01-54325432',
-        ]
         phoneObj = PersonPhone.objects.create(
             researchprofile = self,
-            datasource = datasource_manual,
+            datasource = datasource,
             includeInProfile = False,
             value = '+358 50 111 111 111<br>05-54325432'
         )
         self.phones.add(phoneObj)
 
-        
-    
-    def delete_dummy_home_organization_data(self):
-        datasource_manual = Datasource.objects.get(name="MANUAL")
-        self.last_names.filter(datasource=datasource_manual).delete()
-        self.first_names.filter(datasource=datasource_manual).delete()
-        self.other_names.filter(datasource=datasource_manual).delete()
-        self.links.filter(datasource=datasource_manual).delete()
-        self.emails.filter(datasource=datasource_manual).delete()
-        self.phones.filter(datasource=datasource_manual).delete()
+    def add_org2_data(self):
+        datasource = Datasource.objects.get(name="ORG2")
+
+        # Dummy last name
+        lastName = PersonLastName.objects.create(
+            researchprofile = self,
+            datasource = datasource,
+            includeInProfile = False,
+            value = 'Anderson'
+        )
+        self.last_names.add(lastName)
+
+        # Dummy first name
+        firstName = PersonFirstName.objects.create(
+            researchprofile = self,
+            datasource = datasource,
+            includeInProfile = False,
+            value = 'D'
+        )
+        self.first_names.add(firstName)
+
+        # Dummy other names
+        otherName = PersonOtherName.objects.create(
+            researchprofile = self,
+            datasource = datasource,
+            includeInProfile = False,
+            value = 'D.A.'
+        )
+        self.other_names.add(otherName)
+
+        # Links
+        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.github.com', name='GitHub')
+        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.research.fi', name='Research.fi')
+
+        # Email
+        email = PersonEmail.objects.create(
+            researchprofile = self,
+            datasource = datasource,
+            includeInProfile = False,
+            value = 'd.a@myemail.comm'
+        )
+        self.emails.add(email)
+
+        # Phone
+        phoneObj = PersonPhone.objects.create(
+            researchprofile = self,
+            datasource = datasource,
+            includeInProfile = False,
+            value = '+358 50 222 2222<br>01-1231234'
+        )
+        self.phones.add(phoneObj)
+   
+    def delete_dummy_organization_data(self):
+        datasource_org1 = Datasource.objects.get(name="ORG1")
+        datasource_org2 = Datasource.objects.get(name="ORG2")
+
+        for ds in [datasource_org1, datasource_org2]:
+            self.last_names.filter(datasource=ds).delete()
+            self.first_names.filter(datasource=ds).delete()
+            self.other_names.filter(datasource=ds).delete()
+            self.links.filter(datasource=ds).delete()
+            self.emails.filter(datasource=ds).delete()
+            self.phones.filter(datasource=ds).delete()
 
     def add_aalto_data(self, aalto_person):
-        datasource_aalto = Datasource.objects.get(name="AALTO")
+        self.is_aalto = True
+        datasource = Datasource.objects.get(name="ORG1")
 
         # Last name
         lastName = PersonLastName.objects.create(
             researchprofile = self,
-            datasource = datasource_aalto,
+            datasource = datasource,
             includeInProfile = False,
             value = aalto_person.last_name
         )
@@ -251,7 +324,7 @@ class ResearchProfile(models.Model):
         # First name
         firstName = PersonFirstName.objects.create(
             researchprofile = self,
-            datasource = datasource_aalto,
+            datasource = datasource,
             includeInProfile = False,
             value = aalto_person.first_name
         )
@@ -261,7 +334,7 @@ class ResearchProfile(models.Model):
         if aalto_person.email is not None:
             PersonEmail.objects.create(
                 researchprofile = self,
-                datasource = datasource_aalto,
+                datasource = datasource,
                 includeInProfile = False,
                 value = aalto_person.email
             )
@@ -271,7 +344,7 @@ class ResearchProfile(models.Model):
         for link in aalto_person.links.all():
             PersonLink.objects.create(
                 researchprofile = self,
-                datasource = datasource_aalto,
+                datasource = datasource,
                 includeInProfile = False,
                 url = link.url,
                 name = link.name
@@ -281,7 +354,7 @@ class ResearchProfile(models.Model):
         if aalto_person.biography is not None:
             PersonBiography.objects.create(
                 researchprofile = self,
-                datasource = datasource_aalto,
+                datasource = datasource,
                 includeInProfile = False,
                 value = aalto_person.biography
             )
@@ -291,7 +364,7 @@ class ResearchProfile(models.Model):
         for keyword in aalto_person.keywords.all():
             PersonKeyword.objects.create(
                 researchprofile = self,
-                datasource = datasource_aalto,
+                datasource = datasource,
                 includeInProfile = False,
                 value = keyword.value
             )
@@ -300,7 +373,7 @@ class ResearchProfile(models.Model):
         for affiliation in aalto_person.affiliations.all():
             employmentDict = {
                 'researchprofile': self,
-                'datasource': datasource_aalto,
+                'datasource': datasource,
                 'organizationName': 'Aalto',
                 'departmentName': affiliation.department_name,
                 'roleTitle': affiliation.title,
@@ -325,7 +398,7 @@ class ResearchProfile(models.Model):
         for m in aalto_person.merits.all():
             meritDict = {
                 'researchprofile': self,
-                'datasource': datasource_aalto,
+                'datasource': datasource,
                 'organizationId': m.organizationId,
                 'organizationUnitsCommaSeparated': m.organizationUnitsCommaSeparated,
                 'meritName': m.meritName,
@@ -359,7 +432,7 @@ class ResearchProfile(models.Model):
         for p in aalto_person.other_projects.all():
             otherprojectDict = {
                 'researchprofile': self,
-                'datasource': datasource_aalto,
+                'datasource': datasource,
                 'organizationId': p.organizationId,
                 'organizationUnitsCommaSeparated': p.organizationUnitsCommaSeparated,
                 'projectName': p.projectName,
@@ -387,7 +460,7 @@ class ResearchProfile(models.Model):
         for r in aalto_person.research_materials.all():
             researchmaterialDict = {
                 'researchprofile': self,
-                'datasource': datasource_aalto,
+                'datasource': datasource,
                 'organizationId': r.organizationId,
                 'name': r.name,
                 'description': r.description,
@@ -408,22 +481,25 @@ class ResearchProfile(models.Model):
                 print("Exception in add_aalto_data() researchmaterials")
                 print(e)
                 pass
+        self.save()
 
     def delete_aalto_data(self):
-        datasource_aalto = Datasource.objects.get(name="AALTO")
-        self.last_names.filter(datasource=datasource_aalto).delete()
-        self.first_names.filter(datasource=datasource_aalto).delete()
-        self.other_names.filter(datasource=datasource_aalto).delete()
-        self.links.filter(datasource=datasource_aalto).delete()
-        self.emails.filter(datasource=datasource_aalto).delete()
-        self.phones.filter(datasource=datasource_aalto).delete()
-        self.biographies.filter(datasource=datasource_aalto).delete()
-        self.employment.filter(datasource=datasource_aalto).delete()
-        self.education.filter(datasource=datasource_aalto).delete()
-        self.keywords.filter(datasource=datasource_aalto).delete()
-        self.merits.filter(datasource=datasource_aalto).delete()
-        self.other_projects.filter(datasource=datasource_aalto).delete()
-        self.research_materials.filter(datasource=datasource_aalto).delete()
+        self.is_aalto = False
+        datasource = Datasource.objects.get(name="ORG1")
+        self.last_names.filter(datasource=datasource).delete()
+        self.first_names.filter(datasource=datasource).delete()
+        self.other_names.filter(datasource=datasource).delete()
+        self.links.filter(datasource=datasource).delete()
+        self.emails.filter(datasource=datasource).delete()
+        self.phones.filter(datasource=datasource).delete()
+        self.biographies.filter(datasource=datasource).delete()
+        self.employment.filter(datasource=datasource).delete()
+        self.education.filter(datasource=datasource).delete()
+        self.keywords.filter(datasource=datasource).delete()
+        self.merits.filter(datasource=datasource).delete()
+        self.other_projects.filter(datasource=datasource).delete()
+        self.research_materials.filter(datasource=datasource).delete()
+        self.save()
 
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:

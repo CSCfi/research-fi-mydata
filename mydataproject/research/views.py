@@ -44,7 +44,8 @@ def index(request):
         elif request.user.researchprofile.active:
             datasource_ttv = Datasource.objects.get(name="TTV")
             datasource_orcid = Datasource.objects.get(name="ORCID")
-            datasource_homeorg = request.user.researchprofile.homeorg_datasource
+            datasource_org1 = request.user.researchprofile.datasource_org1
+            datasource_org2 = request.user.researchprofile.datasource_org2
 
             context["TTV_API_HOST"] = settings.TTV_API_HOST
             context["orcid_id"] = request.user.researchprofile.get_visible_orcid_id()
@@ -60,19 +61,19 @@ def index(request):
             context["orcid_educations"] = request.user.researchprofile.education.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["orcid_merits"] = request.user.researchprofile.merits.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
             context["orcid_other_projects"] = request.user.researchprofile.other_projects.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_homeorg).first()
-            context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_homeorg).first()
-            context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_homeorg).first()
-            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_homeorg)
-            context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_homeorg).first()
-            context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_homeorg).first()
-            context["homeorg_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_homeorg).first()
-            context["homeorg_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_homeorg)
-            context["homeorg_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_educations"] = request.user.researchprofile.education.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_merits"] = request.user.researchprofile.merits.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_other_projects"] = request.user.researchprofile.other_projects.filter(datasource=datasource_homeorg).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_researchmaterials"] = request.user.researchprofile.research_materials.filter(datasource=datasource_homeorg)
+            context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_org1).first()
+            context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_org1).first()
+            context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_org1).first()
+            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_org1)
+            context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_org1).first()
+            context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_org1).first()
+            context["homeorg_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_org1).first()
+            context["homeorg_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_org1)
+            context["homeorg_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_org1).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["homeorg_educations"] = request.user.researchprofile.education.filter(datasource=datasource_org1).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["homeorg_merits"] = request.user.researchprofile.merits.filter(datasource=datasource_org1).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["homeorg_other_projects"] = request.user.researchprofile.other_projects.filter(datasource=datasource_org1).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+            context["homeorg_researchmaterials"] = request.user.researchprofile.research_materials.filter(datasource=datasource_org1)
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
             context["invited_positions"] = request.user.researchprofile.invitedposition.all()
             
@@ -281,7 +282,7 @@ def toggle_data_section_all(request):
     if datasource_type == 'orcid':
         datasource = Datasource.objects.get(name="ORCID")
     elif datasource_type == 'homeorg':
-        datasource = request.user.researchprofile.homeorg_datasource
+        datasource = request.user.researchprofile.datasource_org1
     else:
         return JsonResponse(response)
 
@@ -355,7 +356,7 @@ def toggle_data(request):
     if p_datasource == 'orcid':
         datasource = Datasource.objects.get(name="ORCID")
     elif p_datasource == 'homeorg':
-        datasource = request.user.researchprofile.homeorg_datasource
+        datasource = request.user.researchprofile.datasource_org1
     else:
         return JsonResponse(response)
 

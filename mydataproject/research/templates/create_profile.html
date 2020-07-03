@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="px-3 pb-md-2 mx-auto text-center">
+<div class="px-3 pb-md-2 mx-auto">
     <h4 class="display-4">Tutkijan tiedot</h4>
     <p class="lead pt-3">
         Hei {{ request.user.first_name }} {{ request.user.last_name }}.<br>
@@ -13,8 +13,16 @@
     <form method="POST">
         {% csrf_token %}
         <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="{{ permission_form.read_all.id_for_label }}" name="{{ permission_form.read_all.name }}">
-            <label class="form-check-label" for="{{ permission_form.read_all.id_for_label }}">{{ permission_form.read_all.label }}</label>
+            <input type="checkbox" class="form-check-input" id="{{ permission_form.read_all_orcid.id_for_label }}" name="{{ permission_form.read_all_orcid.name }}">
+            <label class="form-check-label" for="{{ permission_form.read_all_orcid.id_for_label }}">{{ permission_form.read_all_orcid.label }}</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="{{ permission_form.read_all_org1.id_for_label }}" name="{{ permission_form.read_all_org1.name }}">
+            <label class="form-check-label" for="{{ permission_form.read_all_org1.id_for_label }}">{{ permission_form.read_all_org1.label }}</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="{{ permission_form.read_all_org2.id_for_label }}" name="{{ permission_form.read_all_org2.name }}">
+            <label class="form-check-label" for="{{ permission_form.read_all_org2.id_for_label }}">{{ permission_form.read_all_org2.label }}</label>
         </div>
         <br>
         <button id="createProfileBtn" type="submit" class="btn btn-primary">Luo profiili</button>

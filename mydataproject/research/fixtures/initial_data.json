@@ -45,28 +45,36 @@
       "model": "research.datasource",
       "pk": 1,
       "fields": {
-        "name": "TTV"
+        "name": "ORCID"
       }
     },
     {
       "model": "research.datasource",
       "pk": 2,
       "fields": {
-        "name": "ORCID"
+        "name": "TTV"
       }
     },
+
     {
       "model": "research.datasource",
       "pk": 3,
       "fields": {
-        "name": "MANUAL"
+        "name": "ORG1"
       }
     },
     {
       "model": "research.datasource",
       "pk": 4,
       "fields": {
-        "name": "AALTO"
+        "name": "ORG2"
+      }
+    },
+    {
+      "model": "research.datasource",
+      "pk": 5,
+      "fields": {
+        "name": "MANUAL"
       }
     },
     {

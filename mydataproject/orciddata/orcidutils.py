@@ -47,7 +47,7 @@ def getPositionObject(researchprofile, positionDict):
         return None
 
 def record_json_to_model(researchprofile, orcid_record, datasource_orcid):
-    if researchprofile.user.orcid_permission.read_all:
+    if researchprofile.user.orcid_permission.read_all_orcid:
         if orcid_record["activities-summary"]:
             # Distinctions
             # if orcid_record["activities-summary"]["distinctions"]:
