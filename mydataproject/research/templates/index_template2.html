@@ -54,124 +54,81 @@
                     <table class="table" id="sectionContactInfo">
                         <thead class="thead-light">
                             <th></th>
+                            {% for d in datasources %}
                             <th class="w-50">
-                                ORCID&nbsp;
-                                <button onclick="toggleSectionAll('sectionContactInfo', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                                <button onclick="toggleSectionAll('sectionContactInfo', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                                {{ d.name }}
                             </th>
-                            <th class="w-50">
-                                Kotiorganisaatio&nbsp;
-                                <button onclick="toggleSectionAll('sectionContactInfo', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                                <button onclick="toggleSectionAll('sectionContactInfo', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                            </th>
+                            {% endfor %}
                         </thead>
                         <tbody>
                             <tr>
                                 <th>Sukunimi</th>
-                                <td id="lastNameOrcid"
-                                    class="td_orcid last_name {% if orcid_last_names.value %} togglable{% endif %} {% if orcid_last_names.includeInProfile %} included{% endif %}"
-                                    {% if orcid_last_names.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'last_name', this.id);"{% endif %}>
-                                    {{ orcid_last_names.value | safe }}
+                                {% for d in datasources %}
+                                <td>
+                                    {{ d.last_names.value | safe }}
                                 </td>
-                                <td id="lastNameHomeorg"
-                                    class="td_homeorg last_name {% if homeorg_last_names.value %} togglable{% endif %} {% if homeorg_last_names.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_last_names.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'last_name', this.id);"{% endif %}>
-                                    {{ homeorg_last_names.value | safe }}
-                                </td>
+                                {% endfor %}
                             </tr>
 
                             <tr>
                                 <th>Etunimi</th>
-                                <td id="firstNameOrcid"
-                                    class="td_orcid first_name {% if orcid_first_names.value %} togglable{% endif %} {% if orcid_first_names.includeInProfile %} included{% endif %}"
-                                    {% if orcid_first_names.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'first_name', this.id);"{% endif %}>
-                                    {{ orcid_first_names.value | safe }}
+                                {% for d in datasources %}
+                                <td>
+                                    {{ d.first_names.value | safe }}
                                 </td>
-                                <td id="firstNameHomeorg"
-                                    class="td_homeorg first_name {% if homeorg_first_names.value %} togglable{% endif %} {% if homeorg_first_names.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_first_names.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'first_name', this.id);"{% endif %}>
-                                    {{ homeorg_first_names.value | safe }}
-                                </td>
+                                {% endfor %}
                             </tr>
 
                             <tr>
                                 <th>Muut nimet</th>
-                                <td id="otherNameOrcid"
-                                    class="td_orcid other_name {% if orcid_other_names.value %} togglable{% endif %} {% if orcid_other_names.includeInProfile %} included{% endif %}"
-                                    {% if orcid_other_names.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'other_name', this.id);"{% endif %}>
-                                    {{ orcid_other_names.value | safe }}
+                                {% for d in datasources %}
+                                <td>
+                                    {{ d.other_names.value | safe }}
                                 </td>
-                                <td id="otherNameHomeorg"
-                                    class="td_homeorg other_name {% if homeorg_other_names.value %} togglable{% endif %} {% if homeorg_other_names.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_other_names.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'other_name', this.id);"{% endif %}>
-                                    {{ homeorg_other_names.value | safe }} 
-                                </td>
+                                {% endfor %}
                             </tr>
 
                             <tr>
                                 <th>ORCID-tunniste</th>
-                                <td id="orcidId"
-                                    class="td_orcid orcid_id togglable {% if user.researchprofile.include_orcid_id_in_profile %} included{% endif %}"
-                                    onclick="toggleData('sectionContactInfo', 'orcid', 'orcid_id', this.id);">
+                                {% for d in datasources %}
+                                {% if d.name == "ORCID" %}
+                                <td>
                                     <a href="https://orcid.org/{{ orcid_id }}" target="_blank">{{ orcid_id }}</a>
                                 </td>
+                                {% else %}
                                 <td></td>
+                                {% endif %}
+                                {% endfor %}     
                             </tr>
 
                             <tr>
                                 <th>Linkit</th>
-                                <td id="linkOrcid" class="td_orcid link">
-                                    {% for link in orcid_links %}
-                                    <button id="link_{{ link.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if link.includeInProfile %}included{% endif %}"
-                                            onclick="toggleData('sectionContactInfo', 'orcid', 'link', this.id, {{link.pk}});">
-                                        {{ link.name }}
-                                        <a href="{{ link.url }}" target="_blank">
-                                            <i class="fas fa-external-link-alt float-right"></i>
-                                        </a>
-                                    </button>
+                                {% for d in datasources %}
+                                <td>
+                                    {% for link in d.links %}
+                                    <a href="{{ link.url }}" target="_blank">{{ link.name }}</a>
+                                    {% if not forloop.last %}<br>{% endif %}
                                     {% endfor %}
                                 </td>
-                                <td id="linkHomeorg" class="td_homeorg link">
-                                    {% for link in homeorg_links %}
-                                    <button id="link_{{ link.pk }}"
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if link.includeInProfile %}included{% endif %}"
-                                            onclick="toggleData('sectionContactInfo', 'homeorg', 'link', this.id, {{link.pk}});">
-                                        {{ link.name }}
-                                        <a href="{{ link.url }}" target="_blank">
-                                            <i class="fas fa-external-link-alt float-right"></i>
-                                        </a>
-                                    </button>
-                                    {% endfor %}
-                                </td>
+                                {% endfor %}
                             </tr>
 
                             <tr>
                                 <th>Sähköpostiosoite</th>
-                                <td id="emailOrcid"
-                                    class="td_orcid email {% if orcid_emails.value %} togglable{% endif %} {% if orcid_emails.includeInProfile %} included{% endif %}"
-                                    {% if orcid_emails.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'email', this.id);"{% endif %}>
-                                    {{ orcid_emails.value | safe }}
+                                {% for d in datasources %}
+                                <td>
+                                    {{ d.emails.value | safe }}
                                 </td>
-                                <td id="emailHomeorg"
-                                    class="td_homeorg email {% if homeorg_emails.value %} togglable{% endif %} {% if homeorg_emails.includeInProfile %}included{% endif %}"
-                                    {% if homeorg_emails.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'email', this.id);"{% endif %}>
-                                    {{ homeorg_emails.value | safe }}
-                                </td>
+                                {% endfor %}
                             </tr>
 
                             <tr>
                                 <th>Puhelinnumero</th>
-                                <td id="phoneOrcid"
-                                    class="td_orcid phone {% if orcid_phones.value %} togglable{% endif %}{% if orcid_phones.includeInProfile %} included{% endif %}"
-                                    {% if orcid_phones.value %}onclick="toggleData('sectionContactInfo', 'orcid', 'phone', this.id);"{% endif %}>
-                                    {{ orcid_phones.value | safe }}
+                                {% for d in datasources %}
+                                <td>
+                                    {{ d.phones.value | safe }}
                                 </td>
-                                <td id="phoneHomeorg"
-                                    class="td_homeorg phone {% if homeorg_phones.value %} togglable{% endif %}{% if homeorg_phones.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_phones.value %}onclick="toggleData('sectionContactInfo', 'homeorg', 'phone', this.id);"{% endif %}>
-                                    {{ homeorg_phones.value | safe }}
-                                </td>
+                                {% endfor %}
                             </tr>
                         </tbody>
                     </table>
@@ -194,55 +151,37 @@
                     <table class="table" id="sectionDescription">
                         <thead class="thead-light">
                             <th></th>
+                            {% for d in datasources %}
                             <th class="w-50">
-                                ORCID&nbsp;
-                                <button onclick="toggleSectionAll('sectionDescription', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                                <button onclick="toggleSectionAll('sectionDescription', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                                {{ d.name }}
                             </th>
-                            <th class="w-50">
-                                Kotiorganisaatio&nbsp;
-                                <button onclick="toggleSectionAll('sectionDescription', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                                <button onclick="toggleSectionAll('sectionDescription', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                            </th>
+                            {% endfor %}
                         </thead>
                         <tbody>
                             <tr>
                                 <th>Kuvaus</th>
-                                <td id="biographyOrcid"
-                                    class="td_orcid biography {% if orcid_biography.value %} togglable{% endif %} {% if orcid_biography.includeInProfile %} included{% endif %}"
-                                    {% if orcid_biography.value %}onclick="toggleData('sectionDescription', 'orcid', 'biography', this.id);"{% endif %}>
-                                    {{ orcid_biography.value | safe }}</td>
-                                <td id="biographyHomeorg"
-                                    class="td_homeorg biography {% if homeorg_biography.value %} togglable{% endif %} {% if homeorg_biography.includeInProfile %} included{% endif %}"
-                                    {% if homeorg_biography.value %}onclick="toggleData('sectionDescription', 'homeorg', 'biography', this.id);"{% endif %}>
-                                    {{ homeorg_biography.value | safe }}</td>
+                                {% for d in datasources %}
+                                <td>
+                                    {{ d.biography.value | safe }}
+                                </td>
+                                {% endfor %}
                             </tr>
                             <tr>
                                 <th>Tieteenalat</th>
-                                <td>-</td>
-                                <td>-</td>
+                                {% for d in datasources %}
+                                <td></td>
+                                {% endfor %}
                             </tr>
                             <tr>
                                 <th>Avainsanat</th>
-
-                                <td id="keywordOrcid" class="td_orcid keyword">
-                                    {% for keyword in orcid_keywords %}
-                                    <button id="keyword_{{ keyword.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if keyword.includeInProfile %}included{% endif %}"
-                                            onclick="toggleData('sectionDescription', 'orcid', 'keyword', this.id, {{keyword.pk}});">
-                                        {{ keyword.value }}
-                                    </button>
+                                {% for d in datasources %}
+                                <td>
+                                    {% for k in d.keywords %}
+                                    {{ k.value | safe }}
+                                    {% if not forloop.last %}<br>{% endif %}
                                     {% endfor %}
                                 </td>
-                                <td id="keywordHomeorg" class="td_homeorg keyword">
-                                    {% for keyword in homeorg_keywords %}
-                                    <button id="keyword_{{ keyword.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if keyword.includeInProfile %}included{% endif %}"
-                                            onclick="toggleData('sectionDescription', 'homeorg', 'keyword', this.id, {{keyword.pk}});">
-                                        {{ keyword.value }}
-                                    </button>
-                                    {% endfor %}
-                                </td>
+                                {% endfor %}
                             </tr>
                         </tbody>
                     </table>
@@ -263,43 +202,26 @@
             <div class="card-body">
                 <table class="table" id="sectionAffiliation">
                     <thead class="thead-light">
+                        {% for d in datasources %}
                         <th class="w-50">
-                            ORCID&nbsp;
-                            <button onclick="toggleSectionAll('sectionAffiliation', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionAffiliation', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                            {{ d.name }}
                         </th>
-                        <th class="w-50">
-                            Kotiorganisaatio&nbsp;
-                            <button onclick="toggleSectionAll('sectionAffiliation', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionAffiliation', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                        </th>
+                        {% endfor %}
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="td_orcid employment">
-                                {% for em in orcid_employments %}
-                                <button id="employment_{{ em.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionAffiliation', 'orcid', 'employment', this.id, {{em.pk}});">
+                            {% for d in datasources %}
+                            <td>
+                                {% for em in d.employments %}
+                                <div style="border: 1px solid black; margin-bottom: 5px;">
                                     <strong>{{ em.organizationName }}</strong><br>
                                     {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
                                     {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
                                     <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
-                                </button>
+                                </div>
                                 {% endfor %}
                             </td>
-                            <td class="td_homeorg employment">
-                                {% for em in homeorg_employments %}
-                                <button id="employment_{{ em.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionAffiliation', 'homeorg', 'employment', this.id, {{em.pk}});">
-                                    <strong>{{ em.organizationName }}</strong><br>
-                                    {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
-                                    {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
-                                    <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
-                                </button>
-                                {% endfor %}
-                            </td>
+                            {% endfor %}
                         </tr>
                     </tbody>
                 </table>
@@ -320,43 +242,26 @@
 
                 <table class="table" id="sectionEducation">
                     <thead class="thead-light">
+                        {% for d in datasources %}
                         <th class="w-50">
-                            ORCID&nbsp;
-                            <button onclick="toggleSectionAll('sectionEducation', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionEducation', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                            {{ d.name }}
                         </th>
-                        <th class="w-50">
-                            Kotiorganisaatio&nbsp;
-                            <button onclick="toggleSectionAll('sectionEducation', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionEducation', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                        </th>
+                        {% endfor %}
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="td_orcid education">
-                                {% for ed in orcid_educations %}
-                                <button id="education_{{ ed.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if ed.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionEducation', 'orcid', 'education', this.id, {{ed.pk}});">
+                            {% for d in datasources %}
+                            <td>
+                                {% for ed in d.educations %}
+                                <div style="border: 1px solid black; margin-bottom: 5px;">
                                     <strong>{{ ed.organizationName }}</strong><br>
                                     {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
                                     {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
                                     <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
-                                </button>
+                                </div>
                                 {% endfor %}
                             </td>
-                            <td class="td_homeorg education">
-                                {% for ed in homeorg_educations %}
-                                <button id="education_{{ ed.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if ed.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionEducation', 'homeorg', 'education', this.id, {{ed.pk}});">
-                                    <strong>{{ ed.organizationName }}</strong><br>
-                                    {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
-                                    {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
-                                    <span>{{ ed.get_start_date_string }} - {{ ed.get_end_date_string }}</span>
-                                </button>
-                                {% endfor %}
-                            </td>
+                            {% endfor %}
                         </tr>
                     </tbody>
                 </table>
@@ -470,35 +375,26 @@
             <div class="card-body">
                 <table class="table" id="sectionResearchmaterial">
                     <thead class="thead-light">
+                        {% for d in datasources %}
                         <th class="w-50">
-                            ORCID&nbsp;
-                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                            {{ d.name }}
                         </th>
-                        <th class="w-50">
-                            Kotiorganisaatio&nbsp;
-                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionResearchmaterial', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                        </th>
+                        {% endfor %}
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="td_orcid research_material">
-                                {% for rm in orcid_researchmaterials %}
-                                {% endfor %}
-                            </td>
-                            <td class="td_homeorg research_material">
-                                {% for rm in homeorg_researchmaterials %}
-                                <button id="researchmaterial_{{ rm.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if rm.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionResearchmaterial', 'homeorg', 'research_material', this.id, {{rm.pk}});">
+                            {% for d in datasources %}
+                            <td>
+                                {% for rm in d.researchmaterials %}
+                                <div style="border: 1px solid black; margin-bottom: 5px;">
                                     <strong>{{ rm.name }}</strong><br><br>
                                     {{ rm.description }}<br><br>
                                     {{ rm.publicationYear }} {{ rm.publisherName }}
                                     {% if rm.doi %}<a href="{{ rm.doi }}" target="_blank">{{ rm.doi }}</a>{% endif %}
-                                </button>
+                                </div>
                                 {% endfor %}
                             </td>
+                            {% endfor %}
                         </tr>
                     </tbody>
                 </table>
@@ -583,37 +479,28 @@
             <div class="card-body">
                 <table class="table" id="sectionOtherProject">
                     <thead class="thead-light">
+                        {% for d in datasources %}
                         <th class="w-50">
-                            ORCID&nbsp;
-                            <button onclick="toggleSectionAll('sectionOtherProject', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionOtherProject', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                            {{ d.name }}
                         </th>
-                        <th class="w-50">
-                            Kotiorganisaatio&nbsp;
-                            <button onclick="toggleSectionAll('sectionOtherProject', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionOtherProject', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                        </th>
+                        {% endfor %}
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="td_orcid project">
-                                {% for p in orcid_other_projects %}
-                                {% endfor %}
-                            </td>
-                            <td class="td_homeorg project">
-                                {% for p in homeorg_other_projects %}
-                                <button id="other_project_{{ p.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if p.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionOtherProject', 'homeorg', 'other_project', this.id, {{p.pk}});">
+                            {% for d in datasources %}
+                            <td>
+                                {% for p in d.other_projects %}
+                                <div style="border: 1px solid black; margin-bottom: 5px;">
                                     <strong>{{ p.projectName }}</strong><br>
                                     {% if p.role %}{{ p.role }}<br>{% endif %}
                                     {% if p.projectShortName %}{{ p.projectShortName }}<br>{% endif %}
                                     {% if p.projectAbbreviation and p.projectAbbreviation != p.projectShortName %}{{ p.projectAbbreviation }}<br>{% endif %}
                                     {% if p.projectType %}{{ p.projectType }}<br>{% endif %}
                                     {{ p.getDateString }}
-                                </button>
+                                </div>
                                 {% endfor %}
                             </td>
+                            {% endfor %}
                         </tr>
                     </tbody>
                 </table>
@@ -663,28 +550,18 @@
             <div class="card-body">
                 <table class="table" id="sectionMerit">
                     <thead class="thead-light">
+                        {% for d in datasources %}
                         <th class="w-50">
-                            ORCID&nbsp;
-                            <button onclick="toggleSectionAll('sectionMerit', 'orcid', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionMerit', 'orcid', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
+                            {{ d.name }}
                         </th>
-                        <th class="w-50">
-                            Kotiorganisaatio&nbsp;
-                            <button onclick="toggleSectionAll('sectionMerit', 'homeorg', true);"><i class="fas fa-plus" title="Lisää kaikki"></i></button>
-                            <button onclick="toggleSectionAll('sectionMerit', 'homeorg', false);"><i class="fas fa-minus" title="Poista kaikki"></i></button>
-                        </th>
+                        {% endfor %}
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="td_orcid merit">
-                                {% for m in orcid_merits %}
-                                {% endfor %}
-                            </td>
-                            <td class="td_homeorg merit">
-                                {% for m in homeorg_merits %}
-                                <button id="merit_{{ m.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if m.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionMerit', 'homeorg', 'merit', this.id, {{m.pk}});">
+                            {% for m in d.merits %}
+                            <td>
+                                {% for em in d.employments %}
+                                <div style="border: 1px solid black; margin-bottom: 5px;">
                                     <strong>{{ m.meritType }}</strong><br>
                                     {% if m.role %}{{ m.role }}<br>{% endif %}
                                     {% if m.meritName %}{{ m.meritName }}<br>{% endif %}
@@ -700,77 +577,16 @@
                                     {% if m.placeName %}{{ m.placeName }}<br>{% endif %}
                                     {{ m.getDateString }}
                                     {% if m.url %}<a href="{{ m.url }}" target="_blank"><i class="fas fa-external-link-alt float-right"></i></a>{% endif %}
-                                </button>
+                                </div>
                                 {% endfor %}
                             </td>
+                            {% endfor %}
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    <!-- Vertaisarviot -->
-    <!--
-    <div class="card">
-        <div class="card-header d-flex" id="heading387dh3">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse387dh3" aria-expanded="false" aria-controls="collapse387dh3">
-                Vertaisarviot
-            </button>
-            <span class="align-self-center ml-auto">
-            </span>
-        </div>
-        <div id="collapse387dh3" class="collapse" aria-labelledby="heading387dh3" data-parent="#researchProfileAccordion">
-            <div class="card-body">
-                <div id="educations" class="mx-5">
-                    {% if peer_reviews.count > 0 %}
-                    {% for p in peer_reviews %}
-                    <div class="p-3">
-                        <span>{{ p.completionDate | date:"d.m.Y" }} {{ p.reviewerRole }} {{ p.reviewerUrl }} {{ p.reviewerType }}</span>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <div class="p-3">
-                        -
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    -->
-    
-    <!-- Kutsutut tehtävät -->
-    <!--
-    <div class="card">
-        <div class="card-header d-flex" id="heading4234234">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse4234234" aria-expanded="false" aria-controls="collapse4234234">
-                Kutsutut tehtävät
-            </button>
-            <span class="align-self-center ml-auto">
-            </span>
-        </div>
-        <div id="collapse4234234" class="collapse" aria-labelledby="heading4234234" data-parent="#researchProfileAccordion">
-            <div class="card-body">
-                <div id="invited-positions" class="mx-5">
-                    {% if invited_positions.count > 0 %}
-                        {% for ip in invited_positions %}
-                        <div class="p-3">
-                            <strong>{{ ip.roleTitle }}</strong><br>
-                            <span>{{ ip.startDate | date:"d.m.Y" }} - {{ ip.endDate | date:"d.m.Y" }}</span><br>
-                            <span>{{ ip.organizationName }}, {{ ip.departmentName }}</span><br>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="p-3">
-                            -
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    -->
-
     <div class="card">
         <!-- Kiinnostus yhteistyöstä -->
         <div class="card-header d-flex" id="heading4234">

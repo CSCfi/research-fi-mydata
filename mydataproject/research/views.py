@@ -43,39 +43,37 @@ def index(request):
                     return render(request, 'create_profile.html', context)
         elif request.user.researchprofile.active:
             datasource_ttv = Datasource.objects.get(name="TTV")
-            datasource_orcid = Datasource.objects.get(name="ORCID")
-            datasource_org1 = request.user.researchprofile.datasource_org1
-            datasource_org2 = request.user.researchprofile.datasource_org2
+            datasource_prio1 = Datasource.objects.get(name="ORCID")
+            datasource_prio2 = request.user.researchprofile.datasource_org1
+            datasource_prio3 = request.user.researchprofile.datasource_org2
 
-            context["TTV_API_HOST"] = settings.TTV_API_HOST
             context["orcid_id"] = request.user.researchprofile.get_visible_orcid_id()
-            context["orcid_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_orcid).first()
-            context["orcid_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_orcid).first()
-            context["orcid_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_orcid).first()
-            context["orcid_links"] = request.user.researchprofile.links.filter(datasource=datasource_orcid)
-            context["orcid_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_orcid).first()
-            context["orcid_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_orcid).first()
-            context["orcid_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_orcid).first()
-            context["orcid_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_orcid)
-            context["orcid_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["orcid_educations"] = request.user.researchprofile.education.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["orcid_merits"] = request.user.researchprofile.merits.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["orcid_other_projects"] = request.user.researchprofile.other_projects.filter(datasource=datasource_orcid).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_first_names"] = request.user.researchprofile.first_names.filter(datasource=datasource_org1).first()
-            context["homeorg_last_names"] = request.user.researchprofile.last_names.filter(datasource=datasource_org1).first()
-            context["homeorg_other_names"] = request.user.researchprofile.other_names.filter(datasource=datasource_org1).first()
-            context["homeorg_links"] = request.user.researchprofile.links.filter(datasource=datasource_org1)
-            context["homeorg_emails"] = request.user.researchprofile.emails.filter(datasource=datasource_org1).first()
-            context["homeorg_phones"] = request.user.researchprofile.phones.filter(datasource=datasource_org1).first()
-            context["homeorg_biography"] = request.user.researchprofile.biographies.filter(datasource=datasource_org1).first()
-            context["homeorg_keywords"] = request.user.researchprofile.keywords.filter(datasource=datasource_org1)
-            context["homeorg_employments"] = request.user.researchprofile.employment.filter(datasource=datasource_org1).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_educations"] = request.user.researchprofile.education.filter(datasource=datasource_org1).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_merits"] = request.user.researchprofile.merits.filter(datasource=datasource_org1).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_other_projects"] = request.user.researchprofile.other_projects.filter(datasource=datasource_org1).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
-            context["homeorg_researchmaterials"] = request.user.researchprofile.research_materials.filter(datasource=datasource_org1)
+    
+            context["datasources"] = []
+
+            for datasource in [datasource_prio1, datasource_prio2, datasource_prio3]:
+
+                context["datasources"].append({
+                    "name": datasource.name,
+                    "id" : request.user.researchprofile.get_visible_orcid_id(),
+                    "first_names" : request.user.researchprofile.first_names.filter(datasource=datasource).first(),
+                    "last_names" : request.user.researchprofile.last_names.filter(datasource=datasource).first(),
+                    "other_names" : request.user.researchprofile.other_names.filter(datasource=datasource).first(),
+                    "links" : request.user.researchprofile.links.filter(datasource=datasource),
+                    "emails" : request.user.researchprofile.emails.filter(datasource=datasource).first(),
+                    "phones" : request.user.researchprofile.phones.filter(datasource=datasource).first(),
+                    "biography" : request.user.researchprofile.biographies.filter(datasource=datasource).first(),
+                    "keywords" : request.user.researchprofile.keywords.filter(datasource=datasource),
+                    "employments" : request.user.researchprofile.employment.filter(datasource=datasource).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null'),
+                    "educations" : request.user.researchprofile.education.filter(datasource=datasource).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null'),
+                    "merits" : request.user.researchprofile.merits.filter(datasource=datasource).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null'),
+                    "other_projects" : request.user.researchprofile.other_projects.filter(datasource=datasource).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null'),
+                    #context["org1_researchmaterials"] : request.user.researchprofile.research_materials.filter(datasource=datasource)
+                })
+            
             context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
             context["invited_positions"] = request.user.researchprofile.invitedposition.all()
+            context["TTV_API_HOST"] = settings.TTV_API_HOST
             
             # Areas of interest
             areasOfInterestData = []
@@ -91,7 +89,7 @@ def index(request):
                         "selected": False
                     })
             context["areas_of_interest"] = areasOfInterestData
-    return render(request, 'index_template.html', context)
+    return render(request, 'index_template2.html', context)
 
 def logout_view(request):
     logout(request)
