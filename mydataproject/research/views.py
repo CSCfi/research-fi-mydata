@@ -43,9 +43,27 @@ def index(request):
                     return render(request, 'create_profile.html', context)
         elif request.user.researchprofile.active:
             datasource_ttv = Datasource.objects.get(name="TTV")
-            datasource_prio1 = Datasource.objects.get(name="ORCID")
-            datasource_prio2 = request.user.researchprofile.datasource_org1
-            datasource_prio3 = request.user.researchprofile.datasource_org2
+            # priorities
+            if request.user.orcid_permission.priority_orcid == 1:
+                datasource_prio1 = Datasource.objects.get(name="ORCID")
+            if request.user.orcid_permission.priority_orcid == 2:
+                datasource_prio2 = Datasource.objects.get(name="ORCID")
+            if request.user.orcid_permission.priority_orcid == 3:
+                datasource_prio3 = Datasource.objects.get(name="ORCID")
+
+            if request.user.orcid_permission.priority_org1 == 1:
+                datasource_prio1 = request.user.researchprofile.datasource_org1
+            if request.user.orcid_permission.priority_org1 == 2:
+                datasource_prio2 = request.user.researchprofile.datasource_org1
+            if request.user.orcid_permission.priority_org1 == 3:
+                datasource_prio3 = request.user.researchprofile.datasource_org1
+
+            if request.user.orcid_permission.priority_org2 == 1:
+                datasource_prio1 = request.user.researchprofile.datasource_org2
+            if request.user.orcid_permission.priority_org2 == 2:
+                datasource_prio2 = request.user.researchprofile.datasource_org2
+            if request.user.orcid_permission.priority_org2 == 3:
+                datasource_prio3 = request.user.researchprofile.datasource_org2
 
             context["orcid_id"] = request.user.researchprofile.get_visible_orcid_id()
     
@@ -71,9 +89,9 @@ def index(request):
                     #context["org1_researchmaterials"] : request.user.researchprofile.research_materials.filter(datasource=datasource)
                 })
             
-            context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
-            context["invited_positions"] = request.user.researchprofile.invitedposition.all()
-            context["TTV_API_HOST"] = settings.TTV_API_HOST
+            #context["peer_reviews"] = request.user.researchprofile.peer_reviews.all()
+            #context["invited_positions"] = request.user.researchprofile.invitedposition.all()
+            #context["TTV_API_HOST"] = settings.TTV_API_HOST
             
             # Areas of interest
             areasOfInterestData = []
