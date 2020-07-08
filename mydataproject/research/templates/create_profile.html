@@ -28,7 +28,7 @@
                 <input type="checkbox" onclick="permissionToggle('orcid')" class="form-check-input" id="{{ permission_form.read_all_orcid.id_for_label }}" name="{{ permission_form.read_all_orcid.name }}" {% if permission_form.read_all_orcid.value %}checked{% endif %}>
             </div>
             <div class="col col-sm-2">
-                <input type="number"
+                <input type="number" min="1" max="3"
                 {% if not permission_form.read_all_orcid.value %}style="visibility:hidden"{% endif %}
                 class="form-control" id="{{ permission_form.priority_orcid.id_for_label }}" name="{{ permission_form.priority_orcid.name }}" value="{{ permission_form.priority_orcid.value }}">
             </div>
@@ -42,7 +42,7 @@
                 <input type="checkbox" onclick="permissionToggle('org1')" class="form-check-input" id="{{ permission_form.read_all_org1.id_for_label }}" name="{{ permission_form.read_all_org1.name }}" {% if permission_form.read_all_org1.value %}checked{% endif %}>
             </div>
             <div class="col col-sm-2">
-                <input type="number"
+                <input type="number" min="1" max="3"
                 {% if not permission_form.read_all_org1.value %}style="visibility:hidden"{% endif %}
                 class="form-control" id="{{ permission_form.priority_org1.id_for_label }}" name="{{ permission_form.priority_org1.name }}" value="{{ permission_form.priority_org1.value }}">
             </div>
@@ -56,7 +56,7 @@
                 <input type="checkbox" onclick="permissionToggle('org2')" class="form-check-input" id="{{ permission_form.read_all_org2.id_for_label }}" name="{{ permission_form.read_all_org2.name }}" {% if permission_form.read_all_org2.value %}checked{% endif %}>
             </div>
             <div class="col col-sm-2">
-                <input type="number"
+                <input type="number" min="1" max="3"
                 {% if not permission_form.read_all_org2.value %}style="visibility:hidden"{% endif %}
                 class="form-control" id="{{ permission_form.priority_org2.id_for_label }}" name="{{ permission_form.priority_org2.name }}" value="{{ permission_form.priority_org2.value }}">
             </div>

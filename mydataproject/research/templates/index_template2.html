@@ -64,7 +64,7 @@
                             <tr>
                                 <th>Sukunimi</th>
                                 {% for d in datasources %}
-                                <td>
+                                <td {% if d.last_names.includeInProfile %}class="included"{% endif %}>
                                     {{ d.last_names.value | safe }}
                                 </td>
                                 {% endfor %}
@@ -73,7 +73,7 @@
                             <tr>
                                 <th>Etunimi</th>
                                 {% for d in datasources %}
-                                <td>
+                                <td {% if d.first_names.includeInProfile %}class="included"{% endif %}>
                                     {{ d.first_names.value | safe }}
                                 </td>
                                 {% endfor %}
@@ -82,7 +82,7 @@
                             <tr>
                                 <th>Muut nimet</th>
                                 {% for d in datasources %}
-                                <td>
+                                <td {% if d.other_names.includeInProfile %}class="included"{% endif %}>
                                     {{ d.other_names.value | safe }}
                                 </td>
                                 {% endfor %}
@@ -92,7 +92,7 @@
                                 <th>ORCID-tunniste</th>
                                 {% for d in datasources %}
                                 {% if d.name == "ORCID" %}
-                                <td>
+                                <td class="included">
                                     <a href="https://orcid.org/{{ orcid_id }}" target="_blank">{{ orcid_id }}</a>
                                 </td>
                                 {% else %}
@@ -106,7 +106,7 @@
                                 {% for d in datasources %}
                                 <td>
                                     {% for link in d.links %}
-                                    <a href="{{ link.url }}" target="_blank">{{ link.name }}</a>
+                                    <a href="{{ link.url }}" target="_blank" {% if link.includeInProfile %}class="included"{% endif %}>{{ link.name }}</a>
                                     {% if not forloop.last %}<br>{% endif %}
                                     {% endfor %}
                                 </td>
@@ -116,7 +116,7 @@
                             <tr>
                                 <th>Sähköpostiosoite</th>
                                 {% for d in datasources %}
-                                <td>
+                                <td {% if d.emails.includeInProfile %}class="included"{% endif %}>
                                     {{ d.emails.value | safe }}
                                 </td>
                                 {% endfor %}
@@ -125,7 +125,7 @@
                             <tr>
                                 <th>Puhelinnumero</th>
                                 {% for d in datasources %}
-                                <td>
+                                <td {% if d.phones.includeInProfile %}class="included"{% endif %}>
                                     {{ d.phones.value | safe }}
                                 </td>
                                 {% endfor %}
@@ -161,7 +161,7 @@
                             <tr>
                                 <th>Kuvaus</th>
                                 {% for d in datasources %}
-                                <td>
+                                <td {% if d.biography.includeInProfile %}class="included"{% endif %}>
                                     {{ d.biography.value | safe }}
                                 </td>
                                 {% endfor %}
@@ -177,7 +177,7 @@
                                 {% for d in datasources %}
                                 <td>
                                     {% for k in d.keywords %}
-                                    {{ k.value | safe }}
+                                    <span {% if k.includeInProfile %}class="included"{% endif %}>{{ k.value | safe }}</span>
                                     {% if not forloop.last %}<br>{% endif %}
                                     {% endfor %}
                                 </td>
@@ -213,7 +213,7 @@
                             {% for d in datasources %}
                             <td>
                                 {% for em in d.employments %}
-                                <div style="border: 1px solid black; margin-bottom: 5px;">
+                                <div style="border: 1px solid black; margin-bottom: 5px;" {% if em.includeInProfile %}class="included"{% endif %}>
                                     <strong>{{ em.organizationName }}</strong><br>
                                     {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
                                     {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
@@ -253,7 +253,7 @@
                             {% for d in datasources %}
                             <td>
                                 {% for ed in d.educations %}
-                                <div style="border: 1px solid black; margin-bottom: 5px;">
+                                <div style="border: 1px solid black; margin-bottom: 5px;" {% if ed.includeInProfile %}class="included"{% endif %}>
                                     <strong>{{ ed.organizationName }}</strong><br>
                                     {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
                                     {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
@@ -386,7 +386,7 @@
                             {% for d in datasources %}
                             <td>
                                 {% for rm in d.researchmaterials %}
-                                <div style="border: 1px solid black; margin-bottom: 5px;">
+                                <div style="border: 1px solid black; margin-bottom: 5px;" {% if em.includeInProfile %}class="included"{% endif %}>
                                     <strong>{{ rm.name }}</strong><br><br>
                                     {{ rm.description }}<br><br>
                                     {{ rm.publicationYear }} {{ rm.publisherName }}
@@ -490,7 +490,7 @@
                             {% for d in datasources %}
                             <td>
                                 {% for p in d.other_projects %}
-                                <div style="border: 1px solid black; margin-bottom: 5px;">
+                                <div style="border: 1px solid black; margin-bottom: 5px;" {% if em.includeInProfile %}class="included"{% endif %}>
                                     <strong>{{ p.projectName }}</strong><br>
                                     {% if p.role %}{{ p.role }}<br>{% endif %}
                                     {% if p.projectShortName %}{{ p.projectShortName }}<br>{% endif %}

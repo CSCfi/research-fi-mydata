@@ -222,15 +222,6 @@ class ResearchProfile(models.Model):
         )
         self.emails.add(email)
 
-        # Phone
-        phoneObj = PersonPhone.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = '+358 50 111 111 111<br>05-54325432'
-        )
-        self.phones.add(phoneObj)
-
     def add_org2_data(self):
         datasource = Datasource.objects.get(name="ORG2")
 
@@ -265,21 +256,12 @@ class ResearchProfile(models.Model):
         PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.github.com', name='GitHub')
         PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.research.fi', name='Research.fi')
 
-        # Email
-        email = PersonEmail.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = 'd.a@myemail.comm'
-        )
-        self.emails.add(email)
-
         # Phone
         phoneObj = PersonPhone.objects.create(
             researchprofile = self,
             datasource = datasource,
             includeInProfile = False,
-            value = '+358 50 222 2222<br>01-1231234'
+            value = '+358 50 222 2222'
         )
         self.phones.add(phoneObj)
    
@@ -498,6 +480,93 @@ class ResearchProfile(models.Model):
         self.research_materials.filter(datasource=datasource).delete()
         self.save()
 
+    def auto_include_in_profile(self):
+        handleLastNames = True
+        handleFirstNames = True
+        handleOtherNames = True
+        handleLinks = True
+        handleEmails = True
+        handlePhones = True
+        handleBiographies = True
+        handleEmployment = True
+        handleEducation = True
+        handleKeywords = True
+        handleMerits = True
+        handleOtherProjects = True
+        handleResearchMaterials = True
+
+        datasources = []
+        for item in self.user.orcid_permission.get_priority_list():
+            ds = Datasource.objects.get(name=item["name"])
+            datasources.append(ds)
+
+        for ds in datasources:
+            # last names
+            if handleLastNames and self.last_names.filter(datasource=ds).count() > 0:
+                self.last_names.filter(datasource=ds).update(includeInProfile=True)
+                handleLastNames = False
+
+            # first names
+            if handleFirstNames and self.first_names.filter(datasource=ds).count() > 0:
+                self.first_names.filter(datasource=ds).update(includeInProfile=True)
+                handleFirstNames = False
+
+            # other names
+            if handleOtherNames and self.other_names.filter(datasource=ds).count() > 0:
+                self.other_names.filter(datasource=ds).update(includeInProfile=True)
+                handleOtherNames = False
+
+            # links
+            if handleLinks and self.links.filter(datasource=ds).count() > 0:
+                self.links.filter(datasource=ds).update(includeInProfile=True)
+                handleLinks = False
+
+            # emails
+            if handleEmails and self.emails.filter(datasource=ds).count() > 0:
+                self.emails.filter(datasource=ds).update(includeInProfile=True)
+                handleEmails = False
+
+            # phones
+            if handlePhones and self.phones.filter(datasource=ds).count() > 0:
+                self.phones.filter(datasource=ds).update(includeInProfile=True)
+                handlePhones = False
+
+            # biographies
+            if handleBiographies and self.biographies.filter(datasource=ds).count() > 0:
+                self.biographies.filter(datasource=ds).update(includeInProfile=True)
+                handleBiographies = False
+
+            # employment
+            if handleEmployment and self.employment.filter(datasource=ds).count() > 0:
+                self.employment.filter(datasource=ds).update(includeInProfile=True)
+                handleEmployment = False
+
+            # education
+            if handleEducation and self.education.filter(datasource=ds).count() > 0:
+                self.education.filter(datasource=ds).update(includeInProfile=True)
+                handleEducation = False
+
+            # keywords
+            if handleKeywords and self.keywords.filter(datasource=ds).count() > 0:
+                self.keywords.filter(datasource=ds).update(includeInProfile=True)
+                handleKeywords = False
+
+            # merits
+            if handleMerits and self.merits.filter(datasource=ds).count() > 0:
+                self.merits.filter(datasource=ds).update(includeInProfile=True)
+                handleMerits = False
+
+            # other projects
+            if handleOtherProjects and self.other_projects.filter(datasource=ds).count() > 0:
+                self.other_projects.filter(datasource=ds).update(includeInProfile=True)
+                handleOtherProjects = False
+
+            # research materials
+            if handleResearchMaterials and self.research_materials.filter(datasource=ds).count() > 0:
+                self.research_materials.filter(datasource=ds).update(includeInProfile=True)
+                handleResearchMaterials = False
+
+
     def update_sources(self):
         self.delete_orcid_data()
         self.delete_org1_data()
@@ -509,6 +578,8 @@ class ResearchProfile(models.Model):
             self.add_org1_data()
         if self.user.orcid_permission.read_all_org2:
             self.add_org2_data()
+
+        self.auto_include_in_profile()
 
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:
