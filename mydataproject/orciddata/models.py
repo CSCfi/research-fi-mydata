@@ -10,9 +10,21 @@ class Permission(models.Model):
     read_all_orcid = models.BooleanField(default=False)
     read_all_org1 = models.BooleanField(default=False)
     read_all_org2 = models.BooleanField(default=False)
-    priority_orcid = models.PositiveSmallIntegerField(null=True)
-    priority_org1 = models.PositiveSmallIntegerField(null=True)
-    priority_org2 = models.PositiveSmallIntegerField(null=True)
+    priority_orcid = models.PositiveSmallIntegerField(null=True, default=1)
+    priority_org1 = models.PositiveSmallIntegerField(null=True, default=2)
+    priority_org2 = models.PositiveSmallIntegerField(null=True, default=3)
+
+    def get_priority_list(self):
+        enabled = []
+        priority_list = []
+        if self.read_all_orcid:
+            enabled.append({"name": "ORCID", "priority": self.priority_orcid})
+        if self.read_all_org1:
+            enabled.append({"name": "ORG1", "priority": self.priority_org1})
+        if self.read_all_org2:
+            enabled.append({"name": "ORG2", "priority": self.priority_org2})
+
+        return sorted(enabled, key = lambda i: i["priority"])
 
 def create_permission(sender, instance, created, **kwargs):
     if created:

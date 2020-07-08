@@ -42,34 +42,17 @@ def index(request):
                     # Orcid permission form is not valid
                     return render(request, 'create_profile.html', context)
         elif request.user.researchprofile.active:
-            datasource_ttv = Datasource.objects.get(name="TTV")
-            # priorities
-            if request.user.orcid_permission.priority_orcid == 1:
-                datasource_prio1 = Datasource.objects.get(name="ORCID")
-            if request.user.orcid_permission.priority_orcid == 2:
-                datasource_prio2 = Datasource.objects.get(name="ORCID")
-            if request.user.orcid_permission.priority_orcid == 3:
-                datasource_prio3 = Datasource.objects.get(name="ORCID")
-
-            if request.user.orcid_permission.priority_org1 == 1:
-                datasource_prio1 = request.user.researchprofile.datasource_org1
-            if request.user.orcid_permission.priority_org1 == 2:
-                datasource_prio2 = request.user.researchprofile.datasource_org1
-            if request.user.orcid_permission.priority_org1 == 3:
-                datasource_prio3 = request.user.researchprofile.datasource_org1
-
-            if request.user.orcid_permission.priority_org2 == 1:
-                datasource_prio1 = request.user.researchprofile.datasource_org2
-            if request.user.orcid_permission.priority_org2 == 2:
-                datasource_prio2 = request.user.researchprofile.datasource_org2
-            if request.user.orcid_permission.priority_org2 == 3:
-                datasource_prio3 = request.user.researchprofile.datasource_org2
-
             context["orcid_id"] = request.user.researchprofile.get_visible_orcid_id()
-    
-            context["datasources"] = []
+            datasource_ttv = Datasource.objects.get(name="TTV")
+            
+            # priorities
+            datasources = []
+            for item in request.user.orcid_permission.get_priority_list():
+                d = Datasource.objects.get(name=item["name"])
+                datasources.append(d)
 
-            for datasource in [datasource_prio1, datasource_prio2, datasource_prio3]:
+            context["datasources"] = []
+            for datasource in datasources:
 
                 context["datasources"].append({
                     "name": datasource.name,
@@ -156,10 +139,7 @@ def profile_settings(request):
                 if permission_form.is_valid():
                     # Orcid permission form is valid
                     permission_form.save()
-
-                    # Update Orcid data
-                    request.user.researchprofile.delete_orcid_data()
-                    request.user.researchprofile.get_orcid_data()
+                    request.user.researchprofile.update_sources()
 
                     return redirect('profile_settings')
             elif request.POST['settings_form_type'] == 'profile_read':

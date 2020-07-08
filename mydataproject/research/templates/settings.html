@@ -7,10 +7,10 @@
 
 <div class="accordion mb-5" id="settingsAccordion">
     <div class="card">
-        <!-- ORCID -->
+        <!-- Tietojen tuominen -->
         <div class="card-header d-flex" id="heading23d">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse23d" aria-expanded="false" aria-controls="collapse23d">
-                ORCID
+                Tietojen tuominen
             </button>
             <span class="align-self-center ml-auto">
             </span>
@@ -19,29 +19,90 @@
             <div class="card-body">
                 <div class="px-3 pb-md-3 mx-auto text-center">
                     <p class="lead pt-3">
-                        Anna lupa kaikkien ORCID-tietojen tuomiseksi.<br>
-                        Mikäli valinta poistetaan, profiilin kaikki ORCID:sta tuodut tiedot poistetaan ORCID ID:tä lukuunottamatta.
+                        Anna lupa tietojen tuomiseksi organisaatioista.<br>
+                        Mikäli valinta poistetaan, profiilin kaikki organisaatiosta tuodut tiedot poistetaan ORCID ID:tä lukuunottamatta.
                     </p>
                 </div>
 
                 <hr>
 
-                <div class="row justify-content-center mb-5 pt-3">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="settings_form_type" value="orcid_permission">
-                        <div class="form-check">
-                            <input  type="checkbox"
-                                    {% if permission_form.read_all.value %}checked{% endif %}
-                                    class="form-check-input"
-                                    id="{{ permission_form.read_all.id_for_label }}"
-                                    name="{{ permission_form.read_all.name }}">
-                            <label class="form-check-label" for="{{ permission_form.read_all.id_for_label }}">{{ permission_form.read_all.label }}</label>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="settings_form_type" value="orcid_permission">
+                    <div class="row">
+                        <div class="col">
+                            {{ permission_form.read_all_orcid.label }}
                         </div>
-                        <br>
-                        <button id="orcidFormBtn" type="submit" class="btn btn-primary btn-block" onclick="busyIndicatorShow();">Päivitä muutokset</button>
-                    </form>
-                </div>
+                        <div class="col col-sm-1">
+                            <input type="checkbox" onclick="permissionToggle('orcid')" class="form-check-input" id="{{ permission_form.read_all_orcid.id_for_label }}" name="{{ permission_form.read_all_orcid.name }}" {% if permission_form.read_all_orcid.value %}checked{% endif %}>
+                        </div>
+                        <div class="col col-sm-2">
+                            <input type="number"
+                            {% if not permission_form.read_all_orcid.value %}style="visibility:hidden"{% endif %}
+                            class="form-control" id="{{ permission_form.priority_orcid.id_for_label }}" name="{{ permission_form.priority_orcid.name }}" value="{{ permission_form.priority_orcid.value }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            {{ permission_form.read_all_org1.label }}
+                        </div>
+                        <div class="col col-sm-1">
+                            <input type="checkbox" onclick="permissionToggle('org1')" class="form-check-input" id="{{ permission_form.read_all_org1.id_for_label }}" name="{{ permission_form.read_all_org1.name }}" {% if permission_form.read_all_org1.value %}checked{% endif %}>
+                        </div>
+                        <div class="col col-sm-2">
+                            <input type="number"
+                            {% if not permission_form.read_all_org1.value %}style="visibility:hidden"{% endif %}
+                            class="form-control" id="{{ permission_form.priority_org1.id_for_label }}" name="{{ permission_form.priority_org1.name }}" value="{{ permission_form.priority_org1.value }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            {{ permission_form.read_all_org2.label }}
+                        </div>
+                        <div class="col col-sm-1">
+                            <input type="checkbox" onclick="permissionToggle('org2')" class="form-check-input" id="{{ permission_form.read_all_org2.id_for_label }}" name="{{ permission_form.read_all_org2.name }}" {% if permission_form.read_all_org2.value %}checked{% endif %}>
+                        </div>
+                        <div class="col col-sm-2">
+                            <input type="number"
+                            {% if not permission_form.read_all_org2.value %}style="visibility:hidden"{% endif %}
+                            class="form-control" id="{{ permission_form.priority_org2.id_for_label }}" name="{{ permission_form.priority_org2.name }}" value="{{ permission_form.priority_org2.value }}">
+                        </div>
+                    </div>
+                    <button id="createProfileBtn" type="submit" class="btn btn-primary" onclick="busyIndicatorShow();">Päivitä muutokset</button>
+                </form>
+                <script type="text/javascript">
+                    var toggleOrcid = $("#{{ permission_form.read_all_orcid.id_for_label }}");
+                    var toggleOrg1 = $("#{{ permission_form.read_all_org1.id_for_label }}");
+                    var toggleOrg2 = $("#{{ permission_form.read_all_org2.id_for_label }}");
+                    var prioOrcid = $("#{{ permission_form.priority_orcid.id_for_label }}");
+                    var prioOrg1 = $("#{{ permission_form.priority_org1.id_for_label }}");
+                    var prioOrg2 = $("#{{ permission_form.priority_org2.id_for_label }}");
+                    function permissionToggle(source) {
+                        if (source === 'orcid') {
+                            if (toggleOrcid.prop('checked')) {
+                                prioOrcid.css("visibility","visible");
+                            } else {
+                                prioOrcid.css("visibility","hidden");
+                            }
+                        }
+                        if (source === 'org1') {
+                            if (toggleOrg1.prop('checked')) {
+                                prioOrg1.css("visibility","visible");
+                            } else {
+                                prioOrg1.css("visibility","hidden");
+                            }
+                        }
+                        if (source === 'org2') {
+                            if (toggleOrg2.prop('checked')) {
+                                prioOrg2.css("visibility","visible");
+                            } else {
+                                prioOrg2.css("visibility","hidden");
+                            }
+                        }
+                    }
+                </script>
             </div>
         </div>
     </div>

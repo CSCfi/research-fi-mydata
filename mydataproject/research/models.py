@@ -25,11 +25,6 @@ class ResearchProfile(models.Model):
     active = models.BooleanField(default=False)
     test_orcid_id = models.CharField(max_length=20, blank=True)
     include_orcid_id_in_profile = models.BooleanField(default=False)
-    datasource_org1 = models.ForeignKey(Datasource, null=True, on_delete=models.SET_NULL, related_name='+')
-    datasource_org2 = models.ForeignKey(Datasource, null=True, on_delete=models.SET_NULL, related_name='+')
-    priority_orcid = models.PositiveSmallIntegerField(null=True)
-    priority_org1 = models.PositiveSmallIntegerField(null=True)
-    priority_org2 = models.PositiveSmallIntegerField(null=True)
     areas_of_interest = models.ManyToManyField(AreaOfInterest)
     is_aalto = models.BooleanField(default=False)
 
@@ -147,14 +142,6 @@ class ResearchProfile(models.Model):
 
     def add_organization_data(self):
         orcid_id = self.get_orcid_id()
-        datasource_org1 = None
-        datasource_org2 = None
-
-        # Set datasources according to permission
-        if self.user.orcid_permission.read_all_org1:
-            self.datasource_org1 = Datasource.objects.get(name="ORG1")
-        if self.user.orcid_permission.read_all_org2:
-            self.datasource_org2 = Datasource.objects.get(name="ORG2")
 
         # Search Aalto data by ORCID ID
         print("------")
@@ -172,9 +159,9 @@ class ResearchProfile(models.Model):
 
     def add_dummy_organization_data(self):
         if not self.is_aalto:
-            if self.datasource_org1 is not None:
+            if self.user.orcid_permission.read_all_org1:
                 self.add_org1_data()
-        if self.datasource_org2 is not None:
+        if self.user.orcid_permission.read_all_org2:
             self.add_org2_data()
 
 
@@ -296,17 +283,27 @@ class ResearchProfile(models.Model):
         )
         self.phones.add(phoneObj)
    
-    def delete_dummy_organization_data(self):
-        datasource_org1 = Datasource.objects.get(name="ORG1")
-        datasource_org2 = Datasource.objects.get(name="ORG2")
+    def delete_org1_data(self):
+        ds = Datasource.objects.get(name="ORG1")
+        self.last_names.filter(datasource=ds).delete()
+        self.first_names.filter(datasource=ds).delete()
+        self.other_names.filter(datasource=ds).delete()
+        self.links.filter(datasource=ds).delete()
+        self.emails.filter(datasource=ds).delete()
+        self.phones.filter(datasource=ds).delete()
 
-        for ds in [datasource_org1, datasource_org2]:
-            self.last_names.filter(datasource=ds).delete()
-            self.first_names.filter(datasource=ds).delete()
-            self.other_names.filter(datasource=ds).delete()
-            self.links.filter(datasource=ds).delete()
-            self.emails.filter(datasource=ds).delete()
-            self.phones.filter(datasource=ds).delete()
+    def delete_org2_data(self):
+        ds = Datasource.objects.get(name="ORG2")
+        self.last_names.filter(datasource=ds).delete()
+        self.first_names.filter(datasource=ds).delete()
+        self.other_names.filter(datasource=ds).delete()
+        self.links.filter(datasource=ds).delete()
+        self.emails.filter(datasource=ds).delete()
+        self.phones.filter(datasource=ds).delete()
+
+    def delete_dummy_organization_data(self):
+        self.delete_org1_data()
+        self.delete_org2_data()
 
     def add_aalto_data(self, aalto_person):
         self.is_aalto = True
@@ -500,6 +497,18 @@ class ResearchProfile(models.Model):
         self.other_projects.filter(datasource=datasource).delete()
         self.research_materials.filter(datasource=datasource).delete()
         self.save()
+
+    def update_sources(self):
+        self.delete_orcid_data()
+        self.delete_org1_data()
+        self.delete_org2_data()
+
+        if self.user.orcid_permission.read_all_orcid:
+            self.get_orcid_data()
+        if self.user.orcid_permission.read_all_org1:
+            self.add_org1_data()
+        if self.user.orcid_permission.read_all_org2:
+            self.add_org2_data()
 
 def create_researchprofile(sender, instance, created, **kwargs):
     if created:
