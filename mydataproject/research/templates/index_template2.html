@@ -213,7 +213,7 @@
                             {% for d in datasources %}
                             <td>
                                 {% for em in d.employments %}
-                                <div style="border: 1px solid black; margin-bottom: 5px;" {% if em.includeInProfile %}class="included"{% endif %}>
+                                <div style="border: 1px solid black; margin-bottom: 5px; padding: 5px;" {% if em.includeInProfile %}class="included"{% endif %}>
                                     <strong>{{ em.organizationName }}</strong><br>
                                     {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
                                     {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
@@ -253,7 +253,7 @@
                             {% for d in datasources %}
                             <td>
                                 {% for ed in d.educations %}
-                                <div style="border: 1px solid black; margin-bottom: 5px;" {% if ed.includeInProfile %}class="included"{% endif %}>
+                                <div style="border: 1px solid black; margin-bottom: 5px; padding: 5px;" {% if ed.includeInProfile %}class="included"{% endif %}>
                                     <strong>{{ ed.organizationName }}</strong><br>
                                     {% if ed.departmentName %}<span>{{ ed.departmentName }}</span><br>{% endif %}
                                     {% if ed.roleTitle %}<span>{{ ed.roleTitle }}</span><br>{% endif %}
@@ -386,7 +386,7 @@
                             {% for d in datasources %}
                             <td>
                                 {% for rm in d.researchmaterials %}
-                                <div style="border: 1px solid black; margin-bottom: 5px;" {% if em.includeInProfile %}class="included"{% endif %}>
+                                <div style="border: 1px solid black; margin-bottom: 5px; padding: 5px;" {% if em.includeInProfile %}class="included"{% endif %}>
                                     <strong>{{ rm.name }}</strong><br><br>
                                     {{ rm.description }}<br><br>
                                     {{ rm.publicationYear }} {{ rm.publisherName }}
@@ -490,7 +490,7 @@
                             {% for d in datasources %}
                             <td>
                                 {% for p in d.other_projects %}
-                                <div style="border: 1px solid black; margin-bottom: 5px;" {% if em.includeInProfile %}class="included"{% endif %}>
+                                <div style="border: 1px solid black; margin-bottom: 5px; padding: 5px;" {% if p.includeInProfile %}class="included"{% endif %}>
                                     <strong>{{ p.projectName }}</strong><br>
                                     {% if p.role %}{{ p.role }}<br>{% endif %}
                                     {% if p.projectShortName %}{{ p.projectShortName }}<br>{% endif %}
@@ -558,10 +558,10 @@
                     </thead>
                     <tbody>
                         <tr>
-                            {% for m in d.merits %}
+                            {% for d in datasources %}
                             <td>
-                                {% for em in d.employments %}
-                                <div style="border: 1px solid black; margin-bottom: 5px;">
+                                {% for m in d.merits %}
+                                <div style="border: 1px solid black; margin-bottom: 5px; padding: 5px;" {% if m.includeInProfile %}class="included"{% endif %}>
                                     <strong>{{ m.meritType }}</strong><br>
                                     {% if m.role %}{{ m.role }}<br>{% endif %}
                                     {% if m.meritName %}{{ m.meritName }}<br>{% endif %}

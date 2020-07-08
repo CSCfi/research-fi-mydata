@@ -24,7 +24,7 @@ class ResearchProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='researchprofile')
     active = models.BooleanField(default=False)
     test_orcid_id = models.CharField(max_length=20, blank=True)
-    include_orcid_id_in_profile = models.BooleanField(default=False)
+    include_orcid_id_in_profile = models.BooleanField(default=True)
     areas_of_interest = models.ManyToManyField(AreaOfInterest)
     is_aalto = models.BooleanField(default=False)
 
@@ -141,129 +141,128 @@ class ResearchProfile(models.Model):
         return True
 
     def add_organization_data(self):
-        orcid_id = self.get_orcid_id()
-
-        # Search Aalto data by ORCID ID
-        print("------")
-        print("Search aalto data for ORCID " + orcid_id)
-        try:
-            aalto_person = Person.objects.get(orcid=orcid_id)
-        except Person.DoesNotExist:
-            aalto_person = None
-
-        if aalto_person is not None:
-            self.add_aalto_data(aalto_person)
-
-        self.save()
-        self.add_dummy_organization_data()
-
-    def add_dummy_organization_data(self):
-        if not self.is_aalto:
-            if self.user.orcid_permission.read_all_org1:
-                self.add_org1_data()
-        if self.user.orcid_permission.read_all_org2:
-            self.add_org2_data()
-
+        self.add_org1_data()
+        self.add_org2_data()
 
     def get_all_data(self):
         self.get_orcid_data()
         self.get_virta_publications()
         self.add_organization_data()
+        self.auto_include_in_profile()
 
     def add_org1_data(self):
-        datasource = Datasource.objects.get(name="ORG1")
+        if self.user.orcid_permission.read_all_org1:
+            datasource = Datasource.objects.get(name="ORG1")
 
-        # Dummy last name
-        lastName = PersonLastName.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = 'Virtanen'
-        )
-        self.last_names.add(lastName)
+            orcid_id = self.get_orcid_id()
 
-        # Dummy first name
-        firstName = PersonFirstName.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = 'A'
-        )
-        self.first_names.add(firstName)
+            # Search Aalto data by ORCID ID
+            print("------")
+            print("Search aalto data for ORCID " + orcid_id)
+            try:
+                aalto_person = Person.objects.get(orcid=orcid_id)
+            except Person.DoesNotExist:
+                aalto_person = None
 
-        # Dummy other names
-        otherName = PersonOtherName.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = 'A. Virtanen'
-        )
-        self.other_names.add(otherName)
+            if aalto_person is not None:
+                self.add_aalto_data(aalto_person)
+            else:
+                # Dummy last name
+                lastName = PersonLastName.objects.create(
+                    researchprofile = self,
+                    datasource = datasource,
+                    includeInProfile = False,
+                    value = 'Virtanen'
+                )
+                self.last_names.add(lastName)
 
-        otherName2 = PersonOtherName.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = 'B. Virtanen'
-        )
-        self.other_names.add(otherName2)
+                # Dummy first name
+                firstName = PersonFirstName.objects.create(
+                    researchprofile = self,
+                    datasource = datasource,
+                    includeInProfile = False,
+                    value = 'A'
+                )
+                self.first_names.add(firstName)
 
-        # Links
-        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.google.com', name='Google')
-        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.facebook.com', name='Facebook')
-        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.linkedin.com', name='LinkedIn')
+                # Dummy other names
+                otherName = PersonOtherName.objects.create(
+                    researchprofile = self,
+                    datasource = datasource,
+                    includeInProfile = False,
+                    value = 'A. Virtanen'
+                )
+                self.other_names.add(otherName)
 
-        # Email
-        email = PersonEmail.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = 'abcd@example.comm'
-        )
-        self.emails.add(email)
+                otherName2 = PersonOtherName.objects.create(
+                    researchprofile = self,
+                    datasource = datasource,
+                    includeInProfile = False,
+                    value = 'B. Virtanen'
+                )
+                self.other_names.add(otherName2)
+
+                # Links
+                PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.google.com', name='Google')
+                PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.facebook.com', name='Facebook')
+                PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.linkedin.com', name='LinkedIn')
+
+                # Email
+                email = PersonEmail.objects.create(
+                    researchprofile = self,
+                    datasource = datasource,
+                    includeInProfile = False,
+                    value = 'abcd@example.comm'
+                )
+                self.emails.add(email)
+            
+            self.save()
 
     def add_org2_data(self):
-        datasource = Datasource.objects.get(name="ORG2")
+        if self.user.orcid_permission.read_all_org2:
+            datasource = Datasource.objects.get(name="ORG2")
 
-        # Dummy last name
-        lastName = PersonLastName.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = 'Anderson'
-        )
-        self.last_names.add(lastName)
+            # Dummy last name
+            lastName = PersonLastName.objects.create(
+                researchprofile = self,
+                datasource = datasource,
+                includeInProfile = False,
+                value = 'Anderson'
+            )
+            self.last_names.add(lastName)
 
-        # Dummy first name
-        firstName = PersonFirstName.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = 'D'
-        )
-        self.first_names.add(firstName)
+            # Dummy first name
+            firstName = PersonFirstName.objects.create(
+                researchprofile = self,
+                datasource = datasource,
+                includeInProfile = False,
+                value = 'D'
+            )
+            self.first_names.add(firstName)
 
-        # Dummy other names
-        otherName = PersonOtherName.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = 'D.A.'
-        )
-        self.other_names.add(otherName)
+            # Dummy other names
+            otherName = PersonOtherName.objects.create(
+                researchprofile = self,
+                datasource = datasource,
+                includeInProfile = False,
+                value = 'D.A.'
+            )
+            self.other_names.add(otherName)
 
-        # Links
-        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.github.com', name='GitHub')
-        PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.research.fi', name='Research.fi')
+            # Links
+            PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.github.com', name='GitHub')
+            PersonLink.objects.create(researchprofile=self, datasource=datasource, includeInProfile=False, url='https://www.research.fi', name='Research.fi')
 
-        # Phone
-        phoneObj = PersonPhone.objects.create(
-            researchprofile = self,
-            datasource = datasource,
-            includeInProfile = False,
-            value = '+358 50 222 2222'
-        )
-        self.phones.add(phoneObj)
+            # Phone
+            phoneObj = PersonPhone.objects.create(
+                researchprofile = self,
+                datasource = datasource,
+                includeInProfile = False,
+                value = '+358 50 222 2222'
+            )
+            self.phones.add(phoneObj)
+
+            self.save()
    
     def delete_org1_data(self):
         ds = Datasource.objects.get(name="ORG1")
@@ -565,6 +564,8 @@ class ResearchProfile(models.Model):
             if handleResearchMaterials and self.research_materials.filter(datasource=ds).count() > 0:
                 self.research_materials.filter(datasource=ds).update(includeInProfile=True)
                 handleResearchMaterials = False
+
+        self.save()
 
 
     def update_sources(self):
