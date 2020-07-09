@@ -73,7 +73,7 @@ objects:
       spec:
         containers:
           - name: orcidtest2-container
-            image: researchfi/orcidtest2-image
+            image: ts/orcidtest2-image
             imagePullPolicy: Always
             ports:
               - containerPort: 8001
