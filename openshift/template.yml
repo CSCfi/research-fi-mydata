@@ -1,56 +1,56 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: orcidtest
+  name: orcidtest2
   labels:
-    app: orcidtest-app
-    template: orcidtest
+    app: orcidtest2-app
+    template: orcidtest2
 objects:
 
 # Service
 - apiVersion: v1
   kind: Service
   metadata:
-    name: orcidtest
+    name: orcidtest2
     labels:
-      app: orcidtest-app
+      app: orcidtest2-app
     annotations:
       description: For testing ORCID API integration
   spec:
     ports:
-      - name: orcidtest
+      - name: orcidtest2
         port: 8080
         targetPort: 8080
     selector:
-      depcfg: orcidtest
+      depcfg: orcidtest2
 
 # ImageStream for devel
 - apiVersion: v1
   kind: ImageStream
   metadata:
-    name: orcidtest-image
+    name: orcidtest2-image
     labels:
-      app: orcidtest-app
+      app: orcidtest2-app
 
 # BuildConfig using Docker strategy
 - apiVersion: v1
   kind: BuildConfig
   metadata:
-    name: orcidtest-build
+    name: orcidtest2-build
     labels:
-      app: orcidtest-app
+      app: orcidtest2-app
   spec:
     source:
       git:
         uri: https://github.com/CSCfi/research-fi-mydata
-        ref: demo
+        ref: demo_organization_selection
     strategy:
       dockerStrategy:
         dockerfile: Dockerfile
     output:
       to:
         kind: ImageStreamTag
-        name: orcidtest-image:latest
+        name: orcidtest2-image:latest
     successfulBuildsHistoryLimit: 4 
     failedBuildsHistoryLimit: 4
 
@@ -58,22 +58,22 @@ objects:
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    name: orcidtest-deployment
+    name: orcidtest2-deployment
     labels:
-     app: orcidtest-app
+     app: orcidtest2-app
   spec:
     selector:
-      app: orcidtest-app
-      depcfg: orcidtest
+      app: orcidtest2-app
+      depcfg: orcidtest2
     template:
       metadata:
         labels:
-          app: orcidtest-app
-          depcfg: orcidtest
+          app: orcidtest2-app
+          depcfg: orcidtest2
       spec:
         containers:
-          - name: orcidtest-container
-            image: researchfi/orcidtest-image
+          - name: orcidtest2-container
+            image: researchfi/orcidtest2-image
             imagePullPolicy: Always
             ports:
               - containerPort: 8001
@@ -82,47 +82,47 @@ objects:
               - name: DJANGO_ENV_INSTALLATION_SECRET_KEY
                 valueFrom:
                   secretKeyRef:
-                    name: orcidtest-secret
+                    name: orcidtest2-secret
                     key: django_env_installation_secret_key
               - name: DJANGO_ENV_ORCID_API_CLIENT_ID
                 valueFrom:
                   secretKeyRef:
-                    name: orcidtest-secret
+                    name: orcidtest2-secret
                     key: django_env_orcid_api_client_id
               - name: DJANGO_ENV_ORCID_API_CLIENT_SECRET
                 valueFrom:
                   secretKeyRef:
-                    name: orcidtest-secret
+                    name: orcidtest2-secret
                     key: django_env_orcid_api_client_secret
               - name: DJANGO_ENV_DATABASE_HOST
                 valueFrom:
                   secretKeyRef:
-                    name: orcidtest-secret
+                    name: orcidtest2-secret
                     key: django_env_database_host
               - name: DJANGO_ENV_DATABASE_PORT
                 valueFrom:
                   secretKeyRef:
-                    name: orcidtest-secret
+                    name: orcidtest2-secret
                     key: django_env_database_port
               - name: DJANGO_ENV_DATABASE_NAME
                 valueFrom:
                   secretKeyRef:
-                    name: orcidtest-secret
+                    name: orcidtest2-secret
                     key: django_env_database_name
               - name: DJANGO_ENV_DATABASE_USER
                 valueFrom:
                   secretKeyRef:
-                    name: orcidtest-secret
+                    name: orcidtest2-secret
                     key: django_env_database_user
               - name: DJANGO_ENV_DATABASE_PASSWORD
                 valueFrom:
                   secretKeyRef:
-                    name: orcidtest-secret
+                    name: orcidtest2-secret
                     key: django_env_database_password
               - name: DJANGO_ENV_TTV_API_HOST
                 valueFrom:
                   secretKeyRef:
-                    name: orcidtest-secret
+                    name: orcidtest2-secret
                     key: django_env_ttv_api_host
     replicas: 1
     triggers:
@@ -131,9 +131,9 @@ objects:
       imageChangeParams:
         automatic: true
         containerNames:
-        - orcidtest-container
+        - orcidtest2-container
         from:
           kind: ImageStreamTag
-          name: orcidtest-image:latest
+          name: orcidtest2-image:latest
     strategy:
       type: Rolling

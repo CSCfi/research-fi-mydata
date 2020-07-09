@@ -45,9 +45,9 @@ class PermissionForm(ModelForm):
         ]
         labels = {
             'read_all_orcid': _('Tuo kaikki ORCID-tiedot'),
-            'read_all_org1': _('Tuo kaikki tiedot organisaatiosta 1'),
-            'read_all_org2': _('Tuo kaikki tiedot organisaatiosta 2'),
+            'read_all_org1': _('Tuo kaikki tiedot kotiorganisaatiosta 1'),
+            'read_all_org2': _('Tuo kaikki tiedot kotiorganisaatiosta 2'),
             'priority_orcid': _('Prioriteetti ORCID'),
-            'priority_org1': _('Prioriteetti organisaatio 1'),
-            'priority_org2': _('Prioriteetti organisaatio 2'),
+            'priority_org1': _('Prioriteetti kotiorganisaatio 1'),
+            'priority_org2': _('Prioriteetti kotiorganisaatio 2'),
         }
