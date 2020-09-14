@@ -114,7 +114,7 @@ def profile_preview(request):
     context["phones"] = request.user.researchprofile.phones.filter(includeInProfile=True)
     context["biographies"] = request.user.researchprofile.biographies.filter(includeInProfile=True)
     context["keywords"] = request.user.researchprofile.keywords.filter(includeInProfile=True)
-    context["employments"] = request.user.researchprofile.employment.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+    context["employments"] = request.user.researchprofile.employment.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-primary', '-start_year_null')
     context["educations"] = request.user.researchprofile.education.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["publications"] = request.user.researchprofile.publications.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null', 'name')
     context["merits"] = request.user.researchprofile.merits.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
