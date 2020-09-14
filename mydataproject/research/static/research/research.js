@@ -343,6 +343,30 @@ function toggleData(containerElementId, datasource, type, htmlElementId, dataId)
     });
 };
 
+function togglePrimary(containerElementId, datasource, type, htmlElementId, dataId) {
+    busyIndicatorShow();
+    $containerElement = $('#' + containerElementId);
+    $.ajax({
+        type: 'POST',
+        url: url_toggle_primary,
+        data: {
+            csrfmiddlewaretoken: csrf_token,
+            datasource: datasource,
+            datatype: type,
+            dataId: dataId
+        },
+        success: function(response) {
+            $containerElement.find('.toggle-primary').removeClass('primary');
+            if (response.primary) {
+                $containerElement.find('#' + htmlElementId).addClass('primary');
+            }
+        },
+        dataType: 'json'
+    }).done(function() {
+        busyIndicatorHide();
+    });
+};
+
 function toggleAreaOfInterest(dataId, checked) {
     busyIndicatorShow();
     $.ajax({

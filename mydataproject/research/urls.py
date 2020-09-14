@@ -15,6 +15,7 @@ urlpatterns = [
     path('publication_delete', views.publication_delete, name='publication_delete'),
     path('toggle_data_section_all', views.toggle_data_section_all, name='toggle_data_section_all'),
     path('toggle_data', views.toggle_data, name='toggle_data'),
+    path('toggle_primary', views.toggle_primary, name='toggle_primary'),
     path('toggle_area_of_interest', views.toggle_area_of_interest, name='toggle_area_of_interest'),
     path('', views.index, name='index'),
 ]

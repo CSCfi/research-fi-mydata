@@ -477,6 +477,31 @@ def toggle_data(request):
     return JsonResponse(response)
 
 @login_required
+def toggle_primary(request):
+    response = {}
+
+    p_datasource = request.POST.get('datasource', None)
+    p_datatype = request.POST.get('datatype', None)
+    p_dataId = request.POST.get('dataId', None)
+
+    if p_datasource == 'orcid':
+        datasource = Datasource.objects.get(name="ORCID")
+    elif p_datasource == 'homeorg':
+        datasource = request.user.researchprofile.homeorg_datasource
+    else:
+        return JsonResponse(response)
+
+    # Employment
+    if p_datatype == 'employment':
+        employment = request.user.researchprofile.employment.get(datasource=datasource, pk=p_dataId)
+        employment.primary = not employment.primary
+        employment.save()
+        request.user.researchprofile.employment.exclude(datasource=datasource, pk=p_dataId).update(primary=False)
+        response["primary"] = employment.primary
+
+    return JsonResponse(response)
+
+@login_required
 def toggle_area_of_interest(request):
     response = {}
     p_dataId = request.POST.get('dataId', None)

@@ -277,27 +277,41 @@
                     <tbody>
                         <tr>
                             <td class="td_orcid employment">
-                                {% for em in orcid_employments %}
-                                <button id="employment_{{ em.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionAffiliation', 'orcid', 'employment', this.id, {{em.pk}});">
-                                    <strong>{{ em.organizationName }}</strong><br>
-                                    {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
-                                    {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
-                                    <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
-                                </button>
+                                {% for em in orcid_employments %}   
+                                <div class="btn-group" role="group">
+                                    <button id="employment_{{ em.pk }}" 
+                                                class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %} text-left"
+                                                onclick="toggleData('sectionAffiliation', 'orcid', 'employment', this.id, {{em.pk}});">
+                                        <strong>{{ em.organizationName }}</strong><br>
+                                        {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
+                                        {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
+                                        <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
+                                    </button>
+
+                                    <button id="employment_primary_{{ em.pk }}"
+                                                class="btn btn-outline-secondary toggle-primary {% if em.primary %}primary{% endif %}"
+                                                onclick="togglePrimary('sectionAffiliation', 'orcid', 'employment', this.id, {{em.pk}});">
+                                    </button>
+                                </div>
                                 {% endfor %}
                             </td>
                             <td class="td_homeorg employment">
                                 {% for em in homeorg_employments %}
-                                <button id="employment_{{ em.pk }}" 
-                                            class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %} text-left"
-                                            onclick="toggleData('sectionAffiliation', 'homeorg', 'employment', this.id, {{em.pk}});">
-                                    <strong>{{ em.organizationName }}</strong><br>
-                                    {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
-                                    {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
-                                    <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
-                                </button>
+                                <div class="btn-group" role="group">
+                                    <button id="employment_{{ em.pk }}" 
+                                                class="togglable btn btn-block btn-sm btn-outline-secondary {% if em.includeInProfile %}included{% endif %} text-left"
+                                                onclick="toggleData('sectionAffiliation', 'homeorg', 'employment', this.id, {{em.pk}});">
+                                        <strong>{{ em.organizationName }}</strong><br>
+                                        {% if em.departmentName %}<span>{{ em.departmentName }}</span><br>{% endif %}
+                                        {% if em.roleTitle %}<span>{{ em.roleTitle }}</span><br>{% endif %}
+                                        <span>{{ em.get_start_date_string }} - {{ em.get_end_date_string }}</span>
+                                    </button>
+
+                                    <button id="employment_primary_{{ em.pk }}"
+                                                class="btn btn-outline-secondary toggle-primary {% if em.primary %}primary{% endif %}"
+                                                onclick="togglePrimary('sectionAffiliation', 'orcid', 'employment', this.id, {{em.pk}});">
+                                    </button>
+                                </div>
                                 {% endfor %}
                             </td>
                         </tr>

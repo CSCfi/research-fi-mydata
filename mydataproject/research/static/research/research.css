@@ -82,6 +82,10 @@ button.btn-excluded:hover {
     opacity: 0.8;
 }
 
+button.primary {
+    background-color: yellow;
+}
+
 td.togglable {
     cursor: pointer;
 }
