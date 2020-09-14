@@ -443,6 +443,9 @@ def toggle_data(request):
     elif p_datatype == 'employment':
         employment = request.user.researchprofile.employment.get(datasource=datasource, pk=p_dataId)
         employment.includeInProfile = not employment.includeInProfile
+        if employment.primary and not employment.includeInProfile:
+            employment.primary = False
+            response["primaryRemoved"] = True
         employment.save()
         response["included"] = employment.includeInProfile
 

@@ -336,12 +336,19 @@ function toggleData(containerElementId, datasource, type, htmlElementId, dataId)
             if (response.included) {
                 $containerElement.find('#' + htmlElementId).addClass('included');
             }
+            if (response.primaryRemoved) {
+                removePrimaryClasses($containerElement);
+            }
         },
         dataType: 'json'
     }).done(function() {
         busyIndicatorHide();
     });
 };
+
+function removePrimaryClasses($containerElement) {
+    $containerElement.find('.toggle-primary').removeClass('primary');
+}
 
 function togglePrimary(containerElementId, datasource, type, htmlElementId, dataId) {
     busyIndicatorShow();
@@ -356,7 +363,7 @@ function togglePrimary(containerElementId, datasource, type, htmlElementId, data
             dataId: dataId
         },
         success: function(response) {
-            $containerElement.find('.toggle-primary').removeClass('primary');
+            removePrimaryClasses($containerElement);
             if (response.primary) {
                 $containerElement.find('#' + htmlElementId).addClass('primary');
             }
