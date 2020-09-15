@@ -82,8 +82,12 @@ button.btn-excluded:hover {
     opacity: 0.8;
 }
 
-button.primary {
-    background-color: yellow;
+button.toggle-primary > i.fas {
+    visibility: hidden;
+}
+
+button.toggle-primary.primary > i.fas {
+    visibility: visible;
 }
 
 td.togglable {

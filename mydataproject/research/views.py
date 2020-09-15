@@ -496,10 +496,10 @@ def toggle_primary(request):
 
     # Employment
     if p_datatype == 'employment':
-        employment = request.user.researchprofile.employment.get(datasource=datasource, pk=p_dataId)
+        employment = request.user.researchprofile.employment.get(pk=p_dataId)
         employment.primary = not employment.primary
         employment.save()
-        request.user.researchprofile.employment.exclude(datasource=datasource, pk=p_dataId).update(primary=False)
+        request.user.researchprofile.employment.exclude(pk=p_dataId).update(primary=False)
         response["primary"] = employment.primary
 
     return JsonResponse(response)
