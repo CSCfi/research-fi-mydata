@@ -336,6 +336,37 @@ function toggleData(containerElementId, datasource, type, htmlElementId, dataId)
             if (response.included) {
                 $containerElement.find('#' + htmlElementId).addClass('included');
             }
+            if (response.primaryRemoved) {
+                removePrimaryClasses($containerElement);
+            }
+        },
+        dataType: 'json'
+    }).done(function() {
+        busyIndicatorHide();
+    });
+};
+
+function removePrimaryClasses($containerElement) {
+    $containerElement.find('.toggle-primary').removeClass('primary');
+}
+
+function togglePrimary(containerElementId, datasource, type, htmlElementId, dataId) {
+    busyIndicatorShow();
+    $containerElement = $('#' + containerElementId);
+    $.ajax({
+        type: 'POST',
+        url: url_toggle_primary,
+        data: {
+            csrfmiddlewaretoken: csrf_token,
+            datasource: datasource,
+            datatype: type,
+            dataId: dataId
+        },
+        success: function(response) {
+            removePrimaryClasses($containerElement);
+            if (response.primary) {
+                $containerElement.find('#' + htmlElementId).addClass('primary');
+            }
         },
         dataType: 'json'
     }).done(function() {

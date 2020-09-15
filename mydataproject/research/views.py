@@ -114,7 +114,7 @@ def profile_preview(request):
     context["phones"] = request.user.researchprofile.phones.filter(includeInProfile=True)
     context["biographies"] = request.user.researchprofile.biographies.filter(includeInProfile=True)
     context["keywords"] = request.user.researchprofile.keywords.filter(includeInProfile=True)
-    context["employments"] = request.user.researchprofile.employment.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
+    context["employments"] = request.user.researchprofile.employment.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-primary', '-start_year_null')
     context["educations"] = request.user.researchprofile.education.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
     context["publications"] = request.user.researchprofile.publications.filter(includeInProfile=True).annotate(publication_year_null=Coalesce('publicationYear', Value(-1))).order_by('-publication_year_null', 'name')
     context["merits"] = request.user.researchprofile.merits.filter(includeInProfile=True).annotate(start_year_null=Coalesce('startYear', Value(-1))).order_by('-start_year_null')
@@ -443,6 +443,9 @@ def toggle_data(request):
     elif p_datatype == 'employment':
         employment = request.user.researchprofile.employment.get(datasource=datasource, pk=p_dataId)
         employment.includeInProfile = not employment.includeInProfile
+        if employment.primary and not employment.includeInProfile:
+            employment.primary = False
+            response["primaryRemoved"] = True
         employment.save()
         response["included"] = employment.includeInProfile
 
@@ -473,6 +476,31 @@ def toggle_data(request):
         researchmaterial.includeInProfile = not researchmaterial.includeInProfile
         researchmaterial.save()
         response["included"] = researchmaterial.includeInProfile
+
+    return JsonResponse(response)
+
+@login_required
+def toggle_primary(request):
+    response = {}
+
+    p_datasource = request.POST.get('datasource', None)
+    p_datatype = request.POST.get('datatype', None)
+    p_dataId = request.POST.get('dataId', None)
+
+    if p_datasource == 'orcid':
+        datasource = Datasource.objects.get(name="ORCID")
+    elif p_datasource == 'homeorg':
+        datasource = request.user.researchprofile.homeorg_datasource
+    else:
+        return JsonResponse(response)
+
+    # Employment
+    if p_datatype == 'employment':
+        employment = request.user.researchprofile.employment.get(pk=p_dataId)
+        employment.primary = not employment.primary
+        employment.save()
+        request.user.researchprofile.employment.exclude(pk=p_dataId).update(primary=False)
+        response["primary"] = employment.primary
 
     return JsonResponse(response)
 

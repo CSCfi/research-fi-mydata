@@ -82,6 +82,14 @@ button.btn-excluded:hover {
     opacity: 0.8;
 }
 
+button.toggle-primary > i.fas {
+    visibility: hidden;
+}
+
+button.toggle-primary.primary > i.fas {
+    visibility: visible;
+}
+
 td.togglable {
     cursor: pointer;
 }

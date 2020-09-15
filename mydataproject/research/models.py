@@ -476,6 +476,7 @@ class Position(models.Model):
     endMonth = models.PositiveSmallIntegerField(null=True)
     endDay = models.PositiveSmallIntegerField(null=True)
     includeInProfile = models.BooleanField(default=False)
+    primary = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
