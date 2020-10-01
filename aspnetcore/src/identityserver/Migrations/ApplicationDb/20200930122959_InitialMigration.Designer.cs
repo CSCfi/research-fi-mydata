@@ -10,7 +10,7 @@ using identityserver.Data;
 namespace identityserver.Migrations.ApplicationDb
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200925100611_InitialMigration")]
+    [Migration("20200930122959_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

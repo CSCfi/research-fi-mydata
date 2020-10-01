@@ -108,6 +108,7 @@ namespace IdentityServerHost.Quickstart.UI
             // for the specific protocols used and store them in the local auth cookie.
             // this is typically used to store data needed for signout from those protocols.
             var additionalLocalClaims = new List<Claim>();
+            additionalLocalClaims.Add(new Claim("orcid", providerUserId));
             var localSignInProps = new AuthenticationProperties();
             ProcessLoginCallback(result, additionalLocalClaims, localSignInProps);
             
@@ -158,8 +159,7 @@ namespace IdentityServerHost.Quickstart.UI
             // try to determine the unique id of the external user (issued by the provider)
             // the most common claim type for that are the sub claim and the NameIdentifier
             // depending on the external provider, some other claim type might be used
-            var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
-                              externalUser.FindFirst(ClaimTypes.NameIdentifier) ??
+            var userIdClaim = externalUser.FindFirst(ClaimTypes.NameIdentifier) ??
                               throw new Exception("Unknown userid");
 
             // remove the user id claim so we don't include it as an extra claim if/when we provision the user
@@ -181,7 +181,9 @@ namespace IdentityServerHost.Quickstart.UI
             var filtered = new List<Claim>();
 
             // ORCID ID claim
-            filtered.Add(new Claim("orcid", providerUserId));
+            // filtered.Add(new Claim("orcid", providerUserId));
+
+            //filtered.Add(new Claim("sub", providerUserId));
 
             // user's display name
             var name = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name)?.Value ??
@@ -220,7 +222,7 @@ namespace IdentityServerHost.Quickstart.UI
 
             var user = new ApplicationUser
             {
-                UserName = Guid.NewGuid().ToString(),
+                UserName = providerUserId,
                 OrcidIdentifier = providerUserId //// ORCID ID stored to database
             };
             var identityResult = await _userManager.CreateAsync(user);

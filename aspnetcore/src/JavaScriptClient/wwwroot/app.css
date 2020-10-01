@@ -1,0 +1,7 @@
+﻿button.hide {
+    display: none;
+}
+
+button.show {
+    display: initial;
+}

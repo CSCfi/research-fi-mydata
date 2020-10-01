@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="app.css" rel="stylesheet">
+</head>
+<body>
+    <button id="login">
+        <img src="orcid_24x24.png"
+        width="24"
+        height="24"
+        alt="Kirjaudu ORCID-tunnuksella" /> Kirjaudu ORCID-tunnuksella
+    </button>
+    <button id="api_identity" onclick="api('https://localhost:6001/identity');">Call API (identity)</button>
+    <button id="api_biography" onclick="api('https://localhost:6001/biography');">Call API (biography)</button>
+    <button id="logout">Logout</button>
+
+    <pre id="results"></pre>
+
+    <script src="oidc-client.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
