@@ -13,13 +13,10 @@ namespace api.Services
 
         public OrcidService(HttpClient client)
         {
-            // https://pub.orcid.org/v3.0/0000-0002-5173-6291/record
             client.BaseAddress = new Uri("https://pub.orcid.org/v3.0/");
-            // GitHub API versioning
             client.DefaultRequestHeaders.Add("Accept", "application/json");
             Client = client;
         }
-
 
         public async Task<String> GetRecord(String orcid)
         {
