@@ -1,10 +1,9 @@
 ﻿<Properties GitUserInfo="UsingGIT" StartupConfiguration="Multiple Projects">
-  <MonoDevelop.Ide.Workbench ActiveDocument="src/identityserver/Services/ProfileService.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="src/api/Services/OrcidService.cs">
     <Files>
-      <File FileName="src/identityserver/Services/ProfileService.cs" Line="10" Column="1" />
-      <File FileName="src/identityserver/Startup.cs" Line="25" Column="32" />
-      <File FileName="src/identityserver/Quickstart/Account/ExternalController.cs" Line="122" Column="1" />
-      <File FileName="src/api/Controllers/IdentityController.cs" Line="12" Column="1" />
+      <File FileName="src/api/Startup.cs" Line="62" Column="13" />
+      <File FileName="src/api/Controllers/OrcidController.cs" Line="20" Column="79" />
+      <File FileName="src/api/Services/OrcidService.cs" Line="23" Column="48" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -13,16 +12,18 @@
             <Node name="src" expanded="True">
               <Node name="api" expanded="True">
                 <Node name="Controllers" expanded="True" />
-              </Node>
-              <Node name="identityserver" expanded="True">
-                <Node name="Models" expanded="True" />
+                <Node name="Properties" expanded="True" />
                 <Node name="Services" expanded="True">
-                  <Node name="ProfileService.cs" selected="True" />
+                  <Node name="OrcidService.cs" selected="True" />
                 </Node>
               </Node>
+              <Node name="identityserver" expanded="True" />
             </Node>
           </Node>
         </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
@@ -32,13 +33,13 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/timo/projects/csc/research-fi-mydata/aspnetcore/src/api/Controllers/IdentityController.cs" relfile="src/api/Controllers/IdentityController.cs" line="12" column="1" />
+      <Breakpoint enabled="false" file="/Users/timo/projects/csc/research-fi-mydata/aspnetcore/src/api/Controllers/IdentityController.cs" relfile="src/api/Controllers/IdentityController.cs" line="12" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations>
     <MultiItemSolutionRunConfiguration Id="Multiple Projects" Name="Multiple Projects">
       <Items>
-        <StartupItem ItemId="{3E00B0EE-1CE0-4F74-B125-502DEC26F8A3}" ItemName="api" ConfigurationId="Default" />
+        <StartupItem ItemId="{3E00B0EE-1CE0-4F74-B125-502DEC26F8A3}" ItemName="api" />
         <StartupItem ItemId="{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}" ItemName="identityserver" ConfigurationId="SelfHost" />
       </Items>
     </MultiItemSolutionRunConfiguration>

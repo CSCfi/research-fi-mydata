@@ -36,7 +36,7 @@ var api = function (url) {
 
 document.getElementById("login").addEventListener("click", login, false);
 //document.getElementById("api_identity").addEventListener("click", api("https://localhost:6001/identity"), false);
-//document.getElementById("api_biography").addEventListener("click", api("https://localhost:6001/biography"), false);
+//document.getElementById("api_orcid").addEventListener("click", api("https://localhost:6001/orcid"), false);
 document.getElementById("logout").addEventListener("click", logout, false);
 
 
@@ -49,9 +49,9 @@ function uiLoggedIn() {
     apiIdentityBtn.classList.add("show");
     apiIdentityBtn.classList.remove("hide");
 
-    var apiBiographyBtn = document.getElementById("api_biography");
-    apiBiographyBtn.classList.add("show");
-    apiBiographyBtn.classList.remove("hide");
+    var apiOrcidBtn = document.getElementById("api_orcid");
+    apiOrcidBtn.classList.add("show");
+    apiOrcidBtn.classList.remove("hide");
 
     var logoutBtn = document.getElementById("logout");
     logoutBtn.classList.add("show");
@@ -67,9 +67,9 @@ function uiLoggedOut() {
     apiIdentityBtn.classList.add("hide");
     apiIdentityBtn.classList.remove("show");
 
-    var apiBiographyBtn = document.getElementById("api_biography");
-    apiBiographyBtn.classList.add("hide");
-    apiBiographyBtn.classList.remove("show");
+    var apiOrcidBtn = document.getElementById("api_orcid");
+    apiOrcidBtn.classList.add("hide");
+    apiOrcidBtn.classList.remove("show");
 
     var logoutBtn = document.getElementById("logout");
     logoutBtn.classList.add("hide");

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -57,6 +58,8 @@ namespace api
                         .AllowAnyMethod();
                 });
             });
+
+            services.AddHttpClient<OrcidService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
