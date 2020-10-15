@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Services;
+using api.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 namespace api
 {
@@ -27,6 +29,11 @@ namespace api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+
+            services.AddDbContext<TtvContext>(options =>
+                options.UseSqlServer(connectionString));
+
             services.AddControllers();
 
             services.AddAuthentication("Bearer")
@@ -80,8 +87,8 @@ namespace api
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers()
-                    .RequireAuthorization("ApiScope");
+                endpoints.MapControllers();
+                    //.RequireAuthorization("ApiScope");
             });
         }
     }

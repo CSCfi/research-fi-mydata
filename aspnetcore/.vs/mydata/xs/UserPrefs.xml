@@ -1,10 +1,5 @@
 ﻿<Properties GitUserInfo="UsingGIT" StartupConfiguration="Multiple Projects">
-  <MonoDevelop.Ide.Workbench ActiveDocument="src/api/Services/OrcidService.cs">
-    <Files>
-      <File FileName="src/api/Startup.cs" Line="62" Column="13" />
-      <File FileName="src/api/Controllers/OrcidController.cs" Line="20" Column="79" />
-      <File FileName="src/api/Services/OrcidService.cs" Line="23" Column="48" />
-    </Files>
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
@@ -12,18 +7,18 @@
             <Node name="src" expanded="True">
               <Node name="api" expanded="True">
                 <Node name="Controllers" expanded="True" />
+                <Node name="Models" expanded="True" />
                 <Node name="Properties" expanded="True" />
                 <Node name="Services" expanded="True">
                   <Node name="OrcidService.cs" selected="True" />
                 </Node>
               </Node>
-              <Node name="identityserver" expanded="True" />
+              <Node name="identityserver" expanded="True">
+                <Node name="Properties" expanded="True" />
+              </Node>
             </Node>
           </Node>
         </State>
-      </Pad>
-      <Pad Id="MonoDevelop.Debugger.WatchPad">
-        <State />
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
@@ -39,9 +34,11 @@
   <MultiItemStartupConfigurations>
     <MultiItemSolutionRunConfiguration Id="Multiple Projects" Name="Multiple Projects">
       <Items>
-        <StartupItem ItemId="{3E00B0EE-1CE0-4F74-B125-502DEC26F8A3}" ItemName="api" />
+        <StartupItem ItemId="{3E00B0EE-1CE0-4F74-B125-502DEC26F8A3}" ItemName="api" ConfigurationId="Api" />
         <StartupItem ItemId="{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}" ItemName="identityserver" ConfigurationId="SelfHost" />
+        <StartupItem ItemId="{CA7A2F4F-14EE-4411-AF58-C2CF9D63AA52}" ItemName="JavaScriptClient" ConfigurationId="Default" />
       </Items>
     </MultiItemSolutionRunConfiguration>
   </MultiItemStartupConfigurations>
+  <MonoDevelop.Ide.ItemProperties.src.JavaScriptClient PreferredExecutionTarget="/Applications/Google Chrome.app" />
 </Properties>
