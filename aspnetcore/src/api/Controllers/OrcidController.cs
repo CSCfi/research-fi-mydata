@@ -24,10 +24,14 @@ public class OrcidController : ControllerBase
         // Get ORCID ID from user claims
         var orcid = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
 
+
+
         // Create entry into table DimKnownPerson
         var knownPerson = new DimKnownPerson();
         _ttvContext.DimKnownPerson.Add(knownPerson);
         await _ttvContext.SaveChangesAsync();
+
+
 
         // Create entry into table DimPid
         var pid = new DimPid()
@@ -36,6 +40,15 @@ public class OrcidController : ControllerBase
             DimKnownPersonId = knownPerson.Id,
         };
         _ttvContext.DimPid.Add(pid);
+        await _ttvContext.SaveChangesAsync();
+
+
+
+        // Create entry into table DimUserProfile
+        var userprofile = new DimUserProfile();
+        userprofile.DimKnownPerson = knownPerson;
+        userprofile.DimKnownPerson = knownPerson;
+        _ttvContext.DimUserProfile.Add(userprofile);
         await _ttvContext.SaveChangesAsync();
 
         // Get record JSON from ORCID and return it as response

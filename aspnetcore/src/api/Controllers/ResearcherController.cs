@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
 [Route("researcher")]
+[Authorize]
 public class ResearcherController : ControllerBase
 {
     [HttpGet]

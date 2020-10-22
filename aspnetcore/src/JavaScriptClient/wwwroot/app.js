@@ -34,6 +34,30 @@ var api = function (url) {
     });
 }
 
+var api_post = function (url) {
+    mgr.getUser().then(function (user) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url);
+        xhr.onload = function () {
+            log(xhr.status, JSON.parse(xhr.responseText));
+        }
+        xhr.setRequestHeader("Authorization", "Bearer " + user.access_token);
+        xhr.send();
+    });
+}
+
+var api_delete = function (url) {
+    mgr.getUser().then(function (user) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("DELETE", url);
+        xhr.onload = function () {
+            log(xhr.status, JSON.parse(xhr.responseText));
+        }
+        xhr.setRequestHeader("Authorization", "Bearer " + user.access_token);
+        xhr.send();
+    });
+}
+
 document.getElementById("login").addEventListener("click", login, false);
 //document.getElementById("api_identity").addEventListener("click", api("https://localhost:6001/identity"), false);
 //document.getElementById("api_orcid").addEventListener("click", api("https://localhost:6001/orcid"), false);

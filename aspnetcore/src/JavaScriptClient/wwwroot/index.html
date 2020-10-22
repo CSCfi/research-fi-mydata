@@ -8,11 +8,13 @@
 <body>
     <button id="login">
         <img src="orcid_24x24.png"
-        width="24"
-        height="24"
-        alt="Kirjaudu ORCID-tunnuksella" /> Kirjaudu ORCID-tunnuksella
+             width="24"
+             height="24"
+             alt="Kirjaudu ORCID-tunnuksella" /> Kirjaudu ORCID-tunnuksella
     </button>
     <button id="api_identity" onclick="api('https://localhost:6001/identity');">Call API (identity)</button>
+    <button id="api_profile_create" onclick="api_post('https://localhost:6001/api/researcherprofile');">Create profile</button>
+    <button id="api_profile_delete" onclick="api_delete('https://localhost:6001/api/researcherprofile');">Delete profile</button>
     <button id="api_orcid" onclick="api('https://localhost:6001/orcid');">Call API (orcid)</button>
     <button id="logout">Logout</button>
 

@@ -1,20 +1,26 @@
 ﻿<Properties GitUserInfo="UsingGIT" StartupConfiguration="Multiple Projects">
   <MonoDevelop.Ide.Workbench>
+    <Files>
+      <File FileName="src/api/Controllers/OrcidController.cs" Line="48" Column="48" />
+      <File FileName="src/api/Controllers/ResearcherController.cs" Line="10" Column="12" />
+      <File FileName="src/api/Controllers/ResearcherProfileController.cs" Line="91" Column="1" />
+    </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="mydata" expanded="True">
             <Node name="src" expanded="True">
               <Node name="api" expanded="True">
-                <Node name="Controllers" expanded="True" />
+                <Node name="Controllers" expanded="True">
+                  <Node name="ResearcherProfileController.cs" selected="True" />
+                </Node>
                 <Node name="Models" expanded="True" />
                 <Node name="Properties" expanded="True" />
-                <Node name="Services" expanded="True">
-                  <Node name="OrcidService.cs" selected="True" />
-                </Node>
+                <Node name="Services" expanded="True" />
+                <Node name="appsettings.json" expanded="True" />
               </Node>
-              <Node name="identityserver" expanded="True">
-                <Node name="Properties" expanded="True" />
+              <Node name="JavaScriptClient" expanded="True">
+                <Node name="wwwroot" expanded="True" />
               </Node>
             </Node>
           </Node>

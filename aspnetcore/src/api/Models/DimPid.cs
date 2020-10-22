@@ -7,6 +7,7 @@ namespace api.Models
     {
         public DimPid()
         {
+            DimFundingDecision = new HashSet<DimFundingDecision>();
             DimOrganizationId = -1;
             DimInfrastructureid = -1;
             DimPublicationId = -1;
@@ -28,6 +29,11 @@ namespace api.Models
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
+        public virtual DimInfrastructure DimInfrastructure { get; set; }
         public virtual DimKnownPerson DimKnownPerson { get; set; }
+        public virtual DimOrganization DimOrganization { get; set; }
+        public virtual DimPublication DimPublication { get; set; }
+        public virtual DimService DimService { get; set; }
+        public virtual ICollection<DimFundingDecision> DimFundingDecision { get; set; }
     }
 }
