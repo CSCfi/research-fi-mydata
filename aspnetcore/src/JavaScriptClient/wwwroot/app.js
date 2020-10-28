@@ -65,39 +65,37 @@ document.getElementById("logout").addEventListener("click", logout, false);
 
 
 function uiLoggedIn() {
-    var loginBtn = document.getElementById("login");
-    loginBtn.classList.add("hide");
-    loginBtn.classList.remove("show");
-
-    var apiIdentityBtn = document.getElementById("api_identity");
-    apiIdentityBtn.classList.add("show");
-    apiIdentityBtn.classList.remove("hide");
-
-    var apiOrcidBtn = document.getElementById("api_orcid");
-    apiOrcidBtn.classList.add("show");
-    apiOrcidBtn.classList.remove("hide");
-
-    var logoutBtn = document.getElementById("logout");
-    logoutBtn.classList.add("show");
-    logoutBtn.classList.remove("hide");
+    document.getElementById("login").classList.remove("show");
+    document.getElementById("login").classList.add("hide");
+    document.getElementById("api_profile_create").classList.remove("hide")
+    document.getElementById("api_profile_create").classList.add("show");
+    document.getElementById("api_profile_delete").classList.remove("hide")
+    document.getElementById("api_profile_delete").classList.add("show");
+    document.getElementById("api_profile_add_weblink").classList.remove("hide")
+    document.getElementById("api_profile_add_weblink").classList.add("show");
+    document.getElementById("api_profile_delete_weblink").classList.remove("hide")
+    document.getElementById("api_profile_delete_weblink").classList.add("show");
+    document.getElementById("api_orcid").classList.remove("hide")
+    document.getElementById("api_orcid").classList.add("show");
+    document.getElementById("logout").classList.remove("hide")
+    document.getElementById("logout").classList.add("show");
 }
 
 function uiLoggedOut() {
-    var loginBtn = document.getElementById("login");
-    loginBtn.classList.add("show");
-    loginBtn.classList.remove("hide");
-
-    var apiIdentityBtn = document.getElementById("api_identity");
-    apiIdentityBtn.classList.add("hide");
-    apiIdentityBtn.classList.remove("show");
-
-    var apiOrcidBtn = document.getElementById("api_orcid");
-    apiOrcidBtn.classList.add("hide");
-    apiOrcidBtn.classList.remove("show");
-
-    var logoutBtn = document.getElementById("logout");
-    logoutBtn.classList.add("hide");
-    logoutBtn.classList.remove("show");
+    document.getElementById("login").classList.remove("hide");
+    document.getElementById("login").classList.add("show");
+    document.getElementById("api_profile_create").classList.remove("show")
+    document.getElementById("api_profile_create").classList.add("hide");
+    document.getElementById("api_profile_delete").classList.remove("show")
+    document.getElementById("api_profile_delete").classList.add("hide");
+    document.getElementById("api_profile_add_weblink").classList.remove("show")
+    document.getElementById("api_profile_add_weblink").classList.add("hide");
+    document.getElementById("api_profile_delete_weblink").classList.remove("show")
+    document.getElementById("api_profile_delete_weblink").classList.add("hide");
+    document.getElementById("api_orcid").classList.remove("show")
+    document.getElementById("api_orcid").classList.add("hide");
+    document.getElementById("logout").classList.remove("show")
+    document.getElementById("logout").classList.add("hide");
 }
 
 mgr.getUser().then(function (user) {

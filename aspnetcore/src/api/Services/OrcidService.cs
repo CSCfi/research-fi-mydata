@@ -27,5 +27,10 @@ namespace api.Services
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
+
+        public async Task<Boolean> OrcidJsonToModel(String orcidJson)
+        {
+            return true;
+        }
     }
 }

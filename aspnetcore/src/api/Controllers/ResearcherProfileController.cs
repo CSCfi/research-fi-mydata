@@ -2,6 +2,7 @@
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,64 +29,89 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public async Task<string> Create()
+        public async Task<IActionResult> Create()
         {
-            // Get ORCID ID from user claims
+            // Get ORCID ID from user claims.
             var orcid = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
 
-            // Create entry into table DimKnownPerson
-            var knownPerson = new DimKnownPerson();
-            _ttvContext.DimKnownPerson.Add(knownPerson);
-            // Save immediately to get knownPerson.Id
-            await _ttvContext.SaveChangesAsync();
+            // Check if DimPid and DimKnownPerson already exist.
+            var dimPid = await _ttvContext.DimPid
+                .Include(i => i.DimKnownPerson)
+                .ThenInclude(i => i.DimUserProfile).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcid);
 
-
-            // Create entry into table DimPid
-            var pid = new DimPid()
+            if (dimPid == null)
             {
-                PidContent = orcid,
-                DimKnownPersonId = knownPerson.Id,
-            };
-            _ttvContext.DimPid.Add(pid);
+                // DimPid was not found.
 
+                //// Add new DimKnownPerson before adding DimPid.
+                //var kp = new DimKnownPerson();
+                //_ttvContext.DimKnownPerson.Add(kp);
 
-            // Create entry into table DimUserProfile
-            var userprofile = new DimUserProfile();
-            userprofile.DimKnownPerson = knownPerson;
-            _ttvContext.DimUserProfile.Add(userprofile);
+                // Add new DimPid.
+                dimPid = new DimPid()
+                {
+                    PidContent = orcid,
+                    DimKnownPerson = new DimKnownPerson(),
+                };
+                _ttvContext.DimPid.Add(dimPid);
+            }
+            else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
+            {
+                // DimPid was found but it does not have DimKnownPerson.
+                var kp = new DimKnownPerson();
+                _ttvContext.DimKnownPerson.Add(kp);
+                dimPid.DimKnownPerson = kp;
+            }
 
             await _ttvContext.SaveChangesAsync();
 
-            return "OK";
+            // Add DimUserProfile
+            if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
+            {
+                var userprofile = new DimUserProfile();
+                userprofile.DimKnownPerson = dimPid.DimKnownPerson;
+                _ttvContext.DimUserProfile.Add(userprofile);
+            }
+
+            await _ttvContext.SaveChangesAsync();
+
+            return Ok();
         }
 
         [HttpDelete]
-        public async Task<string> Delete()
+        public async Task<IActionResult> Delete()
         {
             // Get ORCID ID from user claims
             var orcid = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
 
-            // Get DimPid
-            var dimPid = await _ttvContext.DimPid.FindAsync(orcid);
+            // Get DimPid with related DimKnownPerson, DimUserProfile and DimFieldDisplaySettings
+            var dimPid = await _ttvContext.DimPid
+                .Include(i => i.DimKnownPerson)
+                  .ThenInclude(i => i.DimUserProfile)
+                    .ThenInclude(i => i.DimFieldDisplaySettings).FirstOrDefaultAsync(p => p.PidContent == orcid);
 
-            // Get DimKnownPerson
-            var dimKnownPerson = _ttvContext.DimKnownPerson.FirstOrDefault(x => x.Id == dimPid.DimKnownPersonId);
+            if (dimPid != null)
+            {
+                // Remove DimFieldDisplaySettings and DimUserProfile
+                if (dimPid.DimKnownPerson != null && dimPid.DimKnownPerson.DimUserProfile.Count() > 0)
+                {
+                    // Remove DimFieldDisplaySettings
+                    _ttvContext.DimFieldDisplaySettings.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings);
 
-            // Get DimUserProfile
-            var dimUserProfile = _ttvContext.DimUserProfile.FirstOrDefault(x => x.DimKnownPersonId == dimPid.DimKnownPersonId);
+                    // Remove DimUserProfile
+                    _ttvContext.DimUserProfile.RemoveRange(dimPid.DimKnownPerson.DimUserProfile);
+                }
 
-            // Remove DimUserProfile
-            _ttvContext.DimUserProfile.Remove(dimUserProfile);
+                // Remove DimPid
+                _ttvContext.DimPid.Remove(dimPid);
 
-            // Remove DimPid
-            _ttvContext.DimPid.Remove(dimPid);
+                // Remove DimKnownPerson
+                _ttvContext.DimKnownPerson.Remove(dimPid.DimKnownPerson);
 
-            // Remove DimKnownPerson
-            _ttvContext.DimKnownPerson.Remove(dimKnownPerson);
-
-            await _ttvContext.SaveChangesAsync();
-
-            return "OK";
+                await _ttvContext.SaveChangesAsync();
+            }
+               
+            return Ok();
         }
     }
 }
