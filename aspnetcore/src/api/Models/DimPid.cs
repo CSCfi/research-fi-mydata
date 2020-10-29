@@ -8,13 +8,7 @@ namespace api.Models
         public DimPid()
         {
             DimFundingDecision = new HashSet<DimFundingDecision>();
-            DimOrganizationId = -1;
-            DimInfrastructureid = -1;
-            DimPublicationId = -1;
-            DimServiceId = -1;
-            SourceId = "ORCID";
-            SourceDescription = "Researcher profile API";
-            Created = DateTime.Now;
+            FactFieldDisplayContent = new HashSet<FactFieldDisplayContent>();
         }
 
         public string PidContent { get; set; }
@@ -35,5 +29,6 @@ namespace api.Models
         public virtual DimPublication DimPublication { get; set; }
         public virtual DimService DimService { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecision { get; set; }
+        public virtual ICollection<FactFieldDisplayContent> FactFieldDisplayContent { get; set; }
     }
 }

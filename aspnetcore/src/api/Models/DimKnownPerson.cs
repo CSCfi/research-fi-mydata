@@ -13,9 +13,6 @@ namespace api.Models
             DimPid = new HashSet<DimPid>();
             DimUserProfile = new HashSet<DimUserProfile>();
             DimWebLink = new HashSet<DimWebLink>();
-            SourceId = "ORCID";
-            SourceDescription = "Researcher profile API";
-            Created = DateTime.Now;
         }
 
         public int Id { get; set; }
@@ -23,6 +20,7 @@ namespace api.Models
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
+        public string ResearchDescription { get; set; }
 
         public virtual ICollection<DimKnownPersonDimFieldOfScience> DimKnownPersonDimFieldOfScience { get; set; }
         public virtual ICollection<DimName> DimNameDimKnownPersonIdConfirmedIdentityNavigation { get; set; }

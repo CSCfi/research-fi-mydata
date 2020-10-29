@@ -10,6 +10,7 @@ namespace api.Models
             BrParticipatesInFundingGroup = new HashSet<BrParticipatesInFundingGroup>();
             DimFundingDecision = new HashSet<DimFundingDecision>();
             FactContribution = new HashSet<FactContribution>();
+            FactFieldDisplayContent = new HashSet<FactFieldDisplayContent>();
         }
 
         public int Id { get; set; }
@@ -27,5 +28,6 @@ namespace api.Models
         public virtual ICollection<BrParticipatesInFundingGroup> BrParticipatesInFundingGroup { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecision { get; set; }
         public virtual ICollection<FactContribution> FactContribution { get; set; }
+        public virtual ICollection<FactFieldDisplayContent> FactFieldDisplayContent { get; set; }
     }
 }

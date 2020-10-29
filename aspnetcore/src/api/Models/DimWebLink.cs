@@ -5,6 +5,11 @@ namespace api.Models
 {
     public partial class DimWebLink
     {
+        public DimWebLink()
+        {
+            FactFieldDisplayContent = new HashSet<FactFieldDisplayContent>();
+        }
+
         public int Id { get; set; }
         public string Url { get; set; }
         public string LinkLabel { get; set; }
@@ -23,5 +28,6 @@ namespace api.Models
         public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimKnownPerson DimKnownPerson { get; set; }
         public virtual DimOrganization DimOrganization { get; set; }
+        public virtual ICollection<FactFieldDisplayContent> FactFieldDisplayContent { get; set; }
     }
 }

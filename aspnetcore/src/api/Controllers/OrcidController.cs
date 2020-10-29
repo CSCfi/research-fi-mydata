@@ -99,8 +99,7 @@ namespace api.Controllers
                 DimKnownPersonId = dimPid.DimKnownPersonId,
                 DimCallProgrammeId = -1,
                 DimFundingDecisionId = -1,
-                SourceId = "ORCID",
-                SourceDescription = "Researcher profile API",
+                SourceId = "orcid",
                 Created = DateTime.Now,
             };
             _ttvContext.DimWebLink.Add(dimWebLink);
@@ -112,25 +111,27 @@ namespace api.Controllers
                 DimUserProfileId = dimPid.DimKnownPerson.DimUserProfile.First().Id,
                 FieldIdentifier = 1,
                 Show = false,
-                SourceId = "ORCID",
-                SourceDescription = "Researcher profile API",
+                SourceId = "orcid",
                 Created = DateTime.Now,
             };
             _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettings);
             await _ttvContext.SaveChangesAsync();
 
-            //// Create FactFieldDisplayContent
-            //var factFieldDisplayContent = new FactFieldDisplayContent()
-            //{
-            //    DimUserProfileId = dimUserProfile.Id,
-            //    DimFieldDisplaySettingsId = dimFieldDisplaySettings.Id,
-            //    DimWebLinkId = dimWebLink.Id,
-            //    SourceId = "ORCID",
-            //    SourceDescription = "Researcher profile API",
-            //    Created = DateTime.Now,
-            //};
-            //_ttvContext.FactFieldDisplayContent.Add(factFieldDisplayContent);
-            //await _ttvContext.SaveChangesAsync();
+            // Create FactFieldDisplayContent
+            var factFieldDisplayContent = new FactFieldDisplayContent()
+            {
+                DimUserProfileId = dimPid.DimKnownPerson.DimUserProfile.First().Id,
+                DimFieldDisplaySettingsId = dimFieldDisplaySettings.Id,
+                DimWebLinkId = dimWebLink.Id,
+                DimPidPidContent = " ",
+                DimFundingDecisionId = -1,
+                DimNameId = -1,
+                DimPublicationId = -1,
+                SourceId = "orcid",
+                Created = DateTime.Now,
+            };
+            _ttvContext.FactFieldDisplayContent.Add(factFieldDisplayContent);
+            await _ttvContext.SaveChangesAsync();
 
             return Ok();
         }

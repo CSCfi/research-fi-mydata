@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace api.Controllers
 {
@@ -51,14 +52,20 @@ namespace api.Controllers
                 dimPid = new DimPid()
                 {
                     PidContent = orcid,
-                    DimKnownPerson = new DimKnownPerson(),
+                    DimKnownPerson = new DimKnownPerson(){ SourceId = "orcid", Created = DateTime.Now },
+                    SourceId = "orcid",
+                    DimOrganizationId = -1,
+                    DimPublicationId = -1,
+                    DimServiceId = -1,
+                    DimInfrastructureid = -1,
+                    Created = DateTime.Now
                 };
                 _ttvContext.DimPid.Add(dimPid);
             }
             else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
             {
                 // DimPid was found but it does not have DimKnownPerson.
-                var kp = new DimKnownPerson();
+                var kp = new DimKnownPerson() { SourceId = "orcid", Created = DateTime.Now };
                 _ttvContext.DimKnownPerson.Add(kp);
                 dimPid.DimKnownPerson = kp;
             }
@@ -68,7 +75,7 @@ namespace api.Controllers
             // Add DimUserProfile
             if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
             {
-                var userprofile = new DimUserProfile();
+                var userprofile = new DimUserProfile() { SourceId = "orcid", Created = DateTime.Now };
                 userprofile.DimKnownPerson = dimPid.DimKnownPerson;
                 _ttvContext.DimUserProfile.Add(userprofile);
             }
@@ -87,20 +94,31 @@ namespace api.Controllers
             // Get DimPid with related DimKnownPerson, DimUserProfile and DimFieldDisplaySettings
             var dimPid = await _ttvContext.DimPid
                 .Include(i => i.DimKnownPerson)
-                  .ThenInclude(i => i.DimUserProfile)
-                    .ThenInclude(i => i.DimFieldDisplaySettings).FirstOrDefaultAsync(p => p.PidContent == orcid);
+                    .ThenInclude(kp => kp.DimUserProfile)
+                        .ThenInclude(up => up.DimFieldDisplaySettings)
+                    .ThenInclude(kp => kp.DimUserProfile)
+                        .ThenInclude(up => up.FactFieldDisplayContent)
+                .Include(i => i.DimKnownPerson)
+                    .ThenInclude(kp => kp.DimWebLink).FirstOrDefaultAsync(p => p.PidContent == orcid);
+
 
             if (dimPid != null)
             {
                 // Remove DimFieldDisplaySettings and DimUserProfile
                 if (dimPid.DimKnownPerson != null && dimPid.DimKnownPerson.DimUserProfile.Count() > 0)
                 {
+                    // Remove FactFieldDisplayContent
+                    _ttvContext.FactFieldDisplayContent.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().FactFieldDisplayContent);
+
                     // Remove DimFieldDisplaySettings
                     _ttvContext.DimFieldDisplaySettings.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings);
 
                     // Remove DimUserProfile
                     _ttvContext.DimUserProfile.RemoveRange(dimPid.DimKnownPerson.DimUserProfile);
                 }
+
+                // Remove DimWebLink
+                _ttvContext.DimWebLink.RemoveRange(dimPid.DimKnownPerson.DimWebLink);
 
                 // Remove DimPid
                 _ttvContext.DimPid.Remove(dimPid);

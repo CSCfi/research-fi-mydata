@@ -28,9 +28,9 @@ namespace api.Services
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<Boolean> OrcidJsonToModel(String orcidJson)
-        {
-            return true;
-        }
+        //public async Task<Boolean> OrcidJsonToModel(String orcidJson)
+        //{
+        //    return true;
+        //}
     }
 }

@@ -8,10 +8,7 @@ namespace api.Models
         public DimUserProfile()
         {
             DimFieldDisplaySettings = new HashSet<DimFieldDisplaySettings>();
-            AllowAllSubscriptions = false;
-            SourceId = "ORCID";
-            SourceDescription = "Researcher profile API";
-            Created = DateTime.Now;
+            FactFieldDisplayContent = new HashSet<FactFieldDisplayContent>();
         }
 
         public int Id { get; set; }
@@ -24,5 +21,6 @@ namespace api.Models
 
         public virtual DimKnownPerson DimKnownPerson { get; set; }
         public virtual ICollection<DimFieldDisplaySettings> DimFieldDisplaySettings { get; set; }
+        public virtual ICollection<FactFieldDisplayContent> FactFieldDisplayContent { get; set; }
     }
 }

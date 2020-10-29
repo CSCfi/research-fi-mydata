@@ -1,9 +1,7 @@
 ﻿<Properties GitUserInfo="UsingGIT" StartupConfiguration="Multiple Projects">
   <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="src/api/Controllers/ResearcherProfileController.cs" Line="106" Column="43" />
-      <File FileName="src/api/Controllers/OrcidController.cs" Line="85" Column="69" />
-      <File FileName="src/api/Models/DimPid.cs" Line="9" Column="10" />
+      <File FileName="src/api/Controllers/ResearcherProfileController.cs" Line="60" Column="46" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -15,6 +13,7 @@
                   <Node name="ResearcherProfileController.cs" selected="True" />
                 </Node>
                 <Node name="Models" expanded="True" />
+                <Node name="Services" expanded="True" />
                 <Node name="appsettings.json" expanded="True" />
               </Node>
               <Node name="JavaScriptClient" expanded="True">

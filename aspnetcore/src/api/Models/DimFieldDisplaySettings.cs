@@ -5,6 +5,11 @@ namespace api.Models
 {
     public partial class DimFieldDisplaySettings
     {
+        public DimFieldDisplaySettings()
+        {
+            FactFieldDisplayContent = new HashSet<FactFieldDisplayContent>();
+        }
+
         public int Id { get; set; }
         public int DimUserProfileId { get; set; }
         public int FieldIdentifier { get; set; }
@@ -15,5 +20,6 @@ namespace api.Models
         public DateTime? Modified { get; set; }
 
         public virtual DimUserProfile DimUserProfile { get; set; }
+        public virtual ICollection<FactFieldDisplayContent> FactFieldDisplayContent { get; set; }
     }
 }

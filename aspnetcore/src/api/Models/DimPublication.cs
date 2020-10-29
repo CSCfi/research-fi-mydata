@@ -14,6 +14,7 @@ namespace api.Models
             DimLocallyReportedPubInfo = new HashSet<DimLocallyReportedPubInfo>();
             DimPid = new HashSet<DimPid>();
             FactContribution = new HashSet<FactContribution>();
+            FactFieldDisplayContent = new HashSet<FactFieldDisplayContent>();
         }
 
         public int Id { get; set; }
@@ -79,5 +80,6 @@ namespace api.Models
         public virtual ICollection<DimLocallyReportedPubInfo> DimLocallyReportedPubInfo { get; set; }
         public virtual ICollection<DimPid> DimPid { get; set; }
         public virtual ICollection<FactContribution> FactContribution { get; set; }
+        public virtual ICollection<FactFieldDisplayContent> FactFieldDisplayContent { get; set; }
     }
 }

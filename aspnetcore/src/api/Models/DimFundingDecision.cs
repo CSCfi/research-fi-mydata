@@ -18,6 +18,7 @@ namespace api.Models
             BrRelatedFundingDecisionDimFundingDecisionTo = new HashSet<BrRelatedFundingDecision>();
             DimWebLink = new HashSet<DimWebLink>();
             FactContribution = new HashSet<FactContribution>();
+            FactFieldDisplayContent = new HashSet<FactFieldDisplayContent>();
             InverseDimFundingDecisionIdParentDecisionNavigation = new HashSet<DimFundingDecision>();
         }
 
@@ -72,6 +73,7 @@ namespace api.Models
         public virtual ICollection<BrRelatedFundingDecision> BrRelatedFundingDecisionDimFundingDecisionTo { get; set; }
         public virtual ICollection<DimWebLink> DimWebLink { get; set; }
         public virtual ICollection<FactContribution> FactContribution { get; set; }
+        public virtual ICollection<FactFieldDisplayContent> FactFieldDisplayContent { get; set; }
         public virtual ICollection<DimFundingDecision> InverseDimFundingDecisionIdParentDecisionNavigation { get; set; }
     }
 }
