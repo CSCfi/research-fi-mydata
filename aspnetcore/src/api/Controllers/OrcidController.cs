@@ -14,12 +14,14 @@ namespace api.Controllers
     [Authorize]
     public class OrcidController : ControllerBase
     {
-        private readonly OrcidService _orcidService;
+        private readonly OrcidApiService _orcidApiService;
+        private readonly OrcidJsonParserService _orcidJsonParserService;
         private readonly TtvContext _ttvContext;
 
-        public OrcidController(OrcidService orcidService, TtvContext ttvContext)
+        public OrcidController(OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, TtvContext ttvContext)
         {
-            _orcidService = orcidService;
+            _orcidApiService = orcidApiService;
+            _orcidJsonParserService = orcidJsonParserService;
             _ttvContext = ttvContext;
         }
 
@@ -27,37 +29,15 @@ namespace api.Controllers
         public async Task<string> Get()
         {
             // Get ORCID ID from user claims
-            var orcid = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
+            var orcidId = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
 
+            // Get record JSON from ORCID
+            var json = await _orcidApiService.GetJson(orcidId);
 
+            // Parse biography from ORCID json
+            var biography = _orcidJsonParserService.GetBiography(json);
 
-            //// Create entry into table DimKnownPerson
-            //var knownPerson = new DimKnownPerson();
-            //_ttvContext.DimKnownPerson.Add(knownPerson);
-            //await _ttvContext.SaveChangesAsync();
-
-
-
-            //// Create entry into table DimPid
-            //var pid = new DimPid()
-            //{
-            //    PidContent = orcid,
-            //    DimKnownPersonId = knownPerson.Id,
-            //};
-            //_ttvContext.DimPid.Add(pid);
-            //await _ttvContext.SaveChangesAsync();
-
-
-
-            //// Create entry into table DimUserProfile
-            //var userprofile = new DimUserProfile();
-            //userprofile.DimKnownPerson = knownPerson;
-            //userprofile.DimKnownPerson = knownPerson;
-            //_ttvContext.DimUserProfile.Add(userprofile);
-            //await _ttvContext.SaveChangesAsync();
-
-            // Get record JSON from ORCID and return it as response
-            return await _orcidService.GetRecord(orcid);
+            return json;
         }
     }
 

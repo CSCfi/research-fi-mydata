@@ -1,7 +1,11 @@
 ﻿<Properties GitUserInfo="UsingGIT" StartupConfiguration="Multiple Projects">
   <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="src/api/Controllers/ResearcherProfileController.cs" Line="60" Column="46" />
+      <File FileName="src/api/Controllers/OrcidController.cs" Line="40" Column="1" />
+      <File FileName="src/api/Services/OrcidService.cs" Line="30" Column="10" />
+      <File FileName="src/api/Services/OrcidJsonParser.cs" Line="1" Column="1" />
+      <File FileName="src/api/Startup.cs" Line="63" Column="51" />
+      <File FileName="src/api/Controllers/ResearcherProfileController.cs" Line="21" Column="10" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -10,14 +14,10 @@
             <Node name="src" expanded="True">
               <Node name="api" expanded="True">
                 <Node name="Controllers" expanded="True">
-                  <Node name="ResearcherProfileController.cs" selected="True" />
+                  <Node name="OrcidController.cs" selected="True" />
                 </Node>
-                <Node name="Models" expanded="True" />
                 <Node name="Services" expanded="True" />
                 <Node name="appsettings.json" expanded="True" />
-              </Node>
-              <Node name="JavaScriptClient" expanded="True">
-                <Node name="wwwroot" expanded="True" />
               </Node>
             </Node>
           </Node>

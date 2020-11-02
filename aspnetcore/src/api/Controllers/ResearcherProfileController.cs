@@ -14,12 +14,12 @@ namespace api.Controllers
     [Authorize]
     public class ResearcherProfileController : ControllerBase
     {
-        private readonly OrcidService _orcidService;
+        private readonly OrcidApiService _orcidApiService;
         private readonly TtvContext _ttvContext;
 
-        public ResearcherProfileController(OrcidService orcidService, TtvContext ttvContext)
+        public ResearcherProfileController(OrcidApiService orcidApiService, TtvContext ttvContext)
         {
-            _orcidService = orcidService;
+            _orcidApiService = orcidApiService;
             _ttvContext = ttvContext;
         }
 

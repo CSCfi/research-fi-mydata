@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "0Ule3idfC/mDzjIAMF2rQqebbk5dmizr++acyvig6BHU2Hqyuv5ArXKXP12JPLjy9P1DVeh1uGHsHxEm3JbiNg==",
+  "dgSpecHash": "bb0ysc6uLqsSBetj1ejdvRiH4FYyBrLRpKmqWXBk2jU8wnkvSusvd1kAlBQLFMhMujtm5Cp/XllodPWZAxCxEg==",
   "success": true,
   "projectFilePath": "/Users/timo/projects/csc/research-fi-mydata/aspnetcore/src/api/api.csproj",
   "expectedPackageFiles": [
