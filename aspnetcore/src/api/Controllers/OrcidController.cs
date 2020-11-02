@@ -26,18 +26,35 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<string> Get()
+        public async Task<IActionResult> Get()
         {
             // Get ORCID ID from user claims
             var orcidId = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
 
+            // Get DimPid with related DimKnownPerson and DimUserProfile
+            var dimPid = await _ttvContext.DimPid
+                .Include(i => i.DimKnownPerson)
+                  .ThenInclude(i => i.DimUserProfile).FirstOrDefaultAsync(p => p.PidContent == orcidId);
+
+            // Return if pid was not found
+            if (dimPid == null)
+            {
+                return NotFound();
+            }
+
             // Get record JSON from ORCID
             var json = await _orcidApiService.GetJson(orcidId);
 
-            // Parse biography from ORCID json
+            // Biography
             var biography = _orcidJsonParserService.GetBiography(json);
+            dimPid.DimKnownPerson.ResearchDescription = biography;
 
-            return json;
+            // Web links
+            var weblinks = _orcidJsonParserService.GetWebLinks(json);
+            
+            await _ttvContext.SaveChangesAsync();
+
+            return Ok(json);
         }
     }
 
