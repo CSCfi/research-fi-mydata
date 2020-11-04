@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "UFxkItrHPr3WV8vIweEe9pKfkFWmFWVONkfFsIlCjRbh93EhYYdcZg8n8+BKUP7nyKRVIvP7MPOl6z0BoJgI8g==",
+  "dgSpecHash": "BVvnLu6eFvNqtoQg6FTJyfUzqj78+hgt0iHuvLKVZ4ssDu5PKu96VsCqskuUtN/9yRDuAobIRSTrQqnHwl8gYw==",
   "success": true,
   "projectFilePath": "/Users/timo/projects/csc/research-fi-mydata/aspnetcore/src/identityserver/identityserver.csproj",
   "expectedPackageFiles": [

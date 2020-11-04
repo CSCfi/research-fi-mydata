@@ -1,10 +1,10 @@
 ﻿<Properties GitUserInfo="UsingGIT" StartupConfiguration="Multiple Projects">
   <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="src/api/Controllers/OrcidController.cs" Line="55" Column="1" />
-      <File FileName="src/api/Startup.cs" />
-      <File FileName="src/api/Controllers/ResearcherProfileController.cs" />
-      <File FileName="src/api/Program.cs" Line="16" Column="1" />
+      <File FileName="src/api/Services/OrcidJsonParserService.cs" Line="1" Column="1" />
+      <File FileName="src/api.Tests/Services_Tests/OrcidJsonParserTest.cs" Line="15" Column="43" />
+      <File FileName="src/api/Controllers/OrcidController.cs" Line="49" Column="1" />
+      <File FileName="src/api.Tests/Services_Tests/orcidRecord.json" Line="49" Column="24" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -16,10 +16,18 @@
                   <Node name="OrcidController.cs" selected="True" />
                 </Node>
                 <Node name="Services" expanded="True" />
-                <Node name="appsettings.json" expanded="True" />
+              </Node>
+              <Node name="api.Tests" expanded="True">
+                <Node name="Infrastructure" expanded="True" />
+                <Node name="Services_Tests" expanded="True" />
               </Node>
             </Node>
           </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.UnitTesting.TestPad">
+        <State name="__root__">
+          <Node name="mydata" expanded="True" selected="True" />
         </State>
       </Pad>
     </Pads>
