@@ -1,0 +1,367 @@
+﻿{
+  "orcid-identifier": {
+    "uri": "https://orcid.org/0000-1111-2222-3333",
+    "path": "0000-1111-2222-3333",
+    "host": "orcid.org"
+  },
+  "preferences": { "locale": "en" },
+  "history": {
+    "creation-method": "DIRECT",
+    "completion-date": null,
+    "submission-date": { "value": 1573462428548 },
+    "last-modified-date": { "value": 1604308072531 },
+    "claimed": true,
+    "source": null,
+    "deactivation-date": null,
+    "verified-email": true,
+    "verified-primary-email": true
+  },
+  "person": {
+    "last-modified-date": { "value": 1575288886518 },
+    "name": {
+      "created-date": { "value": 1573462428797 },
+      "last-modified-date": { "value": 1575288979211 },
+      "given-names": { "value": "John" },
+      "family-name": { "value": "Smith" },
+      "credit-name": null,
+      "source": null,
+      "visibility": "public",
+      "path": "0000-1111-2222-3333"
+    },
+    "other-names": {
+      "last-modified-date": { "value": 1575288886518 },
+      "other-name": [
+        {
+          "created-date": { "value": 1575288886518 },
+          "last-modified-date": { "value": 1575288886518 },
+          "source": {
+            "source-orcid": {
+              "uri": "https://orcid.org/0000-1111-2222-3333",
+              "path": "0000-1111-2222-3333",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": { "value": "John Smith" },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
+          },
+          "content": "JS",
+          "visibility": "public",
+          "path": "/0000-1111-2222-3333/other-names/1330890",
+          "put-code": 1330890,
+          "display-index": 1
+        }
+      ],
+      "path": "/0000-1111-2222-3333/other-names"
+    },
+    "biography": {
+      "created-date": { "value": 1575289015630 },
+      "last-modified-date": { "value": 1575289016783 },
+      "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "visibility": "public",
+      "path": "/0000-1111-2222-3333/biography"
+    },
+    "researcher-urls": {
+      "last-modified-date": { "value": 1575288813407 },
+      "researcher-url": [
+        {
+          "created-date": { "value": 1575288813407 },
+          "last-modified-date": { "value": 1575288813407 },
+          "source": {
+            "source-orcid": {
+              "uri": "https://orcid.org/0000-1111-2222-3333",
+              "path": "0000-1111-2222-3333",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": { "value": "John Smith" },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
+          },
+          "url-name": "Qwerty Consulting",
+          "url": { "value": "https://www.qwertyconsulting.fi/" },
+          "visibility": "public",
+          "path": "/0000-1111-2222-3333/researcher-urls/1898968",
+          "put-code": 1898968,
+          "display-index": 1
+        }
+      ],
+      "path": "/0000-1111-2222-3333/researcher-urls"
+    },
+    "emails": {
+      "last-modified-date": null,
+      "email": [],
+      "path": "/0000-1111-2222-3333/email"
+    },
+    "addresses": {
+      "last-modified-date": null,
+      "address": [],
+      "path": "/0000-1111-2222-3333/address"
+    },
+    "keywords": {
+      "last-modified-date": { "value": 1575288861262 },
+      "keyword": [
+        {
+          "created-date": { "value": 1575288842191 },
+          "last-modified-date": { "value": 1575288861262 },
+          "source": {
+            "source-orcid": {
+              "uri": "https://orcid.org/0000-1111-2222-3333",
+              "path": "0000-1111-2222-3333",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": { "value": "John Smith" },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
+          },
+          "content": "consulting",
+          "visibility": "public",
+          "path": "/0000-1111-2222-3333/keywords/1430109",
+          "put-code": 1430109,
+          "display-index": 3
+        },
+        {
+          "created-date": { "value": 1575288861260 },
+          "last-modified-date": { "value": 1575288861260 },
+          "source": {
+            "source-orcid": {
+              "uri": "https://orcid.org/0000-1111-2222-3333",
+              "path": "0000-1111-2222-3333",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": { "value": "John Smith" },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
+          },
+          "content": "programming",
+          "visibility": "public",
+          "path": "/0000-1111-2222-3333/keywords/1430110",
+          "put-code": 1430110,
+          "display-index": 2
+        }
+      ],
+      "path": "/0000-1111-2222-3333/keywords"
+    },
+    "external-identifiers": {
+      "last-modified-date": null,
+      "external-identifier": [],
+      "path": "/0000-1111-2222-3333/external-identifiers"
+    },
+    "path": "/0000-1111-2222-3333/person"
+  },
+  "activities-summary": {
+    "last-modified-date": { "value": 1576758692386 },
+    "distinctions": {
+      "last-modified-date": null,
+      "affiliation-group": [],
+      "path": "/0000-1111-2222-3333/distinctions"
+    },
+    "educations": {
+      "last-modified-date": { "value": 1574244790938 },
+      "affiliation-group": [
+        {
+          "last-modified-date": { "value": 1574244790938 },
+          "external-ids": { "external-id": [] },
+          "summaries": [
+            {
+              "education-summary": {
+                "created-date": { "value": 1573463065792 },
+                "last-modified-date": { "value": 1574244790938 },
+                "source": {
+                  "source-orcid": {
+                    "uri": "https://orcid.org/0000-1111-2222-3333",
+                    "path": "0000-1111-2222-3333",
+                    "host": "orcid.org"
+                  },
+                  "source-client-id": null,
+                  "source-name": { "value": "John Smith" },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 9094493,
+                "department-name": "Computer and Information Sciences",
+                "role-title": "Master's Degree",
+                "start-date": null,
+                "end-date": null,
+                "organization": {
+                  "name": "BigCity University of Technology",
+                  "address": {
+                    "city": "BigCity",
+                    "region": null,
+                    "country": "FI"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "grid.12332.31",
+                    "disambiguation-source": "GRID"
+                  }
+                },
+                "url": null,
+                "external-ids": null,
+                "display-index": "1",
+                "visibility": "public",
+                "path": "/0000-1111-2222-3333/education/9094493"
+              }
+            }
+          ]
+        }
+      ],
+      "path": "/0000-1111-2222-3333/educations"
+    },
+    "employments": {
+      "last-modified-date": { "value": 1576758692386 },
+      "affiliation-group": [
+        {
+          "last-modified-date": { "value": 1576758692386 },
+          "external-ids": { "external-id": [] },
+          "summaries": [
+            {
+              "employment-summary": {
+                "created-date": { "value": 1573463113909 },
+                "last-modified-date": { "value": 1576758692386 },
+                "source": {
+                  "source-orcid": {
+                    "uri": "https://orcid.org/0000-1111-2222-3333",
+                    "path": "0000-1111-2222-3333",
+                    "host": "orcid.org"
+                  },
+                  "source-client-id": null,
+                  "source-name": { "value": "John Smith" },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 9094505,
+                "department-name": null,
+                "role-title": "Senior software engineer",
+                "start-date": {
+                  "year": { "value": "2019" },
+                  "month": { "value": "01" },
+                  "day": { "value": "01" }
+                },
+                "end-date": null,
+                "organization": {
+                  "name": "Qwerty Consulting",
+                  "address": {
+                    "city": "BigCity",
+                    "region": null,
+                    "country": "FI"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "grid.459217.c",
+                    "disambiguation-source": "GRID"
+                  }
+                },
+                "url": null,
+                "external-ids": null,
+                "display-index": "1",
+                "visibility": "public",
+                "path": "/0000-1111-2222-3333/employment/9094505"
+              }
+            }
+          ]
+        },
+        {
+          "last-modified-date": { "value": 1575289114001 },
+          "external-ids": { "external-id": [] },
+          "summaries": [
+            {
+              "employment-summary": {
+                "created-date": { "value": 1575289076866 },
+                "last-modified-date": { "value": 1575289114001 },
+                "source": {
+                  "source-orcid": {
+                    "uri": "https://orcid.org/0000-1111-2222-3333",
+                    "path": "0000-1111-2222-3333",
+                    "host": "orcid.org"
+                  },
+                  "source-client-id": null,
+                  "source-name": { "value": "John Smith" },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 9262816,
+                "department-name": null,
+                "role-title": "Senior software engineer",
+                "start-date": {
+                  "year": { "value": "2012" },
+                  "month": { "value": "09" },
+                  "day": { "value": "01" }
+                },
+                "end-date": {
+                  "year": { "value": "2018" },
+                  "month": { "value": "12" },
+                  "day": { "value": "31" }
+                },
+                "organization": {
+                  "name": "Asdf Coders",
+                  "address": {
+                    "city": "BigCity",
+                    "region": null,
+                    "country": "FI"
+                  },
+                  "disambiguated-organization": null
+                },
+                "url": null,
+                "external-ids": null,
+                "display-index": "1",
+                "visibility": "public",
+                "path": "/0000-1111-2222-3333/employment/9262816"
+              }
+            }
+          ]
+        }
+      ],
+      "path": "/0000-1111-2222-3333/employments"
+    },
+    "fundings": {
+      "last-modified-date": null,
+      "group": [],
+      "path": "/0000-1111-2222-3333/fundings"
+    },
+    "invited-positions": {
+      "last-modified-date": null,
+      "affiliation-group": [],
+      "path": "/0000-1111-2222-3333/invited-positions"
+    },
+    "memberships": {
+      "last-modified-date": null,
+      "affiliation-group": [],
+      "path": "/0000-1111-2222-3333/memberships"
+    },
+    "peer-reviews": {
+      "last-modified-date": null,
+      "group": [],
+      "path": "/0000-1111-2222-3333/peer-reviews"
+    },
+    "qualifications": {
+      "last-modified-date": null,
+      "affiliation-group": [],
+      "path": "/0000-1111-2222-3333/qualifications"
+    },
+    "research-resources": {
+      "last-modified-date": null,
+      "group": [],
+      "path": "/0000-1111-2222-3333/research-resources"
+    },
+    "services": {
+      "last-modified-date": null,
+      "affiliation-group": [],
+      "path": "/0000-1111-2222-3333/services"
+    },
+    "works": {
+      "last-modified-date": null,
+      "group": [],
+      "path": "/0000-1111-2222-3333/works"
+    },
+    "path": "/0000-1111-2222-3333/activities"
+  },
+  "path": "/0000-1111-2222-3333"
+}
