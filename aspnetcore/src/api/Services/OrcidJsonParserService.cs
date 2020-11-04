@@ -6,6 +6,25 @@ namespace api.Services
 { 
     public class OrcidJsonParserService
     {
+        // Get given names
+        public String GetGivenNames(String json)
+        {
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                return document.RootElement.GetProperty("person").GetProperty("name").GetProperty("given-names").GetProperty("value").GetString();
+            }
+        }
+
+        // Get family names
+        public String GetFamilyName(String json)
+        {
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                return document.RootElement.GetProperty("person").GetProperty("name").GetProperty("family-name").GetProperty("value").GetString();
+            }
+        }
+
+        // Get biography
         public String GetBiography(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
@@ -14,6 +33,7 @@ namespace api.Services
             }
         }
 
+        // Get web links
         public List<(string LinkName, string LinkUrl)> GetWebLinks(String json)
         {
             var links = new List<(string LinkName, string LinkUrl)> { };
