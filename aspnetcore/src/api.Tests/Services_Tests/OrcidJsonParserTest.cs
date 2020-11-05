@@ -10,7 +10,7 @@ namespace api.Tests
     public class OrcidJsonParserTests
     {
         // Get ORCID record json test file
-        public string getOrcidRecordJson()
+        private string getOrcidRecordJson()
         {
             var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/testDataOrcidRecord.json";
             var reader = new StreamReader(filePath);
@@ -26,13 +26,23 @@ namespace api.Tests
             Assert.Equal(expectedGivenNames, orcidJsonParserService.GetGivenNames(jsonStr));
         }
 
-        [Fact(DisplayName = "Get family names")]
+        [Fact(DisplayName = "Get family name")]
         public void TestGetFamilyNames()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedFamilyNames = "Smith";
+            var expectedFamilyName = "Smith";
             var jsonStr = getOrcidRecordJson();
-            Assert.Equal(expectedFamilyNames, orcidJsonParserService.GetFamilyName(jsonStr));
+            Assert.Equal(expectedFamilyName, orcidJsonParserService.GetFamilyName(jsonStr));
+        }
+
+        [Fact(DisplayName = "Get other names")]
+        public void TestGetOtherNames()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var expectedOtherNames = new List<string> { };
+            expectedOtherNames.Add("JS");
+            var jsonStr = getOrcidRecordJson();
+            Assert.Equal(expectedOtherNames, orcidJsonParserService.GetOtherNames(jsonStr));
         }
 
         [Fact(DisplayName = "Get biography")]
@@ -44,14 +54,51 @@ namespace api.Tests
             Assert.Equal(expectedBiography, orcidJsonParserService.GetBiography(jsonStr));
         }
 
-        [Fact(DisplayName = "Get web links")]
-        public void TestGetWebLinks()
+        [Fact(DisplayName = "Get researcher urls")]
+        public void TestGetResearcherUrls()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedWebLinks = new List<(string LinkName, string LinkUrl)> {};
-            expectedWebLinks.Add(("Qwerty Consulting", "https://www.qwertyconsulting.fi/"));
+            var expectedResearcherUrls = new List<(string UrlName, string Url)> {};
+            expectedResearcherUrls.Add((UrlName: "Qwerty Consulting", Url: "https://www.qwertyconsulting.fi/"));
             var jsonStr = getOrcidRecordJson();
-            Assert.Equal(expectedWebLinks, orcidJsonParserService.GetWebLinks(jsonStr));
+            Assert.Equal(expectedResearcherUrls, orcidJsonParserService.GetResearcherUrls(jsonStr));
+        }
+
+        [Fact(DisplayName = "Get emails")]
+        public void TestGetEmails()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var expectedEmails = new List<string> { };
+            expectedEmails.Add("john.smith@qwertyconsulting.fi");
+            var jsonStr = getOrcidRecordJson();
+            Assert.Equal(expectedEmails, orcidJsonParserService.GetEmails(jsonStr));
+        }
+
+        [Fact(DisplayName = "Get keywords")]
+        public void TestGetKeywords()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var expectedKeywords = new List<string> { };
+            expectedKeywords.Add("consulting");
+            expectedKeywords.Add("programming");
+            var jsonStr = getOrcidRecordJson();
+            Assert.Equal(expectedKeywords, orcidJsonParserService.GetKeywords(jsonStr));
+        }
+
+        [Fact(DisplayName = "Get external identifiers")]
+        public void TestGetExternalIdentifiers()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var expectedExternalIdentifiers = new List<(string externalIdType, string externalIdValue, string externalIdUrl)> { };
+            expectedExternalIdentifiers.Add(
+                (
+                    externalIdType: "Scopus Author ID",
+                    externalIdValue: "123456",
+                    externalIdUrl: "http://www.scopus.com/inward/authorDetails.url?authorID=123456&partnerID=ABC"
+                )
+            );
+            var jsonStr = getOrcidRecordJson();
+            Assert.Equal(expectedExternalIdentifiers, orcidJsonParserService.GetExternalIdentifiers(jsonStr));
         }
     }
 }

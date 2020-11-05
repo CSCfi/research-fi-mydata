@@ -91,8 +91,39 @@
       "path": "/0000-1111-2222-3333/researcher-urls"
     },
     "emails": {
-      "last-modified-date": null,
-      "email": [],
+      "last-modified-date": {
+        "value": 1604578281596
+      },
+      "email": [
+        {
+          "created-date": {
+            "value": 1573462428790
+          },
+          "last-modified-date": {
+            "value": 1604578281596
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "https://orcid.org/0000-1111-2222-3333",
+              "path": "0000-1111-2222-3333",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": {
+              "value": "John Smith"
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
+          },
+          "email": "john.smith@qwertyconsulting.fi",
+          "path": null,
+          "visibility": "public",
+          "verified": true,
+          "primary": true,
+          "put-code": null
+        }
+      ],
       "path": "/0000-1111-2222-3333/email"
     },
     "addresses": {
@@ -149,8 +180,49 @@
       "path": "/0000-1111-2222-3333/keywords"
     },
     "external-identifiers": {
-      "last-modified-date": null,
-      "external-identifier": [],
+      "last-modified-date": {
+        "value": 1571944499898
+      },
+      "external-identifier": [
+        {
+          "created-date": {
+            "value": 1571942959763
+          },
+          "last-modified-date": {
+            "value": 1571944499898
+          },
+          "source": {
+            "source-orcid": null,
+            "source-client-id": {
+              "uri": "https://orcid.org/client/0000-0001-2222-3344",
+              "path": "0000-0001-2222-3344",
+              "host": "orcid.org"
+            },
+            "source-name": {
+              "value": "Scopus - Elsevier"
+            },
+            "assertion-origin-orcid": {
+              "uri": "https://orcid.org/0000-1111-2222-3333",
+              "path": "0000-1111-2222-3333",
+              "host": "orcid.org"
+            },
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": {
+              "value": "John Smith"
+            }
+          },
+          "external-id-type": "Scopus Author ID",
+          "external-id-value": "123456",
+          "external-id-url": {
+            "value": "http://www.scopus.com/inward/authorDetails.url?authorID=123456&partnerID=ABC"
+          },
+          "external-id-relationship": "self",
+          "visibility": "public",
+          "path": "/0000-1111-2222-3333/external-identifiers/5432",
+          "put-code": 5432,
+          "display-index": 0
+        }
+      ],
       "path": "/0000-1111-2222-3333/external-identifiers"
     },
     "path": "/0000-1111-2222-3333/person"

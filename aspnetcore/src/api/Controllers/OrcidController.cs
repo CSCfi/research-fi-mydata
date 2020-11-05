@@ -48,9 +48,6 @@ namespace api.Controllers
             // Biography
             var biography = _orcidJsonParserService.GetBiography(json);
             dimPid.DimKnownPerson.ResearchDescription = biography;
-
-            // Web links
-            var weblinks = _orcidJsonParserService.GetWebLinks(json);
             
             await _ttvContext.SaveChangesAsync();
 
