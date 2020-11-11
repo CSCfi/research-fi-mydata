@@ -24,6 +24,15 @@ namespace api.Services
             }
         }
 
+        // Get credit name
+        public String GetCreditName(String json)
+        {
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                return document.RootElement.GetProperty("person").GetProperty("name").GetProperty("credit-name").GetProperty("value").GetString();
+            }
+        }
+
         // Get other names
         public List<string> GetOtherNames(String json)
         {

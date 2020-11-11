@@ -27,12 +27,21 @@ namespace api.Tests
         }
 
         [Fact(DisplayName = "Get family name")]
-        public void TestGetFamilyNames()
+        public void TestGetFamilyName()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
             var expectedFamilyName = "Smith";
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedFamilyName, orcidJsonParserService.GetFamilyName(jsonStr));
+        }
+
+        [Fact(DisplayName = "Get credit name")]
+        public void TestGetCreditName()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var expectedCreditName = "Johnson";
+            var jsonStr = getOrcidRecordJson();
+            Assert.Equal(expectedCreditName, orcidJsonParserService.GetCreditName(jsonStr));
         }
 
         [Fact(DisplayName = "Get other names")]

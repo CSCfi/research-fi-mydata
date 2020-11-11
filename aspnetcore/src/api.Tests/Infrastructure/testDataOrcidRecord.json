@@ -23,7 +23,7 @@
       "last-modified-date": { "value": 1575288979211 },
       "given-names": { "value": "John" },
       "family-name": { "value": "Smith" },
-      "credit-name": null,
+      "credit-name": { "value": "Johnson" },
       "source": null,
       "visibility": "public",
       "path": "0000-1111-2222-3333"
