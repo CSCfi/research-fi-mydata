@@ -1,42 +1,21 @@
 ﻿<Properties GitUserInfo="UsingGIT" StartupConfiguration="Multiple Projects">
   <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="src/api.Tests/Infrastructure/testDataOrcidRecord.json" Line="217" Column="22" />
-      <File FileName="src/api/Services/OrcidJsonParserService.cs" Line="109" Column="101" />
-      <File FileName="src/api.Tests/Services_Tests/OrcidJsonParserTest.cs" Line="97" Column="114" />
+      <File FileName="src/api/Startup.cs" Line="1" Column="1" />
+      <File FileName="src/api/Controllers/OrcidController.cs" Line="236" Column="112" />
+      <File FileName="src/api/Models/DimName.cs" Line="1" Column="1" />
+      <File FileName="src/api/Models/DimKnownPerson.cs" Line="1" Column="1" />
+      <File FileName="src/api/Controllers/ResearcherProfileController.cs" Line="1" Column="1" />
+      <File FileName="src/api/Models/Constants.cs" Line="16" Column="10" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="mydata" expanded="True">
             <Node name="src" expanded="True">
-              <Node name="api" expanded="True">
-                <Node name="Controllers" expanded="True" />
-                <Node name="Services" expanded="True" />
-              </Node>
-              <Node name="api.Tests" expanded="True">
-                <Node name="Dependencies" expanded="True">
-                  <Node name="ProjectDependencies" expanded="True" />
-                </Node>
-                <Node name="Infrastructure" expanded="True">
-                  <Node name="testDataOrcidRecord.json" selected="True" />
-                </Node>
-                <Node name="Services_Tests" expanded="True" />
-              </Node>
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-      <Pad Id="MonoDevelop.UnitTesting.TestPad">
-        <State name="__root__">
-          <Node name="mydata" expanded="True">
-            <Node name="src" expanded="True">
-              <Node name="api.Tests" expanded="True">
-                <Node name="api.Tests" expanded="True">
-                  <Node name="OrcidJsonParserTests" expanded="True">
-                    <Node name="Get external identifiers" selected="True" />
-                  </Node>
-                </Node>
+              <Node name="api" expanded="True" />
+              <Node name="identityserver" expanded="True">
+                <Node name=".gitignore" selected="True" />
               </Node>
             </Node>
           </Node>
