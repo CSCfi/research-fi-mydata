@@ -22,7 +22,7 @@ function log() {
     });
 }
 
-var api = function (url) {
+var api_get = function (url) {
     mgr.getUser().then(function (user) {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url);
@@ -58,6 +58,29 @@ var api_delete = function (url) {
     });
 }
 
+var api_patch = function (url) {
+    mgr.getUser().then(function (user) {
+        var itemId = document.getElementById('item_id').value;
+        var itemShow = document.getElementById('item_show').value;
+
+        url = url + "/" + itemId;
+        var xhr = new XMLHttpRequest();
+        xhr.open("PATCH", url);
+        xhr.onload = function () {
+            log(xhr.status, JSON.parse(xhr.responseText));
+        }
+        
+        var data = {
+            Show: itemShow == "show"
+        }
+        var json = JSON.stringify(data);
+
+        xhr.setRequestHeader("Authorization", "Bearer " + user.access_token);
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.send(json);
+    });
+}
+
 document.getElementById("login").addEventListener("click", login, false);
 //document.getElementById("api_identity").addEventListener("click", api("https://localhost:6001/identity"), false);
 //document.getElementById("api_orcid").addEventListener("click", api("https://localhost:6001/orcid"), false);
@@ -77,6 +100,8 @@ function uiLoggedIn() {
     document.getElementById("api_profile_delete_weblink").classList.add("show");
     document.getElementById("api_orcid").classList.remove("hide")
     document.getElementById("api_orcid").classList.add("show");
+    document.getElementById("api_profiledata_get").classList.remove("hide")
+    document.getElementById("api_profiledata_get").classList.add("show");
     document.getElementById("logout").classList.remove("hide")
     document.getElementById("logout").classList.add("show");
 }
@@ -94,6 +119,8 @@ function uiLoggedOut() {
     document.getElementById("api_profile_delete_weblink").classList.add("hide");
     document.getElementById("api_orcid").classList.remove("show")
     document.getElementById("api_orcid").classList.add("hide");
+    document.getElementById("api_profiledata_get").classList.remove("show")
+    document.getElementById("api_profiledata_get").classList.add("hide");
     document.getElementById("logout").classList.remove("show")
     document.getElementById("logout").classList.add("hide");
 }

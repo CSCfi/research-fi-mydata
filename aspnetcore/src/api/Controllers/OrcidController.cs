@@ -32,7 +32,7 @@ namespace api.Controllers
             // Get ORCID ID from user claims
             var orcidId = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
 
-            // Get DimPid with related DimKnownPerson and DimUserProfile
+            // Get DimPid with related entities
             var dimPid = await _ttvContext.DimPid
                 .Include(i => i.DimKnownPerson)
                   .ThenInclude(i => i.DimUserProfile)
