@@ -9,6 +9,7 @@ namespace api.Models
         {
         }
 
+        public int Id { get; set; }
         public bool Show { get; set; }
     }
 }

@@ -90,38 +90,46 @@ document.getElementById("logout").addEventListener("click", logout, false);
 function uiLoggedIn() {
     document.getElementById("login").classList.remove("show");
     document.getElementById("login").classList.add("hide");
-    document.getElementById("api_profile_create").classList.remove("hide")
+    document.getElementById("api_profile_create").classList.remove("hide");
     document.getElementById("api_profile_create").classList.add("show");
-    document.getElementById("api_profile_delete").classList.remove("hide")
+    document.getElementById("api_profile_delete").classList.remove("hide");
     document.getElementById("api_profile_delete").classList.add("show");
-    document.getElementById("api_profile_add_weblink").classList.remove("hide")
+    document.getElementById("api_profile_add_weblink").classList.remove("hide");
     document.getElementById("api_profile_add_weblink").classList.add("show");
-    document.getElementById("api_profile_delete_weblink").classList.remove("hide")
+    document.getElementById("api_profile_delete_weblink").classList.remove("hide");
     document.getElementById("api_profile_delete_weblink").classList.add("show");
-    document.getElementById("api_orcid").classList.remove("hide")
+    document.getElementById("api_orcid").classList.remove("hide");
     document.getElementById("api_orcid").classList.add("show");
-    document.getElementById("api_profiledata_get").classList.remove("hide")
+    document.getElementById("api_profiledata_get").classList.remove("hide");
     document.getElementById("api_profiledata_get").classList.add("show");
-    document.getElementById("logout").classList.remove("hide")
+    document.getElementById("api_profiledata_patch").classList.remove("hide");
+    document.getElementById("api_profiledata_patch").classList.add("show");
+    document.getElementById("controls").classList.remove("hide");
+    document.getElementById("controls").classList.add("show");
+    document.getElementById("logout").classList.remove("hide");
     document.getElementById("logout").classList.add("show");
 }
 
 function uiLoggedOut() {
     document.getElementById("login").classList.remove("hide");
     document.getElementById("login").classList.add("show");
-    document.getElementById("api_profile_create").classList.remove("show")
+    document.getElementById("api_profile_create").classList.remove("show");
     document.getElementById("api_profile_create").classList.add("hide");
-    document.getElementById("api_profile_delete").classList.remove("show")
+    document.getElementById("api_profile_delete").classList.remove("show");
     document.getElementById("api_profile_delete").classList.add("hide");
-    document.getElementById("api_profile_add_weblink").classList.remove("show")
+    document.getElementById("api_profile_add_weblink").classList.remove("show");
     document.getElementById("api_profile_add_weblink").classList.add("hide");
-    document.getElementById("api_profile_delete_weblink").classList.remove("show")
+    document.getElementById("api_profile_delete_weblink").classList.remove("show");
     document.getElementById("api_profile_delete_weblink").classList.add("hide");
-    document.getElementById("api_orcid").classList.remove("show")
+    document.getElementById("api_orcid").classList.remove("show");
     document.getElementById("api_orcid").classList.add("hide");
-    document.getElementById("api_profiledata_get").classList.remove("show")
+    document.getElementById("api_profiledata_get").classList.remove("show");
     document.getElementById("api_profiledata_get").classList.add("hide");
-    document.getElementById("logout").classList.remove("show")
+    document.getElementById("api_profiledata_patch").classList.remove("show");
+    document.getElementById("api_profiledata_patch").classList.add("hide");
+    document.getElementById("controls").classList.remove("show");
+    document.getElementById("controls").classList.add("hide");
+    document.getElementById("logout").classList.remove("show");
     document.getElementById("logout").classList.add("hide");
 }
 

@@ -63,7 +63,7 @@ namespace api.Controllers
                     WebLink = null
                 };
 
-                switch(ds.FieldIdentifier)
+                switch (ds.FieldIdentifier)
                 {
                     case Constants.FieldIdentifiers.FIRST_NAMES:
                         item.Name = ds.FactFieldDisplayContent.First().DimName.FirstNames;
@@ -128,6 +128,57 @@ namespace api.Controllers
             await _ttvContext.SaveChangesAsync();
 
             return Ok();
+        }
+
+
+
+        // PATCH: api/ProfileData/
+        [HttpPatch]
+        public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorModificationItem> profileEditorModificationItemList)
+        {
+
+            if (profileEditorModificationItemList.Count == 0)
+            {
+                return Ok();
+            }
+
+            // Get ORCID ID from user claims
+            var orcidId = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
+
+            
+
+            // Get DimPid and related DimFieldDisplaySetting entities
+            var dimPid = await _ttvContext.DimPid
+                .Include(i => i.DimKnownPerson)
+                    .ThenInclude(dkp => dkp.DimUserProfile)
+                        .ThenInclude(dup => dup.DimFieldDisplaySettings).FirstOrDefaultAsync(i => i.PidContent == orcidId);
+
+            if (dimPid == null)
+            {
+                return NotFound();
+            }
+
+            if (dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings.Count == 0)
+            {
+                return NotFound();
+            }
+
+            var responseProfileEditorModificationItemList = new List<ProfileEditorModificationItem> { };
+
+            foreach (ProfileEditorModificationItem profileEditorModificationItem in profileEditorModificationItemList)
+            {
+                var dimFieldDisplaySettings = dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings.Where(d => d.Id == profileEditorModificationItem.Id).FirstOrDefault();
+
+                if (dimFieldDisplaySettings != null)
+                {
+                    dimFieldDisplaySettings.Show = profileEditorModificationItem.Show;
+                    responseProfileEditorModificationItemList.Add(profileEditorModificationItem);
+                }
+            }
+
+            await _ttvContext.SaveChangesAsync();
+
+            return Ok(responseProfileEditorModificationItemList);
         }
     }
 }
