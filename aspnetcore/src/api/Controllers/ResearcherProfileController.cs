@@ -52,12 +52,13 @@ namespace api.Controllers
                 dimPid = new DimPid()
                 {
                     PidContent = orcid,
+                    PidType = "orcid",
                     DimKnownPerson = new DimKnownPerson(){ SourceId = "orcid", Created = DateTime.Now },
                     SourceId = "orcid",
                     DimOrganizationId = -1,
                     DimPublicationId = -1,
                     DimServiceId = -1,
-                    DimInfrastructureid = -1,
+                    DimInfrastructureId = -1,
                     Created = DateTime.Now
                 };
                 _ttvContext.DimPid.Add(dimPid);
@@ -99,6 +100,8 @@ namespace api.Controllers
                     .ThenInclude(kp => kp.DimUserProfile)
                         .ThenInclude(up => up.FactFieldDisplayContent)
                 .Include(i => i.DimKnownPerson)
+                    .ThenInclude(kp => kp.DimNameDimKnownPersonIdConfirmedIdentityNavigation)
+                .Include(i => i.DimKnownPerson)
                     .ThenInclude(kp => kp.DimWebLink).FirstOrDefaultAsync(p => p.PidContent == orcid);
 
 
@@ -119,6 +122,9 @@ namespace api.Controllers
 
                 // Remove DimWebLink
                 _ttvContext.DimWebLink.RemoveRange(dimPid.DimKnownPerson.DimWebLink);
+
+                // Remove DimName
+                _ttvContext.DimName.RemoveRange(dimPid.DimKnownPerson.DimNameDimKnownPersonIdConfirmedIdentityNavigation);
 
                 // Remove DimPid
                 _ttvContext.DimPid.Remove(dimPid);

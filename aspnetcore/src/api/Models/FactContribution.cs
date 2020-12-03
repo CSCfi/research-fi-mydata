@@ -13,7 +13,9 @@ namespace api.Models
         public int DimGeoId { get; set; }
         public int DimInfrastructureId { get; set; }
         public int DimNewsFeedId { get; set; }
+        public int DimResearchDatasetId { get; set; }
         public string ContributionType { get; set; }
+        public int? ActorRole { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
@@ -27,5 +29,6 @@ namespace api.Models
         public virtual DimNewsFeed DimNewsFeed { get; set; }
         public virtual DimOrganization DimOrganization { get; set; }
         public virtual DimPublication DimPublication { get; set; }
+        public virtual DimResearchDataset DimResearchDataset { get; set; }
     }
 }

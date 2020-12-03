@@ -10,6 +10,7 @@ namespace api.Models
             BrFieldOfScienceDimFundingDecision = new HashSet<BrFieldOfScienceDimFundingDecision>();
             BrFieldOfScienceDimPublication = new HashSet<BrFieldOfScienceDimPublication>();
             BrInfrastructureDimFieldOfScience = new HashSet<BrInfrastructureDimFieldOfScience>();
+            BrResearchDatasetDimFieldOfScience = new HashSet<BrResearchDatasetDimFieldOfScience>();
             DimKnownPersonDimFieldOfScience = new HashSet<DimKnownPersonDimFieldOfScience>();
         }
 
@@ -26,6 +27,7 @@ namespace api.Models
         public virtual ICollection<BrFieldOfScienceDimFundingDecision> BrFieldOfScienceDimFundingDecision { get; set; }
         public virtual ICollection<BrFieldOfScienceDimPublication> BrFieldOfScienceDimPublication { get; set; }
         public virtual ICollection<BrInfrastructureDimFieldOfScience> BrInfrastructureDimFieldOfScience { get; set; }
+        public virtual ICollection<BrResearchDatasetDimFieldOfScience> BrResearchDatasetDimFieldOfScience { get; set; }
         public virtual ICollection<DimKnownPersonDimFieldOfScience> DimKnownPersonDimFieldOfScience { get; set; }
     }
 }

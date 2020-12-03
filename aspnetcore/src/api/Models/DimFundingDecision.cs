@@ -16,6 +16,7 @@ namespace api.Models
             BrPreviousFundingDecisionDimFundingDecisionTo = new HashSet<BrPreviousFundingDecision>();
             BrRelatedFundingDecisionDimFundingDecisionFrom = new HashSet<BrRelatedFundingDecision>();
             BrRelatedFundingDecisionDimFundingDecisionTo = new HashSet<BrRelatedFundingDecision>();
+            DimPid = new HashSet<DimPid>();
             DimWebLink = new HashSet<DimWebLink>();
             FactContribution = new HashSet<FactContribution>();
             FactFieldDisplayContent = new HashSet<FactFieldDisplayContent>();
@@ -31,7 +32,6 @@ namespace api.Models
         public int DimGeoId { get; set; }
         public int DimTypeOfFundingId { get; set; }
         public int? DimOrganizationIdFunder { get; set; }
-        public string DimPidPidContent { get; set; }
         public int DimFundingDecisionIdParentDecision { get; set; }
         public string FunderProjectNumber { get; set; }
         public string Acronym { get; set; }
@@ -60,7 +60,6 @@ namespace api.Models
         public virtual DimGeo DimGeo { get; set; }
         public virtual DimName DimNameIdContactPersonNavigation { get; set; }
         public virtual DimOrganization DimOrganizationIdFunderNavigation { get; set; }
-        public virtual DimPid DimPidPidContentNavigation { get; set; }
         public virtual DimTypeOfFunding DimTypeOfFunding { get; set; }
         public virtual ICollection<BrFieldOfScienceDimFundingDecision> BrFieldOfScienceDimFundingDecision { get; set; }
         public virtual ICollection<BrFundingConsortiumParticipation> BrFundingConsortiumParticipation { get; set; }
@@ -71,6 +70,7 @@ namespace api.Models
         public virtual ICollection<BrPreviousFundingDecision> BrPreviousFundingDecisionDimFundingDecisionTo { get; set; }
         public virtual ICollection<BrRelatedFundingDecision> BrRelatedFundingDecisionDimFundingDecisionFrom { get; set; }
         public virtual ICollection<BrRelatedFundingDecision> BrRelatedFundingDecisionDimFundingDecisionTo { get; set; }
+        public virtual ICollection<DimPid> DimPid { get; set; }
         public virtual ICollection<DimWebLink> DimWebLink { get; set; }
         public virtual ICollection<FactContribution> FactContribution { get; set; }
         public virtual ICollection<FactFieldDisplayContent> FactFieldDisplayContent { get; set; }

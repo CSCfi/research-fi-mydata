@@ -61,7 +61,7 @@ namespace api.Controllers
                     LastName = _orcidJsonParserService.GetFamilyName(json),
                     FirstNames = _orcidJsonParserService.GetGivenNames(json),
                     SourceId = Constants.SourceIdentifiers.ORCID,
-                    DimKnownPersonIdConfirmedIdentity = dimPid.DimKnownPersonId,
+                    DimKnownPersonIdConfirmedIdentity = (int)dimPid.DimKnownPersonId,
                     DimKnownPersonidFormerNames = -1,
                     Created = DateTime.Now
                 };
@@ -127,10 +127,10 @@ namespace api.Controllers
             {
                 factFieldDisplayContentLastName = new FactFieldDisplayContent()
                 {
+                    DimPid = dimPid,
                     DimUserProfileId = dimPid.DimKnownPerson.DimUserProfile.First().Id,
                     DimFieldDisplaySettingsId = dimFieldDisplaySettingsLastName.Id,
                     DimWebLinkId = -1,
-                    DimPidPidContent = " ",
                     DimFundingDecisionId = -1,
                     DimNameId = dimName.Id,
                     DimPublicationId = -1,
@@ -149,10 +149,10 @@ namespace api.Controllers
             if (factFieldDisplayContentFirstNames == null) {
                 factFieldDisplayContentFirstNames = new FactFieldDisplayContent()
                 {
+                    DimPid = dimPid,
                     DimUserProfileId = dimPid.DimKnownPerson.DimUserProfile.First().Id,
                     DimFieldDisplaySettingsId = dimFieldDisplaySettingsFirstNames.Id,
                     DimWebLinkId = -1,
-                    DimPidPidContent = " ",
                     DimFundingDecisionId = -1,
                     DimNameId = dimName.Id,
                     DimPublicationId = -1,
@@ -200,7 +200,7 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
 
                 // Check if FactFieldDisplayContent already exists for the web link. If yes, then related DimFieldDisplaySetting must also already exist.
-                if (dimWebLink.FactFieldDisplayContent == null)
+                if (dimWebLink.FactFieldDisplayContent.Count == 0)
                 {
                     // Create DimFieldDisplaySetting for weblink
                     var dimFieldDisplaySettings = new DimFieldDisplaySettings()
@@ -217,10 +217,10 @@ namespace api.Controllers
                     // Create FactFieldDisplayContent for weblink
                     var factFieldDisplayContent = new FactFieldDisplayContent()
                     {
+                        DimPid = dimPid,
                         DimUserProfileId = dimPid.DimKnownPerson.DimUserProfile.First().Id,
                         DimFieldDisplaySettingsId = dimFieldDisplaySettings.Id,
                         DimWebLinkId = dimWebLink.Id,
-                        DimPidPidContent = " ",
                         DimFundingDecisionId = -1,
                         DimNameId = -1,
                         DimPublicationId = -1,

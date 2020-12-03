@@ -15,10 +15,10 @@ namespace api.Models
         public string LinkLabel { get; set; }
         public string LinkType { get; set; }
         public string LanguageVariant { get; set; }
-        public int DimOrganizationId { get; set; }
-        public int DimKnownPersonId { get; set; }
-        public int DimCallProgrammeId { get; set; }
-        public int DimFundingDecisionId { get; set; }
+        public int? DimOrganizationId { get; set; }
+        public int? DimKnownPersonId { get; set; }
+        public int? DimCallProgrammeId { get; set; }
+        public int? DimFundingDecisionId { get; set; }
         public string SourceDescription { get; set; }
         public string SourceId { get; set; }
         public DateTime? Created { get; set; }
