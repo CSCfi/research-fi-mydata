@@ -4,9 +4,21 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ORCID__CLIENTID": "APP-DYHMDDN3DT72WR5Y",
+        "ORCID__CLIENTSECRET": "187ea872-2f35-4d05-ae2e-c16d2d28c23a",
+        "CONNECTIONSTRINGS__DEFAULTCONNECTION": "Server=localhost;User Id=sa;Password=Test1234;database=aspnetidentity;",
+        "ASPNETCORE_URLS": "http://localhost:5002",
+        "IDENTITYSERVER__ORIGIN": "https://identitytest-ts.rahtiapp.fi"
+      }
+    },
+    "identityserver": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:56691;http://localhost:5964",
+      "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "https://localhost:5001"
+      }
     }
   }
 }

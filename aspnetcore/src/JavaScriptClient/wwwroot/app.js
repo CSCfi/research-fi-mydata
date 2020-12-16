@@ -1,5 +1,5 @@
 ﻿var config = {
-    authority: "https://localhost:5001",
+    authority: "https://identitytest-ts.rahtiapp.fi",
     client_id: "js",
     redirect_uri: "https://localhost:5003/callback.html",
     response_type: "code",

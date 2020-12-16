@@ -24,6 +24,8 @@ using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Services;
 using identityserver.Services;
+using Microsoft.AspNetCore.HttpOverrides;
+using IdentityServer4.Extensions;
 
 namespace identityserver
 {
@@ -89,8 +91,8 @@ namespace identityserver
                     options.SaveTokens = true;
 
                     options.Authority = "https://orcid.org";
-                    options.ClientId = "APP-DYHMDDN3DT72WR5Y";
-                    options.ClientSecret = "95c0a794-cb06-487f-b197-5573da01e3cf";
+                    options.ClientId = Configuration["ORCID:ClientId"];
+                    options.ClientSecret = Configuration["ORCID:ClientSecret"];
                     options.ResponseType = OidcConstants.ResponseTypes.Code;
 
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -113,6 +115,12 @@ namespace identityserver
 
         public void Configure(IApplicationBuilder app)
         {
+            app.Use(async (ctx, next) =>
+            {
+                ctx.SetIdentityServerOrigin(Configuration["IdentityServer:Origin"]);
+                await next();
+            });
+
             // Uncomment this to populate database with client and api definitions from Config.cshistory
             InitializeDatabase(app);
 
