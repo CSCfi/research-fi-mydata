@@ -42,15 +42,26 @@ namespace api.Controllers
                 .Include(i => i.DimKnownPerson)
                   .ThenInclude(i => i.DimNameDimKnownPersonIdConfirmedIdentityNavigation).FirstOrDefaultAsync(i => i.PidContent == orcidId);
 
-            // Return if pid was not found
+            // DimPid was not found
             if (dimPid == null)
             {
                 return NotFound();
             }
 
-            var itemList = new List<ProfileEditorItem> { };
+            // DimKnownPerson was not found
+            if (dimPid.DimKnownPerson == null)
+            {
+                return NotFound();
+            }
+
+            // DimUserProfile was not found
+            if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
+            {
+                return NotFound();
+            }
 
             // Collect data from DimFieldDisplaySettings and FactFieldDisplayContent entities
+            var itemList = new List<ProfileEditorItem> { };
             foreach (DimFieldDisplaySettings ds in dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings)
             {
                 var item = new ProfileEditorItem()
@@ -63,6 +74,7 @@ namespace api.Controllers
                     WebLink = null
                 };
 
+                // FieldIdentifier defines what type of data the field contains.
                 switch (ds.FieldIdentifier)
                 {
                     case Constants.FieldIdentifiers.FIRST_NAMES:
@@ -89,63 +101,19 @@ namespace api.Controllers
         }
 
 
-        // PATCH: api/ProfileData/5
-        [HttpPatch("{dimFieldDisplaySettingsId}")]
-        public async Task<IActionResult> Patch(int dimFieldDisplaySettingsId, [FromBody] ProfileEditorModificationItem profileEditorModificationItem)
-        {
-            if (dimFieldDisplaySettingsId == -1)
-            {
-                return BadRequest();
-            }
-
-            // Get ORCID ID from user claims
-            var orcidId = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
-
-            var dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings
-                .Include(fds => fds.DimUserProfile)
-                    .ThenInclude(dup => dup.DimKnownPerson)
-                        .ThenInclude(dkp => dkp.DimPid)
-                .FirstOrDefaultAsync(fds => fds.Id == dimFieldDisplaySettingsId);
-
-            if (dimFieldDisplaySettings == null)
-            {
-                return NotFound();
-            }
-
-            var pidFound = false;
-            foreach (DimPid pid in dimFieldDisplaySettings.DimUserProfile.DimKnownPerson.DimPid)
-            {
-                if (pid.PidContent == orcidId)
-                    pidFound = true;
-            }
-
-            if (!pidFound)
-            {
-                return Unauthorized();
-            }
-
-            dimFieldDisplaySettings.Show = profileEditorModificationItem.Show;
-            await _ttvContext.SaveChangesAsync();
-
-            return Ok();
-        }
-
-
 
         // PATCH: api/ProfileData/
         [HttpPatch]
         public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorModificationItem> profileEditorModificationItemList)
         {
-
+            // Return immediately if there is nothing to change.
             if (profileEditorModificationItemList.Count == 0)
             {
                 return Ok();
             }
 
             // Get ORCID ID from user claims
-            var orcidId = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
-
-            
+            var orcidId = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;  
 
             // Get DimPid and related DimFieldDisplaySetting entities
             var dimPid = await _ttvContext.DimPid
@@ -153,22 +121,35 @@ namespace api.Controllers
                     .ThenInclude(dkp => dkp.DimUserProfile)
                         .ThenInclude(dup => dup.DimFieldDisplaySettings).FirstOrDefaultAsync(i => i.PidContent == orcidId);
 
+            // Check that DimPid exists
             if (dimPid == null)
             {
                 return NotFound();
             }
 
+            // Check that DimKnownPerson exists
+            if (dimPid.DimKnownPerson == null)
+            {
+                return NotFound();
+            }
+
+            // Check that DimUserProfile exists
+            if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
+            {
+                return NotFound();
+            }
+
+            // Check that DimFieldDisplaySettings exist
             if (dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings.Count == 0)
             {
                 return NotFound();
             }
 
+            // Set DimFieldDisplaySettings property Show according to request data
             var responseProfileEditorModificationItemList = new List<ProfileEditorModificationItem> { };
-
             foreach (ProfileEditorModificationItem profileEditorModificationItem in profileEditorModificationItemList)
             {
                 var dimFieldDisplaySettings = dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings.Where(d => d.Id == profileEditorModificationItem.Id).FirstOrDefault();
-
                 if (dimFieldDisplaySettings != null)
                 {
                     dimFieldDisplaySettings.Show = profileEditorModificationItem.Show;

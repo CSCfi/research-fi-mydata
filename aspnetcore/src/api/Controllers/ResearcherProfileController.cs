@@ -23,12 +23,38 @@ namespace api.Controllers
             _ttvContext = ttvContext;
         }
 
+        // Check if profile exists.
+        // Returns 200 if profile exists.
+        // Otherwise returns 404.
         [HttpGet]
-        public ActionResult Get()
+        public async Task<IActionResult> Get()
         {
+            // Get ORCID ID from user claims.
+            var orcid = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
+
+            var dimPid = await _ttvContext.DimPid
+                .Include(i => i.DimKnownPerson)
+                    .ThenInclude(kp => kp.DimUserProfile).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcid);
+
+            if (dimPid == null)
+            {
+                return NotFound();
+            }
+
+            if (dimPid.DimKnownPerson == null)
+            {
+                return NotFound();
+            }
+
+            if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
+            {
+                return NotFound();
+            }
+
             return Ok();
         }
 
+        // Create profile
         [HttpPost]
         public async Task<IActionResult> Create()
         {
@@ -86,6 +112,7 @@ namespace api.Controllers
             return Ok();
         }
 
+        // Delete profile
         [HttpDelete]
         public async Task<IActionResult> Delete()
         {
