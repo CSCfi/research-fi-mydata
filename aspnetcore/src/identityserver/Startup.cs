@@ -26,6 +26,7 @@ using IdentityServer4.Services;
 using identityserver.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using IdentityServer4.Extensions;
+using IdentityServer4.Models;
 
 namespace identityserver
 {
@@ -115,13 +116,15 @@ namespace identityserver
 
         public void Configure(IApplicationBuilder app)
         {
+            // This setting enables IdentityServer to work behind a reverse proxy.
+            // The domain of the IdentityServer must be set in configuration.
             app.Use(async (ctx, next) =>
             {
                 ctx.SetIdentityServerOrigin(Configuration["IdentityServer:Origin"]);
                 await next();
             });
 
-            // Uncomment this to populate database with client and api definitions from Config.cshistory
+            // Initialize IdentityServer database
             InitializeDatabase(app);
 
             if (Environment.IsDevelopment())
@@ -141,6 +144,7 @@ namespace identityserver
             });
         }
 
+        // Initialize IdentityServer database
         private void InitializeDatabase(IApplicationBuilder app)
         {
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
@@ -149,30 +153,63 @@ namespace identityserver
 
                 var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
                 context.Database.Migrate();
-                if (!context.Clients.Any())
+
+                // Add Javascript client
+                if (Configuration["JavaScriptClient:AllowedCorsOrigin"] != null)
                 {
-                    foreach (var client in Config.Clients)
+                    var newJsClient = new Client
                     {
-                        context.Clients.Add(client.ToEntity());
+                        ClientId = "js",
+                        ClientName = "JavaScript Client",
+                        AllowedGrantTypes = GrantTypes.Code,
+                        RequireClientSecret = false,
+
+                        RedirectUris = { Configuration["JavaScriptClient:RedirectUri"] },
+                        PostLogoutRedirectUris = { Configuration["JavaScriptClient:PostLogoutRedirectUri"] },
+                        AllowedCorsOrigins = { Configuration["JavaScriptClient:AllowedCorsOrigin"] },
+
+                        AllowedScopes =
+                            {
+                                IdentityServerConstants.StandardScopes.OpenId,
+                                IdentityServerConstants.StandardScopes.Profile,
+                                "api1"
+                            },
+                        AlwaysIncludeUserClaimsInIdToken = true
+                    };
+
+                    // Insert new client into db only if it does not already exist
+                    var existingJsClient = context.Clients.FirstOrDefault(c => c.ClientId == newJsClient.ClientId);
+                    if (existingJsClient == null)
+                    {
+                        context.Clients.Add(newJsClient.ToEntity());
+                        context.SaveChanges();
                     }
+                }
+
+                // Add identity resource - OpenId
+                var newIdentityResourceOpenId = new IdentityResources.OpenId();
+                var existingIdentityResourceOpenId = context.IdentityResources.FirstOrDefault(i => i.Name == newIdentityResourceOpenId.Name);
+                if (existingIdentityResourceOpenId == null)
+                {
+                    context.IdentityResources.Add(newIdentityResourceOpenId.ToEntity());
                     context.SaveChanges();
                 }
 
-                if (!context.IdentityResources.Any())
+                // Add identity resource - Profile
+                var newIdentityResourceProfile = new IdentityResources.Profile();
+                var existingIdentityResourceProfile = context.IdentityResources.FirstOrDefault(i => i.Name == newIdentityResourceProfile.Name);
+                if (existingIdentityResourceProfile == null)
                 {
-                    foreach (var resource in Config.IdentityResources)
-                    {
-                        context.IdentityResources.Add(resource.ToEntity());
-                    }
+                    context.IdentityResources.Add(newIdentityResourceProfile.ToEntity());
                     context.SaveChanges();
                 }
 
-                if (!context.ApiScopes.Any())
+                // Add api scope
+                var newApiScope = new ApiScope("api1", "Researcher profile API");
+                var existingApiScope = context.ApiScopes.FirstOrDefault(a => a.Name == newApiScope.Name);
+                if (existingApiScope == null)
                 {
-                    foreach (var resource in Config.ApiScopes)
-                    {
-                        context.ApiScopes.Add(resource.ToEntity());
-                    }
+                    context.ApiScopes.Add(newApiScope.ToEntity());
                     context.SaveChanges();
                 }
             }
