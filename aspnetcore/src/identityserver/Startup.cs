@@ -102,13 +102,6 @@ namespace identityserver
                         RoleClaimType = "role",
                         RequireExpirationTime = false,
                     };
-
-                    // Use custom JSON Web Token validator for ORCID JWTs. See reason in OrcidJwtValidator comments.
-                    options.ProtocolValidator = new OrcidJwtValidator
-                    {
-                        RequireStateValidation = options.ProtocolValidator.RequireStateValidation,
-                        NonceLifetime = options.ProtocolValidator.NonceLifetime
-                    };
                 });
 
             services.AddScoped<IProfileService, ProfileService>();
@@ -213,28 +206,6 @@ namespace identityserver
                     context.SaveChanges();
                 }
             }
-        }
-    }
-
-    public class OrcidJwtValidator : OpenIdConnectProtocolValidator
-    {
-        // ORCID tokens have long expiry time (20 years).
-        // OpenIdConnectProtocolValidator.ValidateIdToken can only handle 32bit long expiry values,
-        // which reach only up to Jan 2038.
-        // ORCID login attempt will throw an error because Microsoft platform cannot handle ORCID's exp value.
-        //
-        // Workaround: If expiry value is higher than 2147483647, then add a new exp claim using value 2147483647.
-        // The workaround should be removed if ORCID starts using short lived tokens, or Microsoft platform is
-        // fixed to handle values higher than 2147483647.
-        protected override void ValidateIdToken(OpenIdConnectProtocolValidationContext validationContext)
-        {
-            var expValueStrOriginal = validationContext.ValidatedIdToken.Claims.First(claim => claim.Type == "exp").Value;
-            long expValueLong = Convert.ToInt64(expValueStrOriginal);
-
-            if (expValueLong > 2147483647)
-                validationContext.ValidatedIdToken.Payload.AddClaim(new Claim("exp", "2147483647"));
-
-            base.ValidateIdToken(validationContext);
         }
     }
 }
