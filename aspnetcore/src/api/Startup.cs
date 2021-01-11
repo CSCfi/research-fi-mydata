@@ -39,7 +39,7 @@ namespace api
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
                 {
-                    options.Authority = "https://localhost:5001";
+                    options.Authority = Configuration["OAUTH:AUTHORITY"];
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateAudience = false
@@ -55,14 +55,32 @@ namespace api
                 });
             });
 
+            // CORS policies
             services.AddCors(options =>
             {
-                // this defines a CORS policy called "default"
-                options.AddPolicy("default", policy =>
+                // Development and testing
+                options.AddPolicy("development", policy =>
                 {
-                    policy.WithOrigins("https://localhost:5008")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
+                    policy.WithOrigins(
+                        "https://*.csc.fi",
+                        "https://*.rahtiapp.fi",
+                        "https://localhost:5008"
+                    )
+                    .SetIsOriginAllowedToAllowWildcardSubdomains()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+
+                // Production
+                options.AddPolicy("production", policy =>
+                {
+                    policy.WithOrigins(
+                        "https://*.csc.fi",
+                        "https://*.rahtiapp.fi"
+                    )
+                    .SetIsOriginAllowedToAllowWildcardSubdomains()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
                 });
             });
 
@@ -79,9 +97,17 @@ namespace api
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-            app.UseCors("default");
+
+            // CORS policy depends on the environment
+            if (env.IsDevelopment())
+            {
+                app.UseCors("development");
+            }
+            if (env.IsProduction())
+            {
+                app.UseCors("production");
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();
