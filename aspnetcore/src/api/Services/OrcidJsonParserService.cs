@@ -6,16 +6,36 @@ namespace api.Services
 { 
     public class OrcidJsonParserService
     {
-        private DateTime getDateTime(JsonElement orcidJsonDateElement)
+        private (UInt16?, UInt16?, UInt16?) getDateTimeComponents(JsonElement orcidJsonDateElement)
         {
-            return new DateTime(
-                int.Parse(orcidJsonDateElement.GetProperty("year").GetProperty("value").GetString()),
-                int.Parse(orcidJsonDateElement.GetProperty("month").GetProperty("value").GetString()),
-                int.Parse(orcidJsonDateElement.GetProperty("day").GetProperty("value").GetString()),
-                0,
-                0,
-                0
-            );
+            UInt16? year = null;
+            UInt16? month = null;
+            UInt16? day = null;
+
+            if (orcidJsonDateElement.ValueKind != JsonValueKind.Null)
+            {
+                // Year
+                orcidJsonDateElement.TryGetProperty("year", out var yearElement);
+                if (yearElement.ValueKind != JsonValueKind.Null)
+                {
+                    year = UInt16.Parse(yearElement.GetProperty("value").GetString());
+                }
+
+                // Month
+                orcidJsonDateElement.TryGetProperty("month", out var monthElement);
+                if (monthElement.ValueKind != JsonValueKind.Null)
+                {
+                    month = UInt16.Parse(monthElement.GetProperty("value").GetString());
+                }
+
+                // Day
+                orcidJsonDateElement.TryGetProperty("day", out var dayElement);
+                if (dayElement.ValueKind != JsonValueKind.Null)
+                {
+                    day = UInt16.Parse(dayElement.GetProperty("value").GetString());
+                }
+            }
+            return (year, month, day);
         }
 
         // Get given names
@@ -136,26 +156,61 @@ namespace api.Services
         }
 
         // Get educations
-        public List<(string organizationName, string departmentName, string roleTitle, DateTime startDate, DateTime endDate)> GetEducations(String json)
+        public List<(string organizationName, string departmentName, string roleTitle, UInt16? startYear, UInt16? startMonth, UInt16? startDay, UInt16? endYear, UInt16? endMonth, UInt16? endDay)> GetEducations(String json)
         {
-            var educations = new List <(string organizationName, string departmentName, string roleTitle, DateTime startDate, DateTime endDate)> { };
+            var educations = new List <(string organizationName, string departmentName, string roleTitle, UInt16? startYear, UInt16? startMonth, UInt16? startDay, UInt16? endYear, UInt16? endMonth, UInt16? endDay)> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("activities-summary").GetProperty("educations").GetProperty("education-summary").EnumerateArray())
                 {
+                    var startDateResult = getDateTimeComponents(element.GetProperty("start-date"));
+                    var endDateResult = getDateTimeComponents(element.GetProperty("end-date"));
+
                     educations.Add(
                         (
                             organizationName: element.GetProperty("organization").GetProperty("name").GetString(),
                             departmentName: element.GetProperty("department-name").GetString(),
                             roleTitle: element.GetProperty("role-title").GetString(),
-                            startDate: getDateTime(element.GetProperty("start-date")),
-                            endDate: getDateTime(element.GetProperty("end-date"))
-
+                            startYear: startDateResult.Item1,
+                            startMonth: startDateResult.Item2,
+                            startDay: startDateResult.Item3,
+                            endYear: endDateResult.Item1,
+                            endMonth: endDateResult.Item2,
+                            endDay: endDateResult.Item3
                         )
                     );
                 }
             }
             return educations;
+        }
+
+        // Get employments
+        public List<(string organizationName, string departmentName, string roleTitle, UInt16? startYear, UInt16? startMonth, UInt16? startDay, UInt16? endYear, UInt16? endMonth, UInt16? endDay)> GetEmployments(String json)
+        {
+            var employments = new List<(string organizationName, string departmentName, string roleTitle, UInt16? startYear, UInt16? startMonth, UInt16? startDay, UInt16? endYear, UInt16? endMonth, UInt16? endDay)> { };
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                foreach (JsonElement element in document.RootElement.GetProperty("activities-summary").GetProperty("employments").GetProperty("employment-summary").EnumerateArray())
+                {
+                    var startDateResult = getDateTimeComponents(element.GetProperty("start-date"));
+                    var endDateResult = getDateTimeComponents(element.GetProperty("end-date"));
+
+                    employments.Add(
+                        (
+                            organizationName: element.GetProperty("organization").GetProperty("name").GetString(),
+                            departmentName: element.GetProperty("department-name").GetString(),
+                            roleTitle: element.GetProperty("role-title").GetString(),
+                            startYear: startDateResult.Item1,
+                            startMonth: startDateResult.Item2,
+                            startDay: startDateResult.Item3,
+                            endYear: endDateResult.Item1,
+                            endMonth: endDateResult.Item2,
+                            endDay: endDateResult.Item3
+                        )
+                    );
+                }
+            }
+            return employments;
         }
     }
 }
