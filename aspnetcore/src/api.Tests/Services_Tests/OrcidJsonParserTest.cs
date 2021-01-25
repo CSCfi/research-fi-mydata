@@ -9,10 +9,11 @@ namespace api.Tests
     [Collection("Parsing data from ORCID record json")]
     public class OrcidJsonParserTests
     {
-        // Get ORCID record json test file
+        // Get ORCID record json test file.
+        // Test file is a copy of ORCID's example record https://sandbox.orcid.org/0000-0002-9227-8514
         private string getOrcidRecordJson()
         {
-            var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/testDataOrcidRecord.json";
+            var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidRecordSandbox_0000-0002-9227-8514.json";
             var reader = new StreamReader(filePath);
             return reader.ReadToEnd();
         }
@@ -21,7 +22,7 @@ namespace api.Tests
         public void TestGetGivenNames()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedGivenNames = "John";
+            var expectedGivenNames = "Sofia";
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedGivenNames, orcidJsonParserService.GetGivenNames(jsonStr));
         }
@@ -30,7 +31,7 @@ namespace api.Tests
         public void TestGetFamilyName()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedFamilyName = "Smith";
+            var expectedFamilyName = "Garcia";
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedFamilyName, orcidJsonParserService.GetFamilyName(jsonStr));
         }
@@ -39,7 +40,7 @@ namespace api.Tests
         public void TestGetCreditName()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedCreditName = "Johnson";
+            var expectedCreditName = "Sofia Maria Hernandez Garcia";
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedCreditName, orcidJsonParserService.GetCreditName(jsonStr));
         }
@@ -49,7 +50,9 @@ namespace api.Tests
         {
             var orcidJsonParserService = new OrcidJsonParserService();
             var expectedOtherNames = new List<string> { };
-            expectedOtherNames.Add("JS");
+            expectedOtherNames.Add("Sofia Maria Garcia");
+            expectedOtherNames.Add("София Мария Эрнандес Гарсия");
+            expectedOtherNames.Add("索菲亚玛丽亚 加西亚");
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedOtherNames, orcidJsonParserService.GetOtherNames(jsonStr));
         }
@@ -58,7 +61,7 @@ namespace api.Tests
         public void TestGetBiography()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedBiography = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+            var expectedBiography = "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder.";
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedBiography, orcidJsonParserService.GetBiography(jsonStr));
         }
@@ -68,7 +71,7 @@ namespace api.Tests
         {
             var orcidJsonParserService = new OrcidJsonParserService();
             var expectedResearcherUrls = new List<(string UrlName, string Url)> {};
-            expectedResearcherUrls.Add((UrlName: "Qwerty Consulting", Url: "https://www.qwertyconsulting.fi/"));
+            expectedResearcherUrls.Add((UrlName: "Twitter", Url: "https://twitter.com/ORCIDsofia"));
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedResearcherUrls, orcidJsonParserService.GetResearcherUrls(jsonStr));
         }
@@ -78,7 +81,7 @@ namespace api.Tests
         {
             var orcidJsonParserService = new OrcidJsonParserService();
             var expectedEmails = new List<string> { };
-            expectedEmails.Add("john.smith@qwertyconsulting.fi");
+            expectedEmails.Add("s.garcia@orcid.org");
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedEmails, orcidJsonParserService.GetEmails(jsonStr));
         }
@@ -88,8 +91,9 @@ namespace api.Tests
         {
             var orcidJsonParserService = new OrcidJsonParserService();
             var expectedKeywords = new List<string> { };
-            expectedKeywords.Add("consulting");
-            expectedKeywords.Add("programming");
+            expectedKeywords.Add("QA and testing");
+            expectedKeywords.Add("QA and testing"); // This is intentionally twice, because the example record has a duplicate
+            expectedKeywords.Add("Additional keyword");
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedKeywords, orcidJsonParserService.GetKeywords(jsonStr));
         }
@@ -101,9 +105,16 @@ namespace api.Tests
             var expectedExternalIdentifiers = new List<(string externalIdType, string externalIdValue, string externalIdUrl)> { };
             expectedExternalIdentifiers.Add(
                 (
-                    externalIdType: "Scopus Author ID",
-                    externalIdValue: "123456",
-                    externalIdUrl: "http://www.scopus.com/inward/authorDetails.url?authorID=123456&partnerID=ABC"
+                    externalIdType: "Loop profile",
+                    externalIdValue: "558",
+                    externalIdUrl: "http://loop.frontiers-sandbox-int.info/people/559/overview?referrer=orcid_profile"
+                )
+            );
+            expectedExternalIdentifiers.Add(
+                (
+                    externalIdType: "Personal External Identifier",
+                    externalIdValue: "506",
+                    externalIdUrl: "www.6.com"
                 )
             );
             var jsonStr = getOrcidRecordJson();
