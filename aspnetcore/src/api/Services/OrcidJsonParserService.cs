@@ -6,6 +6,18 @@ namespace api.Services
 { 
     public class OrcidJsonParserService
     {
+        private DateTime getDateTime(JsonElement orcidJsonDateElement)
+        {
+            return new DateTime(
+                int.Parse(orcidJsonDateElement.GetProperty("year").GetProperty("value").GetString()),
+                int.Parse(orcidJsonDateElement.GetProperty("month").GetProperty("value").GetString()),
+                int.Parse(orcidJsonDateElement.GetProperty("day").GetProperty("value").GetString()),
+                0,
+                0,
+                0
+            );
+        }
+
         // Get given names
         public String GetGivenNames(String json)
         {
@@ -121,6 +133,29 @@ namespace api.Services
                 }
             }
             return externalIdentifiers;
+        }
+
+        // Get educations
+        public List<(string organizationName, string departmentName, string roleTitle, DateTime startDate, DateTime endDate)> GetEducations(String json)
+        {
+            var educations = new List <(string organizationName, string departmentName, string roleTitle, DateTime startDate, DateTime endDate)> { };
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                foreach (JsonElement element in document.RootElement.GetProperty("activities-summary").GetProperty("educations").GetProperty("education-summary").EnumerateArray())
+                {
+                    educations.Add(
+                        (
+                            organizationName: element.GetProperty("organization").GetProperty("name").GetString(),
+                            departmentName: element.GetProperty("department-name").GetString(),
+                            roleTitle: element.GetProperty("role-title").GetString(),
+                            startDate: getDateTime(element.GetProperty("start-date")),
+                            endDate: getDateTime(element.GetProperty("end-date"))
+
+                        )
+                    );
+                }
+            }
+            return educations;
         }
     }
 }

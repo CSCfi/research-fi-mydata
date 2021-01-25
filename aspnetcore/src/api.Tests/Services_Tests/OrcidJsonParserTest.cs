@@ -120,5 +120,23 @@ namespace api.Tests
             var jsonStr = getOrcidRecordJson();
             Assert.Equal(expectedExternalIdentifiers, orcidJsonParserService.GetExternalIdentifiers(jsonStr));
         }
+
+        [Fact(DisplayName = "Get educations")]
+        public void TestGetEducations()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var expectedEducations = new List<(string organizationName, string departmentName, string roleTitle, DateTime startDate, DateTime endDate)> { };
+            expectedEducations.Add(
+                (
+                    organizationName: "Massachusetts Institute of Technology",
+                    departmentName: "Testing Department",
+                    roleTitle: "BA",
+                    startDate: new DateTime(1997, 9, 2, 0, 0, 0),
+                    endDate: new DateTime(2001, 5, 15, 0, 0, 0)
+                )
+            );
+            var jsonStr = getOrcidRecordJson();
+            Assert.Equal(expectedEducations, orcidJsonParserService.GetEducations(jsonStr));
+        }
     }
 }
