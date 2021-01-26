@@ -1,6 +1,7 @@
 using System;
 using Xunit;
 using api.Services;
+using api.Models;
 using System.IO;
 using System.Collections.Generic;
 
@@ -125,44 +126,34 @@ namespace api.Tests
         public void TestGetEducations()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedEducations = new List<(string organizationName, string departmentName, string roleTitle, UInt16? startYear, UInt16? startMonth, UInt16? startDay, UInt16? endYear, UInt16? endMonth, UInt16? endDay)> { };
-            expectedEducations.Add(
-                (
-                    organizationName: "Massachusetts Institute of Technology",
-                    departmentName: "Testing Department",
-                    roleTitle: "BA",
-                    startYear: 1997,
-                    startMonth: 9,
-                    startDay: 2,
-                    endYear: 2001,
-                    endMonth: 5,
-                    endDay: 15
-                )
-            );
             var jsonStr = getOrcidRecordJson();
-            Assert.Equal(expectedEducations, orcidJsonParserService.GetEducations(jsonStr));
+            var actualEducations = orcidJsonParserService.GetEducations(jsonStr);
+            Assert.Equal("Massachusetts Institute of Technology", actualEducations[0].organizationName);
+            Assert.Equal("Testing Department", actualEducations[0].departmentName);
+            Assert.Equal("BA", actualEducations[0].roleTitle);
+            Assert.Equal(1997, actualEducations[0].startDate.Year);
+            Assert.Equal(9, actualEducations[0].startDate.Month);
+            Assert.Equal(2, actualEducations[0].startDate.Day);
+            Assert.Equal(2001, actualEducations[0].endDate.Year);
+            Assert.Equal(5, actualEducations[0].endDate.Month);
+            Assert.Equal(15, actualEducations[0].endDate.Day);
         }
 
         [Fact(DisplayName = "Get employments")]
         public void TestGetEmployments()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedEmployments = new List<(string organizationName, string departmentName, string roleTitle, UInt16? startYear, UInt16? startMonth, UInt16? startDay, UInt16? endYear, UInt16? endMonth, UInt16? endDay)> { };
-            expectedEmployments.Add(
-                (
-                    organizationName: "ORCID",
-                    departmentName: "QA and Testing",
-                    roleTitle: "Test account holder",
-                    startYear: 2012,
-                    startMonth: 10,
-                    startDay: null,
-                    endYear: null,
-                    endMonth: null,
-                    endDay: null
-                )
-            );
             var jsonStr = getOrcidRecordJson();
-            Assert.Equal(expectedEmployments, orcidJsonParserService.GetEmployments(jsonStr));
+            var actualEmployments = orcidJsonParserService.GetEmployments(jsonStr);
+            Assert.Equal("ORCID", actualEmployments[0].organizationName);
+            Assert.Equal("QA and Testing", actualEmployments[0].departmentName);
+            Assert.Equal("Test account holder", actualEmployments[0].roleTitle);
+            Assert.Equal(2012, actualEmployments[0].startDate.Year);
+            Assert.Equal(10, actualEmployments[0].startDate.Month);
+            Assert.Null(actualEmployments[0].startDate.Day);
+            Assert.Null(actualEmployments[0].endDate.Year);
+            Assert.Null(actualEmployments[0].endDate.Month);
+            Assert.Null(actualEmployments[0].endDate.Day);
         }
     }
 }
