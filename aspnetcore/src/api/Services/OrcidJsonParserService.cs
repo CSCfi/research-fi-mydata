@@ -1,12 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using api.Models;
+using api.Models.Orcid;
 
 namespace api.Services
 { 
     public class OrcidJsonParserService
     {
+        private OrcidPutCode getOrcidPutCode(JsonElement orcidJsonElement)
+        {
+            var putCode = new OrcidPutCode(null);
+
+            // put code
+            if (orcidJsonElement.TryGetProperty("put-code", out JsonElement putCodeElement))
+            {
+                if (putCodeElement.ValueKind == JsonValueKind.Number)
+                {
+                    putCodeElement.TryGetUInt32(out UInt32 putCodeParsed);
+                    putCode.Value = putCodeParsed;
+                }
+            }
+
+            return putCode;
+        }
+
         private OrcidDate getOrcidDate(JsonElement orcidJsonDateElement)
         {
             var orcidDate = new OrcidDate();
@@ -39,67 +56,85 @@ namespace api.Services
         }
 
         // Get given names
-        public String GetGivenNames(String json)
+        public OrcidGivenNames GetGivenNames(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                return document.RootElement.GetProperty("person").GetProperty("name").GetProperty("given-names").GetProperty("value").GetString();
+                return new OrcidGivenNames(
+                    document.RootElement.GetProperty("person").GetProperty("name").GetProperty("given-names").GetProperty("value").GetString()
+                );
             }
         }
 
         // Get family name
-        public String GetFamilyName(String json)
+        public OrcidFamilyName GetFamilyName(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                return document.RootElement.GetProperty("person").GetProperty("name").GetProperty("family-name").GetProperty("value").GetString();
+                return new OrcidFamilyName(
+                    document.RootElement.GetProperty("person").GetProperty("name").GetProperty("family-name").GetProperty("value").GetString()
+                );
             }
         }
 
         // Get credit name
-        public String GetCreditName(String json)
+        public OrcidCreditName GetCreditName(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                return document.RootElement.GetProperty("person").GetProperty("name").GetProperty("credit-name").GetProperty("value").GetString();
+                return new OrcidCreditName(
+                    document.RootElement.GetProperty("person").GetProperty("name").GetProperty("credit-name").GetProperty("value").GetString()
+                );
             }
         }
 
         // Get other names
-        public List<string> GetOtherNames(String json)
+        public List<OrcidOtherName> GetOtherNames(String json)
         {
-            var otherNames = new List<string> { };
+            var otherNames = new List<OrcidOtherName> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("other-names").GetProperty("other-name").EnumerateArray())
                 {
-                    otherNames.Add(element.GetProperty("content").GetString());
+                    var value = element.GetProperty("content").GetString();
+                    var putCode = this.getOrcidPutCode(element);
+                    otherNames.Add(
+                        new OrcidOtherName(value, putCode)
+                    );
                 }
             }
             return otherNames;
         }
 
         // Get biography
-        public String GetBiography(String json)
+        public OrcidBiography GetBiography(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                return document.RootElement.GetProperty("person").GetProperty("biography").GetProperty("content").GetString();
+                var biographyElement = document.RootElement.GetProperty("person").GetProperty("biography");
+                var value = biographyElement.GetProperty("content").GetString();
+                var putCode = this.getOrcidPutCode(biographyElement);
+
+                return new OrcidBiography(
+                    value,
+                    putCode
+                );
             }
         }
 
         // Get researcher urls
-        public List<(string LinkName, string LinkUrl)> GetResearcherUrls(String json)
+        public List<OrcidResearcherUrl> GetResearcherUrls(String json)
         {
-            var urls = new List<(string UrlName, string Url)> { };
+            var urls = new List<OrcidResearcherUrl> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("researcher-urls").GetProperty("researcher-url").EnumerateArray())
                 {
                     urls.Add(
-                        (
-                            UrlName: element.GetProperty("url-name").GetString(),
-                            Url: element.GetProperty("url").GetProperty("value").GetString()
+                        new OrcidResearcherUrl(
+                            element.GetProperty("url-name").GetString(),
+                            element.GetProperty("url").GetProperty("value").GetString(),
+                            this.getOrcidPutCode(element)
                         )
                     );
                 }
@@ -108,14 +143,19 @@ namespace api.Services
         }
 
         // Get emails
-        public List<string> GetEmails(String json)
+        public List<OrcidEmail> GetEmails(String json)
         {
-            var emails = new List<string> { };
+            var emails = new List<OrcidEmail> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("emails").GetProperty("email").EnumerateArray())
                 {
-                    emails.Add(element.GetProperty("email").GetString());
+                    emails.Add(
+                        new OrcidEmail(
+                            element.GetProperty("email").GetString(),
+                            this.getOrcidPutCode(element)
+                        )
+                    );
                 }
             }
             return emails;

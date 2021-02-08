@@ -1,5 +1,6 @@
 ﻿using api.Services;
 using api.Models;
+using api.Models.Orcid;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -58,8 +59,8 @@ namespace api.Controllers
             {
                 dimName = new DimName()
                 {
-                    LastName = _orcidJsonParserService.GetFamilyName(json),
-                    FirstNames = _orcidJsonParserService.GetGivenNames(json),
+                    LastName = _orcidJsonParserService.GetFamilyName(json).Value,
+                    FirstNames = _orcidJsonParserService.GetGivenNames(json).Value,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     DimKnownPersonIdConfirmedIdentity = (int)dimPid.DimKnownPersonId,
                     DimKnownPersonidFormerNames = -1,
@@ -69,8 +70,8 @@ namespace api.Controllers
             }
             else
             {
-                dimName.LastName = _orcidJsonParserService.GetFamilyName(json);
-                dimName.FirstNames = _orcidJsonParserService.GetGivenNames(json);
+                dimName.LastName = _orcidJsonParserService.GetFamilyName(json).Value;
+                dimName.FirstNames = _orcidJsonParserService.GetGivenNames(json).Value;
                 dimName.Modified = DateTime.Now;
             }
             await _ttvContext.SaveChangesAsync();
@@ -174,7 +175,7 @@ namespace api.Controllers
             // Researcher urls
             var researcherUrls = _orcidJsonParserService.GetResearcherUrls(json);
 
-            foreach ((string UrlName, string Url) researchUrl in researcherUrls)
+            foreach (OrcidResearcherUrl researchUrl in researcherUrls)
             {
                 // Create new weblink
                 var dimWebLink = dimPid.DimKnownPerson.DimWebLink.FirstOrDefault(d => d.LinkLabel == researchUrl.UrlName && d.Url == researchUrl.Url && d.SourceId == Constants.SourceIdentifiers.ORCID);
