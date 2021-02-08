@@ -162,32 +162,38 @@ namespace api.Services
         }
 
         // Get keywords
-        public List<string> GetKeywords(String json)
+        public List<OrcidKeyword> GetKeywords(String json)
         {
-            var keywords = new List<string> { };
+            var keywords = new List<OrcidKeyword> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("keywords").GetProperty("keyword").EnumerateArray())
                 {
-                    keywords.Add(element.GetProperty("content").GetString());
+                    keywords.Add(
+                        new OrcidKeyword(
+                            element.GetProperty("content").GetString(),
+                            this.getOrcidPutCode(element)
+                        )
+                    );
                 }
             }
             return keywords;
         }
 
         // Get external identifiers
-        public List<(string externalIdType, string externalIdValue, string externalIdUrl)> GetExternalIdentifiers(String json)
+        public List<OrcidExternalIdentifier> GetExternalIdentifiers(String json)
         {
-            var externalIdentifiers = new List<(string externalIdType, string externalIdValue, string externalIdUrl)> { };
+            var externalIdentifiers = new List<OrcidExternalIdentifier> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("external-identifiers").GetProperty("external-identifier").EnumerateArray())
                 {
                     externalIdentifiers.Add(
-                        (
-                            externalIdType: element.GetProperty("external-id-type").GetString(),
-                            externalIdValue: element.GetProperty("external-id-value").GetString(),
-                            externalIdUrl: element.GetProperty("external-id-url").GetProperty("value").GetString()
+                        new OrcidExternalIdentifier(
+                            element.GetProperty("external-id-type").GetString(),
+                            element.GetProperty("external-id-value").GetString(),
+                            element.GetProperty("external-id-url").GetProperty("value").GetString(),
+                            this.getOrcidPutCode(element)
                         )
                     );
                 }
@@ -196,20 +202,21 @@ namespace api.Services
         }
 
         // Get educations
-        public List<(string organizationName, string departmentName, string roleTitle, OrcidDate startDate, OrcidDate endDate)> GetEducations(String json)
+        public List<OrcidEducation> GetEducations(String json)
         {
-            var educations = new List <(string organizationName, string departmentName, string roleTitle, OrcidDate startDate, OrcidDate endDate)> { };
+            var educations = new List <OrcidEducation> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("activities-summary").GetProperty("educations").GetProperty("education-summary").EnumerateArray())
                 {
                     educations.Add(
-                        (
-                            organizationName: element.GetProperty("organization").GetProperty("name").GetString(),
-                            departmentName: element.GetProperty("department-name").GetString(),
-                            roleTitle: element.GetProperty("role-title").GetString(),
-                            startDate: getOrcidDate(element.GetProperty("start-date")),
-                            endDate: getOrcidDate(element.GetProperty("end-date"))
+                        new OrcidEducation(
+                            element.GetProperty("organization").GetProperty("name").GetString(),
+                            element.GetProperty("department-name").GetString(),
+                            element.GetProperty("role-title").GetString(),
+                            getOrcidDate(element.GetProperty("start-date")),
+                            getOrcidDate(element.GetProperty("end-date")),
+                            this.getOrcidPutCode(element)
                         )
                     );
                 }
@@ -218,20 +225,21 @@ namespace api.Services
         }
 
         // Get employments
-        public List<(string organizationName, string departmentName, string roleTitle, OrcidDate startDate, OrcidDate endDate)> GetEmployments(String json)
+        public List<OrcidEmployment> GetEmployments(String json)
         {
-            var employments = new List<(string organizationName, string departmentName, string roleTitle, OrcidDate startDate, OrcidDate endDate)> { };
+            var employments = new List<OrcidEmployment> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("activities-summary").GetProperty("employments").GetProperty("employment-summary").EnumerateArray())
                 {
                     employments.Add(
-                        (
-                            organizationName: element.GetProperty("organization").GetProperty("name").GetString(),
-                            departmentName: element.GetProperty("department-name").GetString(),
-                            roleTitle: element.GetProperty("role-title").GetString(),
-                            startDate: getOrcidDate(element.GetProperty("start-date")),
-                            endDate: getOrcidDate(element.GetProperty("end-date"))
+                        new OrcidEmployment(
+                            element.GetProperty("organization").GetProperty("name").GetString(),
+                            element.GetProperty("department-name").GetString(),
+                            element.GetProperty("role-title").GetString(),
+                            getOrcidDate(element.GetProperty("start-date")),
+                            getOrcidDate(element.GetProperty("end-date")),
+                            this.getOrcidPutCode(element)
                         )
                     );
                 }

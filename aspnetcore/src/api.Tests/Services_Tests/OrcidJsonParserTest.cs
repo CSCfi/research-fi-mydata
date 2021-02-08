@@ -139,35 +139,62 @@ namespace api.Tests
         public void TestGetKeywords()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedKeywords = new List<string> { };
-            expectedKeywords.Add("QA and testing");
-            expectedKeywords.Add("QA and testing"); // This is intentionally twice, because the example record has a duplicate
-            expectedKeywords.Add("Additional keyword");
             var jsonStr = getOrcidRecordJson();
-            Assert.Equal(expectedKeywords, orcidJsonParserService.GetKeywords(jsonStr));
+            var expectedKeywords = new List<OrcidKeyword> {
+                new OrcidKeyword(
+                    "QA and testing",
+                    new OrcidPutCode(4504)
+                ),
+                // "QA and testing" is intentionally twice, because the example record has a duplicate
+                new OrcidKeyword(
+                    "QA and testing",
+                    new OrcidPutCode(4603)
+                ),
+                new OrcidKeyword(
+                    "Additional keyword",
+                    new OrcidPutCode(4604)
+                )
+            };
+            var actualKeywords = orcidJsonParserService.GetKeywords(jsonStr);
+
+            Assert.Equal(expectedKeywords[0].Value, actualKeywords[0].Value);
+            Assert.Equal(expectedKeywords[1].Value, actualKeywords[1].Value);
+            Assert.Equal(expectedKeywords[2].Value, actualKeywords[2].Value);
+            Assert.Equal(expectedKeywords[0].PutCode.Value, actualKeywords[0].PutCode.Value);
+            Assert.Equal(expectedKeywords[1].PutCode.Value, actualKeywords[1].PutCode.Value);
+            Assert.Equal(expectedKeywords[2].PutCode.Value, actualKeywords[2].PutCode.Value);
         }
 
         [Fact(DisplayName = "Get external identifiers")]
         public void TestGetExternalIdentifiers()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
-            var expectedExternalIdentifiers = new List<(string externalIdType, string externalIdValue, string externalIdUrl)> { };
-            expectedExternalIdentifiers.Add(
-                (
-                    externalIdType: "Loop profile",
-                    externalIdValue: "558",
-                    externalIdUrl: "http://loop.frontiers-sandbox-int.info/people/559/overview?referrer=orcid_profile"
-                )
-            );
-            expectedExternalIdentifiers.Add(
-                (
-                    externalIdType: "Personal External Identifier",
-                    externalIdValue: "506",
-                    externalIdUrl: "www.6.com"
-                )
-            );
             var jsonStr = getOrcidRecordJson();
-            Assert.Equal(expectedExternalIdentifiers, orcidJsonParserService.GetExternalIdentifiers(jsonStr));
+            var expectedExternalIdentifiers = new List<OrcidExternalIdentifier> {
+                new OrcidExternalIdentifier(
+                    "Loop profile",
+                    "558",
+                    "http://loop.frontiers-sandbox-int.info/people/559/overview?referrer=orcid_profile",
+                    new OrcidPutCode(3193)
+                ),
+
+                new OrcidExternalIdentifier(
+                    "Personal External Identifier",
+                    "506",
+                    "www.6.com",
+                    new OrcidPutCode(3294)
+                )
+            };
+            var actualExternalIdentifiers = orcidJsonParserService.GetExternalIdentifiers(jsonStr);
+
+            Assert.Equal(expectedExternalIdentifiers[0].ExternalIdType, actualExternalIdentifiers[0].ExternalIdType);
+            Assert.Equal(expectedExternalIdentifiers[0].ExternalIdValue, actualExternalIdentifiers[0].ExternalIdValue);
+            Assert.Equal(expectedExternalIdentifiers[0].ExternalIdUrl, actualExternalIdentifiers[0].ExternalIdUrl);
+            Assert.Equal(expectedExternalIdentifiers[0].PutCode.Value, actualExternalIdentifiers[0].PutCode.Value);
+            Assert.Equal(expectedExternalIdentifiers[1].ExternalIdType, actualExternalIdentifiers[1].ExternalIdType);
+            Assert.Equal(expectedExternalIdentifiers[1].ExternalIdValue, actualExternalIdentifiers[1].ExternalIdValue);
+            Assert.Equal(expectedExternalIdentifiers[1].ExternalIdUrl, actualExternalIdentifiers[1].ExternalIdUrl);
+            Assert.Equal(expectedExternalIdentifiers[1].PutCode.Value, actualExternalIdentifiers[1].PutCode.Value);
         }
 
         [Fact(DisplayName = "Get educations")]
@@ -176,15 +203,16 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidRecordJson();
             var actualEducations = orcidJsonParserService.GetEducations(jsonStr);
-            Assert.Equal("Massachusetts Institute of Technology", actualEducations[0].organizationName);
-            Assert.Equal("Testing Department", actualEducations[0].departmentName);
-            Assert.Equal("BA", actualEducations[0].roleTitle);
-            Assert.Equal(1997, actualEducations[0].startDate.Year);
-            Assert.Equal(9, actualEducations[0].startDate.Month);
-            Assert.Equal(2, actualEducations[0].startDate.Day);
-            Assert.Equal(2001, actualEducations[0].endDate.Year);
-            Assert.Equal(5, actualEducations[0].endDate.Month);
-            Assert.Equal(15, actualEducations[0].endDate.Day);
+            Assert.Equal("Massachusetts Institute of Technology", actualEducations[0].OrganizationName);
+            Assert.Equal("Testing Department", actualEducations[0].DepartmentName);
+            Assert.Equal("BA", actualEducations[0].RoleTitle);
+            Assert.Equal(1997, actualEducations[0].StartDate.Year);
+            Assert.Equal(9, actualEducations[0].StartDate.Month);
+            Assert.Equal(2, actualEducations[0].StartDate.Day);
+            Assert.Equal(2001, actualEducations[0].EndDate.Year);
+            Assert.Equal(5, actualEducations[0].EndDate.Month);
+            Assert.Equal(15, actualEducations[0].EndDate.Day);
+            Assert.Equal(new OrcidPutCode(22423).Value, actualEducations[0].PutCode.Value);
         }
 
         [Fact(DisplayName = "Get employments")]
@@ -193,15 +221,16 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidRecordJson();
             var actualEmployments = orcidJsonParserService.GetEmployments(jsonStr);
-            Assert.Equal("ORCID", actualEmployments[0].organizationName);
-            Assert.Equal("QA and Testing", actualEmployments[0].departmentName);
-            Assert.Equal("Test account holder", actualEmployments[0].roleTitle);
-            Assert.Equal(2012, actualEmployments[0].startDate.Year);
-            Assert.Equal(10, actualEmployments[0].startDate.Month);
-            Assert.Null(actualEmployments[0].startDate.Day);
-            Assert.Null(actualEmployments[0].endDate.Year);
-            Assert.Null(actualEmployments[0].endDate.Month);
-            Assert.Null(actualEmployments[0].endDate.Day);
+            Assert.Equal("ORCID", actualEmployments[0].OrganizationName);
+            Assert.Equal("QA and Testing", actualEmployments[0].DepartmentName);
+            Assert.Equal("Test account holder", actualEmployments[0].RoleTitle);
+            Assert.Equal(2012, actualEmployments[0].StartDate.Year);
+            Assert.Equal(10, actualEmployments[0].StartDate.Month);
+            Assert.Null(actualEmployments[0].StartDate.Day);
+            Assert.Null(actualEmployments[0].EndDate.Year);
+            Assert.Null(actualEmployments[0].EndDate.Month);
+            Assert.Null(actualEmployments[0].EndDate.Day);
+            Assert.Equal(new OrcidPutCode(22411).Value, actualEmployments[0].PutCode.Value);
         }
     }
 }
