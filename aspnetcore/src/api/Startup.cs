@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Services;
-using api.Models;
+using api.Models.Ttv;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -64,7 +64,7 @@ namespace api
                     policy.WithOrigins(
                         "https://*.csc.fi",
                         "https://*.rahtiapp.fi",
-                        "https://localhost:5008"
+                        "https://localhost:5003"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()

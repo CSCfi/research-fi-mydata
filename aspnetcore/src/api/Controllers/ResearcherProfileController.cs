@@ -1,5 +1,5 @@
 ﻿using api.Services;
-using api.Models;
+using api.Models.Ttv;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -1,5 +1,6 @@
 ﻿using api.Services;
 using api.Models;
+using api.Models.Ttv;
 using api.Models.Orcid;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
