@@ -7,7 +7,6 @@ namespace api.Models.Ttv
     {
         public DimKnownPerson()
         {
-            DimKnownPersonDimFieldOfScience = new HashSet<DimKnownPersonDimFieldOfScience>();
             DimNameDimKnownPersonIdConfirmedIdentityNavigation = new HashSet<DimName>();
             DimNameDimKnownPersonidFormerNamesNavigation = new HashSet<DimName>();
             DimPid = new HashSet<DimPid>();
@@ -16,13 +15,10 @@ namespace api.Models.Ttv
         }
 
         public int Id { get; set; }
-        public string SourceId { get; set; }
-        public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
         public string ResearchDescription { get; set; }
 
-        public virtual ICollection<DimKnownPersonDimFieldOfScience> DimKnownPersonDimFieldOfScience { get; set; }
         public virtual ICollection<DimName> DimNameDimKnownPersonIdConfirmedIdentityNavigation { get; set; }
         public virtual ICollection<DimName> DimNameDimKnownPersonidFormerNamesNavigation { get; set; }
         public virtual ICollection<DimPid> DimPid { get; set; }

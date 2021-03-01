@@ -34,11 +34,11 @@ namespace api.Controllers
                         .ThenInclude(i => i.DimFieldDisplaySettings)
                 .Include(i => i.DimKnownPerson)
                     .ThenInclude(i => i.DimUserProfile)
-                        .ThenInclude(i => i.FactFieldDisplayContent)
+                        .ThenInclude(i => i.FactFieldValues)
                             .ThenInclude(i => i.DimWebLink)
                 .Include(i => i.DimKnownPerson)
                     .ThenInclude(i => i.DimUserProfile)
-                        .ThenInclude(i => i.FactFieldDisplayContent)
+                        .ThenInclude(i => i.FactFieldValues)
                             .ThenInclude(i => i.DimName)
                 .Include(i => i.DimKnownPerson)
                   .ThenInclude(i => i.DimNameDimKnownPersonIdConfirmedIdentityNavigation).FirstOrDefaultAsync(i => i.PidContent == orcidId);
@@ -61,7 +61,7 @@ namespace api.Controllers
                 return NotFound();
             }
 
-            // Collect data from DimFieldDisplaySettings and FactFieldDisplayContent entities
+            // Collect data from DimFieldDisplaySettings and FactFieldValues entities
             var itemList = new List<ProfileEditorItem> { };
             foreach (DimFieldDisplaySettings ds in dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings)
             {
@@ -70,7 +70,7 @@ namespace api.Controllers
                     Id = ds.Id,
                     FieldIdentifier = ds.FieldIdentifier,
                     Show = ds.Show,
-                    SourceId = ds.SourceId,
+                    //SourceId = ds.,
                     Name = null,
                     WebLink = null
                 };
@@ -79,16 +79,16 @@ namespace api.Controllers
                 switch (ds.FieldIdentifier)
                 {
                     case Constants.FieldIdentifiers.FIRST_NAMES:
-                        item.Name = ds.FactFieldDisplayContent.First().DimName.FirstNames;
+                        item.Name = ds.FactFieldValues.First().DimName.FirstNames;
                         break;
                     case Constants.FieldIdentifiers.LAST_NAME:
-                        item.Name = ds.FactFieldDisplayContent.First().DimName.LastName;
+                        item.Name = ds.FactFieldValues.First().DimName.LastName;
                         break;
                     case Constants.FieldIdentifiers.WEB_LINK:
                         item.WebLink = new ProfileEditorWebLink()
                         {
-                            Url = ds.FactFieldDisplayContent.First().DimWebLink.Url,
-                            UrlLabel = ds.FactFieldDisplayContent.First().DimWebLink.LinkLabel
+                            Url = ds.FactFieldValues.First().DimWebLink.Url,
+                            UrlLabel = ds.FactFieldValues.First().DimWebLink.LinkLabel
                         };
                         break;
                     default:

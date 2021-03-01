@@ -5,14 +5,17 @@ namespace api.Models.Ttv
 {
     public partial class DimRegisteredDataSource
     {
+        public DimRegisteredDataSource()
+        {
+            BrFieldDisplaySettingsDimRegisteredDataSource = new HashSet<BrFieldDisplaySettingsDimRegisteredDataSource>();
+        }
+
         public int Id { get; set; }
         public int DimOrganizationId { get; set; }
         public string Name { get; set; }
-        public string SourceId { get; set; }
-        public string SourceDescription { get; set; }
         public DateTime? Modified { get; set; }
         public DateTime? Created { get; set; }
 
-        public virtual DimOrganization DimOrganization { get; set; }
+        public virtual ICollection<BrFieldDisplaySettingsDimRegisteredDataSource> BrFieldDisplaySettingsDimRegisteredDataSource { get; set; }
     }
 }

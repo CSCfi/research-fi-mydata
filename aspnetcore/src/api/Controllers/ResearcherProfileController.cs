@@ -70,17 +70,12 @@ namespace api.Controllers
             {
                 // DimPid was not found.
 
-                //// Add new DimKnownPerson before adding DimPid.
-                //var kp = new DimKnownPerson();
-                //_ttvContext.DimKnownPerson.Add(kp);
-
-                // Add new DimPid.
+                // Add new DimPid, add new DimKnownPerson
                 dimPid = new DimPid()
                 {
                     PidContent = orcid,
                     PidType = "orcid",
-                    DimKnownPerson = new DimKnownPerson(){ SourceId = "orcid", Created = DateTime.Now },
-                    SourceId = "orcid",
+                    DimKnownPerson = new DimKnownPerson(){ Created = DateTime.Now },
                     DimOrganizationId = -1,
                     DimPublicationId = -1,
                     DimServiceId = -1,
@@ -92,7 +87,7 @@ namespace api.Controllers
             else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
             {
                 // DimPid was found but it does not have DimKnownPerson.
-                var kp = new DimKnownPerson() { SourceId = "orcid", Created = DateTime.Now };
+                var kp = new DimKnownPerson() { Created = DateTime.Now };
                 _ttvContext.DimKnownPerson.Add(kp);
                 dimPid.DimKnownPerson = kp;
             }
@@ -102,7 +97,7 @@ namespace api.Controllers
             // Add DimUserProfile
             if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
             {
-                var userprofile = new DimUserProfile() { SourceId = "orcid", Created = DateTime.Now };
+                var userprofile = new DimUserProfile() { Created = DateTime.Now };
                 userprofile.DimKnownPerson = dimPid.DimKnownPerson;
                 _ttvContext.DimUserProfile.Add(userprofile);
             }
@@ -125,7 +120,7 @@ namespace api.Controllers
                     .ThenInclude(kp => kp.DimUserProfile)
                         .ThenInclude(up => up.DimFieldDisplaySettings)
                     .ThenInclude(kp => kp.DimUserProfile)
-                        .ThenInclude(up => up.FactFieldDisplayContent)
+                        .ThenInclude(up => up.FactFieldValues)
                 .Include(i => i.DimKnownPerson)
                     .ThenInclude(kp => kp.DimNameDimKnownPersonIdConfirmedIdentityNavigation)
                 .Include(i => i.DimKnownPerson)
@@ -137,8 +132,8 @@ namespace api.Controllers
                 // Remove DimFieldDisplaySettings and DimUserProfile
                 if (dimPid.DimKnownPerson != null && dimPid.DimKnownPerson.DimUserProfile.Count() > 0)
                 {
-                    // Remove FactFieldDisplayContent
-                    _ttvContext.FactFieldDisplayContent.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().FactFieldDisplayContent);
+                    // Remove FactFieldValues
+                    _ttvContext.FactFieldValues.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().FactFieldValues);
 
                     // Remove DimFieldDisplaySettings
                     _ttvContext.DimFieldDisplaySettings.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings);

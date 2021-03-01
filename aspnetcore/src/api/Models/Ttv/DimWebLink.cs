@@ -7,7 +7,7 @@ namespace api.Models.Ttv
     {
         public DimWebLink()
         {
-            FactFieldDisplayContent = new HashSet<FactFieldDisplayContent>();
+            FactFieldValues = new HashSet<FactFieldValues>();
         }
 
         public int Id { get; set; }
@@ -19,15 +19,14 @@ namespace api.Models.Ttv
         public int? DimKnownPersonId { get; set; }
         public int? DimCallProgrammeId { get; set; }
         public int? DimFundingDecisionId { get; set; }
-        public string SourceDescription { get; set; }
-        public string SourceId { get; set; }
+        public int? DimResearchDataCatalogId { get; set; }
+        public int? DimResearchDatasetId { get; set; }
+        public int? DimResearchCommunityId { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
-        public virtual DimCallProgramme DimCallProgramme { get; set; }
-        public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimKnownPerson DimKnownPerson { get; set; }
         public virtual DimOrganization DimOrganization { get; set; }
-        public virtual ICollection<FactFieldDisplayContent> FactFieldDisplayContent { get; set; }
+        public virtual ICollection<FactFieldValues> FactFieldValues { get; set; }
     }
 }
