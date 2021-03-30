@@ -2,11 +2,23 @@
 {
     public partial class OrcidPutCode
     {
-        public OrcidPutCode(uint? value)
+        public OrcidPutCode(int? value)
         {
             Value = value;
         }
 
-        public uint? Value { get; set; }
+        public string GetDbValue()
+        {
+            if (this.Value == null)
+            {
+                return "-1";
+            }
+            else
+            {
+                return this.Value.ToString();
+            }
+        }
+
+        public int? Value { get; set; }
     }
 }

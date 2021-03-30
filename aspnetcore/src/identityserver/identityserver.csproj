@@ -4,7 +4,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'SelfHost' " />
   <ItemGroup>
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.0.0" />
 
@@ -31,5 +30,9 @@
     <Folder Include="Migrations\" />
     <Folder Include="Migrations\ApplicationDb\" />
     <Folder Include="Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Properties\launchSettings.json" />
+    <Content Remove="Properties\launchSettings.json" />
   </ItemGroup>
 </Project>

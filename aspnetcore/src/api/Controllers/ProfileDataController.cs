@@ -12,7 +12,7 @@ namespace api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ProfileDataController : ControllerBase
+    public class ProfileDataController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
 
@@ -24,8 +24,8 @@ namespace api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            // Get ORCID ID from user claims
-            var orcidId = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
+            // Get ORCID ID
+            var orcidId = this.GetOrcidId();
 
             // Get DimPid with related entities
             var dimPid = await _ttvContext.DimPid
@@ -113,8 +113,8 @@ namespace api.Controllers
                 return Ok();
             }
 
-            // Get ORCID ID from user claims
-            var orcidId = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;  
+            // Get ORCID ID
+            var orcidId = this.GetOrcidId();
 
             // Get DimPid and related DimFieldDisplaySetting entities
             var dimPid = await _ttvContext.DimPid

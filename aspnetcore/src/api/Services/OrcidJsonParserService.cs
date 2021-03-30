@@ -16,7 +16,7 @@ namespace api.Services
             {
                 if (putCodeElement.ValueKind == JsonValueKind.Number)
                 {
-                    putCodeElement.TryGetUInt32(out UInt32 putCodeParsed);
+                    putCodeElement.TryGetInt32(out Int32 putCodeParsed);
                     putCode.Value = putCodeParsed;
                 }
             }

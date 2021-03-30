@@ -46,6 +46,13 @@ namespace identityserver
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor; // | ForwardedHeaders.XForwardedProto;
+            });
+
+
             services.AddControllersWithViews();
 
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -109,6 +116,8 @@ namespace identityserver
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseForwardedHeaders();
+
             // This setting enables IdentityServer to work behind a reverse proxy.
             // The domain of the IdentityServer must be set in configuration.
             app.Use(async (ctx, next) =>

@@ -6,13 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 
 namespace api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ResearcherProfileController : ControllerBase
+    public class ResearcherProfileController : TtvControllerBase
     {
         private readonly OrcidApiService _orcidApiService;
         private readonly TtvContext _ttvContext;
@@ -29,12 +30,12 @@ namespace api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            // Get ORCID ID from user claims.
-            var orcid = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
+            // Get ORCID ID
+            var orcidId = this.GetOrcidId();
 
             var dimPid = await _ttvContext.DimPid
                 .Include(i => i.DimKnownPerson)
-                    .ThenInclude(kp => kp.DimUserProfile).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcid);
+                    .ThenInclude(kp => kp.DimUserProfile).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId);
 
             if (dimPid == null)
             {
@@ -58,13 +59,13 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create()
         {
-            // Get ORCID ID from user claims.
-            var orcid = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
+            // Get ORCID ID
+            var orcidId = this.GetOrcidId();
 
             // Check if DimPid and DimKnownPerson already exist.
             var dimPid = await _ttvContext.DimPid
                 .Include(i => i.DimKnownPerson)
-                .ThenInclude(i => i.DimUserProfile).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcid);
+                .ThenInclude(i => i.DimUserProfile).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId);
 
             if (dimPid == null)
             {
@@ -73,16 +74,13 @@ namespace api.Controllers
                 // Add new DimPid, add new DimKnownPerson
                 dimPid = new DimPid()
                 {
-                    PidContent = orcid,
+                    PidContent = orcidId,
                     PidType = "orcid",
                     DimKnownPerson = new DimKnownPerson(){ Created = DateTime.Now },
-                    DimOrganizationId = -1,
-                    DimPublicationId = -1,
-                    DimServiceId = -1,
-                    DimInfrastructureId = -1,
                     Created = DateTime.Now
                 };
                 _ttvContext.DimPid.Add(dimPid);
+                await _ttvContext.SaveChangesAsync();
             }
             else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
             {
@@ -90,19 +88,21 @@ namespace api.Controllers
                 var kp = new DimKnownPerson() { Created = DateTime.Now };
                 _ttvContext.DimKnownPerson.Add(kp);
                 dimPid.DimKnownPerson = kp;
+                await _ttvContext.SaveChangesAsync();
             }
 
-            await _ttvContext.SaveChangesAsync();
 
             // Add DimUserProfile
-            if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
+            if (dimPid.DimKnownPerson.DimUserProfile.FirstOrDefault() == null)
             {
-                var userprofile = new DimUserProfile() { Created = DateTime.Now };
-                userprofile.DimKnownPerson = dimPid.DimKnownPerson;
+                var userprofile = new DimUserProfile() {
+                    DimKnownPersonId = dimPid.DimKnownPerson.Id,
+                    Created = DateTime.Now,
+                    AllowAllSubscriptions = false
+                };
                 _ttvContext.DimUserProfile.Add(userprofile);
+                await _ttvContext.SaveChangesAsync();
             }
-
-            await _ttvContext.SaveChangesAsync();
 
             return Ok();
         }
@@ -111,51 +111,77 @@ namespace api.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete()
         {
-            // Get ORCID ID from user claims
-            var orcid = User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
+            // Get ORCID ID
+            var orcidId = this.GetOrcidId();
 
             // Get DimPid with related DimKnownPerson, DimUserProfile and DimFieldDisplaySettings
+
             var dimPid = await _ttvContext.DimPid
-                .Include(i => i.DimKnownPerson)
-                    .ThenInclude(kp => kp.DimUserProfile)
-                        .ThenInclude(up => up.DimFieldDisplaySettings)
-                    .ThenInclude(kp => kp.DimUserProfile)
-                        .ThenInclude(up => up.FactFieldValues)
-                .Include(i => i.DimKnownPerson)
-                    .ThenInclude(kp => kp.DimNameDimKnownPersonIdConfirmedIdentityNavigation)
-                .Include(i => i.DimKnownPerson)
-                    .ThenInclude(kp => kp.DimWebLink).FirstOrDefaultAsync(p => p.PidContent == orcid);
+                .Include(pid => pid.DimKnownPerson)
+                    .ThenInclude(knownPerson => knownPerson.DimUserProfile)
+                        .ThenInclude(userProfile => userProfile.FactFieldValues)
+                            .ThenInclude(factFieldValues => factFieldValues.DimName)
+                        .ThenInclude(userProfile => userProfile.FactFieldValues)
+                            .ThenInclude(factFieldValues => factFieldValues.DimWebLink)
+                         .ThenInclude(userProfile => userProfile.FactFieldValues)
+                            .ThenInclude(factFieldValues => factFieldValues.DimPidIdOrcidPutCode)
+                .Where(pid => pid.PidContent == orcidId).FirstOrDefaultAsync();
 
-
-            if (dimPid != null)
+            // Check that user profile exists and remove related items
+            if (dimPid != null && dimPid.DimKnownPerson.DimUserProfile != null && dimPid.DimKnownPerson.DimUserProfile.FirstOrDefault() != null)
             {
-                // Remove DimFieldDisplaySettings and DimUserProfile
-                if (dimPid.DimKnownPerson != null && dimPid.DimKnownPerson.DimUserProfile.Count() > 0)
+                _ttvContext.FactFieldValues.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().FactFieldValues);
+
+                /*
+                foreach (FactFieldValues ffv in dimPid.DimKnownPerson.DimUserProfile.First().FactFieldValues)
                 {
-                    // Remove FactFieldValues
-                    _ttvContext.FactFieldValues.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().FactFieldValues);
+                    
+                    // Store reference to related items
+                    var orcidPutCode = ffv.DimPidIdOrcidPutCodeNavigation;
+                    var name = ffv.DimName;
+                    var weblink = ffv.DimWebLink;
 
-                    // Remove DimFieldDisplaySettings
-                    _ttvContext.DimFieldDisplaySettings.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings);
+                    // Remove FactFieldValue relation
+                    ffv.DimPidIdOrcidPutCodeNavigation = null;
+                    ffv.DimNameId = -1;
+                    ffv.DimWebLinkId = -1;
+                    await _ttvContext.SaveChangesAsync();
 
-                    // Remove DimUserProfile
-                    _ttvContext.DimUserProfile.RemoveRange(dimPid.DimKnownPerson.DimUserProfile);
+                    // Remove FactFieldValue
+                    _ttvContext.FactFieldValues.Remove(ffv);
+
+                    // Remove related ORCID put code items in table DimPid
+                    if (orcidPutCode != null)
+                    {
+                        _ttvContext.DimPid.Remove(orcidPutCode);
+                    }
+
+                    // Remove name
+                    if (name != null)
+                    {
+                        _ttvContext.DimName.Remove(name);
+                    }
+
+                    // Remove web links
+                    if (weblink != null)
+                    {
+                        _ttvContext.DimWebLink.Remove(weblink);
+                    }
+
+                    // TODO remove other related items
+                    
                 }
+                */
 
-                // Remove DimWebLink
-                _ttvContext.DimWebLink.RemoveRange(dimPid.DimKnownPerson.DimWebLink);
+                // Remove DimFieldDisplaySettings
+                _ttvContext.DimFieldDisplaySettings.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings);
 
-                // Remove DimName
-                _ttvContext.DimName.RemoveRange(dimPid.DimKnownPerson.DimNameDimKnownPersonIdConfirmedIdentityNavigation);
+                // Remove DimUserProfile
+                _ttvContext.DimUserProfile.Remove(dimPid.DimKnownPerson.DimUserProfile.First());
 
-                // Remove DimPid
-                _ttvContext.DimPid.Remove(dimPid);
-
-                // Remove DimKnownPerson
-                _ttvContext.DimKnownPerson.Remove(dimPid.DimKnownPerson);
-
-                await _ttvContext.SaveChangesAsync();
+                //await _ttvContext.SaveChangesAsync();
             }
+
                
             return Ok();
         }

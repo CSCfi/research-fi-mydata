@@ -14,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Logging;
 
 namespace api
 {
@@ -59,9 +60,9 @@ namespace api
             services.AddCors(options =>
             {
                 // Development and testing
-                options.AddPolicy("development", policy =>
+                options.AddPolicy("development", builder =>
                 {
-                    policy.WithOrigins(
+                    builder.WithOrigins(
                         "https://*.csc.fi",
                         "https://*.rahtiapp.fi",
                         "https://localhost:5003"
@@ -71,12 +72,13 @@ namespace api
                     .AllowAnyMethod();
                 });
 
-                // Production
-                options.AddPolicy("production", policy =>
+                // Production - TODO remove localhost 
+                options.AddPolicy("production", builder =>
                 {
-                    policy.WithOrigins(
+                    builder.WithOrigins(
                         "https://*.csc.fi",
-                        "https://*.rahtiapp.fi"
+                        "https://*.rahtiapp.fi",
+                        "https://localhost:5003"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()
@@ -94,6 +96,7 @@ namespace api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                IdentityModelEventSource.ShowPII = true;
             }
 
             app.UseHttpsRedirection();
