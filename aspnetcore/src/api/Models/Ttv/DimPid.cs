@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable disable
+
 namespace api.Models.Ttv
 {
     public partial class DimPid
     {
         public DimPid()
         {
-            FactFieldValuesDimPid = new HashSet<FactFieldValues>();
-            FactFieldValuesDimPidIdOrcidPutCodeNavigation = new HashSet<FactFieldValues>();
+            FactFieldValueDimPidIdOrcidPutCodeNavigations = new HashSet<FactFieldValue>();
+            FactFieldValueDimPids = new HashSet<FactFieldValue>();
         }
 
         public int Id { get; set; }
@@ -27,8 +29,7 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
 
         public virtual DimKnownPerson DimKnownPerson { get; set; }
-        public virtual DimOrganization DimOrganization { get; set; }
-        public virtual ICollection<FactFieldValues> FactFieldValuesDimPid { get; set; }
-        public virtual ICollection<FactFieldValues> FactFieldValuesDimPidIdOrcidPutCodeNavigation { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValueDimPidIdOrcidPutCodeNavigations { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValueDimPids { get; set; }
     }
 }

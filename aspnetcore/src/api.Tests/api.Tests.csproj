@@ -14,10 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\api\api.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Services_Tests\" />
     <Folder Include="Infrastructure\" />
   </ItemGroup>

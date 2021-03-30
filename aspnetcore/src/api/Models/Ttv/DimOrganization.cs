@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable disable
+
 namespace api.Models.Ttv
 {
     public partial class DimOrganization
     {
-        public DimOrganization()
-        {
-            DimPid = new HashSet<DimPid>();
-            DimWebLink = new HashSet<DimWebLink>();
-        }
-
         public int Id { get; set; }
         public int? DimOrganizationBroader { get; set; }
         public int? DimSectorid { get; set; }
@@ -36,8 +32,5 @@ namespace api.Models.Ttv
         public int? DegreeCountPhd { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
-
-        public virtual ICollection<DimPid> DimPid { get; set; }
-        public virtual ICollection<DimWebLink> DimWebLink { get; set; }
     }
 }

@@ -28,20 +28,20 @@ namespace api.Controllers
             var orcidId = this.GetOrcidId();
 
             // Get DimPid with related entities
-            var dimPid = await _ttvContext.DimPid
+            var dimPid = await _ttvContext.DimPids
                 .Include(i => i.DimKnownPerson)
-                    .ThenInclude(i => i.DimUserProfile)
+                    .ThenInclude(i => i.DimUserProfiles)
                         .ThenInclude(i => i.DimFieldDisplaySettings)
                 .Include(i => i.DimKnownPerson)
-                    .ThenInclude(i => i.DimUserProfile)
+                    .ThenInclude(i => i.DimUserProfiles)
                         .ThenInclude(i => i.FactFieldValues)
                             .ThenInclude(i => i.DimWebLink)
                 .Include(i => i.DimKnownPerson)
-                    .ThenInclude(i => i.DimUserProfile)
+                    .ThenInclude(i => i.DimUserProfiles)
                         .ThenInclude(i => i.FactFieldValues)
                             .ThenInclude(i => i.DimName)
                 .Include(i => i.DimKnownPerson)
-                  .ThenInclude(i => i.DimNameDimKnownPersonIdConfirmedIdentityNavigation).FirstOrDefaultAsync(i => i.PidContent == orcidId);
+                  .ThenInclude(i => i.DimNameDimKnownPersonIdConfirmedIdentityNavigations).FirstOrDefaultAsync(i => i.PidContent == orcidId);
 
             // DimPid was not found
             if (dimPid == null)
@@ -56,14 +56,14 @@ namespace api.Controllers
             }
 
             // DimUserProfile was not found
-            if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
+            if (dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
             {
                 return NotFound();
             }
 
             // Collect data from DimFieldDisplaySettings and FactFieldValues entities
             var itemList = new List<ProfileEditorItem> { };
-            foreach (DimFieldDisplaySettings ds in dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings)
+            foreach (DimFieldDisplaySetting ds in dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings)
             {
                 var item = new ProfileEditorItem()
                 {
@@ -117,9 +117,9 @@ namespace api.Controllers
             var orcidId = this.GetOrcidId();
 
             // Get DimPid and related DimFieldDisplaySetting entities
-            var dimPid = await _ttvContext.DimPid
+            var dimPid = await _ttvContext.DimPids
                 .Include(i => i.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimUserProfile)
+                    .ThenInclude(dkp => dkp.DimUserProfiles)
                         .ThenInclude(dup => dup.DimFieldDisplaySettings).FirstOrDefaultAsync(i => i.PidContent == orcidId);
 
             // Check that DimPid exists
@@ -135,13 +135,13 @@ namespace api.Controllers
             }
 
             // Check that DimUserProfile exists
-            if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
+            if (dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
             {
                 return NotFound();
             }
 
             // Check that DimFieldDisplaySettings exist
-            if (dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings.Count == 0)
+            if (dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Count == 0)
             {
                 return NotFound();
             }
@@ -150,7 +150,7 @@ namespace api.Controllers
             var responseProfileEditorModificationItemList = new List<ProfileEditorModificationItem> { };
             foreach (ProfileEditorModificationItem profileEditorModificationItem in profileEditorModificationItemList)
             {
-                var dimFieldDisplaySettings = dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings.Where(d => d.Id == profileEditorModificationItem.Id).FirstOrDefault();
+                var dimFieldDisplaySettings = dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Where(d => d.Id == profileEditorModificationItem.Id).FirstOrDefault();
                 if (dimFieldDisplaySettings != null)
                 {
                     dimFieldDisplaySettings.Show = profileEditorModificationItem.Show;

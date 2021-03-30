@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable disable
+
 namespace api.Models.Ttv
 {
     public partial class DimKnownPerson
     {
         public DimKnownPerson()
         {
-            DimNameDimKnownPersonIdConfirmedIdentityNavigation = new HashSet<DimName>();
-            DimNameDimKnownPersonidFormerNamesNavigation = new HashSet<DimName>();
-            DimPid = new HashSet<DimPid>();
-            DimUserProfile = new HashSet<DimUserProfile>();
-            DimWebLink = new HashSet<DimWebLink>();
+            DimNameDimKnownPersonIdConfirmedIdentityNavigations = new HashSet<DimName>();
+            DimNameDimKnownPersonidFormerNamesNavigations = new HashSet<DimName>();
+            DimPids = new HashSet<DimPid>();
+            DimUserProfiles = new HashSet<DimUserProfile>();
+            DimWebLinks = new HashSet<DimWebLink>();
         }
 
         public int Id { get; set; }
@@ -19,10 +21,10 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
         public string ResearchDescription { get; set; }
 
-        public virtual ICollection<DimName> DimNameDimKnownPersonIdConfirmedIdentityNavigation { get; set; }
-        public virtual ICollection<DimName> DimNameDimKnownPersonidFormerNamesNavigation { get; set; }
-        public virtual ICollection<DimPid> DimPid { get; set; }
-        public virtual ICollection<DimUserProfile> DimUserProfile { get; set; }
-        public virtual ICollection<DimWebLink> DimWebLink { get; set; }
+        public virtual ICollection<DimName> DimNameDimKnownPersonIdConfirmedIdentityNavigations { get; set; }
+        public virtual ICollection<DimName> DimNameDimKnownPersonidFormerNamesNavigations { get; set; }
+        public virtual ICollection<DimPid> DimPids { get; set; }
+        public virtual ICollection<DimUserProfile> DimUserProfiles { get; set; }
+        public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
     }
 }

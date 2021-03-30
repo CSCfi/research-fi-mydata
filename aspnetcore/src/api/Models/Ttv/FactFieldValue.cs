@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable disable
+
 namespace api.Models.Ttv
 {
-    public partial class FactFieldValues
+    public partial class FactFieldValue
     {
         public int DimUserProfileId { get; set; }
         public int DimFieldDisplaySettingsId { get; set; }
@@ -17,7 +19,7 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
-        public virtual DimFieldDisplaySettings DimFieldDisplaySettings { get; set; }
+        public virtual DimFieldDisplaySetting DimFieldDisplaySettings { get; set; }
         public virtual DimName DimName { get; set; }
         public virtual DimPid DimPid { get; set; }
         public virtual DimPid DimPidIdOrcidPutCodeNavigation { get; set; }

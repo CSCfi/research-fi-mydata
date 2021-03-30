@@ -33,9 +33,9 @@ namespace api.Controllers
             // Get ORCID ID
             var orcidId = this.GetOrcidId();
 
-            var dimPid = await _ttvContext.DimPid
+            var dimPid = await _ttvContext.DimPids
                 .Include(i => i.DimKnownPerson)
-                    .ThenInclude(kp => kp.DimUserProfile).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId);
+                    .ThenInclude(kp => kp.DimUserProfiles).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId);
 
             if (dimPid == null)
             {
@@ -47,7 +47,7 @@ namespace api.Controllers
                 return NotFound();
             }
 
-            if (dimPid.DimKnownPerson.DimUserProfile.Count() == 0)
+            if (dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
             {
                 return NotFound();
             }
@@ -63,9 +63,9 @@ namespace api.Controllers
             var orcidId = this.GetOrcidId();
 
             // Check if DimPid and DimKnownPerson already exist.
-            var dimPid = await _ttvContext.DimPid
+            var dimPid = await _ttvContext.DimPids
                 .Include(i => i.DimKnownPerson)
-                .ThenInclude(i => i.DimUserProfile).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId);
+                .ThenInclude(i => i.DimUserProfiles).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId);
 
             if (dimPid == null)
             {
@@ -79,28 +79,28 @@ namespace api.Controllers
                     DimKnownPerson = new DimKnownPerson(){ Created = DateTime.Now },
                     Created = DateTime.Now
                 };
-                _ttvContext.DimPid.Add(dimPid);
+                _ttvContext.DimPids.Add(dimPid);
                 await _ttvContext.SaveChangesAsync();
             }
             else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
             {
                 // DimPid was found but it does not have DimKnownPerson.
                 var kp = new DimKnownPerson() { Created = DateTime.Now };
-                _ttvContext.DimKnownPerson.Add(kp);
+                _ttvContext.DimKnownPeople.Add(kp);
                 dimPid.DimKnownPerson = kp;
                 await _ttvContext.SaveChangesAsync();
             }
 
 
             // Add DimUserProfile
-            if (dimPid.DimKnownPerson.DimUserProfile.FirstOrDefault() == null)
+            if (dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault() == null)
             {
                 var userprofile = new DimUserProfile() {
                     DimKnownPersonId = dimPid.DimKnownPerson.Id,
                     Created = DateTime.Now,
                     AllowAllSubscriptions = false
                 };
-                _ttvContext.DimUserProfile.Add(userprofile);
+                _ttvContext.DimUserProfiles.Add(userprofile);
                 await _ttvContext.SaveChangesAsync();
             }
 
@@ -116,9 +116,9 @@ namespace api.Controllers
 
             // Get DimPid with related DimKnownPerson, DimUserProfile and DimFieldDisplaySettings
 
-            var dimPid = await _ttvContext.DimPid
+            var dimPid = await _ttvContext.DimPids
                 .Include(pid => pid.DimKnownPerson)
-                    .ThenInclude(knownPerson => knownPerson.DimUserProfile)
+                    .ThenInclude(knownPerson => knownPerson.DimUserProfiles)
                         .ThenInclude(userProfile => userProfile.FactFieldValues)
                             .ThenInclude(factFieldValues => factFieldValues.DimName)
                         .ThenInclude(userProfile => userProfile.FactFieldValues)
@@ -128,9 +128,9 @@ namespace api.Controllers
                 .Where(pid => pid.PidContent == orcidId).FirstOrDefaultAsync();
 
             // Check that user profile exists and remove related items
-            if (dimPid != null && dimPid.DimKnownPerson.DimUserProfile != null && dimPid.DimKnownPerson.DimUserProfile.FirstOrDefault() != null)
+            if (dimPid != null && dimPid.DimKnownPerson.DimUserProfiles != null && dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault() != null)
             {
-                _ttvContext.FactFieldValues.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().FactFieldValues);
+                _ttvContext.FactFieldValues.RemoveRange(dimPid.DimKnownPerson.DimUserProfiles.First().FactFieldValues);
 
                 /*
                 foreach (FactFieldValues ffv in dimPid.DimKnownPerson.DimUserProfile.First().FactFieldValues)
@@ -174,10 +174,10 @@ namespace api.Controllers
                 */
 
                 // Remove DimFieldDisplaySettings
-                _ttvContext.DimFieldDisplaySettings.RemoveRange(dimPid.DimKnownPerson.DimUserProfile.First().DimFieldDisplaySettings);
+                _ttvContext.DimFieldDisplaySettings.RemoveRange(dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings);
 
                 // Remove DimUserProfile
-                _ttvContext.DimUserProfile.Remove(dimPid.DimKnownPerson.DimUserProfile.First());
+                _ttvContext.DimUserProfiles.Remove(dimPid.DimKnownPerson.DimUserProfiles.First());
 
                 //await _ttvContext.SaveChangesAsync();
             }

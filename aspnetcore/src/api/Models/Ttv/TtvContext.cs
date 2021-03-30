@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable disable
+
 namespace api.Models.Ttv
 {
     public partial class TtvContext : DbContext
@@ -15,34 +17,36 @@ namespace api.Models.Ttv
         {
         }
 
-        public virtual DbSet<BrFieldDisplaySettingsDimRegisteredDataSource> BrFieldDisplaySettingsDimRegisteredDataSource { get; set; }
-        public virtual DbSet<DimDate> DimDate { get; set; }
-        public virtual DbSet<DimFieldDisplaySettings> DimFieldDisplaySettings { get; set; }
-        public virtual DbSet<DimKeyword> DimKeyword { get; set; }
-        public virtual DbSet<DimKnownPerson> DimKnownPerson { get; set; }
-        public virtual DbSet<DimName> DimName { get; set; }
-        public virtual DbSet<DimOrganization> DimOrganization { get; set; }
-        public virtual DbSet<DimPid> DimPid { get; set; }
-        public virtual DbSet<DimRegisteredDataSource> DimRegisteredDataSource { get; set; }
-        public virtual DbSet<DimUserProfile> DimUserProfile { get; set; }
-        public virtual DbSet<DimWebLink> DimWebLink { get; set; }
-        public virtual DbSet<FactFieldValues> FactFieldValues { get; set; }
+        public virtual DbSet<BrFieldDisplaySettingsDimRegisteredDataSource> BrFieldDisplaySettingsDimRegisteredDataSources { get; set; }
+        public virtual DbSet<DimDate> DimDates { get; set; }
+        public virtual DbSet<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; }
+        public virtual DbSet<DimKeyword> DimKeywords { get; set; }
+        public virtual DbSet<DimKnownPerson> DimKnownPeople { get; set; }
+        public virtual DbSet<DimName> DimNames { get; set; }
+        public virtual DbSet<DimOrganization> DimOrganizations { get; set; }
+        public virtual DbSet<DimPid> DimPids { get; set; }
+        public virtual DbSet<DimRegisteredDataSource> DimRegisteredDataSources { get; set; }
+        public virtual DbSet<DimUserProfile> DimUserProfiles { get; set; }
+        public virtual DbSet<DimWebLink> DimWebLinks { get; set; }
+        public virtual DbSet<FactFieldValue> FactFieldValues { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("Server=localhost;User Id=sa;Password=Test1234;database=Ttv;");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
+
             modelBuilder.Entity<BrFieldDisplaySettingsDimRegisteredDataSource>(entity =>
             {
                 entity.HasKey(e => new { e.DimFieldDisplaySettingsId, e.DimRegisteredDataSourceId })
-                    .HasName("PK__br_field__6148A772CD3C97C2");
+                    .HasName("PK__br_field__6148A77222DE2D0B");
 
                 entity.ToTable("br_field_display_settings_dim_registered_data_source");
 
@@ -51,13 +55,13 @@ namespace api.Models.Ttv
                 entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
 
                 entity.HasOne(d => d.DimFieldDisplaySettings)
-                    .WithMany(p => p.BrFieldDisplaySettingsDimRegisteredDataSource)
+                    .WithMany(p => p.BrFieldDisplaySettingsDimRegisteredDataSources)
                     .HasForeignKey(d => d.DimFieldDisplaySettingsId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKbr_field_d783303");
 
                 entity.HasOne(d => d.DimRegisteredDataSource)
-                    .WithMany(p => p.BrFieldDisplaySettingsDimRegisteredDataSource)
+                    .WithMany(p => p.BrFieldDisplaySettingsDimRegisteredDataSources)
                     .HasForeignKey(d => d.DimRegisteredDataSourceId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKbr_field_d115264");
@@ -70,37 +74,37 @@ namespace api.Models.Ttv
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.Day).HasColumnName("day");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.Property(e => e.Month).HasColumnName("month");
 
                 entity.Property(e => e.Year).HasColumnName("year");
             });
 
-            modelBuilder.Entity<DimFieldDisplaySettings>(entity =>
+            modelBuilder.Entity<DimFieldDisplaySetting>(entity =>
             {
                 entity.ToTable("dim_field_display_settings");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.DimUserProfileId).HasColumnName("dim_user_profile_id");
 
                 entity.Property(e => e.FieldIdentifier).HasColumnName("field_identifier");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.Property(e => e.Show).HasColumnName("show");
 
@@ -118,12 +122,12 @@ namespace api.Models.Ttv
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.ConceptUri)
-                    .HasColumnName("concept_uri")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("concept_uri");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.DimKeywordCloseMatch).HasColumnName("dim_keyword_close_match");
 
@@ -133,24 +137,24 @@ namespace api.Models.Ttv
 
                 entity.Property(e => e.Keyword)
                     .IsRequired()
-                    .HasColumnName("keyword")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("keyword");
 
                 entity.Property(e => e.Language)
-                    .HasColumnName("language")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("language");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.Property(e => e.Scheme)
-                    .HasColumnName("scheme")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("scheme");
 
                 entity.Property(e => e.SchemeUri)
-                    .HasColumnName("scheme_uri")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("scheme_uri");
 
                 entity.HasOne(d => d.DimKeywordCloseMatchNavigation)
                     .WithMany(p => p.InverseDimKeywordCloseMatchNavigation)
@@ -175,12 +179,12 @@ namespace api.Models.Ttv
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.Property(e => e.ResearchDescription).HasColumnName("research_description");
             });
@@ -192,38 +196,38 @@ namespace api.Models.Ttv
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.DimKnownPersonIdConfirmedIdentity).HasColumnName("dim_known_person_id_confirmed_identity");
 
                 entity.Property(e => e.DimKnownPersonidFormerNames).HasColumnName("dim_known_personid_former_names");
 
                 entity.Property(e => e.FirstNames)
-                    .HasColumnName("first_names")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("first_names");
 
                 entity.Property(e => e.FullName)
-                    .HasColumnName("full_name")
                     .HasMaxLength(255)
+                    .HasColumnName("full_name")
                     .HasComment("Only to be used, when first name + last name not known (i.e. Metax).");
 
                 entity.Property(e => e.LastName)
-                    .HasColumnName("last_name")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("last_name");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.HasOne(d => d.DimKnownPersonIdConfirmedIdentityNavigation)
-                    .WithMany(p => p.DimNameDimKnownPersonIdConfirmedIdentityNavigation)
+                    .WithMany(p => p.DimNameDimKnownPersonIdConfirmedIdentityNavigations)
                     .HasForeignKey(d => d.DimKnownPersonIdConfirmedIdentity)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("confirmed identity");
 
                 entity.HasOne(d => d.DimKnownPersonidFormerNamesNavigation)
-                    .WithMany(p => p.DimNameDimKnownPersonidFormerNamesNavigation)
+                    .WithMany(p => p.DimNameDimKnownPersonidFormerNamesNavigations)
                     .HasForeignKey(d => d.DimKnownPersonidFormerNames)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("former names");
@@ -236,12 +240,12 @@ namespace api.Models.Ttv
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.CountryCode)
-                    .HasColumnName("country_code")
-                    .HasMaxLength(2);
+                    .HasMaxLength(2)
+                    .HasColumnName("country_code");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.DegreeCountBsc).HasColumnName("degree_count_bsc");
 
@@ -256,64 +260,64 @@ namespace api.Models.Ttv
                 entity.Property(e => e.DimSectorid).HasColumnName("dim_sectorid");
 
                 entity.Property(e => e.Established)
-                    .HasColumnName("established")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("established");
 
                 entity.Property(e => e.LocalOrganizationSector)
-                    .HasColumnName("local_organization_sector")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("local_organization_sector");
 
                 entity.Property(e => e.LocalOrganizationUnitId)
-                    .HasColumnName("local_organization_unit_Id")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("local_organization_unit_Id");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.Property(e => e.NameEn)
-                    .HasColumnName("name_en")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("name_en");
 
                 entity.Property(e => e.NameFi)
-                    .HasColumnName("name_fi")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("name_fi");
 
                 entity.Property(e => e.NameSv)
-                    .HasColumnName("name_sv")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("name_sv");
 
                 entity.Property(e => e.NameUnd)
-                    .HasColumnName("name_und")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("name_und");
 
                 entity.Property(e => e.NameVariants)
-                    .HasColumnName("name_variants")
-                    .HasMaxLength(1023);
+                    .HasMaxLength(1023)
+                    .HasColumnName("name_variants");
 
                 entity.Property(e => e.OrganizationActive).HasColumnName("organization_active");
 
                 entity.Property(e => e.OrganizationBackground)
-                    .HasColumnName("organization_background")
-                    .HasMaxLength(4000);
+                    .HasMaxLength(4000)
+                    .HasColumnName("organization_background");
 
                 entity.Property(e => e.OrganizationId)
-                    .HasColumnName("organization_id")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("organization_id");
 
                 entity.Property(e => e.OrganizationType)
-                    .HasColumnName("organization_type")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("organization_type");
 
                 entity.Property(e => e.PostalAddress)
-                    .HasColumnName("postal_address")
-                    .HasMaxLength(511);
+                    .HasMaxLength(511)
+                    .HasColumnName("postal_address");
 
                 entity.Property(e => e.StaffCountAsFte).HasColumnName("staff_count_as_fte");
 
                 entity.Property(e => e.VisitingAddress)
-                    .HasColumnName("visiting_address")
-                    .HasMaxLength(4000);
+                    .HasMaxLength(4000)
+                    .HasColumnName("visiting_address");
             });
 
             modelBuilder.Entity<DimPid>(entity =>
@@ -323,8 +327,8 @@ namespace api.Models.Ttv
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.DimFundingDecisionId).HasColumnName("dim_funding_decision_id");
 
@@ -345,28 +349,23 @@ namespace api.Models.Ttv
                 entity.Property(e => e.DimServiceId).HasColumnName("dim_service_id");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.Property(e => e.PidContent)
                     .IsRequired()
-                    .HasColumnName("pid_content")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("pid_content");
 
                 entity.Property(e => e.PidType)
                     .IsRequired()
-                    .HasColumnName("pid_type")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("pid_type");
 
                 entity.HasOne(d => d.DimKnownPerson)
-                    .WithMany(p => p.DimPid)
+                    .WithMany(p => p.DimPids)
                     .HasForeignKey(d => d.DimKnownPersonId)
                     .HasConstraintName("Orcid/ISNI");
-
-                entity.HasOne(d => d.DimOrganization)
-                    .WithMany(p => p.DimPid)
-                    .HasForeignKey(d => d.DimOrganizationId)
-                    .HasConstraintName("ISNI/GRID/ROR/Business-ID\\PIC");
             });
 
             modelBuilder.Entity<DimRegisteredDataSource>(entity =>
@@ -376,18 +375,18 @@ namespace api.Models.Ttv
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.DimOrganizationId).HasColumnName("dim_organization_id");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.Property(e => e.Name)
-                    .HasColumnName("name")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("name");
             });
 
             modelBuilder.Entity<DimUserProfile>(entity =>
@@ -399,17 +398,17 @@ namespace api.Models.Ttv
                 entity.Property(e => e.AllowAllSubscriptions).HasColumnName("allow_all_subscriptions");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.DimKnownPersonId).HasColumnName("dim_known_person_id");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.HasOne(d => d.DimKnownPerson)
-                    .WithMany(p => p.DimUserProfile)
+                    .WithMany(p => p.DimUserProfiles)
                     .HasForeignKey(d => d.DimKnownPersonId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKdim_user_p611467");
@@ -422,8 +421,8 @@ namespace api.Models.Ttv
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.DimCallProgrammeId).HasColumnName("dim_call_programme_id");
 
@@ -440,40 +439,35 @@ namespace api.Models.Ttv
                 entity.Property(e => e.DimResearchDatasetId).HasColumnName("dim_research_dataset_id");
 
                 entity.Property(e => e.LanguageVariant)
-                    .HasColumnName("language_variant")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("language_variant");
 
                 entity.Property(e => e.LinkLabel)
-                    .HasColumnName("link_label")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("link_label");
 
                 entity.Property(e => e.LinkType)
-                    .HasColumnName("link_type")
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasColumnName("link_type");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.Property(e => e.Url)
-                    .HasColumnName("url")
-                    .HasMaxLength(511);
+                    .HasMaxLength(511)
+                    .HasColumnName("url");
 
                 entity.HasOne(d => d.DimKnownPerson)
-                    .WithMany(p => p.DimWebLink)
+                    .WithMany(p => p.DimWebLinks)
                     .HasForeignKey(d => d.DimKnownPersonId)
                     .HasConstraintName("web presence");
-
-                entity.HasOne(d => d.DimOrganization)
-                    .WithMany(p => p.DimWebLink)
-                    .HasForeignKey(d => d.DimOrganizationId)
-                    .HasConstraintName("language specific homepage");
             });
 
-            modelBuilder.Entity<FactFieldValues>(entity =>
+            modelBuilder.Entity<FactFieldValue>(entity =>
             {
                 entity.HasKey(e => new { e.DimUserProfileId, e.DimFieldDisplaySettingsId, e.DimNameId, e.DimWebLinkId, e.DimFundingDecisionId, e.DimPublicationId, e.DimPidId, e.DimPidIdOrcidPutCode })
-                    .HasName("PK__fact_fie__0B4803F684D29165");
+                    .HasName("PK__fact_fie__0B4803F61D0D935A");
 
                 entity.ToTable("fact_field_values");
 
@@ -494,12 +488,12 @@ namespace api.Models.Ttv
                 entity.Property(e => e.DimPidIdOrcidPutCode).HasColumnName("dim_pid_id_orcid_put_code");
 
                 entity.Property(e => e.Created)
-                    .HasColumnName("created")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
 
                 entity.Property(e => e.Modified)
-                    .HasColumnName("modified")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
 
                 entity.Property(e => e.Show).HasColumnName("show");
 
@@ -516,13 +510,13 @@ namespace api.Models.Ttv
                     .HasConstraintName("FKfact_field604813");
 
                 entity.HasOne(d => d.DimPid)
-                    .WithMany(p => p.FactFieldValuesDimPid)
+                    .WithMany(p => p.FactFieldValueDimPids)
                     .HasForeignKey(d => d.DimPidId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKfact_field989816");
 
                 entity.HasOne(d => d.DimPidIdOrcidPutCodeNavigation)
-                    .WithMany(p => p.FactFieldValuesDimPidIdOrcidPutCodeNavigation)
+                    .WithMany(p => p.FactFieldValueDimPidIdOrcidPutCodeNavigations)
                     .HasForeignKey(d => d.DimPidIdOrcidPutCode)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("orcid_put_code");

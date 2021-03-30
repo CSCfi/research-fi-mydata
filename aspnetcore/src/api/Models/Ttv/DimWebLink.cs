@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable disable
+
 namespace api.Models.Ttv
 {
     public partial class DimWebLink
     {
         public DimWebLink()
         {
-            FactFieldValues = new HashSet<FactFieldValues>();
+            FactFieldValues = new HashSet<FactFieldValue>();
         }
 
         public int Id { get; set; }
@@ -26,7 +28,6 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
 
         public virtual DimKnownPerson DimKnownPerson { get; set; }
-        public virtual DimOrganization DimOrganization { get; set; }
-        public virtual ICollection<FactFieldValues> FactFieldValues { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
     }
 }

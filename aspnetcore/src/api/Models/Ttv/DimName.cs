@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable disable
+
 namespace api.Models.Ttv
 {
     public partial class DimName
     {
         public DimName()
         {
-            FactFieldValues = new HashSet<FactFieldValues>();
+            FactFieldValues = new HashSet<FactFieldValue>();
         }
 
         public int Id { get; set; }
@@ -21,6 +23,6 @@ namespace api.Models.Ttv
 
         public virtual DimKnownPerson DimKnownPersonIdConfirmedIdentityNavigation { get; set; }
         public virtual DimKnownPerson DimKnownPersonidFormerNamesNavigation { get; set; }
-        public virtual ICollection<FactFieldValues> FactFieldValues { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
     }
 }
