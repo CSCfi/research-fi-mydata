@@ -43,22 +43,10 @@ namespace api.Controllers
                 .Include(i => i.DimKnownPerson)
                   .ThenInclude(i => i.DimNameDimKnownPersonIdConfirmedIdentityNavigations).FirstOrDefaultAsync(i => i.PidContent == orcidId);
 
-            // DimPid was not found
-            if (dimPid == null)
+            // DimPid, DimKnownPerson or DimUserProfile was not found
+            if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
             {
-                return NotFound();
-            }
-
-            // DimKnownPerson was not found
-            if (dimPid.DimKnownPerson == null)
-            {
-                return NotFound();
-            }
-
-            // DimUserProfile was not found
-            if (dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
-            {
-                return NotFound();
+                return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
             // Collect data from DimFieldDisplaySettings and FactFieldValues entities
@@ -98,7 +86,7 @@ namespace api.Controllers
                 itemList.Add(item);
             }
 
-            return Ok(itemList);
+            return Ok(new ApiResponse(data: itemList));
         }
 
 
@@ -110,7 +98,7 @@ namespace api.Controllers
             // Return immediately if there is nothing to change.
             if (profileEditorModificationItemList.Count == 0)
             {
-                return Ok();
+                return Ok(new ApiResponse(success: true));
             }
 
             // Get ORCID ID
@@ -122,28 +110,10 @@ namespace api.Controllers
                     .ThenInclude(dkp => dkp.DimUserProfiles)
                         .ThenInclude(dup => dup.DimFieldDisplaySettings).FirstOrDefaultAsync(i => i.PidContent == orcidId);
 
-            // Check that DimPid exists
-            if (dimPid == null)
+            // Check that DimPid, DimKnownPerson, DimUserProfile and DimFieldDisplaySettings exist
+            if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0 || dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Count == 0)
             {
-                return NotFound();
-            }
-
-            // Check that DimKnownPerson exists
-            if (dimPid.DimKnownPerson == null)
-            {
-                return NotFound();
-            }
-
-            // Check that DimUserProfile exists
-            if (dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
-            {
-                return NotFound();
-            }
-
-            // Check that DimFieldDisplaySettings exist
-            if (dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Count == 0)
-            {
-                return NotFound();
+                return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
             // Set DimFieldDisplaySettings property Show according to request data
@@ -160,7 +130,7 @@ namespace api.Controllers
 
             await _ttvContext.SaveChangesAsync();
 
-            return Ok(responseProfileEditorModificationItemList);
+            return Ok(new ApiResponse(data: responseProfileEditorModificationItemList));
         }
     }
 }

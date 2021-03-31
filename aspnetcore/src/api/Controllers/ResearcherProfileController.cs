@@ -1,4 +1,5 @@
 ﻿using api.Services;
+using api.Models;
 using api.Models.Ttv;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,8 +26,6 @@ namespace api.Controllers
         }
 
         // Check if profile exists.
-        // Returns 200 if profile exists.
-        // Otherwise returns 404.
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -37,22 +36,12 @@ namespace api.Controllers
                 .Include(i => i.DimKnownPerson)
                     .ThenInclude(kp => kp.DimUserProfiles).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId);
 
-            if (dimPid == null)
+            if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
             {
-                return NotFound();
+                return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            if (dimPid.DimKnownPerson == null)
-            {
-                return NotFound();
-            }
-
-            if (dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
-            {
-                return NotFound();
-            }
-
-            return Ok();
+            return Ok(new ApiResponse(success: true));
         }
 
         // Create profile
@@ -104,7 +93,7 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
             }
 
-            return Ok();
+            return Ok(new ApiResponse(success: true));
         }
 
         // Delete profile
@@ -179,8 +168,8 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
             }
 
-               
-            return Ok();
+
+            return Ok(new ApiResponse(success: true));
         }
     }
 }

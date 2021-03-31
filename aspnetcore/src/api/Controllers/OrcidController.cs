@@ -47,7 +47,7 @@ namespace api.Controllers
             // Check that pid, known person and user profile exist
             if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault() == null )
             {
-                return NotFound();
+                return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
             // Get record JSON from ORCID
@@ -272,7 +272,7 @@ namespace api.Controllers
             
             await _ttvContext.SaveChangesAsync();
 
-            return Ok(json);
+            return Ok(new ApiResponse(success: true));
         }
     }
 }
