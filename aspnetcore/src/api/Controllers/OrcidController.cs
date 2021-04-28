@@ -33,35 +33,58 @@ namespace api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            // Get ORCID ID
+            // Get userprofile
             var orcidId = this.GetOrcidId();
-
-            // Get DimPid with related entities
-            /*
-            var dimPid = await _ttvContext.DimPids
-                .Include(i => i.DimKnownPerson)
-                  .ThenInclude(i => i.DimUserProfiles)
-                    .ThenInclude(i => i.DimFieldDisplaySettings)
-                      .ThenInclude(i => i.FactFieldValues)
-                        .ThenInclude(i => i.DimWebLink)
-                .Include(i => i.DimKnownPerson)
-                  .ThenInclude(i => i.DimNameDimKnownPersonidFormerNamesNavigations).AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == "ORCID");
-            */
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-
             if (userprofileId == -1)
             {
+                // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
             // Get record JSON from ORCID
             var json = await _orcidApiService.GetJson(orcidId);
 
-            // Get DimUserProfile with related entities
-            var dimUserProfile = await _ttvContext.DimUserProfiles.FirstOrDefaultAsync(up => up.Id == userprofileId);
+            // Get DimUserProfile and related entities
+            var dimUserProfile = await _ttvContext.DimUserProfiles
+                .Include(dup => dup.DimFieldDisplaySettings)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimName)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimWebLink)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimPublication)
+                //.Include(dup => dup.FactFieldValues)
+                //    .ThenInclude(ffv => ffv.DimPidIdOrcidPutCode)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchActivity)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimEvent)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimEducation)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimCompetence)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchCommunity)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimTelephoneNumber)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimEmailAddrress)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearcherDescription)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimWebLink).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             // Get DimKnownPerson
             var dimKnownPerson = await _ttvContext.DimKnownPeople.AsNoTracking().FirstOrDefaultAsync(dkp => dkp.Id == dimUserProfile.DimKnownPersonId);
+
+            // Get FieldDisplaySettings and related entities
+            //var fieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings
+            //    .Include(d => d.FactFieldValues).AsSplitQuery().AllAsync(fdp => fdp.DimUserProfileId == dimUserProfile.Id);
 
             /*
             var dimPid = await _ttvContext.DimPids
