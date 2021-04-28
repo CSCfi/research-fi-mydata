@@ -17,6 +17,8 @@ namespace api.Models.Ttv
         public int DimUserProfileId { get; set; }
         public int FieldIdentifier { get; set; }
         public bool Show { get; set; }
+        public string SourceId { get; set; }
+        public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 

@@ -9,6 +9,11 @@ namespace api.Models.Ttv
     {
         public DimKeyword()
         {
+            BrKeywordDimFundingDecisions = new HashSet<BrKeywordDimFundingDecision>();
+            BrKeywordDimPublications = new HashSet<BrKeywordDimPublication>();
+            BrResearchDatasetDimKeywords = new HashSet<BrResearchDatasetDimKeyword>();
+            DimResearchActivityDimKeywords = new HashSet<DimResearchActivityDimKeyword>();
+            FactInfraKeywords = new HashSet<FactInfraKeyword>();
             InverseDimKeywordCloseMatchNavigation = new HashSet<DimKeyword>();
             InverseDimKeywordLanguageVariantNavigation = new HashSet<DimKeyword>();
             InverseDimKeywordRelatedNavigation = new HashSet<DimKeyword>();
@@ -23,12 +28,21 @@ namespace api.Models.Ttv
         public int? DimKeywordLanguageVariant { get; set; }
         public string ConceptUri { get; set; }
         public string SchemeUri { get; set; }
+        public string SourceId { get; set; }
+        public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
+        public int DimRegisteredDataSourceId { get; set; }
 
         public virtual DimKeyword DimKeywordCloseMatchNavigation { get; set; }
         public virtual DimKeyword DimKeywordLanguageVariantNavigation { get; set; }
         public virtual DimKeyword DimKeywordRelatedNavigation { get; set; }
+        public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
+        public virtual ICollection<BrKeywordDimFundingDecision> BrKeywordDimFundingDecisions { get; set; }
+        public virtual ICollection<BrKeywordDimPublication> BrKeywordDimPublications { get; set; }
+        public virtual ICollection<BrResearchDatasetDimKeyword> BrResearchDatasetDimKeywords { get; set; }
+        public virtual ICollection<DimResearchActivityDimKeyword> DimResearchActivityDimKeywords { get; set; }
+        public virtual ICollection<FactInfraKeyword> FactInfraKeywords { get; set; }
         public virtual ICollection<DimKeyword> InverseDimKeywordCloseMatchNavigation { get; set; }
         public virtual ICollection<DimKeyword> InverseDimKeywordLanguageVariantNavigation { get; set; }
         public virtual ICollection<DimKeyword> InverseDimKeywordRelatedNavigation { get; set; }

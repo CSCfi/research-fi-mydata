@@ -14,13 +14,15 @@ namespace api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ResearcherProfileController : TtvControllerBase
+    public class UserProfileController : TtvControllerBase
     {
+        private readonly UserProfileService _userProfileService;
         private readonly OrcidApiService _orcidApiService;
         private readonly TtvContext _ttvContext;
 
-        public ResearcherProfileController(OrcidApiService orcidApiService, TtvContext ttvContext)
+        public UserProfileController(UserProfileService userProfileService, OrcidApiService orcidApiService, TtvContext ttvContext)
         {
+            _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
             _ttvContext = ttvContext;
         }
@@ -29,19 +31,13 @@ namespace api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            // Get ORCID ID
             var orcidId = this.GetOrcidId();
-
-            var dimPid = await _ttvContext.DimPids
-                .Include(i => i.DimKnownPerson)
-                    .ThenInclude(kp => kp.DimUserProfiles).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId);
-
-            if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
+            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            if (userprofileId > 0)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: true));
             }
-
-            return Ok(new ApiResponse(success: true));
+            return Ok(new ApiResponse(success: false, reason: "profile not found"));
         }
 
         // Create profile
@@ -54,7 +50,7 @@ namespace api.Controllers
             // Check if DimPid and DimKnownPerson already exist.
             var dimPid = await _ttvContext.DimPids
                 .Include(i => i.DimKnownPerson)
-                .ThenInclude(i => i.DimUserProfiles).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId);
+                    .ThenInclude(i => i.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == "ORCID");
 
             if (dimPid == null)
             {
@@ -64,8 +60,12 @@ namespace api.Controllers
                 dimPid = new DimPid()
                 {
                     PidContent = orcidId,
-                    PidType = "orcid",
-                    DimKnownPerson = new DimKnownPerson(){ Created = DateTime.Now },
+                    PidType = "ORCID",
+                    DimKnownPerson = new DimKnownPerson(){
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    },
+                    SourceId = Constants.SourceIdentifiers.ORCID,
                     Created = DateTime.Now
                 };
                 _ttvContext.DimPids.Add(dimPid);
@@ -74,7 +74,11 @@ namespace api.Controllers
             else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
             {
                 // DimPid was found but it does not have DimKnownPerson.
-                var kp = new DimKnownPerson() { Created = DateTime.Now };
+                var kp = new DimKnownPerson()
+                {
+                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    Created = DateTime.Now
+                };
                 _ttvContext.DimKnownPeople.Add(kp);
                 dimPid.DimKnownPerson = kp;
                 await _ttvContext.SaveChangesAsync();
@@ -86,6 +90,7 @@ namespace api.Controllers
             {
                 var userprofile = new DimUserProfile() {
                     DimKnownPersonId = dimPid.DimKnownPerson.Id,
+                    SourceId = Constants.SourceIdentifiers.ORCID,
                     Created = DateTime.Now,
                     AllowAllSubscriptions = false
                 };
@@ -121,7 +126,7 @@ namespace api.Controllers
                 .Include(pid => pid.DimKnownPerson)
                     .ThenInclude(knownPerson => knownPerson.DimUserProfiles)
                         .ThenInclude(userProfile => userProfile.DimFieldDisplaySettings)
-                .Where(pid => pid.PidContent == orcidId).FirstOrDefaultAsync();
+                .Where(pid => pid.PidContent == orcidId && pid.PidType == "ORCID").AsSplitQuery().FirstOrDefaultAsync();
 
             // Check that user profile exists and remove related items
             if (dimPid != null && dimPid.DimKnownPerson.DimUserProfiles != null && dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault() != null)

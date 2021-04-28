@@ -12,7 +12,7 @@ namespace api.Models
 
         public static class SourceIdentifiers
         {
-            public const string ORCID = "orcid";
+            public const string ORCID = "ORCID";
         }
     }
 }

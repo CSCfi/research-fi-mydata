@@ -16,6 +16,8 @@ namespace api.Models.Ttv
         public int Id { get; set; }
         public int DimKnownPersonId { get; set; }
         public bool AllowAllSubscriptions { get; set; }
+        public string SourceId { get; set; }
+        public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 

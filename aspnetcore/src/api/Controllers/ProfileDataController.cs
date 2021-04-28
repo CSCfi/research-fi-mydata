@@ -41,7 +41,7 @@ namespace api.Controllers
                         .ThenInclude(i => i.FactFieldValues)
                             .ThenInclude(i => i.DimName)
                 .Include(i => i.DimKnownPerson)
-                  .ThenInclude(i => i.DimNameDimKnownPersonIdConfirmedIdentityNavigations).FirstOrDefaultAsync(i => i.PidContent == orcidId);
+                  .ThenInclude(i => i.DimNameDimKnownPersonIdConfirmedIdentityNavigations).AsSplitQuery().FirstOrDefaultAsync(i => i.PidContent == orcidId);
 
             // DimPid, DimKnownPerson or DimUserProfile was not found
             if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
@@ -108,7 +108,7 @@ namespace api.Controllers
             var dimPid = await _ttvContext.DimPids
                 .Include(i => i.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimUserProfiles)
-                        .ThenInclude(dup => dup.DimFieldDisplaySettings).FirstOrDefaultAsync(i => i.PidContent == orcidId);
+                        .ThenInclude(dup => dup.DimFieldDisplaySettings).AsSplitQuery().FirstOrDefaultAsync(i => i.PidContent == orcidId);
 
             // Check that DimPid, DimKnownPerson, DimUserProfile and DimFieldDisplaySettings exist
             if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0 || dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Count == 0)
