@@ -235,13 +235,25 @@ namespace api.Controllers
 
             foreach (OrcidResearcherUrl researchUrl in researcherUrls)
             {
-                // Create new weblink
-                // TODO - check that source is ORCID
-                var dimWebLink = dimKnownPerson.DimWebLinks.FirstOrDefault(d => d.LinkLabel == researchUrl.UrlName && d.Url == researchUrl.Url);
-                //var dimWebLink = dimPid.DimKnownPerson.DimWebLink.FirstOrDefault(d => d.LinkLabel == researchUrl.UrlName && d.Url == researchUrl.Url && d.SourceId == Constants.SourceIdentifiers.ORCID);
-                if (dimWebLink == null)
+                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
+                var factFieldValueWebLink = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == researchUrl.PutCode.Value.ToString());
+
+                if (factFieldValueWebLink != null)
                 {
-                    dimWebLink = new DimWebLink()
+                    // Update existing DimWebLink
+                    factFieldValueWebLink.DimWebLink.Url = researchUrl.Url;
+                    factFieldValueWebLink.DimWebLink.LinkLabel = researchUrl.UrlName;
+                    factFieldValueWebLink.DimWebLink.Modified = DateTime.Now;
+
+                    // Update existing FactFieldValue
+                    factFieldValueWebLink.Modified = DateTime.Now;
+
+                    await _ttvContext.SaveChangesAsync();
+                }
+                else
+                {
+                    // Create new DimWebLink
+                    var dimWebLink = new DimWebLink()
                     {
                         Url = researchUrl.Url,
                         LinkLabel = researchUrl.UrlName,
@@ -253,28 +265,20 @@ namespace api.Controllers
                         Created = DateTime.Now,
                     };
                     _ttvContext.DimWebLinks.Add(dimWebLink);
-                }
-                else
-                {
-                    dimWebLink.Modified = DateTime.Now;
-                }
-                await _ttvContext.SaveChangesAsync();
+                    await _ttvContext.SaveChangesAsync();
 
-                // Check if FactFieldValues already exists for the web link. If yes, then related DimFieldDisplaySetting must also already exist.
-                if (dimWebLink.FactFieldValues.Count == 0)
-                {
-                    // Store Orcid put code into DimPid
+                    // Add web link ORCID put code into DimPid
                     var dimPidOrcidPutCodeWebLink = new DimPid()
                     {
                         PidContent = researchUrl.PutCode.GetDbValue(),
-                        PidType = "orcid put code",
+                        PidType = "ORCID put code",
                         DimKnownPersonId = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeWebLink);
 
-                    // Create DimFieldDisplaySetting for weblink
+                    // Create DimFieldDisplaySettings for weblink
                     var dimFieldDisplaySettingsWebLink = new DimFieldDisplaySetting()
                     {
                         DimUserProfileId = dimUserProfile.Id,
@@ -283,42 +287,44 @@ namespace api.Controllers
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         Created = DateTime.Now,
                     };
+                    // Set ORCID as data source
+                    dimFieldDisplaySettingsWebLink.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                        new BrFieldDisplaySettingsDimRegisteredDataSource()
+                        {
+                            DimFieldDisplaySettingsId = dimFieldDisplaySettingsWebLink.Id,
+                            DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                        }
+                    );
                     _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsWebLink);
                     await _ttvContext.SaveChangesAsync();
 
                     // Create FactFieldValues for weblink
-                    var factFieldValuesWebLink = new FactFieldValue()
-                    {
-                        DimPidId = -1,
-                        DimUserProfileId = dimUserProfile.Id,
-                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsWebLink.Id,
-                        DimNameId = -1,
-                        DimWebLinkId = dimWebLink.Id,
-                        DimFundingDecisionId = -1,
-                        DimPublicationId = -1,
-                        DimPidIdOrcidPutCode = dimPidOrcidPutCodeWebLink.Id,
-                        DimResearchActivityId = -1,
-                        DimEventId = -1,
-                        DimEducationId = -1,
-                        DimCompetenceId = -1,
-                        DimResearchCommunityId = -1,
-                        DimTelephoneNumberId = -1,
-                        DimEmailAddrressId = -1,
-                        DimResearcherDescriptionId = -1,
-                        DimIdentifierlessDataId = -1,
-                        Show = false,
-                        PrimaryValue = false,
-                        SourceId = Constants.SourceIdentifiers.ORCID,
-                        Created = DateTime.Now,
-                    };
-
-                    _ttvContext.FactFieldValues.Add(factFieldValuesWebLink);
-                    await _ttvContext.SaveChangesAsync();
-                }
-                else
-                {
-                    dimWebLink.FactFieldValues.First().Modified = DateTime.Now;
-                    dimWebLink.FactFieldValues.First().DimFieldDisplaySettings.Modified = DateTime.Now;
+                    _ttvContext.FactFieldValues.Add(
+                        new FactFieldValue()
+                        {
+                            DimPidId = -1,
+                            DimUserProfileId = dimUserProfile.Id,
+                            DimFieldDisplaySettingsId = dimFieldDisplaySettingsWebLink.Id,
+                            DimNameId = -1,
+                            DimWebLinkId = dimWebLink.Id,
+                            DimFundingDecisionId = -1,
+                            DimPublicationId = -1,
+                            DimPidIdOrcidPutCode = dimPidOrcidPutCodeWebLink.Id,
+                            DimResearchActivityId = -1,
+                            DimEventId = -1,
+                            DimEducationId = -1,
+                            DimCompetenceId = -1,
+                            DimResearchCommunityId = -1,
+                            DimTelephoneNumberId = -1,
+                            DimEmailAddrressId = -1,
+                            DimResearcherDescriptionId = -1,
+                            DimIdentifierlessDataId = -1,
+                            Show = false,
+                            PrimaryValue = false,
+                            SourceId = Constants.SourceIdentifiers.ORCID,
+                            Created = DateTime.Now,
+                        }
+                    );
                     await _ttvContext.SaveChangesAsync();
                 }
             }
