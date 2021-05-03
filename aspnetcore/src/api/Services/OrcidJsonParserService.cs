@@ -55,14 +55,30 @@ namespace api.Services
             return orcidDate;
         }
 
+        // Check if Json document is full ORCID record
+        private Boolean isFullRecord(JsonDocument orcidJsonDocument)
+        {
+            var myValue = new System.Text.Json.JsonElement();
+            return orcidJsonDocument.RootElement.TryGetProperty("person", out myValue);
+        }
+
         // Get given names
         public OrcidGivenNames GetGivenNames(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                return new OrcidGivenNames(
-                    document.RootElement.GetProperty("person").GetProperty("name").GetProperty("given-names").GetProperty("value").GetString()
-                );
+                if (this.isFullRecord(document))
+                {
+                    return new OrcidGivenNames(
+                        document.RootElement.GetProperty("person").GetProperty("name").GetProperty("given-names").GetProperty("value").GetString()
+                    );
+                }
+                else
+                {
+                    return new OrcidGivenNames(
+                        document.RootElement.GetProperty("name").GetProperty("given-names").GetProperty("value").GetString()
+                    );
+                }
             }
         }
 
@@ -71,9 +87,18 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                return new OrcidFamilyName(
-                    document.RootElement.GetProperty("person").GetProperty("name").GetProperty("family-name").GetProperty("value").GetString()
-                );
+                if (this.isFullRecord(document))
+                {
+                    return new OrcidFamilyName(
+                        document.RootElement.GetProperty("person").GetProperty("name").GetProperty("family-name").GetProperty("value").GetString()
+                    );
+                }
+                else
+                {
+                    return new OrcidFamilyName(
+                        document.RootElement.GetProperty("name").GetProperty("family-name").GetProperty("value").GetString()
+                    );
+                }
             }
         }
 
@@ -82,19 +107,38 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                return new OrcidCreditName(
-                    document.RootElement.GetProperty("person").GetProperty("name").GetProperty("credit-name").GetProperty("value").GetString()
-                );
+                if (this.isFullRecord(document))
+                {
+                    return new OrcidCreditName(
+                        document.RootElement.GetProperty("person").GetProperty("name").GetProperty("credit-name").GetProperty("value").GetString()
+                    );
+                }
+                else
+                {
+                    return new OrcidCreditName(
+                        document.RootElement.GetProperty("name").GetProperty("credit-name").GetProperty("value").GetString()
+                    );
+                }
             }
         }
 
         // Get other names
         public List<OrcidOtherName> GetOtherNames(String json)
         {
+            var otherNamesElement = new JsonElement();
             var otherNames = new List<OrcidOtherName> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("other-names").GetProperty("other-name").EnumerateArray())
+                if (this.isFullRecord(document))
+                {
+                    otherNamesElement = document.RootElement.GetProperty("person").GetProperty("other-names");
+                }
+                else
+                {
+                    otherNamesElement = document.RootElement.GetProperty("other-names");
+                }
+
+                foreach (JsonElement element in otherNamesElement.GetProperty("other-name").EnumerateArray())
                 {
                     var value = element.GetProperty("content").GetString();
                     var putCode = this.getOrcidPutCode(element);
@@ -111,7 +155,16 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                var biographyElement = document.RootElement.GetProperty("person").GetProperty("biography");
+                var biographyElement = new JsonElement();
+
+                if (this.isFullRecord(document))
+                {
+                    biographyElement = document.RootElement.GetProperty("person").GetProperty("biography");
+                }
+                else
+                {
+                    biographyElement = document.RootElement.GetProperty("biography");
+                }
                 var value = biographyElement.GetProperty("content").GetString();
                 var putCode = this.getOrcidPutCode(biographyElement);
 

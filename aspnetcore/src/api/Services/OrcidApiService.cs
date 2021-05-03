@@ -15,15 +15,31 @@ namespace api.Services
             Client = client;
         }
 
-        public String GetUrl(String orcidId)
+        public String GetUrlRecord(String orcidId)
         {
             return Client.BaseAddress + orcidId + "/record";
         }
 
-        public async Task<String> GetJson(String orcidId)
+        public String GetUrlPersonalDetails(String orcidId)
+        {
+            return Client.BaseAddress + orcidId + "/personal-details";
+        }
+
+        // Get ORCID record
+        public async Task<String> GetRecord(String orcidId)
         {
             string result = string.Empty;
-            var url = GetUrl(orcidId);
+            var url = GetUrlRecord(orcidId);
+            HttpResponseMessage response = await Client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        // Get ORCID personal details
+        public async Task<String> GetPersonalDetails(String orcidId)
+        {
+            string result = string.Empty;
+            var url = GetUrlPersonalDetails(orcidId);
             HttpResponseMessage response = await Client.GetAsync(url);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();

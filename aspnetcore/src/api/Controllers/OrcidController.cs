@@ -43,11 +43,12 @@ namespace api.Controllers
             }
 
             // Get record JSON from ORCID
-            var json = await _orcidApiService.GetJson(orcidId);
+            var json = await _orcidApiService.GetRecord(orcidId);
 
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimName)
                 .Include(dup => dup.FactFieldValues)
@@ -56,8 +57,8 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimFundingDecision)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPublication)
-                //.Include(dup => dup.FactFieldValues)
-                //    .ThenInclude(ffv => ffv.DimPidIdOrcidPutCode)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearchActivity)
                 .Include(dup => dup.FactFieldValues)
@@ -80,57 +81,25 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimWebLink).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             // Get DimKnownPerson
-            var dimKnownPerson = await _ttvContext.DimKnownPeople.AsNoTracking().FirstOrDefaultAsync(dkp => dkp.Id == dimUserProfile.DimKnownPersonId);
+            var dimKnownPerson = await _ttvContext.DimKnownPeople
+                .Include(dkp => dkp.DimNameDimKnownPersonIdConfirmedIdentityNavigations).AsSplitQuery().AsNoTracking().FirstOrDefaultAsync(dkp => dkp.Id == dimUserProfile.DimKnownPersonId);
 
-            // Get FieldDisplaySettings and related entities
-            //var fieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings
-            //    .Include(d => d.FactFieldValues).AsSplitQuery().AllAsync(fdp => fdp.DimUserProfileId == dimUserProfile.Id);
-
-            /*
-            var dimPid = await _ttvContext.DimPids
-                .Include(i => i.DimKnownPerson)
-                  .ThenInclude(i => i.DimUserProfiles)
-                    .ThenInclude(i => i.DimFieldDisplaySettings)
-                      .ThenInclude(i => i.FactFieldValues)
-                        .ThenInclude(i => i.DimWebLink)
-                .Include(i => i.DimKnownPerson)
-                  .ThenInclude(i => i.DimNameDimKnownPersonidFormerNamesNavigations).AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == "ORCID");
-            */
-
-            // TODO
-            // Names
-            // Check if entry for DimName from source "orcid" already exists
-
-            // TODO - check that source is ORCID
-            //var dimName = dimPid.DimKnownPerson.DimNameDimKnownPersonIdConfirmedIdentityNavigation.FirstOrDefault(d => d.SourceId == Constants.SourceIdentifiers.ORCID);
-            var dimName = dimKnownPerson.DimNameDimKnownPersonIdConfirmedIdentityNavigations.FirstOrDefault();
-            if (dimName == null)
-            {
-                dimName = new DimName()
-                {
-                    LastName = _orcidJsonParserService.GetFamilyName(json).Value,
-                    FirstNames = _orcidJsonParserService.GetGivenNames(json).Value,
-                    DimKnownPersonIdConfirmedIdentity = dimKnownPerson.Id,
-                    DimKnownPersonidFormerNames = -1,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
-                    Created = DateTime.Now
-                };
-                _ttvContext.DimNames.Add(dimName);
-            }
-            else
-            {
-                dimName.LastName = _orcidJsonParserService.GetFamilyName(json).Value;
-                dimName.FirstNames = _orcidJsonParserService.GetGivenNames(json).Value;
-                dimName.Modified = DateTime.Now;
-            }
-            await _ttvContext.SaveChangesAsync();
+            // Get ORCID registered data source id
+            var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
 
 
+            // DimName
+            var dimName = await _userProfileService.AddOrUpdateDimName(
+                _orcidJsonParserService.GetFamilyName(json).Value,
+                _orcidJsonParserService.GetGivenNames(json).Value,
+                dimKnownPerson.Id,
+                orcidRegisteredDataSourceId
+            );
 
-            // Create DimFieldDisplaySetting for LastName
-            // TODO - check that source is ORCID
-            var dimFieldDisplaySettingsLastName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(d => d.FieldIdentifier == Constants.FieldIdentifiers.LAST_NAME);
-            //var dimFieldDisplaySettingsLastName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(d => d.FieldIdentifier == Constants.FieldIdentifiers.LAST_NAME && d.SourceId == Constants.SourceIdentifiers.ORCID);
+            // LastName: DimFieldDisplaySettings
+            var dimFieldDisplaySettingsLastName = dimUserProfile.DimFieldDisplaySettings
+                .FirstOrDefault(dimFieldDisplaysettingsLastName => dimFieldDisplaysettingsLastName.FieldIdentifier == Constants.FieldIdentifiers.LAST_NAME && dimFieldDisplaysettingsLastName.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaysettingsLastName.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
+
             if (dimFieldDisplaySettingsLastName == null)
             {
                 dimFieldDisplaySettingsLastName = new DimFieldDisplaySetting()
@@ -139,45 +108,25 @@ namespace api.Controllers
                     FieldIdentifier = Constants.FieldIdentifiers.LAST_NAME,
                     Show = false,
                     SourceId = Constants.SourceIdentifiers.ORCID,
-                    Created = DateTime.Now,
+                    Created = DateTime.Now
                 };
+                dimFieldDisplaySettingsLastName.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+                    {
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsLastName.Id,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                    }
+                );
                 _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsLastName);
             }
             else
             {
                 dimFieldDisplaySettingsLastName.Modified = DateTime.Now;
             }
-
-            // Create DimFieldDisplaySetting for FirstNames
-            // TODO - check that source is ORCID
-            var dimFieldDisplaySettingsFirstNames = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(d => d.FieldIdentifier == Constants.FieldIdentifiers.FIRST_NAMES);
-            // var dimFieldDisplaySettingsFirstNames = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(d => d.FieldIdentifier == Constants.FieldIdentifiers.FIRST_NAMES && d.SourceId == Constants.SourceIdentifiers.ORCID);
-            if (dimFieldDisplaySettingsFirstNames == null)
-            {
-                dimFieldDisplaySettingsFirstNames = new DimFieldDisplaySetting()
-                {
-                    DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.FIRST_NAMES,
-                    Show = false,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
-                    Created = DateTime.Now,
-                };
-                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsFirstNames);
-            }
-            else
-            {
-                dimFieldDisplaySettingsFirstNames.Modified = DateTime.Now;
-            }
-
             await _ttvContext.SaveChangesAsync();
 
-
-
-
-            // Create FactFieldValues for LastName
-            // TODO - check that source is ORCID
-            var factFieldValuesLastName = dimUserProfile.FactFieldValues.FirstOrDefault(f => f.DimFieldDisplaySettingsId == dimFieldDisplaySettingsLastName.Id);
-            //var factFieldValuesLastName = dimUserProfile.FactFieldValues.FirstOrDefault(f => f.DimFieldDisplaySettingsId == dimFieldDisplaySettingsLastName.Id && f.SourceId == Constants.SourceIdentifiers.ORCID);
+            // LastName: FactFieldValues
+            var factFieldValuesLastName = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesLastName => factFieldValuesLastName.DimFieldDisplaySettingsId == dimFieldDisplaySettingsLastName.Id);
             if (factFieldValuesLastName == null)
             {
                 factFieldValuesLastName = new FactFieldValue()
@@ -210,12 +159,42 @@ namespace api.Controllers
             {
                 factFieldValuesLastName.Modified = DateTime.Now;
             }
+            await _ttvContext.SaveChangesAsync();
 
-            // Create FactFieldValues for FirstNames
-            // TODO - check that source is ORCID
-            var factFieldValuesFirstNames = dimUserProfile.FactFieldValues.FirstOrDefault(f => f.DimFieldDisplaySettingsId == dimFieldDisplaySettingsFirstNames.Id);
-            //var factFieldValuesFirstNames = dimUserProfile.FactFieldValues.FirstOrDefault(f => f.DimFieldDisplaySettingsId == dimFieldDisplaySettingsFirstNames.Id && f.SourceId == Constants.SourceIdentifiers.ORCID);
-            if (factFieldValuesFirstNames == null) {
+
+            // FirstNames: DimFieldDisplaySettings
+            var dimFieldDisplaySettingsFirstNames = dimUserProfile.DimFieldDisplaySettings
+                .FirstOrDefault(dimFieldDisplaysettingsFirstNames => dimFieldDisplaysettingsFirstNames.FieldIdentifier == Constants.FieldIdentifiers.FIRST_NAMES && dimFieldDisplaysettingsFirstNames.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaysettingsFirstNames.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
+            if (dimFieldDisplaySettingsFirstNames == null)
+            {
+                dimFieldDisplaySettingsFirstNames = new DimFieldDisplaySetting()
+                {
+                    DimUserProfileId = dimUserProfile.Id,
+                    FieldIdentifier = Constants.FieldIdentifiers.FIRST_NAMES,
+                    Show = false,
+                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    Created = DateTime.Now,
+                };
+                dimFieldDisplaySettingsFirstNames.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+                    {
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsFirstNames.Id,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                    }
+                );
+                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsFirstNames);
+            }
+            else
+            {
+                dimFieldDisplaySettingsFirstNames.Modified = DateTime.Now;
+            }
+            await _ttvContext.SaveChangesAsync();
+
+
+            // FirstNames: FactFieldValues
+            var factFieldValuesFirstNames = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesFirstNames => factFieldValuesFirstNames.DimFieldDisplaySettingsId == dimFieldDisplaySettingsFirstNames.Id);
+            if (factFieldValuesFirstNames == null)
+            {
                 factFieldValuesFirstNames = new FactFieldValue()
                 {
                     DimPidId = -1,
@@ -246,7 +225,6 @@ namespace api.Controllers
             {
                 factFieldValuesFirstNames.Modified = DateTime.Now;
             }
-
             await _ttvContext.SaveChangesAsync();
 
 
