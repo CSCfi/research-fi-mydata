@@ -328,11 +328,79 @@ namespace api.Controllers
                     await _ttvContext.SaveChangesAsync();
                 }
             }
-            
-            // Biography
-            //var biography = _orcidJsonParserService.GetBiography(json);
-            //dimPid.DimKnownPerson.ResearchDescription = biography;
-            
+
+            // Researcher description
+            var dimResearcherDescription = await _userProfileService.AddOrUpdateDimResearcherDescription(
+                "",
+                _orcidJsonParserService.GetBiography(json).Value,
+                "",
+                dimKnownPerson.Id,
+                orcidRegisteredDataSourceId
+            );
+
+            // Researcher description: DimFieldDisplaySettings
+            var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings
+                .FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
+
+            if (dimFieldDisplaySettingsResearcherDescription == null)
+            {
+                dimFieldDisplaySettingsResearcherDescription = new DimFieldDisplaySetting()
+                {
+                    DimUserProfileId = dimUserProfile.Id,
+                    FieldIdentifier = Constants.FieldIdentifiers.RESEARCHER_DESCRIPTION,
+                    Show = false,
+                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    Created = DateTime.Now
+                };
+                dimFieldDisplaySettingsResearcherDescription.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+                    {
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                    }
+                );
+                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsResearcherDescription);
+            }
+            else
+            {
+                dimFieldDisplaySettingsResearcherDescription.Modified = DateTime.Now;
+            }
+            await _ttvContext.SaveChangesAsync();
+
+            // Researcher description: FactFieldValues
+            var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesResearcherDescription => factFieldValuesResearcherDescription.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
+            if (factFieldValuesResearcherDescription == null)
+            {
+                factFieldValuesResearcherDescription = new FactFieldValue()
+                {
+                    DimPidId = -1,
+                    DimUserProfileId = dimUserProfile.Id,
+                    DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id,
+                    DimNameId = -1,
+                    DimWebLinkId = -1,
+                    DimFundingDecisionId = -1,
+                    DimPublicationId = -1,
+                    DimPidIdOrcidPutCode = -1,
+                    DimResearchActivityId = -1,
+                    DimEventId = -1,
+                    DimEducationId = -1,
+                    DimCompetenceId = -1,
+                    DimResearchCommunityId = -1,
+                    DimTelephoneNumberId = -1,
+                    DimEmailAddrressId = -1,
+                    DimResearcherDescriptionId = dimResearcherDescription.Id,
+                    DimIdentifierlessDataId = -1,
+                    Show = false,
+                    PrimaryValue = false,
+                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    Created = DateTime.Now,
+                };
+                _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
+            }
+            else
+            {
+                factFieldValuesResearcherDescription.Modified = DateTime.Now;
+            }
             await _ttvContext.SaveChangesAsync();
 
             return Ok(new ApiResponse(success: true));

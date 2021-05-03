@@ -8,6 +8,7 @@ namespace api.Models
             public const int LAST_NAME = 101;
             public const int FIRST_NAMES = 102;
             public const int WEB_LINK = 110;
+            public const int RESEARCHER_DESCRIPTION = 120;
         }
 
         public static class SourceIdentifiers

@@ -71,5 +71,33 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
             return dimName;
         }
+
+        public async Task<DimResearcherDescription> AddOrUpdateDimResearcherDescription(String description_fi, String description_en, String description_sv, int dimKnownPersonId, int dimRegisteredDataSourceId)
+        {
+            var dimResearcherDescription = await _ttvContext.DimResearcherDescriptions.FirstOrDefaultAsync(dr => dr.DimKnownPersonId == dimKnownPersonId && dr.DimRegisteredDataSourceId == dimRegisteredDataSourceId);
+            if (dimResearcherDescription == null)
+            {
+                dimResearcherDescription = new DimResearcherDescription()
+                {
+                    ResearchDescriptionFi = description_fi,
+                    ResearchDescriptionEn = description_en,
+                    ResearchDescriptionSv = description_sv,
+                    SourceId = "",
+                    Created = DateTime.Now,
+                    DimKnownPersonId = dimKnownPersonId,
+                    DimRegisteredDataSourceId = dimRegisteredDataSourceId
+                };
+                _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription);
+            }
+            else
+            {
+                dimResearcherDescription.ResearchDescriptionFi = description_fi;
+                dimResearcherDescription.ResearchDescriptionEn = description_en;
+                dimResearcherDescription.ResearchDescriptionSv = description_sv;
+                dimResearcherDescription.Modified = DateTime.Now;
+            }
+            await _ttvContext.SaveChangesAsync();
+            return dimResearcherDescription;
+        }
     }
 }
