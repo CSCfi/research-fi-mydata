@@ -18,6 +18,7 @@ namespace api.Models.Ttv
             DimOrcidPublicationDimReferencedata = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationParentPublicationTypeCodeNavigations = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationPublicationTypeCode2Navigations = new HashSet<DimOrcidPublication>();
+            DimOrcidPublicationPublicationTypeCodeNavigations = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationTargetAudienceCodeNavigations = new HashSet<DimOrcidPublication>();
             DimPublicationArticleTypeCodeNavigations = new HashSet<DimPublication>();
             DimPublicationParentPublicationTypeCodeNavigations = new HashSet<DimPublication>();
@@ -50,6 +51,7 @@ namespace api.Models.Ttv
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationDimReferencedata { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationParentPublicationTypeCodeNavigations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationPublicationTypeCode2Navigations { get; set; }
+        public virtual ICollection<DimOrcidPublication> DimOrcidPublicationPublicationTypeCodeNavigations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationTargetAudienceCodeNavigations { get; set; }
         public virtual ICollection<DimPublication> DimPublicationArticleTypeCodeNavigations { get; set; }
         public virtual ICollection<DimPublication> DimPublicationParentPublicationTypeCodeNavigations { get; set; }

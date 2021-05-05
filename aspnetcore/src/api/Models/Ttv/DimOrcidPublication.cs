@@ -17,7 +17,7 @@ namespace api.Models.Ttv
         public int Id { get; set; }
         public int? DimParentOrcidPublicationId { get; set; }
         public int ParentPublicationTypeCode { get; set; }
-        public string PublicationTypeCode { get; set; }
+        public int PublicationTypeCode { get; set; }
         public int PublicationTypeCode2 { get; set; }
         public int ArticleTypeCode { get; set; }
         public int TargetAudienceCode { get; set; }
@@ -61,6 +61,7 @@ namespace api.Models.Ttv
         public virtual DimKnownPerson OrcidPersonDataSourceNavigation { get; set; }
         public virtual DimReferencedatum ParentPublicationTypeCodeNavigation { get; set; }
         public virtual DimReferencedatum PublicationTypeCode2Navigation { get; set; }
+        public virtual DimReferencedatum PublicationTypeCodeNavigation { get; set; }
         public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
