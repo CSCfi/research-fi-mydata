@@ -99,5 +99,36 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
             return dimResearcherDescription;
         }
+
+        public FactFieldValue GetEmptyFactFieldValue()
+        {
+            return new FactFieldValue()
+            {
+                DimUserProfileId = -1,
+                DimFieldDisplaySettingsId = -1,
+                DimNameId = -1,
+                DimWebLinkId = -1,
+                DimFundingDecisionId = -1,
+                DimPublicationId = -1,
+                DimPidId = -1,
+                DimPidIdOrcidPutCode = -1,
+                DimResearchActivityId = -1,
+                DimEventId = -1,
+                DimEducationId = -1,
+                DimCompetenceId = -1,
+                DimResearchCommunityId = -1,
+                DimTelephoneNumberId = -1,
+                DimEmailAddrressId = -1,
+                DimResearcherDescriptionId = -1,
+                DimIdentifierlessDataId = -1,
+                DimOrcidPublicationId = -1,
+                Show = false,
+                PrimaryValue = false,
+                SourceId = " ",
+                SourceDescription = null,
+                Created = DateTime.Now,
+                Modified = null
+            };
+        }
     }
 }

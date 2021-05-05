@@ -129,31 +129,11 @@ namespace api.Controllers
             var factFieldValuesLastName = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesLastName => factFieldValuesLastName.DimFieldDisplaySettingsId == dimFieldDisplaySettingsLastName.Id);
             if (factFieldValuesLastName == null)
             {
-                factFieldValuesLastName = new FactFieldValue()
-                {
-                    DimPidId = -1,
-                    DimUserProfileId = dimUserProfile.Id,
-                    DimFieldDisplaySettingsId = dimFieldDisplaySettingsLastName.Id,
-                    DimNameId = dimName.Id,
-                    DimWebLinkId = -1,
-                    DimFundingDecisionId = -1,
-                    DimPublicationId = -1,
-                    DimPidIdOrcidPutCode = -1,
-                    DimResearchActivityId = -1,
-                    DimEventId = -1,
-                    DimEducationId = -1,
-                    DimCompetenceId = -1,
-                    DimResearchCommunityId = -1,
-                    DimTelephoneNumberId = -1,
-                    DimEmailAddrressId = -1,
-                    DimResearcherDescriptionId = -1,
-                    DimIdentifierlessDataId = -1,
-                    DimOrcidPublicationId = -1,
-                    Show = false,
-                    PrimaryValue = false,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
-                    Created = DateTime.Now,
-                };
+                factFieldValuesLastName = _userProfileService.GetEmptyFactFieldValue();
+                factFieldValuesLastName.DimUserProfileId = dimUserProfile.Id;
+                factFieldValuesLastName.DimFieldDisplaySettingsId = dimFieldDisplaySettingsLastName.Id;
+                factFieldValuesLastName.DimNameId = dimName.Id;
+                factFieldValuesLastName.SourceId = Constants.SourceIdentifiers.ORCID;
                 _ttvContext.FactFieldValues.Add(factFieldValuesLastName);
             }
             else
@@ -196,31 +176,11 @@ namespace api.Controllers
             var factFieldValuesFirstNames = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesFirstNames => factFieldValuesFirstNames.DimFieldDisplaySettingsId == dimFieldDisplaySettingsFirstNames.Id);
             if (factFieldValuesFirstNames == null)
             {
-                factFieldValuesFirstNames = new FactFieldValue()
-                {
-                    DimPidId = -1,
-                    DimUserProfileId = dimUserProfile.Id,
-                    DimFieldDisplaySettingsId = dimFieldDisplaySettingsFirstNames.Id,
-                    DimNameId = dimName.Id,
-                    DimWebLinkId = -1,
-                    DimFundingDecisionId = -1,
-                    DimPublicationId = -1,
-                    DimPidIdOrcidPutCode = -1,
-                    DimResearchActivityId = -1,
-                    DimEventId = -1,
-                    DimEducationId = -1,
-                    DimCompetenceId = -1,
-                    DimResearchCommunityId = -1,
-                    DimTelephoneNumberId = -1,
-                    DimEmailAddrressId = -1,
-                    DimResearcherDescriptionId = -1,
-                    DimIdentifierlessDataId = -1,
-                    DimOrcidPublicationId = -1,
-                    Show = false,
-                    PrimaryValue = false,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
-                    Created = DateTime.Now,
-                };
+                factFieldValuesFirstNames = _userProfileService.GetEmptyFactFieldValue();
+                factFieldValuesFirstNames.DimUserProfileId = dimUserProfile.Id;
+                factFieldValuesFirstNames.DimFieldDisplaySettingsId = dimFieldDisplaySettingsFirstNames.Id;
+                factFieldValuesFirstNames.DimNameId = dimName.Id;
+                factFieldValuesFirstNames.SourceId = Constants.SourceIdentifiers.ORCID;
                 _ttvContext.FactFieldValues.Add(factFieldValuesFirstNames);
             }
             else
@@ -238,17 +198,17 @@ namespace api.Controllers
             foreach (OrcidResearcherUrl researchUrl in researcherUrls)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
-                var factFieldValueWebLink = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == researchUrl.PutCode.Value.ToString());
+                var factFieldValuesWebLink = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == researchUrl.PutCode.Value.ToString());
 
-                if (factFieldValueWebLink != null)
+                if (factFieldValuesWebLink != null)
                 {
                     // Update existing DimWebLink
-                    factFieldValueWebLink.DimWebLink.Url = researchUrl.Url;
-                    factFieldValueWebLink.DimWebLink.LinkLabel = researchUrl.UrlName;
-                    factFieldValueWebLink.DimWebLink.Modified = DateTime.Now;
+                    factFieldValuesWebLink.DimWebLink.Url = researchUrl.Url;
+                    factFieldValuesWebLink.DimWebLink.LinkLabel = researchUrl.UrlName;
+                    factFieldValuesWebLink.DimWebLink.Modified = DateTime.Now;
 
                     // Update existing FactFieldValue
-                    factFieldValueWebLink.Modified = DateTime.Now;
+                    factFieldValuesWebLink.Modified = DateTime.Now;
 
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -301,33 +261,13 @@ namespace api.Controllers
                     await _ttvContext.SaveChangesAsync();
 
                     // Create FactFieldValues for weblink
-                    _ttvContext.FactFieldValues.Add(
-                        new FactFieldValue()
-                        {
-                            DimPidId = -1,
-                            DimUserProfileId = dimUserProfile.Id,
-                            DimFieldDisplaySettingsId = dimFieldDisplaySettingsWebLink.Id,
-                            DimNameId = -1,
-                            DimWebLinkId = dimWebLink.Id,
-                            DimFundingDecisionId = -1,
-                            DimPublicationId = -1,
-                            DimPidIdOrcidPutCode = dimPidOrcidPutCodeWebLink.Id,
-                            DimResearchActivityId = -1,
-                            DimEventId = -1,
-                            DimEducationId = -1,
-                            DimCompetenceId = -1,
-                            DimResearchCommunityId = -1,
-                            DimTelephoneNumberId = -1,
-                            DimEmailAddrressId = -1,
-                            DimResearcherDescriptionId = -1,
-                            DimIdentifierlessDataId = -1,
-                            DimOrcidPublicationId = -1,
-                            Show = false,
-                            PrimaryValue = false,
-                            SourceId = Constants.SourceIdentifiers.ORCID,
-                            Created = DateTime.Now,
-                        }
-                    );
+                    factFieldValuesWebLink = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesWebLink.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuesWebLink.DimFieldDisplaySettingsId = dimFieldDisplaySettingsWebLink.Id;
+                    factFieldValuesWebLink.DimWebLinkId = dimWebLink.Id;
+                    factFieldValuesWebLink.DimPidIdOrcidPutCode = dimPidOrcidPutCodeWebLink.Id;
+                    factFieldValuesWebLink.SourceId = Constants.SourceIdentifiers.ORCID;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesWebLink);
                     await _ttvContext.SaveChangesAsync();
                 }
             }
@@ -374,31 +314,11 @@ namespace api.Controllers
             var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesResearcherDescription => factFieldValuesResearcherDescription.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
             if (factFieldValuesResearcherDescription == null)
             {
-                factFieldValuesResearcherDescription = new FactFieldValue()
-                {
-                    DimPidId = -1,
-                    DimUserProfileId = dimUserProfile.Id,
-                    DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id,
-                    DimNameId = -1,
-                    DimWebLinkId = -1,
-                    DimFundingDecisionId = -1,
-                    DimPublicationId = -1,
-                    DimPidIdOrcidPutCode = -1,
-                    DimResearchActivityId = -1,
-                    DimEventId = -1,
-                    DimEducationId = -1,
-                    DimCompetenceId = -1,
-                    DimResearchCommunityId = -1,
-                    DimTelephoneNumberId = -1,
-                    DimEmailAddrressId = -1,
-                    DimResearcherDescriptionId = dimResearcherDescription.Id,
-                    DimIdentifierlessDataId = -1,
-                    DimOrcidPublicationId = -1,
-                    Show = false,
-                    PrimaryValue = false,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
-                    Created = DateTime.Now,
-                };
+                factFieldValuesResearcherDescription = _userProfileService.GetEmptyFactFieldValue();
+                factFieldValuesResearcherDescription.DimUserProfileId = dimUserProfile.Id;
+                factFieldValuesResearcherDescription.DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id;
+                factFieldValuesResearcherDescription.DimResearcherDescriptionId = dimResearcherDescription.Id;
+                factFieldValuesResearcherDescription.SourceId = Constants.SourceIdentifiers.ORCID;
                 _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
             }
             else
