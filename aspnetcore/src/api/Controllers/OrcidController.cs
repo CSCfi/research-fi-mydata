@@ -17,17 +17,17 @@ namespace api.Controllers
     [Authorize]
     public class OrcidController : TtvControllerBase
     {
+        private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly OrcidApiService _orcidApiService;
         private readonly OrcidJsonParserService _orcidJsonParserService;
-        private readonly TtvContext _ttvContext;
 
-        public OrcidController(UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, TtvContext ttvContext)
+        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService)
         {
+            _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
-            _orcidJsonParserService = orcidJsonParserService;
-            _ttvContext = ttvContext;
+            _orcidJsonParserService = orcidJsonParserService;            
         }
 
         [HttpGet]

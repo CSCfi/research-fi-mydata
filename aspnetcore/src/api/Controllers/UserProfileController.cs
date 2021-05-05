@@ -16,15 +16,15 @@ namespace api.Controllers
     [Authorize]
     public class UserProfileController : TtvControllerBase
     {
+        private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly OrcidApiService _orcidApiService;
-        private readonly TtvContext _ttvContext;
 
-        public UserProfileController(UserProfileService userProfileService, OrcidApiService orcidApiService, TtvContext ttvContext)
+        public UserProfileController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService)
         {
+            _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
-            _ttvContext = ttvContext;
         }
 
         // Check if profile exists.
@@ -105,73 +105,102 @@ namespace api.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete()
         {
-            // Get ORCID ID
+            // Get userprofile
             var orcidId = this.GetOrcidId();
-
-            // Get DimPid with related DimKnownPerson, DimUserProfile and DimFieldDisplaySettings
-
-            var dimPid = await _ttvContext.DimPids
-                .Include(pid => pid.DimKnownPerson)
-                    .ThenInclude(knownPerson => knownPerson.DimUserProfiles)
-                        .ThenInclude(userProfile => userProfile.FactFieldValues)
-                            .ThenInclude(factFieldValues => factFieldValues.DimPidIdOrcidPutCodeNavigation)
-                .Include(pid => pid.DimKnownPerson)
-                    .ThenInclude(knownPerson => knownPerson.DimUserProfiles)
-                        .ThenInclude(userProfile => userProfile.FactFieldValues)
-                            .ThenInclude(factFieldValues => factFieldValues.DimName)
-                .Include(pid => pid.DimKnownPerson)
-                    .ThenInclude(knownPerson => knownPerson.DimUserProfiles)
-                        .ThenInclude(userProfile => userProfile.FactFieldValues)
-                            .ThenInclude(factFieldValues => factFieldValues.DimWebLink)
-                .Include(pid => pid.DimKnownPerson)
-                    .ThenInclude(knownPerson => knownPerson.DimUserProfiles)
-                        .ThenInclude(userProfile => userProfile.DimFieldDisplaySettings)
-                .Where(pid => pid.PidContent == orcidId && pid.PidType == "ORCID").AsSplitQuery().FirstOrDefaultAsync();
-
-            // Check that user profile exists and remove related items
-            if (dimPid != null && dimPid.DimKnownPerson.DimUserProfiles != null && dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault() != null)
+            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            if (userprofileId == -1)
             {
-                foreach (FactFieldValue ffv in dimPid.DimKnownPerson.DimUserProfiles.First().FactFieldValues)
-                {
-                    // Remove ORCID put codes
-                    if (ffv.DimPidIdOrcidPutCode != -1)
-                    {
-                        _ttvContext.FactFieldValues.Remove(ffv);
-                        _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
-                    }
-
-                    // Remove names
-                    if (ffv.DimNameId != -1)
-                    {
-                        // DimName can have several related FactFieldValues (for first name, last name, etc). Remove them all.
-
-                        // TODO: Check if all FactFieldValues and DimName can be removed, or should only current FactFieldValue
-                        // be removed and DimName only when it does not have any related FactFieldValues left?
-                        _ttvContext.FactFieldValues.RemoveRange(ffv.DimName.FactFieldValues);
-                        _ttvContext.DimNames.Remove(ffv.DimName);
-                    }
-
-                    // Remove web links
-                    else if (ffv.DimWebLinkId != -1)
-                    {
-                        _ttvContext.FactFieldValues.Remove(ffv);
-                        _ttvContext.DimWebLinks.Remove(ffv.DimWebLink);
-                    }
-                }
-                await _ttvContext.SaveChangesAsync();
-
-
-                // Remove DimFieldDisplaySettings
-                _ttvContext.DimFieldDisplaySettings.RemoveRange(dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings);
-
-                // Remove DimUserProfile
-                _ttvContext.DimUserProfiles.Remove(dimPid.DimKnownPerson.DimUserProfiles.First());
-
-                // TODO: Should DimKnownPerson be removed?
-                // TODO: Should DimPid be removed?
-
-                await _ttvContext.SaveChangesAsync();
+                return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Get DimUserProfile and related entities
+            var dimUserProfile = await _ttvContext.DimUserProfiles
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimName)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimWebLink)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimPublication)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchActivity)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimEvent)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimEducation)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimCompetence)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchCommunity)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimTelephoneNumber)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimEmailAddrress)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearcherDescription)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimWebLink).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+
+            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
+            {
+                // Remove ORCID put code
+                if (ffv.DimPidIdOrcidPutCode != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
+                }
+
+                // Remove name
+                if (ffv.DimNameId != -1)
+                {
+                    // DimName can have several related FactFieldValues (for first name, last name, etc). Remove them all.
+
+                    // TODO: Check if all FactFieldValues and DimName can be removed, or should only current FactFieldValue
+                    // be removed and DimName only when it does not have any related FactFieldValues left?
+                    _ttvContext.FactFieldValues.RemoveRange(ffv.DimName.FactFieldValues);
+                    _ttvContext.DimNames.Remove(ffv.DimName);
+                }
+
+                // Remove web link
+                else if (ffv.DimWebLinkId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimWebLinks.Remove(ffv.DimWebLink);
+                }
+
+                // Remove researcher description
+                else if (ffv.DimResearcherDescriptionId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimResearcherDescriptions.Remove(ffv.DimResearcherDescription);
+                }
+            }
+            await _ttvContext.SaveChangesAsync();
+
+            // Remove DimFieldDisplaySettings relation to DimRegisteredDataSource
+            foreach (DimFieldDisplaySetting dimFieldDisplaySetting in dimUserProfile.DimFieldDisplaySettings)
+            {
+                _ttvContext.BrFieldDisplaySettingsDimRegisteredDataSources.RemoveRange(dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources);
+            }
+
+            // Remove DimFieldDisplaySettings
+            _ttvContext.DimFieldDisplaySettings.RemoveRange(dimUserProfile.DimFieldDisplaySettings);
+
+            // Remove DimUserProfile
+            _ttvContext.DimUserProfiles.Remove(dimUserProfile);
+
+            // TODO: Should DimKnownPerson be removed?
+            // TODO: Should DimPid be removed?
+
+            await _ttvContext.SaveChangesAsync();
+            
 
 
             return Ok(new ApiResponse(success: true));
