@@ -24,11 +24,11 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
         public int DimKnownPersonIdConfirmedIdentity { get; set; }
-        public int DimKnownPersonidFormerNames { get; set; }
+        public int DimKnownPersonIdOtherNames { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
 
         public virtual DimKnownPerson DimKnownPersonIdConfirmedIdentityNavigation { get; set; }
-        public virtual DimKnownPerson DimKnownPersonidFormerNamesNavigation { get; set; }
+        public virtual DimKnownPerson DimKnownPersonIdOtherNamesNavigation { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual ICollection<BrParticipatesInFundingGroup> BrParticipatesInFundingGroups { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }

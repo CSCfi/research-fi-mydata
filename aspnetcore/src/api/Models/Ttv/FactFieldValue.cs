@@ -24,6 +24,7 @@ namespace api.Models.Ttv
         public int DimEmailAddrressId { get; set; }
         public int DimResearcherDescriptionId { get; set; }
         public int DimIdentifierlessDataId { get; set; }
+        public int DimOrcidPublicationId { get; set; }
         public bool? Show { get; set; }
         public bool? PrimaryValue { get; set; }
         public string SourceId { get; set; }
@@ -39,6 +40,7 @@ namespace api.Models.Ttv
         public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimIdentifierlessDatum DimIdentifierlessData { get; set; }
         public virtual DimName DimName { get; set; }
+        public virtual DimOrcidPublication DimOrcidPublication { get; set; }
         public virtual DimPid DimPid { get; set; }
         public virtual DimPid DimPidIdOrcidPutCodeNavigation { get; set; }
         public virtual DimPublication DimPublication { get; set; }

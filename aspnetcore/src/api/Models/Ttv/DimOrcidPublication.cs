@@ -10,12 +10,14 @@ namespace api.Models.Ttv
         public DimOrcidPublication()
         {
             DimPids = new HashSet<DimPid>();
-            InverseDimOrcidPublicationNavigation = new HashSet<DimOrcidPublication>();
+            FactFieldValues = new HashSet<FactFieldValue>();
+            InverseDimParentOrcidPublication = new HashSet<DimOrcidPublication>();
         }
 
         public int Id { get; set; }
-        public int? DimOrcidPublicationId { get; set; }
+        public int? DimParentOrcidPublicationId { get; set; }
         public int ParentPublicationTypeCode { get; set; }
+        public string PublicationTypeCode { get; set; }
         public int PublicationTypeCode2 { get; set; }
         public int ArticleTypeCode { get; set; }
         public int TargetAudienceCode { get; set; }
@@ -36,7 +38,6 @@ namespace api.Models.Ttv
         public string PublisherLocation { get; set; }
         public string ParentPublicationName { get; set; }
         public string ParentPublicationEditors { get; set; }
-        public string PublicationTypeCode { get; set; }
         public int? LicenseCode { get; set; }
         public string LanguageCode { get; set; }
         public string OpenAccessCode { get; set; }
@@ -51,15 +52,18 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
         public int OrcidPersonDataSource { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
+        public int DimReferencedataid { get; set; }
 
         public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
-        public virtual DimOrcidPublication DimOrcidPublicationNavigation { get; set; }
+        public virtual DimOrcidPublication DimParentOrcidPublication { get; set; }
+        public virtual DimReferencedatum DimReferencedata { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimKnownPerson OrcidPersonDataSourceNavigation { get; set; }
         public virtual DimReferencedatum ParentPublicationTypeCodeNavigation { get; set; }
         public virtual DimReferencedatum PublicationTypeCode2Navigation { get; set; }
         public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
-        public virtual ICollection<DimOrcidPublication> InverseDimOrcidPublicationNavigation { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
+        public virtual ICollection<DimOrcidPublication> InverseDimParentOrcidPublication { get; set; }
     }
 }

@@ -15,6 +15,7 @@ namespace api.Models.Ttv
             BrLanguageCodesForDatasets = new HashSet<BrLanguageCodesForDataset>();
             DimEducations = new HashSet<DimEducation>();
             DimOrcidPublicationArticleTypeCodeNavigations = new HashSet<DimOrcidPublication>();
+            DimOrcidPublicationDimReferencedata = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationParentPublicationTypeCodeNavigations = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationPublicationTypeCode2Navigations = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationTargetAudienceCodeNavigations = new HashSet<DimOrcidPublication>();
@@ -34,6 +35,7 @@ namespace api.Models.Ttv
         public string NameFi { get; set; }
         public string NameEn { get; set; }
         public string NameSv { get; set; }
+        public string State { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
@@ -45,6 +47,7 @@ namespace api.Models.Ttv
         public virtual ICollection<BrLanguageCodesForDataset> BrLanguageCodesForDatasets { get; set; }
         public virtual ICollection<DimEducation> DimEducations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationArticleTypeCodeNavigations { get; set; }
+        public virtual ICollection<DimOrcidPublication> DimOrcidPublicationDimReferencedata { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationParentPublicationTypeCodeNavigations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationPublicationTypeCode2Navigations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationTargetAudienceCodeNavigations { get; set; }
