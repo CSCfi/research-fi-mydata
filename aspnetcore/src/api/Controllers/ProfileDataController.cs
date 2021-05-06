@@ -89,14 +89,14 @@ namespace api.Controllers
                 // FieldIdentifier defines what type of data the field contains.
                 switch (ds.FieldIdentifier)
                 {
-                    case Constants.FieldIdentifiers.FIRST_NAMES:
+                    case Constants.FieldIdentifiers.PERSON_FIRST_NAMES:
                         item.Name = ds.FactFieldValues.First().DimName.FirstNames;
                         break;
-                    case Constants.FieldIdentifiers.LAST_NAME:
+                    case Constants.FieldIdentifiers.PERSON_LAST_NAME:
                         item.Name = ds.FactFieldValues.First().DimName.LastName;
                         break;
-                    // case Constants.FieldIdentifiers.RESEARCHER_DESCRIPTION:
-                    case Constants.FieldIdentifiers.WEB_LINK:
+                    // case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
+                    case Constants.FieldIdentifiers.PERSON_WEB_LINK:
                         item.WebLink = new ProfileEditorWebLink()
                         {
                             Url = ds.FactFieldValues.First().DimWebLink.Url,

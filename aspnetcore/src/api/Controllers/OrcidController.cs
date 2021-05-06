@@ -98,14 +98,14 @@ namespace api.Controllers
 
             // LastName: DimFieldDisplaySettings
             var dimFieldDisplaySettingsLastName = dimUserProfile.DimFieldDisplaySettings
-                .FirstOrDefault(dimFieldDisplaysettingsLastName => dimFieldDisplaysettingsLastName.FieldIdentifier == Constants.FieldIdentifiers.LAST_NAME && dimFieldDisplaysettingsLastName.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaysettingsLastName.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
+                .FirstOrDefault(dimFieldDisplaysettingsLastName => dimFieldDisplaysettingsLastName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_LAST_NAME && dimFieldDisplaysettingsLastName.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaysettingsLastName.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
 
             if (dimFieldDisplaySettingsLastName == null)
             {
                 dimFieldDisplaySettingsLastName = new DimFieldDisplaySetting()
                 {
                     DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.LAST_NAME,
+                    FieldIdentifier = Constants.FieldIdentifiers.PERSON_LAST_NAME,
                     Show = false,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     Created = DateTime.Now
@@ -145,13 +145,13 @@ namespace api.Controllers
 
             // FirstNames: DimFieldDisplaySettings
             var dimFieldDisplaySettingsFirstNames = dimUserProfile.DimFieldDisplaySettings
-                .FirstOrDefault(dimFieldDisplaysettingsFirstNames => dimFieldDisplaysettingsFirstNames.FieldIdentifier == Constants.FieldIdentifiers.FIRST_NAMES && dimFieldDisplaysettingsFirstNames.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaysettingsFirstNames.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
+                .FirstOrDefault(dimFieldDisplaysettingsFirstNames => dimFieldDisplaysettingsFirstNames.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIRST_NAMES && dimFieldDisplaysettingsFirstNames.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaysettingsFirstNames.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
             if (dimFieldDisplaySettingsFirstNames == null)
             {
                 dimFieldDisplaySettingsFirstNames = new DimFieldDisplaySetting()
                 {
                     DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.FIRST_NAMES,
+                    FieldIdentifier = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
                     Show = false,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     Created = DateTime.Now,
@@ -244,7 +244,7 @@ namespace api.Controllers
                     var dimFieldDisplaySettingsWebLink = new DimFieldDisplaySetting()
                     {
                         DimUserProfileId = dimUserProfile.Id,
-                        FieldIdentifier = Constants.FieldIdentifiers.WEB_LINK,
+                        FieldIdentifier = Constants.FieldIdentifiers.PERSON_WEB_LINK,
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         Created = DateTime.Now,
@@ -283,14 +283,14 @@ namespace api.Controllers
 
             // Researcher description: DimFieldDisplaySettings
             var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings
-                .FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
+                .FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
 
             if (dimFieldDisplaySettingsResearcherDescription == null)
             {
                 dimFieldDisplaySettingsResearcherDescription = new DimFieldDisplaySetting()
                 {
                     DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.RESEARCHER_DESCRIPTION,
+                    FieldIdentifier = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
                     Show = false,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     Created = DateTime.Now
