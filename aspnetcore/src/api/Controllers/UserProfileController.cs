@@ -181,6 +181,13 @@ namespace api.Controllers
                     _ttvContext.FactFieldValues.Remove(ffv);
                     _ttvContext.DimResearcherDescriptions.Remove(ffv.DimResearcherDescription);
                 }
+
+                // Remove email
+                else if (ffv.DimEmailAddrressId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimEmailAddrresses.Remove(ffv.DimEmailAddrress);
+                }
             }
             await _ttvContext.SaveChangesAsync();
 

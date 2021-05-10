@@ -48,7 +48,7 @@ namespace api.Controllers
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
+                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources).AsNoTracking()
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimName)
                 .Include(dup => dup.FactFieldValues)
@@ -326,6 +326,72 @@ namespace api.Controllers
                 factFieldValuesResearcherDescription.Modified = DateTime.Now;
             }
             await _ttvContext.SaveChangesAsync();
+
+
+            // Email
+            var emails = _orcidJsonParserService.GetEmails(json);
+            foreach (OrcidEmail email in emails)
+            {
+                // Email: DimEmailAddrressess
+                var dimEmailAddress = await _userProfileService.AddOrUpdateDimEmailAddress(
+                    email.Value,
+                    dimKnownPerson.Id,
+                    orcidRegisteredDataSourceId
+                );
+
+                // Email: DimFieldDisplaySettings
+                var dimFieldDisplaySettingsEmailAddress = dimUserProfile.DimFieldDisplaySettings
+                    .FirstOrDefault(dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS && dimFieldDisplaySettingsEmailAddress.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
+                if (dimFieldDisplaySettingsEmailAddress == null)
+                {
+                    dimFieldDisplaySettingsEmailAddress = new DimFieldDisplaySetting()
+                    {
+                        DimUserProfileId = dimUserProfile.Id,
+                        FieldIdentifier = Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                        Show = false,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    dimFieldDisplaySettingsEmailAddress.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                        new BrFieldDisplaySettingsDimRegisteredDataSource()
+                        {
+                            DimFieldDisplaySettingsId = dimFieldDisplaySettingsEmailAddress.Id,
+                            DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                        }
+                    );
+                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsEmailAddress);
+                }
+                else
+                {
+                    dimFieldDisplaySettingsEmailAddress.Modified = DateTime.Now;
+                }
+                await _ttvContext.SaveChangesAsync();
+
+                // Email: FactFieldValues
+                var factFieldValuesEmailAddress = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesEmailAddress => factFieldValuesEmailAddress.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id);
+                if (factFieldValuesEmailAddress == null)
+                {
+                    factFieldValuesEmailAddress = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesEmailAddress.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuesEmailAddress.DimFieldDisplaySettingsId = dimFieldDisplaySettingsEmailAddress.Id;
+                    factFieldValuesEmailAddress.DimEmailAddrressId = dimEmailAddress.Id;
+                    factFieldValuesEmailAddress.SourceId = Constants.SourceIdentifiers.ORCID;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesEmailAddress);
+                }
+                else
+                {
+                    factFieldValuesEmailAddress.Modified = DateTime.Now;
+                }
+                await _ttvContext.SaveChangesAsync();
+            }
+
+            // Keyword
+            var keywords = _orcidJsonParserService.GetKeywords(json);
+            foreach (OrcidKeyword keyword in keywords)
+            {
+                // TODO
+            }
+
 
             return Ok(new ApiResponse(success: true));
         }

@@ -100,6 +100,29 @@ namespace api.Services
             return dimResearcherDescription;
         }
 
+        public async Task<DimEmailAddrress> AddOrUpdateDimEmailAddress(string emailAddress, int dimKnownPersonId, int dimRegisteredDataSourceId)
+        {
+            var dimEmailAddress = await _ttvContext.DimEmailAddrresses.FirstOrDefaultAsync(dr => dr.Email == emailAddress && dr.DimKnownPersonId == dimKnownPersonId && dr.DimRegisteredDataSourceId == dimRegisteredDataSourceId);
+            if (dimEmailAddress == null)
+            {
+                dimEmailAddress = new DimEmailAddrress()
+                {
+                    Email = emailAddress,
+                    SourceId = "",
+                    Created = DateTime.Now,
+                    DimKnownPersonId = dimKnownPersonId,
+                    DimRegisteredDataSourceId = dimRegisteredDataSourceId
+                };
+                _ttvContext.DimEmailAddrresses.Add(dimEmailAddress);
+            }
+            else
+            {
+                dimEmailAddress.Modified = DateTime.Now;
+            }
+            await _ttvContext.SaveChangesAsync();
+            return dimEmailAddress;
+        }
+
         public FactFieldValue GetEmptyFactFieldValue()
         {
             return new FactFieldValue()
