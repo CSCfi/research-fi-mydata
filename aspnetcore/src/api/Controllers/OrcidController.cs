@@ -97,33 +97,7 @@ namespace api.Controllers
             );
 
             // LastName: DimFieldDisplaySettings
-            var dimFieldDisplaySettingsLastName = dimUserProfile.DimFieldDisplaySettings
-                .FirstOrDefault(dimFieldDisplaysettingsLastName => dimFieldDisplaysettingsLastName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_LAST_NAME && dimFieldDisplaysettingsLastName.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaysettingsLastName.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
-
-            if (dimFieldDisplaySettingsLastName == null)
-            {
-                dimFieldDisplaySettingsLastName = new DimFieldDisplaySetting()
-                {
-                    DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.PERSON_LAST_NAME,
-                    Show = false,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
-                    Created = DateTime.Now
-                };
-                dimFieldDisplaySettingsLastName.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                    new BrFieldDisplaySettingsDimRegisteredDataSource()
-                    {
-                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsLastName.Id,
-                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
-                    }
-                );
-                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsLastName);
-            }
-            else
-            {
-                dimFieldDisplaySettingsLastName.Modified = DateTime.Now;
-            }
-            await _ttvContext.SaveChangesAsync();
+            var dimFieldDisplaySettingsLastName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsLastName => dimFieldDisplaysettingsLastName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_LAST_NAME && dimFieldDisplaysettingsLastName.SourceId == Constants.SourceIdentifiers.ORCID);
 
             // LastName: FactFieldValues
             var factFieldValuesLastName = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesLastName => factFieldValuesLastName.DimFieldDisplaySettingsId == dimFieldDisplaySettingsLastName.Id);
@@ -144,33 +118,7 @@ namespace api.Controllers
 
 
             // FirstNames: DimFieldDisplaySettings
-            var dimFieldDisplaySettingsFirstNames = dimUserProfile.DimFieldDisplaySettings
-                .FirstOrDefault(dimFieldDisplaysettingsFirstNames => dimFieldDisplaysettingsFirstNames.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIRST_NAMES && dimFieldDisplaysettingsFirstNames.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaysettingsFirstNames.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
-            if (dimFieldDisplaySettingsFirstNames == null)
-            {
-                dimFieldDisplaySettingsFirstNames = new DimFieldDisplaySetting()
-                {
-                    DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
-                    Show = false,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
-                    Created = DateTime.Now,
-                };
-                dimFieldDisplaySettingsFirstNames.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                    new BrFieldDisplaySettingsDimRegisteredDataSource()
-                    {
-                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsFirstNames.Id,
-                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
-                    }
-                );
-                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsFirstNames);
-            }
-            else
-            {
-                dimFieldDisplaySettingsFirstNames.Modified = DateTime.Now;
-            }
-            await _ttvContext.SaveChangesAsync();
-
+            var dimFieldDisplaySettingsFirstNames = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsFirstNames => dimFieldDisplaysettingsFirstNames.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIRST_NAMES && dimFieldDisplaysettingsFirstNames.SourceId == Constants.SourceIdentifiers.ORCID);
 
             // FirstNames: FactFieldValues
             var factFieldValuesFirstNames = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesFirstNames => factFieldValuesFirstNames.DimFieldDisplaySettingsId == dimFieldDisplaySettingsFirstNames.Id);
@@ -239,26 +187,10 @@ namespace api.Controllers
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeWebLink);
-
-                    // Create DimFieldDisplaySettings for weblink
-                    var dimFieldDisplaySettingsWebLink = new DimFieldDisplaySetting()
-                    {
-                        DimUserProfileId = dimUserProfile.Id,
-                        FieldIdentifier = Constants.FieldIdentifiers.PERSON_WEB_LINK,
-                        Show = false,
-                        SourceId = Constants.SourceIdentifiers.ORCID,
-                        Created = DateTime.Now,
-                    };
-                    // Set ORCID as data source
-                    dimFieldDisplaySettingsWebLink.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                        new BrFieldDisplaySettingsDimRegisteredDataSource()
-                        {
-                            DimFieldDisplaySettingsId = dimFieldDisplaySettingsWebLink.Id,
-                            DimRegisteredDataSourceId = orcidRegisteredDataSourceId
-                        }
-                    );
-                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsWebLink);
                     await _ttvContext.SaveChangesAsync();
+
+                    // Get DimFieldDisplaySettings for weblink
+                    var dimFieldDisplaySettingsWebLink = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK && dfdsWebLink.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for weblink
                     factFieldValuesWebLink = _userProfileService.GetEmptyFactFieldValue();
@@ -282,33 +214,7 @@ namespace api.Controllers
             );
 
             // Researcher description: DimFieldDisplaySettings
-            var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings
-                .FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
-
-            if (dimFieldDisplaySettingsResearcherDescription == null)
-            {
-                dimFieldDisplaySettingsResearcherDescription = new DimFieldDisplaySetting()
-                {
-                    DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
-                    Show = false,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
-                    Created = DateTime.Now
-                };
-                dimFieldDisplaySettingsResearcherDescription.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                    new BrFieldDisplaySettingsDimRegisteredDataSource()
-                    {
-                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id,
-                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
-                    }
-                );
-                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsResearcherDescription);
-            }
-            else
-            {
-                dimFieldDisplaySettingsResearcherDescription.Modified = DateTime.Now;
-            }
-            await _ttvContext.SaveChangesAsync();
+            var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.SourceId == Constants.SourceIdentifiers.ORCID);
 
             // Researcher description: FactFieldValues
             var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesResearcherDescription => factFieldValuesResearcherDescription.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
@@ -340,32 +246,7 @@ namespace api.Controllers
                 );
 
                 // Email: DimFieldDisplaySettings
-                var dimFieldDisplaySettingsEmailAddress = dimUserProfile.DimFieldDisplaySettings
-                    .FirstOrDefault(dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS && dimFieldDisplaySettingsEmailAddress.BrFieldDisplaySettingsDimRegisteredDataSources.Any(br => br.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id && br.DimRegisteredDataSourceId == orcidRegisteredDataSourceId));
-                if (dimFieldDisplaySettingsEmailAddress == null)
-                {
-                    dimFieldDisplaySettingsEmailAddress = new DimFieldDisplaySetting()
-                    {
-                        DimUserProfileId = dimUserProfile.Id,
-                        FieldIdentifier = Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
-                        Show = false,
-                        SourceId = Constants.SourceIdentifiers.ORCID,
-                        Created = DateTime.Now
-                    };
-                    dimFieldDisplaySettingsEmailAddress.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                        new BrFieldDisplaySettingsDimRegisteredDataSource()
-                        {
-                            DimFieldDisplaySettingsId = dimFieldDisplaySettingsEmailAddress.Id,
-                            DimRegisteredDataSourceId = orcidRegisteredDataSourceId
-                        }
-                    );
-                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingsEmailAddress);
-                }
-                else
-                {
-                    dimFieldDisplaySettingsEmailAddress.Modified = DateTime.Now;
-                }
-                await _ttvContext.SaveChangesAsync();
+                var dimFieldDisplaySettingsEmailAddress = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS && dimFieldDisplaySettingsEmailAddress.SourceId == Constants.SourceIdentifiers.ORCID);
 
                 // Email: FactFieldValues
                 var factFieldValuesEmailAddress = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesEmailAddress => factFieldValuesEmailAddress.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id);

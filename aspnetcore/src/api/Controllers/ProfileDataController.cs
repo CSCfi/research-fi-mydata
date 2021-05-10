@@ -39,85 +39,212 @@ namespace api.Controllers
             var dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimName)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimWebLink)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimPublication)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchActivity)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimEvent)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimEducation)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimCompetence)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchCommunity)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimTelephoneNumber)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimEmailAddrress)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearcherDescription)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimWebLink).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                        .ThenInclude(br => br.DimRegisteredDataSource).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimWebLink).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimName).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimWebLink).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimFundingDecision).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimPublication).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimResearchActivity).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimEvent).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimEducation).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimCompetence).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchCommunity).AsNoTracking()
+                //.Include(dup => dup.DimFieldDisplaySettings)
+                //    .ThenInclude(dfds => dfds.FactFieldValues)
+                //        .ThenInclude(ffv => ffv.DimTelephoneNumber).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimEmailAddrress).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
 
-
+            var profileDataResponse = new ProfileEditorDataResponse() {};
 
             // Collect data from DimFieldDisplaySettings and FactFieldValues entities
-            var itemList = new List<ProfileEditorItem> { };
-            foreach (DimFieldDisplaySetting ds in dimUserProfile.DimFieldDisplaySettings)
+            foreach (DimFieldDisplaySetting dfds in dimUserProfile.DimFieldDisplaySettings)
             {
-                var item = new ProfileEditorItem()
-                {
-                    Id = ds.Id,
-                    FieldIdentifier = ds.FieldIdentifier,
-                    Show = ds.Show,
-                    //SourceId = ds.,
-                    Name = null,
-                    WebLink = null
-                };
-
                 // FieldIdentifier defines what type of data the field contains.
-                switch (ds.FieldIdentifier)
+                switch (dfds.FieldIdentifier)
                 {
                     case Constants.FieldIdentifiers.PERSON_FIRST_NAMES:
-                        item.Name = ds.FactFieldValues.First().DimName.FirstNames;
+                        var firstNamesGroup = new ProfileEditorGroupFirstNames()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemName>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            firstNamesGroup.items.Add(
+                                new ProfileEditorItemName()
+                                {
+                                    Value = ffv.DimName.FirstNames,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimNameId,
+                                        Type = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
+                                        Show = ffv.Show
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.personal.firstNamesGroups.Add(firstNamesGroup);
                         break;
                     case Constants.FieldIdentifiers.PERSON_LAST_NAME:
-                        item.Name = ds.FactFieldValues.First().DimName.LastName;
-                        break;
-                    // case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
-                    case Constants.FieldIdentifiers.PERSON_WEB_LINK:
-                        item.WebLink = new ProfileEditorWebLink()
+                        var lastNameGroup = new ProfileEditorGroupLastName()
                         {
-                            Url = ds.FactFieldValues.First().DimWebLink.Url,
-                            UrlLabel = ds.FactFieldValues.First().DimWebLink.LinkLabel
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemName>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_LAST_NAME,
+                                Show = dfds.Show
+                            }
                         };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            lastNameGroup.items.Add(
+                                new ProfileEditorItemName()
+                                {
+                                    Value = ffv.DimName.LastName,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimNameId,
+                                        Type = Constants.FieldIdentifiers.PERSON_LAST_NAME,
+                                        Show = ffv.Show
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.personal.lastNameGroups.Add(lastNameGroup);
+                        break;
+                    case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
+                        var researcherDescriptionGroup = new ProfileEditorGroupResearcherDescription()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemResearcherDescription>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            researcherDescriptionGroup.items.Add(
+                                new ProfileEditorItemResearcherDescription()
+                                {
+                                    ResearchDescriptionEn = ffv.DimResearcherDescription.ResearchDescriptionEn,
+                                    ResearchDescriptionFi = ffv.DimResearcherDescription.ResearchDescriptionFi,
+                                    ResearchDescriptionSv = ffv.DimResearcherDescription.ResearchDescriptionSv,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimResearcherDescriptionId,
+                                        Type = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                                        Show = ffv.Show
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.personal.researcherDescriptionGroups.Add(researcherDescriptionGroup);
+                        break;
+
+                    case Constants.FieldIdentifiers.PERSON_WEB_LINK:
+                        var webLinkGroup = new ProfileEditorGroupWebLink()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemWebLink>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_WEB_LINK,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            webLinkGroup.items.Add(
+                                new ProfileEditorItemWebLink()
+                                {
+                                    Url = ffv.DimWebLink.Url,
+                                    LinkLabel = ffv.DimWebLink.LinkLabel,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimWebLinkId,
+                                        Type = Constants.FieldIdentifiers.PERSON_WEB_LINK,
+                                        Show = ffv.Show
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.personal.webLinksGroups.Add(webLinkGroup);
                         break;
                     default:
                         break;
                 }
 
-                itemList.Add(item);
+                //    itemList.Add(item);
             }
 
-            return Ok(new ApiResponse(data: itemList));
+            return Ok(new ApiResponse(success: true, reason: "", data: profileDataResponse));
         }
 
 
 
         // PATCH: api/ProfileData/
         [HttpPatch]
-        public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorModificationItem> profileEditorModificationItemList)
+        public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorGroupMeta> profileEditorModificationItemList)
         {
             // Return immediately if there is nothing to change.
             if (profileEditorModificationItemList.Count == 0)
@@ -141,8 +268,8 @@ namespace api.Controllers
             }
 
             // Set DimFieldDisplaySettings property Show according to request data
-            var responseProfileEditorModificationItemList = new List<ProfileEditorModificationItem> { };
-            foreach (ProfileEditorModificationItem profileEditorModificationItem in profileEditorModificationItemList)
+            var responseProfileEditorModificationItemList = new List<ProfileEditorGroupMeta> { };
+            foreach (ProfileEditorGroupMeta profileEditorModificationItem in profileEditorModificationItemList)
             {
                 var dimFieldDisplaySettings = dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Where(d => d.Id == profileEditorModificationItem.Id).FirstOrDefault();
                 if (dimFieldDisplaySettings != null)

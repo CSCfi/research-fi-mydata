@@ -96,8 +96,35 @@ namespace api.Controllers
                 };
                 _ttvContext.DimUserProfiles.Add(userprofile);
                 await _ttvContext.SaveChangesAsync();
-            }
 
+
+                // Add DimFieldDisplaySettings for data source ORCID
+                var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
+                // TODO: enumerate Constants.FieldIdentifiers
+                foreach (int fieldIdentifier in new List<int> { Constants.FieldIdentifiers.PERSON_FIRST_NAMES, Constants.FieldIdentifiers.PERSON_LAST_NAME, Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION, Constants.FieldIdentifiers.PERSON_WEB_LINK, Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS })
+                {
+                    var dimFieldDisplaySetting = new DimFieldDisplaySetting()
+                    {
+                        DimUserProfileId = userprofile.Id,
+                        FieldIdentifier = fieldIdentifier,
+                        Show = false,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+
+                    dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                        new BrFieldDisplaySettingsDimRegisteredDataSource()
+                        {
+                            DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
+                            DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                        }
+                    );
+
+                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
+                }
+                await _ttvContext.SaveChangesAsync();
+                
+            }
             return Ok(new ApiResponse(success: true));
         }
 
