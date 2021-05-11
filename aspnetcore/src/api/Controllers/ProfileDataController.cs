@@ -228,7 +228,7 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.webLinksGroups.Add(webLinkGroup);
+                        profileDataResponse.personal.webLinkGroups.Add(webLinkGroup);
                         break;
                     default:
                         break;
@@ -244,44 +244,116 @@ namespace api.Controllers
 
         // PATCH: api/ProfileData/
         [HttpPatch]
-        public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorGroupMeta> profileEditorModificationItemList)
+        public async Task<IActionResult> PatchMany([FromBody] ProfileEditorDataModificationRequest profileEditorDataModificationRequest)
         {
             // Return immediately if there is nothing to change.
-            if (profileEditorModificationItemList.Count == 0)
+            if (profileEditorDataModificationRequest.groups.Count == 0 && profileEditorDataModificationRequest.items.Count == 0)
             {
                 return Ok(new ApiResponse(success: true));
             }
 
-            // Get ORCID ID
+            // Get userprofile
             var orcidId = this.GetOrcidId();
-
-            // Get DimPid and related DimFieldDisplaySetting entities
-            var dimPid = await _ttvContext.DimPids
-                .Include(i => i.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimUserProfiles)
-                        .ThenInclude(dup => dup.DimFieldDisplaySettings).AsSplitQuery().FirstOrDefaultAsync(i => i.PidContent == orcidId);
-
-            // Check that DimPid, DimKnownPerson, DimUserProfile and DimFieldDisplaySettings exist
-            if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0 || dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Count == 0)
+            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            if (userprofileId == -1)
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            // Set DimFieldDisplaySettings property Show according to request data
-            var responseProfileEditorModificationItemList = new List<ProfileEditorGroupMeta> { };
-            foreach (ProfileEditorGroupMeta profileEditorModificationItem in profileEditorModificationItemList)
+            var dimUserProfile = await _ttvContext.DimUserProfiles
+                .Include(dup => dup.DimFieldDisplaySettings)
+                .Include(dup => dup.FactFieldValues).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+
+
+            var profileEditorDataModificationResponse = new ProfileEditorDataModificationResponse();
+
+            // Set 'Show' in DimFieldDisplaySettings
+            foreach (ProfileEditorGroupMeta profileEditorGroupMeta in profileEditorDataModificationRequest.groups.ToList())
             {
-                var dimFieldDisplaySettings = dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Where(d => d.Id == profileEditorModificationItem.Id).FirstOrDefault();
+                var dimFieldDisplaySettings = dimUserProfile.DimFieldDisplaySettings.Where(d => d.Id == profileEditorGroupMeta.Id).FirstOrDefault();
                 if (dimFieldDisplaySettings != null)
                 {
-                    dimFieldDisplaySettings.Show = profileEditorModificationItem.Show;
-                    responseProfileEditorModificationItemList.Add(profileEditorModificationItem);
+                    dimFieldDisplaySettings.Show = profileEditorGroupMeta.Show;
+                    profileEditorDataModificationResponse.groups.Add(profileEditorGroupMeta);
+                }
+            }
+
+            // Set 'Show' in FactFieldValues
+            foreach (ProfileEditorItemMeta profileEditorItemMeta in profileEditorDataModificationRequest.items.ToList())
+            {
+                FactFieldValue factFieldValue = null;
+                switch (profileEditorItemMeta.Type)
+                {
+                    case Constants.FieldIdentifiers.PERSON_FIRST_NAMES:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    case Constants.FieldIdentifiers.PERSON_LAST_NAME:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimResearcherDescriptionId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    case Constants.FieldIdentifiers.PERSON_WEB_LINK:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimWebLinkId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    default:
+                        break;
+                }
+
+                if (factFieldValue != null)
+                {
+                    factFieldValue.Show = profileEditorItemMeta.Show;
+                    profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
                 }
             }
 
             await _ttvContext.SaveChangesAsync();
 
-            return Ok(new ApiResponse(data: responseProfileEditorModificationItemList));
+            return Ok(new ApiResponse(success: true, reason: "", data: profileEditorDataModificationResponse));
         }
+
+
+
+        //// PATCH: api/ProfileData/
+        //[HttpPatch]
+        //public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorGroupMeta> profileEditorModificationItemList)
+        //{
+        //    // Return immediately if there is nothing to change.
+        //    if (profileEditorModificationItemList.Count == 0)
+        //    {
+        //        return Ok(new ApiResponse(success: true));
+        //    }
+
+        //    // Get ORCID ID
+        //    var orcidId = this.GetOrcidId();
+
+        //    // Get DimPid and related DimFieldDisplaySetting entities
+        //    var dimPid = await _ttvContext.DimPids
+        //        .Include(i => i.DimKnownPerson)
+        //            .ThenInclude(dkp => dkp.DimUserProfiles)
+        //                .ThenInclude(dup => dup.DimFieldDisplaySettings).AsSplitQuery().FirstOrDefaultAsync(i => i.PidContent == orcidId);
+
+        //    // Check that DimPid, DimKnownPerson, DimUserProfile and DimFieldDisplaySettings exist
+        //    if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0 || dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Count == 0)
+        //    {
+        //        return Ok(new ApiResponse(success: false, reason: "profile not found"));
+        //    }
+
+        //    // Set DimFieldDisplaySettings property Show according to request data
+        //    var responseProfileEditorModificationItemList = new List<ProfileEditorGroupMeta> { };
+        //    foreach (ProfileEditorGroupMeta profileEditorModificationItem in profileEditorModificationItemList)
+        //    {
+        //        var dimFieldDisplaySettings = dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Where(d => d.Id == profileEditorModificationItem.Id).FirstOrDefault();
+        //        if (dimFieldDisplaySettings != null)
+        //        {
+        //            dimFieldDisplaySettings.Show = profileEditorModificationItem.Show;
+        //            responseProfileEditorModificationItemList.Add(profileEditorModificationItem);
+        //        }
+        //    }
+
+        //    await _ttvContext.SaveChangesAsync();
+
+        //    return Ok(new ApiResponse(data: responseProfileEditorModificationItemList));
+        //}
     }
 }

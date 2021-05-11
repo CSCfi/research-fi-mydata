@@ -10,13 +10,13 @@ namespace api.Models
         {
             firstNamesGroups = new List<ProfileEditorGroupFirstNames> ();
             lastNameGroups = new List<ProfileEditorGroupLastName>();
-            webLinksGroups = new List<ProfileEditorGroupWebLink> ();
+            webLinkGroups = new List<ProfileEditorGroupWebLink> ();
             researcherDescriptionGroups = new List<ProfileEditorGroupResearcherDescription>();
         }
 
         public List<ProfileEditorGroupFirstNames> firstNamesGroups { get; set; }
         public List<ProfileEditorGroupLastName> lastNameGroups { get; set; }
-        public List<ProfileEditorGroupWebLink> webLinksGroups { get; set; }
+        public List<ProfileEditorGroupWebLink> webLinkGroups { get; set; }
         public List<ProfileEditorGroupResearcherDescription> researcherDescriptionGroups { get; set; }
     }
 }
