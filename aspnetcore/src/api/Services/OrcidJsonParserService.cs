@@ -258,20 +258,26 @@ namespace api.Services
         public List<OrcidEducation> GetEducations(String json)
         {
             var educations = new List <OrcidEducation> { };
+
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                foreach (JsonElement element in document.RootElement.GetProperty("activities-summary").GetProperty("educations").GetProperty("education-summary").EnumerateArray())
+                JsonElement educationsElement = document.RootElement.GetProperty("activities-summary").GetProperty("educations");
+                JsonElement educationSummaryElement;
+                if (educationsElement.TryGetProperty("education-summary", out educationSummaryElement))
                 {
-                    educations.Add(
-                        new OrcidEducation(
-                            element.GetProperty("organization").GetProperty("name").GetString(),
-                            element.GetProperty("department-name").GetString(),
-                            element.GetProperty("role-title").GetString(),
-                            getOrcidDate(element.GetProperty("start-date")),
-                            getOrcidDate(element.GetProperty("end-date")),
-                            this.getOrcidPutCode(element)
-                        )
-                    );
+                    foreach (JsonElement element in educationSummaryElement.EnumerateArray())
+                    {
+                        educations.Add(
+                            new OrcidEducation(
+                                element.GetProperty("organization").GetProperty("name").GetString(),
+                                element.GetProperty("department-name").GetString(),
+                                element.GetProperty("role-title").GetString(),
+                                getOrcidDate(element.GetProperty("start-date")),
+                                getOrcidDate(element.GetProperty("end-date")),
+                                this.getOrcidPutCode(element)
+                            )
+                        );
+                    }
                 }
             }
             return educations;
@@ -283,18 +289,23 @@ namespace api.Services
             var employments = new List<OrcidEmployment> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                foreach (JsonElement element in document.RootElement.GetProperty("activities-summary").GetProperty("employments").GetProperty("employment-summary").EnumerateArray())
+                JsonElement employmentsElement = document.RootElement.GetProperty("activities-summary").GetProperty("employments");
+                JsonElement employmentSummaryElement;
+                if (employmentsElement.TryGetProperty("employment-summary", out employmentSummaryElement))
                 {
-                    employments.Add(
-                        new OrcidEmployment(
-                            element.GetProperty("organization").GetProperty("name").GetString(),
-                            element.GetProperty("department-name").GetString(),
-                            element.GetProperty("role-title").GetString(),
-                            getOrcidDate(element.GetProperty("start-date")),
-                            getOrcidDate(element.GetProperty("end-date")),
-                            this.getOrcidPutCode(element)
-                        )
-                    );
+                    foreach (JsonElement element in employmentSummaryElement.EnumerateArray())
+                    {
+                        employments.Add(
+                            new OrcidEmployment(
+                                element.GetProperty("organization").GetProperty("name").GetString(),
+                                element.GetProperty("department-name").GetString(),
+                                element.GetProperty("role-title").GetString(),
+                                getOrcidDate(element.GetProperty("start-date")),
+                                getOrcidDate(element.GetProperty("end-date")),
+                                this.getOrcidPutCode(element)
+                            )
+                        );
+                    }
                 }
             }
             return employments;

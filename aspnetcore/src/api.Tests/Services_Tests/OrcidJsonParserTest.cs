@@ -288,6 +288,7 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var actualEducations = orcidJsonParserService.GetEducations(jsonStr);
+            Assert.True(actualEducations.Count == 1, "Educations: parsed correct number of educations");
             Assert.Equal("Massachusetts Institute of Technology", actualEducations[0].OrganizationName);
             Assert.Equal("Testing Department", actualEducations[0].DepartmentName);
             Assert.Equal("BA", actualEducations[0].RoleTitle);
@@ -306,6 +307,7 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var actualEmployments = orcidJsonParserService.GetEmployments(jsonStr);
+            Assert.True(actualEmployments.Count == 1, "Educations: parsed correct number of employments");
             Assert.Equal("ORCID", actualEmployments[0].OrganizationName);
             Assert.Equal("QA and Testing", actualEmployments[0].DepartmentName);
             Assert.Equal("Test account holder", actualEmployments[0].RoleTitle);
