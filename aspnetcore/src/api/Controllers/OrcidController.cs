@@ -205,33 +205,37 @@ namespace api.Controllers
             }
 
             // Researcher description
-            var dimResearcherDescription = await _userProfileService.AddOrUpdateDimResearcherDescription(
-                "",
-                _orcidJsonParserService.GetBiography(json).Value,
-                "",
-                dimKnownPerson.Id,
-                orcidRegisteredDataSourceId
-            );
+            var biography = _orcidJsonParserService.GetBiography(json);
+            if (biography != null)
+            { 
+                var dimResearcherDescription = await _userProfileService.AddOrUpdateDimResearcherDescription(
+                    "",
+                    _orcidJsonParserService.GetBiography(json).Value,
+                    "",
+                    dimKnownPerson.Id,
+                    orcidRegisteredDataSourceId
+                );
 
-            // Researcher description: DimFieldDisplaySettings
-            var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.SourceId == Constants.SourceIdentifiers.ORCID);
+                // Researcher description: DimFieldDisplaySettings
+                var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.SourceId == Constants.SourceIdentifiers.ORCID);
 
-            // Researcher description: FactFieldValues
-            var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesResearcherDescription => factFieldValuesResearcherDescription.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
-            if (factFieldValuesResearcherDescription == null)
-            {
-                factFieldValuesResearcherDescription = _userProfileService.GetEmptyFactFieldValue();
-                factFieldValuesResearcherDescription.DimUserProfileId = dimUserProfile.Id;
-                factFieldValuesResearcherDescription.DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id;
-                factFieldValuesResearcherDescription.DimResearcherDescriptionId = dimResearcherDescription.Id;
-                factFieldValuesResearcherDescription.SourceId = Constants.SourceIdentifiers.ORCID;
-                _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
+                // Researcher description: FactFieldValues
+                var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesResearcherDescription => factFieldValuesResearcherDescription.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
+                if (factFieldValuesResearcherDescription == null)
+                {
+                    factFieldValuesResearcherDescription = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesResearcherDescription.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuesResearcherDescription.DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id;
+                    factFieldValuesResearcherDescription.DimResearcherDescriptionId = dimResearcherDescription.Id;
+                    factFieldValuesResearcherDescription.SourceId = Constants.SourceIdentifiers.ORCID;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
+                }
+                else
+                {
+                    factFieldValuesResearcherDescription.Modified = DateTime.Now;
+                }
+                await _ttvContext.SaveChangesAsync();
             }
-            else
-            {
-                factFieldValuesResearcherDescription.Modified = DateTime.Now;
-            }
-            await _ttvContext.SaveChangesAsync();
 
 
             // Email

@@ -155,7 +155,8 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                var biographyElement = new JsonElement();
+                JsonElement biographyElement;
+                JsonElement contentElement;
 
                 if (this.isFullRecord(document))
                 {
@@ -165,13 +166,26 @@ namespace api.Services
                 {
                     biographyElement = document.RootElement.GetProperty("biography");
                 }
-                var value = biographyElement.GetProperty("content").GetString();
-                var putCode = this.getOrcidPutCode(biographyElement);
 
-                return new OrcidBiography(
-                    value,
-                    putCode
-                );
+                if (biographyElement.ValueKind == JsonValueKind.Null)
+                {
+                    return null;
+                }
+                else
+                {
+                    biographyElement.TryGetProperty("content", out contentElement);
+
+                    if (contentElement.ValueKind.Equals(null))
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return new OrcidBiography(
+                            contentElement.GetString()
+                        );
+                    }
+                }
             }
         }
 

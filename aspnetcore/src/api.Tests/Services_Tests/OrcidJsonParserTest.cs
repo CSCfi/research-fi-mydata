@@ -160,13 +160,10 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var expectedBiography = new OrcidBiography(
-                "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder.",
-                new OrcidPutCode(null)
+                "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder."
             );
             var actualBiography = orcidJsonParserService.GetBiography(jsonStr);
-
             Assert.Equal(expectedBiography.Value, actualBiography.Value);
-            Assert.Equal(expectedBiography.PutCode.Value, actualBiography.PutCode.Value);
         }
 
         [Fact(DisplayName = "Get biography from personal details")]
@@ -175,13 +172,10 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonPersonalDetails();
             var expectedBiography = new OrcidBiography(
-                "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder.",
-                new OrcidPutCode(null)
+                "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder."
             );
             var actualBiography = orcidJsonParserService.GetBiography(jsonStr);
-
             Assert.Equal(expectedBiography.Value, actualBiography.Value);
-            Assert.Equal(expectedBiography.PutCode.Value, actualBiography.PutCode.Value);
         }
 
         [Fact(DisplayName = "Get researcher urls")]
@@ -319,5 +313,25 @@ namespace api.Tests
             Assert.Null(actualEmployments[0].EndDate.Day);
             Assert.Equal(new OrcidPutCode(22411).Value, actualEmployments[0].PutCode.Value);
         }
+
+        //[Fact(DisplayName = "Template")]
+        //public void TestTemplate()
+        //{
+        //    var orcidJsonParserService = new OrcidJsonParserService();
+        //    var jsonStr = getOrcidJsonRecord();
+
+        //    var biography = orcidJsonParserService.GetBiography(jsonStr);
+        //    var givenNames = orcidJsonParserService.GetGivenNames(jsonStr);
+        //    var familyName = orcidJsonParserService.GetFamilyName(jsonStr);
+        //    var creditName = orcidJsonParserService.GetCreditName(jsonStr);
+        //    var otherNames = orcidJsonParserService.GetOtherNames(jsonStr);
+        //    var researcherUrls = orcidJsonParserService.GetResearcherUrls(jsonStr);
+        //    var emails = orcidJsonParserService.GetEmails(jsonStr);
+        //    var keywords = orcidJsonParserService.GetKeywords(jsonStr);
+        //    var externalIdentifiers = orcidJsonParserService.GetExternalIdentifiers(jsonStr);
+        //    var educations = orcidJsonParserService.GetEducations(jsonStr);
+        //    var employments = orcidJsonParserService.GetEmployments(jsonStr);
+        //    Assert.True(employments.Count == 0, "Educations: parsed correct number of employments");
+        //}
     }
 }
