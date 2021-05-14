@@ -88,7 +88,7 @@ namespace api.Controllers
             var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
 
 
-            // DimName
+            // FirstNames and LastName
             var dimName = await _userProfileService.AddOrUpdateDimName(
                 _orcidJsonParserService.GetFamilyName(json).Value,
                 _orcidJsonParserService.GetGivenNames(json).Value,
@@ -98,7 +98,6 @@ namespace api.Controllers
 
             // LastName: DimFieldDisplaySettings
             var dimFieldDisplaySettingsLastName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsLastName => dimFieldDisplaysettingsLastName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_LAST_NAME && dimFieldDisplaysettingsLastName.SourceId == Constants.SourceIdentifiers.ORCID);
-
             // LastName: FactFieldValues
             var factFieldValuesLastName = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesLastName => factFieldValuesLastName.DimFieldDisplaySettingsId == dimFieldDisplaySettingsLastName.Id);
             if (factFieldValuesLastName == null)
@@ -119,7 +118,6 @@ namespace api.Controllers
 
             // FirstNames: DimFieldDisplaySettings
             var dimFieldDisplaySettingsFirstNames = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsFirstNames => dimFieldDisplaysettingsFirstNames.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIRST_NAMES && dimFieldDisplaysettingsFirstNames.SourceId == Constants.SourceIdentifiers.ORCID);
-
             // FirstNames: FactFieldValues
             var factFieldValuesFirstNames = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesFirstNames => factFieldValuesFirstNames.DimFieldDisplaySettingsId == dimFieldDisplaySettingsFirstNames.Id);
             if (factFieldValuesFirstNames == null)
@@ -138,11 +136,68 @@ namespace api.Controllers
             await _ttvContext.SaveChangesAsync();
 
 
+            // Other names
+            var otherNames = _orcidJsonParserService.GetOtherNames(json);
+            foreach (OrcidOtherName otherName in otherNames)
+            {
+                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
+                var factFieldValuesOtherName = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == otherName.PutCode.Value.ToString());
+
+                if (factFieldValuesOtherName != null)
+                {
+                    // Update existing DimWebLink
+                    factFieldValuesOtherName.DimName.FullName = otherName.Value;
+                    factFieldValuesOtherName.DimWebLink.Modified = DateTime.Now;
+
+                    // Update existing FactFieldValue
+                    factFieldValuesOtherName.Modified = DateTime.Now;
+
+                    await _ttvContext.SaveChangesAsync();
+                }
+                else
+                {
+                    // Create new DimName for other name
+                    var dimName_otherName = new DimName()
+                    {
+                        FullName = otherName.Value,
+                        DimKnownPersonIdConfirmedIdentity = dimKnownPerson.Id,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimNames.Add(dimName_otherName);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Add other name ORCID put code into DimPid
+                    var dimPidOrcidPutCodeOtherName = new DimPid()
+                    {
+                        PidContent = otherName.PutCode.GetDbValue(),
+                        PidType = "ORCID put code",
+                        DimKnownPersonId = dimKnownPerson.Id,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimPids.Add(dimPidOrcidPutCodeOtherName);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Get DimFieldDisplaySettings for other name
+                    var dimFieldDisplaySettingsOtherName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES && dfdsWebLink.SourceId == Constants.SourceIdentifiers.ORCID);
+
+                    // Create FactFieldValues for weblink
+                    factFieldValuesOtherName = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesOtherName.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuesOtherName.DimFieldDisplaySettingsId = dimFieldDisplaySettingsOtherName.Id;
+                    factFieldValuesOtherName.DimNameId = dimName_otherName.Id;
+                    factFieldValuesOtherName.DimPidIdOrcidPutCode = dimPidOrcidPutCodeOtherName.Id;
+                    factFieldValuesOtherName.SourceId = Constants.SourceIdentifiers.ORCID;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesOtherName);
+                    await _ttvContext.SaveChangesAsync();
+                }
+            }
 
 
             // Researcher urls
             var researcherUrls = _orcidJsonParserService.GetResearcherUrls(json);
-
             foreach (OrcidResearcherUrl researchUrl in researcherUrls)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
@@ -276,8 +331,57 @@ namespace api.Controllers
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimKeyword
                 var factFieldValuesKeyword = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == keyword.PutCode.Value.ToString());
-            }
 
+                if (factFieldValuesKeyword != null)
+                {
+                    // Update existing DimKeywork
+                    factFieldValuesKeyword.DimKeyword.Keyword = keyword.Value;
+                    factFieldValuesKeyword.DimWebLink.Modified = DateTime.Now;
+
+                    // Update existing FactFieldValue
+                    factFieldValuesKeyword.Modified = DateTime.Now;
+
+                    await _ttvContext.SaveChangesAsync();
+                }
+                else
+                {
+                    // Create new DimKeyword
+                    var dimKeyword = new DimKeyword()
+                    {
+                        Keyword = keyword.Value,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimKeywords.Add(dimKeyword);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Add keyword ORCID put code into DimPid
+                    var dimPidOrcidPutCodeKeyword = new DimPid()
+                    {
+                        PidContent = keyword.PutCode.GetDbValue(),
+                        PidType = "ORCID put code",
+                        DimKnownPersonId = dimKnownPerson.Id,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimPids.Add(dimPidOrcidPutCodeKeyword);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Get DimFieldDisplaySettings for keyword
+                    var dimFieldDisplaySettingsKeyword = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD && dfdsKeyword.SourceId == Constants.SourceIdentifiers.ORCID);
+
+                    // Create FactFieldValues for weblink
+                    factFieldValuesKeyword = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesKeyword.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuesKeyword.DimFieldDisplaySettingsId = dimFieldDisplaySettingsKeyword.Id;
+                    factFieldValuesKeyword.DimKeywordId = dimKeyword.Id;
+                    factFieldValuesKeyword.DimPidIdOrcidPutCode = dimPidOrcidPutCodeKeyword.Id;
+                    factFieldValuesKeyword.SourceId = Constants.SourceIdentifiers.ORCID;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
+                    await _ttvContext.SaveChangesAsync();
+                }
+            }
 
             return Ok(new ApiResponse(success: true));
         }

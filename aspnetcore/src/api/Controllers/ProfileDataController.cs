@@ -84,7 +84,10 @@ namespace api.Controllers
                         .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
-                        .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                        .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimKeyword).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             var profileDataResponse = new ProfileEditorDataResponse() {};
 
@@ -160,6 +163,39 @@ namespace api.Controllers
                         }
                         profileDataResponse.personal.lastNameGroups.Add(lastNameGroup);
                         break;
+                    case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
+                        var otherNamesGroup = new ProfileEditorGroupOtherNames()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemName>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            otherNamesGroup.items.Add(
+                                new ProfileEditorItemName()
+                                {
+                                    Value = ffv.DimName.FullName,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimNameId,
+                                        Type = Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
+                                        Show = ffv.Show
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.personal.otherNamesGroups.Add(otherNamesGroup);
+                        break;
                     case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
                         var researcherDescriptionGroup = new ProfileEditorGroupResearcherDescription()
                         {
@@ -229,6 +265,40 @@ namespace api.Controllers
                             );
                         }
                         profileDataResponse.personal.webLinkGroups.Add(webLinkGroup);
+                        break;
+
+                    case Constants.FieldIdentifiers.PERSON_KEYWORD:
+                        var keywordGroup = new ProfileEditorGroupKeyword()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemKeyword>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_KEYWORD,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            keywordGroup.items.Add(
+                                new ProfileEditorItemKeyword()
+                                {
+                                    Value = ffv.DimKeyword.Keyword,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimKeywordId,
+                                        Type = Constants.FieldIdentifiers.PERSON_KEYWORD,
+                                        Show = ffv.Show
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.personal.keywordGroups.Add(keywordGroup);
                         break;
                     default:
                         break;
