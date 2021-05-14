@@ -13,6 +13,7 @@ namespace api.Models.Ttv
             BrKeywordDimPublications = new HashSet<BrKeywordDimPublication>();
             BrResearchDatasetDimKeywords = new HashSet<BrResearchDatasetDimKeyword>();
             DimResearchActivityDimKeywords = new HashSet<DimResearchActivityDimKeyword>();
+            FactFieldValues = new HashSet<FactFieldValue>();
             FactInfraKeywords = new HashSet<FactInfraKeyword>();
             InverseDimKeywordCloseMatchNavigation = new HashSet<DimKeyword>();
             InverseDimKeywordLanguageVariantNavigation = new HashSet<DimKeyword>();
@@ -42,6 +43,7 @@ namespace api.Models.Ttv
         public virtual ICollection<BrKeywordDimPublication> BrKeywordDimPublications { get; set; }
         public virtual ICollection<BrResearchDatasetDimKeyword> BrResearchDatasetDimKeywords { get; set; }
         public virtual ICollection<DimResearchActivityDimKeyword> DimResearchActivityDimKeywords { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
         public virtual ICollection<FactInfraKeyword> FactInfraKeywords { get; set; }
         public virtual ICollection<DimKeyword> InverseDimKeywordCloseMatchNavigation { get; set; }
         public virtual ICollection<DimKeyword> InverseDimKeywordLanguageVariantNavigation { get; set; }

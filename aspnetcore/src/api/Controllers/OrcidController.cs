@@ -274,7 +274,8 @@ namespace api.Controllers
             var keywords = _orcidJsonParserService.GetKeywords(json);
             foreach (OrcidKeyword keyword in keywords)
             {
-                // TODO
+                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimKeyword
+                var factFieldValuesKeyword = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == keyword.PutCode.Value.ToString());
             }
 
 

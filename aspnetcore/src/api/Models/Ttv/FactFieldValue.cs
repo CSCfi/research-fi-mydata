@@ -40,6 +40,7 @@ namespace api.Models.Ttv
         public virtual DimFieldDisplaySetting DimFieldDisplaySettings { get; set; }
         public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimIdentifierlessDatum DimIdentifierlessData { get; set; }
+        public virtual DimKeyword DimKeyword { get; set; }
         public virtual DimName DimName { get; set; }
         public virtual DimOrcidPublication DimOrcidPublication { get; set; }
         public virtual DimPid DimPid { get; set; }
