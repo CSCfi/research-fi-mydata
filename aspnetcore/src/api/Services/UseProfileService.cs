@@ -55,7 +55,6 @@ namespace api.Services
                     LastName = lastName,
                     FirstNames = firstNames,
                     DimKnownPersonIdConfirmedIdentity = dimKnownPersonId,
-                    DimKnownPersonIdOtherNames = -1,
                     SourceId = "",
                     Created = DateTime.Now,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId

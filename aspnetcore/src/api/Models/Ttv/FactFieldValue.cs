@@ -25,6 +25,7 @@ namespace api.Models.Ttv
         public int DimResearcherDescriptionId { get; set; }
         public int DimIdentifierlessDataId { get; set; }
         public int DimOrcidPublicationId { get; set; }
+        public int DimKeywordId { get; set; }
         public bool? Show { get; set; }
         public bool? PrimaryValue { get; set; }
         public string SourceId { get; set; }

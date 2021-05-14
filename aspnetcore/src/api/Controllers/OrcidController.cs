@@ -82,7 +82,7 @@ namespace api.Controllers
 
             // Get DimKnownPerson
             var dimKnownPerson = await _ttvContext.DimKnownPeople
-                .Include(dkp => dkp.DimNameDimKnownPersonIdConfirmedIdentityNavigations).AsSplitQuery().AsNoTracking().FirstOrDefaultAsync(dkp => dkp.Id == dimUserProfile.DimKnownPersonId);
+                .Include(dkp => dkp.DimNames).AsSplitQuery().AsNoTracking().FirstOrDefaultAsync(dkp => dkp.Id == dimUserProfile.DimKnownPersonId);
 
             // Get ORCID registered data source id
             var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
