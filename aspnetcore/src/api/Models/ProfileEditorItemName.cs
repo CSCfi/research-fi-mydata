@@ -8,9 +8,13 @@ namespace api.Models
     {
         public ProfileEditorItemName()
         {
-            Value = "";
+            FirstNames = "";
+            LastName = "";
+            FullName = "";
         }
 
-        public string Value { get; set; }
+        public string FirstNames { get; set; }
+        public string LastName { get; set; }
+        public string FullName { get; set; }
     }
 }

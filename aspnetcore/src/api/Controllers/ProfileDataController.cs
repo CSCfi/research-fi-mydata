@@ -97,8 +97,8 @@ namespace api.Controllers
                 // FieldIdentifier defines what type of data the field contains.
                 switch (dfds.FieldIdentifier)
                 {
-                    case Constants.FieldIdentifiers.PERSON_FIRST_NAMES:
-                        var firstNamesGroup = new ProfileEditorGroupFirstNames()
+                    case Constants.FieldIdentifiers.PERSON_NAME:
+                        var nameGroup = new ProfileEditorGroupName()
                         {
                             dataSource = new ProfileEditorDataSource()
                             {
@@ -109,16 +109,17 @@ namespace api.Controllers
                             groupMeta = new ProfileEditorGroupMeta()
                             {
                                 Id = dfds.Id,
-                                Type = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
+                                Type = Constants.FieldIdentifiers.PERSON_NAME,
                                 Show = dfds.Show
                             }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
-                            firstNamesGroup.items.Add(
+                            nameGroup.items.Add(
                                 new ProfileEditorItemName()
                                 {
-                                    Value = ffv.DimName.FirstNames,
+                                    FirstNames = ffv.DimName.FirstNames,
+                                    LastName = ffv.DimName.LastName,
                                     itemMeta = new ProfileEditorItemMeta()
                                     {
                                         Id = ffv.DimNameId,
@@ -128,43 +129,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.firstNamesGroups.Add(firstNamesGroup);
-                        break;
-                    case Constants.FieldIdentifiers.PERSON_LAST_NAME:
-                        var lastNameGroup = new ProfileEditorGroupLastName()
-                        {
-                            dataSource = new ProfileEditorDataSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                            },
-                            items = new List<ProfileEditorItemName>() { },
-                            groupMeta = new ProfileEditorGroupMeta()
-                            {
-                                Id = dfds.Id,
-                                Type = Constants.FieldIdentifiers.PERSON_LAST_NAME,
-                                Show = dfds.Show
-                            }
-                        };
-                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
-                        {
-                            lastNameGroup.items.Add(
-                                new ProfileEditorItemName()
-                                {
-                                    Value = ffv.DimName.LastName,
-                                    itemMeta = new ProfileEditorItemMeta()
-                                    {
-                                        Id = ffv.DimNameId,
-                                        Type = Constants.FieldIdentifiers.PERSON_LAST_NAME,
-                                        Show = ffv.Show
-                                    }
-                                }
-                            );
-                        }
-                        profileDataResponse.personal.lastNameGroups.Add(lastNameGroup);
+                        profileDataResponse.personal.nameGroups.Add(nameGroup);
                         break;
                     case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
-                        var otherNamesGroup = new ProfileEditorGroupOtherNames()
+                        var otherNameGroup = new ProfileEditorGroupOtherName()
                         {
                             dataSource = new ProfileEditorDataSource()
                             {
@@ -181,10 +149,10 @@ namespace api.Controllers
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
-                            otherNamesGroup.items.Add(
+                            otherNameGroup.items.Add(
                                 new ProfileEditorItemName()
                                 {
-                                    Value = ffv.DimName.FullName,
+                                    FullName = ffv.DimName.FullName,
                                     itemMeta = new ProfileEditorItemMeta()
                                     {
                                         Id = ffv.DimNameId,
@@ -194,7 +162,7 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.otherNamesGroups.Add(otherNamesGroup);
+                        profileDataResponse.personal.otherNameGroups.Add(otherNameGroup);
                         break;
                     case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
                         var researcherDescriptionGroup = new ProfileEditorGroupResearcherDescription()

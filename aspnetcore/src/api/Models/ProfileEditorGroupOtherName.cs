@@ -4,9 +4,9 @@ using api.Models;
 
 namespace api.Models
 {
-    public partial class ProfileEditorGroupOtherNames : ProfileEditorGroup
+    public partial class ProfileEditorGroupOtherName : ProfileEditorGroup
     {
-        public ProfileEditorGroupOtherNames()
+        public ProfileEditorGroupOtherName()
         {
         }
 
