@@ -199,7 +199,6 @@ namespace api.Controllers
                         }
                         profileDataResponse.personal.researcherDescriptionGroups.Add(researcherDescriptionGroup);
                         break;
-
                     case Constants.FieldIdentifiers.PERSON_WEB_LINK:
                         var webLinkGroup = new ProfileEditorGroupWebLink()
                         {
@@ -234,7 +233,39 @@ namespace api.Controllers
                         }
                         profileDataResponse.personal.webLinkGroups.Add(webLinkGroup);
                         break;
-
+                    case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
+                        var emailGroup = new ProfileEditorGroupEmail()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemEmail>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            emailGroup.items.Add(
+                                new ProfileEditorItemEmail()
+                                {
+                                    Value = ffv.DimEmailAddrress.Email,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimEmailAddrressId,
+                                        Type = Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                                        Show = ffv.Show
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.personal.emailGroups.Add(emailGroup);
+                        break;
                     case Constants.FieldIdentifiers.PERSON_KEYWORD:
                         var keywordGroup = new ProfileEditorGroupKeyword()
                         {
@@ -271,8 +302,6 @@ namespace api.Controllers
                     default:
                         break;
                 }
-
-                //    itemList.Add(item);
             }
 
             return Ok(new ApiResponse(success: true, reason: "", data: profileDataResponse));

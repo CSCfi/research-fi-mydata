@@ -101,7 +101,17 @@ namespace api.Controllers
                 // Add DimFieldDisplaySettings for data source ORCID
                 var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
                 // TODO: enumerate Constants.FieldIdentifiers
-                foreach (int fieldIdentifier in new List<int> { Constants.FieldIdentifiers.PERSON_NAME, Constants.FieldIdentifiers.PERSON_OTHER_NAMES, Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION, Constants.FieldIdentifiers.PERSON_WEB_LINK, Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS, Constants.FieldIdentifiers.PERSON_KEYWORD })
+                var fieldIdentifiers = new List<int>
+                {
+                    Constants.FieldIdentifiers.PERSON_NAME,
+                    Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
+                    Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                    Constants.FieldIdentifiers.PERSON_WEB_LINK,
+                    Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                    Constants.FieldIdentifiers.PERSON_KEYWORD
+                };
+
+                foreach (int fieldIdentifier in fieldIdentifiers)
                 {
                     var dimFieldDisplaySetting = new DimFieldDisplaySetting()
                     {

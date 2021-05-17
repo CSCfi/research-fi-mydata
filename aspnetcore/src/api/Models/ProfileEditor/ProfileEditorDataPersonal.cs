@@ -10,6 +10,7 @@ namespace api.Models
         {
             nameGroups = new List<ProfileEditorGroupName> ();
             otherNameGroups = new List<ProfileEditorGroupOtherName>();
+            emailGroups = new List<ProfileEditorGroupEmail>();
             webLinkGroups = new List<ProfileEditorGroupWebLink> ();
             keywordGroups = new List<ProfileEditorGroupKeyword>();
             researcherDescriptionGroups = new List<ProfileEditorGroupResearcherDescription>();
@@ -17,6 +18,7 @@ namespace api.Models
 
         public List<ProfileEditorGroupName> nameGroups { get; set; }
         public List<ProfileEditorGroupOtherName> otherNameGroups { get; set; }
+        public List<ProfileEditorGroupEmail> emailGroups { get; set; }
         public List<ProfileEditorGroupWebLink> webLinkGroups { get; set; }
         public List<ProfileEditorGroupKeyword> keywordGroups { get; set; }
         public List<ProfileEditorGroupResearcherDescription> researcherDescriptionGroups { get; set; }

@@ -17,5 +17,6 @@
   <ItemGroup>
     <Folder Include="Models\Orcid\" />
     <Folder Include="Services\" />
+    <Folder Include="Models\ProfileEditor\" />
   </ItemGroup>
 </Project>
