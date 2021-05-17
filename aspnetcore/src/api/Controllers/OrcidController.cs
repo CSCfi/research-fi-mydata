@@ -78,7 +78,9 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimWebLink).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimWebLink)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimKeyword).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             // Get DimKnownPerson
             var dimKnownPerson = await _ttvContext.DimKnownPeople
