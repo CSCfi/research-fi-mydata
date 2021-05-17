@@ -336,7 +336,7 @@ namespace api.Controllers
                 {
                     // Update existing DimKeywork
                     factFieldValuesKeyword.DimKeyword.Keyword = keyword.Value;
-                    factFieldValuesKeyword.DimWebLink.Modified = DateTime.Now;
+                    factFieldValuesKeyword.DimKeyword.Modified = DateTime.Now;
 
                     // Update existing FactFieldValue
                     factFieldValuesKeyword.Modified = DateTime.Now;
