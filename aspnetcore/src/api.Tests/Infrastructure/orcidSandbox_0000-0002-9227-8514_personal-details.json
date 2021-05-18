@@ -19,7 +19,7 @@
       "value": "Sofia Maria Hernandez Garcia"
     },
     "source": null,
-    "visibility": "PUBLIC",
+    "visibility": "public",
     "path": "0000-0002-9227-8514"
   },
   "other-names": {
@@ -36,17 +36,20 @@
         },
         "source": {
           "source-orcid": {
-            "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+            "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
             "path": "0000-0002-9227-8514",
             "host": "sandbox.orcid.org"
           },
           "source-client-id": null,
           "source-name": {
             "value": "Sofia Maria Hernandez Garcia"
-          }
+          },
+          "assertion-origin-orcid": null,
+          "assertion-origin-client-id": null,
+          "assertion-origin-name": null
         },
         "content": "Sofia Maria Garcia",
-        "visibility": "PUBLIC",
+        "visibility": "public",
         "path": "/0000-0002-9227-8514/other-names/15812",
         "put-code": 15812,
         "display-index": 0
@@ -60,17 +63,20 @@
         },
         "source": {
           "source-orcid": {
-            "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+            "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
             "path": "0000-0002-9227-8514",
             "host": "sandbox.orcid.org"
           },
           "source-client-id": null,
           "source-name": {
             "value": "Sofia Maria Hernandez Garcia"
-          }
+          },
+          "assertion-origin-orcid": null,
+          "assertion-origin-client-id": null,
+          "assertion-origin-name": null
         },
         "content": "София Мария Эрнандес Гарсия",
-        "visibility": "PUBLIC",
+        "visibility": "public",
         "path": "/0000-0002-9227-8514/other-names/15813",
         "put-code": 15813,
         "display-index": 0
@@ -84,17 +90,20 @@
         },
         "source": {
           "source-orcid": {
-            "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+            "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
             "path": "0000-0002-9227-8514",
             "host": "sandbox.orcid.org"
           },
           "source-client-id": null,
           "source-name": {
             "value": "Sofia Maria Hernandez Garcia"
-          }
+          },
+          "assertion-origin-orcid": null,
+          "assertion-origin-client-id": null,
+          "assertion-origin-name": null
         },
         "content": "索菲亚玛丽亚 加西亚",
-        "visibility": "PUBLIC",
+        "visibility": "public",
         "path": "/0000-0002-9227-8514/other-names/15814",
         "put-code": 15814,
         "display-index": 0
@@ -110,7 +119,7 @@
       "value": 1460669280211
     },
     "content": "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder.",
-    "visibility": "PUBLIC",
+    "visibility": "public",
     "path": "/0000-0002-9227-8514/biography"
   },
   "path": "/0000-0002-9227-8514/personal-details"

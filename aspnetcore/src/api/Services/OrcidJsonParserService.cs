@@ -272,25 +272,35 @@ namespace api.Services
         public List<OrcidEducation> GetEducations(String json)
         {
             var educations = new List <OrcidEducation> { };
-
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 JsonElement educationsElement = document.RootElement.GetProperty("activities-summary").GetProperty("educations");
-                JsonElement educationSummaryElement;
-                if (educationsElement.TryGetProperty("education-summary", out educationSummaryElement))
-                {
-                    foreach (JsonElement element in educationSummaryElement.EnumerateArray())
-                    {
-                        educations.Add(
-                            new OrcidEducation(
-                                element.GetProperty("organization").GetProperty("name").GetString(),
-                                element.GetProperty("department-name").GetString(),
-                                element.GetProperty("role-title").GetString(),
-                                getOrcidDate(element.GetProperty("start-date")),
-                                getOrcidDate(element.GetProperty("end-date")),
-                                this.getOrcidPutCode(element)
-                            )
-                        );
+                JsonElement affiliationGroupsElement;
+
+                if (educationsElement.TryGetProperty("affiliation-group", out affiliationGroupsElement))
+                { 
+                    foreach(JsonElement affiliationGroupElement in affiliationGroupsElement.EnumerateArray()) { 
+                        JsonElement summariesElement;
+
+                        if (affiliationGroupElement.TryGetProperty("summaries", out summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                JsonElement educationSummaryElement;
+                                if (summaryElement.TryGetProperty("education-summary", out educationSummaryElement)) {
+                                    educations.Add(
+                                        new OrcidEducation(
+                                            educationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                            educationSummaryElement.GetProperty("department-name").GetString(),
+                                            educationSummaryElement.GetProperty("role-title").GetString(),
+                                            getOrcidDate(educationSummaryElement.GetProperty("start-date")),
+                                            getOrcidDate(educationSummaryElement.GetProperty("end-date")),
+                                            this.getOrcidPutCode(educationSummaryElement)
+                                        )
+                                    );
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -304,21 +314,34 @@ namespace api.Services
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 JsonElement employmentsElement = document.RootElement.GetProperty("activities-summary").GetProperty("employments");
-                JsonElement employmentSummaryElement;
-                if (employmentsElement.TryGetProperty("employment-summary", out employmentSummaryElement))
+                JsonElement affiliationGroupsElement;
+
+                if (employmentsElement.TryGetProperty("affiliation-group", out affiliationGroupsElement))
                 {
-                    foreach (JsonElement element in employmentSummaryElement.EnumerateArray())
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement.EnumerateArray())
                     {
-                        employments.Add(
-                            new OrcidEmployment(
-                                element.GetProperty("organization").GetProperty("name").GetString(),
-                                element.GetProperty("department-name").GetString(),
-                                element.GetProperty("role-title").GetString(),
-                                getOrcidDate(element.GetProperty("start-date")),
-                                getOrcidDate(element.GetProperty("end-date")),
-                                this.getOrcidPutCode(element)
-                            )
-                        );
+                        JsonElement summariesElement;
+
+                        if (affiliationGroupElement.TryGetProperty("summaries", out summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                JsonElement employmentSummaryElement;
+                                if (summaryElement.TryGetProperty("employment-summary", out employmentSummaryElement))
+                                {
+                                    employments.Add(
+                                      new OrcidEmployment(
+                                          employmentSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          employmentSummaryElement.GetProperty("department-name").GetString(),
+                                          employmentSummaryElement.GetProperty("role-title").GetString(),
+                                          getOrcidDate(employmentSummaryElement.GetProperty("start-date")),
+                                          getOrcidDate(employmentSummaryElement.GetProperty("end-date")),
+                                          this.getOrcidPutCode(employmentSummaryElement)
+                                      )
+                                  );
+                                }
+                            }
+                        }
                     }
                 }
             }

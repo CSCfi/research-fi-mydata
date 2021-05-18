@@ -65,6 +65,10 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimEvent)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimEducation)
+                        .ThenInclude(de => de.DimStartDateNavigation)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimEducation)
+                        .ThenInclude(de => de.DimEndDateNavigation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimCompetence)
                 .Include(dup => dup.FactFieldValues)
@@ -359,7 +363,7 @@ namespace api.Controllers
                     // Get DimFieldDisplaySettings for keyword
                     var dimFieldDisplaySettingsKeyword = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD && dfdsKeyword.SourceId == Constants.SourceIdentifiers.ORCID);
 
-                    // Create FactFieldValues for weblink
+                    // Create FactFieldValues for keyword
                     factFieldValuesKeyword = _userProfileService.GetEmptyFactFieldValue();
                     factFieldValuesKeyword.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesKeyword.DimFieldDisplaySettingsId = dimFieldDisplaySettingsKeyword.Id;
@@ -367,6 +371,105 @@ namespace api.Controllers
                     factFieldValuesKeyword.DimPidIdOrcidPutCode = dimPidOrcidPutCodeKeyword.Id;
                     factFieldValuesKeyword.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
+                    await _ttvContext.SaveChangesAsync();
+                }
+            }
+
+
+            // Education
+            var educations = _orcidJsonParserService.GetEducations(json);
+            foreach (OrcidEducation education in educations)
+            {
+                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimEducation
+                var factFieldValuesEducation = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == education.PutCode.Value.ToString());
+
+                // TODO
+                // organization
+
+                // Start date
+                var startDate = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == education.StartDate.Year && dd.Month == education.StartDate.Month && dd.Day == education.StartDate.Day);
+                if (startDate == null)
+                {
+                    startDate = new DimDate()
+                    {
+                        Year = education.StartDate.Year,
+                        Month = education.StartDate.Month,
+                        Day = education.StartDate.Day,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimDates.Add(startDate);
+                    await _ttvContext.SaveChangesAsync();
+                }
+               
+                // End date
+                var endDate = await _ttvContext.DimDates.FirstOrDefaultAsync(ed => ed.Year == education.EndDate.Year && ed.Month == education.EndDate.Month && ed.Day == education.EndDate.Day);
+                if (endDate == null)
+                {
+                    endDate = new DimDate()
+                    {
+                        Year = education.EndDate.Year,
+                        Month = education.EndDate.Month,
+                        Day = education.EndDate.Day,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimDates.Add(endDate);
+                    await _ttvContext.SaveChangesAsync();
+                }
+
+                if (factFieldValuesEducation != null)
+                {
+                    // Update existing DimEducation
+                    factFieldValuesEducation.DimEducation.NameEn = education.RoleTitle;
+                    factFieldValuesEducation.DimEducation.Modified = DateTime.Now;
+                    factFieldValuesEducation.DimEducation.DimStartDateNavigation = startDate;
+                    factFieldValuesEducation.DimEducation.DimEndDateNavigation = endDate;
+
+                    // Update existing FactFieldValue
+                    factFieldValuesEducation.Modified = DateTime.Now;
+
+                    await _ttvContext.SaveChangesAsync();
+                }
+                else
+                {
+                    // Create new DimEducation
+                    var dimEducation = new DimEducation()
+                    {
+                        NameEn = education.RoleTitle,
+                        DimStartDateNavigation = startDate,
+                        DimEndDateNavigation = endDate,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        DimKnownPersonId = dimKnownPerson.Id,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimEducations.Add(dimEducation);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Add education ORCID put code into DimPid
+                    var dimPidOrcidPutCodeEducation = new DimPid()
+                    {
+                        PidContent = education.PutCode.GetDbValue(),
+                        PidType = "ORCID put code",
+                        DimKnownPersonId = dimKnownPerson.Id,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimPids.Add(dimPidOrcidPutCodeEducation);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Get DimFieldDisplaySettings for education
+                    var dimFieldDisplaySettingsEducation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsEducation => dfdsEducation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION && dfdsEducation.SourceId == Constants.SourceIdentifiers.ORCID);
+
+                    // Create FactFieldValues for education
+                    factFieldValuesEducation = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesEducation.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuesEducation.DimFieldDisplaySettingsId = dimFieldDisplaySettingsEducation.Id;
+                    factFieldValuesEducation.DimEducationId = dimEducation.Id;
+                    factFieldValuesEducation.DimPidIdOrcidPutCode = dimPidOrcidPutCodeEducation.Id;
+                    factFieldValuesEducation.SourceId = Constants.SourceIdentifiers.ORCID;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesEducation);
                     await _ttvContext.SaveChangesAsync();
                 }
             }

@@ -1,11 +1,11 @@
 ﻿{
   "orcid-identifier": {
-    "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+    "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
     "path": "0000-0002-9227-8514",
     "host": "sandbox.orcid.org"
   },
   "preferences": {
-    "locale": "EN"
+    "locale": "en"
   },
   "history": {
     "creation-method": "MEMBER_REFERRED",
@@ -14,7 +14,7 @@
       "value": 1423033401286
     },
     "last-modified-date": {
-      "value": 1601300044223
+      "value": 1617028188658
     },
     "claimed": true,
     "source": null,
@@ -43,7 +43,7 @@
         "value": "Sofia Maria Hernandez Garcia"
       },
       "source": null,
-      "visibility": "PUBLIC",
+      "visibility": "public",
       "path": "0000-0002-9227-8514"
     },
     "other-names": {
@@ -60,17 +60,20 @@
           },
           "source": {
             "source-orcid": {
-              "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+              "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
               "path": "0000-0002-9227-8514",
               "host": "sandbox.orcid.org"
             },
             "source-client-id": null,
             "source-name": {
               "value": "Sofia Maria Hernandez Garcia"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "content": "Sofia Maria Garcia",
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/other-names/15812",
           "put-code": 15812,
           "display-index": 0
@@ -84,17 +87,20 @@
           },
           "source": {
             "source-orcid": {
-              "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+              "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
               "path": "0000-0002-9227-8514",
               "host": "sandbox.orcid.org"
             },
             "source-client-id": null,
             "source-name": {
               "value": "Sofia Maria Hernandez Garcia"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "content": "София Мария Эрнандес Гарсия",
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/other-names/15813",
           "put-code": 15813,
           "display-index": 0
@@ -108,17 +114,20 @@
           },
           "source": {
             "source-orcid": {
-              "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+              "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
               "path": "0000-0002-9227-8514",
               "host": "sandbox.orcid.org"
             },
             "source-client-id": null,
             "source-name": {
               "value": "Sofia Maria Hernandez Garcia"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "content": "索菲亚玛丽亚 加西亚",
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/other-names/15814",
           "put-code": 15814,
           "display-index": 0
@@ -134,7 +143,7 @@
         "value": 1460669280211
       },
       "content": "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder.",
-      "visibility": "PUBLIC",
+      "visibility": "public",
       "path": "/0000-0002-9227-8514/biography"
     },
     "researcher-urls": {
@@ -151,20 +160,23 @@
           },
           "source": {
             "source-orcid": {
-              "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+              "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
               "path": "0000-0002-9227-8514",
               "host": "sandbox.orcid.org"
             },
             "source-client-id": null,
             "source-name": {
               "value": "Sofia Maria Hernandez Garcia"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "url-name": "Twitter",
           "url": {
             "value": "https://twitter.com/ORCIDsofia"
           },
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/researcher-urls/41387",
           "put-code": 41387,
           "display-index": 1
@@ -186,18 +198,21 @@
           },
           "source": {
             "source-orcid": {
-              "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+              "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
               "path": "0000-0002-9227-8514",
               "host": "sandbox.orcid.org"
             },
             "source-client-id": null,
             "source-name": {
               "value": "Sofia Maria Hernandez Garcia"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "email": "s.garcia@orcid.org",
           "path": null,
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "verified": true,
           "primary": true,
           "put-code": null
@@ -219,19 +234,22 @@
           },
           "source": {
             "source-orcid": {
-              "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+              "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
               "path": "0000-0002-9227-8514",
               "host": "sandbox.orcid.org"
             },
             "source-client-id": null,
             "source-name": {
               "value": "Sofia Maria Hernandez Garcia"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "country": {
             "value": "GB"
           },
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/address/4556",
           "put-code": 4556,
           "display-index": 2
@@ -246,18 +264,21 @@
           "source": {
             "source-orcid": null,
             "source-client-id": {
-              "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+              "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
               "path": "APP-674MCQQR985VZZQ2",
               "host": "sandbox.orcid.org"
             },
             "source-name": {
               "value": "Regional University"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "country": {
             "value": "US"
           },
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/address/4560",
           "put-code": 4560,
           "display-index": 1
@@ -280,16 +301,19 @@
           "source": {
             "source-orcid": null,
             "source-client-id": {
-              "uri": "http://sandbox.orcid.org/client/APP-2UX70ON5NEEMCGCV",
+              "uri": "https://sandbox.orcid.org/client/APP-2UX70ON5NEEMCGCV",
               "path": "APP-2UX70ON5NEEMCGCV",
               "host": "sandbox.orcid.org"
             },
             "source-name": {
               "value": "Frontiers ORCID Sandbox"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "content": "QA and testing",
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/keywords/4504",
           "put-code": 4504,
           "display-index": 3
@@ -303,17 +327,20 @@
           },
           "source": {
             "source-orcid": {
-              "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+              "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
               "path": "0000-0002-9227-8514",
               "host": "sandbox.orcid.org"
             },
             "source-client-id": null,
             "source-name": {
               "value": "Sofia Maria Hernandez Garcia"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "content": "QA and testing",
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/keywords/4603",
           "put-code": 4603,
           "display-index": 2
@@ -327,17 +354,20 @@
           },
           "source": {
             "source-orcid": {
-              "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+              "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
               "path": "0000-0002-9227-8514",
               "host": "sandbox.orcid.org"
             },
             "source-client-id": null,
             "source-name": {
               "value": "Sofia Maria Hernandez Garcia"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "content": "Additional keyword",
-          "visibility": "PUBLIC",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/keywords/4604",
           "put-code": 4604,
           "display-index": 1
@@ -360,21 +390,24 @@
           "source": {
             "source-orcid": null,
             "source-client-id": {
-              "uri": "http://sandbox.orcid.org/client/APP-2UX70ON5NEEMCGCV",
+              "uri": "https://sandbox.orcid.org/client/APP-2UX70ON5NEEMCGCV",
               "path": "APP-2UX70ON5NEEMCGCV",
               "host": "sandbox.orcid.org"
             },
             "source-name": {
               "value": "Frontiers ORCID Sandbox"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "external-id-type": "Loop profile",
           "external-id-value": "558",
           "external-id-url": {
             "value": "http://loop.frontiers-sandbox-int.info/people/559/overview?referrer=orcid_profile"
           },
-          "external-id-relationship": "SELF",
-          "visibility": "PUBLIC",
+          "external-id-relationship": "self",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/external-identifiers/3193",
           "put-code": 3193,
           "display-index": 1
@@ -389,21 +422,24 @@
           "source": {
             "source-orcid": null,
             "source-client-id": {
-              "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+              "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
               "path": "APP-674MCQQR985VZZQ2",
               "host": "sandbox.orcid.org"
             },
             "source-name": {
               "value": "Regional University"
-            }
+            },
+            "assertion-origin-orcid": null,
+            "assertion-origin-client-id": null,
+            "assertion-origin-name": null
           },
           "external-id-type": "Personal External Identifier",
           "external-id-value": "506",
           "external-id-url": {
             "value": "www.6.com"
           },
-          "external-id-relationship": "SELF",
-          "visibility": "PUBLIC",
+          "external-id-relationship": "self",
+          "visibility": "public",
           "path": "/0000-0002-9227-8514/external-identifiers/3294",
           "put-code": 3294,
           "display-index": 0
@@ -415,70 +451,192 @@
   },
   "activities-summary": {
     "last-modified-date": {
-      "value": 1561445646673
+      "value": 1617028188646
+    },
+    "distinctions": {
+      "last-modified-date": {
+        "value": 1518040998211
+      },
+      "affiliation-group": [
+        {
+          "last-modified-date": {
+            "value": 1518040998211
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "grant_number",
+                "external-id-value": "ext-id-ABC",
+                "external-id-normalized": {
+                  "value": "ext-id-abc",
+                  "transient": true
+                },
+                "external-id-normalized-error": null,
+                "external-id-url": {
+                  "value": "http://tempuri.orgABC"
+                },
+                "external-id-relationship": "self"
+              }
+            ]
+          },
+          "summaries": [
+            {
+              "distinction-summary": {
+                "created-date": {
+                  "value": 1518040998211
+                },
+                "last-modified-date": {
+                  "value": 1518040998211
+                },
+                "source": {
+                  "source-orcid": null,
+                  "source-client-id": {
+                    "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                    "path": "APP-674MCQQR985VZZQ2",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-name": {
+                    "value": "Regional University"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 29770,
+                "department-name": "Department",
+                "role-title": "Role",
+                "start-date": {
+                  "year": {
+                    "value": "2012"
+                  },
+                  "month": {
+                    "value": "07"
+                  },
+                  "day": {
+                    "value": "01"
+                  }
+                },
+                "end-date": null,
+                "organization": {
+                  "name": "Andrew W. Mellon Foundation",
+                  "address": {
+                    "city": "New York",
+                    "region": null,
+                    "country": "US"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "http://dx.doi.org/10.13039/100000873",
+                    "disambiguation-source": "FUNDREF"
+                  }
+                },
+                "url": null,
+                "external-ids": {
+                  "external-id": [
+                    {
+                      "external-id-type": "grant_number",
+                      "external-id-value": "ext-id-ABC",
+                      "external-id-normalized": {
+                        "value": "ext-id-abc",
+                        "transient": true
+                      },
+                      "external-id-normalized-error": null,
+                      "external-id-url": {
+                        "value": "http://tempuri.orgABC"
+                      },
+                      "external-id-relationship": "self"
+                    }
+                  ]
+                },
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0002-9227-8514/distinction/29770"
+              }
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0002-9227-8514/distinctions"
     },
     "educations": {
       "last-modified-date": {
         "value": 1477583674474
       },
-      "education-summary": [
+      "affiliation-group": [
         {
-          "created-date": {
-            "value": 1477583674474
-          },
           "last-modified-date": {
             "value": 1477583674474
           },
-          "source": {
-            "source-orcid": null,
-            "source-client-id": {
-              "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-              "path": "APP-674MCQQR985VZZQ2",
-              "host": "sandbox.orcid.org"
-            },
-            "source-name": {
-              "value": "Regional University"
-            }
+          "external-ids": {
+            "external-id": []
           },
-          "department-name": "Testing Department",
-          "role-title": "BA",
-          "start-date": {
-            "year": {
-              "value": "1997"
-            },
-            "month": {
-              "value": "09"
-            },
-            "day": {
-              "value": "02"
+          "summaries": [
+            {
+              "education-summary": {
+                "created-date": {
+                  "value": 1477583674474
+                },
+                "last-modified-date": {
+                  "value": 1477583674474
+                },
+                "source": {
+                  "source-orcid": null,
+                  "source-client-id": {
+                    "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                    "path": "APP-674MCQQR985VZZQ2",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-name": {
+                    "value": "Regional University"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 22423,
+                "department-name": "Testing Department",
+                "role-title": "BA",
+                "start-date": {
+                  "year": {
+                    "value": "1997"
+                  },
+                  "month": {
+                    "value": "09"
+                  },
+                  "day": {
+                    "value": "02"
+                  }
+                },
+                "end-date": {
+                  "year": {
+                    "value": "2001"
+                  },
+                  "month": {
+                    "value": "05"
+                  },
+                  "day": {
+                    "value": "15"
+                  }
+                },
+                "organization": {
+                  "name": "Massachusetts Institute of Technology",
+                  "address": {
+                    "city": "Cambridge",
+                    "region": "MA",
+                    "country": "US"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "2167",
+                    "disambiguation-source": "RINGGOLD"
+                  }
+                },
+                "url": null,
+                "external-ids": null,
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0002-9227-8514/education/22423"
+              }
             }
-          },
-          "end-date": {
-            "year": {
-              "value": "2001"
-            },
-            "month": {
-              "value": "05"
-            },
-            "day": {
-              "value": "15"
-            }
-          },
-          "organization": {
-            "name": "Massachusetts Institute of Technology",
-            "address": {
-              "city": "Cambridge",
-              "region": "MA",
-              "country": "US"
-            },
-            "disambiguated-organization": {
-              "disambiguated-organization-identifier": "2167",
-              "disambiguation-source": "RINGGOLD"
-            }
-          },
-          "visibility": "PUBLIC",
-          "put-code": 22423,
-          "path": "/0000-0002-9227-8514/education/22423"
+          ]
         }
       ],
       "path": "/0000-0002-9227-8514/educations"
@@ -487,52 +645,70 @@
       "last-modified-date": {
         "value": 1477418605431
       },
-      "employment-summary": [
+      "affiliation-group": [
         {
-          "created-date": {
-            "value": 1477418605431
-          },
           "last-modified-date": {
             "value": 1477418605431
           },
-          "source": {
-            "source-orcid": {
-              "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
-              "path": "0000-0002-9227-8514",
-              "host": "sandbox.orcid.org"
-            },
-            "source-client-id": null,
-            "source-name": {
-              "value": "Sofia Maria Hernandez Garcia"
+          "external-ids": {
+            "external-id": []
+          },
+          "summaries": [
+            {
+              "employment-summary": {
+                "created-date": {
+                  "value": 1477418605431
+                },
+                "last-modified-date": {
+                  "value": 1477418605431
+                },
+                "source": {
+                  "source-orcid": {
+                    "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
+                    "path": "0000-0002-9227-8514",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-client-id": null,
+                  "source-name": {
+                    "value": "Sofia Maria Hernandez Garcia"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 22411,
+                "department-name": "QA and Testing",
+                "role-title": "Test account holder",
+                "start-date": {
+                  "year": {
+                    "value": "2012"
+                  },
+                  "month": {
+                    "value": "10"
+                  },
+                  "day": null
+                },
+                "end-date": null,
+                "organization": {
+                  "name": "ORCID",
+                  "address": {
+                    "city": "Bethesda",
+                    "region": "MD",
+                    "country": "US"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "385488",
+                    "disambiguation-source": "RINGGOLD"
+                  }
+                },
+                "url": null,
+                "external-ids": null,
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0002-9227-8514/employment/22411"
+              }
             }
-          },
-          "department-name": "QA and Testing",
-          "role-title": "Test account holder",
-          "start-date": {
-            "year": {
-              "value": "2012"
-            },
-            "month": {
-              "value": "10"
-            },
-            "day": null
-          },
-          "end-date": null,
-          "organization": {
-            "name": "ORCID",
-            "address": {
-              "city": "Bethesda",
-              "region": "MD",
-              "country": "US"
-            },
-            "disambiguated-organization": {
-              "disambiguated-organization-identifier": "385488",
-              "disambiguation-source": "RINGGOLD"
-            }
-          },
-          "visibility": "PUBLIC",
-          "put-code": 22411,
-          "path": "/0000-0002-9227-8514/employment/22411"
+          ]
         }
       ],
       "path": "/0000-0002-9227-8514/employments"
@@ -559,14 +735,17 @@
               },
               "source": {
                 "source-orcid": {
-                  "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+                  "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
                   "path": "0000-0002-9227-8514",
                   "host": "sandbox.orcid.org"
                 },
                 "source-client-id": null,
                 "source-name": {
                   "value": "Sofia Maria Hernandez Garcia"
-                }
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
               },
               "title": {
                 "title": {
@@ -575,7 +754,8 @@
                 "translated-title": null
               },
               "external-ids": null,
-              "type": "GRANT",
+              "url": null,
+              "type": "grant",
               "start-date": {
                 "year": {
                   "value": "2017"
@@ -603,7 +783,7 @@
                 },
                 "disambiguated-organization": null
               },
-              "visibility": "PUBLIC",
+              "visibility": "public",
               "put-code": 6388,
               "path": "/0000-0002-9227-8514/funding/6388",
               "display-index": "1"
@@ -619,8 +799,10 @@
               {
                 "external-id-type": "grant_number",
                 "external-id-value": "12345",
+                "external-id-normalized": null,
+                "external-id-normalized-error": null,
                 "external-id-url": null,
-                "external-id-relationship": "SELF"
+                "external-id-relationship": "self"
               }
             ]
           },
@@ -635,13 +817,16 @@
               "source": {
                 "source-orcid": null,
                 "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-DAM7BV5YGLGHWOCH",
+                  "uri": "https://sandbox.orcid.org/client/APP-DAM7BV5YGLGHWOCH",
                   "path": "APP-DAM7BV5YGLGHWOCH",
                   "host": "sandbox.orcid.org"
                 },
                 "source-name": {
                   "value": "Grant System Sandbox Test"
-                }
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
               },
               "title": {
                 "title": {
@@ -654,12 +839,17 @@
                   {
                     "external-id-type": "grant_number",
                     "external-id-value": "12345",
+                    "external-id-normalized": null,
+                    "external-id-normalized-error": null,
                     "external-id-url": null,
-                    "external-id-relationship": "SELF"
+                    "external-id-relationship": "self"
                   }
                 ]
               },
-              "type": "GRANT",
+              "url": {
+                "value": "http://tempuri.org"
+              },
+              "type": "grant",
               "start-date": {
                 "year": {
                   "value": "1999"
@@ -691,7 +881,7 @@
                 },
                 "disambiguated-organization": null
               },
-              "visibility": "PUBLIC",
+              "visibility": "public",
               "put-code": 4413,
               "path": "/0000-0002-9227-8514/funding/4413",
               "display-index": "0"
@@ -700,6 +890,182 @@
         }
       ],
       "path": "/0000-0002-9227-8514/fundings"
+    },
+    "invited-positions": {
+      "last-modified-date": {
+        "value": 1518120857978
+      },
+      "affiliation-group": [
+        {
+          "last-modified-date": {
+            "value": 1518120857978
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "grant_number",
+                "external-id-value": "grant-identifier-value",
+                "external-id-normalized": {
+                  "value": "grant-identifier-value",
+                  "transient": true
+                },
+                "external-id-normalized-error": null,
+                "external-id-url": {
+                  "value": "http://tempuri.org"
+                },
+                "external-id-relationship": "self"
+              }
+            ]
+          },
+          "summaries": [
+            {
+              "invited-position-summary": {
+                "created-date": {
+                  "value": 1518120857978
+                },
+                "last-modified-date": {
+                  "value": 1518120857978
+                },
+                "source": {
+                  "source-orcid": null,
+                  "source-client-id": {
+                    "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                    "path": "APP-674MCQQR985VZZQ2",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-name": {
+                    "value": "Regional University"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 29778,
+                "department-name": "Dept Name",
+                "role-title": "Invited Position Title",
+                "start-date": {
+                  "year": {
+                    "value": "2018"
+                  },
+                  "month": {
+                    "value": "02"
+                  },
+                  "day": {
+                    "value": "02"
+                  }
+                },
+                "end-date": null,
+                "organization": {
+                  "name": "University of Michigan",
+                  "address": {
+                    "city": "Ann Arbor",
+                    "region": "MI",
+                    "country": "GB"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "1259",
+                    "disambiguation-source": "RINGGOLD"
+                  }
+                },
+                "url": {
+                  "value": "http://orcid.org/umich"
+                },
+                "external-ids": {
+                  "external-id": [
+                    {
+                      "external-id-type": "grant_number",
+                      "external-id-value": "grant-identifier-value",
+                      "external-id-normalized": {
+                        "value": "grant-identifier-value",
+                        "transient": true
+                      },
+                      "external-id-normalized-error": null,
+                      "external-id-url": {
+                        "value": "http://tempuri.org"
+                      },
+                      "external-id-relationship": "self"
+                    }
+                  ]
+                },
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0002-9227-8514/invited-position/29778"
+              }
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0002-9227-8514/invited-positions"
+    },
+    "memberships": {
+      "last-modified-date": {
+        "value": 1518121061309
+      },
+      "affiliation-group": [
+        {
+          "last-modified-date": {
+            "value": 1518121061309
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "summaries": [
+            {
+              "membership-summary": {
+                "created-date": {
+                  "value": 1518121061309
+                },
+                "last-modified-date": {
+                  "value": 1518121061309
+                },
+                "source": {
+                  "source-orcid": null,
+                  "source-client-id": {
+                    "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                    "path": "APP-674MCQQR985VZZQ2",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-name": {
+                    "value": "Regional University"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 29779,
+                "department-name": null,
+                "role-title": null,
+                "start-date": {
+                  "year": {
+                    "value": "2017"
+                  },
+                  "month": null,
+                  "day": null
+                },
+                "end-date": null,
+                "organization": {
+                  "name": "Research Data Alliance",
+                  "address": {
+                    "city": "Dublin",
+                    "region": null,
+                    "country": "IE"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "grid.484715.b",
+                    "disambiguation-source": "GRID"
+                  }
+                },
+                "url": null,
+                "external-ids": null,
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0002-9227-8514/membership/29779"
+              }
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0002-9227-8514/memberships"
     },
     "peer-reviews": {
       "last-modified-date": {
@@ -715,296 +1081,463 @@
               {
                 "external-id-type": "peer-review",
                 "external-id-value": "issn:12345678",
+                "external-id-normalized": null,
+                "external-id-normalized-error": null,
                 "external-id-url": null,
                 "external-id-relationship": null
               }
             ]
           },
-          "peer-review-summary": [
+          "peer-review-group": [
             {
-              "created-date": {
-                "value": 1560828391350
-              },
-              "last-modified-date": {
-                "value": 1560828391350
-              },
-              "source": {
-                "source-orcid": null,
-                "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-                  "path": "APP-674MCQQR985VZZQ2",
-                  "host": "sandbox.orcid.org"
-                },
-                "source-name": {
-                  "value": "Regional University"
-                }
-              },
-              "external-ids": {
-                "external-id": [
-                  {
-                    "external-id-type": "source-work-id",
-                    "external-id-value": "dec1d",
-                    "external-id-url": null,
-                    "external-id-relationship": "SELF"
-                  }
-                ]
-              },
-              "completion-date": {
-                "year": {
-                  "value": "2016"
-                },
-                "month": {
-                  "value": "02"
-                },
-                "day": {
-                  "value": "02"
-                }
-              },
-              "review-group-id": "issn:12345678",
-              "convening-organization": {
-                "name": "ORCID",
-                "address": {
-                  "city": "Providence",
-                  "region": "RI",
-                  "country": "US"
-                },
-                "disambiguated-organization": {
-                  "disambiguated-organization-identifier": "grid.455335.1",
-                  "disambiguation-source": "GRID"
-                }
-              },
-              "visibility": "PUBLIC",
-              "put-code": 3746,
-              "path": "/0000-0002-9227-8514/peer-review/3746",
-              "display-index": "0"
-            },
-            {
-              "created-date": {
-                "value": 1512151792037
-              },
-              "last-modified-date": {
-                "value": 1512151792037
-              },
-              "source": {
-                "source-orcid": null,
-                "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-                  "path": "APP-674MCQQR985VZZQ2",
-                  "host": "sandbox.orcid.org"
-                },
-                "source-name": {
-                  "value": "Regional University"
-                }
-              },
-              "external-ids": {
-                "external-id": [
-                  {
-                    "external-id-type": "source-work-id",
-                    "external-id-value": "dec1",
-                    "external-id-url": null,
-                    "external-id-relationship": "SELF"
-                  }
-                ]
-              },
-              "completion-date": {
-                "year": {
-                  "value": "2016"
-                },
-                "month": {
-                  "value": "02"
-                },
-                "day": {
-                  "value": "02"
-                }
-              },
-              "review-group-id": "issn:12345678",
-              "convening-organization": {
-                "name": "ORDER",
-                "address": {
-                  "city": "Providence",
-                  "region": "RI",
-                  "country": "US"
-                },
-                "disambiguated-organization": {
-                  "disambiguated-organization-identifier": "1234",
-                  "disambiguation-source": "RINGGOLD"
-                }
-              },
-              "visibility": "PUBLIC",
-              "put-code": 2127,
-              "path": "/0000-0002-9227-8514/peer-review/2127",
-              "display-index": "0"
-            },
-            {
-              "created-date": {
-                "value": 1512151819656
-              },
-              "last-modified-date": {
-                "value": 1512151819656
-              },
-              "source": {
-                "source-orcid": null,
-                "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-                  "path": "APP-674MCQQR985VZZQ2",
-                  "host": "sandbox.orcid.org"
-                },
-                "source-name": {
-                  "value": "Regional University"
-                }
-              },
-              "external-ids": {
-                "external-id": [
-                  {
-                    "external-id-type": "source-work-id",
-                    "external-id-value": "dec1a",
-                    "external-id-url": null,
-                    "external-id-relationship": "SELF"
-                  }
-                ]
-              },
-              "completion-date": {
-                "year": {
-                  "value": "2016"
-                },
-                "month": {
-                  "value": "02"
-                },
-                "day": {
-                  "value": "02"
-                }
-              },
-              "review-group-id": "issn:12345678",
-              "convening-organization": {
-                "name": "ORDER",
-                "address": {
-                  "city": "Providence",
-                  "region": "RI",
-                  "country": "US"
-                },
-                "disambiguated-organization": {
-                  "disambiguated-organization-identifier": "1234",
-                  "disambiguation-source": "RINGGOLD"
-                }
-              },
-              "visibility": "PUBLIC",
-              "put-code": 2128,
-              "path": "/0000-0002-9227-8514/peer-review/2128",
-              "display-index": "0"
-            },
-            {
-              "created-date": {
-                "value": 1512151928076
-              },
-              "last-modified-date": {
-                "value": 1512151928076
-              },
-              "source": {
-                "source-orcid": null,
-                "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-                  "path": "APP-674MCQQR985VZZQ2",
-                  "host": "sandbox.orcid.org"
-                },
-                "source-name": {
-                  "value": "Regional University"
-                }
-              },
-              "external-ids": {
-                "external-id": [
-                  {
-                    "external-id-type": "source-work-id",
-                    "external-id-value": "dec1b",
-                    "external-id-url": null,
-                    "external-id-relationship": "SELF"
-                  }
-                ]
-              },
-              "completion-date": {
-                "year": {
-                  "value": "2016"
-                },
-                "month": {
-                  "value": "02"
-                },
-                "day": {
-                  "value": "02"
-                }
-              },
-              "review-group-id": "issn:12345678",
-              "convening-organization": {
-                "name": "ORCID",
-                "address": {
-                  "city": "Providence",
-                  "region": "RI",
-                  "country": "US"
-                },
-                "disambiguated-organization": {
-                  "disambiguated-organization-identifier": "grid.455335.1",
-                  "disambiguation-source": "GRID"
-                }
-              },
-              "visibility": "PUBLIC",
-              "put-code": 2129,
-              "path": "/0000-0002-9227-8514/peer-review/2129",
-              "display-index": "0"
-            },
-            {
-              "created-date": {
-                "value": 1547745329373
-              },
               "last-modified-date": {
                 "value": 1547745329373
-              },
-              "source": {
-                "source-orcid": null,
-                "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-                  "path": "APP-674MCQQR985VZZQ2",
-                  "host": "sandbox.orcid.org"
-                },
-                "source-name": {
-                  "value": "Regional University"
-                }
               },
               "external-ids": {
                 "external-id": [
                   {
                     "external-id-type": "source-work-id",
                     "external-id-value": "dec1c",
+                    "external-id-normalized": {
+                      "value": "dec1c",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
                     "external-id-url": null,
-                    "external-id-relationship": "SELF"
+                    "external-id-relationship": "self"
                   }
                 ]
               },
-              "completion-date": {
-                "year": {
-                  "value": "2016"
-                },
-                "month": {
-                  "value": "02"
-                },
-                "day": {
-                  "value": "02"
+              "peer-review-summary": [
+                {
+                  "created-date": {
+                    "value": 1547745329373
+                  },
+                  "last-modified-date": {
+                    "value": 1547745329373
+                  },
+                  "source": {
+                    "source-orcid": null,
+                    "source-client-id": {
+                      "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                      "path": "APP-674MCQQR985VZZQ2",
+                      "host": "sandbox.orcid.org"
+                    },
+                    "source-name": {
+                      "value": "Regional University"
+                    },
+                    "assertion-origin-orcid": null,
+                    "assertion-origin-client-id": null,
+                    "assertion-origin-name": null
+                  },
+                  "reviewer-role": "reviewer",
+                  "external-ids": {
+                    "external-id": [
+                      {
+                        "external-id-type": "source-work-id",
+                        "external-id-value": "dec1c",
+                        "external-id-normalized": {
+                          "value": "dec1c",
+                          "transient": true
+                        },
+                        "external-id-normalized-error": null,
+                        "external-id-url": null,
+                        "external-id-relationship": "self"
+                      }
+                    ]
+                  },
+                  "review-url": null,
+                  "review-type": "review",
+                  "completion-date": {
+                    "year": {
+                      "value": "2016"
+                    },
+                    "month": {
+                      "value": "02"
+                    },
+                    "day": {
+                      "value": "02"
+                    }
+                  },
+                  "review-group-id": "issn:12345678",
+                  "convening-organization": {
+                    "name": "ORCID",
+                    "address": {
+                      "city": "Providence",
+                      "region": "RI",
+                      "country": "US"
+                    },
+                    "disambiguated-organization": {
+                      "disambiguated-organization-identifier": "grid.455335.1",
+                      "disambiguation-source": "GRID"
+                    }
+                  },
+                  "visibility": "public",
+                  "put-code": 3466,
+                  "path": "/0000-0002-9227-8514/peer-review/3466",
+                  "display-index": "0"
                 }
+              ]
+            },
+            {
+              "last-modified-date": {
+                "value": 1512151928076
               },
-              "review-group-id": "issn:12345678",
-              "convening-organization": {
-                "name": "ORCID",
-                "address": {
-                  "city": "Providence",
-                  "region": "RI",
-                  "country": "US"
-                },
-                "disambiguated-organization": {
-                  "disambiguated-organization-identifier": "grid.455335.1",
-                  "disambiguation-source": "GRID"
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "source-work-id",
+                    "external-id-value": "dec1b",
+                    "external-id-normalized": {
+                      "value": "dec1b",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
+                    "external-id-url": null,
+                    "external-id-relationship": "self"
+                  }
+                ]
+              },
+              "peer-review-summary": [
+                {
+                  "created-date": {
+                    "value": 1512151928076
+                  },
+                  "last-modified-date": {
+                    "value": 1512151928076
+                  },
+                  "source": {
+                    "source-orcid": null,
+                    "source-client-id": {
+                      "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                      "path": "APP-674MCQQR985VZZQ2",
+                      "host": "sandbox.orcid.org"
+                    },
+                    "source-name": {
+                      "value": "Regional University"
+                    },
+                    "assertion-origin-orcid": null,
+                    "assertion-origin-client-id": null,
+                    "assertion-origin-name": null
+                  },
+                  "reviewer-role": "reviewer",
+                  "external-ids": {
+                    "external-id": [
+                      {
+                        "external-id-type": "source-work-id",
+                        "external-id-value": "dec1b",
+                        "external-id-normalized": {
+                          "value": "dec1b",
+                          "transient": true
+                        },
+                        "external-id-normalized-error": null,
+                        "external-id-url": null,
+                        "external-id-relationship": "self"
+                      }
+                    ]
+                  },
+                  "review-url": null,
+                  "review-type": "review",
+                  "completion-date": {
+                    "year": {
+                      "value": "2016"
+                    },
+                    "month": {
+                      "value": "02"
+                    },
+                    "day": {
+                      "value": "02"
+                    }
+                  },
+                  "review-group-id": "issn:12345678",
+                  "convening-organization": {
+                    "name": "ORCID",
+                    "address": {
+                      "city": "Providence",
+                      "region": "RI",
+                      "country": "US"
+                    },
+                    "disambiguated-organization": {
+                      "disambiguated-organization-identifier": "grid.455335.1",
+                      "disambiguation-source": "GRID"
+                    }
+                  },
+                  "visibility": "public",
+                  "put-code": 2129,
+                  "path": "/0000-0002-9227-8514/peer-review/2129",
+                  "display-index": "0"
                 }
+              ]
+            },
+            {
+              "last-modified-date": {
+                "value": 1512151819656
               },
-              "visibility": "PUBLIC",
-              "put-code": 3466,
-              "path": "/0000-0002-9227-8514/peer-review/3466",
-              "display-index": "0"
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "source-work-id",
+                    "external-id-value": "dec1a",
+                    "external-id-normalized": {
+                      "value": "dec1a",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
+                    "external-id-url": null,
+                    "external-id-relationship": "self"
+                  }
+                ]
+              },
+              "peer-review-summary": [
+                {
+                  "created-date": {
+                    "value": 1512151819656
+                  },
+                  "last-modified-date": {
+                    "value": 1512151819656
+                  },
+                  "source": {
+                    "source-orcid": null,
+                    "source-client-id": {
+                      "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                      "path": "APP-674MCQQR985VZZQ2",
+                      "host": "sandbox.orcid.org"
+                    },
+                    "source-name": {
+                      "value": "Regional University"
+                    },
+                    "assertion-origin-orcid": null,
+                    "assertion-origin-client-id": null,
+                    "assertion-origin-name": null
+                  },
+                  "reviewer-role": "reviewer",
+                  "external-ids": {
+                    "external-id": [
+                      {
+                        "external-id-type": "source-work-id",
+                        "external-id-value": "dec1a",
+                        "external-id-normalized": {
+                          "value": "dec1a",
+                          "transient": true
+                        },
+                        "external-id-normalized-error": null,
+                        "external-id-url": null,
+                        "external-id-relationship": "self"
+                      }
+                    ]
+                  },
+                  "review-url": null,
+                  "review-type": "review",
+                  "completion-date": {
+                    "year": {
+                      "value": "2016"
+                    },
+                    "month": {
+                      "value": "02"
+                    },
+                    "day": {
+                      "value": "02"
+                    }
+                  },
+                  "review-group-id": "issn:12345678",
+                  "convening-organization": {
+                    "name": "ORDER",
+                    "address": {
+                      "city": "Providence",
+                      "region": "RI",
+                      "country": "US"
+                    },
+                    "disambiguated-organization": {
+                      "disambiguated-organization-identifier": "1234",
+                      "disambiguation-source": "RINGGOLD"
+                    }
+                  },
+                  "visibility": "public",
+                  "put-code": 2128,
+                  "path": "/0000-0002-9227-8514/peer-review/2128",
+                  "display-index": "0"
+                }
+              ]
+            },
+            {
+              "last-modified-date": {
+                "value": 1560828391350
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "source-work-id",
+                    "external-id-value": "dec1d",
+                    "external-id-normalized": {
+                      "value": "dec1d",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
+                    "external-id-url": null,
+                    "external-id-relationship": "self"
+                  }
+                ]
+              },
+              "peer-review-summary": [
+                {
+                  "created-date": {
+                    "value": 1560828391350
+                  },
+                  "last-modified-date": {
+                    "value": 1560828391350
+                  },
+                  "source": {
+                    "source-orcid": null,
+                    "source-client-id": {
+                      "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                      "path": "APP-674MCQQR985VZZQ2",
+                      "host": "sandbox.orcid.org"
+                    },
+                    "source-name": {
+                      "value": "Regional University"
+                    },
+                    "assertion-origin-orcid": null,
+                    "assertion-origin-client-id": null,
+                    "assertion-origin-name": null
+                  },
+                  "reviewer-role": "reviewer",
+                  "external-ids": {
+                    "external-id": [
+                      {
+                        "external-id-type": "source-work-id",
+                        "external-id-value": "dec1d",
+                        "external-id-normalized": {
+                          "value": "dec1d",
+                          "transient": true
+                        },
+                        "external-id-normalized-error": null,
+                        "external-id-url": null,
+                        "external-id-relationship": "self"
+                      }
+                    ]
+                  },
+                  "review-url": null,
+                  "review-type": "review",
+                  "completion-date": {
+                    "year": {
+                      "value": "2016"
+                    },
+                    "month": {
+                      "value": "02"
+                    },
+                    "day": {
+                      "value": "02"
+                    }
+                  },
+                  "review-group-id": "issn:12345678",
+                  "convening-organization": {
+                    "name": "ORCID",
+                    "address": {
+                      "city": "Providence",
+                      "region": "RI",
+                      "country": "US"
+                    },
+                    "disambiguated-organization": {
+                      "disambiguated-organization-identifier": "grid.455335.1",
+                      "disambiguation-source": "GRID"
+                    }
+                  },
+                  "visibility": "public",
+                  "put-code": 3746,
+                  "path": "/0000-0002-9227-8514/peer-review/3746",
+                  "display-index": "0"
+                }
+              ]
+            },
+            {
+              "last-modified-date": {
+                "value": 1512151792037
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "source-work-id",
+                    "external-id-value": "dec1",
+                    "external-id-normalized": {
+                      "value": "dec1",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
+                    "external-id-url": null,
+                    "external-id-relationship": "self"
+                  }
+                ]
+              },
+              "peer-review-summary": [
+                {
+                  "created-date": {
+                    "value": 1512151792037
+                  },
+                  "last-modified-date": {
+                    "value": 1512151792037
+                  },
+                  "source": {
+                    "source-orcid": null,
+                    "source-client-id": {
+                      "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                      "path": "APP-674MCQQR985VZZQ2",
+                      "host": "sandbox.orcid.org"
+                    },
+                    "source-name": {
+                      "value": "Regional University"
+                    },
+                    "assertion-origin-orcid": null,
+                    "assertion-origin-client-id": null,
+                    "assertion-origin-name": null
+                  },
+                  "reviewer-role": "reviewer",
+                  "external-ids": {
+                    "external-id": [
+                      {
+                        "external-id-type": "source-work-id",
+                        "external-id-value": "dec1",
+                        "external-id-normalized": {
+                          "value": "dec1",
+                          "transient": true
+                        },
+                        "external-id-normalized-error": null,
+                        "external-id-url": null,
+                        "external-id-relationship": "self"
+                      }
+                    ]
+                  },
+                  "review-url": null,
+                  "review-type": "review",
+                  "completion-date": {
+                    "year": {
+                      "value": "2016"
+                    },
+                    "month": {
+                      "value": "02"
+                    },
+                    "day": {
+                      "value": "02"
+                    }
+                  },
+                  "review-group-id": "issn:12345678",
+                  "convening-organization": {
+                    "name": "ORDER",
+                    "address": {
+                      "city": "Providence",
+                      "region": "RI",
+                      "country": "US"
+                    },
+                    "disambiguated-organization": {
+                      "disambiguated-organization-identifier": "1234",
+                      "disambiguation-source": "RINGGOLD"
+                    }
+                  },
+                  "visibility": "public",
+                  "put-code": 2127,
+                  "path": "/0000-0002-9227-8514/peer-review/2127",
+                  "display-index": "0"
+                }
+              ]
             }
           ]
         },
@@ -1017,65 +1550,100 @@
               {
                 "external-id-type": "peer-review",
                 "external-id-value": "issn:1234=1234",
+                "external-id-normalized": null,
+                "external-id-normalized-error": null,
                 "external-id-url": null,
                 "external-id-relationship": null
               }
             ]
           },
-          "peer-review-summary": [
+          "peer-review-group": [
             {
-              "created-date": {
-                "value": 1477420417267
-              },
               "last-modified-date": {
                 "value": 1477420417267
-              },
-              "source": {
-                "source-orcid": null,
-                "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-                  "path": "APP-674MCQQR985VZZQ2",
-                  "host": "sandbox.orcid.org"
-                },
-                "source-name": {
-                  "value": "Regional University"
-                }
               },
               "external-ids": {
                 "external-id": [
                   {
                     "external-id-type": "source-work-id",
                     "external-id-value": "12345",
+                    "external-id-normalized": {
+                      "value": "12345",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
                     "external-id-url": null,
-                    "external-id-relationship": "SELF"
+                    "external-id-relationship": "self"
                   }
                 ]
               },
-              "completion-date": {
-                "year": {
-                  "value": "2016"
-                },
-                "month": {
-                  "value": "02"
-                },
-                "day": {
-                  "value": "02"
+              "peer-review-summary": [
+                {
+                  "created-date": {
+                    "value": 1477420417267
+                  },
+                  "last-modified-date": {
+                    "value": 1477420417267
+                  },
+                  "source": {
+                    "source-orcid": null,
+                    "source-client-id": {
+                      "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                      "path": "APP-674MCQQR985VZZQ2",
+                      "host": "sandbox.orcid.org"
+                    },
+                    "source-name": {
+                      "value": "Regional University"
+                    },
+                    "assertion-origin-orcid": null,
+                    "assertion-origin-client-id": null,
+                    "assertion-origin-name": null
+                  },
+                  "reviewer-role": "reviewer",
+                  "external-ids": {
+                    "external-id": [
+                      {
+                        "external-id-type": "source-work-id",
+                        "external-id-value": "12345",
+                        "external-id-normalized": {
+                          "value": "12345",
+                          "transient": true
+                        },
+                        "external-id-normalized-error": null,
+                        "external-id-url": null,
+                        "external-id-relationship": "self"
+                      }
+                    ]
+                  },
+                  "review-url": null,
+                  "review-type": "review",
+                  "completion-date": {
+                    "year": {
+                      "value": "2016"
+                    },
+                    "month": {
+                      "value": "02"
+                    },
+                    "day": {
+                      "value": "02"
+                    }
+                  },
+                  "review-group-id": "issn:1234=1234",
+                  "convening-organization": {
+                    "name": "Journal of Psychoceramics",
+                    "address": {
+                      "city": "Providence",
+                      "region": "RI",
+                      "country": "US"
+                    },
+                    "disambiguated-organization": null
+                  },
+                  "visibility": "public",
+                  "put-code": 1374,
+                  "path": "/0000-0002-9227-8514/peer-review/1374",
+                  "display-index": "0"
                 }
-              },
-              "review-group-id": "issn:1234=1234",
-              "convening-organization": {
-                "name": "Journal of Psychoceramics",
-                "address": {
-                  "city": "Providence",
-                  "region": "RI",
-                  "country": "US"
-                },
-                "disambiguated-organization": null
-              },
-              "visibility": "PUBLIC",
-              "put-code": 1374,
-              "path": "/0000-0002-9227-8514/peer-review/1374",
-              "display-index": "0"
+              ]
             }
           ]
         },
@@ -1088,126 +1656,438 @@
               {
                 "external-id-type": "peer-review",
                 "external-id-value": "issn:1234-5678",
+                "external-id-normalized": null,
+                "external-id-normalized-error": null,
                 "external-id-url": null,
                 "external-id-relationship": null
               }
             ]
           },
-          "peer-review-summary": [
+          "peer-review-group": [
             {
-              "created-date": {
-                "value": 1559326773265
-              },
-              "last-modified-date": {
-                "value": 1559326773265
-              },
-              "source": {
-                "source-orcid": null,
-                "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-                  "path": "APP-674MCQQR985VZZQ2",
-                  "host": "sandbox.orcid.org"
-                },
-                "source-name": {
-                  "value": "Regional University"
-                }
-              },
-              "external-ids": {
-                "external-id": [
-                  {
-                    "external-id-type": "source-work-id",
-                    "external-id-value": "55",
-                    "external-id-url": null,
-                    "external-id-relationship": "SELF"
-                  }
-                ]
-              },
-              "completion-date": {
-                "year": {
-                  "value": "2006"
-                },
-                "month": null,
-                "day": null
-              },
-              "review-group-id": "issn:1234-5678",
-              "convening-organization": {
-                "name": "ORCID",
-                "address": {
-                  "city": "Bethesda",
-                  "region": "MD",
-                  "country": "US"
-                },
-                "disambiguated-organization": {
-                  "disambiguated-organization-identifier": "385488",
-                  "disambiguation-source": "RINGGOLD"
-                }
-              },
-              "visibility": "PUBLIC",
-              "put-code": 3702,
-              "path": "/0000-0002-9227-8514/peer-review/3702",
-              "display-index": "0"
-            },
-            {
-              "created-date": {
-                "value": 1559326737739
-              },
               "last-modified-date": {
                 "value": 1559326737739
-              },
-              "source": {
-                "source-orcid": null,
-                "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-                  "path": "APP-674MCQQR985VZZQ2",
-                  "host": "sandbox.orcid.org"
-                },
-                "source-name": {
-                  "value": "Regional University"
-                }
               },
               "external-ids": {
                 "external-id": [
                   {
                     "external-id-type": "doi",
                     "external-id-value": "10.1000/183_grant",
+                    "external-id-normalized": {
+                      "value": "10.1000/183_grant",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
                     "external-id-url": null,
-                    "external-id-relationship": "SELF"
+                    "external-id-relationship": "self"
                   }
                 ]
               },
-              "completion-date": {
-                "year": {
-                  "value": "2006"
-                },
-                "month": null,
-                "day": null
-              },
-              "review-group-id": "issn:1234-5678",
-              "convening-organization": {
-                "name": "ORCID",
-                "address": {
-                  "city": "Bethesda",
-                  "region": "MD",
-                  "country": "US"
-                },
-                "disambiguated-organization": {
-                  "disambiguated-organization-identifier": "385488",
-                  "disambiguation-source": "RINGGOLD"
+              "peer-review-summary": [
+                {
+                  "created-date": {
+                    "value": 1559326737739
+                  },
+                  "last-modified-date": {
+                    "value": 1559326737739
+                  },
+                  "source": {
+                    "source-orcid": null,
+                    "source-client-id": {
+                      "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                      "path": "APP-674MCQQR985VZZQ2",
+                      "host": "sandbox.orcid.org"
+                    },
+                    "source-name": {
+                      "value": "Regional University"
+                    },
+                    "assertion-origin-orcid": null,
+                    "assertion-origin-client-id": null,
+                    "assertion-origin-name": null
+                  },
+                  "reviewer-role": "reviewer",
+                  "external-ids": {
+                    "external-id": [
+                      {
+                        "external-id-type": "doi",
+                        "external-id-value": "10.1000/183_grant",
+                        "external-id-normalized": {
+                          "value": "10.1000/183_grant",
+                          "transient": true
+                        },
+                        "external-id-normalized-error": null,
+                        "external-id-url": null,
+                        "external-id-relationship": "self"
+                      }
+                    ]
+                  },
+                  "review-url": null,
+                  "review-type": "review",
+                  "completion-date": {
+                    "year": {
+                      "value": "2006"
+                    },
+                    "month": null,
+                    "day": null
+                  },
+                  "review-group-id": "issn:1234-5678",
+                  "convening-organization": {
+                    "name": "ORCID",
+                    "address": {
+                      "city": "Bethesda",
+                      "region": "MD",
+                      "country": "US"
+                    },
+                    "disambiguated-organization": {
+                      "disambiguated-organization-identifier": "385488",
+                      "disambiguation-source": "RINGGOLD"
+                    }
+                  },
+                  "visibility": "public",
+                  "put-code": 3701,
+                  "path": "/0000-0002-9227-8514/peer-review/3701",
+                  "display-index": "0"
                 }
+              ]
+            },
+            {
+              "last-modified-date": {
+                "value": 1559326773265
               },
-              "visibility": "PUBLIC",
-              "put-code": 3701,
-              "path": "/0000-0002-9227-8514/peer-review/3701",
-              "display-index": "0"
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "source-work-id",
+                    "external-id-value": "55",
+                    "external-id-normalized": {
+                      "value": "55",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
+                    "external-id-url": null,
+                    "external-id-relationship": "self"
+                  }
+                ]
+              },
+              "peer-review-summary": [
+                {
+                  "created-date": {
+                    "value": 1559326773265
+                  },
+                  "last-modified-date": {
+                    "value": 1559326773265
+                  },
+                  "source": {
+                    "source-orcid": null,
+                    "source-client-id": {
+                      "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                      "path": "APP-674MCQQR985VZZQ2",
+                      "host": "sandbox.orcid.org"
+                    },
+                    "source-name": {
+                      "value": "Regional University"
+                    },
+                    "assertion-origin-orcid": null,
+                    "assertion-origin-client-id": null,
+                    "assertion-origin-name": null
+                  },
+                  "reviewer-role": "reviewer",
+                  "external-ids": {
+                    "external-id": [
+                      {
+                        "external-id-type": "source-work-id",
+                        "external-id-value": "55",
+                        "external-id-normalized": {
+                          "value": "55",
+                          "transient": true
+                        },
+                        "external-id-normalized-error": null,
+                        "external-id-url": null,
+                        "external-id-relationship": "self"
+                      }
+                    ]
+                  },
+                  "review-url": null,
+                  "review-type": "review",
+                  "completion-date": {
+                    "year": {
+                      "value": "2006"
+                    },
+                    "month": null,
+                    "day": null
+                  },
+                  "review-group-id": "issn:1234-5678",
+                  "convening-organization": {
+                    "name": "ORCID",
+                    "address": {
+                      "city": "Bethesda",
+                      "region": "MD",
+                      "country": "US"
+                    },
+                    "disambiguated-organization": {
+                      "disambiguated-organization-identifier": "385488",
+                      "disambiguation-source": "RINGGOLD"
+                    }
+                  },
+                  "visibility": "public",
+                  "put-code": 3702,
+                  "path": "/0000-0002-9227-8514/peer-review/3702",
+                  "display-index": "0"
+                }
+              ]
             }
           ]
         }
       ],
       "path": "/0000-0002-9227-8514/peer-reviews"
     },
+    "qualifications": {
+      "last-modified-date": {
+        "value": 1518040786404
+      },
+      "affiliation-group": [
+        {
+          "last-modified-date": {
+            "value": 1518040786404
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "grant_number",
+                "external-id-value": "external-identifier-value3",
+                "external-id-normalized": {
+                  "value": "external-identifier-value3",
+                  "transient": true
+                },
+                "external-id-normalized-error": null,
+                "external-id-url": {
+                  "value": "http://tempuri.org3"
+                },
+                "external-id-relationship": "self"
+              }
+            ]
+          },
+          "summaries": [
+            {
+              "qualification-summary": {
+                "created-date": {
+                  "value": 1518040786404
+                },
+                "last-modified-date": {
+                  "value": 1518040786404
+                },
+                "source": {
+                  "source-orcid": null,
+                  "source-client-id": {
+                    "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                    "path": "APP-674MCQQR985VZZQ2",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-name": {
+                    "value": "Regional University"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 29769,
+                "department-name": "Dept Name",
+                "role-title": "Title",
+                "start-date": {
+                  "year": {
+                    "value": "2017"
+                  },
+                  "month": {
+                    "value": "02"
+                  },
+                  "day": {
+                    "value": "02"
+                  }
+                },
+                "end-date": {
+                  "year": {
+                    "value": "2018"
+                  },
+                  "month": {
+                    "value": "02"
+                  },
+                  "day": {
+                    "value": "02"
+                  }
+                },
+                "organization": {
+                  "name": "Program 973",
+                  "address": {
+                    "city": "Beijing",
+                    "region": null,
+                    "country": "CN"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "grid.454688.3",
+                    "disambiguation-source": "GRID"
+                  }
+                },
+                "url": {
+                  "value": "http://www.most.gov.cn/eng/"
+                },
+                "external-ids": {
+                  "external-id": [
+                    {
+                      "external-id-type": "grant_number",
+                      "external-id-value": "external-identifier-value3",
+                      "external-id-normalized": {
+                        "value": "external-identifier-value3",
+                        "transient": true
+                      },
+                      "external-id-normalized-error": null,
+                      "external-id-url": {
+                        "value": "http://tempuri.org3"
+                      },
+                      "external-id-relationship": "self"
+                    }
+                  ]
+                },
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0002-9227-8514/qualification/29769"
+              }
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0002-9227-8514/qualifications"
+    },
+    "research-resources": {
+      "last-modified-date": {
+        "value": 1528835735683
+      },
+      "group": [
+        {
+          "last-modified-date": {
+            "value": 1528835735683
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "handle",
+                "external-id-value": "https://grants.net/123456c",
+                "external-id-normalized": {
+                  "value": "https://grants.net/123456c",
+                  "transient": true
+                },
+                "external-id-normalized-error": null,
+                "external-id-url": null,
+                "external-id-relationship": "self"
+              }
+            ]
+          },
+          "research-resource-summary": [
+            {
+              "created-date": {
+                "value": 1528835735683
+              },
+              "last-modified-date": {
+                "value": 1528835735683
+              },
+              "source": {
+                "source-orcid": null,
+                "source-client-id": {
+                  "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                  "path": "APP-674MCQQR985VZZQ2",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-name": {
+                  "value": "Regional University"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "proposal": {
+                "title": {
+                  "title": {
+                    "value": "The best ever Giant Laser Award"
+                  },
+                  "translated-title": {
+                    "value": "Giant Laser Award",
+                    "language-code": "en"
+                  }
+                },
+                "hosts": {
+                  "organization": [
+                    {
+                      "name": "National Science Foundation",
+                      "address": {
+                        "city": "Arlington",
+                        "region": "VA",
+                        "country": "US"
+                      },
+                      "disambiguated-organization": {
+                        "disambiguated-organization-identifier": "grid.431093.c",
+                        "disambiguation-source": "GRID"
+                      }
+                    }
+                  ]
+                },
+                "external-ids": {
+                  "external-id": [
+                    {
+                      "external-id-type": "handle",
+                      "external-id-value": "https://grants.net/123456c",
+                      "external-id-normalized": {
+                        "value": "https://grants.net/123456c",
+                        "transient": true
+                      },
+                      "external-id-normalized-error": null,
+                      "external-id-url": null,
+                      "external-id-relationship": "self"
+                    }
+                  ]
+                },
+                "start-date": {
+                  "year": {
+                    "value": "2018"
+                  },
+                  "month": {
+                    "value": "02"
+                  },
+                  "day": {
+                    "value": "02"
+                  }
+                },
+                "end-date": {
+                  "year": {
+                    "value": "2018"
+                  },
+                  "month": {
+                    "value": "02"
+                  },
+                  "day": {
+                    "value": "10"
+                  }
+                },
+                "url": {
+                  "value": "http://xsede.org/GiantLaserAward"
+                }
+              },
+              "visibility": "public",
+              "put-code": 1000,
+              "path": "/0000-0002-9227-8514/research-resource/1000",
+              "display-index": "0"
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0002-9227-8514/research-resources"
+    },
+    "services": {
+      "last-modified-date": null,
+      "affiliation-group": [],
+      "path": "/0000-0002-9227-8514/services"
+    },
     "works": {
       "last-modified-date": {
-        "value": 1561445646673
+        "value": 1617028188646
       },
       "group": [
         {
@@ -1219,8 +2099,13 @@
               {
                 "external-id-type": "handle",
                 "external-id-value": "12345678",
+                "external-id-normalized": {
+                  "value": "12345678",
+                  "transient": true
+                },
+                "external-id-normalized-error": null,
                 "external-id-url": null,
-                "external-id-relationship": "SELF"
+                "external-id-relationship": "self"
               }
             ]
           },
@@ -1235,14 +2120,17 @@
               },
               "source": {
                 "source-orcid": {
-                  "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+                  "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
                   "path": "0000-0002-9227-8514",
                   "host": "sandbox.orcid.org"
                 },
                 "source-client-id": null,
                 "source-name": {
                   "value": "Sofia Maria Hernandez Garcia"
-                }
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
               },
               "title": {
                 "title": {
@@ -1256,12 +2144,18 @@
                   {
                     "external-id-type": "handle",
                     "external-id-value": "12345678",
+                    "external-id-normalized": {
+                      "value": "12345678",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
                     "external-id-url": null,
-                    "external-id-relationship": "SELF"
+                    "external-id-relationship": "self"
                   }
                 ]
               },
-              "type": "JOURNAL_ARTICLE",
+              "url": null,
+              "type": "journal-article",
               "publication-date": {
                 "year": {
                   "value": "2019"
@@ -1271,10 +2165,10 @@
                 },
                 "day": {
                   "value": "01"
-                },
-                "media-type": null
+                }
               },
-              "visibility": "PUBLIC",
+              "journal-title": null,
+              "visibility": "public",
               "path": "/0000-0002-9227-8514/work/1022665",
               "display-index": "1"
             }
@@ -1289,8 +2183,13 @@
               {
                 "external-id-type": "doi",
                 "external-id-value": "10.1111/test.12241",
+                "external-id-normalized": {
+                  "value": "10.1111/test.12241",
+                  "transient": true
+                },
+                "external-id-normalized-error": null,
                 "external-id-url": null,
-                "external-id-relationship": "SELF"
+                "external-id-relationship": "self"
               }
             ]
           },
@@ -1305,14 +2204,17 @@
               },
               "source": {
                 "source-orcid": {
-                  "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+                  "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
                   "path": "0000-0002-9227-8514",
                   "host": "sandbox.orcid.org"
                 },
                 "source-client-id": null,
                 "source-name": {
                   "value": "Sofia Maria Hernandez Garcia"
-                }
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
               },
               "title": {
                 "title": {
@@ -1326,12 +2228,18 @@
                   {
                     "external-id-type": "doi",
                     "external-id-value": "10.1111/test.12241",
+                    "external-id-normalized": {
+                      "value": "10.1111/test.12241",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
                     "external-id-url": null,
-                    "external-id-relationship": "SELF"
+                    "external-id-relationship": "self"
                   }
                 ]
               },
-              "type": "JOURNAL_ARTICLE",
+              "url": null,
+              "type": "journal-article",
               "publication-date": {
                 "year": {
                   "value": "2019"
@@ -1341,10 +2249,10 @@
                 },
                 "day": {
                   "value": "01"
-                },
-                "media-type": null
+                }
               },
-              "visibility": "PUBLIC",
+              "journal-title": null,
+              "visibility": "public",
               "path": "/0000-0002-9227-8514/work/1045646",
               "display-index": "1"
             }
@@ -1352,15 +2260,20 @@
         },
         {
           "last-modified-date": {
-            "value": 1556017476401
+            "value": 1617028188646
           },
           "external-ids": {
             "external-id": [
               {
                 "external-id-type": "doi",
                 "external-id-value": "10.1087/20120404",
+                "external-id-normalized": {
+                  "value": "10.1087/20120404",
+                  "transient": true
+                },
+                "external-id-normalized-error": null,
                 "external-id-url": null,
-                "external-id-relationship": "SELF"
+                "external-id-relationship": "self"
               }
             ]
           },
@@ -1371,18 +2284,21 @@
                 "value": 1477419746443
               },
               "last-modified-date": {
-                "value": 1556017476401
+                "value": 1617028188646
               },
               "source": {
                 "source-orcid": {
-                  "uri": "http://sandbox.orcid.org/0000-0002-9227-8514",
+                  "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
                   "path": "0000-0002-9227-8514",
                   "host": "sandbox.orcid.org"
                 },
                 "source-client-id": null,
                 "source-name": {
                   "value": "Sofia Maria Hernandez Garcia"
-                }
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
               },
               "title": {
                 "title": {
@@ -1396,18 +2312,29 @@
                   {
                     "external-id-type": "doi",
                     "external-id-value": "10.1087/20120404",
+                    "external-id-normalized": {
+                      "value": "10.1087/20120404",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
                     "external-id-url": null,
-                    "external-id-relationship": "SELF"
+                    "external-id-relationship": "self"
                   },
                   {
                     "external-id-type": "issn",
                     "external-id-value": "1741-4857",
+                    "external-id-normalized": {
+                      "value": "1741-4857",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
                     "external-id-url": null,
-                    "external-id-relationship": "PART_OF"
+                    "external-id-relationship": "part-of"
                   }
                 ]
               },
-              "type": "JOURNAL_ARTICLE",
+              "url": null,
+              "type": "journal-article",
               "publication-date": {
                 "year": {
                   "value": "2012"
@@ -1417,12 +2344,14 @@
                 },
                 "day": {
                   "value": "01"
-                },
-                "media-type": null
+                }
               },
-              "visibility": "PUBLIC",
+              "journal-title": {
+                "value": "Learned Publishing"
+              },
+              "visibility": "public",
               "path": "/0000-0002-9227-8514/work/733536",
-              "display-index": "3"
+              "display-index": "7"
             },
             {
               "put-code": 733535,
@@ -1430,18 +2359,21 @@
                 "value": 1477419565672
               },
               "last-modified-date": {
-                "value": 1556017472858
+                "value": 1617028178125
               },
               "source": {
                 "source-orcid": null,
                 "source-client-id": {
-                  "uri": "http://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                  "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
                   "path": "APP-674MCQQR985VZZQ2",
                   "host": "sandbox.orcid.org"
                 },
                 "source-name": {
                   "value": "Regional University"
-                }
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
               },
               "title": {
                 "title": {
@@ -1455,12 +2387,18 @@
                   {
                     "external-id-type": "doi",
                     "external-id-value": "10.1087/20120404",
+                    "external-id-normalized": {
+                      "value": "10.1087/20120404",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
                     "external-id-url": null,
-                    "external-id-relationship": "SELF"
+                    "external-id-relationship": "self"
                   }
                 ]
               },
-              "type": "JOURNAL_ARTICLE",
+              "url": null,
+              "type": "journal-article",
               "publication-date": {
                 "year": {
                   "value": "2012"
@@ -1470,12 +2408,12 @@
                 },
                 "day": {
                   "value": "01"
-                },
-                "media-type": null
+                }
               },
-              "visibility": "PUBLIC",
+              "journal-title": null,
+              "visibility": "public",
               "path": "/0000-0002-9227-8514/work/733535",
-              "display-index": "2"
+              "display-index": "6"
             }
           ]
         }

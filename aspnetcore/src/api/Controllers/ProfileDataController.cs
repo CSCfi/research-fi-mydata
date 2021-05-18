@@ -66,7 +66,12 @@ namespace api.Controllers
                         .ThenInclude(ffv => ffv.DimEvent).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
-                        .ThenInclude(ffv => ffv.DimEducation).AsNoTracking()
+                        .ThenInclude(ffv => ffv.DimEducation)
+                            .ThenInclude(de => de.DimStartDateNavigation).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimEducation)
+                            .ThenInclude(de => de.DimEndDateNavigation).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimCompetence).AsNoTracking()
@@ -299,12 +304,59 @@ namespace api.Controllers
                         }
                         profileDataResponse.personal.keywordGroups.Add(keywordGroup);
                         break;
+                    case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
+                        var educationGroup = new ProfileEditorGroupEducation()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemEducation>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            educationGroup.items.Add(
+                                new ProfileEditorItemEducation()
+                                {
+                                    NameFi = ffv.DimEducation.NameFi,
+                                    NameEn = ffv.DimEducation.NameEn,
+                                    NameSv = ffv.DimEducation.NameSv,
+                                    StartDate = new ProfileEditorItemDate()
+                                    {
+                                        Year = ffv.DimEducation.DimStartDateNavigation.Year,
+                                        Month = ffv.DimEducation.DimStartDateNavigation.Month,
+                                        Day = ffv.DimEducation.DimStartDateNavigation.Day
+                                    },
+                                    EndDate = new ProfileEditorItemDate()
+                                    {
+                                        Year = ffv.DimEducation.DimEndDateNavigation.Year,
+                                        Month = ffv.DimEducation.DimEndDateNavigation.Month,
+                                        Day = ffv.DimEducation.DimEndDateNavigation.Day
+                                    },
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimEducationId,
+                                        Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                        Show = ffv.Show
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.activity.educationGroups.Add(educationGroup);
+                        break;
                     default:
                         break;
                 }
             }
 
-            return Ok(new ApiResponse(success: true, reason: "", data: profileDataResponse));
+            return Ok(new ApiResponse(success: true, data: profileDataResponse));
         }
 
 
@@ -376,51 +428,7 @@ namespace api.Controllers
 
             await _ttvContext.SaveChangesAsync();
 
-            return Ok(new ApiResponse(success: true, reason: "", data: profileEditorDataModificationResponse));
+            return Ok(new ApiResponse(success: true, data: profileEditorDataModificationResponse));
         }
-
-
-
-        //// PATCH: api/ProfileData/
-        //[HttpPatch]
-        //public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorGroupMeta> profileEditorModificationItemList)
-        //{
-        //    // Return immediately if there is nothing to change.
-        //    if (profileEditorModificationItemList.Count == 0)
-        //    {
-        //        return Ok(new ApiResponse(success: true));
-        //    }
-
-        //    // Get ORCID ID
-        //    var orcidId = this.GetOrcidId();
-
-        //    // Get DimPid and related DimFieldDisplaySetting entities
-        //    var dimPid = await _ttvContext.DimPids
-        //        .Include(i => i.DimKnownPerson)
-        //            .ThenInclude(dkp => dkp.DimUserProfiles)
-        //                .ThenInclude(dup => dup.DimFieldDisplaySettings).AsSplitQuery().FirstOrDefaultAsync(i => i.PidContent == orcidId);
-
-        //    // Check that DimPid, DimKnownPerson, DimUserProfile and DimFieldDisplaySettings exist
-        //    if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0 || dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Count == 0)
-        //    {
-        //        return Ok(new ApiResponse(success: false, reason: "profile not found"));
-        //    }
-
-        //    // Set DimFieldDisplaySettings property Show according to request data
-        //    var responseProfileEditorModificationItemList = new List<ProfileEditorGroupMeta> { };
-        //    foreach (ProfileEditorGroupMeta profileEditorModificationItem in profileEditorModificationItemList)
-        //    {
-        //        var dimFieldDisplaySettings = dimPid.DimKnownPerson.DimUserProfiles.First().DimFieldDisplaySettings.Where(d => d.Id == profileEditorModificationItem.Id).FirstOrDefault();
-        //        if (dimFieldDisplaySettings != null)
-        //        {
-        //            dimFieldDisplaySettings.Show = profileEditorModificationItem.Show;
-        //            responseProfileEditorModificationItemList.Add(profileEditorModificationItem);
-        //        }
-        //    }
-
-        //    await _ttvContext.SaveChangesAsync();
-
-        //    return Ok(new ApiResponse(data: responseProfileEditorModificationItemList));
-        //}
     }
 }

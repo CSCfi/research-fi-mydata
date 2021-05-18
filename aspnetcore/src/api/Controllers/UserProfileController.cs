@@ -108,7 +108,10 @@ namespace api.Controllers
                     Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
                     Constants.FieldIdentifiers.PERSON_WEB_LINK,
                     Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
-                    Constants.FieldIdentifiers.PERSON_KEYWORD
+                    Constants.FieldIdentifiers.PERSON_KEYWORD,
+                    Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                    Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
                 };
 
                 foreach (int fieldIdentifier in fieldIdentifiers)
@@ -224,6 +227,13 @@ namespace api.Controllers
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
                     _ttvContext.DimEmailAddrresses.Remove(ffv.DimEmailAddrress);
+                }
+
+                // Remove education
+                else if (ffv.DimEducationId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimEducations.Remove(ffv.DimEducation);
                 }
             }
             await _ttvContext.SaveChangesAsync();

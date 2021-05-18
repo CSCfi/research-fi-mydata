@@ -8,6 +8,8 @@ namespace api.Models
         public ApiResponse(bool success)
         {
             Success = success;
+            Reason = null;
+            Data = null;
         }
 
         public ApiResponse(object data)
@@ -21,6 +23,14 @@ namespace api.Models
         {
             Success = success;
             Reason = reason;
+            Data = null;
+        }
+
+        public ApiResponse(bool success, object data)
+        {
+            Success = success;
+            Reason = null;
+            Data = data;
         }
 
         public ApiResponse(bool success, string reason, object data)

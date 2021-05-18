@@ -1,8 +1,12 @@
-﻿namespace api.Models.Orcid
+﻿using System;
+using System.Collections.Generic;
+using api.Models;
+
+namespace api.Models
 {
-    public partial class OrcidDate
+    public partial class ProfileEditorItemDate
     {
-        public OrcidDate()
+        public ProfileEditorItemDate()
         {
             Year = 0;
             Month = 0;

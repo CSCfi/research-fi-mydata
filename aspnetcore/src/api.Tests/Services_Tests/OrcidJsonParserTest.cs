@@ -11,7 +11,7 @@ namespace api.Tests
     public class OrcidJsonParserTests
     {
         // Get ORCID record.
-        // Test file is a copy of ORCID's sandbox https://sandbox.orcid.org/0000-0002-9227-8514/record
+        // Test file is a copy of ORCID's sandbox https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/record
         private string getOrcidJsonRecord()
         {
             var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_record.json";
@@ -20,7 +20,7 @@ namespace api.Tests
         }
 
         // Get ORCID personal details.
-        // Test file is a copy of ORCID's sandbox https://sandbox.orcid.org/0000-0002-9227-8514/personal-details
+        // Test file is a copy of ORCID's sandbox https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/personal-details
         private string getOrcidJsonPersonalDetails()
         {
             var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_personal-details.json";
