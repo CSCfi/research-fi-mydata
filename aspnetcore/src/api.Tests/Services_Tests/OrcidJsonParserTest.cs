@@ -282,7 +282,7 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var actualEducations = orcidJsonParserService.GetEducations(jsonStr);
-            Assert.True(actualEducations.Count == 1, "Educations: parsed correct number of educations");
+            Assert.True(actualEducations.Count == 1, "Educations: should parse 1 education");
             Assert.Equal("Massachusetts Institute of Technology", actualEducations[0].OrganizationName);
             Assert.Equal("Testing Department", actualEducations[0].DepartmentName);
             Assert.Equal("BA", actualEducations[0].RoleTitle);
@@ -301,17 +301,42 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var actualEmployments = orcidJsonParserService.GetEmployments(jsonStr);
-            Assert.True(actualEmployments.Count == 1, "Educations: parsed correct number of employments");
+            Assert.True(actualEmployments.Count == 1, "Educations: should parse 1 employment");
             Assert.Equal("ORCID", actualEmployments[0].OrganizationName);
             Assert.Equal("QA and Testing", actualEmployments[0].DepartmentName);
             Assert.Equal("Test account holder", actualEmployments[0].RoleTitle);
             Assert.Equal(2012, actualEmployments[0].StartDate.Year);
             Assert.Equal(10, actualEmployments[0].StartDate.Month);
-            Assert.Null(actualEmployments[0].StartDate.Day);
-            Assert.Null(actualEmployments[0].EndDate.Year);
-            Assert.Null(actualEmployments[0].EndDate.Month);
-            Assert.Null(actualEmployments[0].EndDate.Day);
+            Assert.Equal(0, actualEmployments[0].StartDate.Day);
+            Assert.Equal(0, actualEmployments[0].EndDate.Year);
+            Assert.Equal(0, actualEmployments[0].EndDate.Month);
+            Assert.Equal(0, actualEmployments[0].EndDate.Day);
             Assert.Equal(new OrcidPutCode(22411).Value, actualEmployments[0].PutCode.Value);
+        }
+
+        [Fact(DisplayName = "Get publications")]
+        public void TestGetPublications()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var jsonStr = getOrcidJsonRecord();
+            var actualPublications = orcidJsonParserService.GetPublications(jsonStr);
+            Assert.True(actualPublications.Count == 4, "Publications: should parse 4 publications");
+            Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[0].PublicatonName);
+            Assert.Equal(new OrcidPutCode(1022665).Value, actualPublications[0].PutCode.Value);
+            Assert.Equal(2019, actualPublications[0].PublicationYear);
+            Assert.Equal("", actualPublications[0].DoiHandle);
+            Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[1].PublicatonName);
+            Assert.Equal(new OrcidPutCode(1045646).Value, actualPublications[1].PutCode.Value);
+            Assert.Equal(2019, actualPublications[1].PublicationYear);
+            Assert.Equal("10.1111/test.12241", actualPublications[1].DoiHandle);
+            Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[2].PublicatonName);
+            Assert.Equal(new OrcidPutCode(733536).Value, actualPublications[2].PutCode.Value);
+            Assert.Equal(2012, actualPublications[2].PublicationYear);
+            Assert.Equal("10.1087/20120404", actualPublications[2].DoiHandle);
+            Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[3].PublicatonName);
+            Assert.Equal(new OrcidPutCode(733535).Value, actualPublications[3].PutCode.Value);
+            Assert.Equal(2012, actualPublications[3].PublicationYear);
+            Assert.Equal("10.1087/20120404", actualPublications[3].DoiHandle);
         }
 
         //[Fact(DisplayName = "Template")]

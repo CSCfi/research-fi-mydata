@@ -55,6 +55,47 @@ namespace api.Services
             return orcidDate;
         }
 
+        // Get DOI from ORCID publication
+        private string getPublicationDoi(JsonElement workElement)
+        {
+            string doi = "";
+            JsonElement externalIdsElement;
+            if (workElement.TryGetProperty("external-ids", out externalIdsElement))
+            {
+                JsonElement externalIdElement;
+                if (externalIdsElement.TryGetProperty("external-id", out externalIdElement))
+
+                foreach (JsonElement idElement in externalIdElement.EnumerateArray())
+                {
+                    if (idElement.GetProperty("external-id-type").GetString() == "doi")
+                    {
+                        doi = idElement.GetProperty("external-id-value").GetString();
+                    }
+                }
+            }
+            return doi;
+        }
+
+        // Get publication year from ORCID publication
+        private int? getPublicationYear(JsonElement workElement)
+        {
+            int? publicationYear = null;
+            JsonElement publicationDateElement;
+            if (workElement.TryGetProperty("publication-date", out publicationDateElement))
+            {
+                JsonElement yearElement;
+                if (publicationDateElement.TryGetProperty("year", out yearElement))
+                {
+                    JsonElement valueElement;
+                    if (yearElement.TryGetProperty("value", out valueElement))
+                    {
+                        publicationYear = Int32.Parse(valueElement.GetString());
+                    }
+                }
+            }
+            return publicationYear;
+        }
+
         // Check if Json document is full ORCID record
         private Boolean isFullRecord(JsonDocument orcidJsonDocument)
         {
@@ -346,6 +387,41 @@ namespace api.Services
                 }
             }
             return employments;
+        }
+
+        // Get publications
+        public List<OrcidPublication> GetPublications(String json)
+        {
+            var publications = new List<OrcidPublication> { };
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                JsonElement publicationsElement = document.RootElement.GetProperty("activities-summary").GetProperty("works");
+                JsonElement groupsElement;
+
+                if (publicationsElement.TryGetProperty("group", out groupsElement))
+                {
+                    foreach (JsonElement groupElement in groupsElement.EnumerateArray())
+                    {
+                        JsonElement workSummariesElement;
+                        if (groupElement.TryGetProperty("work-summary", out workSummariesElement))
+                        {
+                            foreach (JsonElement workElement in workSummariesElement.EnumerateArray())
+                            {
+                                publications.Add(
+                                    new OrcidPublication()
+                                    {
+                                        PublicatonName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                                        DoiHandle = this.getPublicationDoi(workElement),
+                                        PublicationYear = this.getPublicationYear(workElement),
+                                        PutCode = this.getOrcidPutCode(workElement)
+                                    }
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            return publications;
         }
     }
 }
