@@ -206,9 +206,11 @@ namespace api.Controllers
                 if (factFieldValuesWebLink != null)
                 {
                     // Update existing DimWebLink
-                    factFieldValuesWebLink.DimWebLink.Url = researchUrl.Url;
-                    factFieldValuesWebLink.DimWebLink.LinkLabel = researchUrl.UrlName;
-                    factFieldValuesWebLink.DimWebLink.Modified = DateTime.Now;
+                    var dimWebLink = factFieldValuesWebLink.DimWebLink;
+                    dimWebLink.Url = researchUrl.Url;
+                    dimWebLink.LinkLabel = researchUrl.UrlName;
+                    dimWebLink.Modified = DateTime.Now;
+                    _ttvContext.Entry(dimWebLink).State = EntityState.Modified;
 
                     // Update existing FactFieldValue
                     factFieldValuesWebLink.Modified = DateTime.Now;
@@ -334,13 +336,13 @@ namespace api.Controllers
 
                 if (factFieldValuesKeyword != null)
                 {
-                    // Update existing DimKeywork
-                    factFieldValuesKeyword.DimKeyword.Keyword = keyword.Value;
-                    factFieldValuesKeyword.DimKeyword.Modified = DateTime.Now;
-
+                    // Update existing DimKeyword
+                    var dimKeyword = factFieldValuesKeyword.DimKeyword;
+                    dimKeyword.Keyword = keyword.Value;
+                    dimKeyword.Modified = DateTime.Now;
+                    _ttvContext.Entry(dimKeyword).State = EntityState.Modified;
                     // Update existing FactFieldValue
                     factFieldValuesKeyword.Modified = DateTime.Now;
-
                     await _ttvContext.SaveChangesAsync();
                 }
                 else
@@ -429,10 +431,12 @@ namespace api.Controllers
                 if (factFieldValuesEducation != null)
                 {
                     // Update existing DimEducation
-                    factFieldValuesEducation.DimEducation.NameEn = education.RoleTitle;
-                    factFieldValuesEducation.DimEducation.Modified = DateTime.Now;
-                    factFieldValuesEducation.DimEducation.DimStartDateNavigation = startDate;
-                    factFieldValuesEducation.DimEducation.DimEndDateNavigation = endDate;
+                    var dimEducation = factFieldValuesEducation.DimEducation; 
+                    dimEducation.NameEn = education.RoleTitle;
+                    dimEducation.DimStartDate = startDate.Id;
+                    dimEducation.DimEndDate = endDate.Id;
+                    _ttvContext.Entry(dimEducation).State = EntityState.Modified;
+                    dimEducation.Modified = DateTime.Now;
 
                     // Update existing FactFieldValue
                     factFieldValuesEducation.Modified = DateTime.Now;
@@ -445,8 +449,8 @@ namespace api.Controllers
                     var dimEducation = new DimEducation()
                     {
                         NameEn = education.RoleTitle,
-                        DimStartDateNavigation = startDate,
-                        DimEndDateNavigation = endDate,
+                        DimStartDate = startDate.Id,
+                        DimEndDate = endDate.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         DimKnownPersonId = dimKnownPerson.Id,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
