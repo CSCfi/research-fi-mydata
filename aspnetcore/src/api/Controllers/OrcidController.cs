@@ -97,10 +97,23 @@ namespace api.Controllers
 
             // Name
             var dimFieldDisplaySettingsName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsName => dimFieldDisplaysettingsName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME && dimFieldDisplaysettingsName.SourceId == Constants.SourceIdentifiers.ORCID);
-            // LastName: FactFieldValues
+            // FactFieldValues
             var factFieldValuesName = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesName => factFieldValuesName.DimFieldDisplaySettingsId == dimFieldDisplaySettingsName.Id);
-            if (factFieldValuesName == null)
+            if (factFieldValuesName != null)
             {
+                // Update existing DimName
+                var dimName = factFieldValuesName.DimName;
+                dimName.LastName = _orcidJsonParserService.GetFamilyName(json).Value;
+                dimName.FirstNames = _orcidJsonParserService.GetGivenNames(json).Value;
+                dimName.Modified = DateTime.Now;
+                _ttvContext.Entry(dimName).State = EntityState.Modified;
+                // Update existing FactFieldValue
+                factFieldValuesName.Modified = DateTime.Now;
+                await _ttvContext.SaveChangesAsync();
+            }
+            else
+            {
+                // Create new DimName
                 var dimName = new DimName()
                 {
                     LastName = _orcidJsonParserService.GetFamilyName(json).Value,
@@ -119,13 +132,8 @@ namespace api.Controllers
                 factFieldValuesName.DimNameId = dimName.Id;
                 factFieldValuesName.SourceId = Constants.SourceIdentifiers.ORCID;
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
+                await _ttvContext.SaveChangesAsync();
             }
-            else
-            {
-                factFieldValuesName.Modified = DateTime.Now;
-            }
-            await _ttvContext.SaveChangesAsync();
-
 
 
             // Other names
@@ -137,13 +145,13 @@ namespace api.Controllers
 
                 if (factFieldValuesOtherName != null)
                 {
-                    // Update existing DimWebLink
-                    factFieldValuesOtherName.DimName.FullName = otherName.Value;
-                    factFieldValuesOtherName.DimWebLink.Modified = DateTime.Now;
-
+                    // Update existing DimName
+                    var dimName_otherName = factFieldValuesOtherName.DimName;
+                    dimName_otherName.FullName = otherName.Value;
+                    dimName_otherName.Modified = DateTime.Now;
+                    _ttvContext.Entry(dimName_otherName).State = EntityState.Modified;
                     // Update existing FactFieldValue
                     factFieldValuesOtherName.Modified = DateTime.Now;
-
                     await _ttvContext.SaveChangesAsync();
                 }
                 else
