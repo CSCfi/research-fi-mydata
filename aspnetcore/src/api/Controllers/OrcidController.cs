@@ -58,6 +58,8 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPublication)
                 .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimOrcidPublication)
+                .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearchActivity)
@@ -482,6 +484,68 @@ namespace api.Controllers
                     factFieldValuesEducation.DimPidIdOrcidPutCode = dimPidOrcidPutCodeEducation.Id;
                     factFieldValuesEducation.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesEducation);
+                    await _ttvContext.SaveChangesAsync();
+                }
+            }
+
+            // Publication
+            var orcidPublications = _orcidJsonParserService.GetPublications(json);
+            foreach (OrcidPublication orcidPublication in orcidPublications)
+            {
+                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimOrcidPublication
+                var factFieldValuesPublication = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == orcidPublication.PutCode.Value.ToString());
+
+                if (factFieldValuesPublication != null)
+                {
+                    // Update existing DimOrcidPublication
+                    var dimOrcidPublication = factFieldValuesPublication.DimOrcidPublication;
+                    dimOrcidPublication.OrcidWorkType = orcidPublication.Type;
+                    dimOrcidPublication.PublicationName = orcidPublication.PublicatonName;
+                    dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
+                    dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
+                    dimOrcidPublication.Modified = DateTime.Now;
+                    _ttvContext.Entry(dimOrcidPublication).State = EntityState.Modified;
+                    // Update existing FactFieldValue
+                    factFieldValuesPublication.Modified = DateTime.Now;
+                    await _ttvContext.SaveChangesAsync();
+                }
+                else
+                {
+                    // Create new DimOrcidPublication
+                    var dimOrcidPublication = _userProfileService.GetEmptyDimOrcidPublication();
+                    dimOrcidPublication.OrcidWorkType = orcidPublication.Type;
+                    dimOrcidPublication.PublicationName = orcidPublication.PublicatonName;
+                    dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
+                    dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
+                    dimOrcidPublication.SourceId = Constants.SourceIdentifiers.ORCID;
+                    dimOrcidPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    dimOrcidPublication.Created = DateTime.Now;
+                    _ttvContext.DimOrcidPublications.Add(dimOrcidPublication);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Add publication's ORCID put code into DimPid
+                    var dimPidOrcidPutCodePublication = new DimPid()
+                    {
+                        PidContent = orcidPublication.PutCode.GetDbValue(),
+                        PidType = "ORCID put code",
+                        DimKnownPersonId = dimKnownPerson.Id,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimPids.Add(dimPidOrcidPutCodePublication);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Get DimFieldDisplaySettings for orcid publication
+                    var dimFieldDisplaySettingsPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION && dfdsPublication.SourceId == Constants.SourceIdentifiers.ORCID);
+
+                    // Create FactFieldValues for orcid publication
+                    factFieldValuesPublication = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesPublication.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuesPublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
+                    factFieldValuesPublication.DimOrcidPublicationId = dimOrcidPublication.Id;
+                    factFieldValuesPublication.DimPidIdOrcidPutCode = dimPidOrcidPutCodePublication.Id;
+                    factFieldValuesPublication.SourceId = Constants.SourceIdentifiers.ORCID;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
                     await _ttvContext.SaveChangesAsync();
                 }
             }

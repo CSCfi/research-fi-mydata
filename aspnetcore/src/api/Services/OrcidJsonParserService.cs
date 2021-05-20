@@ -413,6 +413,7 @@ namespace api.Services
                                         PublicatonName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
                                         DoiHandle = this.getPublicationDoi(workElement),
                                         PublicationYear = this.getPublicationYear(workElement),
+                                        Type = workElement.GetProperty("type").GetString(),
                                         PutCode = this.getOrcidPutCode(workElement)
                                     }
                                 );

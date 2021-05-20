@@ -153,5 +153,50 @@ namespace api.Services
                 Modified = null
             };
         }
+
+        public DimOrcidPublication GetEmptyDimOrcidPublication()
+        {
+            return new DimOrcidPublication()
+            {
+                DimParentOrcidPublicationId = null,
+                ParentPublicationTypeCode = -1,
+                PublicationTypeCode = -1,
+                PublicationTypeCode2 = -1,
+                ArticleTypeCode = -1,
+                TargetAudienceCode = -1,
+                OrcidWorkType = null,
+                PublicationName = "",
+                ConferenceName = null,
+                ShortDescription = null,
+                PublicationYear = null,
+                PublicationId = "",
+                AuthorsText = "",
+                NumberOfAuthors = null,
+                PageNumberText = null,
+                ArticleNumberText = null,
+                IssueNumber = null,
+                Volume = null,
+                PublicationCountryCode = null,
+                PublisherName = null,
+                PublisherLocation = null,
+                ParentPublicationName = null,
+                ParentPublicationEditors = null,
+                LicenseCode = null,
+                LanguageCode = null,
+                OpenAccessCode = null,
+                OriginalPublicationId = null,
+                PeerReviewed = null,
+                Report = null,
+                ThesisTypeCode = null,
+                DoiHandle = null,
+                SourceId = "",
+                SourceDescription = null,
+                Created = null,
+                Modified = null,
+                OrcidPersonDataSource = -1,
+                DimRegisteredDataSourceId = -1,
+                DimReferencedataid = -1
+            };
+        }
     }
 }

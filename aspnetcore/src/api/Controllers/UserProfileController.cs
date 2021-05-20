@@ -186,7 +186,9 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimWebLink).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimOrcidPublication)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimKeyword).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
             {
@@ -197,7 +199,7 @@ namespace api.Controllers
                     _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
                 }
 
-                // Remove name
+                // Remove related DimName
                 if (ffv.DimNameId != -1)
                 {
                     // DimName can have several related FactFieldValues (for first name, last name, etc). Remove them all.
@@ -208,32 +210,102 @@ namespace api.Controllers
                     _ttvContext.DimNames.Remove(ffv.DimName);
                 }
 
-                // Remove web link
+                // Remove related DimWebLink
                 else if (ffv.DimWebLinkId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
                     _ttvContext.DimWebLinks.Remove(ffv.DimWebLink);
                 }
 
-                // Remove researcher description
-                else if (ffv.DimResearcherDescriptionId != -1)
+                // Remove related DimFundingDecision
+                else if (ffv.DimFundingDecisionId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimResearcherDescriptions.Remove(ffv.DimResearcherDescription);
+                    _ttvContext.DimFundingDecisions.Remove(ffv.DimFundingDecision);
                 }
 
-                // Remove email
+                // Remove related DimPublication
+                else if (ffv.DimPublicationId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimPublications.Remove(ffv.DimPublication);
+                }
+
+                // Remove related DimResearchActivity
+                else if (ffv.DimResearchActivityId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimResearchActivities.Remove(ffv.DimResearchActivity);
+                }
+
+                // Remove related DimEvent
+                else if (ffv.DimEventId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimEvents.Remove(ffv.DimEvent);
+                }
+
+                // Remove related DimEducation
+                else if (ffv.DimEducationId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimEducations.Remove(ffv.DimEducation);
+                }
+
+                // Remove related DimCompetence
+                else if (ffv.DimCompetenceId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimCompetences.Remove(ffv.DimCompetence);
+                }
+
+                // Remove related DimResearcherCommunity
+                else if (ffv.DimResearchCommunityId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimResearchCommunities.Remove(ffv.DimResearchCommunity);
+                }
+
+                // Remove related DimTelephoneNumber
+                else if (ffv.DimTelephoneNumberId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
+                }
+
+                // Remove related DimEmail
                 else if (ffv.DimEmailAddrressId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
                     _ttvContext.DimEmailAddrresses.Remove(ffv.DimEmailAddrress);
                 }
 
-                // Remove education
-                else if (ffv.DimEducationId != -1)
+                // Remove related DimResearcherDescription
+                else if (ffv.DimResearcherDescriptionId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimEducations.Remove(ffv.DimEducation);
+                    _ttvContext.DimResearcherDescriptions.Remove(ffv.DimResearcherDescription);
+                }
+
+                // Remove related DimIdentifierlessData
+                else if (ffv.DimIdentifierlessDataId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
+                }
+
+                // Remove related DimOrcidPublication
+                else if (ffv.DimOrcidPublicationId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimOrcidPublications.Remove(ffv.DimOrcidPublication);
+                }
+
+                // Remove related DimKeyword
+                else if (ffv.DimKeywordId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimKeywords.Remove(ffv.DimKeyword);
                 }
             }
             await _ttvContext.SaveChangesAsync();

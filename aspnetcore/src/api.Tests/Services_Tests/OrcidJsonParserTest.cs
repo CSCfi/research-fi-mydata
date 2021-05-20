@@ -325,18 +325,22 @@ namespace api.Tests
             Assert.Equal(new OrcidPutCode(1022665).Value, actualPublications[0].PutCode.Value);
             Assert.Equal(2019, actualPublications[0].PublicationYear);
             Assert.Equal("", actualPublications[0].DoiHandle);
+            Assert.Equal("journal-article", actualPublications[0].Type);
             Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[1].PublicatonName);
             Assert.Equal(new OrcidPutCode(1045646).Value, actualPublications[1].PutCode.Value);
             Assert.Equal(2019, actualPublications[1].PublicationYear);
             Assert.Equal("10.1111/test.12241", actualPublications[1].DoiHandle);
+            Assert.Equal("journal-article", actualPublications[1].Type);
             Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[2].PublicatonName);
             Assert.Equal(new OrcidPutCode(733536).Value, actualPublications[2].PutCode.Value);
             Assert.Equal(2012, actualPublications[2].PublicationYear);
             Assert.Equal("10.1087/20120404", actualPublications[2].DoiHandle);
+            Assert.Equal("journal-article", actualPublications[2].Type);
             Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[3].PublicatonName);
             Assert.Equal(new OrcidPutCode(733535).Value, actualPublications[3].PutCode.Value);
             Assert.Equal(2012, actualPublications[3].PublicationYear);
             Assert.Equal("10.1087/20120404", actualPublications[3].DoiHandle);
+            Assert.Equal("journal-article", actualPublications[3].Type);
         }
 
         //[Fact(DisplayName = "Template")]
