@@ -42,9 +42,6 @@ namespace api.Controllers
                         .ThenInclude(br => br.DimRegisteredDataSource).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
-                        .ThenInclude(ffv => ffv.DimWebLink).AsNoTracking()
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimName).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
@@ -78,9 +75,9 @@ namespace api.Controllers
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearchCommunity).AsNoTracking()
-                //.Include(dup => dup.DimFieldDisplaySettings)
-                //    .ThenInclude(dfds => dfds.FactFieldValues)
-                //        .ThenInclude(ffv => ffv.DimTelephoneNumber).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimTelephoneNumber).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimEmailAddrress).AsNoTracking()
@@ -89,7 +86,10 @@ namespace api.Controllers
                         .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
-                        .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimKeyword).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
@@ -350,6 +350,41 @@ namespace api.Controllers
                             );
                         }
                         profileDataResponse.activity.educationGroups.Add(educationGroup);
+                        break;
+                    case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
+                        var publicationGroup = new ProfileEditorGroupPublication()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemPublication>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            publicationGroup.items.Add(
+                                new ProfileEditorItemPublication()
+                                {
+                                    PublicatonName = ffv.DimOrcidPublication.PublicationName,
+                                    PublicationYear = ffv.DimOrcidPublication.PublicationYear,
+                                    DoiHandle = ffv.DimOrcidPublication.DoiHandle,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimOrcidPublicationId,
+                                        Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                        Show = ffv.Show
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.activity.publicationGroups.Add(publicationGroup);
                         break;
                     default:
                         break;

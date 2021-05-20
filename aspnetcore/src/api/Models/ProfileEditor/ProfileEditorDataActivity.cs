@@ -8,8 +8,10 @@ namespace api.Models
         public ProfileEditorDataActivity()
         {
             educationGroups = new List<ProfileEditorGroupEducation>();
+            publicationGroups = new List<ProfileEditorGroupPublication>();
         }
 
         public List<ProfileEditorGroupEducation> educationGroups { get; set; }
+        public List<ProfileEditorGroupPublication> publicationGroups { get; set; }
     }
 }
