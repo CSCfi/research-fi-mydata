@@ -142,6 +142,7 @@ namespace api.Controllers
         }
 
         // Delete profile
+        // TODO: Delete only ORCID originated data
         [HttpDelete]
         public async Task<IActionResult> Delete()
         {

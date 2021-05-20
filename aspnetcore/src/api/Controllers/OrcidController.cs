@@ -31,6 +31,7 @@ namespace api.Controllers
         }
 
         [HttpGet]
+        // TODO: Currently adding and updating ORCID data works, but detecting deleted ORCID data and deleting them is TTV database is not implemented.
         public async Task<IActionResult> Get()
         {
             // Get userprofile
@@ -48,7 +49,7 @@ namespace api.Controllers
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources).AsNoTracking()
+                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimName)
                 .Include(dup => dup.FactFieldValues)
@@ -331,6 +332,10 @@ namespace api.Controllers
 
             // Keyword
             var keywords = _orcidJsonParserService.GetKeywords(json);
+            // Get DimFieldDisplaySettings for keyword
+            var dimFieldDisplaySettingsKeyword = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD && dfdsKeyword.SourceId == Constants.SourceIdentifiers.ORCID);
+            // Collect list of processed FactFieldValues related to keyword. Needed when deleting keywords.
+            var processedKeywordFactFieldValues = new List<FactFieldValue> ();
             foreach (OrcidKeyword keyword in keywords)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimKeyword
@@ -372,9 +377,6 @@ namespace api.Controllers
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeKeyword);
                     await _ttvContext.SaveChangesAsync();
 
-                    // Get DimFieldDisplaySettings for keyword
-                    var dimFieldDisplaySettingsKeyword = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD && dfdsKeyword.SourceId == Constants.SourceIdentifiers.ORCID);
-
                     // Create FactFieldValues for keyword
                     factFieldValuesKeyword = _userProfileService.GetEmptyFactFieldValue();
                     factFieldValuesKeyword.DimUserProfileId = dimUserProfile.Id;
@@ -385,8 +387,18 @@ namespace api.Controllers
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
                     await _ttvContext.SaveChangesAsync();
                 }
+                processedKeywordFactFieldValues.Add(factFieldValuesKeyword);
             }
-
+            // Remove existing keywords which were not in ORCID data.
+            foreach (FactFieldValue ffvKeyword in dimFieldDisplaySettingsKeyword.FactFieldValues)
+            {
+                if (!processedKeywordFactFieldValues.Contains(ffvKeyword))
+                {
+                    _ttvContext.FactFieldValues.Remove(ffvKeyword);
+                    _ttvContext.DimKeywords.Remove(ffvKeyword.DimKeyword);
+                }
+            }
+            await _ttvContext.SaveChangesAsync();
 
             // Education
             var educations = _orcidJsonParserService.GetEducations(json);
