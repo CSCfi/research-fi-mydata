@@ -9,7 +9,6 @@ namespace api.Models.Ttv
     {
         public DimOrganization()
         {
-            BrAffiliations = new HashSet<BrAffiliation>();
             BrFundingConsortiumParticipations = new HashSet<BrFundingConsortiumParticipation>();
             BrOrganizationsFundCallProgrammes = new HashSet<BrOrganizationsFundCallProgramme>();
             BrParticipatesInFundingGroups = new HashSet<BrParticipatesInFundingGroup>();
@@ -17,6 +16,7 @@ namespace api.Models.Ttv
             BrPredecessorOrganizationDimOrganizations = new HashSet<BrPredecessorOrganization>();
             BrSuccessorOrganizationDimOrganizationid2Navigations = new HashSet<BrSuccessorOrganization>();
             BrSuccessorOrganizationDimOrganizations = new HashSet<BrSuccessorOrganization>();
+            DimAffiliations = new HashSet<DimAffiliation>();
             DimExternalServices = new HashSet<DimExternalService>();
             DimFundingDecisions = new HashSet<DimFundingDecision>();
             DimPids = new HashSet<DimPid>();
@@ -60,7 +60,6 @@ namespace api.Models.Ttv
         public virtual DimOrganization DimOrganizationBroaderNavigation { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimSector DimSector { get; set; }
-        public virtual ICollection<BrAffiliation> BrAffiliations { get; set; }
         public virtual ICollection<BrFundingConsortiumParticipation> BrFundingConsortiumParticipations { get; set; }
         public virtual ICollection<BrOrganizationsFundCallProgramme> BrOrganizationsFundCallProgrammes { get; set; }
         public virtual ICollection<BrParticipatesInFundingGroup> BrParticipatesInFundingGroups { get; set; }
@@ -68,6 +67,7 @@ namespace api.Models.Ttv
         public virtual ICollection<BrPredecessorOrganization> BrPredecessorOrganizationDimOrganizations { get; set; }
         public virtual ICollection<BrSuccessorOrganization> BrSuccessorOrganizationDimOrganizationid2Navigations { get; set; }
         public virtual ICollection<BrSuccessorOrganization> BrSuccessorOrganizationDimOrganizations { get; set; }
+        public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
         public virtual ICollection<DimExternalService> DimExternalServices { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }

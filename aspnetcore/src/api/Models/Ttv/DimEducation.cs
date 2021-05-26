@@ -24,6 +24,7 @@ namespace api.Models.Ttv
         public string DegreeNameFi { get; set; }
         public string DegreeNameSv { get; set; }
         public string DegreeNameEn { get; set; }
+        public string DegreeGrantingInstitutionName { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }

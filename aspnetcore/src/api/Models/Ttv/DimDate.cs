@@ -9,10 +9,8 @@ namespace api.Models.Ttv
     {
         public DimDate()
         {
-            BrAffiliationEndDateNavigations = new HashSet<BrAffiliation>();
-            BrAffiliationStartDateNavigations = new HashSet<BrAffiliation>();
-            BrResearcherToResearchCommunityEndDateNavigations = new HashSet<BrResearcherToResearchCommunity>();
-            BrResearcherToResearchCommunityStartDateNavigations = new HashSet<BrResearcherToResearchCommunity>();
+            DimAffiliationEndDateNavigations = new HashSet<DimAffiliation>();
+            DimAffiliationStartDateNavigations = new HashSet<DimAffiliation>();
             DimCallProgrammeDimDateIdDueNavigations = new HashSet<DimCallProgramme>();
             DimCallProgrammeDimDateIdOpenNavigations = new HashSet<DimCallProgramme>();
             DimEducationDimEndDateNavigations = new HashSet<DimEducation>();
@@ -24,6 +22,8 @@ namespace api.Models.Ttv
             DimFundingDecisionDimDateIdStartNavigations = new HashSet<DimFundingDecision>();
             DimResearchActivityDimEndDateNavigations = new HashSet<DimResearchActivity>();
             DimResearchActivityDimStartDateNavigations = new HashSet<DimResearchActivity>();
+            DimResearcherToResearchCommunityEndDateNavigations = new HashSet<DimResearcherToResearchCommunity>();
+            DimResearcherToResearchCommunityStartDateNavigations = new HashSet<DimResearcherToResearchCommunity>();
             FactContributions = new HashSet<FactContribution>();
             FactUpkeepDimDateIdEndNavigations = new HashSet<FactUpkeep>();
             FactUpkeepDimDateIdStartNavigations = new HashSet<FactUpkeep>();
@@ -38,10 +38,8 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
-        public virtual ICollection<BrAffiliation> BrAffiliationEndDateNavigations { get; set; }
-        public virtual ICollection<BrAffiliation> BrAffiliationStartDateNavigations { get; set; }
-        public virtual ICollection<BrResearcherToResearchCommunity> BrResearcherToResearchCommunityEndDateNavigations { get; set; }
-        public virtual ICollection<BrResearcherToResearchCommunity> BrResearcherToResearchCommunityStartDateNavigations { get; set; }
+        public virtual ICollection<DimAffiliation> DimAffiliationEndDateNavigations { get; set; }
+        public virtual ICollection<DimAffiliation> DimAffiliationStartDateNavigations { get; set; }
         public virtual ICollection<DimCallProgramme> DimCallProgrammeDimDateIdDueNavigations { get; set; }
         public virtual ICollection<DimCallProgramme> DimCallProgrammeDimDateIdOpenNavigations { get; set; }
         public virtual ICollection<DimEducation> DimEducationDimEndDateNavigations { get; set; }
@@ -53,6 +51,8 @@ namespace api.Models.Ttv
         public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdStartNavigations { get; set; }
         public virtual ICollection<DimResearchActivity> DimResearchActivityDimEndDateNavigations { get; set; }
         public virtual ICollection<DimResearchActivity> DimResearchActivityDimStartDateNavigations { get; set; }
+        public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityEndDateNavigations { get; set; }
+        public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityStartDateNavigations { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactUpkeep> FactUpkeepDimDateIdEndNavigations { get; set; }
         public virtual ICollection<FactUpkeep> FactUpkeepDimDateIdStartNavigations { get; set; }

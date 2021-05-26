@@ -9,9 +9,8 @@ namespace api.Models.Ttv
     {
         public DimRegisteredDataSource()
         {
-            BrAffiliations = new HashSet<BrAffiliation>();
             BrFieldDisplaySettingsDimRegisteredDataSources = new HashSet<BrFieldDisplaySettingsDimRegisteredDataSource>();
-            BrResearcherToResearchCommunities = new HashSet<BrResearcherToResearchCommunity>();
+            DimAffiliations = new HashSet<DimAffiliation>();
             DimCallProgrammes = new HashSet<DimCallProgramme>();
             DimCompetences = new HashSet<DimCompetence>();
             DimEducations = new HashSet<DimEducation>();
@@ -27,6 +26,7 @@ namespace api.Models.Ttv
             DimResearchCommunities = new HashSet<DimResearchCommunity>();
             DimResearchDatasets = new HashSet<DimResearchDataset>();
             DimResearcherDescriptions = new HashSet<DimResearcherDescription>();
+            DimResearcherToResearchCommunities = new HashSet<DimResearcherToResearchCommunity>();
             DimTelephoneNumbers = new HashSet<DimTelephoneNumber>();
         }
 
@@ -39,9 +39,8 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
 
         public virtual DimOrganization DimOrganization { get; set; }
-        public virtual ICollection<BrAffiliation> BrAffiliations { get; set; }
         public virtual ICollection<BrFieldDisplaySettingsDimRegisteredDataSource> BrFieldDisplaySettingsDimRegisteredDataSources { get; set; }
-        public virtual ICollection<BrResearcherToResearchCommunity> BrResearcherToResearchCommunities { get; set; }
+        public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
         public virtual ICollection<DimCallProgramme> DimCallProgrammes { get; set; }
         public virtual ICollection<DimCompetence> DimCompetences { get; set; }
         public virtual ICollection<DimEducation> DimEducations { get; set; }
@@ -57,6 +56,7 @@ namespace api.Models.Ttv
         public virtual ICollection<DimResearchCommunity> DimResearchCommunities { get; set; }
         public virtual ICollection<DimResearchDataset> DimResearchDatasets { get; set; }
         public virtual ICollection<DimResearcherDescription> DimResearcherDescriptions { get; set; }
+        public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; }
         public virtual ICollection<DimTelephoneNumber> DimTelephoneNumbers { get; set; }
     }
 }

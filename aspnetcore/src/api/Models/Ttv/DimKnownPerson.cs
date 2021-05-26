@@ -9,8 +9,7 @@ namespace api.Models.Ttv
     {
         public DimKnownPerson()
         {
-            BrAffiliations = new HashSet<BrAffiliation>();
-            BrResearcherToResearchCommunities = new HashSet<BrResearcherToResearchCommunity>();
+            DimAffiliations = new HashSet<DimAffiliation>();
             DimCompetences = new HashSet<DimCompetence>();
             DimEducations = new HashSet<DimEducation>();
             DimEmailAddrresses = new HashSet<DimEmailAddrress>();
@@ -19,6 +18,7 @@ namespace api.Models.Ttv
             DimOrcidPublications = new HashSet<DimOrcidPublication>();
             DimPids = new HashSet<DimPid>();
             DimResearcherDescriptions = new HashSet<DimResearcherDescription>();
+            DimResearcherToResearchCommunities = new HashSet<DimResearcherToResearchCommunity>();
             DimTelephoneNumbers = new HashSet<DimTelephoneNumber>();
             DimUserProfiles = new HashSet<DimUserProfile>();
             DimWebLinks = new HashSet<DimWebLink>();
@@ -31,8 +31,7 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
-        public virtual ICollection<BrAffiliation> BrAffiliations { get; set; }
-        public virtual ICollection<BrResearcherToResearchCommunity> BrResearcherToResearchCommunities { get; set; }
+        public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
         public virtual ICollection<DimCompetence> DimCompetences { get; set; }
         public virtual ICollection<DimEducation> DimEducations { get; set; }
         public virtual ICollection<DimEmailAddrress> DimEmailAddrresses { get; set; }
@@ -41,6 +40,7 @@ namespace api.Models.Ttv
         public virtual ICollection<DimOrcidPublication> DimOrcidPublications { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<DimResearcherDescription> DimResearcherDescriptions { get; set; }
+        public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; }
         public virtual ICollection<DimTelephoneNumber> DimTelephoneNumbers { get; set; }
         public virtual ICollection<DimUserProfile> DimUserProfiles { get; set; }
         public virtual ICollection<DimWebLink> DimWebLinks { get; set; }

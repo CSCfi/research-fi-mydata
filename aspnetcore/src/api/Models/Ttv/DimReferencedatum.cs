@@ -9,10 +9,10 @@ namespace api.Models.Ttv
     {
         public DimReferencedatum()
         {
-            BrAffiliationAffiliationTypeNavigations = new HashSet<BrAffiliation>();
-            BrAffiliationPositionCodeNavigations = new HashSet<BrAffiliation>();
             BrDimReferencedataDimCallProgrammes = new HashSet<BrDimReferencedataDimCallProgramme>();
             BrLanguageCodesForDatasets = new HashSet<BrLanguageCodesForDataset>();
+            DimAffiliationAffiliationTypeNavigations = new HashSet<DimAffiliation>();
+            DimAffiliationPositionCodeNavigations = new HashSet<DimAffiliation>();
             DimEducations = new HashSet<DimEducation>();
             DimOrcidPublicationArticleTypeCodeNavigations = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationDimReferencedata = new HashSet<DimOrcidPublication>();
@@ -42,10 +42,10 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
-        public virtual ICollection<BrAffiliation> BrAffiliationAffiliationTypeNavigations { get; set; }
-        public virtual ICollection<BrAffiliation> BrAffiliationPositionCodeNavigations { get; set; }
         public virtual ICollection<BrDimReferencedataDimCallProgramme> BrDimReferencedataDimCallProgrammes { get; set; }
         public virtual ICollection<BrLanguageCodesForDataset> BrLanguageCodesForDatasets { get; set; }
+        public virtual ICollection<DimAffiliation> DimAffiliationAffiliationTypeNavigations { get; set; }
+        public virtual ICollection<DimAffiliation> DimAffiliationPositionCodeNavigations { get; set; }
         public virtual ICollection<DimEducation> DimEducations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationArticleTypeCodeNavigations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationDimReferencedata { get; set; }

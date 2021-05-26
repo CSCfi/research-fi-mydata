@@ -145,6 +145,8 @@ namespace api.Services
                 DimIdentifierlessDataId = -1,
                 DimOrcidPublicationId = -1,
                 DimKeywordId = -1,
+                DimAffiliationId = -1,
+                DimResearcherToResearchCommunityId = -1,
                 Show = false,
                 PrimaryValue = false,
                 SourceId = " ",

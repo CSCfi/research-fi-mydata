@@ -26,6 +26,8 @@ namespace api.Models.Ttv
         public int DimIdentifierlessDataId { get; set; }
         public int DimOrcidPublicationId { get; set; }
         public int DimKeywordId { get; set; }
+        public int DimAffiliationId { get; set; }
+        public int DimResearcherToResearchCommunityId { get; set; }
         public bool? Show { get; set; }
         public bool? PrimaryValue { get; set; }
         public string SourceId { get; set; }
@@ -33,6 +35,7 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
+        public virtual DimAffiliation DimAffiliation { get; set; }
         public virtual DimCompetence DimCompetence { get; set; }
         public virtual DimEducation DimEducation { get; set; }
         public virtual DimEmailAddrress DimEmailAddrress { get; set; }
@@ -49,6 +52,7 @@ namespace api.Models.Ttv
         public virtual DimResearchActivity DimResearchActivity { get; set; }
         public virtual DimResearchCommunity DimResearchCommunity { get; set; }
         public virtual DimResearcherDescription DimResearcherDescription { get; set; }
+        public virtual DimResearcherToResearchCommunity DimResearcherToResearchCommunity { get; set; }
         public virtual DimTelephoneNumber DimTelephoneNumber { get; set; }
         public virtual DimUserProfile DimUserProfile { get; set; }
         public virtual DimWebLink DimWebLink { get; set; }
