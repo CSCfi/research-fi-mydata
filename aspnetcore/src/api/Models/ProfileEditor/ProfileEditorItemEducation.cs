@@ -11,6 +11,7 @@ namespace api.Models
             NameFi = "";
             NameEn = "";
             NameSv = "";
+            DegreeGrantingInstitutionName = "";
             StartDate = new ProfileEditorItemDate();
             EndDate = new ProfileEditorItemDate();
         }
@@ -18,6 +19,7 @@ namespace api.Models
         public string NameFi { get; set; }
         public string NameEn { get; set; }
         public string NameSv { get; set; }
+        public string DegreeGrantingInstitutionName { get; set; }
         public ProfileEditorItemDate StartDate { get; set; }
         public ProfileEditorItemDate EndDate { get; set; }
     }

@@ -328,6 +328,7 @@ namespace api.Controllers
                                     NameFi = ffv.DimEducation.NameFi,
                                     NameEn = ffv.DimEducation.NameEn,
                                     NameSv = ffv.DimEducation.NameSv,
+                                    DegreeGrantingInstitutionName = ffv.DimEducation.DegreeGrantingInstitutionName,
                                     StartDate = new ProfileEditorItemDate()
                                     {
                                         Year = ffv.DimEducation.DimStartDateNavigation.Year,

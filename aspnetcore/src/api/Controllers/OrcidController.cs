@@ -407,9 +407,6 @@ namespace api.Controllers
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimEducation
                 var factFieldValuesEducation = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == education.PutCode.Value.ToString());
 
-                // TODO
-                // organization
-
                 // Start date
                 var startDate = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == education.StartDate.Year && dd.Month == education.StartDate.Month && dd.Day == education.StartDate.Day);
                 if (startDate == null)
@@ -447,6 +444,7 @@ namespace api.Controllers
                     // Update existing DimEducation
                     var dimEducation = factFieldValuesEducation.DimEducation; 
                     dimEducation.NameEn = education.RoleTitle;
+                    dimEducation.DegreeGrantingInstitutionName = education.OrganizationName;
                     dimEducation.DimStartDate = startDate.Id;
                     dimEducation.DimEndDate = endDate.Id;
                     _ttvContext.Entry(dimEducation).State = EntityState.Modified;
@@ -463,6 +461,7 @@ namespace api.Controllers
                     var dimEducation = new DimEducation()
                     {
                         NameEn = education.RoleTitle,
+                        DegreeGrantingInstitutionName = education.OrganizationName,
                         DimStartDate = startDate.Id,
                         DimEndDate = endDate.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
