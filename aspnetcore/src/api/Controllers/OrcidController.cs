@@ -73,6 +73,12 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimEducation)
                         .ThenInclude(de => de.DimEndDateNavigation)
                 .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimAffiliation)
+                        .ThenInclude(da => da.StartDateNavigation)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimAffiliation)
+                        .ThenInclude(da => da.EndDateNavigation)
+                .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimCompetence)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearchCommunity)
@@ -498,6 +504,110 @@ namespace api.Controllers
                     await _ttvContext.SaveChangesAsync();
                 }
             }
+
+
+            // Employment (Affiliation in Ttv database)
+            // TODO: Handling of relations DimOrganization and AffiliationType
+            var employments = _orcidJsonParserService.GetEmployments(json);
+            foreach (OrcidEmployment employment in employments)
+            {
+                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimAffiliation
+                var factFieldValuesAffiliation = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == employment.PutCode.Value.ToString());
+
+                // Start date
+                var startDate = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == employment.StartDate.Year && dd.Month == employment.StartDate.Month && dd.Day == employment.StartDate.Day);
+                if (startDate == null)
+                {
+                    startDate = new DimDate()
+                    {
+                        Year = employment.StartDate.Year,
+                        Month = employment.StartDate.Month,
+                        Day = employment.StartDate.Day,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimDates.Add(startDate);
+                    await _ttvContext.SaveChangesAsync();
+                }
+
+                // End date
+                var endDate = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == employment.EndDate.Year && dd.Month == employment.EndDate.Month && dd.Day == employment.EndDate.Day);
+                if (endDate == null)
+                {
+                    endDate = new DimDate()
+                    {
+                        Year = employment.EndDate.Year,
+                        Month = employment.EndDate.Month,
+                        Day = employment.EndDate.Day,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimDates.Add(endDate);
+                    await _ttvContext.SaveChangesAsync();
+                }
+
+                // TODO: DimOrganization handling
+
+                if (factFieldValuesAffiliation != null)
+                {
+                    // Update existing DimAffiliation
+                    var dimAffiliation = factFieldValuesAffiliation.DimAffiliation;
+                    dimAffiliation.PositionNameEn = employment.RoleTitle;
+                    dimAffiliation.StartDate = startDate.Id;
+                    dimAffiliation.EndDate = endDate.Id;
+                    _ttvContext.Entry(dimAffiliation).State = EntityState.Modified;
+                    dimAffiliation.Modified = DateTime.Now;
+
+                    // Update existing FactFieldValue
+                    factFieldValuesAffiliation.Modified = DateTime.Now;
+
+                    await _ttvContext.SaveChangesAsync();
+                }
+                else
+                {
+                    // Create new DimAffiliation
+                    var dimAffiliation = new DimAffiliation()
+                    {
+                        DimOrganizationId = -1,
+                        StartDate = startDate.Id,
+                        EndDate = endDate.Id,
+                        PositionNameEn = employment.RoleTitle,
+                        AffiliationType = -1,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        DimKnownPersonId = dimKnownPerson.Id,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimAffiliations.Add(dimAffiliation);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Add employment (=affiliation) ORCID put code into DimPid
+                    var dimPidOrcidPutCodeEmployment = new DimPid()
+                    {
+                        PidContent = employment.PutCode.GetDbValue(),
+                        PidType = "ORCID put code",
+                        DimKnownPersonId = dimKnownPerson.Id,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimPids.Add(dimPidOrcidPutCodeEmployment);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Get DimFieldDisplaySettings for affiliation
+                    var dimFieldDisplaySettingsAffiliation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsAffiliation => dfdsAffiliation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION && dfdsAffiliation.SourceId == Constants.SourceIdentifiers.ORCID);
+
+                    // Create FactFieldValues for affiliation
+                    factFieldValuesAffiliation = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesAffiliation.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuesAffiliation.DimFieldDisplaySettingsId = dimFieldDisplaySettingsAffiliation.Id;
+                    factFieldValuesAffiliation.DimAffiliationId = dimAffiliation.Id;
+                    factFieldValuesAffiliation.DimPidIdOrcidPutCode = dimPidOrcidPutCodeEmployment.Id;
+                    factFieldValuesAffiliation.SourceId = Constants.SourceIdentifiers.ORCID;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesAffiliation);
+                    await _ttvContext.SaveChangesAsync();
+                }
+            }
+
 
             // Publication
             var orcidPublications = _orcidJsonParserService.GetPublications(json);

@@ -71,6 +71,14 @@ namespace api.Controllers
                             .ThenInclude(de => de.DimEndDateNavigation).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimAffiliation)
+                            .ThenInclude(da => da.StartDateNavigation).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimAffiliation)
+                            .ThenInclude(da => da.EndDateNavigation).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimCompetence).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
@@ -129,7 +137,8 @@ namespace api.Controllers
                                     {
                                         Id = ffv.DimNameId,
                                         Type = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
-                                        Show = ffv.Show
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
                                     }
                                 }
                             );
@@ -162,7 +171,8 @@ namespace api.Controllers
                                     {
                                         Id = ffv.DimNameId,
                                         Type = Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
-                                        Show = ffv.Show
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
                                     }
                                 }
                             );
@@ -197,7 +207,8 @@ namespace api.Controllers
                                     {
                                         Id = ffv.DimResearcherDescriptionId,
                                         Type = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
-                                        Show = ffv.Show
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
                                     }
                                 }
                             );
@@ -231,7 +242,8 @@ namespace api.Controllers
                                     {
                                         Id = ffv.DimWebLinkId,
                                         Type = Constants.FieldIdentifiers.PERSON_WEB_LINK,
-                                        Show = ffv.Show
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
                                     }
                                 }
                             );
@@ -264,7 +276,8 @@ namespace api.Controllers
                                     {
                                         Id = ffv.DimEmailAddrressId,
                                         Type = Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
-                                        Show = ffv.Show
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
                                     }
                                 }
                             );
@@ -297,12 +310,63 @@ namespace api.Controllers
                                     {
                                         Id = ffv.DimKeywordId,
                                         Type = Constants.FieldIdentifiers.PERSON_KEYWORD,
-                                        Show = ffv.Show
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
                                     }
                                 }
                             );
                         }
                         profileDataResponse.personal.keywordGroups.Add(keywordGroup);
+                        break;
+                    case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
+                        var affiliationGroup = new ProfileEditorGroupAffiliation()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemAffiliation>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            affiliationGroup.items.Add(
+                                new ProfileEditorItemAffiliation()
+                                {
+                                    // TODO: DimOrganization handling
+                                    OrganizationName = "",
+                                    PositionNameFi = ffv.DimAffiliation.PositionNameFi,
+                                    PositionNameEn = ffv.DimAffiliation.PositionNameEn,
+                                    PositionNameSv = ffv.DimAffiliation.PositionNameSv,
+                                    StartDate = new ProfileEditorItemDate()
+                                    {
+                                        Year = ffv.DimAffiliation.StartDateNavigation.Year,
+                                        Month = ffv.DimAffiliation.StartDateNavigation.Month,
+                                        Day = ffv.DimAffiliation.StartDateNavigation.Day
+                                    },
+                                    EndDate = new ProfileEditorItemDate()
+                                    {
+                                        Year = ffv.DimAffiliation.EndDateNavigation.Year,
+                                        Month = ffv.DimAffiliation.EndDateNavigation.Month,
+                                        Day = ffv.DimAffiliation.EndDateNavigation.Day
+                                    },
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimAffiliationId,
+                                        Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.activity.affiliationGroups.Add(affiliationGroup);
                         break;
                     case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
                         var educationGroup = new ProfileEditorGroupEducation()
@@ -345,7 +409,8 @@ namespace api.Controllers
                                     {
                                         Id = ffv.DimEducationId,
                                         Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
-                                        Show = ffv.Show
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
                                     }
                                 }
                             );
@@ -380,7 +445,8 @@ namespace api.Controllers
                                     {
                                         Id = ffv.DimOrcidPublicationId,
                                         Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
-                                        Show = ffv.Show
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
                                     }
                                 }
                             );
@@ -433,7 +499,7 @@ namespace api.Controllers
                 }
             }
 
-            // Set 'Show' in FactFieldValues
+            // Set 'Show' and 'PrimaryValue' in FactFieldValues
             foreach (ProfileEditorItemMeta profileEditorItemMeta in profileEditorDataModificationRequest.items.ToList())
             {
                 FactFieldValue factFieldValue = null;
@@ -445,11 +511,32 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.PERSON_LAST_NAME:
                         factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == profileEditorItemMeta.Id).FirstOrDefault();
                         break;
+                    case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
                     case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
                         factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimResearcherDescriptionId == profileEditorItemMeta.Id).FirstOrDefault();
                         break;
                     case Constants.FieldIdentifiers.PERSON_WEB_LINK:
                         factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimWebLinkId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimEmailAddrressId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    case Constants.FieldIdentifiers.PERSON_KEYWORD:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimKeywordId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimTelephoneNumberId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimAffiliationId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimEducationId == profileEditorItemMeta.Id).FirstOrDefault();
+                        break;
+                    case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimPublicationId == profileEditorItemMeta.Id).FirstOrDefault();
                         break;
                     default:
                         break;
@@ -458,6 +545,7 @@ namespace api.Controllers
                 if (factFieldValue != null)
                 {
                     factFieldValue.Show = profileEditorItemMeta.Show;
+                    factFieldValue.PrimaryValue = profileEditorItemMeta.PrimaryValue;
                     profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
                 }
             }
