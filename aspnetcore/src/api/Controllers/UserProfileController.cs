@@ -173,6 +173,9 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimEvent)
                 .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimAffiliation)
+                        .ThenInclude(da => da.DimOrganization)
+                .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimEducation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimCompetence)
@@ -244,6 +247,18 @@ namespace api.Controllers
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
                     _ttvContext.DimEvents.Remove(ffv.DimEvent);
+                }
+
+                // Remove related DimAffiliation
+                else if (ffv.DimAffiliationId != -1)
+                {
+                    var dimOrganization = ffv.DimAffiliation.DimOrganization;
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    _ttvContext.DimAffiliations.Remove(ffv.DimAffiliation);
+
+                    // Remove related DimOrganization
+                    // TODO: Removal of DimOrganization only in demo version
+                    _ttvContext.DimOrganizations.Remove(dimOrganization);
                 }
 
                 // Remove related DimEducation

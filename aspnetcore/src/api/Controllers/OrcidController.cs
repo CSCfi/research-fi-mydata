@@ -74,6 +74,9 @@ namespace api.Controllers
                         .ThenInclude(de => de.DimEndDateNavigation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimAffiliation)
+                        .ThenInclude(da => da.DimOrganization)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimAffiliation)
                         .ThenInclude(da => da.StartDateNavigation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimAffiliation)
@@ -558,6 +561,12 @@ namespace api.Controllers
                     _ttvContext.Entry(dimAffiliation).State = EntityState.Modified;
                     dimAffiliation.Modified = DateTime.Now;
 
+                    // Update related DimOrganization
+                    // TODO: DimOrganization handling
+                    var dimOrganization = dimAffiliation.DimOrganization;
+                    dimOrganization.NameEn = employment.OrganizationName;
+                    _ttvContext.Entry(dimOrganization).State = EntityState.Modified;
+
                     // Update existing FactFieldValue
                     factFieldValuesAffiliation.Modified = DateTime.Now;
 
@@ -565,10 +574,24 @@ namespace api.Controllers
                 }
                 else
                 {
+                    // Create new related DimOrganization
+                    // TODO: DimOrganization handling
+                    var dimOrganization = new DimOrganization()
+                    {
+                        DimSectorid = -1,
+                        NameEn = employment.OrganizationName,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                    };
+
+                    _ttvContext.DimOrganizations.Add(dimOrganization);
+                    await _ttvContext.SaveChangesAsync();
+
+
                     // Create new DimAffiliation
                     var dimAffiliation = new DimAffiliation()
                     {
-                        DimOrganizationId = -1,
+                        DimOrganizationId = dimOrganization.Id,
                         StartDate = startDate.Id,
                         EndDate = endDate.Id,
                         PositionNameEn = employment.RoleTitle,

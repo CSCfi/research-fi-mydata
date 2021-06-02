@@ -8,7 +8,9 @@ namespace api.Models
     {
         public ProfileEditorItemAffiliation()
         {
-            OrganizationName = "";
+            OrganizationNameFi = "";
+            OrganizationNameEn = "";
+            OrganizationNameSv = "";
             PositionNameFi = "";
             PositionNameEn = "";
             PositionNameSv = "";
@@ -16,7 +18,9 @@ namespace api.Models
             EndDate = new ProfileEditorItemDate();
         }
 
-        public string OrganizationName { get; set; }
+        public string OrganizationNameFi { get; set; }
+        public string OrganizationNameEn { get; set; }
+        public string OrganizationNameSv { get; set; }
         public string PositionNameFi { get; set; }
         public string PositionNameEn { get; set; }
         public string PositionNameSv { get; set; }

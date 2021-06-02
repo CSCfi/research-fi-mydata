@@ -79,6 +79,10 @@ namespace api.Controllers
                             .ThenInclude(da => da.EndDateNavigation).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimAffiliation)
+                            .ThenInclude(da => da.DimOrganization).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimCompetence).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
@@ -340,7 +344,9 @@ namespace api.Controllers
                                 new ProfileEditorItemAffiliation()
                                 {
                                     // TODO: DimOrganization handling
-                                    OrganizationName = "",
+                                    OrganizationNameFi = ffv.DimAffiliation.DimOrganization.NameFi,
+                                    OrganizationNameEn = ffv.DimAffiliation.DimOrganization.NameEn,
+                                    OrganizationNameSv = ffv.DimAffiliation.DimOrganization.NameSv,
                                     PositionNameFi = ffv.DimAffiliation.PositionNameFi,
                                     PositionNameEn = ffv.DimAffiliation.PositionNameEn,
                                     PositionNameSv = ffv.DimAffiliation.PositionNameSv,
