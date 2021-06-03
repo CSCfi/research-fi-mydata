@@ -50,7 +50,9 @@ namespace api.Controllers
             // Check if DimPid and DimKnownPerson already exist.
             var dimPid = await _ttvContext.DimPids
                 .Include(i => i.DimKnownPerson)
-                    .ThenInclude(i => i.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == "ORCID");
+                    .ThenInclude(dkp => dkp.DimTelephoneNumbers).AsNoTracking()
+                .Include(i => i.DimKnownPerson)
+                    .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == "ORCID");
 
             if (dimPid == null)
             {
@@ -103,12 +105,15 @@ namespace api.Controllers
                 // TODO: enumerate Constants.FieldIdentifiers
                 var fieldIdentifiers = new List<int>
                 {
+                    Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                    Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER,
+                    Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE,
+                    Constants.FieldIdentifiers.PERSON_KEYWORD,
                     Constants.FieldIdentifiers.PERSON_NAME,
                     Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
                     Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                    Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
                     Constants.FieldIdentifiers.PERSON_WEB_LINK,
-                    Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
-                    Constants.FieldIdentifiers.PERSON_KEYWORD,
                     Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
                     Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
                     Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
@@ -138,6 +143,10 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
                 
             }
+
+            // Add Ttv data: telephone number
+            //await _userProfileService.AddTtvTelephoneNumbers(dimPid.DimKnownPerson);
+
             return Ok(new ApiResponse(success: true));
         }
 

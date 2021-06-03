@@ -200,5 +200,43 @@ namespace api.Services
                 DimReferencedataid = -1
             };
         }
+
+        //public async Task<bool> AddTtvTelephoneNumbers(DimKnownPerson dimKnownPerson)
+        //{
+        //    var dimUserProfile = dimKnownPerson.DimUserProfiles.FirstOrDefault();
+        //    if (dimUserProfile != null)
+        //    {
+        //        foreach (DimTelephoneNumber dimTelephoneNumber in dimKnownPerson.DimTelephoneNumbers)
+        //        {
+        //            // Find DimFieldDisplaySettings for registered data source
+        //            var dimFieldDisplaySettingsTelephoneNumber =
+        //                await _ttvContext.DimFieldDisplaySettings.FirstOrDefaultAsync(
+        //                    dfds =>
+        //                        dfds.DimUserProfileId == dimUserProfile.Id &&
+        //                        dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER &&
+        //                        dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == dimTelephoneNumber.DimRegisteredDataSourceId
+        //                );
+
+        //            if (dimFieldDisplaySettingsTelephoneNumber == null)
+        //            {
+        //                // Add new DimFieldDisplaySettings for DimTelephoneNumber
+        //                dimFieldDisplaySettingsTelephoneNumber = new DimFieldDisplaySetting()
+        //                {
+        //                    DimUserProfileId = dimUserProfile.Id,
+        //                }
+
+        //                dimFieldDisplaySettingsTelephoneNumber.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+        //                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+        //                    {
+        //                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsTelephoneNumber.Id,
+        //                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+        //                    }
+        //                );
+        //            }
+        //        }
+        //        await _ttvContext.SaveChangesAsync();
+        //    }
+        //    return false;
+        //}
     }
 }

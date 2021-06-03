@@ -288,6 +288,40 @@ namespace api.Controllers
                         }
                         profileDataResponse.personal.emailGroups.Add(emailGroup);
                         break;
+                    case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
+                        var telephoneNumberGroup = new ProfileEditorGroupTelephoneNumber()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemTelephoneNumber>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            telephoneNumberGroup.items.Add(
+                                new ProfileEditorItemTelephoneNumber()
+                                {
+                                    Value = ffv.DimTelephoneNumber.TelephoneNumber,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimTelephoneNumberId,
+                                        Type = Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.personal.telephoneNumberGroups.Add(telephoneNumberGroup);
+                        break;
                     case Constants.FieldIdentifiers.PERSON_KEYWORD:
                         var keywordGroup = new ProfileEditorGroupKeyword()
                         {
