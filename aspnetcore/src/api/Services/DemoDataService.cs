@@ -388,6 +388,91 @@ namespace api.Services
             factFieldValue_keyword4_tutkimuslaitosX.Created = DateTime.Now;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword4_tutkimuslaitosX);
             await _ttvContext.SaveChangesAsync();
+
+
+            //// Fields of science
+            //var dimFieldDisplaySettings_fieldOfScience_YliopistoA = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Yliopisto A" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
+            //var dimFieldOfScience1_yliopistoA = new DimFieldOfScience()
+            //{
+            //    NameFi = "Fysiikka",
+            //    FieldId = "",
+            //    SourceId = Constants.SourceIdentifiers.DEMO,
+            //    Created = DateTime.Now
+            //};
+            //var dimFieldOfScience2_yliopistoA = new DimFieldOfScience()
+            //{
+            //    NameFi = "historia",
+            //    FieldId = "",
+            //    SourceId = Constants.SourceIdentifiers.DEMO,
+            //    Created = DateTime.Now
+            //};
+            //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience1_yliopistoA);
+            //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience2_yliopistoA);
+            //var dimFieldDisplaySettings_fieldOfScience_TutkimuslaitosX = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Tutkimuslaitos X" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
+            //var dimFieldOfScience1_tutkimuslaitosX = new DimFieldOfScience()
+            //{
+            //    NameFi = "Yleislääketiede",
+            //    FieldId = "",
+            //    SourceId = Constants.SourceIdentifiers.DEMO,
+            //    Created = DateTime.Now
+            //};
+            //var dimFieldOfScience2_tutkimuslaitosX = new DimFieldOfScience()
+            //{
+            //    NameFi = "sisätaudit ja muut kliiniset lääketieteet",
+            //    FieldId = "",
+            //    SourceId = Constants.SourceIdentifiers.DEMO,
+            //    Created = DateTime.Now
+            //};
+            //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience1_tutkimuslaitosX);
+            //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience2_tutkimuslaitosX);
+            //await _ttvContext.SaveChangesAsync();
+
+            //var factFieldValue_fieldOfScience1_yliopistoA = _userProfileService.GetEmptyFactFieldValue();
+            //factFieldValue_fieldOfScience1_yliopistoA.DimUserProfileId = dimUserProfile.Id;
+            //factFieldValue_fieldOfScience1_yliopistoA.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_YliopistoA.Id;
+            //factFieldValue_fieldOfScience1_yliopistoA.DimFieldOfScienceId = dimFieldOfScience1_yliopistoA.Id;
+            //factFieldValue_fieldOfScience1_yliopistoA.SourceId = Constants.SourceIdentifiers.DEMO;
+            //factFieldValue_fieldOfScience1_yliopistoA.Created = DateTime.Now;
+            //_ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience1_yliopistoA);
+
+
+            // Email
+            var dimFieldDisplaySettings_email_YliopistoA = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Yliopisto A" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
+            var dimEmail_yliopistoA = new DimEmailAddrress()
+            {
+                Email = "tuisku.tutkija@yliopisto.fi",
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                DimRegisteredDataSourceId = datasourceYliopistoA.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            _ttvContext.DimEmailAddrresses.Add(dimEmail_yliopistoA);
+            var dimFieldDisplaySettings_email_TutkimuslaitosX = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Tutkimuslaitos X" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
+            var dimEmail_tutkimuslaitosX = new DimEmailAddrress()
+            {
+                Email = "ami.asiantuntija@tutkimuslaitos.fi",
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                DimRegisteredDataSourceId = datasourceTutkimuslaitosX.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            _ttvContext.DimEmailAddrresses.Add(dimEmail_tutkimuslaitosX);
+            await _ttvContext.SaveChangesAsync();
+            var factFieldValue_emails_yliopistoA = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_emails_yliopistoA.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_emails_yliopistoA.DimFieldDisplaySettingsId = dimFieldDisplaySettings_email_YliopistoA.Id;
+            factFieldValue_emails_yliopistoA.DimEmailAddrressId = dimEmail_yliopistoA.Id;
+            factFieldValue_emails_yliopistoA.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_emails_yliopistoA.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_emails_yliopistoA);
+            var factFieldValue_emails_tutkimuslaitosX = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_emails_tutkimuslaitosX.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_emails_tutkimuslaitosX.DimFieldDisplaySettingsId = dimFieldDisplaySettings_email_TutkimuslaitosX.Id;
+            factFieldValue_emails_tutkimuslaitosX.DimEmailAddrressId = dimEmail_tutkimuslaitosX.Id;
+            factFieldValue_emails_tutkimuslaitosX.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_emails_tutkimuslaitosX.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_emails_tutkimuslaitosX);
+            await _ttvContext.SaveChangesAsync();
         }
     }
 }
