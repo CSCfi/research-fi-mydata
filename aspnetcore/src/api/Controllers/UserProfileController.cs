@@ -17,14 +17,16 @@ namespace api.Controllers
     public class UserProfileController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
-        private readonly UserProfileService _userProfileService;
+        private readonly DemoDataService _demoDataService;
         private readonly OrcidApiService _orcidApiService;
+        private readonly UserProfileService _userProfileService;
 
-        public UserProfileController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService)
+        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, OrcidApiService orcidApiService, UserProfileService userProfileService)
         {
             _ttvContext = ttvContext;
-            _userProfileService = userProfileService;
+            _demoDataService = demoDataService;
             _orcidApiService = orcidApiService;
+            _userProfileService = userProfileService;
         }
 
         // Check if profile exists.
@@ -88,9 +90,10 @@ namespace api.Controllers
 
 
             // Add DimUserProfile
-            if (dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault() == null)
+            var userprofile = dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault();
+            if (userprofile == null)
             {
-                var userprofile = new DimUserProfile() {
+                userprofile = new DimUserProfile() {
                     DimKnownPersonId = dimPid.DimKnownPerson.Id,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     Created = DateTime.Now,
@@ -100,8 +103,11 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
 
 
-                // Add DimFieldDisplaySettings for data source ORCID
+                // Add DimFieldDisplaySettings for data sources ORCID and DEMO
                 var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
+                var yliopistoARegisteredDataSourceId = await _demoDataService.GetYliopistoARegisteredDataSourceId();
+                var tutkimuslaitosXRegisteredDataSourceId = await _demoDataService.GetTutkimuslaitosXRegisteredDataSourceId();
+
                 // TODO: enumerate Constants.FieldIdentifiers
                 var fieldIdentifiers = new List<int>
                 {
@@ -119,6 +125,7 @@ namespace api.Controllers
                     Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
                 };
 
+                // DimFieldDisplaySettings for ORCID registered data source
                 foreach (int fieldIdentifier in fieldIdentifiers)
                 {
                     var dimFieldDisplaySetting = new DimFieldDisplaySetting()
@@ -129,7 +136,6 @@ namespace api.Controllers
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         Created = DateTime.Now
                     };
-
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
                         {
@@ -137,11 +143,59 @@ namespace api.Controllers
                             DimRegisteredDataSourceId = orcidRegisteredDataSourceId
                         }
                     );
-
                     _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
                 }
                 await _ttvContext.SaveChangesAsync();
-                
+
+
+                // DimFieldDisplaySettings for demo: Yliopisto A registered data source
+                foreach (int fieldIdentifier in fieldIdentifiers)
+                {
+                    var dimFieldDisplaySetting = new DimFieldDisplaySetting()
+                    {
+                        DimUserProfileId = userprofile.Id,
+                        FieldIdentifier = fieldIdentifier,
+                        Show = false,
+                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceDescription = "Yliopisto A",
+                        Created = DateTime.Now
+                    };
+                    dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                        new BrFieldDisplaySettingsDimRegisteredDataSource()
+                        {
+                            DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
+                            DimRegisteredDataSourceId = yliopistoARegisteredDataSourceId
+                        }
+                    );
+                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
+                }
+                await _ttvContext.SaveChangesAsync();
+
+                // DimFieldDisplaySettings for demo: Tutkimuslaitos X registered data source
+                foreach (int fieldIdentifier in fieldIdentifiers)
+                {
+                    var dimFieldDisplaySetting = new DimFieldDisplaySetting()
+                    {
+                        DimUserProfileId = userprofile.Id,
+                        FieldIdentifier = fieldIdentifier,
+                        Show = false,
+                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceDescription = "Tutkimuslaitos X",
+                        Created = DateTime.Now
+                    };
+                    dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                        new BrFieldDisplaySettingsDimRegisteredDataSource()
+                        {
+                            DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
+                            DimRegisteredDataSourceId = tutkimuslaitosXRegisteredDataSourceId
+                        }
+                    );
+                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
+                }
+                await _ttvContext.SaveChangesAsync();
+
+                // Add demo data
+                await _demoDataService.AddDemoDataToUserProfile(userprofile);
             }
 
             // Add Ttv data: telephone number
@@ -215,11 +269,7 @@ namespace api.Controllers
                 // Remove related DimName
                 if (ffv.DimNameId != -1)
                 {
-                    // DimName can have several related FactFieldValues (for first name, last name, etc). Remove them all.
-
-                    // TODO: Check if all FactFieldValues and DimName can be removed, or should only current FactFieldValue
-                    // be removed and DimName only when it does not have any related FactFieldValues left?
-                    _ttvContext.FactFieldValues.RemoveRange(ffv.DimName.FactFieldValues);
+                    _ttvContext.FactFieldValues.RemoveRange(ffv);
                     _ttvContext.DimNames.Remove(ffv.DimName);
                 }
 

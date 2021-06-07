@@ -24,6 +24,7 @@ namespace api.Models
         public static class SourceIdentifiers
         {
             public const string ORCID = "ORCID";
+            public const string DEMO = "DEMO";
         }
     }
 }

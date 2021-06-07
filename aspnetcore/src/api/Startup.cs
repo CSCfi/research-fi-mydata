@@ -91,6 +91,7 @@ namespace api
             services.AddHttpClient<OrcidApiService>();
             services.AddScoped<OrcidJsonParserService>();
             services.AddScoped<UserProfileService>();
+            services.AddScoped<DemoDataService>();
 
             /*
             services.AddSwaggerGen(c =>
@@ -101,8 +102,11 @@ namespace api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DemoDataService demoDataService)
         {
+            // Add registered data sources used in demo
+            demoDataService.AddRegisteredDatasources();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -132,5 +136,12 @@ namespace api
                 endpoints.MapControllers();
             });
         }
+
+        //// Add demo data
+        //private void AddDemoData(IApplicationBuilder app)
+        //{
+        //    var context = app.ApplicationServices.GetService<TtvContext>();
+        //    var demoDataService = 
+        //}
     }
 }

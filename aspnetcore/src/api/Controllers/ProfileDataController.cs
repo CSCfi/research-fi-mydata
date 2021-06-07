@@ -54,6 +54,9 @@ namespace api.Controllers
                         .ThenInclude(ffv => ffv.DimPublication).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimPid).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
@@ -355,6 +358,41 @@ namespace api.Controllers
                             );
                         }
                         profileDataResponse.personal.keywordGroups.Add(keywordGroup);
+                        break;
+                    case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
+                        var externalIdentifierGroup = new ProfileEditorGroupExternalIdentifier()
+                        {
+                            dataSource = new ProfileEditorDataSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                            },
+                            items = new List<ProfileEditorItemExternalIdentifier>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            externalIdentifierGroup.items.Add(
+                                new ProfileEditorItemExternalIdentifier()
+                                {
+                                    PidContent = ffv.DimPid.PidContent,
+                                    PidType = ffv.DimPid.PidType,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimPidId,
+                                        Type = Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER,
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
+                                    }
+                                }
+                            );
+                        }
+                        profileDataResponse.personal.externalIdentifierGroups.Add(externalIdentifierGroup);
                         break;
                     case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
                         var affiliationGroup = new ProfileEditorGroupAffiliation()

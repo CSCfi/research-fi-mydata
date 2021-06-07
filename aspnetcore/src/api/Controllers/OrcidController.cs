@@ -61,6 +61,8 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication)
                 .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimPid)
+                .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearchActivity)
@@ -195,7 +197,7 @@ namespace api.Controllers
                     // Get DimFieldDisplaySettings for other name
                     var dimFieldDisplaySettingsOtherName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES && dfdsWebLink.SourceId == Constants.SourceIdentifiers.ORCID);
 
-                    // Create FactFieldValues for weblink
+                    // Create FactFieldValues for other name
                     factFieldValuesOtherName = _userProfileService.GetEmptyFactFieldValue();
                     factFieldValuesOtherName.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesOtherName.DimFieldDisplaySettingsId = dimFieldDisplaySettingsOtherName.Id;
@@ -408,6 +410,69 @@ namespace api.Controllers
                 }
             }
             await _ttvContext.SaveChangesAsync();
+
+
+
+            // External identifier (=DimPid)
+            var externalIdentifiers = _orcidJsonParserService.GetExternalIdentifiers(json);
+            // Get DimFieldDisplaySettings for keyword
+            var dimFieldDisplaySettingsExternalIdentifier = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER && dfdsKeyword.SourceId == Constants.SourceIdentifiers.ORCID);
+            foreach (OrcidExternalIdentifier externalIdentifier in externalIdentifiers)
+            {
+                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
+                var factFieldValuesExternalIdentifier = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == externalIdentifier.PutCode.Value.ToString());
+
+                if (factFieldValuesExternalIdentifier != null)
+                {
+                    // Update existing DimPid
+                    var dimPid = factFieldValuesExternalIdentifier.DimPid;
+                    dimPid.PidContent = externalIdentifier.ExternalIdValue;
+                    dimPid.PidType = externalIdentifier.ExternalIdType;
+                    dimPid.Modified = DateTime.Now;
+                    _ttvContext.Entry(dimPid).State = EntityState.Modified;
+                    // Update existing FactFieldValue
+                    factFieldValuesExternalIdentifier.Modified = DateTime.Now;
+                    await _ttvContext.SaveChangesAsync();
+                }
+                else
+                {
+                    // Create new DimPid (external identifier is stored into DimPid)
+                    var dimPid = new DimPid()
+                    {
+                        PidContent = externalIdentifier.ExternalIdValue,
+                        PidType = externalIdentifier.ExternalIdType,
+                        DimKnownPersonId = dimKnownPerson.Id,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimPids.Add(dimPid);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Add ORCID put code into DimPid
+                    var dimPidOrcidPutCodeExternalIdentifier = new DimPid()
+                    {
+                        PidContent = externalIdentifier.PutCode.GetDbValue(),
+                        PidType = "ORCID put code",
+                        DimKnownPersonId = dimKnownPerson.Id,
+                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimPids.Add(dimPidOrcidPutCodeExternalIdentifier);
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Create FactFieldValues for external identifier
+                    factFieldValuesExternalIdentifier = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesExternalIdentifier.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuesExternalIdentifier.DimFieldDisplaySettingsId = dimFieldDisplaySettingsExternalIdentifier.Id;
+                    factFieldValuesExternalIdentifier.DimPidId = dimPid.Id;
+                    factFieldValuesExternalIdentifier.DimPidIdOrcidPutCode = dimPidOrcidPutCodeExternalIdentifier.Id;
+                    factFieldValuesExternalIdentifier.SourceId = Constants.SourceIdentifiers.ORCID;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesExternalIdentifier);
+                    await _ttvContext.SaveChangesAsync();
+                }
+            }
+
+
 
             // Education
             var educations = _orcidJsonParserService.GetEducations(json);
