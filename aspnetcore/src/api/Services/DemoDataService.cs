@@ -260,6 +260,134 @@ namespace api.Services
             factFieldValue_researcherDescription_tutkimuslaitosX.Created = DateTime.Now;
             _ttvContext.FactFieldValues.Add(factFieldValue_researcherDescription_tutkimuslaitosX);
             await _ttvContext.SaveChangesAsync();
+
+
+            // Keywords
+            var dimFieldDisplaySettings_keyword_YliopistoA = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Yliopisto A" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
+            var dimKeyword1_yliopistoA = new DimKeyword()
+            {
+                Keyword = "digitalisaatio",
+                DimRegisteredDataSourceId = datasourceYliopistoA.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            var dimKeyword2_yliopistoA = new DimKeyword()
+            {
+                Keyword = "aerosolit",
+                DimRegisteredDataSourceId = datasourceYliopistoA.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            var dimKeyword3_yliopistoA = new DimKeyword()
+            {
+                Keyword = "sisätaudit",
+                DimRegisteredDataSourceId = datasourceYliopistoA.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            var dimKeyword4_yliopistoA = new DimKeyword()
+            {
+                Keyword = "Suomen historia",
+                DimRegisteredDataSourceId = datasourceYliopistoA.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            _ttvContext.DimKeywords.Add(dimKeyword1_yliopistoA);
+            _ttvContext.DimKeywords.Add(dimKeyword2_yliopistoA);
+            _ttvContext.DimKeywords.Add(dimKeyword3_yliopistoA);
+            _ttvContext.DimKeywords.Add(dimKeyword4_yliopistoA);
+            var dimFieldDisplaySettings_keyword_TutkimuslaitosX = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Tutkimuslaitos X" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
+            var dimKeyword1_tutkimuslaitosX = new DimKeyword()
+            {
+                Keyword = "digitalization",
+                DimRegisteredDataSourceId = datasourceTutkimuslaitosX.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            var dimKeyword2_tutkimuslaitosX = new DimKeyword()
+            {
+                Keyword = "aerosols",
+                DimRegisteredDataSourceId = datasourceTutkimuslaitosX.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            var dimKeyword3_tutkimuslaitosX = new DimKeyword()
+            {
+                Keyword = "internal medicine",
+                DimRegisteredDataSourceId = datasourceTutkimuslaitosX.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            var dimKeyword4_tutkimuslaitosX = new DimKeyword()
+            {
+                Keyword = "history of Finland",
+                DimRegisteredDataSourceId = datasourceTutkimuslaitosX.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            _ttvContext.DimKeywords.Add(dimKeyword1_tutkimuslaitosX);
+            _ttvContext.DimKeywords.Add(dimKeyword2_tutkimuslaitosX);
+            _ttvContext.DimKeywords.Add(dimKeyword3_tutkimuslaitosX);
+            _ttvContext.DimKeywords.Add(dimKeyword4_tutkimuslaitosX);
+            await _ttvContext.SaveChangesAsync();
+
+            var factFieldValue_keyword1_yliopistoA = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_keyword1_yliopistoA.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_keyword1_yliopistoA.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_YliopistoA.Id;
+            factFieldValue_keyword1_yliopistoA.DimKeywordId = dimKeyword1_yliopistoA.Id;
+            factFieldValue_keyword1_yliopistoA.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_keyword1_yliopistoA.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_keyword1_yliopistoA);
+            var factFieldValue_keyword2_yliopistoA = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_keyword2_yliopistoA.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_keyword2_yliopistoA.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_YliopistoA.Id;
+            factFieldValue_keyword2_yliopistoA.DimKeywordId = dimKeyword2_yliopistoA.Id;
+            factFieldValue_keyword2_yliopistoA.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_keyword2_yliopistoA.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_keyword2_yliopistoA);
+            var factFieldValue_keyword3_yliopistoA = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_keyword3_yliopistoA.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_keyword3_yliopistoA.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_YliopistoA.Id;
+            factFieldValue_keyword3_yliopistoA.DimKeywordId = dimKeyword3_yliopistoA.Id;
+            factFieldValue_keyword3_yliopistoA.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_keyword3_yliopistoA.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_keyword3_yliopistoA);
+            var factFieldValue_keyword4_yliopistoA = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_keyword4_yliopistoA.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_keyword4_yliopistoA.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_YliopistoA.Id;
+            factFieldValue_keyword4_yliopistoA.DimKeywordId = dimKeyword4_yliopistoA.Id;
+            factFieldValue_keyword4_yliopistoA.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_keyword4_yliopistoA.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_keyword4_yliopistoA);
+            var factFieldValue_keyword1_tutkimuslaitosX = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_keyword1_tutkimuslaitosX.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_keyword1_tutkimuslaitosX.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_TutkimuslaitosX.Id;
+            factFieldValue_keyword1_tutkimuslaitosX.DimKeywordId = dimKeyword1_tutkimuslaitosX.Id;
+            factFieldValue_keyword1_tutkimuslaitosX.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_keyword1_tutkimuslaitosX.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_keyword1_tutkimuslaitosX);
+            var factFieldValue_keyword2_tutkimuslaitosX = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_keyword2_tutkimuslaitosX.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_keyword2_tutkimuslaitosX.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_TutkimuslaitosX.Id;
+            factFieldValue_keyword2_tutkimuslaitosX.DimKeywordId = dimKeyword2_tutkimuslaitosX.Id;
+            factFieldValue_keyword2_tutkimuslaitosX.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_keyword2_tutkimuslaitosX.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_keyword2_tutkimuslaitosX);
+            var factFieldValue_keyword3_tutkimuslaitosX = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_keyword3_tutkimuslaitosX.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_keyword3_tutkimuslaitosX.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_TutkimuslaitosX.Id;
+            factFieldValue_keyword3_tutkimuslaitosX.DimKeywordId = dimKeyword3_tutkimuslaitosX.Id;
+            factFieldValue_keyword3_tutkimuslaitosX.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_keyword3_tutkimuslaitosX.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_keyword3_tutkimuslaitosX);
+            var factFieldValue_keyword4_tutkimuslaitosX = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_keyword4_tutkimuslaitosX.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_keyword4_tutkimuslaitosX.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_TutkimuslaitosX.Id;
+            factFieldValue_keyword4_tutkimuslaitosX.DimKeywordId = dimKeyword4_tutkimuslaitosX.Id;
+            factFieldValue_keyword4_tutkimuslaitosX.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_keyword4_tutkimuslaitosX.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_keyword4_tutkimuslaitosX);
+            await _ttvContext.SaveChangesAsync();
         }
     }
 }
