@@ -473,6 +473,28 @@ namespace api.Services
             factFieldValue_emails_tutkimuslaitosX.Created = DateTime.Now;
             _ttvContext.FactFieldValues.Add(factFieldValue_emails_tutkimuslaitosX);
             await _ttvContext.SaveChangesAsync();
+
+
+            // Telephone number
+            var dimFieldDisplaySettings_telephone_YliopistoA = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Yliopisto A" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER);
+            var dimTelephone_yliopistoA = new DimTelephoneNumber()
+            {
+                TelephoneNumber = "+35899999999",
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                DimRegisteredDataSourceId = datasourceTutkimuslaitosX.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            _ttvContext.DimTelephoneNumbers.Add(dimTelephone_yliopistoA);
+            await _ttvContext.SaveChangesAsync();
+            var factFieldValue_telephone_yliopistoA = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_telephone_yliopistoA.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_telephone_yliopistoA.DimFieldDisplaySettingsId = dimFieldDisplaySettings_telephone_YliopistoA.Id;
+            factFieldValue_telephone_yliopistoA.DimTelephoneNumberId = dimTelephone_yliopistoA.Id;
+            factFieldValue_telephone_yliopistoA.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_telephone_yliopistoA.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_telephone_yliopistoA);
+            await _ttvContext.SaveChangesAsync();
         }
     }
 }
