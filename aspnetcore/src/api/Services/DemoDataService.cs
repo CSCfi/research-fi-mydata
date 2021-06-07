@@ -172,7 +172,6 @@ namespace api.Services
             factFieldValue_othername_yliopistoA_2.SourceId = Constants.SourceIdentifiers.DEMO;
             factFieldValue_othername_yliopistoA_2.Created = DateTime.Now;
             _ttvContext.FactFieldValues.Add(factFieldValue_othername_yliopistoA_2);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_othername_tutkimuslaitosX = _userProfileService.GetEmptyFactFieldValue();
             factFieldValue_othername_tutkimuslaitosX.DimUserProfileId = dimUserProfile.Id;
             factFieldValue_othername_tutkimuslaitosX.DimFieldDisplaySettingsId = dimFieldDisplaySettings_othername_TutkimuslaitosX.Id;
@@ -180,6 +179,45 @@ namespace api.Services
             factFieldValue_othername_tutkimuslaitosX.SourceId = Constants.SourceIdentifiers.DEMO;
             factFieldValue_othername_tutkimuslaitosX.Created = DateTime.Now;
             _ttvContext.FactFieldValues.Add(factFieldValue_othername_tutkimuslaitosX);
+            await _ttvContext.SaveChangesAsync();
+
+
+            // External identifiers (DimPid)
+            var dimFieldDisplaySettings_externalIdentifier_YliopistoA = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Yliopisto A" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
+            var dimPid_yliopistoA = new DimPid()
+            {
+                PidContent = "O-2000-1000",
+                PidType = "ResearcherID",
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            _ttvContext.DimPids.Add(dimPid_yliopistoA);
+            var dimFieldDisplaySettings_externalIdentifier_TutkimuslaitosX = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Tutkimuslaitos X" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
+            var dimPid_tutkimuslaitosX = new DimPid()
+            {
+                PidContent = "https://isni.org/isni/0000000100020003",
+                PidType = "ISNI",
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            _ttvContext.DimPids.Add(dimPid_tutkimuslaitosX);
+            await _ttvContext.SaveChangesAsync();
+            var factFieldValue_externalIdentifier_yliopistoA = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_externalIdentifier_yliopistoA.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_externalIdentifier_yliopistoA.DimFieldDisplaySettingsId = dimFieldDisplaySettings_externalIdentifier_YliopistoA.Id;
+            factFieldValue_externalIdentifier_yliopistoA.DimPidId = dimPid_yliopistoA.Id;
+            factFieldValue_externalIdentifier_yliopistoA.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_externalIdentifier_yliopistoA.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_externalIdentifier_yliopistoA);
+            var factFieldValue_externalIdentifier_tutkimuslaitosX = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_externalIdentifier_tutkimuslaitosX.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_externalIdentifier_tutkimuslaitosX.DimFieldDisplaySettingsId = dimFieldDisplaySettings_externalIdentifier_TutkimuslaitosX.Id;
+            factFieldValue_externalIdentifier_tutkimuslaitosX.DimPidId = dimPid_tutkimuslaitosX.Id;
+            factFieldValue_externalIdentifier_tutkimuslaitosX.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_externalIdentifier_tutkimuslaitosX.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_externalIdentifier_tutkimuslaitosX);
             await _ttvContext.SaveChangesAsync();
         }
     }

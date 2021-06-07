@@ -230,6 +230,8 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPublication)
                 .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimPid)
+                .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearchActivity)
@@ -271,6 +273,13 @@ namespace api.Controllers
                 {
                     _ttvContext.FactFieldValues.RemoveRange(ffv);
                     _ttvContext.DimNames.Remove(ffv.DimName);
+                }
+
+                // Remove related DimPid
+                if (ffv.DimPidId != -1)
+                {
+                    _ttvContext.FactFieldValues.RemoveRange(ffv);
+                    _ttvContext.DimPids.Remove(ffv.DimPid);
                 }
 
                 // Remove related DimWebLink
