@@ -219,6 +219,47 @@ namespace api.Services
             factFieldValue_externalIdentifier_tutkimuslaitosX.Created = DateTime.Now;
             _ttvContext.FactFieldValues.Add(factFieldValue_externalIdentifier_tutkimuslaitosX);
             await _ttvContext.SaveChangesAsync();
+
+
+            // Researcher description
+            var dimFieldDisplaySettings_researcherDescription_YliopistoA = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Yliopisto A" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
+            var dimResearcherDescription_yliopistoA = new DimResearcherDescription()
+            {
+                ResearchDescriptionFi = "Tutkimuksen kuvausta suomeksi. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                ResearchDescriptionEn = "Description of my research in English. Duis ullamcorper sem in sapien pretium bibendum. Vestibulum ex dui, volutpat commodo condimentum sed, lobortis at justo.",
+                ResearchDescriptionSv = "Beskrivning av forskningen på svenska. Fusce in lorem tempor, feugiat nunc ut, consectetur erat. Integer purus sem, hendrerit at bibendum vel, laoreet nec tellus.",
+                DimRegisteredDataSourceId = datasourceYliopistoA.Id,
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription_yliopistoA);
+            var dimFieldDisplaySettings_researcherDescription_TutkimuslaitosX = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == "Tutkimuslaitos X" && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
+            var dimResearcherDescription_tutkimuslaitosX = new DimResearcherDescription()
+            {
+                ResearchDescriptionFi = "Tutkimuksen kuvausta suomeksi. Duis finibus velit rutrum euismod scelerisque. Praesent sit amet fermentum ex. Donec vitae tellus eu nisl dignissim laoreet.",
+                DimRegisteredDataSourceId = datasourceTutkimuslaitosX.Id,
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now
+            };
+            _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription_tutkimuslaitosX);
+            await _ttvContext.SaveChangesAsync();
+            var factFieldValue_researcherDescription_yliopistoA = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_researcherDescription_yliopistoA.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_researcherDescription_yliopistoA.DimFieldDisplaySettingsId = dimFieldDisplaySettings_researcherDescription_YliopistoA.Id;
+            factFieldValue_researcherDescription_yliopistoA.DimResearcherDescriptionId = dimResearcherDescription_yliopistoA.Id;
+            factFieldValue_researcherDescription_yliopistoA.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_researcherDescription_yliopistoA.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_researcherDescription_yliopistoA);
+            var factFieldValue_researcherDescription_tutkimuslaitosX = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_researcherDescription_tutkimuslaitosX.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_researcherDescription_tutkimuslaitosX.DimFieldDisplaySettingsId = dimFieldDisplaySettings_researcherDescription_TutkimuslaitosX.Id;
+            factFieldValue_researcherDescription_tutkimuslaitosX.DimResearcherDescriptionId = dimResearcherDescription_tutkimuslaitosX.Id;
+            factFieldValue_researcherDescription_tutkimuslaitosX.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_researcherDescription_tutkimuslaitosX.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_researcherDescription_tutkimuslaitosX);
+            await _ttvContext.SaveChangesAsync();
         }
     }
 }
