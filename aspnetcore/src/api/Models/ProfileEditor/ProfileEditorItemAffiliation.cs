@@ -14,6 +14,7 @@ namespace api.Models
             PositionNameFi = "";
             PositionNameEn = "";
             PositionNameSv = "";
+            Type = "";
             StartDate = new ProfileEditorItemDate();
             EndDate = new ProfileEditorItemDate();
         }
@@ -24,6 +25,7 @@ namespace api.Models
         public string PositionNameFi { get; set; }
         public string PositionNameEn { get; set; }
         public string PositionNameSv { get; set; }
+        public string Type { get; set; } 
         public ProfileEditorItemDate StartDate { get; set; }
         public ProfileEditorItemDate EndDate { get; set; }
     }

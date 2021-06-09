@@ -93,10 +93,31 @@ namespace api.Services
         }
 
 
+        public void AddReferenceData()
+        {
+            var referenceData = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == "Työsuhde");
+            if (referenceData == null)
+            {
+                referenceData = new DimReferencedatum()
+                {
+                    CodeScheme = "",
+                    CodeValue = "",
+                    NameFi = "Työsuhde",
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceIdentifiers.DEMO,
+                    Created = DateTime.Now
+                };
+                _ttvContext.DimReferencedata.Add(referenceData);
+                _ttvContext.SaveChanges();
+            }
+        }
+
+
         public void InitDemo()
         {
             this.AddOrganizations();
             this.AddRegisteredDatasources();
+            this.AddReferenceData(); // DimAffiliation.PositionCode => DimReferenceData
         }
 
 
@@ -124,6 +145,8 @@ namespace api.Services
 
         public async Task AddDemoDataToUserProfile(DimUserProfile dimUserProfile)
         {
+            var organization1 = await this.GetOrganization1();
+            var organization2 = await this.GetOrganization2();
             var organization1RegisteredDataSource = await this.GetOrganization1RegisteredDataSource();
             var organization2RegisteredDataSource = await this.GetOrganization2RegisteredDataSource();
 
@@ -562,8 +585,96 @@ namespace api.Services
 
 
             // Affiliation
-            //var dimFieldDisplaySettings_affiliation_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
 
+            var affiliationType = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO && drd.NameFi == "Työsuhde");
+
+            var dimFieldDisplaySettings_affiliation_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
+            var dimStartDate_affiliation_organization1 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2020 && dd.Month == 1 && dd.Day == 1);
+            if (dimStartDate_affiliation_organization1 == null)
+            {
+                dimStartDate_affiliation_organization1 = new DimDate()
+                {
+                    Year = 2020,
+                    Month = 1,
+                    Day = 1,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    Created = DateTime.Now
+                };
+                _ttvContext.DimDates.Add(dimStartDate_affiliation_organization1);
+                await _ttvContext.SaveChangesAsync();
+            }
+            var dimAffiliation_Organization1 = new DimAffiliation()
+            {
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                DimOrganizationId = organization1.Id,
+                StartDate = dimStartDate_affiliation_organization1.Id,
+                AffiliationType = affiliationType.Id,
+                PositionNameFi = "Akatemiatutkija",
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now,
+                DimRegisteredDataSourceId = -1
+            };
+            _ttvContext.DimAffiliations.Add(dimAffiliation_Organization1);
+            await _ttvContext.SaveChangesAsync();
+            var factFieldValue_affiliation_Organization1 = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_affiliation_Organization1.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_affiliation_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_affiliation_Organization1.Id;
+            factFieldValue_affiliation_Organization1.DimAffiliationId = dimAffiliation_Organization1.Id;
+            factFieldValue_affiliation_Organization1.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_affiliation_Organization1.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_affiliation_Organization1);
+            await _ttvContext.SaveChangesAsync();
+            var dimFieldDisplaySettings_affiliation_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
+            var dimStartDate_affiliation_organization2 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2016 && dd.Month == 1 && dd.Day == 1);
+            if (dimStartDate_affiliation_organization2 == null)
+            {
+                dimStartDate_affiliation_organization2 = new DimDate()
+                {
+                    Year = 2016,
+                    Month = 1,
+                    Day = 1,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    Created = DateTime.Now
+                };
+                _ttvContext.DimDates.Add(dimStartDate_affiliation_organization2);
+                await _ttvContext.SaveChangesAsync();
+            }
+            var dimEndDate_affiliation_organization2 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2019 && dd.Month == 12 && dd.Day == 31);
+            if (dimEndDate_affiliation_organization2 == null)
+            {
+                dimEndDate_affiliation_organization2 = new DimDate()
+                {
+                    Year = 2019,
+                    Month = 12,
+                    Day = 31,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    Created = DateTime.Now
+                };
+                _ttvContext.DimDates.Add(dimEndDate_affiliation_organization2);
+                await _ttvContext.SaveChangesAsync();
+            }
+            var dimAffiliation_Organization2 = new DimAffiliation()
+            {
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                DimOrganizationId = organization2.Id,
+                StartDate = dimStartDate_affiliation_organization2.Id,
+                EndDate = dimEndDate_affiliation_organization2.Id,
+                AffiliationType = affiliationType.Id,
+                PositionNameFi = "Erikoistutkija",
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now,
+                DimRegisteredDataSourceId = -1
+            };
+            _ttvContext.DimAffiliations.Add(dimAffiliation_Organization2);
+            await _ttvContext.SaveChangesAsync();
+            var factFieldValue_affiliation_Organization2 = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_affiliation_Organization2.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_affiliation_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_affiliation_Organization2.Id;
+            factFieldValue_affiliation_Organization2.DimAffiliationId = dimAffiliation_Organization2.Id;
+            factFieldValue_affiliation_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_affiliation_Organization2.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_affiliation_Organization2);
+            await _ttvContext.SaveChangesAsync();
         }
     }
 }

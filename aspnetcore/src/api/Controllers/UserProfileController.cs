@@ -325,8 +325,11 @@ namespace api.Controllers
                     _ttvContext.DimAffiliations.Remove(ffv.DimAffiliation);
 
                     // Remove related DimOrganization
-                    // TODO: Removal of DimOrganization only in demo version
-                    _ttvContext.DimOrganizations.Remove(dimOrganization);
+                    // TODO: Removal of DimOrganization only in demo version, if sourceId is ORCID
+                    if (dimOrganization.SourceId == Constants.SourceIdentifiers.ORCID)
+                    {
+                        _ttvContext.DimOrganizations.Remove(dimOrganization);
+                    }
                 }
 
                 // Remove related DimEducation

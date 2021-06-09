@@ -87,6 +87,10 @@ namespace api.Controllers
                             .ThenInclude(da => da.DimOrganization).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimAffiliation)
+                            .ThenInclude(da => da.AffiliationTypeNavigation).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimCompetence).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
@@ -467,37 +471,42 @@ namespace api.Controllers
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
-                            affiliationGroup.items.Add(
-                                new ProfileEditorItemAffiliation()
+                            var affiliation = new ProfileEditorItemAffiliation()
+                            {
+                                // TODO: DimOrganization handling
+                                OrganizationNameFi = ffv.DimAffiliation.DimOrganization.NameFi,
+                                OrganizationNameEn = ffv.DimAffiliation.DimOrganization.NameEn,
+                                OrganizationNameSv = ffv.DimAffiliation.DimOrganization.NameSv,
+                                PositionNameFi = ffv.DimAffiliation.PositionNameFi,
+                                PositionNameEn = ffv.DimAffiliation.PositionNameEn,
+                                PositionNameSv = ffv.DimAffiliation.PositionNameSv,
+                                Type = ffv.DimAffiliation.AffiliationTypeNavigation.NameFi,
+                                StartDate = new ProfileEditorItemDate()
                                 {
-                                    // TODO: DimOrganization handling
-                                    OrganizationNameFi = ffv.DimAffiliation.DimOrganization.NameFi,
-                                    OrganizationNameEn = ffv.DimAffiliation.DimOrganization.NameEn,
-                                    OrganizationNameSv = ffv.DimAffiliation.DimOrganization.NameSv,
-                                    PositionNameFi = ffv.DimAffiliation.PositionNameFi,
-                                    PositionNameEn = ffv.DimAffiliation.PositionNameEn,
-                                    PositionNameSv = ffv.DimAffiliation.PositionNameSv,
-                                    StartDate = new ProfileEditorItemDate()
-                                    {
-                                        Year = ffv.DimAffiliation.StartDateNavigation.Year,
-                                        Month = ffv.DimAffiliation.StartDateNavigation.Month,
-                                        Day = ffv.DimAffiliation.StartDateNavigation.Day
-                                    },
-                                    EndDate = new ProfileEditorItemDate()
-                                    {
-                                        Year = ffv.DimAffiliation.EndDateNavigation.Year,
-                                        Month = ffv.DimAffiliation.EndDateNavigation.Month,
-                                        Day = ffv.DimAffiliation.EndDateNavigation.Day
-                                    },
-                                    itemMeta = new ProfileEditorItemMeta()
-                                    {
-                                        Id = ffv.DimAffiliationId,
-                                        Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
-                                        Show = ffv.Show,
-                                        PrimaryValue = ffv.PrimaryValue
-                                    }
+                                    Year = ffv.DimAffiliation.StartDateNavigation.Year,
+                                    Month = ffv.DimAffiliation.StartDateNavigation.Month,
+                                    Day = ffv.DimAffiliation.StartDateNavigation.Day
+                                },
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = ffv.DimAffiliationId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                    Show = ffv.Show,
+                                    PrimaryValue = ffv.PrimaryValue
                                 }
-                            );
+                            };
+
+                            // Affiliation EndDate can be null
+                            if (ffv.DimAffiliation.EndDateNavigation != null)
+                            {
+                                affiliation.EndDate = new ProfileEditorItemDate()
+                                {
+                                    Year = ffv.DimAffiliation.EndDateNavigation.Year,
+                                    Month = ffv.DimAffiliation.EndDateNavigation.Month,
+                                    Day = ffv.DimAffiliation.EndDateNavigation.Day
+                                };
+                            }
+                            affiliationGroup.items.Add(affiliation);
                         }
                         profileDataResponse.activity.affiliationGroups.Add(affiliationGroup);
                         break;
