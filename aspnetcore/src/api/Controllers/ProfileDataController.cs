@@ -39,7 +39,8 @@ namespace api.Controllers
             var dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
-                        .ThenInclude(br => br.DimRegisteredDataSource).AsNoTracking()
+                        .ThenInclude(br => br.DimRegisteredDataSource)
+                            .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimName).AsNoTracking()
@@ -120,10 +121,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.PERSON_NAME:
                         var nameGroup = new ProfileEditorGroupName()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemName>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -155,10 +162,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
                         var otherNameGroup = new ProfileEditorGroupOtherName()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemName>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -189,10 +202,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
                         var researcherDescriptionGroup = new ProfileEditorGroupResearcherDescription()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemResearcherDescription>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -225,10 +244,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.PERSON_WEB_LINK:
                         var webLinkGroup = new ProfileEditorGroupWebLink()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemWebLink>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -260,10 +285,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
                         var emailGroup = new ProfileEditorGroupEmail()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemEmail>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -294,10 +325,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
                         var telephoneNumberGroup = new ProfileEditorGroupTelephoneNumber()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemTelephoneNumber>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -328,10 +365,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.PERSON_KEYWORD:
                         var keywordGroup = new ProfileEditorGroupKeyword()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemKeyword>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -362,10 +405,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
                         var externalIdentifierGroup = new ProfileEditorGroupExternalIdentifier()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemExternalIdentifier>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -397,10 +446,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
                         var affiliationGroup = new ProfileEditorGroupAffiliation()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemAffiliation>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -449,10 +504,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
                         var educationGroup = new ProfileEditorGroupEducation()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemEducation>() { },
                             groupMeta = new ProfileEditorGroupMeta()
@@ -498,10 +559,16 @@ namespace api.Controllers
                     case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
                         var publicationGroup = new ProfileEditorGroupPublication()
                         {
-                            dataSource = new ProfileEditorDataSource()
+                            source = new ProfileEditorSource()
                             {
                                 Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                Name = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
                             },
                             items = new List<ProfileEditorItemPublication>() { },
                             groupMeta = new ProfileEditorGroupMeta()

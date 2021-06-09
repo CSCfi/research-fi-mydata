@@ -10,7 +10,7 @@ namespace api.Models
         {
         }
 
-        public ProfileEditorDataSource dataSource { get; set; }
+        public ProfileEditorSource source { get; set; }
         public List<ProfileEditorItemTelephoneNumber> items { get; set; }
     }
 }

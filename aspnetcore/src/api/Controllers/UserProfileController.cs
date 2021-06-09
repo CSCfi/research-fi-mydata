@@ -105,8 +105,8 @@ namespace api.Controllers
 
                 // Add DimFieldDisplaySettings for data sources ORCID and DEMO
                 var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
-                var yliopistoARegisteredDataSourceId = await _demoDataService.GetYliopistoARegisteredDataSourceId();
-                var tutkimuslaitosXRegisteredDataSourceId = await _demoDataService.GetTutkimuslaitosXRegisteredDataSourceId();
+                var demoOrganization1RegisteredDataSource = await _demoDataService.GetOrganization1RegisteredDataSource();
+                var demoOrganization2RegisteredDataSource = await _demoDataService.GetOrganization2RegisteredDataSource();
 
                 // TODO: enumerate Constants.FieldIdentifiers
                 var fieldIdentifiers = new List<int>
@@ -148,7 +148,7 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
 
 
-                // DimFieldDisplaySettings for demo: Yliopisto A registered data source
+                // DimFieldDisplaySettings for demo: Organization 1 registered data source
                 foreach (int fieldIdentifier in fieldIdentifiers)
                 {
                     var dimFieldDisplaySetting = new DimFieldDisplaySetting()
@@ -164,14 +164,14 @@ namespace api.Controllers
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
                         {
                             DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
-                            DimRegisteredDataSourceId = yliopistoARegisteredDataSourceId
+                            DimRegisteredDataSourceId = demoOrganization1RegisteredDataSource.Id
                         }
                     );
                     _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
                 }
                 await _ttvContext.SaveChangesAsync();
 
-                // DimFieldDisplaySettings for demo: Tutkimuslaitos X registered data source
+                // DimFieldDisplaySettings for demo: Organization 2 registered data source
                 foreach (int fieldIdentifier in fieldIdentifiers)
                 {
                     var dimFieldDisplaySetting = new DimFieldDisplaySetting()
@@ -187,7 +187,7 @@ namespace api.Controllers
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
                         {
                             DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
-                            DimRegisteredDataSourceId = tutkimuslaitosXRegisteredDataSourceId
+                            DimRegisteredDataSourceId = demoOrganization2RegisteredDataSource.Id
                         }
                     );
                     _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);

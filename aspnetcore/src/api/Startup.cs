@@ -104,8 +104,9 @@ namespace api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DemoDataService demoDataService)
         {
-            // Add registered data sources used in demo
-            demoDataService.AddRegisteredDatasources();
+            // Add registered data sources, organizations etc. needed in demo.
+            // Most of demo data is added to each user, who creates a profile.
+            demoDataService.InitDemo();
 
             if (env.IsDevelopment())
             {
