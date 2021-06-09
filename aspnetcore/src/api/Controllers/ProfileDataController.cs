@@ -161,7 +161,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.nameGroups.Add(nameGroup);
+                        if (nameGroup.items.Count > 0)
+                        {
+                            profileDataResponse.personal.nameGroups.Add(nameGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
                         var otherNameGroup = new ProfileEditorGroupOtherName()
@@ -201,7 +204,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.otherNameGroups.Add(otherNameGroup);
+                        if (otherNameGroup.items.Count > 0)
+                        {
+                            profileDataResponse.personal.otherNameGroups.Add(otherNameGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
                         var researcherDescriptionGroup = new ProfileEditorGroupResearcherDescription()
@@ -243,7 +249,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.researcherDescriptionGroups.Add(researcherDescriptionGroup);
+                        if (researcherDescriptionGroup.items.Count > 0)
+                        {
+                            profileDataResponse.personal.researcherDescriptionGroups.Add(researcherDescriptionGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.PERSON_WEB_LINK:
                         var webLinkGroup = new ProfileEditorGroupWebLink()
@@ -284,7 +293,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.webLinkGroups.Add(webLinkGroup);
+                        if (webLinkGroup.items.Count > 0)
+                        {
+                            profileDataResponse.personal.webLinkGroups.Add(webLinkGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
                         var emailGroup = new ProfileEditorGroupEmail()
@@ -324,7 +336,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.emailGroups.Add(emailGroup);
+                        if (emailGroup.items.Count > 0)
+                        {
+                            profileDataResponse.personal.emailGroups.Add(emailGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
                         var telephoneNumberGroup = new ProfileEditorGroupTelephoneNumber()
@@ -364,7 +379,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.telephoneNumberGroups.Add(telephoneNumberGroup);
+                        if (telephoneNumberGroup.items.Count > 0)
+                        {
+                            profileDataResponse.personal.telephoneNumberGroups.Add(telephoneNumberGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.PERSON_KEYWORD:
                         var keywordGroup = new ProfileEditorGroupKeyword()
@@ -404,7 +422,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.keywordGroups.Add(keywordGroup);
+                        if (keywordGroup.items.Count > 0)
+                        {
+                            profileDataResponse.personal.keywordGroups.Add(keywordGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
                         var externalIdentifierGroup = new ProfileEditorGroupExternalIdentifier()
@@ -445,7 +466,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.personal.externalIdentifierGroups.Add(externalIdentifierGroup);
+                        if (externalIdentifierGroup.items.Count > 0)
+                        {
+                            profileDataResponse.personal.externalIdentifierGroups.Add(externalIdentifierGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
                         var affiliationGroup = new ProfileEditorGroupAffiliation()
@@ -508,7 +532,10 @@ namespace api.Controllers
                             }
                             affiliationGroup.items.Add(affiliation);
                         }
-                        profileDataResponse.activity.affiliationGroups.Add(affiliationGroup);
+                        if (affiliationGroup.items.Count > 0)
+                        {
+                            profileDataResponse.activity.affiliationGroups.Add(affiliationGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
                         var educationGroup = new ProfileEditorGroupEducation()
@@ -534,36 +561,46 @@ namespace api.Controllers
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
-                            educationGroup.items.Add(
-                                new ProfileEditorItemEducation()
+                            var education = new ProfileEditorItemEducation()
+                            {
+                                NameFi = ffv.DimEducation.NameFi,
+                                NameEn = ffv.DimEducation.NameEn,
+                                NameSv = ffv.DimEducation.NameSv,
+                                DegreeGrantingInstitutionName = ffv.DimEducation.DegreeGrantingInstitutionName,
+                                itemMeta = new ProfileEditorItemMeta()
                                 {
-                                    NameFi = ffv.DimEducation.NameFi,
-                                    NameEn = ffv.DimEducation.NameEn,
-                                    NameSv = ffv.DimEducation.NameSv,
-                                    DegreeGrantingInstitutionName = ffv.DimEducation.DegreeGrantingInstitutionName,
-                                    StartDate = new ProfileEditorItemDate()
-                                    {
-                                        Year = ffv.DimEducation.DimStartDateNavigation.Year,
-                                        Month = ffv.DimEducation.DimStartDateNavigation.Month,
-                                        Day = ffv.DimEducation.DimStartDateNavigation.Day
-                                    },
-                                    EndDate = new ProfileEditorItemDate()
-                                    {
-                                        Year = ffv.DimEducation.DimEndDateNavigation.Year,
-                                        Month = ffv.DimEducation.DimEndDateNavigation.Month,
-                                        Day = ffv.DimEducation.DimEndDateNavigation.Day
-                                    },
-                                    itemMeta = new ProfileEditorItemMeta()
-                                    {
-                                        Id = ffv.DimEducationId,
-                                        Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
-                                        Show = ffv.Show,
-                                        PrimaryValue = ffv.PrimaryValue
-                                    }
+                                    Id = ffv.DimEducationId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                    Show = ffv.Show,
+                                    PrimaryValue = ffv.PrimaryValue
                                 }
-                            );
+                            };
+                            // Education StartDate can be null
+                            if (ffv.DimEducation.DimStartDateNavigation != null)
+                            {
+                                education.StartDate = new ProfileEditorItemDate()
+                                {
+                                    Year = ffv.DimEducation.DimStartDateNavigation.Year,
+                                    Month = ffv.DimEducation.DimStartDateNavigation.Month,
+                                    Day = ffv.DimEducation.DimStartDateNavigation.Day
+                                };
+                            }
+                            // Education EndDate can be null
+                            if (ffv.DimEducation.DimEndDateNavigation != null)
+                            {
+                                education.EndDate = new ProfileEditorItemDate()
+                                {
+                                    Year = ffv.DimEducation.DimEndDateNavigation.Year,
+                                    Month = ffv.DimEducation.DimEndDateNavigation.Month,
+                                    Day = ffv.DimEducation.DimEndDateNavigation.Day
+                                };
+                            }
+                            educationGroup.items.Add(education);
                         }
-                        profileDataResponse.activity.educationGroups.Add(educationGroup);
+                        if (educationGroup.items.Count > 0)
+                        { 
+                            profileDataResponse.activity.educationGroups.Add(educationGroup);
+                        }
                         break;
                     case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
                         var publicationGroup = new ProfileEditorGroupPublication()
@@ -605,7 +642,10 @@ namespace api.Controllers
                                 }
                             );
                         }
-                        profileDataResponse.activity.publicationGroups.Add(publicationGroup);
+                        if (publicationGroup.items.Count > 0)
+                        {
+                            profileDataResponse.activity.publicationGroups.Add(publicationGroup);
+                        }
                         break;
                     default:
                         break;

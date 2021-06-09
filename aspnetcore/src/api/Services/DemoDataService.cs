@@ -585,9 +585,7 @@ namespace api.Services
 
 
             // Affiliation
-
             var affiliationType = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO && drd.NameFi == "Työsuhde");
-
             var dimFieldDisplaySettings_affiliation_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
             var dimStartDate_affiliation_organization1 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2020 && dd.Month == 1 && dd.Day == 1);
             if (dimStartDate_affiliation_organization1 == null)
@@ -612,7 +610,7 @@ namespace api.Services
                 PositionNameFi = "Akatemiatutkija",
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 Created = DateTime.Now,
-                DimRegisteredDataSourceId = -1
+                DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimAffiliations.Add(dimAffiliation_Organization1);
             await _ttvContext.SaveChangesAsync();
@@ -663,7 +661,7 @@ namespace api.Services
                 PositionNameFi = "Erikoistutkija",
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 Created = DateTime.Now,
-                DimRegisteredDataSourceId = -1
+                DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimAffiliations.Add(dimAffiliation_Organization2);
             await _ttvContext.SaveChangesAsync();
@@ -674,6 +672,44 @@ namespace api.Services
             factFieldValue_affiliation_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
             factFieldValue_affiliation_Organization2.Created = DateTime.Now;
             _ttvContext.FactFieldValues.Add(factFieldValue_affiliation_Organization2);
+            await _ttvContext.SaveChangesAsync();
+
+
+            // Education
+            var dimFieldDisplaySettings_education_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
+            var dimEndDate_education_organization2 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2011 && dd.Month == 0 && dd.Day == 0);
+            if (dimEndDate_education_organization2 == null)
+            {
+                dimEndDate_education_organization2 = new DimDate()
+                {
+                    Year = 2011,
+                    Month = 0,
+                    Day = 0,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    Created = DateTime.Now
+                };
+                _ttvContext.DimDates.Add(dimEndDate_education_organization2);
+                await _ttvContext.SaveChangesAsync();
+            }
+            var dimEducation_Organization2 = new DimEducation()
+            {
+                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                NameFi = "Filosofian tohtori, luonnontieteellinen ala",
+                DegreeGrantingInstitutionName = "Yliopisto Y",
+                DimEndDate = dimEndDate_education_organization2.Id,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                Created = DateTime.Now,
+                DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
+            };
+            _ttvContext.DimEducations.Add(dimEducation_Organization2);
+            await _ttvContext.SaveChangesAsync();
+            var factFieldValue_education_Organization2 = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_education_Organization2.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_education_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_education_Organization2.Id;
+            factFieldValue_education_Organization2.DimEducationId = dimEducation_Organization2.Id;
+            factFieldValue_education_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_education_Organization2.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_education_Organization2);
             await _ttvContext.SaveChangesAsync();
         }
     }
