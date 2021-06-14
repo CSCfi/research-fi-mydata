@@ -156,37 +156,37 @@ namespace identityserver
                 var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
                 context.Database.Migrate();
 
-                // Add Javascript client
-                if (Configuration["JavaScriptClient:AllowedCorsOrigin"] != null)
+                // Remove old Javascript client to ensure AllowedCorsOrigins, RedirectUris and PostLogoutRedirectUris are updated
+                var oldJsClient = context.Clients.FirstOrDefault(c => c.ClientId == "js");
+                if (oldJsClient != null)
                 {
-                    var newJsClient = new Client
-                    {
-                        ClientId = "js",
-                        ClientName = "JavaScript Client",
-                        AllowedGrantTypes = GrantTypes.Code,
-                        RequireClientSecret = false,
-
-                        RedirectUris = { Configuration["JavaScriptClient:RedirectUri"] },
-                        PostLogoutRedirectUris = { Configuration["JavaScriptClient:PostLogoutRedirectUri"] },
-                        AllowedCorsOrigins = { Configuration["JavaScriptClient:AllowedCorsOrigin"] },
-
-                        AllowedScopes =
-                            {
-                                IdentityServerConstants.StandardScopes.OpenId,
-                                IdentityServerConstants.StandardScopes.Profile,
-                                "api1"
-                            },
-                        AlwaysIncludeUserClaimsInIdToken = true
-                    };
-
-                    // Insert new client into db only if it does not already exist
-                    var existingJsClient = context.Clients.FirstOrDefault(c => c.ClientId == newJsClient.ClientId);
-                    if (existingJsClient == null)
-                    {
-                        context.Clients.Add(newJsClient.ToEntity());
-                        context.SaveChanges();
-                    }
+                    context.Clients.Remove(oldJsClient);
+                    context.SaveChanges();
                 }
+
+                // New Javascript client
+                var newJsClient = new Client()
+                {
+                    ClientId = "js",
+                    ClientName = "JavaScript Client",
+                    AllowedGrantTypes = GrantTypes.Code,
+                    RequireClientSecret = false,
+
+                    RedirectUris = { Configuration["JavaScriptClient:Dev:RedirectUri"], Configuration["JavaScriptClient:Test:RedirectUri"] },
+                    PostLogoutRedirectUris = { Configuration["JavaScriptClient:Dev:PostLogoutRedirectUri"], Configuration["JavaScriptClient:Test:PostLogoutRedirectUri"] },
+                    AllowedCorsOrigins = { Configuration["JavaScriptClient:Dev:AllowedCorsOrigin"], Configuration["JavaScriptClient:Test:AllowedCorsOrigin"] },
+
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        "api1"
+                    },
+                    AlwaysIncludeUserClaimsInIdToken = true
+                };
+                context.Clients.Add(newJsClient.ToEntity());
+                context.SaveChanges();
+                
 
                 // Add identity resource - OpenId
                 var newIdentityResourceOpenId = new IdentityResources.OpenId();
