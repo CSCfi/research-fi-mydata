@@ -105,8 +105,8 @@ namespace api.Controllers
 
                 // Add DimFieldDisplaySettings for data sources ORCID and DEMO
                 var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
-                var demoOrganization1RegisteredDataSource = await _demoDataService.GetOrganization1RegisteredDataSource();
-                var demoOrganization2RegisteredDataSource = await _demoDataService.GetOrganization2RegisteredDataSource();
+                var demoOrganization1RegisteredDataSource = await _demoDataService.GetOrganization1RegisteredDataSourceAsync();
+                var demoOrganization2RegisteredDataSource = await _demoDataService.GetOrganization2RegisteredDataSourceAsync();
 
                 // TODO: enumerate Constants.FieldIdentifiers
                 var fieldIdentifiers = new List<int>
@@ -120,6 +120,7 @@ namespace api.Controllers
                     Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
                     Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
                     Constants.FieldIdentifiers.PERSON_WEB_LINK,
+                    Constants.FieldIdentifiers.ACTIVITY_ROLE_IN_RESERCH_COMMUNITY,
                     Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
                     Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
                     Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
@@ -157,7 +158,7 @@ namespace api.Controllers
                         FieldIdentifier = fieldIdentifier,
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.DEMO,
-                        SourceDescription = "Yliopisto A",
+                        SourceDescription = _demoDataService.GetDemoOrganization1Name(),
                         Created = DateTime.Now
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
@@ -180,7 +181,7 @@ namespace api.Controllers
                         FieldIdentifier = fieldIdentifier,
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.DEMO,
-                        SourceDescription = "Tutkimuslaitos X",
+                        SourceDescription = _demoDataService.GetDemoOrganization2Name(),
                         Created = DateTime.Now
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
@@ -235,6 +236,8 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearchActivity)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearcherToResearchCommunity)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimEvent)
                 .Include(dup => dup.FactFieldValues)

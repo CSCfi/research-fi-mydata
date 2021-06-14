@@ -94,7 +94,11 @@ namespace api.Controllers
                         .ThenInclude(ffv => ffv.DimCompetence).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchCommunity).AsNoTracking()
+                        .ThenInclude(ffv => ffv.DimResearchCommunity).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimResearcherToResearchCommunity)
+                            .ThenInclude(drtrc => drtrc.DimResearchCommunity).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimTelephoneNumber).AsNoTracking()
@@ -471,6 +475,9 @@ namespace api.Controllers
                             profileDataResponse.personal.externalIdentifierGroups.Add(externalIdentifierGroup);
                         }
                         break;
+                    case Constants.FieldIdentifiers.ACTIVITY_ROLE_IN_RESERCH_COMMUNITY:
+                        // TODO
+                        break;
                     case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
                         var affiliationGroup = new ProfileEditorGroupAffiliation()
                         {
@@ -629,7 +636,7 @@ namespace api.Controllers
                             publicationGroup.items.Add(
                                 new ProfileEditorItemPublication()
                                 {
-                                    PublicatonName = ffv.DimOrcidPublication.PublicationName,
+                                    PublicationName = ffv.DimOrcidPublication.PublicationName,
                                     PublicationYear = ffv.DimOrcidPublication.PublicationYear,
                                     DoiHandle = ffv.DimOrcidPublication.DoiHandle,
                                     itemMeta = new ProfileEditorItemMeta()

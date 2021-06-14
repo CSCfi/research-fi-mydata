@@ -709,7 +709,7 @@ namespace api.Controllers
                     // Update existing DimOrcidPublication
                     var dimOrcidPublication = factFieldValuesPublication.DimOrcidPublication;
                     dimOrcidPublication.OrcidWorkType = orcidPublication.Type;
-                    dimOrcidPublication.PublicationName = orcidPublication.PublicatonName;
+                    dimOrcidPublication.PublicationName = orcidPublication.PublicationName;
                     dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
                     dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
                     dimOrcidPublication.Modified = DateTime.Now;
@@ -723,7 +723,7 @@ namespace api.Controllers
                     // Create new DimOrcidPublication
                     var dimOrcidPublication = _userProfileService.GetEmptyDimOrcidPublication();
                     dimOrcidPublication.OrcidWorkType = orcidPublication.Type;
-                    dimOrcidPublication.PublicationName = orcidPublication.PublicatonName;
+                    dimOrcidPublication.PublicationName = orcidPublication.PublicationName;
                     dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
                     dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
                     dimOrcidPublication.SourceId = Constants.SourceIdentifiers.ORCID;

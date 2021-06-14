@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models;
@@ -11,8 +11,10 @@ namespace api.Services
     {
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
-        private readonly string DemoOrganization1 = "Yliopisto A";
-        private readonly string DemoOrganization2 = "Tutkimuslaitos X";
+        private readonly string DemoOrganization1Name = "Yliopisto A";
+        private readonly string DemoOrganization2Name = "Tutkimuslaitos X";
+        private readonly string DemoOrganization1DataSourceName = "Testidata";
+        private readonly string DemoOrganization2DataSourceName = "Testidata";
 
         public DemoDataService(TtvContext ttvContext, UserProfileService userProfileService)
         {
@@ -20,17 +22,48 @@ namespace api.Services
             _userProfileService = userProfileService;
         }
 
+        public string GetDemoOrganization1Name()
+        {
+            return this.DemoOrganization1Name;
+        }
+
+        public string GetDemoOrganization2Name()
+        {
+            return this.DemoOrganization2Name;
+        }
+
+        public DimOrganization GetOrganization1()
+        {
+            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization1Name);
+        }
+
+        public DimOrganization GetOrganization2()
+        {
+            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization2Name);
+        }
+
+        public DimRegisteredDataSource GetOrganization1RegisteredDataSource()
+        {
+            var organization1 = this.GetOrganization1();
+            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganizationId == organization1.Id && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+        }
+
+        public DimRegisteredDataSource GetOrganization2RegisteredDataSource()
+        {
+            var organization2 = this.GetOrganization2();
+            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganizationId == organization2.Id && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+        }
 
         public void AddOrganizations()
         {
             // Organization 1
-            var organization1 = _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization1);
+            var organization1 = this.GetOrganization1();
             if (organization1 == null)
             {
                 organization1 = new DimOrganization()
                 {
                     DimSectorid = -1,
-                    NameFi = this.DemoOrganization1,
+                    NameFi = this.DemoOrganization1Name,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     Created = DateTime.Now,
                     DimRegisteredDataSourceId = -1
@@ -39,13 +72,13 @@ namespace api.Services
             }
 
             // Organization 2
-            var organization2 = _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization2);
+            var organization2 = this.GetOrganization2();
             if (organization2 == null)
             {
                 organization2 = new DimOrganization()
                 {
                     DimSectorid = -1,
-                    NameFi = this.DemoOrganization2,
+                    NameFi = this.DemoOrganization2Name,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     Created = DateTime.Now,
                     DimRegisteredDataSourceId = -1
@@ -60,13 +93,13 @@ namespace api.Services
         public void AddRegisteredDatasources()
         {
             // Registered data source 1
-            var organization1 = _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefault(org => org.NameFi == this.DemoOrganization1);
-            var registeredDatasourceOrg1 = _ttvContext.DimRegisteredDataSources.FirstOrDefault(drds => drds.SourceId == Constants.SourceIdentifiers.DEMO && drds.Name == this.DemoOrganization1);
+            var organization1 = this.GetOrganization1();
+            var registeredDatasourceOrg1 = this.GetOrganization1RegisteredDataSource();
             if (registeredDatasourceOrg1 == null)
             {
                 registeredDatasourceOrg1 = new DimRegisteredDataSource()
                 {
-                    Name = "Testidata",
+                    Name = this.DemoOrganization1DataSourceName,
                     DimOrganizationId = organization1.Id,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     Created = DateTime.Now
@@ -75,13 +108,13 @@ namespace api.Services
             }
 
             // Registered data source 2
-            var organization2 = _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefault(org => org.NameFi == this.DemoOrganization2);
-            var registeredDatasourceOrg2 = _ttvContext.DimRegisteredDataSources.FirstOrDefault(drds => drds.Name == this.DemoOrganization2);
+            var organization2 = this.GetOrganization2();
+            var registeredDatasourceOrg2 = this.GetOrganization2RegisteredDataSource();
             if (registeredDatasourceOrg2 == null)
             {
                 registeredDatasourceOrg2 = new DimRegisteredDataSource()
                 {
-                    Name = "Testidata",
+                    Name = this.DemoOrganization2DataSourceName,
                     DimOrganizationId = organization2.Id,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     Created = DateTime.Now
@@ -113,45 +146,73 @@ namespace api.Services
         }
 
 
+        public void AddResearchCommunities()
+        {
+            var registeredDatasourceOrg1 = this.GetOrganization1RegisteredDataSource();
+            var registeredDatasourceOrg2 = this.GetOrganization2RegisteredDataSource();
+
+            _ttvContext.DimResearchCommunities.Add(
+                new DimResearchCommunity()
+                {
+                    NameFi = "Tutkimuskeskus A",
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    Created = DateTime.Now,
+                    DimRegisteredDataSourceId = registeredDatasourceOrg1.Id
+                }
+            );
+            _ttvContext.DimResearchCommunities.Add(
+                new DimResearchCommunity()
+                {
+                    NameFi = "Tutkimuslaitos X",
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    Created = DateTime.Now,
+                    DimRegisteredDataSourceId = registeredDatasourceOrg2.Id
+                }
+            );
+            _ttvContext.SaveChanges();
+        }
+
+
         public void InitDemo()
         {
             this.AddOrganizations();
             this.AddRegisteredDatasources();
             this.AddReferenceData(); // DimAffiliation.PositionCode => DimReferenceData
+            this.AddResearchCommunities();
         }
 
 
-        public async Task<DimOrganization> GetOrganization1()
+        public async Task<DimOrganization> GetOrganization1Async()
         {
-            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization1 && org.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization1Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
-        public async Task<DimOrganization> GetOrganization2()
+        public async Task<DimOrganization> GetOrganization2Async()
         {
-            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization2 && org.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization2Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
-        public async Task<DimRegisteredDataSource> GetOrganization1RegisteredDataSource()
+        public async Task<DimRegisteredDataSource> GetOrganization1RegisteredDataSourceAsync()
         {
-            var organization1 = await this.GetOrganization1();
-            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganizationId == organization1.Id && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            var organization1 = await this.GetOrganization1Async();
+            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganizationId == organization1.Id && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
-        public async Task<DimRegisteredDataSource> GetOrganization2RegisteredDataSource()
+        public async Task<DimRegisteredDataSource> GetOrganization2RegisteredDataSourceAsync()
         {
-            var organization2 = await this.GetOrganization2();
-            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganizationId == organization2.Id && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            var organization2 = await this.GetOrganization2Async();
+            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganizationId == organization2.Id && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
         public async Task AddDemoDataToUserProfile(DimUserProfile dimUserProfile)
         {
-            var organization1 = await this.GetOrganization1();
-            var organization2 = await this.GetOrganization2();
-            var organization1RegisteredDataSource = await this.GetOrganization1RegisteredDataSource();
-            var organization2RegisteredDataSource = await this.GetOrganization2RegisteredDataSource();
+            var organization1 = await this.GetOrganization1Async();
+            var organization2 = await this.GetOrganization2Async();
+            var organization1RegisteredDataSource = await this.GetOrganization1RegisteredDataSourceAsync();
+            var organization2RegisteredDataSource = await this.GetOrganization2RegisteredDataSourceAsync();
 
             // Name
-            var dimFieldDisplaySettings_name_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
+            var dimFieldDisplaySettings_name_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
             var dimNameOrganization1 = new DimName()
             {
                 FirstNames = "Tuisku",
@@ -163,7 +224,7 @@ namespace api.Services
             };
             _ttvContext.DimNames.Add(dimNameOrganization1);
 
-            var dimFieldDisplaySettings_name_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
+            var dimFieldDisplaySettings_name_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
             var dimNameOrganization2 = new DimName()
             {
                 FirstNames = "Ami",
@@ -194,7 +255,7 @@ namespace api.Services
 
 
             // Other names
-            var dimFieldDisplaySettings_othername_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
+            var dimFieldDisplaySettings_othername_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
             var dimOtherNameOrganization1_1 = new DimName()
             {
                 FullName = "T. Tutkija",
@@ -213,7 +274,7 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimOtherNameOrganization1_2);
-            var dimFieldDisplaySettings_othername_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
+            var dimFieldDisplaySettings_othername_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
             var dimOtherNameOrganization2 = new DimName()
             {
                 FullName = "Tuisku Tutkija",
@@ -249,7 +310,7 @@ namespace api.Services
 
 
             // External identifiers (DimPid)
-            var dimFieldDisplaySettings_externalIdentifier_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
+            var dimFieldDisplaySettings_externalIdentifier_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
             var dimPid_Organization1 = new DimPid()
             {
                 PidContent = "O-2000-1000",
@@ -259,7 +320,7 @@ namespace api.Services
                 Created = DateTime.Now
             };
             _ttvContext.DimPids.Add(dimPid_Organization1);
-            var dimFieldDisplaySettings_externalIdentifier_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
+            var dimFieldDisplaySettings_externalIdentifier_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
             var dimPid_Organization2 = new DimPid()
             {
                 PidContent = "https://isni.org/isni/0000000100020003",
@@ -288,7 +349,7 @@ namespace api.Services
 
 
             // Researcher description
-            var dimFieldDisplaySettings_researcherDescription_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
+            var dimFieldDisplaySettings_researcherDescription_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
             var dimResearcherDescription_Organization1 = new DimResearcherDescription()
             {
                 ResearchDescriptionFi = "Tutkimuksen kuvausta suomeksi. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -300,7 +361,7 @@ namespace api.Services
                 Created = DateTime.Now
             };
             _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription_Organization1);
-            var dimFieldDisplaySettings_researcherDescription_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
+            var dimFieldDisplaySettings_researcherDescription_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
             var dimResearcherDescription_Organization2 = new DimResearcherDescription()
             {
                 ResearchDescriptionFi = "Tutkimuksen kuvausta suomeksi. Duis finibus velit rutrum euismod scelerisque. Praesent sit amet fermentum ex. Donec vitae tellus eu nisl dignissim laoreet.",
@@ -329,7 +390,7 @@ namespace api.Services
 
 
             // Keywords
-            var dimFieldDisplaySettings_keyword_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
+            var dimFieldDisplaySettings_keyword_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
             var dimKeyword1_Organization1 = new DimKeyword()
             {
                 Keyword = "digitalisaatio",
@@ -362,7 +423,7 @@ namespace api.Services
             _ttvContext.DimKeywords.Add(dimKeyword2_Organization1);
             _ttvContext.DimKeywords.Add(dimKeyword3_Organization1);
             _ttvContext.DimKeywords.Add(dimKeyword4_Organization1);
-            var dimFieldDisplaySettings_keyword_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
+            var dimFieldDisplaySettings_keyword_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
             var dimKeyword1_Organization2 = new DimKeyword()
             {
                 Keyword = "digitalization",
@@ -503,7 +564,7 @@ namespace api.Services
 
 
             // Email
-            var dimFieldDisplaySettings_email_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
+            var dimFieldDisplaySettings_email_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
             var dimEmail_Organization1 = new DimEmailAddrress()
             {
                 Email = "tuisku.tutkija@yliopisto.fi",
@@ -513,7 +574,7 @@ namespace api.Services
                 Created = DateTime.Now
             };
             _ttvContext.DimEmailAddrresses.Add(dimEmail_Organization1);
-            var dimFieldDisplaySettings_email_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
+            var dimFieldDisplaySettings_email_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
             var dimEmail_Organization2 = new DimEmailAddrress()
             {
                 Email = "ami.asiantuntija@tutkimuslaitos.fi",
@@ -542,7 +603,7 @@ namespace api.Services
 
 
             // Telephone number
-            var dimFieldDisplaySettings_telephone_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER);
+            var dimFieldDisplaySettings_telephone_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER);
             var dimTelephone_Organization1 = new DimTelephoneNumber()
             {
                 TelephoneNumber = "+35899999999",
@@ -564,7 +625,7 @@ namespace api.Services
 
 
             // Web link
-            var dimFieldDisplaySettings_weblink_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK);
+            var dimFieldDisplaySettings_weblink_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK);
             var dimWeblink_Organization1 = new DimWebLink()
             {
                 Url = "https://tutkijanomaverkkosivu.yliopisto.fii",
@@ -584,9 +645,13 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
 
 
+            // Role in research community
+
+
+
             // Affiliation
             var affiliationType = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO && drd.NameFi == "Työsuhde");
-            var dimFieldDisplaySettings_affiliation_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
+            var dimFieldDisplaySettings_affiliation_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
             var dimStartDate_affiliation_organization1 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2020 && dd.Month == 1 && dd.Day == 1);
             if (dimStartDate_affiliation_organization1 == null)
             {
@@ -622,7 +687,7 @@ namespace api.Services
             factFieldValue_affiliation_Organization1.Created = DateTime.Now;
             _ttvContext.FactFieldValues.Add(factFieldValue_affiliation_Organization1);
             await _ttvContext.SaveChangesAsync();
-            var dimFieldDisplaySettings_affiliation_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
+            var dimFieldDisplaySettings_affiliation_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
             var dimStartDate_affiliation_organization2 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2016 && dd.Month == 1 && dd.Day == 1);
             if (dimStartDate_affiliation_organization2 == null)
             {
@@ -676,7 +741,7 @@ namespace api.Services
 
 
             // Education
-            var dimFieldDisplaySettings_education_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
+            var dimFieldDisplaySettings_education_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
             var dimEndDate_education_organization2 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2011 && dd.Month == 0 && dd.Day == 0);
             if (dimEndDate_education_organization2 == null)
             {

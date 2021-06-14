@@ -8,12 +8,12 @@ namespace api.Models
     {
         public ProfileEditorItemPublication()
         {
-            PublicatonName = "";
+            PublicationName = "";
             PublicationYear = null;
             DoiHandle = "";
         }
 
-        public string PublicatonName { get; set; }
+        public string PublicationName { get; set; }
         public int? PublicationYear { get; set; }
         public string DoiHandle { get; set; }
     }

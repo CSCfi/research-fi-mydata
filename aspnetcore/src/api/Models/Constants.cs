@@ -16,6 +16,7 @@ namespace api.Models
             public const int PERSON_EMAIL_ADDRESS = 171;
             public const int PERSON_TELEPHONE_NUMBER = 172;
             public const int PERSON_WEB_LINK = 180;
+            public const int ACTIVITY_ROLE_IN_RESERCH_COMMUNITY = 200;
             public const int ACTIVITY_AFFILIATION = 300;
             public const int ACTIVITY_EDUCATION = 400;
             public const int ACTIVITY_PUBLICATION = 500;
