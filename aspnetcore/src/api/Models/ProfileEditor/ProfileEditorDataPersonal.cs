@@ -14,6 +14,7 @@ namespace api.Models
             telephoneNumberGroups = new List<ProfileEditorGroupTelephoneNumber>();
             webLinkGroups = new List<ProfileEditorGroupWebLink> ();
             keywordGroups = new List<ProfileEditorGroupKeyword>();
+            fieldOfScienceGroups = new List<ProfileEditorGroupFieldOfScience>();
             researcherDescriptionGroups = new List<ProfileEditorGroupResearcherDescription>();
             externalIdentifierGroups = new List<ProfileEditorGroupExternalIdentifier>();
         }
@@ -24,6 +25,7 @@ namespace api.Models
         public List<ProfileEditorGroupTelephoneNumber> telephoneNumberGroups { get; set; }
         public List<ProfileEditorGroupWebLink> webLinkGroups { get; set; }
         public List<ProfileEditorGroupKeyword> keywordGroups { get; set; }
+        public List<ProfileEditorGroupFieldOfScience> fieldOfScienceGroups { get; set; }
         public List<ProfileEditorGroupResearcherDescription> researcherDescriptionGroups { get; set; }
         public List<ProfileEditorGroupExternalIdentifier> externalIdentifierGroups { get; set; }
     }

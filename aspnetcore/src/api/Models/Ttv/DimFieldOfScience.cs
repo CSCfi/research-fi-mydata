@@ -15,6 +15,7 @@ namespace api.Models.Ttv
             BrResearchDatasetDimFieldOfSciences = new HashSet<BrResearchDatasetDimFieldOfScience>();
             DimFieldOfScienceDimResearchActivities = new HashSet<DimFieldOfScienceDimResearchActivity>();
             DimKnownPersonDimFieldOfSciences = new HashSet<DimKnownPersonDimFieldOfScience>();
+            FactFieldValues = new HashSet<FactFieldValue>();
         }
 
         public int Id { get; set; }
@@ -33,5 +34,6 @@ namespace api.Models.Ttv
         public virtual ICollection<BrResearchDatasetDimFieldOfScience> BrResearchDatasetDimFieldOfSciences { get; set; }
         public virtual ICollection<DimFieldOfScienceDimResearchActivity> DimFieldOfScienceDimResearchActivities { get; set; }
         public virtual ICollection<DimKnownPersonDimFieldOfScience> DimKnownPersonDimFieldOfSciences { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
     }
 }

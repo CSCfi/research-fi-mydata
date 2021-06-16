@@ -34,6 +34,7 @@ namespace api.Models.Ttv
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
+        public int DimFieldOfScienceId { get; set; }
 
         public virtual DimAffiliation DimAffiliation { get; set; }
         public virtual DimCompetence DimCompetence { get; set; }
@@ -41,6 +42,7 @@ namespace api.Models.Ttv
         public virtual DimEmailAddrress DimEmailAddrress { get; set; }
         public virtual DimEvent DimEvent { get; set; }
         public virtual DimFieldDisplaySetting DimFieldDisplaySettings { get; set; }
+        public virtual DimFieldOfScience DimFieldOfScience { get; set; }
         public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimIdentifierlessDatum DimIdentifierlessData { get; set; }
         public virtual DimKeyword DimKeyword { get; set; }

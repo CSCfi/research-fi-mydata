@@ -260,7 +260,9 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimKeyword).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimKeyword)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFieldOfScience).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
             {
@@ -396,6 +398,12 @@ namespace api.Controllers
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
                     _ttvContext.DimKeywords.Remove(ffv.DimKeyword);
+                }
+
+                // Remove related DimFieldOfScience
+                else if (ffv.DimFieldOfScienceId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
                 }
             }
             await _ttvContext.SaveChangesAsync();

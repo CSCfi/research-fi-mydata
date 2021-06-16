@@ -116,7 +116,10 @@ namespace api.Controllers
                         .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
-                        .ThenInclude(ffv => ffv.DimKeyword).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                        .ThenInclude(ffv => ffv.DimKeyword).AsNoTracking()
+                .Include(dup => dup.DimFieldDisplaySettings)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimFieldOfScience).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             var profileDataResponse = new ProfileEditorDataResponse() {};
 
@@ -386,6 +389,49 @@ namespace api.Controllers
                         if (telephoneNumberGroup.items.Count > 0)
                         {
                             profileDataResponse.personal.telephoneNumberGroups.Add(telephoneNumberGroup);
+                        }
+                        break;
+                    case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
+                        var fieldOfScienceGroup = new ProfileEditorGroupFieldOfScience()
+                        {
+                            source = new ProfileEditorSource()
+                            {
+                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                                Organization = new ProfileEditorSourceOrganization()
+                                {
+                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                                }
+                            },
+                            items = new List<ProfileEditorItemFieldOfScience>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            fieldOfScienceGroup.items.Add(
+                                new ProfileEditorItemFieldOfScience()
+                                {
+                                    NameFi = ffv.DimFieldOfScience.NameFi,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimFieldOfScienceId,
+                                        Type = Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE,
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
+                                    }
+                                }
+                            );
+                        }
+                        if (fieldOfScienceGroup.items.Count > 0)
+                        {
+                            profileDataResponse.personal.fieldOfScienceGroups.Add(fieldOfScienceGroup);
                         }
                         break;
                     case Constants.FieldIdentifiers.PERSON_KEYWORD:

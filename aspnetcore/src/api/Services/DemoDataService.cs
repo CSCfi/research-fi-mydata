@@ -1,4 +1,5 @@
 ﻿    using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models;
@@ -15,6 +16,10 @@ namespace api.Services
         private readonly string DemoOrganization2Name = "Tutkimuslaitos X";
         private readonly string DemoOrganization1DataSourceName = "Testidata";
         private readonly string DemoOrganization2DataSourceName = "Testidata";
+        private readonly string DemoOrganization1FieldOfScience1 = "Fysiikka";
+        private readonly string DemoOrganization1FieldOfScience2 = "Historia";
+        private readonly string DemoOrganization2FieldOfScience1 = "Yleislääketiede";
+        private readonly string DemoOrganization2FieldOfScience2 = "Sisätaudit ja muut kliiniset lääketieteet";
 
         public DemoDataService(TtvContext ttvContext, UserProfileService userProfileService)
         {
@@ -146,29 +151,57 @@ namespace api.Services
         }
 
 
-        public void AddResearchCommunities()
-        {
-            var registeredDatasourceOrg1 = this.GetOrganization1RegisteredDataSource();
-            var registeredDatasourceOrg2 = this.GetOrganization2RegisteredDataSource();
+        //public void AddResearchCommunities()
+        //{
+        //    var registeredDatasourceOrg1 = this.GetOrganization1RegisteredDataSource();
+        //    var registeredDatasourceOrg2 = this.GetOrganization2RegisteredDataSource();
 
-            _ttvContext.DimResearchCommunities.Add(
-                new DimResearchCommunity()
+        //    _ttvContext.DimResearchCommunities.Add(
+        //        new DimResearchCommunity()
+        //        {
+        //            NameFi = "Tutkimuskeskus A",
+        //            SourceId = Constants.SourceIdentifiers.DEMO,
+        //            Created = DateTime.Now,
+        //            DimRegisteredDataSourceId = registeredDatasourceOrg1.Id
+        //        }
+        //    );
+        //    _ttvContext.DimResearchCommunities.Add(
+        //        new DimResearchCommunity()
+        //        {
+        //            NameFi = "Tutkimuslaitos X",
+        //            SourceId = Constants.SourceIdentifiers.DEMO,
+        //            Created = DateTime.Now,
+        //            DimRegisteredDataSourceId = registeredDatasourceOrg2.Id
+        //        }
+        //    );
+        //    _ttvContext.SaveChanges();
+        //}
+
+
+        public void AddFieldsOfScience()
+        {
+            var fieldsOfScienceNames = new List<string> {
+                this.DemoOrganization1FieldOfScience1,
+                this.DemoOrganization1FieldOfScience2,
+                this.DemoOrganization2FieldOfScience1,
+                this.DemoOrganization2FieldOfScience2
+            };
+            foreach (string fieldOfScienceName in fieldsOfScienceNames)
+            {
+                var dimFieldOfScience = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == fieldOfScienceName && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
+            
+                if (dimFieldOfScience == null)
                 {
-                    NameFi = "Tutkimuskeskus A",
-                    SourceId = Constants.SourceIdentifiers.DEMO,
-                    Created = DateTime.Now,
-                    DimRegisteredDataSourceId = registeredDatasourceOrg1.Id
+                    dimFieldOfScience = new DimFieldOfScience()
+                    {
+                        FieldId = " ",
+                        NameFi = fieldOfScienceName,
+                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        Created = DateTime.Now
+                    };
+                    _ttvContext.DimFieldOfSciences.Add(dimFieldOfScience);
                 }
-            );
-            _ttvContext.DimResearchCommunities.Add(
-                new DimResearchCommunity()
-                {
-                    NameFi = "Tutkimuslaitos X",
-                    SourceId = Constants.SourceIdentifiers.DEMO,
-                    Created = DateTime.Now,
-                    DimRegisteredDataSourceId = registeredDatasourceOrg2.Id
-                }
-            );
+            }
             _ttvContext.SaveChanges();
         }
 
@@ -178,7 +211,8 @@ namespace api.Services
             this.AddOrganizations();
             this.AddRegisteredDatasources();
             this.AddReferenceData(); // DimAffiliation.PositionCode => DimReferenceData
-            this.AddResearchCommunities();
+            //this.AddResearchCommunities();
+            this.AddFieldsOfScience();
         }
 
 
@@ -517,25 +551,49 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
 
 
-            //// Fields of science
-            //var dimFieldDisplaySettings_fieldOfScience_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
-            //var dimFieldOfScience1_Organization1 = new DimFieldOfScience()
-            //{
-            //    NameFi = "Fysiikka",
-            //    FieldId = "",
-            //    SourceId = Constants.SourceIdentifiers.DEMO,
-            //    Created = DateTime.Now
-            //};
-            //var dimFieldOfScience2_Organization1 = new DimFieldOfScience()
-            //{
-            //    NameFi = "historia",
-            //    FieldId = "",
-            //    SourceId = Constants.SourceIdentifiers.DEMO,
-            //    Created = DateTime.Now
-            //};
-            //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience1_Organization1);
-            //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience2_Organization1);
-            //var dimFieldDisplaySettings_fieldOfScience_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2 && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
+            // Fields of science org1
+            var dimFieldDisplaySettings_fieldOfScience_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
+            var dimFieldOfScience1_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
+            var dimFieldOfScience2_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
+            var factFieldValue_fieldOfScience1_Organization1 = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_fieldOfScience1_Organization1.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_fieldOfScience1_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_Organization1.Id;
+            factFieldValue_fieldOfScience1_Organization1.DimFieldOfScienceId = dimFieldOfScience1_Organization1.Id;
+            factFieldValue_fieldOfScience1_Organization1.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_fieldOfScience1_Organization1.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience1_Organization1);
+            var factFieldValue_fieldOfScience2_Organization1 = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_fieldOfScience2_Organization1.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_fieldOfScience2_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_Organization1.Id;
+            factFieldValue_fieldOfScience2_Organization1.DimFieldOfScienceId = dimFieldOfScience2_Organization1.Id;
+            factFieldValue_fieldOfScience2_Organization1.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_fieldOfScience2_Organization1.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience2_Organization1);
+
+            // Fields of science org2
+            var dimFieldDisplaySettings_fieldOfScience_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
+            var dimFieldOfScience1_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
+            var dimFieldOfScience2_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
+            var factFieldValue_fieldOfScience1_Organization2 = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_fieldOfScience1_Organization2.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_fieldOfScience1_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_Organization2.Id;
+            factFieldValue_fieldOfScience1_Organization2.DimFieldOfScienceId = dimFieldOfScience1_Organization2.Id;
+            factFieldValue_fieldOfScience1_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_fieldOfScience1_Organization2.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience1_Organization2);
+            var factFieldValue_fieldOfScience2_Organization2 = _userProfileService.GetEmptyFactFieldValue();
+            factFieldValue_fieldOfScience2_Organization2.DimUserProfileId = dimUserProfile.Id;
+            factFieldValue_fieldOfScience2_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_Organization2.Id;
+            factFieldValue_fieldOfScience2_Organization2.DimFieldOfScienceId = dimFieldOfScience2_Organization2.Id;
+            factFieldValue_fieldOfScience2_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
+            factFieldValue_fieldOfScience2_Organization2.Created = DateTime.Now;
+            _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience2_Organization2);
+
+            await _ttvContext.SaveChangesAsync();
+
+
+
+            //var dimFieldDisplaySettings_fieldOfScience_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
             //var dimFieldOfScience1_Organization2 = new DimFieldOfScience()
             //{
             //    NameFi = "Yleislääketiede",
