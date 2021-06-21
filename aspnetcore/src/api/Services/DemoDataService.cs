@@ -14,8 +14,10 @@ namespace api.Services
         private readonly UserProfileService _userProfileService;
         private readonly string DemoOrganization1Name = "Yliopisto A";
         private readonly string DemoOrganization2Name = "Tutkimuslaitos X";
+        private readonly string DemoOrganization3Name = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
         private readonly string DemoOrganization1DataSourceName = "Testidata";
         private readonly string DemoOrganization2DataSourceName = "Testidata";
+        private readonly string DemoOrganization3DataSourceName = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
         private readonly string DemoOrganization1FieldOfScience1 = "Fysiikka";
         private readonly string DemoOrganization1FieldOfScience2 = "Historia";
         private readonly string DemoOrganization2FieldOfScience1 = "Yleislääketiede";
@@ -37,6 +39,11 @@ namespace api.Services
             return this.DemoOrganization2Name;
         }
 
+        public string GetDemoOrganization3Name()
+        {
+            return this.DemoOrganization3Name;
+        }
+
         public DimOrganization GetOrganization1()
         {
             return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization1Name);
@@ -45,6 +52,11 @@ namespace api.Services
         public DimOrganization GetOrganization2()
         {
             return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization2Name);
+        }
+
+        public DimOrganization GetOrganization3()
+        {
+            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization3Name);
         }
 
         public DimRegisteredDataSource GetOrganization1RegisteredDataSource()
@@ -57,6 +69,12 @@ namespace api.Services
         {
             var organization2 = this.GetOrganization2();
             return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganizationId == organization2.Id && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+        }
+
+        public DimRegisteredDataSource GetOrganization3RegisteredDataSource()
+        {
+            var organization3 = this.GetOrganization3();
+            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganizationId == organization3.Id && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
         public void AddOrganizations()
@@ -89,6 +107,21 @@ namespace api.Services
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organization2);
+            }
+
+            // Organization 3
+            var organization3 = this.GetOrganization3();
+            if (organization3 == null)
+            {
+                organization3 = new DimOrganization()
+                {
+                    DimSectorid = -1,
+                    NameFi = this.DemoOrganization3Name,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    Created = DateTime.Now,
+                    DimRegisteredDataSourceId = -1
+                };
+                _ttvContext.DimOrganizations.Add(organization3);
             }
 
             _ttvContext.SaveChanges();
@@ -125,6 +158,21 @@ namespace api.Services
                     Created = DateTime.Now
                 };
                 _ttvContext.DimRegisteredDataSources.Add(registeredDatasourceOrg2);
+            }
+
+            // Registered data source 3
+            var organization3 = this.GetOrganization3();
+            var registeredDatasourceOrg3 = this.GetOrganization3RegisteredDataSource();
+            if (registeredDatasourceOrg3 == null)
+            {
+                registeredDatasourceOrg3 = new DimRegisteredDataSource()
+                {
+                    Name = this.DemoOrganization3DataSourceName,
+                    DimOrganizationId = organization3.Id,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    Created = DateTime.Now
+                };
+                _ttvContext.DimRegisteredDataSources.Add(registeredDatasourceOrg3);
             }
 
             _ttvContext.SaveChanges();
@@ -226,6 +274,11 @@ namespace api.Services
             return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization2Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
+        public async Task<DimOrganization> GetOrganization3Async()
+        {
+            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization3Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
+        }
+
         public async Task<DimRegisteredDataSource> GetOrganization1RegisteredDataSourceAsync()
         {
             var organization1 = await this.GetOrganization1Async();
@@ -236,6 +289,12 @@ namespace api.Services
         {
             var organization2 = await this.GetOrganization2Async();
             return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganizationId == organization2.Id && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+        }
+
+        public async Task<DimRegisteredDataSource> GetOrganization3RegisteredDataSourceAsync()
+        {
+            var organization3 = await this.GetOrganization3Async();
+            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganizationId == organization3.Id && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
         public async Task AddDemoDataToUserProfile(DimUserProfile dimUserProfile)

@@ -107,6 +107,7 @@ namespace api.Controllers
                 var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
                 var demoOrganization1RegisteredDataSource = await _demoDataService.GetOrganization1RegisteredDataSourceAsync();
                 var demoOrganization2RegisteredDataSource = await _demoDataService.GetOrganization2RegisteredDataSourceAsync();
+                var demoOrganization3RegisteredDataSource = await _demoDataService.GetOrganization3RegisteredDataSourceAsync();
 
                 // TODO: enumerate Constants.FieldIdentifiers
                 var fieldIdentifiers = new List<int>
@@ -195,6 +196,26 @@ namespace api.Controllers
                 }
                 await _ttvContext.SaveChangesAsync();
 
+                // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) publications
+                var dimFieldDisplaySettingDemoOrganization3 = new DimFieldDisplaySetting()
+                {
+                    DimUserProfileId = userprofile.Id,
+                    FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                    Show = false,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = _demoDataService.GetDemoOrganization3Name(),
+                    Created = DateTime.Now
+                };
+                dimFieldDisplaySettingDemoOrganization3.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+                    {
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3.Id,
+                        DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
+                    }
+                );
+                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3);
+                await _ttvContext.SaveChangesAsync();
+
                 // Add demo data
                 await _demoDataService.AddDemoDataToUserProfile(userprofile);
             }
@@ -266,68 +287,53 @@ namespace api.Controllers
 
             foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
             {
-                // Remove ORCID put code
+                // ORCID put code
                 if (ffv.DimPidIdOrcidPutCode != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
                     _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
                 }
 
-                // Remove related DimName
+                // DimName
                 if (ffv.DimNameId != -1)
                 {
                     _ttvContext.FactFieldValues.RemoveRange(ffv);
-                    _ttvContext.DimNames.Remove(ffv.DimName);
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimNames.Remove(ffv.DimName);
+                    }
                 }
 
-                // Remove related DimPid
+                // DimPid
                 if (ffv.DimPidId != -1)
                 {
                     _ttvContext.FactFieldValues.RemoveRange(ffv);
-                    _ttvContext.DimPids.Remove(ffv.DimPid);
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimPids.Remove(ffv.DimPid);
+                    }
                 }
 
-                // Remove related DimWebLink
+                // DimWebLink
                 else if (ffv.DimWebLinkId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimWebLinks.Remove(ffv.DimWebLink);
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimWebLinks.Remove(ffv.DimWebLink);
+                    }
                 }
 
-                // Remove related DimFundingDecision
-                else if (ffv.DimFundingDecisionId != -1)
-                {
-                    _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimFundingDecisions.Remove(ffv.DimFundingDecision);
-                }
-
-                // Remove related DimPublication
-                else if (ffv.DimPublicationId != -1)
-                {
-                    _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimPublications.Remove(ffv.DimPublication);
-                }
-
-                // Remove related DimResearchActivity
-                else if (ffv.DimResearchActivityId != -1)
-                {
-                    _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimResearchActivities.Remove(ffv.DimResearchActivity);
-                }
-
-                // Remove related DimEvent
-                else if (ffv.DimEventId != -1)
-                {
-                    _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimEvents.Remove(ffv.DimEvent);
-                }
-
-                // Remove related DimAffiliation
+                // DimAffiliation
                 else if (ffv.DimAffiliationId != -1)
                 {
                     var dimOrganization = ffv.DimAffiliation.DimOrganization;
                     _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimAffiliations.Remove(ffv.DimAffiliation);
+
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimAffiliations.Remove(ffv.DimAffiliation);
+                    }
 
                     // Remove related DimOrganization
                     // TODO: Removal of DimOrganization only in demo version, if sourceId is ORCID
@@ -337,70 +343,111 @@ namespace api.Controllers
                     }
                 }
 
-                // Remove related DimEducation
+                // DimOrcidPublication
+                else if (ffv.DimOrcidPublicationId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimOrcidPublications.Remove(ffv.DimOrcidPublication);
+                    }
+                }
+
+                // DimKeyword
+                else if (ffv.DimKeywordId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimKeywords.Remove(ffv.DimKeyword);
+                    }
+                }
+
+                // DimEducation
                 else if (ffv.DimEducationId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimEducations.Remove(ffv.DimEducation);
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimEducations.Remove(ffv.DimEducation);
+                    }
                 }
 
-                // Remove related DimCompetence
+                // DimEmail
+                else if (ffv.DimEmailAddrressId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimEmailAddrresses.Remove(ffv.DimEmailAddrress);
+                    }
+                }
+
+                // DimResearcherDescription
+                else if (ffv.DimResearcherDescriptionId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimResearcherDescriptions.Remove(ffv.DimResearcherDescription);
+                    }
+                }
+
+                // DimTelephoneNumber
+                else if (ffv.DimTelephoneNumberId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                    if (ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
+                    }
+                }
+
+                // DimFundingDecision
+                else if (ffv.DimFundingDecisionId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                }
+
+                // DimPublication
+                else if (ffv.DimPublicationId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                }
+
+                // DimResearchActivity
+                else if (ffv.DimResearchActivityId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                }
+
+                // DimEvent
+                else if (ffv.DimEventId != -1)
+                {
+                    _ttvContext.FactFieldValues.Remove(ffv);
+                }
+
+                // DimCompetence
                 else if (ffv.DimCompetenceId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
                     _ttvContext.DimCompetences.Remove(ffv.DimCompetence);
                 }
 
-                // Remove related DimResearcherCommunity
+                // DimResearcherCommunity
                 else if (ffv.DimResearchCommunityId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
                     _ttvContext.DimResearchCommunities.Remove(ffv.DimResearchCommunity);
                 }
 
-                // Remove related DimTelephoneNumber
-                else if (ffv.DimTelephoneNumberId != -1)
-                {
-                    _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
-                }
-
-                // Remove related DimEmail
-                else if (ffv.DimEmailAddrressId != -1)
-                {
-                    _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimEmailAddrresses.Remove(ffv.DimEmailAddrress);
-                }
-
-                // Remove related DimResearcherDescription
-                else if (ffv.DimResearcherDescriptionId != -1)
-                {
-                    _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimResearcherDescriptions.Remove(ffv.DimResearcherDescription);
-                }
-
-                // Remove related DimIdentifierlessData
+                // DimIdentifierlessData
                 else if (ffv.DimIdentifierlessDataId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
                 }
 
-                // Remove related DimOrcidPublication
-                else if (ffv.DimOrcidPublicationId != -1)
-                {
-                    _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimOrcidPublications.Remove(ffv.DimOrcidPublication);
-                }
-
-                // Remove related DimKeyword
-                else if (ffv.DimKeywordId != -1)
-                {
-                    _ttvContext.FactFieldValues.Remove(ffv);
-                    _ttvContext.DimKeywords.Remove(ffv.DimKeyword);
-                }
-
-                // Remove related DimFieldOfScience
+                // DimFieldOfScience
                 else if (ffv.DimFieldOfScienceId != -1)
                 {
                     _ttvContext.FactFieldValues.Remove(ffv);

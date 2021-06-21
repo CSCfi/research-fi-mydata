@@ -679,21 +679,49 @@ namespace api.Controllers
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
-                            publicationGroup.items.Add(
-                                new ProfileEditorItemPublication()
-                                {
-                                    PublicationName = ffv.DimOrcidPublication.PublicationName,
-                                    PublicationYear = ffv.DimOrcidPublication.PublicationYear,
-                                    DoiHandle = ffv.DimOrcidPublication.DoiHandle,
-                                    itemMeta = new ProfileEditorItemMeta()
+                            // DimPublication
+                            if (ffv.DimPublicationId != -1)
+                            {
+                                publicationGroup.items.Add(
+
+                                    new ProfileEditorItemPublication()
                                     {
-                                        Id = ffv.DimOrcidPublicationId,
-                                        Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
-                                        Show = ffv.Show,
-                                        PrimaryValue = ffv.PrimaryValue
+                                        PublicationName = ffv.DimPublication.PublicationName,
+                                        PublicationYear = ffv.DimPublication.PublicationYear,
+                                        DoiHandle = ffv.DimPublication.DoiHandle,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = ffv.DimPublicationId,
+                                            Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                            Show = ffv.Show,
+                                            PrimaryValue = ffv.PrimaryValue
+                                        }
                                     }
-                                }
-                            );
+
+                                );
+                            }
+
+                            // DimOrcidPublication
+                            if (ffv.DimOrcidPublicationId != -1)
+                            {
+                                publicationGroup.items.Add(
+
+                                    new ProfileEditorItemPublication()
+                                    {
+                                        PublicationName = ffv.DimOrcidPublication.PublicationName,
+                                        PublicationYear = ffv.DimOrcidPublication.PublicationYear,
+                                        DoiHandle = ffv.DimOrcidPublication.DoiHandle,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = ffv.DimOrcidPublicationId,
+                                            Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                            Show = ffv.Show,
+                                            PrimaryValue = ffv.PrimaryValue
+                                        }
+                                    }
+
+                                );
+                            }
                         }
                         if (publicationGroup.items.Count > 0)
                         {

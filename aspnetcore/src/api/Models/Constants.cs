@@ -26,6 +26,7 @@ namespace api.Models
         {
             public const string ORCID = "ORCID";
             public const string DEMO = "DEMO";
+            public const string TIEDEJATUTKIMUS = "Tiedejatutkimus.fi";
         }
     }
 }

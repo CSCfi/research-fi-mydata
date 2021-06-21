@@ -45,6 +45,19 @@ namespace api.Services
             }
         }
 
+        public async Task<int> GetTiedejatutkimusFiRegisteredDataSourceId()
+        {
+            var tiedejatutkimusfiRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(p => p.Name == Constants.SourceIdentifiers.TIEDEJATUTKIMUS);
+            if (tiedejatutkimusfiRegisteredDataSource == null)
+            {
+                return -1;
+            }
+            else
+            {
+                return tiedejatutkimusfiRegisteredDataSource.Id;
+            }
+        }
+
         public async Task<DimName> AddOrUpdateDimName(String lastName, String firstNames, int dimKnownPersonId, int dimRegisteredDataSourceId)
         {
             var dimName = await _ttvContext.DimNames.FirstOrDefaultAsync(dn => dn.DimKnownPersonIdConfirmedIdentityNavigation.Id == dimKnownPersonId && dn.DimRegisteredDataSourceId == dimRegisteredDataSourceId);
