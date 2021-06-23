@@ -16,6 +16,14 @@ namespace api.Services
             _ttvContext = ttvContext;
         }
 
+        // Check if data related to FactFieldValue can be removed.
+        public bool CanDeleteFactFieldValueRelatedData(FactFieldValue ffv)
+        {
+            // ORCID and demo data can be removed.
+            return ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO;
+        }
+
+        // Get id of DimUserProfile.
         public async Task<int> GetUserprofileId(String orcidId)
         {
             var dimPid = await _ttvContext.DimPids
@@ -32,6 +40,7 @@ namespace api.Services
             }
         }
 
+        // Get id of ORCID DimRegisteredDataSource.
         public async Task<int> GetOrcidRegisteredDataSourceId()
         {
             var orcidRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(p => p.Name == "ORCID");
@@ -45,6 +54,7 @@ namespace api.Services
             }
         }
 
+        // Get id of Tiedejatutkimus.fi DimRegisteredDataSource.
         public async Task<int> GetTiedejatutkimusFiRegisteredDataSourceId()
         {
             var tiedejatutkimusfiRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(p => p.Name == Constants.SourceIdentifiers.TIEDEJATUTKIMUS);
@@ -58,6 +68,7 @@ namespace api.Services
             }
         }
 
+        // Add or update DimName.
         public async Task<DimName> AddOrUpdateDimName(String lastName, String firstNames, int dimKnownPersonId, int dimRegisteredDataSourceId)
         {
             var dimName = await _ttvContext.DimNames.FirstOrDefaultAsync(dn => dn.DimKnownPersonIdConfirmedIdentityNavigation.Id == dimKnownPersonId && dn.DimRegisteredDataSourceId == dimRegisteredDataSourceId);
@@ -69,6 +80,7 @@ namespace api.Services
                     FirstNames = firstNames,
                     DimKnownPersonIdConfirmedIdentity = dimKnownPersonId,
                     SourceId = "",
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
@@ -84,6 +96,7 @@ namespace api.Services
             return dimName;
         }
 
+        // Add or update DimResearcherDescription.
         public async Task<DimResearcherDescription> AddOrUpdateDimResearcherDescription(String description_fi, String description_en, String description_sv, int dimKnownPersonId, int dimRegisteredDataSourceId)
         {
             var dimResearcherDescription = await _ttvContext.DimResearcherDescriptions.FirstOrDefaultAsync(dr => dr.DimKnownPersonId == dimKnownPersonId && dr.DimRegisteredDataSourceId == dimRegisteredDataSourceId);
@@ -95,6 +108,7 @@ namespace api.Services
                     ResearchDescriptionEn = description_en,
                     ResearchDescriptionSv = description_sv,
                     SourceId = "",
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
                     DimKnownPersonId = dimKnownPersonId,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
@@ -112,6 +126,7 @@ namespace api.Services
             return dimResearcherDescription;
         }
 
+        // Add or update DimEmailAddrress.
         public async Task<DimEmailAddrress> AddOrUpdateDimEmailAddress(string emailAddress, int dimKnownPersonId, int dimRegisteredDataSourceId)
         {
             var dimEmailAddress = await _ttvContext.DimEmailAddrresses.FirstOrDefaultAsync(dr => dr.Email == emailAddress && dr.DimKnownPersonId == dimKnownPersonId && dr.DimRegisteredDataSourceId == dimRegisteredDataSourceId);
@@ -121,6 +136,7 @@ namespace api.Services
                 {
                     Email = emailAddress,
                     SourceId = "",
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
                     DimKnownPersonId = dimKnownPersonId,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
@@ -135,6 +151,7 @@ namespace api.Services
             return dimEmailAddress;
         }
 
+        // Get empty FactFieldValue.
         public FactFieldValue GetEmptyFactFieldValue()
         {
             return new FactFieldValue()
@@ -164,12 +181,29 @@ namespace api.Services
                 Show = false,
                 PrimaryValue = false,
                 SourceId = " ",
-                SourceDescription = null,
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
                 Modified = null
             };
         }
 
+        // Get empty FactFieldValue. Set SourceID to ORCID.
+        public FactFieldValue GetEmptyFactFieldValueOrcid()
+        {
+            var factFieldValue = this.GetEmptyFactFieldValue();
+            factFieldValue.SourceId = Constants.SourceIdentifiers.ORCID;
+            return factFieldValue;
+        }
+
+        // Get empty FactFieldValue. Set SourceID to DEMO.
+        public FactFieldValue GetEmptyFactFieldValueDemo()
+        {
+            var factFieldValue = this.GetEmptyFactFieldValue();
+            factFieldValue.SourceId = Constants.SourceIdentifiers.DEMO;
+            return factFieldValue;
+        }
+
+        // Get empty DimOrcidPublication.
         public DimOrcidPublication GetEmptyDimOrcidPublication()
         {
             return new DimOrcidPublication()
@@ -206,7 +240,7 @@ namespace api.Services
                 ThesisTypeCode = null,
                 DoiHandle = null,
                 SourceId = "",
-                SourceDescription = null,
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = null,
                 Modified = null,
                 OrcidPersonDataSource = -1,
@@ -252,5 +286,47 @@ namespace api.Services
         //    }
         //    return false;
         //}
+
+        // Add publications from DimPublication into user profile.
+        public async Task<bool> AddTtvPublications(DimKnownPerson dimKnownPerson)
+        {
+
+            var dimKnownPerson2 = await _ttvContext.DimKnownPeople
+                .Include(dkp => dkp.DimNames)
+                    .ThenInclude(dn => dn.FactContributions)
+                        .ThenInclude(fc => fc.DimPublication).AsNoTracking()
+                .Include(dkp => dkp.DimNames)
+                    .ThenInclude(dn => dn.DimRegisteredDataSource).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync();
+
+            foreach (DimName dimName in dimKnownPerson2.DimNames)
+            {
+                var dimRegisteredDataSource = dimName.DimRegisteredDataSource;
+
+                foreach (FactContribution factContribution in dimName.FactContributions)
+                {
+                    if (factContribution.DimPublicationId != -1)
+                    {
+
+                    }
+                }
+            }
+
+            var dimUserProfile = dimKnownPerson.DimUserProfiles.FirstOrDefault();
+            if (dimUserProfile != null)
+            {
+                // Find DimNames related to DimKnownPerson
+                // For each DimName, find FactContributions which have matching DimNameId and DimPublicationId <> -1
+                // DimRegisteredDataSource is taken from DimName
+
+                //var dimNames = await _ttvContext.DimNames.Where(dn => dn.DimKnownPersonIdConfirmedIdentity)
+            }
+
+            return false;
+        }
+
+        public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
+        {
+            await this.AddTtvPublications(dimKnownPerson);
+        }
     }
 }

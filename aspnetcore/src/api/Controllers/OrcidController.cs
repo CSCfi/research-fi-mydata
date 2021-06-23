@@ -108,6 +108,8 @@ namespace api.Controllers
             var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
 
 
+            // Must use "Constants.SourceIdentifiers.ORCID" as value for "FactFieldValue.SourceId". It is used to identify what data can be deleted when user profile is deleted.
+
 
             // Name
             var dimFieldDisplaySettingsName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsName => dimFieldDisplaysettingsName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME && dimFieldDisplaysettingsName.SourceId == Constants.SourceIdentifiers.ORCID);
@@ -134,17 +136,17 @@ namespace api.Controllers
                     FirstNames = _orcidJsonParserService.GetGivenNames(json).Value,
                     DimKnownPersonIdConfirmedIdentity = dimKnownPerson.Id,
                     SourceId = Constants.SourceIdentifiers.ORCID,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
                     DimRegisteredDataSourceId = orcidRegisteredDataSourceId
                 };
                 _ttvContext.DimNames.Add(dimName);
                 await _ttvContext.SaveChangesAsync();
 
-                factFieldValuesName = _userProfileService.GetEmptyFactFieldValue();
+                factFieldValuesName = _userProfileService.GetEmptyFactFieldValueOrcid();
                 factFieldValuesName.DimUserProfileId = dimUserProfile.Id;
                 factFieldValuesName.DimFieldDisplaySettingsId = dimFieldDisplaySettingsName.Id;
                 factFieldValuesName.DimNameId = dimName.Id;
-                factFieldValuesName.SourceId = Constants.SourceIdentifiers.ORCID;
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
                 await _ttvContext.SaveChangesAsync();
             }
@@ -176,6 +178,7 @@ namespace api.Controllers
                         FullName = otherName.Value,
                         DimKnownPersonIdConfirmedIdentity = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = DateTime.Now
                     };
@@ -189,6 +192,7 @@ namespace api.Controllers
                         PidType = "ORCID put code",
                         DimKnownPersonId = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeOtherName);
@@ -198,12 +202,11 @@ namespace api.Controllers
                     var dimFieldDisplaySettingsOtherName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES && dfdsWebLink.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for other name
-                    factFieldValuesOtherName = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesOtherName = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesOtherName.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesOtherName.DimFieldDisplaySettingsId = dimFieldDisplaySettingsOtherName.Id;
                     factFieldValuesOtherName.DimNameId = dimName_otherName.Id;
                     factFieldValuesOtherName.DimPidIdOrcidPutCode = dimPidOrcidPutCodeOtherName.Id;
-                    factFieldValuesOtherName.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesOtherName);
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -243,6 +246,7 @@ namespace api.Controllers
                         DimCallProgrammeId = -1,
                         DimFundingDecisionId = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now,
                     };
                     _ttvContext.DimWebLinks.Add(dimWebLink);
@@ -255,6 +259,7 @@ namespace api.Controllers
                         PidType = "ORCID put code",
                         DimKnownPersonId = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeWebLink);
@@ -264,12 +269,11 @@ namespace api.Controllers
                     var dimFieldDisplaySettingsWebLink = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK && dfdsWebLink.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for weblink
-                    factFieldValuesWebLink = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesWebLink = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesWebLink.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesWebLink.DimFieldDisplaySettingsId = dimFieldDisplaySettingsWebLink.Id;
                     factFieldValuesWebLink.DimWebLinkId = dimWebLink.Id;
                     factFieldValuesWebLink.DimPidIdOrcidPutCode = dimPidOrcidPutCodeWebLink.Id;
-                    factFieldValuesWebLink.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesWebLink);
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -294,11 +298,10 @@ namespace api.Controllers
                 var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesResearcherDescription => factFieldValuesResearcherDescription.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
                 if (factFieldValuesResearcherDescription == null)
                 {
-                    factFieldValuesResearcherDescription = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesResearcherDescription = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesResearcherDescription.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesResearcherDescription.DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id;
                     factFieldValuesResearcherDescription.DimResearcherDescriptionId = dimResearcherDescription.Id;
-                    factFieldValuesResearcherDescription.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
                 }
                 else
@@ -327,11 +330,10 @@ namespace api.Controllers
                 var factFieldValuesEmailAddress = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesEmailAddress => factFieldValuesEmailAddress.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id);
                 if (factFieldValuesEmailAddress == null)
                 {
-                    factFieldValuesEmailAddress = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesEmailAddress = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesEmailAddress.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesEmailAddress.DimFieldDisplaySettingsId = dimFieldDisplaySettingsEmailAddress.Id;
                     factFieldValuesEmailAddress.DimEmailAddrressId = dimEmailAddress.Id;
-                    factFieldValuesEmailAddress.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesEmailAddress);
                 }
                 else
@@ -370,6 +372,7 @@ namespace api.Controllers
                     {
                         Keyword = keyword.Value,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = DateTime.Now
                     };
@@ -383,18 +386,18 @@ namespace api.Controllers
                         PidType = "ORCID put code",
                         DimKnownPersonId = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeKeyword);
                     await _ttvContext.SaveChangesAsync();
 
                     // Create FactFieldValues for keyword
-                    factFieldValuesKeyword = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesKeyword = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesKeyword.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesKeyword.DimFieldDisplaySettingsId = dimFieldDisplaySettingsKeyword.Id;
                     factFieldValuesKeyword.DimKeywordId = dimKeyword.Id;
                     factFieldValuesKeyword.DimPidIdOrcidPutCode = dimPidOrcidPutCodeKeyword.Id;
-                    factFieldValuesKeyword.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -443,6 +446,7 @@ namespace api.Controllers
                         PidType = externalIdentifier.ExternalIdType,
                         DimKnownPersonId = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPid);
@@ -455,18 +459,18 @@ namespace api.Controllers
                         PidType = "ORCID put code",
                         DimKnownPersonId = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeExternalIdentifier);
                     await _ttvContext.SaveChangesAsync();
 
                     // Create FactFieldValues for external identifier
-                    factFieldValuesExternalIdentifier = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesExternalIdentifier = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesExternalIdentifier.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesExternalIdentifier.DimFieldDisplaySettingsId = dimFieldDisplaySettingsExternalIdentifier.Id;
                     factFieldValuesExternalIdentifier.DimPidId = dimPid.Id;
                     factFieldValuesExternalIdentifier.DimPidIdOrcidPutCode = dimPidOrcidPutCodeExternalIdentifier.Id;
-                    factFieldValuesExternalIdentifier.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesExternalIdentifier);
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -491,6 +495,7 @@ namespace api.Controllers
                         Month = education.StartDate.Month,
                         Day = education.StartDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimDates.Add(startDate);
@@ -507,6 +512,7 @@ namespace api.Controllers
                         Month = education.EndDate.Month,
                         Day = education.EndDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimDates.Add(endDate);
@@ -539,6 +545,7 @@ namespace api.Controllers
                         DimStartDate = startDate.Id,
                         DimEndDate = endDate.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimKnownPersonId = dimKnownPerson.Id,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = DateTime.Now
@@ -553,6 +560,7 @@ namespace api.Controllers
                         PidType = "ORCID put code",
                         DimKnownPersonId = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeEducation);
@@ -562,12 +570,11 @@ namespace api.Controllers
                     var dimFieldDisplaySettingsEducation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsEducation => dfdsEducation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION && dfdsEducation.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for education
-                    factFieldValuesEducation = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesEducation = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesEducation.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesEducation.DimFieldDisplaySettingsId = dimFieldDisplaySettingsEducation.Id;
                     factFieldValuesEducation.DimEducationId = dimEducation.Id;
                     factFieldValuesEducation.DimPidIdOrcidPutCode = dimPidOrcidPutCodeEducation.Id;
-                    factFieldValuesEducation.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesEducation);
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -592,6 +599,7 @@ namespace api.Controllers
                         Month = employment.StartDate.Month,
                         Day = employment.StartDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimDates.Add(startDate);
@@ -608,6 +616,7 @@ namespace api.Controllers
                         Month = employment.EndDate.Month,
                         Day = employment.EndDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimDates.Add(endDate);
@@ -646,6 +655,7 @@ namespace api.Controllers
                         DimSectorid = -1,
                         NameEn = employment.OrganizationName,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId
                     };
 
@@ -662,6 +672,7 @@ namespace api.Controllers
                         PositionNameEn = employment.RoleTitle,
                         AffiliationType = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimKnownPersonId = dimKnownPerson.Id,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = DateTime.Now
@@ -676,6 +687,7 @@ namespace api.Controllers
                         PidType = "ORCID put code",
                         DimKnownPersonId = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeEmployment);
@@ -685,12 +697,11 @@ namespace api.Controllers
                     var dimFieldDisplaySettingsAffiliation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsAffiliation => dfdsAffiliation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION && dfdsAffiliation.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for affiliation
-                    factFieldValuesAffiliation = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesAffiliation = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesAffiliation.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesAffiliation.DimFieldDisplaySettingsId = dimFieldDisplaySettingsAffiliation.Id;
                     factFieldValuesAffiliation.DimAffiliationId = dimAffiliation.Id;
                     factFieldValuesAffiliation.DimPidIdOrcidPutCode = dimPidOrcidPutCodeEmployment.Id;
-                    factFieldValuesAffiliation.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesAffiliation);
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -739,6 +750,7 @@ namespace api.Controllers
                         PidType = "ORCID put code",
                         DimKnownPersonId = dimKnownPerson.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     };
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodePublication);
@@ -748,12 +760,11 @@ namespace api.Controllers
                     var dimFieldDisplaySettingsPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION && dfdsPublication.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for orcid publication
-                    factFieldValuesPublication = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesPublication = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesPublication.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuesPublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
                     factFieldValuesPublication.DimOrcidPublicationId = dimOrcidPublication.Id;
                     factFieldValuesPublication.DimPidIdOrcidPutCode = dimPidOrcidPutCodePublication.Id;
-                    factFieldValuesPublication.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
                     await _ttvContext.SaveChangesAsync();
                 }

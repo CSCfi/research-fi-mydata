@@ -28,5 +28,10 @@ namespace api.Models
             public const string DEMO = "DEMO";
             public const string TIEDEJATUTKIMUS = "Tiedejatutkimus.fi";
         }
+
+        public static class SourceDescriptions
+        {
+            public const string PROFILE_API = "Profile API";
+        }
     }
 }
