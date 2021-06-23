@@ -686,6 +686,7 @@ namespace api.Controllers
 
                                     new ProfileEditorItemPublication()
                                     {
+                                        PublicationId = ffv.DimPublication.PublicationId,
                                         PublicationName = ffv.DimPublication.PublicationName,
                                         PublicationYear = ffv.DimPublication.PublicationYear,
                                         DoiHandle = ffv.DimPublication.DoiHandle,
@@ -708,6 +709,7 @@ namespace api.Controllers
 
                                     new ProfileEditorItemPublication()
                                     {
+                                        PublicationId = ffv.DimOrcidPublication.PublicationId,
                                         PublicationName = ffv.DimOrcidPublication.PublicationName,
                                         PublicationYear = ffv.DimOrcidPublication.PublicationYear,
                                         DoiHandle = ffv.DimOrcidPublication.DoiHandle,

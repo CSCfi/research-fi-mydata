@@ -49,17 +49,22 @@ namespace api.Controllers
             // Get ORCID ID
             var orcidId = this.GetOrcidId();
 
-            // Check if DimPid and DimKnownPerson already exist.
+            // Get DimPid by ORCID Id.
+            // Also get related entities. Needed when searching existing data that should be automatically included in profile.
             var dimPid = await _ttvContext.DimPids
                 .Include(dp => dp.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimNames)
-                        .ThenInclude(dn => dn.FactContributions)
-                            .ThenInclude(fc => fc.DimPublication).AsNoTracking()
+                        .ThenInclude(dn => dn.FactContributions).AsNoTracking()
                 .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimTelephoneNumbers).AsNoTracking()
+                    .ThenInclude(dkp => dkp.DimNames)
+                        .ThenInclude(dn => dn.DimRegisteredDataSource).AsNoTracking()
+                .Include(dp => dp.DimKnownPerson)
+                    .ThenInclude(dkp => dkp.DimTelephoneNumbers)
+                        .ThenInclude(dtn => dtn.DimRegisteredDataSource).AsNoTracking()
                 .Include(dp => dp.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == "ORCID");
 
+            // Check if DimPid 
             if (dimPid == null)
             {
                 // DimPid was not found.
@@ -71,6 +76,7 @@ namespace api.Controllers
                     PidType = "ORCID",
                     DimKnownPerson = new DimKnownPerson(){
                         SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     },
                     SourceId = Constants.SourceIdentifiers.ORCID,

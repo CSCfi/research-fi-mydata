@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models;
@@ -288,45 +289,71 @@ namespace api.Services
         //}
 
         // Add publications from DimPublication into user profile.
-        public async Task<bool> AddTtvPublications(DimKnownPerson dimKnownPerson)
+        public async Task AddTtvPublications(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
         {
-
-            var dimKnownPerson2 = await _ttvContext.DimKnownPeople
-                .Include(dkp => dkp.DimNames)
-                    .ThenInclude(dn => dn.FactContributions)
-                        .ThenInclude(fc => fc.DimPublication).AsNoTracking()
-                .Include(dkp => dkp.DimNames)
-                    .ThenInclude(dn => dn.DimRegisteredDataSource).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync();
-
-            foreach (DimName dimName in dimKnownPerson2.DimNames)
+            // Loop DimNames, then related FactContributions. FactContribution may have relation to DimPublication (DimPublicationId != -1).
+            // NOTE! Data source for DimPublication must be taken from DimName, not from DimPublication.
+            foreach (DimName dimName in dimKnownPerson.DimNames)
             {
-                var dimRegisteredDataSource = dimName.DimRegisteredDataSource;
+                var publicationsIds = new List<int>();
+                var dimNameRegisteredDataSource = dimName.DimRegisteredDataSource;
 
                 foreach (FactContribution factContribution in dimName.FactContributions)
                 {
                     if (factContribution.DimPublicationId != -1)
                     {
-
+                        publicationsIds.Add(factContribution.DimPublicationId);
                     }
                 }
+
+                // DimFieldDisplaySetting
+                var dimFieldDisplaySetting = await _ttvContext.DimFieldDisplaySettings
+                    .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources).AsNoTracking()
+                        .FirstOrDefaultAsync(
+                            dfds =>
+                                dfds.DimUserProfileId == dimUserProfile.Id &&
+                                dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION &&
+                                dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == dimNameRegisteredDataSource.Id
+                        );
+                if (dimFieldDisplaySetting == null)
+                {
+                    dimFieldDisplaySetting = new DimFieldDisplaySetting()
+                    {
+                        DimUserProfileId = dimUserProfile.Id,
+                        FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                        Show = false,
+                        SourceId = " ",
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        Created = DateTime.Now
+                    };
+                    dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                        new BrFieldDisplaySettingsDimRegisteredDataSource()
+                        {
+                            DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
+                            DimRegisteredDataSourceId = dimNameRegisteredDataSource.Id
+                        }
+                    );
+                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
+                    
+                }
+                await _ttvContext.SaveChangesAsync();
+
+                // Add FactFieldValues for DimPublications
+                foreach (int publicationId in publicationsIds)
+                {
+                    var factFieldValuePublication = this.GetEmptyFactFieldValue();
+                    factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id;
+                    factFieldValuePublication.DimPublicationId = publicationId;
+                    _ttvContext.FactFieldValues.Add(factFieldValuePublication);
+                }
+                await _ttvContext.SaveChangesAsync();
             }
-
-            var dimUserProfile = dimKnownPerson.DimUserProfiles.FirstOrDefault();
-            if (dimUserProfile != null)
-            {
-                // Find DimNames related to DimKnownPerson
-                // For each DimName, find FactContributions which have matching DimNameId and DimPublicationId <> -1
-                // DimRegisteredDataSource is taken from DimName
-
-                //var dimNames = await _ttvContext.DimNames.Where(dn => dn.DimKnownPersonIdConfirmedIdentity)
-            }
-
-            return false;
         }
 
         public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
         {
-            await this.AddTtvPublications(dimKnownPerson);
+            await this.AddTtvPublications(dimKnownPerson, dimUserProfile);
         }
     }
 }
