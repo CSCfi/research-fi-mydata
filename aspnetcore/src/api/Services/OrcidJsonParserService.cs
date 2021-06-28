@@ -63,13 +63,14 @@ namespace api.Services
             if (workElement.TryGetProperty("external-ids", out externalIdsElement))
             {
                 JsonElement externalIdElement;
-                if (externalIdsElement.TryGetProperty("external-id", out externalIdElement))
-
-                foreach (JsonElement idElement in externalIdElement.EnumerateArray())
+                if (externalIdsElement.ValueKind != JsonValueKind.Null && externalIdsElement.TryGetProperty("external-id", out externalIdElement))
                 {
-                    if (idElement.GetProperty("external-id-type").GetString() == "doi")
+                    foreach (JsonElement idElement in externalIdElement.EnumerateArray())
                     {
-                        doi = idElement.GetProperty("external-id-value").GetString();
+                        if (idElement.GetProperty("external-id-type").GetString() == "doi")
+                        {
+                            doi = idElement.GetProperty("external-id-value").GetString();
+                        }
                     }
                 }
             }
@@ -84,7 +85,7 @@ namespace api.Services
             if (workElement.TryGetProperty("publication-date", out publicationDateElement))
             {
                 JsonElement yearElement;
-                if (publicationDateElement.TryGetProperty("year", out yearElement))
+                if (publicationDateElement.ValueKind != JsonValueKind.Null && publicationDateElement.TryGetProperty("year", out yearElement))
                 {
                     JsonElement valueElement;
                     if (yearElement.TryGetProperty("value", out valueElement))
