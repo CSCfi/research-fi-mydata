@@ -74,6 +74,7 @@ namespace api.Controllers
                 {
                     PidContent = orcidId,
                     PidType = "ORCID",
+                    DimOrganizationId = -1,
                     DimKnownPerson = new DimKnownPerson(){
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
@@ -84,6 +85,9 @@ namespace api.Controllers
                     DimInfrastructureId = -1,
                     DimPublicationChannelId = -1,
                     DimResearchDatasetId = -1,
+                    DimFundingDecisionId = -1,
+                    DimResearchDataCatalogId = -1,
+                    DimResearchActivityId = -1,
                     DimEventId = -1,
                     DimOrcidPublicationId = -1,
                     SourceId = Constants.SourceIdentifiers.ORCID,
