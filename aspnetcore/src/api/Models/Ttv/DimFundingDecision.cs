@@ -34,6 +34,7 @@ namespace api.Models.Ttv
         public int DimGeoId { get; set; }
         public int DimTypeOfFundingId { get; set; }
         public int? DimOrganizationIdFunder { get; set; }
+        public string DimPidPidContent { get; set; }
         public int DimFundingDecisionIdParentDecision { get; set; }
         public string FunderProjectNumber { get; set; }
         public string Acronym { get; set; }
@@ -53,7 +54,6 @@ namespace api.Models.Ttv
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
-        public int DimWordClusterId { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
 
         public virtual DimCallProgramme DimCallProgramme { get; set; }
@@ -66,7 +66,6 @@ namespace api.Models.Ttv
         public virtual DimOrganization DimOrganizationIdFunderNavigation { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimTypeOfFunding DimTypeOfFunding { get; set; }
-        public virtual DimWordCluster DimWordCluster { get; set; }
         public virtual ICollection<BrFieldOfScienceDimFundingDecision> BrFieldOfScienceDimFundingDecisions { get; set; }
         public virtual ICollection<BrFundingConsortiumParticipation> BrFundingConsortiumParticipations { get; set; }
         public virtual ICollection<BrFundingDecisionDimFieldOfArt> BrFundingDecisionDimFieldOfArts { get; set; }

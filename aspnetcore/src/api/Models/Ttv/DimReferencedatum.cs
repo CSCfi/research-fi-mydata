@@ -9,13 +9,11 @@ namespace api.Models.Ttv
     {
         public DimReferencedatum()
         {
-            BrDimReferencedataDimCallProgrammes = new HashSet<BrDimReferencedataDimCallProgramme>();
             BrLanguageCodesForDatasets = new HashSet<BrLanguageCodesForDataset>();
             DimAffiliationAffiliationTypeNavigations = new HashSet<DimAffiliation>();
             DimAffiliationPositionCodeNavigations = new HashSet<DimAffiliation>();
             DimEducations = new HashSet<DimEducation>();
             DimOrcidPublicationArticleTypeCodeNavigations = new HashSet<DimOrcidPublication>();
-            DimOrcidPublicationDimReferencedata = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationParentPublicationTypeCodeNavigations = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationPublicationTypeCode2Navigations = new HashSet<DimOrcidPublication>();
             DimOrcidPublicationPublicationTypeCodeNavigations = new HashSet<DimOrcidPublication>();
@@ -36,19 +34,17 @@ namespace api.Models.Ttv
         public string NameFi { get; set; }
         public string NameEn { get; set; }
         public string NameSv { get; set; }
-        public string State { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
+        public string State { get; set; }
 
-        public virtual ICollection<BrDimReferencedataDimCallProgramme> BrDimReferencedataDimCallProgrammes { get; set; }
         public virtual ICollection<BrLanguageCodesForDataset> BrLanguageCodesForDatasets { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliationAffiliationTypeNavigations { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliationPositionCodeNavigations { get; set; }
         public virtual ICollection<DimEducation> DimEducations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationArticleTypeCodeNavigations { get; set; }
-        public virtual ICollection<DimOrcidPublication> DimOrcidPublicationDimReferencedata { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationParentPublicationTypeCodeNavigations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationPublicationTypeCode2Navigations { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublicationPublicationTypeCodeNavigations { get; set; }

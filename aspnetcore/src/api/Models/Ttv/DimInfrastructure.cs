@@ -34,6 +34,7 @@ namespace api.Models.Ttv
         public int? EndYear { get; set; }
         public string Acronym { get; set; }
         public bool FinlandRoadmap { get; set; }
+        public string Urn { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }

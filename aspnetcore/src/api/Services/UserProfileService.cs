@@ -80,6 +80,7 @@ namespace api.Services
                     LastName = lastName,
                     FirstNames = firstNames,
                     DimKnownPersonIdConfirmedIdentity = dimKnownPersonId,
+                    DimKnownPersonidFormerNames = -1,
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
@@ -245,10 +246,36 @@ namespace api.Services
                 Created = null,
                 Modified = null,
                 OrcidPersonDataSource = -1,
-                DimRegisteredDataSourceId = -1,
-                DimReferencedataid = -1
+                DimRegisteredDataSourceId = -1
             };
         }
+
+
+        // Get empty DimPid.
+        public DimPid GetEmptyDimPid()
+        {
+            return new DimPid()
+            {
+                PidContent = " ",
+                PidType = " ",
+                DimOrganizationId = -1,
+                DimKnownPersonId = -1,
+                DimPublicationId = -1,
+                DimServiceId = -1,
+                DimInfrastructureId = -1,
+                DimPublicationChannelId = -1,
+                DimResearchDatasetId = -1,
+                DimFundingDecisionId = -1,
+                DimResearchDataCatalogId = -1,
+                DimResearchActivityId = -1,
+                DimEventId = -1,
+                DimOrcidPublicationId = -1,
+                SourceId = " ",
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                Created = DateTime.Now
+            };
+        }
+
 
         //public async Task<bool> AddTtvTelephoneNumbers(DimKnownPerson dimKnownPerson)
         //{
@@ -266,34 +293,34 @@ namespace api.Services
         //                        dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == dimTelephoneNumber.DimRegisteredDataSourceId
         //                );
 
-        //            if (dimFieldDisplaySettingsTelephoneNumber == null)
-        //            {
-        //                // Add new DimFieldDisplaySettings for DimTelephoneNumber
-        //                dimFieldDisplaySettingsTelephoneNumber = new DimFieldDisplaySetting()
-        //                {
-        //                    DimUserProfileId = dimUserProfile.Id,
-        //                }
+            //            if (dimFieldDisplaySettingsTelephoneNumber == null)
+            //            {
+            //                // Add new DimFieldDisplaySettings for DimTelephoneNumber
+            //                dimFieldDisplaySettingsTelephoneNumber = new DimFieldDisplaySetting()
+            //                {
+            //                    DimUserProfileId = dimUserProfile.Id,
+            //                }
 
-        //                dimFieldDisplaySettingsTelephoneNumber.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-        //                    new BrFieldDisplaySettingsDimRegisteredDataSource()
-        //                    {
-        //                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsTelephoneNumber.Id,
-        //                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
-        //                    }
-        //                );
-        //            }
-        //        }
-        //        await _ttvContext.SaveChangesAsync();
-        //    }
-        //    return false;
-        //}
+            //                dimFieldDisplaySettingsTelephoneNumber.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+            //                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+            //                    {
+            //                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsTelephoneNumber.Id,
+            //                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+            //                    }
+            //                );
+            //            }
+            //        }
+            //        await _ttvContext.SaveChangesAsync();
+            //    }
+            //    return false;
+            //}
 
-        // Add publications from DimPublication into user profile.
-        public async Task AddTtvPublications(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
+            // Add publications from DimPublication into user profile.
+            public async Task AddTtvPublications(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
         {
             // Loop DimNames, then related FactContributions. FactContribution may have relation to DimPublication (DimPublicationId != -1).
             // NOTE! Data source for DimPublication must be taken from DimName, not from DimPublication. Skip item if DimName does not have data source set.
-            foreach (DimName dimName in dimKnownPerson.DimNames)
+            foreach (DimName dimName in dimKnownPerson.DimNameDimKnownPersonIdConfirmedIdentityNavigations)
             {
                 var publicationsIds = new List<int>();
                 var dimNameRegisteredDataSource = dimName.DimRegisteredDataSource;

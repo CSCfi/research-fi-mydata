@@ -53,10 +53,10 @@ namespace api.Controllers
             // Also get related entities. Needed when searching existing data that should be automatically included in profile.
             var dimPid = await _ttvContext.DimPids
                 .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimNames)
+                    .ThenInclude(dkp => dkp.DimNameDimKnownPersonIdConfirmedIdentityNavigations)
                         .ThenInclude(dn => dn.FactContributions).AsNoTracking()
                 .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimNames)
+                    .ThenInclude(dkp => dkp.DimNameDimKnownPersonIdConfirmedIdentityNavigations)
                         .ThenInclude(dn => dn.DimRegisteredDataSource).AsNoTracking()
                 .Include(dp => dp.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimTelephoneNumbers)
@@ -70,30 +70,15 @@ namespace api.Controllers
                 // DimPid was not found.
 
                 // Add new DimPid, add new DimKnownPerson
-                dimPid = new DimPid()
-                {
-                    PidContent = orcidId,
-                    PidType = "ORCID",
-                    DimOrganizationId = -1,
-                    DimKnownPerson = new DimKnownPerson(){
-                        SourceId = Constants.SourceIdentifiers.ORCID,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
-                    },
-                    DimPublicationId = -1,
-                    DimServiceId = -1,
-                    DimInfrastructureId = -1,
-                    DimPublicationChannelId = -1,
-                    DimResearchDatasetId = -1,
-                    DimFundingDecisionId = -1,
-                    DimResearchDataCatalogId = -1,
-                    DimResearchActivityId = -1,
-                    DimEventId = -1,
-                    DimOrcidPublicationId = -1,
+                dimPid = _userProfileService.GetEmptyDimPid();
+                dimPid.PidContent = orcidId;
+                dimPid.PidType = "ORCID";
+                dimPid.DimKnownPerson = new DimKnownPerson() {
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now
                 };
+                dimPid.SourceId = Constants.SourceIdentifiers.ORCID;
                 _ttvContext.DimPids.Add(dimPid);
                 await _ttvContext.SaveChangesAsync();
             }

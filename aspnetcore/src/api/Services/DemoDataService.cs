@@ -320,6 +320,7 @@ namespace api.Services
                 FirstNames = "Tuisku",
                 LastName = "Tutkija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
+                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
@@ -333,6 +334,7 @@ namespace api.Services
                 FirstNames = "Ami",
                 LastName = "Asiantuntija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
+                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
@@ -360,6 +362,7 @@ namespace api.Services
             {
                 FullName = "T. Tutkija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
+                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
@@ -370,6 +373,7 @@ namespace api.Services
             {
                 FullName = "T.A. Tutkija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
+                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
@@ -381,6 +385,7 @@ namespace api.Services
             {
                 FullName = "Tuisku Tutkija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
+                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
@@ -408,26 +413,20 @@ namespace api.Services
 
             // External identifiers (DimPid)
             var dimFieldDisplaySettings_externalIdentifier_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
-            var dimPid_Organization1 = new DimPid()
-            {
-                PidContent = "O-2000-1000",
-                PidType = "ResearcherID",
-                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
-                SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
-            };
+            var dimPid_Organization1 = _userProfileService.GetEmptyDimPid();
+            dimPid_Organization1.PidContent = "O-2000-1000";
+            dimPid_Organization1.PidType = "ResearcherID";
+            dimPid_Organization1.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
+            dimPid_Organization1.SourceId = Constants.SourceIdentifiers.DEMO;
             _ttvContext.DimPids.Add(dimPid_Organization1);
             var dimFieldDisplaySettings_externalIdentifier_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
-            var dimPid_Organization2 = new DimPid()
-            {
-                PidContent = "https://isni.org/isni/0000000100020003",
-                PidType = "ISNI",
-                DimKnownPersonId = dimUserProfile.DimKnownPersonId,
-                SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
-            };
+            var dimPid_Organization2 = _userProfileService.GetEmptyDimPid();
+            dimPid_Organization2.PidContent = "https://isni.org/isni/0000000100020003";
+            dimPid_Organization2.PidType = "ISNI";
+            dimPid_Organization2.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
+            dimPid_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
+            dimPid_Organization2.SourceDescription = Constants.SourceDescriptions.PROFILE_API;
+            dimPid_Organization2.Created = DateTime.Now;
             _ttvContext.DimPids.Add(dimPid_Organization2);
             await _ttvContext.SaveChangesAsync();
             var factFieldValue_externalIdentifier_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();

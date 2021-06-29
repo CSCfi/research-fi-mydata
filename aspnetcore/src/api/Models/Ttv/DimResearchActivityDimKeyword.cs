@@ -10,7 +10,6 @@ namespace api.Models.Ttv
         public int DimResearchActivityId { get; set; }
         public int DimKeywordId { get; set; }
 
-        public virtual DimKeyword DimKeyword { get; set; }
         public virtual DimResearchActivity DimResearchActivity { get; set; }
     }
 }
