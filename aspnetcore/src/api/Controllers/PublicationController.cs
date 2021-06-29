@@ -98,6 +98,7 @@ namespace api.Controllers
                 items = new List<ProfileEditorItemPublication>() {
                     new ProfileEditorItemPublication()
                     {
+                        PublicationId = dimPublication.PublicationId,
                         PublicationName = dimPublication.PublicationName,
                         PublicationYear = dimPublication.PublicationYear,
                         DoiHandle = dimPublication.DoiHandle,
