@@ -292,62 +292,66 @@ namespace api.Services
         public async Task AddTtvPublications(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
         {
             // Loop DimNames, then related FactContributions. FactContribution may have relation to DimPublication (DimPublicationId != -1).
-            // NOTE! Data source for DimPublication must be taken from DimName, not from DimPublication.
+            // NOTE! Data source for DimPublication must be taken from DimName, not from DimPublication. Skip item if DimName does not have data source set.
             foreach (DimName dimName in dimKnownPerson.DimNames)
             {
                 var publicationsIds = new List<int>();
                 var dimNameRegisteredDataSource = dimName.DimRegisteredDataSource;
 
-                foreach (FactContribution factContribution in dimName.FactContributions)
+                if (dimNameRegisteredDataSource != null)
                 {
-                    if (factContribution.DimPublicationId != -1)
-                    {
-                        publicationsIds.Add(factContribution.DimPublicationId);
-                    }
-                }
 
-                // DimFieldDisplaySetting
-                var dimFieldDisplaySetting = await _ttvContext.DimFieldDisplaySettings
-                    .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources).AsNoTracking()
-                        .FirstOrDefaultAsync(
-                            dfds =>
-                                dfds.DimUserProfileId == dimUserProfile.Id &&
-                                dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION &&
-                                dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == dimNameRegisteredDataSource.Id
-                        );
-                if (dimFieldDisplaySetting == null)
-                {
-                    dimFieldDisplaySetting = new DimFieldDisplaySetting()
+                    foreach (FactContribution factContribution in dimName.FactContributions)
                     {
-                        DimUserProfileId = dimUserProfile.Id,
-                        FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                        Show = false,
-                        SourceId = " ",
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
-                    };
-                    dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                        new BrFieldDisplaySettingsDimRegisteredDataSource()
+                        if (factContribution.DimPublicationId != -1)
                         {
-                            DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
-                            DimRegisteredDataSourceId = dimNameRegisteredDataSource.Id
+                            publicationsIds.Add(factContribution.DimPublicationId);
                         }
-                    );
-                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
-                    
-                }
-                await _ttvContext.SaveChangesAsync();
+                    }
 
-                // Add FactFieldValues for DimPublications
-                foreach (int publicationId in publicationsIds)
-                {
-                    var factFieldValuePublication = this.GetEmptyFactFieldValue();
-                    factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id;
-                    factFieldValuePublication.DimPublicationId = publicationId;
-                    _ttvContext.FactFieldValues.Add(factFieldValuePublication);
+                    // DimFieldDisplaySetting
+                    var dimFieldDisplaySetting = await _ttvContext.DimFieldDisplaySettings
+                        .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources).AsNoTracking()
+                            .FirstOrDefaultAsync(
+                                dfds =>
+                                    dfds.DimUserProfileId == dimUserProfile.Id &&
+                                    dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION &&
+                                    dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == dimNameRegisteredDataSource.Id
+                            );
+                    if (dimFieldDisplaySetting == null)
+                    {
+                        dimFieldDisplaySetting = new DimFieldDisplaySetting()
+                        {
+                            DimUserProfileId = dimUserProfile.Id,
+                            FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                            Show = false,
+                            SourceId = " ",
+                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                            Created = DateTime.Now
+                        };
+                        dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                            new BrFieldDisplaySettingsDimRegisteredDataSource()
+                            {
+                                DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
+                                DimRegisteredDataSourceId = dimNameRegisteredDataSource.Id
+                            }
+                        );
+                        _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
+
+                    }
+                    await _ttvContext.SaveChangesAsync();
+
+                    // Add FactFieldValues for DimPublications
+                    foreach (int publicationId in publicationsIds)
+                    {
+                        var factFieldValuePublication = this.GetEmptyFactFieldValue();
+                        factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
+                        factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id;
+                        factFieldValuePublication.DimPublicationId = publicationId;
+                        _ttvContext.FactFieldValues.Add(factFieldValuePublication);
+                    }
+                    await _ttvContext.SaveChangesAsync();
                 }
-                await _ttvContext.SaveChangesAsync();
             }
         }
 

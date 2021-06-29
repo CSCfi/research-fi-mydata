@@ -79,6 +79,13 @@ namespace api.Controllers
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now
                     },
+                    DimPublicationId = -1,
+                    DimServiceId = -1,
+                    DimInfrastructureId = -1,
+                    DimPublicationChannelId = -1,
+                    DimResearchDatasetId = -1,
+                    DimEventId = -1,
+                    DimOrcidPublicationId = -1,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now
