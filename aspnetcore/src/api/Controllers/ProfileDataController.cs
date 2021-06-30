@@ -689,7 +689,7 @@ namespace api.Controllers
                                         PublicationId = ffv.DimPublication.PublicationId,
                                         PublicationName = ffv.DimPublication.PublicationName,
                                         PublicationYear = ffv.DimPublication.PublicationYear,
-                                        DoiHandle = ffv.DimPublication.DoiHandle,
+                                        Doi = ffv.DimPublication.Doi,
                                         itemMeta = new ProfileEditorItemMeta()
                                         {
                                             Id = ffv.DimPublicationId,
@@ -712,7 +712,7 @@ namespace api.Controllers
                                         PublicationId = ffv.DimOrcidPublication.PublicationId,
                                         PublicationName = ffv.DimOrcidPublication.PublicationName,
                                         PublicationYear = ffv.DimOrcidPublication.PublicationYear,
-                                        DoiHandle = ffv.DimOrcidPublication.DoiHandle,
+                                        Doi = ffv.DimOrcidPublication.DoiHandle,
                                         itemMeta = new ProfileEditorItemMeta()
                                         {
                                             Id = ffv.DimOrcidPublicationId,
@@ -757,6 +757,7 @@ namespace api.Controllers
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
 
             var dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimFieldDisplaySettings)

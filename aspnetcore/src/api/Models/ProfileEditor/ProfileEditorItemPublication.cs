@@ -11,12 +11,12 @@ namespace api.Models
             PublicationId = "";
             PublicationName = "";
             PublicationYear = null;
-            DoiHandle = "";
+            Doi = "";
         }
 
         public string PublicationId { get; set; }
         public string PublicationName { get; set; }
         public int? PublicationYear { get; set; }
-        public string DoiHandle { get; set; }
+        public string Doi { get; set; }
     }
 }
