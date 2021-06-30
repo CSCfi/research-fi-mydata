@@ -25,11 +25,11 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ProfileEditorPublicationId profileEditorPublicationId)
+        public async Task<IActionResult> PostMany([FromBody] List<ProfileEditorPublicationToAdd> profileEditorPublicationsToAdd)
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid publicationId", data: profileEditorPublicationId));
+                return Ok(new ApiResponse(success: false, reason: "invalid request data", data: profileEditorPublicationsToAdd));
             }
 
             // Get userprofile
@@ -48,78 +48,88 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPublication).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(dup => dup.Id == userprofileId);
 
-            // Check if userprofile already includes given publication
-            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
-            {
-                if (ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == profileEditorPublicationId.PublicationId)
-                {
-                    return Ok(new ApiResponse(success: true, reason: "publication is already included", data: profileEditorPublicationId));
-                }
-            }
-
-            // Get DimPublication
-            var dimPublication = await _ttvContext.DimPublications.AsNoTracking().FirstOrDefaultAsync(dp => dp.PublicationId == profileEditorPublicationId.PublicationId);
-            // Return if DimPublication does not exist
-            if (dimPublication == null)
-            {
-                return Ok(new ApiResponse(success: false, reason: "publication not found", data: profileEditorPublicationId));
-            }
-
+            // TODO: Currently all added publications get the same data source.
             // Get Tiedejatutkimus.fi registered data source id
             var tiedejatutkimusRegisteredDataSourceId = await _userProfileService.GetTiedejatutkimusFiRegisteredDataSourceId();
-
             // Get DimFieldDisplaySetting for Tiedejatutkimus.fi
             var dimFieldDisplaySettingsPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION && dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == tiedejatutkimusRegisteredDataSourceId);
 
-            // Add FactFieldValue
-            var factFieldValuePublication = _userProfileService.GetEmptyFactFieldValue();
-            factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
-            factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
-            factFieldValuePublication.DimPublicationId = dimPublication.Id;
-            factFieldValuePublication.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
-            factFieldValuePublication.Created = System.DateTime.Now;
-            _ttvContext.FactFieldValues.Add(factFieldValuePublication);
-            await _ttvContext.SaveChangesAsync();
-
-            // Response
-            var publicationGroup = new ProfileEditorGroupPublication()
+            // Response object
+            var profileEditorAddPublicationResponse = new ProfileEditorAddPublicationResponse();
+            profileEditorAddPublicationResponse.source = new ProfileEditorSource()
             {
-                source = new ProfileEditorSource()
+                Id = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                RegisteredDataSource = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                Organization = new ProfileEditorSourceOrganization()
                 {
-                    Id = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                    RegisteredDataSource = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                    Organization = new ProfileEditorSourceOrganization()
-                    {
-                        NameFi = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                        NameEn = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                        NameSv = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                    }
-                },
-                items = new List<ProfileEditorItemPublication>() {
-                    new ProfileEditorItemPublication()
-                    {
-                        PublicationId = dimPublication.PublicationId,
-                        PublicationName = dimPublication.PublicationName,
-                        PublicationYear = dimPublication.PublicationYear,
-                        DoiHandle = dimPublication.DoiHandle,
-                        itemMeta = new ProfileEditorItemMeta()
-                        {
-                            Id = dimPublication.Id,
-                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                            Show = factFieldValuePublication.Show,
-                            PrimaryValue = factFieldValuePublication.PrimaryValue
-                        }
-                    }
-                },
-                groupMeta = new ProfileEditorGroupMeta()
-                {
-                    Id = dimFieldDisplaySettingsPublication.Id,
-                    Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                    Show = dimFieldDisplaySettingsPublication.Show
+                    NameFi = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                    NameEn = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                    NameSv = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
                 }
             };
 
-            return Ok(new ApiResponse(success: true, data: publicationGroup));
+
+            // Loop publications
+            foreach (ProfileEditorPublicationToAdd publicationToAdd in profileEditorPublicationsToAdd)
+            {
+                var publicationProcessed = false;
+                // Check if userprofile already includes given publication
+                foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimPublicationId != -1))
+                {
+                    if (ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == publicationToAdd.PublicationId)
+                    {
+                        // Publication is already in profile
+                        profileEditorAddPublicationResponse.publicationsAlreadyInProfile.Add(publicationToAdd.PublicationId);
+                        publicationProcessed = true;
+                        break;
+                    }
+                }
+
+                if (!publicationProcessed)
+                {
+                    // Get DimPublication
+                    var dimPublication = await _ttvContext.DimPublications.AsNoTracking().FirstOrDefaultAsync(dp => dp.PublicationId == publicationToAdd.PublicationId);
+                    // Check if DimPublication exists
+                    if (dimPublication == null)
+                    {
+                        // Publication does not exist
+                        profileEditorAddPublicationResponse.publicationsNotFound.Add(publicationToAdd.PublicationId);
+                    }
+                    else
+                    {
+                        // Add FactFieldValue
+                        var factFieldValuePublication = _userProfileService.GetEmptyFactFieldValue();
+                        factFieldValuePublication.Show = publicationToAdd.Show != null ? publicationToAdd.Show : false;
+                        factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
+                        factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
+                        factFieldValuePublication.DimPublicationId = dimPublication.Id;
+                        factFieldValuePublication.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
+                        factFieldValuePublication.Created = System.DateTime.Now;
+                        _ttvContext.FactFieldValues.Add(factFieldValuePublication);
+                        await _ttvContext.SaveChangesAsync();
+
+                        // Publication added response data
+                        var publicationItem = new ProfileEditorItemPublication()
+                        {
+                            PublicationId = dimPublication.PublicationId,
+                            PublicationName = dimPublication.PublicationName,
+                            PublicationYear = dimPublication.PublicationYear,
+                            DoiHandle = dimPublication.DoiHandle,
+                            itemMeta = new ProfileEditorItemMeta()
+                            {
+                                Id = dimPublication.Id,
+                                Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                                Show = factFieldValuePublication.Show,
+                                PrimaryValue = factFieldValuePublication.PrimaryValue
+                            }
+                        };
+
+                        profileEditorAddPublicationResponse.publicationsAdded.Add(publicationItem);
+                    }
+                }
+            }
+
+            return Ok(new ApiResponse(success: true, data: profileEditorAddPublicationResponse));
         }
 
 
