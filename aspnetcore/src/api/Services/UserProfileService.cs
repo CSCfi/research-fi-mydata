@@ -338,30 +338,30 @@ namespace api.Services
         //                        dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == dimTelephoneNumber.DimRegisteredDataSourceId
         //                );
 
-            //            if (dimFieldDisplaySettingsTelephoneNumber == null)
-            //            {
-            //                // Add new DimFieldDisplaySettings for DimTelephoneNumber
-            //                dimFieldDisplaySettingsTelephoneNumber = new DimFieldDisplaySetting()
-            //                {
-            //                    DimUserProfileId = dimUserProfile.Id,
-            //                }
+        //            if (dimFieldDisplaySettingsTelephoneNumber == null)
+        //            {
+        //                // Add new DimFieldDisplaySettings for DimTelephoneNumber
+        //                dimFieldDisplaySettingsTelephoneNumber = new DimFieldDisplaySetting()
+        //                {
+        //                    DimUserProfileId = dimUserProfile.Id,
+        //                }
 
-            //                dimFieldDisplaySettingsTelephoneNumber.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-            //                    new BrFieldDisplaySettingsDimRegisteredDataSource()
-            //                    {
-            //                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsTelephoneNumber.Id,
-            //                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
-            //                    }
-            //                );
-            //            }
-            //        }
-            //        await _ttvContext.SaveChangesAsync();
-            //    }
-            //    return false;
-            //}
+        //                dimFieldDisplaySettingsTelephoneNumber.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+        //                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+        //                    {
+        //                        DimFieldDisplaySettingsId = dimFieldDisplaySettingsTelephoneNumber.Id,
+        //                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+        //                    }
+        //                );
+        //            }
+        //        }
+        //        await _ttvContext.SaveChangesAsync();
+        //    }
+        //    return false;
+        //}
 
-            // Add publications from DimPublication into user profile.
-            public async Task AddTtvPublications(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
+        // Add publications from DimPublication into user profile.
+        public async Task AddTtvPublications(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
         {
             // Loop DimNames, then related FactContributions. FactContribution may have relation to DimPublication (DimPublicationId != -1).
             // NOTE! Data source for DimPublication must be taken from DimName, not from DimPublication. Skip item if DimName does not have data source set.
@@ -372,13 +372,9 @@ namespace api.Services
 
                 if (dimNameRegisteredDataSource != null)
                 {
-
-                    foreach (FactContribution factContribution in dimName.FactContributions)
+                    foreach (FactContribution factContribution in dimName.FactContributions.Where(fc => fc.DimPublicationId != -1))
                     {
-                        if (factContribution.DimPublicationId != -1)
-                        {
-                            publicationsIds.Add(factContribution.DimPublicationId);
-                        }
+                        publicationsIds.Add(factContribution.DimPublicationId);
                     }
 
                     // DimFieldDisplaySetting

@@ -27,6 +27,9 @@ namespace api.Controllers
             _userProfileService = userProfileService;          
         }
 
+        /*
+         *  Add publication(s) to profile.
+         */
         [HttpPost]
         public async Task<IActionResult> PostMany([FromBody] List<ProfileEditorPublicationToAdd> profileEditorPublicationsToAdd)
         {
@@ -52,6 +55,7 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimPublication).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(dup => dup.Id == userprofileId);
 
             // TODO: Currently all added publications get the same data source.
+
             // Get Tiedejatutkimus.fi registered data source id
             var tiedejatutkimusRegisteredDataSourceId = await _userProfileService.GetTiedejatutkimusFiRegisteredDataSourceId();
             // Get DimFieldDisplaySetting for Tiedejatutkimus.fi
@@ -79,7 +83,7 @@ namespace api.Controllers
                 // Check if userprofile already includes given publication
                 foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimPublicationId != -1))
                 {
-                    if (ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == publicationToAdd.PublicationId)
+                    if (ffv.DimPublication.PublicationId == publicationToAdd.PublicationId)
                     {
                         // Publication is already in profile
                         profileEditorAddPublicationResponse.publicationsAlreadyInProfile.Add(publicationToAdd.PublicationId);
@@ -112,7 +116,7 @@ namespace api.Controllers
                         _ttvContext.FactFieldValues.Add(factFieldValuePublication);
                         await _ttvContext.SaveChangesAsync();
 
-                        // Publication added response data
+                        // Response data
                         var publicationItem = new ProfileEditorItemPublication()
                         {
                             PublicationId = dimPublication.PublicationId,
@@ -132,20 +136,21 @@ namespace api.Controllers
                     }
                 }
             }
-
             return Ok(new ApiResponse(success: true, data: profileEditorAddPublicationResponse));
         }
 
-
+        /*
+         *  Add publication from profile.
+         */
         [HttpDelete("{publicationId}")]
         public async Task<IActionResult> DeletePublicationFromProfile(string publicationId)
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid publicationId", data: publicationId));
+                return Ok(new ApiResponse(success: false, reason: "publicationId invalid", data: publicationId));
             }
 
-            // Get userprofile
+            // Get id of userprofile
             var orcidId = this.GetOrcidId();
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
@@ -154,12 +159,14 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
+            // Remove FactFieldValue
             var factFieldValue = await _ttvContext.FactFieldValues
                 .Include(ffv => ffv.DimPublication).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == publicationId);
 
             if (factFieldValue == null)
             {
-                return Ok(new ApiResponse(success: false, reason: "publication not found", data: publicationId));
+                // Publication is not in profile
+                return Ok(new ApiResponse(success: false, reason: "publicationId not found in profile", data: publicationId));
             }
 
             _ttvContext.FactFieldValues.Remove(factFieldValue);
