@@ -103,6 +103,7 @@ namespace api.Controllers
                         // Add FactFieldValue
                         var factFieldValuePublication = _userProfileService.GetEmptyFactFieldValue();
                         factFieldValuePublication.Show = publicationToAdd.Show != null ? publicationToAdd.Show : false;
+                        factFieldValuePublication.PrimaryValue = publicationToAdd.PrimaryValue != null ? publicationToAdd.PrimaryValue : false;
                         factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
                         factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
                         factFieldValuePublication.DimPublicationId = dimPublication.Id;

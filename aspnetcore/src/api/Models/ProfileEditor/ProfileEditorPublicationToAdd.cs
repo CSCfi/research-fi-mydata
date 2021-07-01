@@ -9,5 +9,6 @@ namespace api.Models
 
         public string PublicationId { get; set; }
         public bool? Show { get; set; }
+        public bool? PrimaryValue { get; set; }
     }
 }
