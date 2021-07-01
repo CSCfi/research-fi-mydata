@@ -88,7 +88,7 @@ namespace api.Services
                 if (publicationDateElement.ValueKind != JsonValueKind.Null && publicationDateElement.TryGetProperty("year", out yearElement))
                 {
                     JsonElement valueElement;
-                    if (yearElement.TryGetProperty("value", out valueElement))
+                    if (yearElement.ValueKind != JsonValueKind.Null && yearElement.TryGetProperty("value", out valueElement))
                     {
                         publicationYear = Int32.Parse(valueElement.GetString());
                     }
@@ -109,18 +109,24 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
+                JsonElement givenNamesElement;
                 if (this.isFullRecord(document))
                 {
-                    return new OrcidGivenNames(
-                        document.RootElement.GetProperty("person").GetProperty("name").GetProperty("given-names").GetProperty("value").GetString()
-                    );
+                    givenNamesElement = document.RootElement.GetProperty("person").GetProperty("name").GetProperty("given-names");
                 }
                 else
                 {
+                    givenNamesElement = document.RootElement.GetProperty("name").GetProperty("given-names");
+                }
+
+                JsonElement valueElement;
+                if (givenNamesElement.ValueKind != JsonValueKind.Null && givenNamesElement.TryGetProperty("value", out valueElement))
+                {
                     return new OrcidGivenNames(
-                        document.RootElement.GetProperty("name").GetProperty("given-names").GetProperty("value").GetString()
+                        valueElement.GetString()
                     );
                 }
+                return null;
             }
         }
 
@@ -129,18 +135,24 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
+                JsonElement familyNameElement;
                 if (this.isFullRecord(document))
                 {
-                    return new OrcidFamilyName(
-                        document.RootElement.GetProperty("person").GetProperty("name").GetProperty("family-name").GetProperty("value").GetString()
-                    );
+                    familyNameElement = document.RootElement.GetProperty("person").GetProperty("name").GetProperty("family-name");
                 }
                 else
                 {
+                    familyNameElement = document.RootElement.GetProperty("name").GetProperty("family-name");
+                }
+
+                JsonElement valueElement;
+                if (familyNameElement.ValueKind != JsonValueKind.Null && familyNameElement.TryGetProperty("value", out valueElement))
+                {
                     return new OrcidFamilyName(
-                        document.RootElement.GetProperty("name").GetProperty("family-name").GetProperty("value").GetString()
+                        valueElement.GetString()
                     );
                 }
+                return null;
             }
         }
 
@@ -149,18 +161,24 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
+                JsonElement creditNameElement;
                 if (this.isFullRecord(document))
                 {
-                    return new OrcidCreditName(
-                        document.RootElement.GetProperty("person").GetProperty("name").GetProperty("credit-name").GetProperty("value").GetString()
-                    );
+                    creditNameElement = document.RootElement.GetProperty("person").GetProperty("name").GetProperty("credit-name");
                 }
                 else
                 {
+                    creditNameElement = document.RootElement.GetProperty("name").GetProperty("credit-name");
+                }
+
+                JsonElement valueElement;
+                if (creditNameElement.ValueKind != JsonValueKind.Null && creditNameElement.TryGetProperty("value", out valueElement))
+                {
                     return new OrcidCreditName(
-                        document.RootElement.GetProperty("name").GetProperty("credit-name").GetProperty("value").GetString()
+                        valueElement.GetString()
                     );
                 }
+                return null;
             }
         }
 
