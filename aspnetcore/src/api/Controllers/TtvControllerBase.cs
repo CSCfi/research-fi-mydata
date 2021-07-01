@@ -1,6 +1,9 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
+/*
+ * TtvControllerBase implements utility methods which can be used by all controllers. 
+ */
 public abstract class TtvControllerBase : ControllerBase
 {
     // Get ORCID ID from user claims

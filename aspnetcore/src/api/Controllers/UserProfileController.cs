@@ -11,6 +11,9 @@ using System.Collections.Generic;
 
 namespace api.Controllers
 {
+    /*
+     * UserProfileController handles creation, existence check and deletion of user profile.
+     */
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -62,7 +65,7 @@ namespace api.Controllers
                     .ThenInclude(dkp => dkp.DimTelephoneNumbers)
                         .ThenInclude(dtn => dtn.DimRegisteredDataSource).AsNoTracking()
                 .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == "ORCID");
+                    .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
 
             // Check if DimPid 
             if (dimPid == null)
@@ -72,7 +75,9 @@ namespace api.Controllers
                 // Add new DimPid, add new DimKnownPerson
                 dimPid = _userProfileService.GetEmptyDimPid();
                 dimPid.PidContent = orcidId;
-                dimPid.PidType = "ORCID";
+                dimPid.PidType = Constants.PidTypes.ORCID;
+
+                // Since new DimPid is added, then new DimKnownPerson must be added
                 dimPid.DimKnownPerson = new DimKnownPerson() {
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
@@ -84,7 +89,7 @@ namespace api.Controllers
             }
             else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
             {
-                // DimPid was found but it does not have DimKnownPerson.
+                // DimPid was found but it does not have related DimKnownPerson.
                 var kp = new DimKnownPerson()
                 {
                     SourceId = Constants.SourceIdentifiers.ORCID,
@@ -118,7 +123,7 @@ namespace api.Controllers
                 var demoOrganization2RegisteredDataSource = await _demoDataService.GetOrganization2RegisteredDataSourceAsync();
                 var demoOrganization3RegisteredDataSource = await _demoDataService.GetOrganization3RegisteredDataSourceAsync();
 
-                // TODO: enumerate Constants.FieldIdentifiers
+                // TODO: Field identifiers used in demo. In production this list should be extended.
                 var fieldIdentifiers = new List<int>
                 {
                     Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
@@ -130,7 +135,6 @@ namespace api.Controllers
                     Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
                     Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
                     Constants.FieldIdentifiers.PERSON_WEB_LINK,
-                    Constants.FieldIdentifiers.ACTIVITY_ROLE_IN_RESERCH_COMMUNITY,
                     Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
                     Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
                     Constants.FieldIdentifiers.ACTIVITY_PUBLICATION

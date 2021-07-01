@@ -12,6 +12,9 @@ using System.Collections.Generic;
 
 namespace api.Controllers
 {
+    /*
+     * OrcidController handles ORCID api related actions, such as getting ORCID record and saving ORCID data into database.
+     */
     [Route("api/orcid")]
     [ApiController]
     [Authorize]

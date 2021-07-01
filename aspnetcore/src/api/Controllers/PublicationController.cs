@@ -10,6 +10,9 @@ using System.Collections.Generic;
 
 namespace api.Controllers
 {
+    /*
+     * PublicationController implements profile editor API commands for adding and deleting profile's publications.
+     */
     [Route("api/publication")]
     [ApiController]
     [Authorize]

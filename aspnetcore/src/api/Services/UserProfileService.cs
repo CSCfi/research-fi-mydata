@@ -29,7 +29,7 @@ namespace api.Services
         {
             var dimPid = await _ttvContext.DimPids
                 .Include(i => i.DimKnownPerson)
-                    .ThenInclude(kp => kp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == "ORCID");
+                    .ThenInclude(kp => kp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
 
             if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
             {
@@ -41,13 +41,58 @@ namespace api.Services
             }
         }
 
+        // Get id of ORCID DimOrganization.
+        // Create organization if it does not exist.
+        public async Task<int> GetOrcidOrganizationId()
+        {
+            var orcidOrganization = await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameEn == "ORCID");
+            if (orcidOrganization == null)
+            {
+                orcidOrganization = new DimOrganization()
+                {
+                    DimSectorid = -1,
+                    OrganizationId = "ORCID",
+                    OrganizationActive = true,
+                    NameFi = "ORCID",
+                    NameEn = "ORCID",
+                    NameSv = "ORCID",
+                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = DateTime.Now,
+                    DimRegisteredDataSourceId = -1
+                };
+                _ttvContext.DimOrganizations.Add(orcidOrganization);
+                await _ttvContext.SaveChangesAsync();
+                return orcidOrganization.Id;
+            }
+            else
+            {
+                return orcidOrganization.Id;
+            }
+        }
+
         // Get id of ORCID DimRegisteredDataSource.
+        // Create data source if it does not exist.
         public async Task<int> GetOrcidRegisteredDataSourceId()
         {
-            var orcidRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(p => p.Name == "ORCID");
+            var orcidDatasourceName = "ORCID";
+            var orcidRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(p => p.Name == orcidDatasourceName);
             if (orcidRegisteredDataSource == null)
             {
-                return -1;
+                // Get ORCID organization
+                var orcidOrganizationId = await this.GetOrcidOrganizationId();
+
+                orcidRegisteredDataSource = new DimRegisteredDataSource()
+                {
+                    DimOrganizationId = orcidOrganizationId,
+                    Name = orcidDatasourceName,
+                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = DateTime.Now
+                };
+                _ttvContext.DimRegisteredDataSources.Add(orcidRegisteredDataSource);
+                await _ttvContext.SaveChangesAsync();
+                return orcidRegisteredDataSource.Id;
             }
             else
             {

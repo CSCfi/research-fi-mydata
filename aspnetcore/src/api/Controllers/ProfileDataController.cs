@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace api.Controllers
 {
+    /*
+     * ProfileDataController implements profile editor API commands, such as getting editor data and setting data visibility.
+     */
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]

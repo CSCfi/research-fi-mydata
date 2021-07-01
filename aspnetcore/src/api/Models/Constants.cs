@@ -33,5 +33,10 @@ namespace api.Models
         {
             public const string PROFILE_API = "Profile API";
         }
+
+        public static class PidTypes
+        {
+            public const string ORCID = "ORCID";
+        }
     }
 }
