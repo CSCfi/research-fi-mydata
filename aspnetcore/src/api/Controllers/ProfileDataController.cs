@@ -696,7 +696,7 @@ namespace api.Controllers
                                         itemMeta = new ProfileEditorItemMeta()
                                         {
                                             Id = ffv.DimPublicationId,
-                                            Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
                                             Show = ffv.Show,
                                             PrimaryValue = ffv.PrimaryValue
                                         }
@@ -719,7 +719,7 @@ namespace api.Controllers
                                         itemMeta = new ProfileEditorItemMeta()
                                         {
                                             Id = ffv.DimOrcidPublicationId,
-                                            Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
                                             Show = ffv.Show,
                                             PrimaryValue = ffv.PrimaryValue
                                         }
@@ -817,7 +817,7 @@ namespace api.Controllers
                         factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimEducationId == profileEditorItemMeta.Id).FirstOrDefault();
                         break;
                     case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimPublicationId == profileEditorItemMeta.Id).FirstOrDefault();
+                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimPublicationId == profileEditorItemMeta.Id || ffv.DimOrcidPublicationId == profileEditorItemMeta.Id).FirstOrDefault();
                         break;
                     default:
                         break;
