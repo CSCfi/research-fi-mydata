@@ -137,12 +137,5 @@ namespace api
                 endpoints.MapControllers();
             });
         }
-
-        //// Add demo data
-        //private void AddDemoData(IApplicationBuilder app)
-        //{
-        //    var context = app.ApplicationServices.GetService<TtvContext>();
-        //    var demoDataService = 
-        //}
     }
 }

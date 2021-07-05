@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace api.Controllers
 {
@@ -24,13 +25,15 @@ namespace api.Controllers
         private readonly UserProfileService _userProfileService;
         private readonly OrcidApiService _orcidApiService;
         private readonly OrcidJsonParserService _orcidJsonParserService;
+        private readonly ILogger<OrcidController> _logger;
 
-        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService)
+        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
-            _orcidJsonParserService = orcidJsonParserService;            
+            _orcidJsonParserService = orcidJsonParserService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -39,6 +42,7 @@ namespace api.Controllers
         {
             // Get userprofile
             var orcidId = this.GetOrcidId();
+            _logger.LogInformation(orcidId + " get ORCID data request");
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
@@ -742,6 +746,8 @@ namespace api.Controllers
                     await _ttvContext.SaveChangesAsync();
                 }
             }
+
+            _logger.LogInformation(orcidId + " get ORCID data success");
 
             return Ok(new ApiResponse(success: true));
         }

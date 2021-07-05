@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace api.Controllers
 {
@@ -23,13 +24,15 @@ namespace api.Controllers
         private readonly DemoDataService _demoDataService;
         private readonly OrcidApiService _orcidApiService;
         private readonly UserProfileService _userProfileService;
+        private readonly ILogger<UserProfileController> _logger;
 
-        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, OrcidApiService orcidApiService, UserProfileService userProfileService)
+        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, OrcidApiService orcidApiService, UserProfileService userProfileService, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _demoDataService = demoDataService;
             _orcidApiService = orcidApiService;
             _userProfileService = userProfileService;
+            _logger = logger;
         }
 
         // Check if profile exists.
@@ -37,6 +40,7 @@ namespace api.Controllers
         public async Task<IActionResult> Get()
         {
             var orcidId = this.GetOrcidId();
+            _logger.LogInformation(orcidId + " check profile exists request");
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId > 0)
             {
@@ -51,6 +55,7 @@ namespace api.Controllers
         {
             // Get ORCID ID
             var orcidId = this.GetOrcidId();
+            _logger.LogInformation(orcidId + " create profile request");
 
             // Get DimPid by ORCID Id.
             // Also get related entities. Needed when searching existing data that should be automatically included in profile.
@@ -235,6 +240,7 @@ namespace api.Controllers
                 await _userProfileService.AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
             }
 
+            _logger.LogInformation(orcidId + " profile created");
             return Ok(new ApiResponse(success: true));
         }
 
@@ -244,6 +250,9 @@ namespace api.Controllers
         {
             // Get userprofile
             var orcidId = this.GetOrcidId();
+
+            _logger.LogInformation(orcidId + " delete profile request");
+
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
@@ -409,7 +418,9 @@ namespace api.Controllers
             // Must not remove DimPid.
 
             await _ttvContext.SaveChangesAsync();
-            
+
+            _logger.LogInformation(orcidId + " profile deleted");
+
             return Ok(new ApiResponse(success: true));
         }
     }
