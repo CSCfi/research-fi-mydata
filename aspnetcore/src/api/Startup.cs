@@ -40,12 +40,6 @@ namespace api
 
             services.AddControllers();
 
-            // Add Forwarded Headers Middleware to enable client ip address detection behind load balancer.
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            });
-
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
                 {
@@ -111,6 +105,13 @@ namespace api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DemoDataService demoDataService)
         {
+            // Use Forwarded Headers Middleware to enable client ip address detection behind load balancer.
+            // Must run this before other middleware.
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             // Add registered data sources, organizations etc. needed in demo.
             // Most of demo data is added to each user, who creates a profile.
             demoDataService.InitDemo();
@@ -122,8 +123,7 @@ namespace api
                 //app.UseSwagger();
                 //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "api v1"));
             }
-            app.UseForwardedHeaders();
-            //app.UseHttpsRedirection();
+
             app.UseRouting();
 
             // CORS policy depends on the environment
