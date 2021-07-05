@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace api.Controllers
 {
     /*
-     * UserProfileController handles creation, existence check and deletion of user profile.
+     * UserProfileController handles creation, existence check and deletion of userprofile.
      */
     [Route("api/[controller]")]
     [ApiController]
@@ -39,9 +39,15 @@ namespace api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
+            // Get ORCID id.
             var orcidId = this.GetOrcidId();
-            _logger.LogInformation(orcidId + " check profile exists request");
+            // Log request
+            _logger.LogInformation(orcidId + " check profile exists request from ip address: " + HttpContext.Connection.RemoteIpAddress?.ToString());
+
+            // Get userprofile id from ORCID id.
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+
+            // Userprofile id must be positive.
             if (userprofileId > 0)
             {
                 return Ok(new ApiResponse(success: true));
@@ -53,11 +59,12 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create()
         {
-            // Get ORCID ID
+            // Get ORCID id.
             var orcidId = this.GetOrcidId();
-            _logger.LogInformation(orcidId + " create profile request");
+            // Log request
+            _logger.LogInformation(orcidId + " create profile request from ip address: " + HttpContext.Connection.RemoteIpAddress?.ToString());
 
-            // Get DimPid by ORCID Id.
+            // Get DimPid by ORCID id.
             // Also get related entities. Needed when searching existing data that should be automatically included in profile.
             var dimPid = await _ttvContext.DimPids
                 .Include(dp => dp.DimKnownPerson)
@@ -244,15 +251,17 @@ namespace api.Controllers
             return Ok(new ApiResponse(success: true));
         }
 
+
         // Delete profile
         [HttpDelete]
         public async Task<IActionResult> Delete()
         {
-            // Get userprofile
+            // Get ORCID id.
             var orcidId = this.GetOrcidId();
+            // Log request.
+            _logger.LogInformation(orcidId + " delete profile request from ip address: " + HttpContext.Connection.RemoteIpAddress?.ToString());
 
-            _logger.LogInformation(orcidId + " delete profile request");
-
+            // Check that userprofile exists.
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {

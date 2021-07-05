@@ -40,9 +40,12 @@ namespace api.Controllers
         // TODO: Currently adding and updating ORCID data works, but detecting deleted ORCID data and deleting them is TTV database is not implemented.
         public async Task<IActionResult> Get()
         {
-            // Get userprofile
+            // Get ORCID id.
             var orcidId = this.GetOrcidId();
-            _logger.LogInformation(orcidId + " get ORCID data request");
+            // Log request.
+            _logger.LogInformation(orcidId + " get ORCID data request from ip address " + HttpContext.Connection.RemoteIpAddress?.ToString());
+
+            // Check that userprofile exists.
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
@@ -115,7 +118,7 @@ namespace api.Controllers
             var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
 
 
-            // Must use "Constants.SourceIdentifiers.ORCID" as value for "FactFieldValue.SourceId". It is used to identify what data can be deleted when user profile is deleted.
+            // Must use "Constants.SourceIdentifiers.ORCID" as value for "FactFieldValue.SourceId". It is used to identify what data can be deleted when userprofile is deleted.
 
 
             // Name

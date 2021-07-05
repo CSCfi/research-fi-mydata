@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace api.Services
 {
     /*
-     * UserProfileService implements utilities, which simplify handling of user profile and related data.
+     * UserProfileService implements utilities, which simplify handling of userprofile and related data.
      */
     public class UserProfileService
     {
@@ -393,7 +393,7 @@ namespace api.Services
         //}
 
         /*
-         * Add publications from DimPublication into user profile.
+         * Add publications from DimPublication into userprofile.
          */
         public async Task AddTtvPublications(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
         {
