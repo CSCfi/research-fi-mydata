@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +7,11 @@ using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Services
-{ 
+{
+    /*
+     * DemoDataService adds demo data to each profile.
+     * This service is used in summer 2021 demo and must be disabled after that.
+     */
     public class DemoDataService
     {
         private readonly TtvContext _ttvContext;

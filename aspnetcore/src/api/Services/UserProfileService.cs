@@ -7,7 +7,10 @@ using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Services
-{ 
+{
+    /*
+     * UserProfileService implements utilities, which simplify handling of user profile and related data.
+     */
     public class UserProfileService
     {
         private readonly TtvContext _ttvContext;
@@ -17,14 +20,18 @@ namespace api.Services
             _ttvContext = ttvContext;
         }
 
-        // Check if data related to FactFieldValue can be removed.
+        /*
+         * Check if data related to FactFieldValue can be removed.
+         */
         public bool CanDeleteFactFieldValueRelatedData(FactFieldValue ffv)
         {
             // ORCID and demo data can be removed.
             return ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO;
         }
 
-        // Get id of DimUserProfile.
+        /*
+         * Get id of DimUserProfile.
+         */
         public async Task<int> GetUserprofileId(String orcidId)
         {
             var dimPid = await _ttvContext.DimPids
@@ -41,8 +48,10 @@ namespace api.Services
             }
         }
 
-        // Get id of ORCID DimOrganization.
-        // Create organization if it does not exist.
+        /* 
+         * Get id of ORCID DimOrganization.
+         * Create organization if it does not exist.
+         */
         public async Task<int> GetOrcidOrganizationId()
         {
             var orcidOrganization = await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameEn == "ORCID");
@@ -71,8 +80,10 @@ namespace api.Services
             }
         }
 
-        // Get id of ORCID DimRegisteredDataSource.
-        // Create data source if it does not exist.
+        /*
+         * Get id of ORCID DimRegisteredDataSource.
+         * Create data source if it does not exist.
+         */
         public async Task<int> GetOrcidRegisteredDataSourceId()
         {
             var orcidDatasourceName = "ORCID";
@@ -100,7 +111,9 @@ namespace api.Services
             }
         }
 
-        // Get id of Tiedejatutkimus.fi DimRegisteredDataSource.
+        /*
+         * Get id of Tiedejatutkimus.fi DimRegisteredDataSource.
+         */
         public async Task<int> GetTiedejatutkimusFiRegisteredDataSourceId()
         {
             var tiedejatutkimusfiRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(p => p.Name == Constants.SourceIdentifiers.TIEDEJATUTKIMUS);
@@ -114,7 +127,9 @@ namespace api.Services
             }
         }
 
-        // Add or update DimName.
+        /*
+         * Add or update DimName.
+         */
         public async Task<DimName> AddOrUpdateDimName(String lastName, String firstNames, int dimKnownPersonId, int dimRegisteredDataSourceId)
         {
             var dimName = await _ttvContext.DimNames.FirstOrDefaultAsync(dn => dn.DimKnownPersonIdConfirmedIdentityNavigation.Id == dimKnownPersonId && dn.DimRegisteredDataSourceId == dimRegisteredDataSourceId);
@@ -143,7 +158,9 @@ namespace api.Services
             return dimName;
         }
 
-        // Add or update DimResearcherDescription.
+        /*
+         * Add or update DimResearcherDescription.
+         */
         public async Task<DimResearcherDescription> AddOrUpdateDimResearcherDescription(String description_fi, String description_en, String description_sv, int dimKnownPersonId, int dimRegisteredDataSourceId)
         {
             var dimResearcherDescription = await _ttvContext.DimResearcherDescriptions.FirstOrDefaultAsync(dr => dr.DimKnownPersonId == dimKnownPersonId && dr.DimRegisteredDataSourceId == dimRegisteredDataSourceId);
@@ -173,7 +190,9 @@ namespace api.Services
             return dimResearcherDescription;
         }
 
-        // Add or update DimEmailAddrress.
+        /*
+         * Add or update DimEmailAddrress.
+         */
         public async Task<DimEmailAddrress> AddOrUpdateDimEmailAddress(string emailAddress, int dimKnownPersonId, int dimRegisteredDataSourceId)
         {
             var dimEmailAddress = await _ttvContext.DimEmailAddrresses.FirstOrDefaultAsync(dr => dr.Email == emailAddress && dr.DimKnownPersonId == dimKnownPersonId && dr.DimRegisteredDataSourceId == dimRegisteredDataSourceId);
@@ -198,7 +217,10 @@ namespace api.Services
             return dimEmailAddress;
         }
 
-        // Get empty FactFieldValue.
+        /*
+         * Get empty FactFieldValue.
+         * Must use -1 in required foreign keys.
+         */
         public FactFieldValue GetEmptyFactFieldValue()
         {
             return new FactFieldValue()
@@ -234,7 +256,9 @@ namespace api.Services
             };
         }
 
-        // Get empty FactFieldValue. Set SourceID to ORCID.
+        /*
+         * Get empty FactFieldValue. Set SourceID to ORCID.
+         */
         public FactFieldValue GetEmptyFactFieldValueOrcid()
         {
             var factFieldValue = this.GetEmptyFactFieldValue();
@@ -242,7 +266,9 @@ namespace api.Services
             return factFieldValue;
         }
 
-        // Get empty FactFieldValue. Set SourceID to DEMO.
+        /*
+         * Get empty FactFieldValue. Set SourceID to DEMO.
+         */
         public FactFieldValue GetEmptyFactFieldValueDemo()
         {
             var factFieldValue = this.GetEmptyFactFieldValue();
@@ -250,7 +276,10 @@ namespace api.Services
             return factFieldValue;
         }
 
-        // Get empty DimOrcidPublication.
+        /*
+         * Get empty DimOrcidPublication.
+         * Must use -1 in required foreign keys.
+         */
         public DimOrcidPublication GetEmptyDimOrcidPublication()
         {
             return new DimOrcidPublication()
@@ -296,7 +325,10 @@ namespace api.Services
         }
 
 
-        // Get empty DimPid.
+        /*
+         * Get empty DimPid.
+         * Must use -1 in required foreign keys.
+         */
         public DimPid GetEmptyDimPid()
         {
             return new DimPid()
@@ -360,24 +392,36 @@ namespace api.Services
         //    return false;
         //}
 
-        // Add publications from DimPublication into user profile.
+        /*
+         * Add publications from DimPublication into user profile.
+         */
         public async Task AddTtvPublications(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
         {
-            // Loop DimNames, then related FactContributions. FactContribution may have relation to DimPublication (DimPublicationId != -1).
-            // NOTE! Data source for DimPublication must be taken from DimName, not from DimPublication. Skip item if DimName does not have data source set.
+            /*
+             * Loop DimNames, then related FactContributions. FactContribution may have relation to DimPublication (DimPublicationId != -1).
+             * 
+             * DimKnownPerson => DimName => FactContribution => DimPublication
+             * 
+             * NOTE! Data source for DimPublication must be taken from DimName, not from DimPublication.
+             * Skip item if DimName does not have data source set.
+             */
             foreach (DimName dimName in dimKnownPerson.DimNameDimKnownPersonIdConfirmedIdentityNavigations)
             {
+                // Collect publication ids into a list.
                 var publicationsIds = new List<int>();
+                // Registered data source from DimName must be used as a publication data source.
                 var dimNameRegisteredDataSource = dimName.DimRegisteredDataSource;
 
+                // Skip if DimName does not have registered data source.
                 if (dimNameRegisteredDataSource != null)
                 {
+                    // DimName can relate to many FactContributions. Collect valid publication ids (not -1).
                     foreach (FactContribution factContribution in dimName.FactContributions.Where(fc => fc.DimPublicationId != -1))
                     {
                         publicationsIds.Add(factContribution.DimPublicationId);
                     }
 
-                    // DimFieldDisplaySetting
+                    // Get DimFieldDisplaySetting for the registered data source.
                     var dimFieldDisplaySetting = await _ttvContext.DimFieldDisplaySettings
                         .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources).AsNoTracking()
                             .FirstOrDefaultAsync(
@@ -386,6 +430,8 @@ namespace api.Services
                                     dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION &&
                                     dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == dimNameRegisteredDataSource.Id
                             );
+
+                    // If it was not found, then create DimFieldDisplaySetting for the registered data source.
                     if (dimFieldDisplaySetting == null)
                     {
                         dimFieldDisplaySetting = new DimFieldDisplaySetting()
@@ -423,6 +469,10 @@ namespace api.Services
             }
         }
 
+        /*
+         * Search and add data from TTV database.
+         * This is data that is already linked to the ORCID id in DimPid and it's related DimKnownPerson.
+         */
         public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
         {
             await this.AddTtvPublications(dimKnownPerson, dimUserProfile);

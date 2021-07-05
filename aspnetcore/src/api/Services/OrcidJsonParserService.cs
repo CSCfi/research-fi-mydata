@@ -4,9 +4,18 @@ using System.Text.Json;
 using api.Models.Orcid;
 
 namespace api.Services
-{ 
+{
+    /*
+     * OrcidJsonParserService parses elements from user's ORCID json record.
+     * 
+     * ORCID record schema
+     * https://info.orcid.org/documentation/integration-guide/orcid-record/
+     */
     public class OrcidJsonParserService
     {
+        /*
+         * Put code
+         */
         private OrcidPutCode getOrcidPutCode(JsonElement orcidJsonElement)
         {
             var putCode = new OrcidPutCode(null);
@@ -24,6 +33,9 @@ namespace api.Services
             return putCode;
         }
 
+        /*
+         * Date
+         */
         private OrcidDate getOrcidDate(JsonElement orcidJsonDateElement)
         {
             var orcidDate = new OrcidDate();
@@ -55,7 +67,9 @@ namespace api.Services
             return orcidDate;
         }
 
-        // Get DOI from ORCID publication
+        /*
+         * Get DOI from ORCID publication
+         */
         private string getPublicationDoi(JsonElement workElement)
         {
             string doi = "";
@@ -77,7 +91,9 @@ namespace api.Services
             return doi;
         }
 
-        // Get publication year from ORCID publication
+        /*
+         * Get publication year from ORCID publication
+         */
         private int? getPublicationYear(JsonElement workElement)
         {
             int? publicationYear = null;
@@ -97,14 +113,18 @@ namespace api.Services
             return publicationYear;
         }
 
-        // Check if Json document is full ORCID record
+        /*
+         * Check if Json document is full ORCID record
+         */
         private Boolean isFullRecord(JsonDocument orcidJsonDocument)
         {
             var myValue = new System.Text.Json.JsonElement();
             return orcidJsonDocument.RootElement.TryGetProperty("person", out myValue);
         }
 
-        // Get given names
+        /*
+         * Given names
+         */
         public OrcidGivenNames GetGivenNames(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
@@ -130,7 +150,9 @@ namespace api.Services
             }
         }
 
-        // Get family name
+        /*
+         * Family name
+         */
         public OrcidFamilyName GetFamilyName(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
@@ -156,7 +178,9 @@ namespace api.Services
             }
         }
 
-        // Get credit name
+        /*
+         * Credit name
+         */
         public OrcidCreditName GetCreditName(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
@@ -182,7 +206,9 @@ namespace api.Services
             }
         }
 
-        // Get other names
+        /*
+         * Other names
+         */
         public List<OrcidOtherName> GetOtherNames(String json)
         {
             var otherNamesElement = new JsonElement();
@@ -210,7 +236,9 @@ namespace api.Services
             return otherNames;
         }
 
-        // Get biography
+        /*
+         * Biography
+         */
         public OrcidBiography GetBiography(String json)
         {
             using (JsonDocument document = JsonDocument.Parse(json))
@@ -249,7 +277,9 @@ namespace api.Services
             }
         }
 
-        // Get researcher urls
+        /*
+         * Researcher urls
+         */
         public List<OrcidResearcherUrl> GetResearcherUrls(String json)
         {
             var urls = new List<OrcidResearcherUrl> { };
@@ -269,7 +299,9 @@ namespace api.Services
             return urls;
         }
 
-        // Get emails
+        /*
+         * Emails
+         */
         public List<OrcidEmail> GetEmails(String json)
         {
             var emails = new List<OrcidEmail> { };
@@ -288,7 +320,9 @@ namespace api.Services
             return emails;
         }
 
-        // Get keywords
+        /*
+         * Keywords
+         */
         public List<OrcidKeyword> GetKeywords(String json)
         {
             var keywords = new List<OrcidKeyword> { };
@@ -307,7 +341,9 @@ namespace api.Services
             return keywords;
         }
 
-        // Get external identifiers
+        /*
+         * External identifiers
+         */
         public List<OrcidExternalIdentifier> GetExternalIdentifiers(String json)
         {
             var externalIdentifiers = new List<OrcidExternalIdentifier> { };
@@ -328,7 +364,9 @@ namespace api.Services
             return externalIdentifiers;
         }
 
-        // Get educations
+        /*
+         * Educations
+         */
         public List<OrcidEducation> GetEducations(String json)
         {
             var educations = new List <OrcidEducation> { };
@@ -367,7 +405,9 @@ namespace api.Services
             return educations;
         }
 
-        // Get employments
+        /*
+         * Employments
+         */
         public List<OrcidEmployment> GetEmployments(String json)
         {
             var employments = new List<OrcidEmployment> { };
@@ -408,7 +448,9 @@ namespace api.Services
             return employments;
         }
 
-        // Get publications
+        /*
+         * Publications
+         */
         public List<OrcidPublication> GetPublications(String json)
         {
             var publications = new List<OrcidPublication> { };

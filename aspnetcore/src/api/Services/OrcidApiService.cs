@@ -3,7 +3,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace api.Services
-{ 
+{
+    /*
+     * OrcidApiService handles ORCID api http requests.
+     */
     public class OrcidApiService
     {
         public HttpClient Client { get; }
