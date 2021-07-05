@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace api
 {
@@ -38,6 +39,12 @@ namespace api
                 options.UseSqlServer(connectionString));
 
             services.AddControllers();
+
+            // Add Forwarded Headers Middleware to enable client ip address detection behind load balancer.
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
 
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
@@ -115,7 +122,7 @@ namespace api
                 //app.UseSwagger();
                 //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "api v1"));
             }
-
+            app.UseForwardedHeaders();
             //app.UseHttpsRedirection();
             app.UseRouting();
 
