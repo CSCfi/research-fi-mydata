@@ -43,7 +43,7 @@ namespace api.Controllers
             // Get ORCID id.
             var orcidId = this.GetOrcidId();
             // Log request.
-            _logger.LogInformation(orcidId + " get ORCID data request from ip address " + HttpContext.Connection.RemoteIpAddress?.ToString());
+            _logger.LogInformation(this.GetLogTimestamp() + ": " + orcidId + " get ORCID data request from ip address " + HttpContext.Connection.RemoteIpAddress?.ToString());
 
             // Check that userprofile exists.
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
@@ -750,7 +750,7 @@ namespace api.Controllers
                 }
             }
 
-            _logger.LogInformation(orcidId + " get ORCID data success");
+            _logger.LogInformation(this.GetLogTimestamp() + ": " + orcidId + " get ORCID data success");
 
             return Ok(new ApiResponse(success: true));
         }

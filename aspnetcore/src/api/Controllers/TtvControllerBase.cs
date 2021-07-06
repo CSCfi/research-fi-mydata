@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 /*
@@ -10,5 +11,11 @@ public abstract class TtvControllerBase : ControllerBase
     protected string GetOrcidId()
     {
         return User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
+    }
+
+    // Get timestamp for logging
+    public string GetLogTimestamp()
+    {
+        return DateTime.UtcNow.ToString("s");
     }
 }

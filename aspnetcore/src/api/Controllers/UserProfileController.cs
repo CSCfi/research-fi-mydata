@@ -42,7 +42,7 @@ namespace api.Controllers
             // Get ORCID id.
             var orcidId = this.GetOrcidId();
             // Log request
-            _logger.LogInformation(orcidId + " check profile exists request from ip address: " + HttpContext.Connection.RemoteIpAddress?.ToString());
+            _logger.LogInformation(this.GetLogTimestamp() + ": " + orcidId + " check profile exists request from ip address: " + HttpContext.Connection.RemoteIpAddress?.ToString());
 
             // Get userprofile id from ORCID id.
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
@@ -62,7 +62,7 @@ namespace api.Controllers
             // Get ORCID id.
             var orcidId = this.GetOrcidId();
             // Log request
-            _logger.LogInformation(orcidId + " create profile request from ip address: " + HttpContext.Connection.RemoteIpAddress?.ToString());
+            _logger.LogInformation(this.GetLogTimestamp() + ": " + orcidId + " create profile request from ip address: " + HttpContext.Connection.RemoteIpAddress?.ToString());
 
             // Get DimPid by ORCID id.
             // Also get related entities. Needed when searching existing data that should be automatically included in profile.
@@ -247,7 +247,7 @@ namespace api.Controllers
                 await _userProfileService.AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
             }
 
-            _logger.LogInformation(orcidId + " profile created");
+            _logger.LogInformation(this.GetLogTimestamp() + ": " + orcidId + " profile created");
             return Ok(new ApiResponse(success: true));
         }
 
@@ -259,7 +259,7 @@ namespace api.Controllers
             // Get ORCID id.
             var orcidId = this.GetOrcidId();
             // Log request.
-            _logger.LogInformation(orcidId + " delete profile request from ip address: " + HttpContext.Connection.RemoteIpAddress?.ToString());
+            _logger.LogInformation(this.GetLogTimestamp() + ": " + orcidId + " delete profile request from ip address: " + HttpContext.Connection.RemoteIpAddress?.ToString());
 
             // Check that userprofile exists.
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
@@ -428,7 +428,7 @@ namespace api.Controllers
 
             await _ttvContext.SaveChangesAsync();
 
-            _logger.LogInformation(orcidId + " profile deleted");
+            _logger.LogInformation(this.GetLogTimestamp() + ": " + orcidId + " profile deleted");
 
             return Ok(new ApiResponse(success: true));
         }
