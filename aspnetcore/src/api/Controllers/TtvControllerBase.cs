@@ -13,9 +13,10 @@ public abstract class TtvControllerBase : ControllerBase
         return User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
     }
 
-    // Get timestamp for logging
-    public string GetLogTimestamp()
+    // Get prefix for log message
+    // [timestamp][ORCID ID][ip address]
+    public string GetLogPrefix()
     {
-        return DateTime.UtcNow.ToString("s");
+        return "[" + DateTime.UtcNow.ToString("s") + "][" + this.GetOrcidId() +  "][" + HttpContext.Connection.RemoteIpAddress?.ToString() + "]";
     }
 }
