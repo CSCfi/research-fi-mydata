@@ -456,7 +456,7 @@ namespace api.Services
                     await _ttvContext.SaveChangesAsync();
 
                     // Add FactFieldValues for DimPublications
-                    foreach (int publicationId in publicationsIds)
+                    foreach (int publicationId in publicationsIds.Distinct())
                     {
                         var factFieldValuePublication = this.GetEmptyFactFieldValue();
                         factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
