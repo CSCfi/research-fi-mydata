@@ -145,8 +145,10 @@ namespace api.Services
                     return new OrcidGivenNames(
                         valueElement.GetString()
                     );
+                } else
+                {
+                    return new OrcidGivenNames("");
                 }
-                return null;
             }
         }
 
@@ -174,7 +176,10 @@ namespace api.Services
                         valueElement.GetString()
                     );
                 }
-                return null;
+                else
+                {
+                    return new OrcidFamilyName("");
+                }
             }
         }
 
@@ -202,7 +207,10 @@ namespace api.Services
                         valueElement.GetString()
                     );
                 }
-                return null;
+                else
+                {
+                    return new OrcidCreditName("");
+                }
             }
         }
 
