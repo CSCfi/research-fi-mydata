@@ -11,19 +11,18 @@
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "identity",
+      "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "Api": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "identity",
-      "applicationUrl": "https://localhost:6001",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:6001",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OAUTH__AUTHORITY": "https://<auth server address>"
       }
     }
   }
