@@ -9,16 +9,16 @@
       "launchBrowser": false,
       "applicationUrl": "http://localhost:5001",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ORCID__CLIENTID": "<ORCID client id>",
-        "ORCID__CLIENTSECRET": "<ORCID client secret>",
-        "IDENTITYSERVER__ORIGIN": "https://<auth server address>",
-        "JAVASCRIPTCLIENT__DEV__REDIRECTURI": "https://<dev client address>/mydata/redirect",
-        "JAVASCRIPTCLIENT__DEV__POSTLOGOUTREDIRECTURI": "https://<dev client address>/mydata",
-        "JAVASCRIPTCLIENT__DEV__ALLOWEDCORSORIGIN": "https://<dev client address>",
-        "JAVASCRIPTCLIENT__TEST__REDIRECTURI": "https://<test client address>/mydata/redirect",
-        "JAVASCRIPTCLIENT__TEST__POSTLOGOUTREDIRECTURI": "https://<test client address>/mydata",
-        "JAVASCRIPTCLIENT__TEST__ALLOWEDCORSORIGIN": "https://<test client address>"
+        "ASPNETCORE_ENVIRONMENT": "Development"
+        //"ORCID__CLIENTID": "<ORCID client id>",
+        //"ORCID__CLIENTSECRET": "<ORCID client secret>",
+        //"IDENTITYSERVER__ORIGIN": "https://<auth server address>",
+        //"JAVASCRIPTCLIENT__DEV__REDIRECTURI": "https://<dev client address>/mydata/redirect",
+        //"JAVASCRIPTCLIENT__DEV__POSTLOGOUTREDIRECTURI": "https://<dev client address>/mydata",
+        //"JAVASCRIPTCLIENT__DEV__ALLOWEDCORSORIGIN": "https://<dev client address>",
+        //"JAVASCRIPTCLIENT__TEST__REDIRECTURI": "https://<test client address>/mydata/redirect",
+        //"JAVASCRIPTCLIENT__TEST__POSTLOGOUTREDIRECTURI": "https://<test client address>/mydata",
+        //"JAVASCRIPTCLIENT__TEST__ALLOWEDCORSORIGIN": "https://<test client address>"
       }
     }
   }
