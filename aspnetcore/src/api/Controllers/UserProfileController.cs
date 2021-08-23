@@ -42,7 +42,7 @@ namespace api.Controllers
             // Get ORCID id.
             var orcidId = this.GetOrcidId();
             // Log request
-            _logger.LogInformation(this.GetLogPrefix() + " check profile exists");
+            //_logger.LogInformation(this.GetLogPrefix() + " check profile exists");
 
             // Get userprofile id from ORCID id.
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
