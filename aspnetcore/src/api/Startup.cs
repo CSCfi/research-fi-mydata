@@ -89,6 +89,7 @@ namespace api
                 });
             });
 
+            services.AddResponseCompression();
             services.AddHttpClient<OrcidApiService>();
             services.AddScoped<OrcidJsonParserService>();
             services.AddScoped<UserProfileService>();
@@ -124,6 +125,7 @@ namespace api
                 //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "api v1"));
             }
 
+            app.UseResponseCompression();
             app.UseRouting();
 
             // CORS policy depends on the environment
