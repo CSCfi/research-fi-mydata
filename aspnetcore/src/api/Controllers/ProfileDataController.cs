@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
+using System;
 
 namespace api.Controllers
 {
@@ -20,11 +22,13 @@ namespace api.Controllers
     {
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
+        private IMemoryCache _cache;
 
-        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService)
+        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, IMemoryCache memoryCache)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
+            _cache = memoryCache;
         }
 
         [HttpGet]
@@ -37,6 +41,14 @@ namespace api.Controllers
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Send cached response, if exists. Cache key is ORCID ID
+            ProfileEditorDataResponse cachedResponse;
+            if (_cache.TryGetValue(orcidId, out cachedResponse))
+            {
+                return Ok(new ApiResponse(success: true, data: cachedResponse, fromCache: true));
+            }
+
 
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles
@@ -738,6 +750,14 @@ namespace api.Controllers
                 }
             }
 
+            // Save response in cache
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                // Keep in cache for this time, reset time if accessed.
+                .SetSlidingExpiration(TimeSpan.FromSeconds(60));
+
+            // Save data in cache. Cache key is ORCID ID.
+            _cache.Set(orcidId, profileDataResponse, cacheEntryOptions);
+
             return Ok(new ApiResponse(success: true, data: profileDataResponse));
         }
 
@@ -760,6 +780,9 @@ namespace api.Controllers
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Remove cached profile data response. Cache key is ORCID ID.
+            _cache.Remove(orcidId);
 
 
             var dimUserProfile = await _ttvContext.DimUserProfiles

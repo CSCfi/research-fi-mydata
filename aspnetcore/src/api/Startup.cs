@@ -93,6 +93,7 @@ namespace api
             services.AddScoped<OrcidJsonParserService>();
             services.AddScoped<UserProfileService>();
             services.AddScoped<DemoDataService>();
+            services.AddMemoryCache();
 
             /*
             services.AddSwaggerGen(c =>
