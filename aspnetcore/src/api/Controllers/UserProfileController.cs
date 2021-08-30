@@ -22,16 +22,16 @@ namespace api.Controllers
     {
         private readonly TtvContext _ttvContext;
         private readonly DemoDataService _demoDataService;
-        private readonly OrcidApiService _orcidApiService;
         private readonly UserProfileService _userProfileService;
+        private readonly ElasticsearchService _elasticsearchService;
         private readonly ILogger<UserProfileController> _logger;
 
-        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, OrcidApiService orcidApiService, UserProfileService userProfileService, ILogger<UserProfileController> logger)
+        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, ElasticsearchService elasticsearchService, UserProfileService userProfileService, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _demoDataService = demoDataService;
-            _orcidApiService = orcidApiService;
             _userProfileService = userProfileService;
+            _elasticsearchService = elasticsearchService;
             _logger = logger;
         }
 
@@ -428,6 +428,15 @@ namespace api.Controllers
 
             await _ttvContext.SaveChangesAsync();
 
+
+            // Remove entry from Elasticsearch index
+            // TODO use BackgroundService to handle Elasticsearch API call.
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            {
+                await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+            }
+
+            // Log deletion
             _logger.LogInformation(this.GetLogPrefix() + " profile deleted");
 
             return Ok(new ApiResponse(success: true));
