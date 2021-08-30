@@ -92,6 +92,7 @@ namespace api
             services.AddHttpClient<OrcidApiService>();
             services.AddScoped<OrcidJsonParserService>();
             services.AddScoped<UserProfileService>();
+            services.AddScoped<ElasticsearchService>();
             services.AddScoped<DemoDataService>();
             services.AddMemoryCache();
 

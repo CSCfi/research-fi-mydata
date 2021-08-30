@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace api.Controllers
 {
@@ -22,13 +23,17 @@ namespace api.Controllers
     {
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
+        private readonly ElasticsearchService _elasticsearchService;
         private IMemoryCache _cache;
+        private readonly ILogger<UserProfileController> _logger;
 
-        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, IMemoryCache memoryCache)
+        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _cache = memoryCache;
+            _elasticsearchService = elasticsearchService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -855,6 +860,14 @@ namespace api.Controllers
             }
 
             await _ttvContext.SaveChangesAsync();
+
+            // Update entry in Elasticsearch index
+            // TODO use BackgroundService to handle Elasticsearch API call.
+            // TODO create data structure for Elasticsearch person index.
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            {
+                await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, null);
+            }
 
             return Ok(new ApiResponse(success: true, data: profileEditorDataModificationResponse));
         }
