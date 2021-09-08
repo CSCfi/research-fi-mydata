@@ -52,7 +52,7 @@ objects:
         contextDir: .
       strategy:
         dockerStrategy:
-          dockerfilePath: openshift/api/Dockerfile
+          dockerfilePath: aspnetcore/openshift/api/Dockerfile
       output:
         to:
           kind: ImageStreamTag
