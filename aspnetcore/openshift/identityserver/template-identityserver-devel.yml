@@ -8,47 +8,47 @@ apiVersion: v1
 kind: Template
 metadata:
   labels:
-    app: researchfi-mydata-identityserver-devel
-    template: researchfi-mydata-identityserver-devel
-  name: researchfi-mydata-identityserver-devel
+    app: mydata-identityserver-devel
+    template: mydata-identityserver-devel
+  name: mydata-identityserver-devel
 objects:
   # Service (devel)
   - apiVersion: v1
     kind: Service
     metadata:
-      name: researchfi-mydata-identityserver-service-devel
+      name: mydata-identityserver-service-devel
       labels:
-        app: researchfi-mydata-identityserver-devel
+        app: mydata-identityserver-devel
       annotations:
-        description: Research.fi mydata identityserver service for devel-branch
+        description: Mydata identityserver service for devel branch
     spec:
       ports:
-        - name: mydata-identityserver-devel
+        - name: mydata-identityserver-port-devel
           port: 8080
           targetPort: 8080
       selector:
-        depcfg: mydata-identityserver-devel
+        depcfg: mydata-identityserver-depcfg-devel
 
   # ImageStream (development)
   - apiVersion: v1
     kind: ImageStream
     metadata:
-      name: researchfi-mydata-identityserver-devel
+      name: mydata-identityserver-devel
       labels:
-        app: researchfi-mydata-identityserver-devel
+        app: mydata-identityserver-devel
 
   # BuildConfig using Docker build strategy
   - apiVersion: v1
     kind: BuildConfig
     metadata:
-      name: researchfi-mydata-identityserver-build-devel
+      name: mydata-identityserver-build-devel
       labels:
-        app: researchfi-mydata-identityserver-devel
+        app: mydata-identityserver-devel
     spec:
       source:
         git:
           uri: https://github.com/CSCfi/research-fi-mydata.git
-          ref: devel
+          ref: CSCTTV-2132_2
         contextDir: .
       strategy:
         dockerStrategy:
@@ -56,7 +56,7 @@ objects:
       output:
         to:
           kind: ImageStreamTag
-          name: researchfi-mydata-identityserver-devel:latest
+          name: mydata-identityserver-devel:latest
       successfulBuildsHistoryLimit: 4
       failedBuildsHistoryLimit: 4
 
@@ -64,22 +64,22 @@ objects:
   - apiVersion: v1
     kind: DeploymentConfig
     metadata:
-      name: researchfi-mydata-identityserver-deployment-devel
+      name: mydata-identityserver-deployment-devel
       labels:
-        app: researchfi-mydata-identityserver-devel
+        app: mydata-identityserver-devel
     spec:
       selector:
-        app: researchfi-mydata-identityserver-devel
-        depcfg: mydata-identityserver-devel
+        app: mydata-identityserver-devel
+        depcfg: mydata-identityserver-depcfg-devel
       template:
         metadata:
           labels:
-            app: researchfi-mydata-identityserver-devel
-            depcfg: mydata-identityserver-devel
+            app: mydata-identityserver-devel
+            depcfg: mydata-identityserver-depcfg-devel
         spec:
           containers:
-            - name: mydata-identityserver-devel
-              image: researchfi/researchfi-mydata-identityserver-devel
+            - name: mydata-identityserver-container-devel
+              image: ts/mydata-identityserver-devel
               imagePullPolicy: Always
               ports:
                 - containerPort: 8080
@@ -91,9 +91,9 @@ objects:
           imageChangeParams:
             automatic: true
             containerNames:
-              - mydata-identityserver-devel
+              - mydata-identityserver-container-devel
             from:
               kind: ImageStreamTag
-              name: researchfi-mydata-identityserver-devel:latest
+              name: mydata-identityserver-devel:latest
       strategy:
         type: Rolling
