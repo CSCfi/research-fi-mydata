@@ -48,7 +48,7 @@ objects:
       source:
         git:
           uri: https://github.com/CSCfi/research-fi-mydata.git
-          ref: CSCTTV-2132_2
+          ref: devel
         contextDir: .
       strategy:
         dockerStrategy:
@@ -79,7 +79,7 @@ objects:
         spec:
           containers:
             - name: mydata-identityserver-container-devel
-              image: ts/mydata-identityserver-devel
+              image: researchfi/mydata-identityserver-devel
               imagePullPolicy: Always
               ports:
                 - containerPort: 8080
