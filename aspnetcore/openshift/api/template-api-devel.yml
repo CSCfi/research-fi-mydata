@@ -1,0 +1,99 @@
+# This file is part of the research.fi service
+#
+# Copyright 2021 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: v1
+kind: Template
+metadata:
+  labels:
+    app: researchfi-mydata-api-devel
+    template: researchfi-mydata-api-devel
+  name: researchfi-mydata-api-devel
+objects:
+  # Service (devel)
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: researchfi-mydata-api-service-devel
+      labels:
+        app: researchfi-mydata-api-devel
+      annotations:
+        description: Research.fi mydata api service for devel-branch
+    spec:
+      ports:
+        - name: mydata-api-devel
+          port: 8080
+          targetPort: 8080
+      selector:
+        depcfg: mydata-api-devel
+
+  # ImageStream (development)
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: researchfi-mydata-api-devel
+      labels:
+        app: researchfi-mydata-api-devel
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: researchfi-mydata-api-build-devel
+      labels:
+        app: researchfi-mydata-api-devel
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: devel
+        contextDir: .
+      strategy:
+        dockerStrategy:
+          dockerfilePath: aspnetcore/openshift/api/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: researchfi-mydata-api-devel:latest
+      successfulBuildsHistoryLimit: 4
+      failedBuildsHistoryLimit: 4
+
+  # Deployment config (development)
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: researchfi-mydata-api-deployment-devel
+      labels:
+        app: researchfi-mydata-api-devel
+    spec:
+      selector:
+        app: researchfi-mydata-api-devel
+        depcfg: mydata-api-devel
+      template:
+        metadata:
+          labels:
+            app: researchfi-mydata-api-devel
+            depcfg: mydata-api-devel
+        spec:
+          containers:
+            - name: mydata-api-devel
+              image: researchfi/researchfi-mydata-api-devel
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+      replicas: 1
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - mydata-api-devel
+            from:
+              kind: ImageStreamTag
+              name: researchfi-mydata-api-devel:latest
+      strategy:
+        type: Rolling
