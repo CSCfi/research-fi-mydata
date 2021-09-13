@@ -11,7 +11,7 @@ RUN dotnet publish -c Release -o out
 
 
 # Runtime image
-FROM dotnet-31-runtime-rhel7:latest
+FROM docker-registry.default.svc:5000/ts/dotnet-31-runtime-rhel7:latest
 WORKDIR /app
 COPY --from=build-env /app/out .
 EXPOSE 8080
