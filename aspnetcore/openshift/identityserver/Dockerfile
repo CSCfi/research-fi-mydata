@@ -11,9 +11,8 @@ RUN dotnet publish -c Release -o out
 
 
 # Runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:3.1
+FROM dotnet-31-runtime-rhel7:latest
 WORKDIR /app
 COPY --from=build-env /app/out .
-RUN touch /app/tempkey.jwk && chmod a+rwx /app/tempkey.jwk
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "identityserver.dll"]
