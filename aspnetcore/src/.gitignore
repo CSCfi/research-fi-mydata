@@ -2,3 +2,4 @@
 src/api/obj
 src/identityserver/bin
 src/identityserver/obj
+src/identityserver/tempkey.jwk
