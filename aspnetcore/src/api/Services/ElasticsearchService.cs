@@ -16,19 +16,31 @@ namespace api.Services
         public IConfiguration Configuration { get; }
         private readonly ILogger<ElasticsearchService> _logger;
 
+        // Check if Elasticsearch synchronization is enabled and related configuration is valid.
+        public Boolean IsElasticsearchSyncEnabled()
+        {
+            return Configuration["ELASTICSEARCH"] != null
+                && Configuration["ELASTICSEARCH:ENABLED"] != null
+                && Configuration["ELASTICSEARCH:ENABLED"] == "true"
+                && Configuration["ELASTICSEARCH:URL"] != null
+                && Uri.IsWellFormedUriString(
+                    Configuration["ELASTICSEARCH:URL"],
+                    UriKind.Absolute
+                );
+        }
+
+        // Constructor.
+        // Do not setup HttpClient unless configuration values are ok.
         public ElasticsearchService(IConfiguration configuration, HttpClient client, ILogger<ElasticsearchService> logger)
         {
             Configuration = configuration;
 
-            client.BaseAddress = new Uri(Configuration["ELASTICSEARCH:URL"]);
-            Client = client;
-            _logger = logger;
-        }
-
-        // Check if Elasticsearch synchronization is enabled
-        public Boolean IsElasticsearchSyncEnabled()
-        {
-            return Configuration["ELASTICSEARCH:URL"] != null && Configuration["ELASTICSEARCH:URL"] == "1";
+            if (this.IsElasticsearchSyncEnabled())
+            {
+                client.BaseAddress = new Uri(Configuration["ELASTICSEARCH:URL"]);
+                Client = client;
+                _logger = logger;
+            }
         }
 
         // Get Elasticsearch person index url
