@@ -14,11 +14,17 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.9" />
+    <PackageReference Include="NEST" Version="7.14.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Models\Orcid\" />
     <Folder Include="Services\" />
     <Folder Include="Models\ProfileEditor\" />
+    <Folder Include="Models\Elasticsearch\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="NEST" />
+    <None Remove="Models\Elasticsearch\" />
   </ItemGroup>
 </Project>

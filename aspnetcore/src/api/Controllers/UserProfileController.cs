@@ -268,6 +268,10 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
+            // Remove entry from Elasticsearch index
+            // TODO use BackgroundService to handle Elasticsearch API call.
+            await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+
             // Get DimUserProfile and related data that should be removed. 
             var dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimFieldDisplaySettings)
@@ -427,14 +431,6 @@ namespace api.Controllers
             // Must not remove DimPid.
 
             await _ttvContext.SaveChangesAsync();
-
-
-            // Remove entry from Elasticsearch index
-            // TODO use BackgroundService to handle Elasticsearch API call.
-            if (_elasticsearchService.IsElasticsearchSyncEnabled())
-            {
-                await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
-            }
 
             // Log deletion
             _logger.LogInformation(this.GetLogPrefix() + " profile deleted");
