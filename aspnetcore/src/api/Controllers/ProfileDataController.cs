@@ -863,7 +863,11 @@ namespace api.Controllers
             await _ttvContext.SaveChangesAsync();
 
             // Save in elasticsearch
-            await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, dimUserProfile.Id);
+            // TODO use BackgroundService to handle Elasticsearch API call.
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            {
+                await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, dimUserProfile.Id);
+            }
 
             return Ok(new ApiResponse(success: true, data: profileEditorDataModificationResponse));
         }

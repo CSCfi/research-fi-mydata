@@ -19,7 +19,7 @@ namespace api.Services
     public class ElasticsearchService
     {
         public ElasticClient ESclient;
-        public IConfiguration Configuration { get; }
+        public IConfiguration _configuration { get; }
         private readonly ILogger<ElasticsearchService> _logger;
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
@@ -27,12 +27,11 @@ namespace api.Services
         // Check if Elasticsearch synchronization is enabled and related configuration is valid.
         public Boolean IsElasticsearchSyncEnabled()
         {
-            return Configuration["ELASTICSEARCH"] != null
-                && Configuration["ELASTICSEARCH:ENABLED"] != null
-                && Configuration["ELASTICSEARCH:ENABLED"] == "true"
-                && Configuration["ELASTICSEARCH:URL"] != null
+            return _configuration["ELASTICSEARCH:ENABLED"] != null
+                && _configuration["ELASTICSEARCH:ENABLED"] == "true"
+                && _configuration["ELASTICSEARCH:URL"] != null
                 && Uri.IsWellFormedUriString(
-                    Configuration["ELASTICSEARCH:URL"],
+                    _configuration["ELASTICSEARCH:URL"],
                     UriKind.Absolute
                 );
         }
@@ -41,14 +40,18 @@ namespace api.Services
         // Do not setup HttpClient unless configuration values are ok.
         public ElasticsearchService(TtvContext ttvContext, IConfiguration configuration, HttpClient client, ILogger<ElasticsearchService> logger, UserProfileService userProfileService)
         {
-            var settings = new ConnectionSettings(new Uri("https://tnxwork.eu.ngrok.io/elasticsearch/"))
-                .DefaultIndex("person")
-                .BasicAuthentication("esuser", "megaforce");
-
-            ESclient = new ElasticClient(settings);
+            _configuration = configuration;
             _logger = logger;
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
+
+            if (this.IsElasticsearchSyncEnabled())
+            {
+                var settings = new ConnectionSettings(new Uri(_configuration["ELASTICSEARCH:URL"]))
+                    .DefaultIndex("person")
+                    .BasicAuthentication(_configuration["ELASTICSEARCH:USERNAME"], _configuration["ELASTICSEARCH:PASSWORD"]);
+                ESclient = new ElasticClient(settings);
+            }
         }
             
 
@@ -56,6 +59,10 @@ namespace api.Services
         // TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
         public async Task UpdateEntryInElasticsearchPersonIndex(string orcidId, int userprofileId)
         {
+            if (!this.IsElasticsearchSyncEnabled())
+            {
+                return;
+            }
 
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles
@@ -161,6 +168,11 @@ namespace api.Services
         // Delete entry from Elasticsearch person index
         public async Task DeleteEntryFromElasticsearchPersonIndex(String orcidId)
         {
+            if (!this.IsElasticsearchSyncEnabled())
+            {
+                return;
+            }
+
             var asyncDeleteResponse = await ESclient.DeleteAsync<ElasticPerson>(orcidId);
 
             if (!asyncDeleteResponse.IsValid)

@@ -270,7 +270,10 @@ namespace api.Controllers
 
             // Remove entry from Elasticsearch index
             // TODO use BackgroundService to handle Elasticsearch API call.
-            await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            {
+                await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+            }
 
             // Get DimUserProfile and related data that should be removed. 
             var dimUserProfile = await _ttvContext.DimUserProfiles
