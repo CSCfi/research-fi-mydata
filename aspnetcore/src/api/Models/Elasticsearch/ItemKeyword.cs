@@ -1,8 +1,8 @@
 ﻿namespace api.Models.Elasticsearch
 {
-    public partial class ItemEmail
+    public partial class ItemKeyword
     {
-        public ItemEmail()
+        public ItemKeyword()
         {
             Value = "";
             PrimaryValue = null;

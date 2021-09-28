@@ -7,7 +7,7 @@
             FirstNames = "";
             LastName = "";
             FullName = "";
-            PrimaryValue = false;
+            PrimaryValue = null;
         }
 
         public string FirstNames { get; set; }
