@@ -6,9 +6,11 @@
         {
             id = orcidId;
             personal = new Personal();
+            activity = new Activity();
         }
 
         public string id { get; set; } 
         public Personal personal { get; set; }
+        public Activity activity { get; set; }
     }
 }
