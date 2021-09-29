@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using Microsoft.Extensions.Logging;
+using Nest;
 
 namespace api.Controllers
 {
@@ -861,12 +862,11 @@ namespace api.Controllers
 
             await _ttvContext.SaveChangesAsync();
 
-            // Update entry in Elasticsearch index
+            // Save in elasticsearch
             // TODO use BackgroundService to handle Elasticsearch API call.
-            // TODO create data structure for Elasticsearch person index.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
-                await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, null);
+                await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, dimUserProfile.Id);
             }
 
             return Ok(new ApiResponse(success: true, data: profileEditorDataModificationResponse));
