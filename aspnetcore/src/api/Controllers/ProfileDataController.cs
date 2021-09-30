@@ -866,7 +866,8 @@ namespace api.Controllers
             // TODO use BackgroundService to handle Elasticsearch API call.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
-                await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, dimUserProfile.Id);
+                var person = await _userProfileService.GetProfiledataForElasticsearch(orcidId, dimUserProfile.Id);
+                await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
             }
 
             return Ok(new ApiResponse(success: true, data: profileEditorDataModificationResponse));
