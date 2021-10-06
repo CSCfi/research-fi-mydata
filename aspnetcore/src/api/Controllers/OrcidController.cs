@@ -149,6 +149,7 @@ namespace api.Controllers
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
+                    Modified = DateTime.Now,
                     DimRegisteredDataSourceId = orcidRegisteredDataSourceId
                 };
                 _ttvContext.DimNames.Add(dimName);
@@ -192,7 +193,8 @@ namespace api.Controllers
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimNames.Add(dimName_otherName);
                     await _ttvContext.SaveChangesAsync();
@@ -256,6 +258,7 @@ namespace api.Controllers
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimWebLinks.Add(dimWebLink);
                     await _ttvContext.SaveChangesAsync();
@@ -378,7 +381,8 @@ namespace api.Controllers
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimKeywords.Add(dimKeyword);
                     await _ttvContext.SaveChangesAsync();
@@ -488,7 +492,8 @@ namespace api.Controllers
                         Day = education.StartDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimDates.Add(startDate);
                     await _ttvContext.SaveChangesAsync();
@@ -505,7 +510,8 @@ namespace api.Controllers
                         Day = education.EndDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimDates.Add(endDate);
                     await _ttvContext.SaveChangesAsync();
@@ -540,7 +546,8 @@ namespace api.Controllers
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimKnownPersonId = dimKnownPerson.Id,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimEducations.Add(dimEducation);
                     await _ttvContext.SaveChangesAsync();
@@ -588,7 +595,8 @@ namespace api.Controllers
                         Day = employment.StartDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimDates.Add(startDate);
                     await _ttvContext.SaveChangesAsync();
@@ -605,7 +613,8 @@ namespace api.Controllers
                         Day = employment.EndDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimDates.Add(endDate);
                     await _ttvContext.SaveChangesAsync();
@@ -644,7 +653,9 @@ namespace api.Controllers
                         NameEn = employment.OrganizationName,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
 
                     _ttvContext.DimOrganizations.Add(dimOrganization);
@@ -663,7 +674,8 @@ namespace api.Controllers
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimKnownPersonId = dimKnownPerson.Id,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimAffiliations.Add(dimAffiliation);
                     await _ttvContext.SaveChangesAsync();

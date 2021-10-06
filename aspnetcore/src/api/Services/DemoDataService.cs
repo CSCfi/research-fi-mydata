@@ -94,6 +94,7 @@ namespace api.Services
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
+                    Modified = DateTime.Now,
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organization1);
@@ -110,6 +111,7 @@ namespace api.Services
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
+                    Modified = DateTime.Now,
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organization2);
@@ -126,6 +128,7 @@ namespace api.Services
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
+                    Modified = DateTime.Now,
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organization3);
@@ -148,7 +151,8 @@ namespace api.Services
                     DimOrganizationId = organization1.Id,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimRegisteredDataSources.Add(registeredDatasourceOrg1);
             }
@@ -164,7 +168,8 @@ namespace api.Services
                     DimOrganizationId = organization2.Id,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimRegisteredDataSources.Add(registeredDatasourceOrg2);
             }
@@ -180,7 +185,8 @@ namespace api.Services
                     DimOrganizationId = organization3.Id,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimRegisteredDataSources.Add(registeredDatasourceOrg3);
             }
@@ -201,7 +207,8 @@ namespace api.Services
                     NameFi = "Työsuhde",
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimReferencedata.Add(referenceData);
                 _ttvContext.SaveChanges();
@@ -221,6 +228,7 @@ namespace api.Services
         //            SourceId = Constants.SourceIdentifiers.DEMO,
         //            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
         //            Created = DateTime.Now,
+        //            Modified = DateTime.Now,
         //            DimRegisteredDataSourceId = registeredDatasourceOrg1.Id
         //        }
         //    );
@@ -231,6 +239,7 @@ namespace api.Services
         //            SourceId = Constants.SourceIdentifiers.DEMO,
         //            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
         //            Created = DateTime.Now,
+        //            Modified = DateTime.Now,
         //            DimRegisteredDataSourceId = registeredDatasourceOrg2.Id
         //        }
         //    );
@@ -258,7 +267,8 @@ namespace api.Services
                         NameFi = fieldOfScienceName,
                         SourceId = Constants.SourceIdentifiers.DEMO,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     _ttvContext.DimFieldOfSciences.Add(dimFieldOfScience);
                 }
@@ -328,6 +338,7 @@ namespace api.Services
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
+                Modified = DateTime.Now,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimNameOrganization1);
@@ -342,6 +353,7 @@ namespace api.Services
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
+                Modified = DateTime.Now,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimNameOrganization2);
@@ -370,6 +382,7 @@ namespace api.Services
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
+                Modified = DateTime.Now,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimOtherNameOrganization1_1);
@@ -381,6 +394,7 @@ namespace api.Services
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
+                Modified = DateTime.Now,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimOtherNameOrganization1_2);
@@ -393,6 +407,7 @@ namespace api.Services
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
+                Modified = DateTime.Now,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimOtherNameOrganization2);
@@ -457,7 +472,8 @@ namespace api.Services
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription_Organization1);
             var dimFieldDisplaySettings_researcherDescription_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
@@ -468,7 +484,8 @@ namespace api.Services
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription_Organization2);
             await _ttvContext.SaveChangesAsync();
@@ -493,7 +510,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             var dimKeyword2_Organization1 = new DimKeyword()
             {
@@ -501,7 +519,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             var dimKeyword3_Organization1 = new DimKeyword()
             {
@@ -509,7 +528,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             var dimKeyword4_Organization1 = new DimKeyword()
             {
@@ -517,7 +537,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             _ttvContext.DimKeywords.Add(dimKeyword1_Organization1);
             _ttvContext.DimKeywords.Add(dimKeyword2_Organization1);
@@ -530,7 +551,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             var dimKeyword2_Organization2 = new DimKeyword()
             {
@@ -538,7 +560,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             var dimKeyword3_Organization2 = new DimKeyword()
             {
@@ -546,7 +569,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             var dimKeyword4_Organization2 = new DimKeyword()
             {
@@ -554,7 +578,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             _ttvContext.DimKeywords.Add(dimKeyword1_Organization2);
             _ttvContext.DimKeywords.Add(dimKeyword2_Organization2);
@@ -645,14 +670,16 @@ namespace api.Services
             //    NameFi = "Yleislääketiede",
             //    FieldId = "",
             //    SourceId = Constants.SourceIdentifiers.DEMO,
-            //    Created = DateTime.Now
+            //    Created = DateTime.Now,
+            //    Modified = DateTime.Now
             //};
             //var dimFieldOfScience2_Organization2 = new DimFieldOfScience()
             //{
             //    NameFi = "sisätaudit ja muut kliiniset lääketieteet",
             //    FieldId = "",
             //    SourceId = Constants.SourceIdentifiers.DEMO,
-            //    Created = DateTime.Now
+            //    Created = DateTime.Now,
+            //    Modified = DateTime.Now
             //};
             //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience1_Organization2);
             //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience2_Organization2);
@@ -674,7 +701,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             _ttvContext.DimEmailAddrresses.Add(dimEmail_Organization1);
             var dimFieldDisplaySettings_email_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
@@ -685,7 +713,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             _ttvContext.DimEmailAddrresses.Add(dimEmail_Organization2);
             await _ttvContext.SaveChangesAsync();
@@ -711,7 +740,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             _ttvContext.DimTelephoneNumbers.Add(dimTelephone_Organization1);
             await _ttvContext.SaveChangesAsync();
@@ -731,7 +761,8 @@ namespace api.Services
                 LinkLabel = "Tutkijan oma verkkosivu",
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
             _ttvContext.DimWebLinks.Add(dimWeblink_Organization1);
             await _ttvContext.SaveChangesAsync();
@@ -760,7 +791,8 @@ namespace api.Services
                     Day = 1,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimDates.Add(dimStartDate_affiliation_organization1);
                 await _ttvContext.SaveChangesAsync();
@@ -775,6 +807,7 @@ namespace api.Services
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
+                Modified = DateTime.Now,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimAffiliations.Add(dimAffiliation_Organization1);
@@ -796,7 +829,8 @@ namespace api.Services
                     Day = 1,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimDates.Add(dimStartDate_affiliation_organization2);
                 await _ttvContext.SaveChangesAsync();
@@ -811,7 +845,8 @@ namespace api.Services
                     Day = 31,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimDates.Add(dimEndDate_affiliation_organization2);
                 await _ttvContext.SaveChangesAsync();
@@ -827,6 +862,7 @@ namespace api.Services
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
+                Modified = DateTime.Now,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimAffiliations.Add(dimAffiliation_Organization2);
@@ -851,7 +887,8 @@ namespace api.Services
                     Day = 0,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimDates.Add(dimEndDate_education_organization2);
                 await _ttvContext.SaveChangesAsync();
@@ -865,6 +902,7 @@ namespace api.Services
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
+                Modified = DateTime.Now,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimEducations.Add(dimEducation_Organization2);

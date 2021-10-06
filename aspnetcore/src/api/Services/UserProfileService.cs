@@ -69,6 +69,7 @@ namespace api.Services
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
+                    Modified = DateTime.Now,
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(orcidOrganization);
@@ -100,7 +101,8 @@ namespace api.Services
                     Name = orcidDatasourceName,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimRegisteredDataSources.Add(orcidRegisteredDataSource);
                 await _ttvContext.SaveChangesAsync();
@@ -145,6 +147,7 @@ namespace api.Services
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
+                    Modified = DateTime.Now,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
                 _ttvContext.DimNames.Add(dimName);
@@ -175,6 +178,7 @@ namespace api.Services
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
+                    Modified = DateTime.Now,
                     DimKnownPersonId = dimKnownPersonId,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
@@ -205,6 +209,7 @@ namespace api.Services
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
+                    Modified = DateTime.Now,
                     DimKnownPersonId = dimKnownPersonId,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
@@ -253,7 +258,7 @@ namespace api.Services
                 SourceId = " ",
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = DateTime.Now,
-                Modified = null
+                Modified = DateTime.Now
             };
         }
 
@@ -350,7 +355,8 @@ namespace api.Services
                 DimOrcidPublicationId = -1,
                 SourceId = " ",
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             };
         }
 
@@ -442,7 +448,8 @@ namespace api.Services
                             Show = false,
                             SourceId = " ",
                             SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                            Created = DateTime.Now
+                            Created = DateTime.Now,
+                            Modified = DateTime.Now
                         };
                         dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                             new BrFieldDisplaySettingsDimRegisteredDataSource()

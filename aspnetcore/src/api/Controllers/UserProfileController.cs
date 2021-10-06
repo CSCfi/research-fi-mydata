@@ -93,7 +93,8 @@ namespace api.Controllers
                 dimPid.DimKnownPerson = new DimKnownPerson() {
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 dimPid.SourceId = Constants.SourceIdentifiers.ORCID;
                 _ttvContext.DimPids.Add(dimPid);
@@ -106,7 +107,8 @@ namespace api.Controllers
                 {
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 _ttvContext.DimKnownPeople.Add(kp);
                 dimPid.DimKnownPerson = kp;
@@ -162,7 +164,8 @@ namespace api.Controllers
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
@@ -186,7 +189,8 @@ namespace api.Controllers
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.DEMO,
                         SourceDescription = _demoDataService.GetDemoOrganization1Name(), // In demo must use Org1 name here
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
@@ -209,7 +213,8 @@ namespace api.Controllers
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.DEMO,
                         SourceDescription = _demoDataService.GetDemoOrganization2Name(), // In demo must use Org2 name here
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
+                        Modified = DateTime.Now
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
@@ -230,7 +235,8 @@ namespace api.Controllers
                     Show = false,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = DateTime.Now,
+                    Modified = DateTime.Now
                 };
                 dimFieldDisplaySettingDemoOrganization3.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                     new BrFieldDisplaySettingsDimRegisteredDataSource()
