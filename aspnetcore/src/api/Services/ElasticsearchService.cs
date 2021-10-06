@@ -61,13 +61,21 @@ namespace api.Services
 
             var asyncIndexResponse = await ESclient.IndexDocumentAsync(person);
 
-            if (!asyncIndexResponse.IsValid)
-            {
-                _logger.LogInformation("ElasticsearchService: ERROR updating: " + orcidId + ": " + asyncIndexResponse.OriginalException.Message);
-            }
-            else
+            if (asyncIndexResponse.IsValid)
             {
                 _logger.LogInformation("ElasticsearchService: updated entry: " + orcidId);
+            }
+            else {
+                var errormessage = "";
+                if (asyncIndexResponse.OriginalException != null && asyncIndexResponse.OriginalException.Message != null)
+                {
+                    errormessage = asyncIndexResponse.OriginalException.Message;
+                }
+                else if (asyncIndexResponse.ServerError != null && asyncIndexResponse.ServerError != null && asyncIndexResponse.ServerError.Error != null && asyncIndexResponse.ServerError.Error.Reason != null)
+                {
+                    errormessage = asyncIndexResponse.ServerError.Error.Reason;
+                }
+                _logger.LogError("ElasticsearchService: ERROR updating: " + orcidId + ": " + errormessage);
             }
         }
 
@@ -83,13 +91,21 @@ namespace api.Services
 
             var asyncDeleteResponse = await ESclient.DeleteAsync<ElasticPerson>(orcidId);
 
-            if (!asyncDeleteResponse.IsValid)
-            {
-                _logger.LogInformation("ElasticsearchService: ERROR deleting: " + orcidId + ": " + asyncDeleteResponse.OriginalException.Message);
-            }
-            else
+            if (asyncDeleteResponse.IsValid)
             {
                 _logger.LogInformation("ElasticsearchService: deleted entry: " + orcidId);
+            }
+            else { 
+                var errormessage = "";
+                if (asyncDeleteResponse.OriginalException != null && asyncDeleteResponse.OriginalException.Message != null)
+                {
+                    errormessage = asyncDeleteResponse.OriginalException.Message;
+                }
+                else if (asyncDeleteResponse.ServerError != null && asyncDeleteResponse.ServerError != null && asyncDeleteResponse.ServerError.Error != null && asyncDeleteResponse.ServerError.Error.Reason != null)
+                {
+                    errormessage = asyncDeleteResponse.ServerError.Error.Reason;
+                }
+                _logger.LogError("ElasticsearchService: ERROR deleting: " + orcidId + ": " + errormessage);
             }
         }
     }
