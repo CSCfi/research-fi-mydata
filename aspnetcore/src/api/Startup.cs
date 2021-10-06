@@ -36,7 +36,11 @@ namespace api
 
 
             services.AddDbContext<TtvContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseSqlServer(
+                    connectionString,
+                    options => options.EnableRetryOnFailure()
+                )
+            );
 
             services.AddControllers();
 
