@@ -57,15 +57,17 @@ namespace api.Services
                 return;
             }
 
+            _logger.LogInformation("ElasticsearchService: updating entry: " + orcidId);
+
             var asyncIndexResponse = await ESclient.IndexDocumentAsync(person);
 
             if (!asyncIndexResponse.IsValid)
             {
-                _logger.LogInformation("Elasticsearch: ERROR: " + orcidId + ": " + asyncIndexResponse.OriginalException.Message);
+                _logger.LogInformation("ElasticsearchService: ERROR updating: " + orcidId + ": " + asyncIndexResponse.OriginalException.Message);
             }
             else
             {
-                _logger.LogInformation("Elasticsearch: Updated: " + orcidId);
+                _logger.LogInformation("ElasticsearchService: updated entry: " + orcidId);
             }
         }
 
@@ -77,15 +79,17 @@ namespace api.Services
                 return;
             }
 
+            _logger.LogInformation("ElasticsearchService: deleting entry: " + orcidId);
+
             var asyncDeleteResponse = await ESclient.DeleteAsync<ElasticPerson>(orcidId);
 
             if (!asyncDeleteResponse.IsValid)
             {
-                _logger.LogInformation("Elasticsearch: ERROR: " + orcidId + ": " + asyncDeleteResponse.OriginalException.Message);
+                _logger.LogInformation("ElasticsearchService: ERROR deleting: " + orcidId + ": " + asyncDeleteResponse.OriginalException.Message);
             }
             else
             {
-                _logger.LogInformation("Elasticsearch: Deleted: " + orcidId);
+                _logger.LogInformation("ElasticsearchService: deleted entry: " + orcidId);
             }
         }
     }
