@@ -96,7 +96,13 @@ namespace api.Services
         public async Task<int> GetOrcidRegisteredDataSourceId()
         {
             var orcidDatasourceName = "ORCID";
-            var orcidRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(p => p.Name == orcidDatasourceName);
+
+            // Use raw SQL query.
+            var orcidDatasourceSql = $"SELECT * FROM dim_registered_data_source WHERE name='{orcidDatasourceName}'";
+
+            var orcidRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.FromSqlRaw(orcidDatasourceSql).FirstOrDefaultAsync();
+
+            // TODO: creation of ORCID data source should not be necessary when the database is properly populated. Remove this at some point?
             if (orcidRegisteredDataSource == null)
             {
                 // Get ORCID organization
