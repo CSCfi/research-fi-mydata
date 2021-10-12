@@ -31,21 +31,28 @@ namespace api.Services
         }
 
         /*
-         * Get id of DimUserProfile.
+         * Get Id of DimUserProfile based on ORCID Id in DimPid.
          */
         public async Task<int> GetUserprofileId(String orcidId)
         {
-            var dimPid = await _ttvContext.DimPids
-                .Include(i => i.DimKnownPerson)
-                    .ThenInclude(kp => kp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
+            // Use raw SQL query.
+            var userProfileSql = $@"SELECT dup.*
+                                    FROM dim_user_profile AS dup
+                                    INNER JOIN dim_known_person AS dkp
+                                    ON dup.dim_known_person_id = dkp.id
+                                    INNER JOIN dim_pid AS dp
+                                    ON dkp.id=dp.dim_known_person_id
+                                    WHERE dp.pid_type='ORCID' AND dp.pid_content='{orcidId}'";
 
-            if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
+            var dimUserProfile = await _ttvContext.DimUserProfiles.FromSqlRaw(userProfileSql).FirstOrDefaultAsync();
+
+            if (dimUserProfile == null)
             {
                 return -1;
             }
             else
             {
-                return dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault().Id;
+                return dimUserProfile.Id;
             }
         }
 
