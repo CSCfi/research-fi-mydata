@@ -42,6 +42,7 @@ namespace api.Controllers
         {
             // Get ORCID id.
             var orcidId = this.GetOrcidId();
+
             // Log request.
             _logger.LogInformation(this.GetLogPrefix() + " get ORCID data request");
 

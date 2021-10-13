@@ -62,30 +62,39 @@ namespace api.Controllers
                     .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
                         .ThenInclude(br => br.DimRegisteredDataSource)
                             .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
+                // DimName
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimName).AsNoTracking()
+                // DimWebLink
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimWebLink).AsNoTracking()
+                // DimFundingDecision
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimFundingDecision).AsNoTracking()
+                // DimPublication
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimPublication).AsNoTracking()
+                // DimPid
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimPid).AsNoTracking()
+                // DimPidIdOrcidPutCodeNavigation
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation).AsNoTracking()
+                // DimResearchActivity
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimResearchActivity).AsNoTracking()
+                // DimEvent
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimEvent).AsNoTracking()
+                // DimEducation
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimEducation)
@@ -94,6 +103,7 @@ namespace api.Controllers
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimEducation)
                             .ThenInclude(de => de.DimEndDateNavigation).AsNoTracking()
+                // DimAffiliation
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimAffiliation)
@@ -110,9 +120,11 @@ namespace api.Controllers
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimAffiliation)
                             .ThenInclude(da => da.AffiliationTypeNavigation).AsNoTracking()
+                // DimCompetence
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimCompetence).AsNoTracking()
+                // DimResearchCommunity
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimResearchCommunity).AsNoTracking()
@@ -120,24 +132,31 @@ namespace api.Controllers
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimResearcherToResearchCommunity)
                             .ThenInclude(drtrc => drtrc.DimResearchCommunity).AsNoTracking()
+                // DimTelephoneNumber
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimTelephoneNumber).AsNoTracking()
+                // DimEmailAddrress
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimEmailAddrress).AsNoTracking()
+                // DimResearcherDescription
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
+                // DimIdentifierlessData
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking()
+                // DimOrcidPublication
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
+                // DimKeyword
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimKeyword).AsNoTracking()
+                // DimFieldOfScience
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimFieldOfScience).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
@@ -147,23 +166,27 @@ namespace api.Controllers
             // Collect data from DimFieldDisplaySettings and FactFieldValues entities
             foreach (DimFieldDisplaySetting dfds in dimUserProfile.DimFieldDisplaySettings)
             {
+                // Source object containing registered data source and organization name.
+                var source = new ProfileEditorSource()
+                {
+                    Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
+                    RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                    Organization = new ProfileEditorSourceOrganization()
+                    {
+                        NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                        NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                        NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                    }
+                };
+
                 // FieldIdentifier defines what type of data the field contains.
                 switch (dfds.FieldIdentifier)
                 {
+                    // Name
                     case Constants.FieldIdentifiers.PERSON_NAME:
                         var nameGroup = new ProfileEditorGroupName()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemName>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -194,20 +217,11 @@ namespace api.Controllers
                             profileDataResponse.personal.nameGroups.Add(nameGroup);
                         }
                         break;
+                    // Other name
                     case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
                         var otherNameGroup = new ProfileEditorGroupOtherName()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemName>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -237,20 +251,11 @@ namespace api.Controllers
                             profileDataResponse.personal.otherNameGroups.Add(otherNameGroup);
                         }
                         break;
+                    // Researcher description
                     case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
                         var researcherDescriptionGroup = new ProfileEditorGroupResearcherDescription()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemResearcherDescription>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -282,20 +287,11 @@ namespace api.Controllers
                             profileDataResponse.personal.researcherDescriptionGroups.Add(researcherDescriptionGroup);
                         }
                         break;
+                    // Web link
                     case Constants.FieldIdentifiers.PERSON_WEB_LINK:
                         var webLinkGroup = new ProfileEditorGroupWebLink()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemWebLink>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -326,20 +322,11 @@ namespace api.Controllers
                             profileDataResponse.personal.webLinkGroups.Add(webLinkGroup);
                         }
                         break;
+                    // Email address
                     case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
                         var emailGroup = new ProfileEditorGroupEmail()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemEmail>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -369,20 +356,11 @@ namespace api.Controllers
                             profileDataResponse.personal.emailGroups.Add(emailGroup);
                         }
                         break;
+                    // Telephone number
                     case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
                         var telephoneNumberGroup = new ProfileEditorGroupTelephoneNumber()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemTelephoneNumber>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -412,20 +390,11 @@ namespace api.Controllers
                             profileDataResponse.personal.telephoneNumberGroups.Add(telephoneNumberGroup);
                         }
                         break;
+                    // Field of science
                     case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
                         var fieldOfScienceGroup = new ProfileEditorGroupFieldOfScience()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemFieldOfScience>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -455,20 +424,11 @@ namespace api.Controllers
                             profileDataResponse.personal.fieldOfScienceGroups.Add(fieldOfScienceGroup);
                         }
                         break;
+                    // Keyword
                     case Constants.FieldIdentifiers.PERSON_KEYWORD:
                         var keywordGroup = new ProfileEditorGroupKeyword()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemKeyword>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -498,20 +458,11 @@ namespace api.Controllers
                             profileDataResponse.personal.keywordGroups.Add(keywordGroup);
                         }
                         break;
+                    // External identifier
                     case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
                         var externalIdentifierGroup = new ProfileEditorGroupExternalIdentifier()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemExternalIdentifier>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -542,23 +493,15 @@ namespace api.Controllers
                             profileDataResponse.personal.externalIdentifierGroups.Add(externalIdentifierGroup);
                         }
                         break;
+                    // Role in researcher community
                     case Constants.FieldIdentifiers.ACTIVITY_ROLE_IN_RESERCH_COMMUNITY:
                         // TODO
                         break;
+                    // Affiliation
                     case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
                         var affiliationGroup = new ProfileEditorGroupAffiliation()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemAffiliation>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -611,20 +554,11 @@ namespace api.Controllers
                             profileDataResponse.activity.affiliationGroups.Add(affiliationGroup);
                         }
                         break;
+                    // Education
                     case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
                         var educationGroup = new ProfileEditorGroupEducation()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemEducation>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {
@@ -676,20 +610,11 @@ namespace api.Controllers
                             profileDataResponse.activity.educationGroups.Add(educationGroup);
                         }
                         break;
+                    // Publication
                     case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
                         var publicationGroup = new ProfileEditorGroupPublication()
                         {
-                            source = new ProfileEditorSource()
-                            {
-                                Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new ProfileEditorSourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ProfileEditorItemPublication>() { },
                             groupMeta = new ProfileEditorGroupMeta()
                             {

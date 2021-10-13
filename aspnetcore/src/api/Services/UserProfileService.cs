@@ -44,7 +44,7 @@ namespace api.Services
                                     ON dkp.id=dp.dim_known_person_id
                                     WHERE dp.pid_type='ORCID' AND dp.pid_content='{orcidId}'";
 
-            var dimUserProfile = await _ttvContext.DimUserProfiles.FromSqlRaw(userProfileSql).FirstOrDefaultAsync();
+            var dimUserProfile = await _ttvContext.DimUserProfiles.FromSqlRaw(userProfileSql).AsNoTracking().FirstOrDefaultAsync();
 
             if (dimUserProfile == null)
             {
@@ -62,17 +62,24 @@ namespace api.Services
          */
         public async Task<int> GetOrcidOrganizationId()
         {
-            var orcidOrganization = await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameEn == "ORCID");
+            var orcidOrganizationName = "ORCID";
+
+            // Use raw SQL query.
+            var orcidOrganizationSql = $"SELECT * FROM dim_organization WHERE name_en='{orcidOrganizationName}'";
+
+            var orcidOrganization = await _ttvContext.DimOrganizations.FromSqlRaw(orcidOrganizationSql).AsNoTracking().FirstOrDefaultAsync();
+
+            // TODO: creation of ORCID organization should not be necessary when the database is properly populated. Remove this at some point?
             if (orcidOrganization == null)
             {
                 orcidOrganization = new DimOrganization()
                 {
                     DimSectorid = -1,
-                    OrganizationId = "ORCID",
+                    OrganizationId = orcidOrganizationName,
                     OrganizationActive = true,
-                    NameFi = "ORCID",
-                    NameEn = "ORCID",
-                    NameSv = "ORCID",
+                    NameFi = orcidOrganizationName,
+                    NameEn = orcidOrganizationName,
+                    NameSv = orcidOrganizationName,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = DateTime.Now,
@@ -100,7 +107,7 @@ namespace api.Services
             // Use raw SQL query.
             var orcidDatasourceSql = $"SELECT * FROM dim_registered_data_source WHERE name='{orcidDatasourceName}'";
 
-            var orcidRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.FromSqlRaw(orcidDatasourceSql).FirstOrDefaultAsync();
+            var orcidRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.FromSqlRaw(orcidDatasourceSql).AsNoTracking().FirstOrDefaultAsync();
 
             // TODO: creation of ORCID data source should not be necessary when the database is properly populated. Remove this at some point?
             if (orcidRegisteredDataSource == null)
@@ -583,22 +590,26 @@ namespace api.Services
             // foreach (DimFieldDisplaySetting dfds in dimUserProfile.DimFieldDisplaySettings)
             foreach (DimFieldDisplaySetting dfds in dimUserProfile.DimFieldDisplaySettings)
             {
+                // Source object containing registered data source and organization name.
+                var source = new Source()
+                {
+                    RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                    Organization = new SourceOrganization()
+                    {
+                        NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                        NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                        NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                    }
+                };
+
                 // FieldIdentifier defines what type of data the field contains.
                 switch (dfds.FieldIdentifier)
                 {
+                    // Name
                     case Constants.FieldIdentifiers.PERSON_NAME:
                         var nameGroup = new GroupName()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemName>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -617,19 +628,11 @@ namespace api.Services
                             person.personal.nameGroups.Add(nameGroup);
                         }
                         break;
+                    // Other name
                     case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
                         var otherNameGroup = new GroupOtherName()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemName>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -648,19 +651,11 @@ namespace api.Services
                             person.personal.otherNameGroups.Add(otherNameGroup);
                         }
                         break;
+                    // Researcher description
                     case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
                         var researcherDescriptionGroup = new GroupResearcherDescription()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemResearcherDescription>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -680,19 +675,11 @@ namespace api.Services
                             person.personal.researcherDescriptionGroups.Add(researcherDescriptionGroup);
                         }
                         break;
+                    // Web link
                     case Constants.FieldIdentifiers.PERSON_WEB_LINK:
                         var webLinkGroup = new GroupWebLink()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemWebLink>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -711,19 +698,11 @@ namespace api.Services
                             person.personal.webLinkGroups.Add(webLinkGroup);
                         }
                         break;
+                    // Email address
                     case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
                         var emailGroup = new GroupEmail()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemEmail>() { },
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -741,19 +720,11 @@ namespace api.Services
                             person.personal.emailGroups.Add(emailGroup);
                         }
                         break;
+                    // Telephone number
                     case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
                         var telephoneNumberGroup = new GroupTelephoneNumber()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemTelephoneNumber>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -771,19 +742,11 @@ namespace api.Services
                             person.personal.telephoneNumberGroups.Add(telephoneNumberGroup);
                         }
                         break;
+                    // Field of science
                     case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
                         var fieldOfScienceGroup = new GroupFieldOfScience()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemFieldOfScience>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -801,19 +764,11 @@ namespace api.Services
                             person.personal.fieldOfScienceGroups.Add(fieldOfScienceGroup);
                         }
                         break;
+                    // Keyword
                     case Constants.FieldIdentifiers.PERSON_KEYWORD:
                         var keywordGroup = new GroupKeyword()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemKeyword>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -831,19 +786,11 @@ namespace api.Services
                             person.personal.keywordGroups.Add(keywordGroup);
                         }
                         break;
+                    // External identifier
                     case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
                         var externalIdentifierGroup = new GroupExternalIdentifier()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemExternalIdentifier>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -862,19 +809,11 @@ namespace api.Services
                             person.personal.externalIdentifierGroups.Add(externalIdentifierGroup);
                         }
                         break;
+                    // Affiliation
                     case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
                         var affiliationGroup = new GroupAffiliation()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemAffiliation>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -915,19 +854,11 @@ namespace api.Services
                             person.activity.affiliationGroups.Add(affiliationGroup);
                         }
                         break;
+                    // Education
                     case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
                         var educationGroup = new GroupEducation()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemEducation>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
@@ -967,19 +898,11 @@ namespace api.Services
                             person.activity.educationGroups.Add(educationGroup);
                         }
                         break;
+                    // Publication
                     case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
                         var publicationGroup = new GroupPublication()
                         {
-                            source = new Source()
-                            {
-                                RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                                Organization = new SourceOrganization()
-                                {
-                                    NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                                    NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                                    NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                                }
-                            },
+                            source = source,
                             items = new List<ItemPublication>() { }
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
