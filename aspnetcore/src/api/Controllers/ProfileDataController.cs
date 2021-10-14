@@ -1,6 +1,7 @@
 ﻿using api.Services;
 using api.Models;
 using api.Models.Ttv;
+using api.Models.ProfileEditor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,22 +26,24 @@ namespace api.Controllers
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly ElasticsearchService _elasticsearchService;
+        private readonly TtvSqlService _ttvSqlService;
         private IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
 
-        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
+        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _cache = memoryCache;
             _elasticsearchService = elasticsearchService;
+            _ttvSqlService = ttvSqlService;
             _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            // Get userprofile
+            // Check that user profile exists.
             var orcidId = this.GetOrcidId();
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
@@ -704,7 +707,7 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: true));
             }
 
-            // Get userprofile
+            // Check that user profile exists.
             var orcidId = this.GetOrcidId();
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
@@ -716,82 +719,23 @@ namespace api.Controllers
             _cache.Remove(orcidId);
 
 
-            var dimUserProfile = await _ttvContext.DimUserProfiles
-                .Include(dup => dup.DimFieldDisplaySettings)
-                .Include(dup => dup.FactFieldValues).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
-
-
+            // Collect information about updated items to a response object, which will be sent in response.
             var profileEditorDataModificationResponse = new ProfileEditorDataModificationResponse();
 
-            // Set 'Show' in DimFieldDisplaySettings
-            foreach (ProfileEditorGroupMeta profileEditorGroupMeta in profileEditorDataModificationRequest.groups.ToList())
-            {
-                var dimFieldDisplaySettings = dimUserProfile.DimFieldDisplaySettings.Where(d => d.Id == profileEditorGroupMeta.Id).FirstOrDefault();
-                if (dimFieldDisplaySettings != null)
-                {
-                    dimFieldDisplaySettings.Show = profileEditorGroupMeta.Show;
-                    profileEditorDataModificationResponse.groups.Add(profileEditorGroupMeta);
-                }
-            }
 
             // Set 'Show' and 'PrimaryValue' in FactFieldValues
             foreach (ProfileEditorItemMeta profileEditorItemMeta in profileEditorDataModificationRequest.items.ToList())
             {
-                FactFieldValue factFieldValue = null;
-                switch (profileEditorItemMeta.Type)
-                {
-                    case Constants.FieldIdentifiers.PERSON_FIRST_NAMES:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.PERSON_LAST_NAME:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimResearcherDescriptionId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.PERSON_WEB_LINK:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimWebLinkId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimEmailAddrressId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.PERSON_KEYWORD:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimKeywordId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimTelephoneNumberId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimAffiliationId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimEducationId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
-                        factFieldValue = dimUserProfile.FactFieldValues.Where(ffv => ffv.DimPublicationId == profileEditorItemMeta.Id || ffv.DimOrcidPublicationId == profileEditorItemMeta.Id).FirstOrDefault();
-                        break;
-                    default:
-                        break;
-                }
-
-                if (factFieldValue != null)
-                {
-                    factFieldValue.Show = profileEditorItemMeta.Show;
-                    factFieldValue.PrimaryValue = profileEditorItemMeta.PrimaryValue;
-                    profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
-                }
+                var updateSql = _ttvSqlService.getSqlQuery_Update_FactFieldValues(userprofileId, profileEditorItemMeta);
+                await _ttvContext.Database.ExecuteSqlRawAsync(updateSql);
+                profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
             }
-
-            await _ttvContext.SaveChangesAsync();
 
             // Save in elasticsearch
             // TODO use BackgroundService to handle Elasticsearch API call.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
-                var person = await _userProfileService.GetProfiledataForElasticsearch(orcidId, dimUserProfile.Id);
+                var person = await _userProfileService.GetProfiledataForElasticsearch(orcidId, userprofileId);
                 await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
             }
 

@@ -89,7 +89,9 @@ namespace api
             services.AddScoped<OrcidJsonParserService>();
             services.AddScoped<UserProfileService>();
             services.AddSingleton<ElasticsearchService>();
+            services.AddSingleton<UtilityService>();
             services.AddScoped<DemoDataService>();
+            services.AddScoped<TtvSqlService>();
             services.AddMemoryCache();
         }
 

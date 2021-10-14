@@ -25,14 +25,16 @@ namespace api.Controllers
         private readonly UserProfileService _userProfileService;
         private readonly OrcidApiService _orcidApiService;
         private readonly OrcidJsonParserService _orcidJsonParserService;
+        private readonly UtilityService _utilityService;
         private readonly ILogger<OrcidController> _logger;
 
-        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger)
+        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger, UtilityService utilityService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
             _orcidJsonParserService = orcidJsonParserService;
+            _utilityService = utilityService;
             _logger = logger;
         }
 
@@ -119,6 +121,9 @@ namespace api.Controllers
             var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
 
 
+            // Get current DateTime
+            DateTime currentDateTime = _utilityService.getCurrentDateTime();
+
             // Must use "Constants.SourceIdentifiers.ORCID" as value for "FactFieldValue.SourceId". It is used to identify what data can be deleted when userprofile is deleted.
 
 
@@ -132,10 +137,10 @@ namespace api.Controllers
                 var dimName = factFieldValuesName.DimName;
                 dimName.LastName = _orcidJsonParserService.GetFamilyName(json).Value;
                 dimName.FirstNames = _orcidJsonParserService.GetGivenNames(json).Value;
-                dimName.Modified = DateTime.Now;
+                dimName.Modified = _utilityService.getCurrentDateTime();
                 _ttvContext.Entry(dimName).State = EntityState.Modified;
                 // Update existing FactFieldValue
-                factFieldValuesName.Modified = DateTime.Now;
+                factFieldValuesName.Modified = currentDateTime;
                 await _ttvContext.SaveChangesAsync();
             }
             else
@@ -149,8 +154,8 @@ namespace api.Controllers
                     DimKnownPersonidFormerNames = -1,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now,
+                    Created = currentDateTime,
+                    Modified = currentDateTime,
                     DimRegisteredDataSourceId = orcidRegisteredDataSourceId
                 };
                 _ttvContext.DimNames.Add(dimName);
@@ -177,10 +182,10 @@ namespace api.Controllers
                     // Update existing DimName
                     var dimName_otherName = factFieldValuesOtherName.DimName;
                     dimName_otherName.FullName = otherName.Value;
-                    dimName_otherName.Modified = DateTime.Now;
+                    dimName_otherName.Modified = currentDateTime;
                     _ttvContext.Entry(dimName_otherName).State = EntityState.Modified;
                     // Update existing FactFieldValue
-                    factFieldValuesOtherName.Modified = DateTime.Now;
+                    factFieldValuesOtherName.Modified = currentDateTime;
                     await _ttvContext.SaveChangesAsync();
                 }
                 else
@@ -194,8 +199,8 @@ namespace api.Controllers
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimNames.Add(dimName_otherName);
                     await _ttvContext.SaveChangesAsync();
@@ -237,11 +242,11 @@ namespace api.Controllers
                     var dimWebLink = factFieldValuesWebLink.DimWebLink;
                     dimWebLink.Url = researchUrl.Url;
                     dimWebLink.LinkLabel = researchUrl.UrlName;
-                    dimWebLink.Modified = DateTime.Now;
+                    dimWebLink.Modified = currentDateTime;
                     _ttvContext.Entry(dimWebLink).State = EntityState.Modified;
 
                     // Update existing FactFieldValue
-                    factFieldValuesWebLink.Modified = DateTime.Now;
+                    factFieldValuesWebLink.Modified = currentDateTime;
 
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -258,8 +263,8 @@ namespace api.Controllers
                         DimFundingDecisionId = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimWebLinks.Add(dimWebLink);
                     await _ttvContext.SaveChangesAsync();
@@ -314,7 +319,7 @@ namespace api.Controllers
                 }
                 else
                 {
-                    factFieldValuesResearcherDescription.Modified = DateTime.Now;
+                    factFieldValuesResearcherDescription.Modified = currentDateTime;
                 }
                 await _ttvContext.SaveChangesAsync();
             }
@@ -346,7 +351,7 @@ namespace api.Controllers
                 }
                 else
                 {
-                    factFieldValuesEmailAddress.Modified = DateTime.Now;
+                    factFieldValuesEmailAddress.Modified = currentDateTime;
                 }
                 await _ttvContext.SaveChangesAsync();
             }
@@ -367,10 +372,10 @@ namespace api.Controllers
                     // Update existing DimKeyword
                     var dimKeyword = factFieldValuesKeyword.DimKeyword;
                     dimKeyword.Keyword = keyword.Value;
-                    dimKeyword.Modified = DateTime.Now;
+                    dimKeyword.Modified = currentDateTime;
                     _ttvContext.Entry(dimKeyword).State = EntityState.Modified;
                     // Update existing FactFieldValue
-                    factFieldValuesKeyword.Modified = DateTime.Now;
+                    factFieldValuesKeyword.Modified = currentDateTime;
                     await _ttvContext.SaveChangesAsync();
                 }
                 else
@@ -382,8 +387,8 @@ namespace api.Controllers
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimKeywords.Add(dimKeyword);
                     await _ttvContext.SaveChangesAsync();
@@ -436,10 +441,10 @@ namespace api.Controllers
                     var dimPid = factFieldValuesExternalIdentifier.DimPid;
                     dimPid.PidContent = externalIdentifier.ExternalIdValue;
                     dimPid.PidType = externalIdentifier.ExternalIdType;
-                    dimPid.Modified = DateTime.Now;
+                    dimPid.Modified = currentDateTime;
                     _ttvContext.Entry(dimPid).State = EntityState.Modified;
                     // Update existing FactFieldValue
-                    factFieldValuesExternalIdentifier.Modified = DateTime.Now;
+                    factFieldValuesExternalIdentifier.Modified = currentDateTime;
                     await _ttvContext.SaveChangesAsync();
                 }
                 else
@@ -493,8 +498,8 @@ namespace api.Controllers
                         Day = education.StartDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimDates.Add(startDate);
                     await _ttvContext.SaveChangesAsync();
@@ -511,8 +516,8 @@ namespace api.Controllers
                         Day = education.EndDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimDates.Add(endDate);
                     await _ttvContext.SaveChangesAsync();
@@ -527,10 +532,10 @@ namespace api.Controllers
                     dimEducation.DimStartDate = startDate.Id;
                     dimEducation.DimEndDate = endDate.Id;
                     _ttvContext.Entry(dimEducation).State = EntityState.Modified;
-                    dimEducation.Modified = DateTime.Now;
+                    dimEducation.Modified = currentDateTime;
 
                     // Update existing FactFieldValue
-                    factFieldValuesEducation.Modified = DateTime.Now;
+                    factFieldValuesEducation.Modified = currentDateTime;
 
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -547,8 +552,8 @@ namespace api.Controllers
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimKnownPersonId = dimKnownPerson.Id,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimEducations.Add(dimEducation);
                     await _ttvContext.SaveChangesAsync();
@@ -596,8 +601,8 @@ namespace api.Controllers
                         Day = employment.StartDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimDates.Add(startDate);
                     await _ttvContext.SaveChangesAsync();
@@ -614,8 +619,8 @@ namespace api.Controllers
                         Day = employment.EndDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimDates.Add(endDate);
                     await _ttvContext.SaveChangesAsync();
@@ -631,7 +636,7 @@ namespace api.Controllers
                     dimAffiliation.StartDate = startDate.Id;
                     dimAffiliation.EndDate = endDate.Id;
                     _ttvContext.Entry(dimAffiliation).State = EntityState.Modified;
-                    dimAffiliation.Modified = DateTime.Now;
+                    dimAffiliation.Modified = currentDateTime;
 
                     // Update related DimOrganization
                     // TODO: DimOrganization handling
@@ -640,7 +645,7 @@ namespace api.Controllers
                     _ttvContext.Entry(dimOrganization).State = EntityState.Modified;
 
                     // Update existing FactFieldValue
-                    factFieldValuesAffiliation.Modified = DateTime.Now;
+                    factFieldValuesAffiliation.Modified = currentDateTime;
 
                     await _ttvContext.SaveChangesAsync();
                 }
@@ -655,8 +660,8 @@ namespace api.Controllers
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
 
                     _ttvContext.DimOrganizations.Add(dimOrganization);
@@ -675,8 +680,8 @@ namespace api.Controllers
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimKnownPersonId = dimKnownPerson.Id,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimAffiliations.Add(dimAffiliation);
                     await _ttvContext.SaveChangesAsync();
@@ -720,10 +725,10 @@ namespace api.Controllers
                     dimOrcidPublication.PublicationName = orcidPublication.PublicationName;
                     dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
                     dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
-                    dimOrcidPublication.Modified = DateTime.Now;
+                    dimOrcidPublication.Modified = currentDateTime;
                     _ttvContext.Entry(dimOrcidPublication).State = EntityState.Modified;
                     // Update existing FactFieldValue
-                    factFieldValuesPublication.Modified = DateTime.Now;
+                    factFieldValuesPublication.Modified = currentDateTime;
                     await _ttvContext.SaveChangesAsync();
                 }
                 else
@@ -736,7 +741,7 @@ namespace api.Controllers
                     dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
                     dimOrcidPublication.SourceId = Constants.SourceIdentifiers.ORCID;
                     dimOrcidPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    dimOrcidPublication.Created = DateTime.Now;
+                    dimOrcidPublication.Created = currentDateTime;
                     _ttvContext.DimOrcidPublications.Add(dimOrcidPublication);
                     await _ttvContext.SaveChangesAsync();
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace api.Models
+namespace api.Models.ProfileEditor
 {
     public partial class ProfileEditorDataPersonal
     {

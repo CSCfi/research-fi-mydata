@@ -24,14 +24,16 @@ namespace api.Controllers
         private readonly DemoDataService _demoDataService;
         private readonly UserProfileService _userProfileService;
         private readonly ElasticsearchService _elasticsearchService;
+        private readonly UtilityService _utilityService;
         private readonly ILogger<UserProfileController> _logger;
 
-        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, ElasticsearchService elasticsearchService, UserProfileService userProfileService, ILogger<UserProfileController> logger)
+        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, ElasticsearchService elasticsearchService, UserProfileService userProfileService, UtilityService utilityService, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _demoDataService = demoDataService;
             _userProfileService = userProfileService;
             _elasticsearchService = elasticsearchService;
+            _utilityService = utilityService;
             _logger = logger;
         }
 
@@ -79,6 +81,9 @@ namespace api.Controllers
                 .Include(dp => dp.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
 
+            // Get current DateTime
+            DateTime currentDateTime = _utilityService.getCurrentDateTime();
+
             // Check if DimPid 
             if (dimPid == null)
             {
@@ -93,8 +98,8 @@ namespace api.Controllers
                 dimPid.DimKnownPerson = new DimKnownPerson() {
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
                 dimPid.SourceId = Constants.SourceIdentifiers.ORCID;
                 _ttvContext.DimPids.Add(dimPid);
@@ -107,8 +112,8 @@ namespace api.Controllers
                 {
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
                 _ttvContext.DimKnownPeople.Add(kp);
                 dimPid.DimKnownPerson = kp;
@@ -124,7 +129,7 @@ namespace api.Controllers
                     DimKnownPersonId = dimPid.DimKnownPerson.Id,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
+                    Created = currentDateTime,
                     AllowAllSubscriptions = false
                 };
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
@@ -164,8 +169,8 @@ namespace api.Controllers
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
@@ -189,8 +194,8 @@ namespace api.Controllers
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.DEMO,
                         SourceDescription = _demoDataService.GetDemoOrganization1Name(), // In demo must use Org1 name here
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
@@ -213,8 +218,8 @@ namespace api.Controllers
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.DEMO,
                         SourceDescription = _demoDataService.GetDemoOrganization2Name(), // In demo must use Org2 name here
-                        Created = DateTime.Now,
-                        Modified = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
@@ -235,8 +240,8 @@ namespace api.Controllers
                     Show = false,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
                 dimFieldDisplaySettingDemoOrganization3.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                     new BrFieldDisplaySettingsDimRegisteredDataSource()

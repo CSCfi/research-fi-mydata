@@ -15,10 +15,12 @@ namespace api.Services
     public class UserProfileService
     {
         private readonly TtvContext _ttvContext;
+        private readonly UtilityService _utilityService;
 
-        public UserProfileService(TtvContext ttvContext)
+        public UserProfileService(TtvContext ttvContext, UtilityService utilityService)
         {
             _ttvContext = ttvContext;
+            _utilityService = utilityService;
         }
 
         /*
@@ -82,8 +84,8 @@ namespace api.Services
                     NameSv = orcidOrganizationName,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(orcidOrganization);
@@ -121,8 +123,8 @@ namespace api.Services
                     Name = orcidDatasourceName,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime()
                 };
                 _ttvContext.DimRegisteredDataSources.Add(orcidRegisteredDataSource);
                 await _ttvContext.SaveChangesAsync();
@@ -166,8 +168,8 @@ namespace api.Services
                     DimKnownPersonidFormerNames = -1,
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
                 _ttvContext.DimNames.Add(dimName);
@@ -176,7 +178,7 @@ namespace api.Services
             {
                 dimName.LastName = lastName;
                 dimName.FirstNames = firstNames;
-                dimName.Modified = DateTime.Now;
+                dimName.Modified = _utilityService.getCurrentDateTime();
             }
             await _ttvContext.SaveChangesAsync();
             return dimName;
@@ -197,8 +199,8 @@ namespace api.Services
                     ResearchDescriptionSv = description_sv,
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
                     DimKnownPersonId = dimKnownPersonId,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
@@ -209,7 +211,7 @@ namespace api.Services
                 dimResearcherDescription.ResearchDescriptionFi = description_fi;
                 dimResearcherDescription.ResearchDescriptionEn = description_en;
                 dimResearcherDescription.ResearchDescriptionSv = description_sv;
-                dimResearcherDescription.Modified = DateTime.Now;
+                dimResearcherDescription.Modified = _utilityService.getCurrentDateTime();
             }
             await _ttvContext.SaveChangesAsync();
             return dimResearcherDescription;
@@ -228,8 +230,8 @@ namespace api.Services
                     Email = emailAddress,
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
-                    Modified = DateTime.Now,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
                     DimKnownPersonId = dimKnownPersonId,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
@@ -237,7 +239,7 @@ namespace api.Services
             }
             else
             {
-                dimEmailAddress.Modified = DateTime.Now;
+                dimEmailAddress.Modified = _utilityService.getCurrentDateTime();
             }
             await _ttvContext.SaveChangesAsync();
             return dimEmailAddress;
@@ -277,8 +279,8 @@ namespace api.Services
                 PrimaryValue = false,
                 SourceId = " ",
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now,
-                Modified = DateTime.Now
+                Created = _utilityService.getCurrentDateTime(),
+                Modified = _utilityService.getCurrentDateTime()
             };
         }
 
@@ -375,8 +377,8 @@ namespace api.Services
                 DimOrcidPublicationId = -1,
                 SourceId = " ",
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now,
-                Modified = DateTime.Now
+                Created = _utilityService.getCurrentDateTime(),
+                Modified = _utilityService.getCurrentDateTime()
             };
         }
 
@@ -468,8 +470,8 @@ namespace api.Services
                             Show = false,
                             SourceId = " ",
                             SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                            Created = DateTime.Now,
-                            Modified = DateTime.Now
+                            Created = _utilityService.getCurrentDateTime(),
+                            Modified = _utilityService.getCurrentDateTime()
                         };
                         dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                             new BrFieldDisplaySettingsDimRegisteredDataSource()

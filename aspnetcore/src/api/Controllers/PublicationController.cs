@@ -1,6 +1,7 @@
 ﻿using api.Services;
 using api.Models;
 using api.Models.Ttv;
+using api.Models.ProfileEditor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -20,11 +21,13 @@ namespace api.Controllers
     {
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
+        private readonly UtilityService _utilityService;
 
-        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService)
+        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService)
         {
             _ttvContext = ttvContext;
-            _userProfileService = userProfileService;          
+            _userProfileService = userProfileService;
+            _utilityService = utilityService;
         }
 
         /*
@@ -112,7 +115,8 @@ namespace api.Controllers
                         factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
                         factFieldValuePublication.DimPublicationId = dimPublication.Id;
                         factFieldValuePublication.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
-                        factFieldValuePublication.Created = System.DateTime.Now;
+                        factFieldValuePublication.Created = _utilityService.getCurrentDateTime();
+                        factFieldValuePublication.Modified = _utilityService.getCurrentDateTime();
                         _ttvContext.FactFieldValues.Add(factFieldValuePublication);
                         await _ttvContext.SaveChangesAsync();
 

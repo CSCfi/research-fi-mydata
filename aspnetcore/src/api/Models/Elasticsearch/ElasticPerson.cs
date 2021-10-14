@@ -1,4 +1,5 @@
-﻿namespace api.Models
+﻿using api.Models.ProfileEditor;
+namespace api.Models.Elasticsearch
 {
     public class ElasticPerson
     {
