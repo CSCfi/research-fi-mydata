@@ -12,13 +12,11 @@ namespace api.Services
         {
         }
 
-        // Return SQL update statement for updating FactFieldValues.
-        public string getSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta)
+        // Based on field identifier, return FactFieldValues foreign key column name.
+        public string getFactFieldValuesFKColumnNameFromFieldIdentifier(int fieldIdentifier)
         {
-            // FactFieldValues contains several foreign key columns.
-            // Set correct column name.
             var fk_column_name = "";
-            switch (profileEditorItemMeta.Type)
+            switch (fieldIdentifier)
             {
                 case Constants.FieldIdentifiers.PERSON_FIRST_NAMES:
                     fk_column_name = "dim_name_id";
@@ -57,19 +55,24 @@ namespace api.Services
                 default:
                     break;
             }
+            return fk_column_name;
+        }
 
+        // Return SQL update statement for updating FactFieldValues.
+        public string getSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta)
+        {
+            var fk_column_name = this.getFactFieldValuesFKColumnNameFromFieldIdentifier(profileEditorItemMeta.Type);
             var showToSql = profileEditorItemMeta.Show == true ? "1" : "0";
             var primaryValueToSql = profileEditorItemMeta.PrimaryValue == true ? "1" : "0";
 
             return $@"UPDATE fact_field_values
-                                    SET
-                                        show={showToSql},
-                                        primary_value={primaryValueToSql},
-                                        modified=GETDATE()
-                                    WHERE
-                                        dim_user_profile_id={dimUserProfileId} AND
-                                        {fk_column_name}={profileEditorItemMeta.Id}";
-
+                        SET
+                            show={showToSql},
+                            primary_value={primaryValueToSql},
+                            modified=GETDATE()
+                        WHERE
+                            dim_user_profile_id={dimUserProfileId} AND
+                            {fk_column_name}={profileEditorItemMeta.Id}";
         }
     }
 }

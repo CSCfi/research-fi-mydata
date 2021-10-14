@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace api.Tests
 {
     [Collection("Parsing data from ORCID record json")]
-    public class OrcidJsonParserTests
+    public class OrcidJsonParserServiceTests
     {
         // Get ORCID record.
         // Test file is a copy of ORCID's sandbox https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/record
