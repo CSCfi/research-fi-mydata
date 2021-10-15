@@ -514,83 +514,66 @@ namespace api.Services
          */ 
         public async Task<Person> GetProfiledataForElasticsearch(string orcidId, int userprofileId)
         {
-            // Get DimUserProfile and related entities
-            var dimUserProfile = await _ttvContext.DimUserProfiles
-                .Include(dup => dup.DimFieldDisplaySettings.Where(dfds => dfds.FactFieldValues.Count > 0))
-                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
-                        .ThenInclude(br => br.DimRegisteredDataSource)
-                            .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
+            // Get DimFieldDisplaySettings and related entities
+            var dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Any(ffv => ffv.Show == true))
+                .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
+                    .ThenInclude(br => br.DimRegisteredDataSource)
+                        .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 // DimName
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimName).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimName).AsNoTracking()
                 // DimWebLink
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimWebLink).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimWebLink).AsNoTracking()
                 // DimEmailAddress
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimEmailAddrress).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimEmailAddrress).AsNoTracking()
                 // DimPublication
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimPublication).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimPublication).AsNoTracking()
                 // DimOrcidPublication
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
                 // DimEducation
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimEducation)
-                            .ThenInclude(de => de.DimStartDateNavigation).AsNoTracking()
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimEducation)
-                            .ThenInclude(de => de.DimEndDateNavigation).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimEducation)
+                        .ThenInclude(de => de.DimStartDateNavigation).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimEducation)
+                        .ThenInclude(de => de.DimEndDateNavigation).AsNoTracking()
                 // DimAffiliation
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimAffiliation)
-                            .ThenInclude(da => da.StartDateNavigation).AsNoTracking()
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimAffiliation)
-                            .ThenInclude(da => da.EndDateNavigation).AsNoTracking()
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimAffiliation)
-                            .ThenInclude(da => da.DimOrganization).AsNoTracking()
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimAffiliation)
-                            .ThenInclude(da => da.AffiliationTypeNavigation).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimAffiliation)
+                        .ThenInclude(da => da.StartDateNavigation).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimAffiliation)
+                        .ThenInclude(da => da.EndDateNavigation).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimAffiliation)
+                        .ThenInclude(da => da.DimOrganization).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimAffiliation)
+                        .ThenInclude(da => da.AffiliationTypeNavigation).AsNoTracking()
                 // DimTelephoneNumber
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimTelephoneNumber).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimTelephoneNumber).AsNoTracking()
                 // DimResearcherDescription
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
                 // DimKeyword
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimKeyword).AsNoTracking()
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimKeyword).AsNoTracking()
                 // DimFieldOfScience
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
-                        .ThenInclude(ffv => ffv.DimFieldOfScience).AsNoTracking()
-
-                .AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
+                    .ThenInclude(ffv => ffv.DimFieldOfScience).AsNoTracking()
+                .ToListAsync();
 
             var person = new Person(orcidId)
             {
             };
 
-            // foreach (DimFieldDisplaySetting dfds in dimUserProfile.DimFieldDisplaySettings)
-            foreach (DimFieldDisplaySetting dfds in dimUserProfile.DimFieldDisplaySettings)
+
+            foreach (DimFieldDisplaySetting dfds in dimFieldDisplaySettings)
             {
                 // Source object containing registered data source and organization name.
                 var source = new Source()
