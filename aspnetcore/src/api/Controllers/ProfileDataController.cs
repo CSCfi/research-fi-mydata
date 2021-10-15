@@ -60,7 +60,7 @@ namespace api.Controllers
 
 
             // Get DimFieldDisplaySettings and related entities
-            var dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId)
+            var dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
                 .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
                     .ThenInclude(br => br.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
