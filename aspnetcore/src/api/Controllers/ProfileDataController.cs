@@ -29,14 +29,18 @@ namespace api.Controllers
         private readonly TtvSqlService _ttvSqlService;
         private IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
+        private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
+        private readonly BackgroundProfiledata _backgroundProfiledata;
 
-        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
+        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue, BackgroundProfiledata backgroundProfiledata)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _cache = memoryCache;
             _elasticsearchService = elasticsearchService;
             _ttvSqlService = ttvSqlService;
+            _backgroundElasticsearchPersonUpdateQueue = backgroundElasticsearchPersonUpdateQueue;
+            _backgroundProfiledata = backgroundProfiledata;
             _logger = logger;
         }
 
@@ -698,7 +702,6 @@ namespace api.Controllers
             // Collect information about updated items to a response object, which will be sent in response.
             var profileEditorDataModificationResponse = new ProfileEditorDataModificationResponse();
 
-
             // Set 'Show' and 'PrimaryValue' in FactFieldValues
             foreach (ProfileEditorItemMeta profileEditorItemMeta in profileEditorDataModificationRequest.items.ToList())
             {
@@ -707,13 +710,16 @@ namespace api.Controllers
                 profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
             }
 
-            // Save in elasticsearch
-            // TODO use BackgroundService to handle Elasticsearch API call.
-            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            // Update Elasticsearch index in a background task.
+            _backgroundElasticsearchPersonUpdateQueue.QueueBackgroundWorkItem(async token =>
             {
-                var person = await _userProfileService.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                _logger.LogInformation($"Background task for updating {orcidId} started at {DateTime.UtcNow}");
+                // Get Elasticsearch person entry from profile data.
+                var person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                // Update Elasticsearch person index.
                 await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
-            }
+                _logger.LogInformation($"Background task for updating {orcidId} ended at {DateTime.UtcNow}");
+            });
 
             return Ok(new ApiResponse(success: true, data: profileEditorDataModificationResponse));
         }

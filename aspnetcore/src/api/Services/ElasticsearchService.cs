@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using api.Models;
-using api.Models.Ttv;
 using api.Models.Elasticsearch;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,7 +9,7 @@ using Nest;
 namespace api.Services
 {
     /*
-     * ElasticsearchService handles person index update.
+     * ElasticsearchService handles person index modifications.
      */
     public class ElasticsearchService
     {

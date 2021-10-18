@@ -22,9 +22,11 @@
     <Folder Include="Services\" />
     <Folder Include="Models\ProfileEditor\" />
     <Folder Include="Models\Elasticsearch\" />
+    <Folder Include="Background\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="NEST" />
     <None Remove="Models\Elasticsearch\" />
+    <None Remove="Background\" />
   </ItemGroup>
 </Project>
