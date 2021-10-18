@@ -93,6 +93,10 @@ namespace api
             services.AddScoped<DemoDataService>();
             services.AddScoped<TtvSqlService>();
             services.AddMemoryCache();
+
+            services.AddHostedService<BackgroundElasticsearchUpdateService>();
+            services.AddSingleton<BackgroundElasticsearchPersonUpdateQueue>();
+            services.AddTransient<BackgroundProfiledata>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
