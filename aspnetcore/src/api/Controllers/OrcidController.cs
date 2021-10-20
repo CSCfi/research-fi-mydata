@@ -140,6 +140,7 @@ namespace api.Controllers
                 dimName.Modified = _utilityService.getCurrentDateTime();
                 _ttvContext.Entry(dimName).State = EntityState.Modified;
                 // Update existing FactFieldValue
+                factFieldValuesName.Show = true;
                 factFieldValuesName.Modified = currentDateTime;
                 await _ttvContext.SaveChangesAsync();
             }
@@ -165,6 +166,7 @@ namespace api.Controllers
                 factFieldValuesName.DimUserProfileId = dimUserProfile.Id;
                 factFieldValuesName.DimFieldDisplaySettingsId = dimFieldDisplaySettingsName.Id;
                 factFieldValuesName.DimNameId = dimName.Id;
+                factFieldValuesName.Show = true;
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
                 await _ttvContext.SaveChangesAsync();
             }
