@@ -60,7 +60,7 @@ namespace api.Controllers
             var json = await _orcidApiService.GetRecord(orcidId);
 
             // Get DimUserProfile and related entities
-            var dimUserProfile = await _ttvContext.DimUserProfiles
+            var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
                 .Include(dup => dup.FactFieldValues)
@@ -109,13 +109,8 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimWebLink)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimKeyword).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync();
 
-            // Get DimKnownPerson
-            var dimKnownPerson = await _ttvContext.DimKnownPeople
-                .Include(dkp => dkp.DimNameDimKnownPersonIdConfirmedIdentityNavigations).AsSplitQuery().AsNoTracking().FirstOrDefaultAsync(dkp => dkp.Id == dimUserProfile.DimKnownPersonId);
 
             // Get ORCID registered data source id
             var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
@@ -151,7 +146,7 @@ namespace api.Controllers
                 {
                     LastName = _orcidJsonParserService.GetFamilyName(json).Value,
                     FirstNames = _orcidJsonParserService.GetGivenNames(json).Value,
-                    DimKnownPersonIdConfirmedIdentity = dimKnownPerson.Id,
+                    DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                     DimKnownPersonidFormerNames = -1,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
@@ -196,7 +191,7 @@ namespace api.Controllers
                     var dimName_otherName = new DimName()
                     {
                         FullName = otherName.Value,
-                        DimKnownPersonIdConfirmedIdentity = dimKnownPerson.Id,
+                        DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                         DimKnownPersonidFormerNames = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
@@ -211,7 +206,7 @@ namespace api.Controllers
                     var dimPidOrcidPutCodeOtherName = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeOtherName.PidContent = otherName.PutCode.GetDbValue();
                     dimPidOrcidPutCodeOtherName.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeOtherName.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeOtherName.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeOtherName.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeOtherName);
                     await _ttvContext.SaveChangesAsync();
@@ -260,7 +255,7 @@ namespace api.Controllers
                         Url = researchUrl.Url,
                         LinkLabel = researchUrl.UrlName,
                         DimOrganizationId = -1,
-                        DimKnownPersonId = dimKnownPerson.Id,
+                        DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                         DimCallProgrammeId = -1,
                         DimFundingDecisionId = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
@@ -275,7 +270,7 @@ namespace api.Controllers
                     var dimPidOrcidPutCodeWebLink = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeWebLink.PidContent = researchUrl.PutCode.GetDbValue();
                     dimPidOrcidPutCodeWebLink.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeWebLink.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeWebLink.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeWebLink.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeWebLink);
                     await _ttvContext.SaveChangesAsync();
@@ -302,7 +297,7 @@ namespace api.Controllers
                     "",
                     _orcidJsonParserService.GetBiography(json).Value,
                     "",
-                    dimKnownPerson.Id,
+                    dimUserProfile.DimKnownPersonId,
                     orcidRegisteredDataSourceId
                 );
 
@@ -334,7 +329,7 @@ namespace api.Controllers
                 // Email: DimEmailAddrressess
                 var dimEmailAddress = await _userProfileService.AddOrUpdateDimEmailAddress(
                     email.Value,
-                    dimKnownPerson.Id,
+                    dimUserProfile.DimKnownPersonId,
                     orcidRegisteredDataSourceId
                 );
 
@@ -399,7 +394,7 @@ namespace api.Controllers
                     var dimPidOrcidPutCodeKeyword = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeKeyword.PidContent = keyword.PutCode.GetDbValue();
                     dimPidOrcidPutCodeKeyword.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeKeyword.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeKeyword.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeKeyword.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeKeyword);
                     await _ttvContext.SaveChangesAsync();
@@ -455,7 +450,7 @@ namespace api.Controllers
                     var dimPid = _userProfileService.GetEmptyDimPid();
                     dimPid.PidContent = externalIdentifier.ExternalIdValue;
                     dimPid.PidType = externalIdentifier.ExternalIdType;
-                    dimPid.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPid.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPid.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPid);
                     await _ttvContext.SaveChangesAsync();
@@ -464,7 +459,7 @@ namespace api.Controllers
                     var dimPidOrcidPutCodeExternalIdentifier = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeExternalIdentifier.PidContent = externalIdentifier.PutCode.GetDbValue();
                     dimPidOrcidPutCodeExternalIdentifier.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeExternalIdentifier.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeExternalIdentifier.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeExternalIdentifier.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeExternalIdentifier);
                     await _ttvContext.SaveChangesAsync();
@@ -552,7 +547,7 @@ namespace api.Controllers
                         DimEndDate = endDate.Id,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimKnownPersonId = dimKnownPerson.Id,
+                        DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = currentDateTime,
                         Modified = currentDateTime
@@ -564,7 +559,7 @@ namespace api.Controllers
                     var dimPidOrcidPutCodeEducation = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeEducation.PidContent = education.PutCode.GetDbValue();
                     dimPidOrcidPutCodeEducation.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeEducation.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeEducation.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeEducation.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeEducation);
                     await _ttvContext.SaveChangesAsync();
@@ -680,7 +675,7 @@ namespace api.Controllers
                         AffiliationType = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimKnownPersonId = dimKnownPerson.Id,
+                        DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = currentDateTime,
                         Modified = currentDateTime
@@ -692,7 +687,7 @@ namespace api.Controllers
                     var dimPidOrcidPutCodeEmployment = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeEmployment.PidContent = employment.PutCode.GetDbValue();
                     dimPidOrcidPutCodeEmployment.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeEmployment.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeEmployment.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeEmployment.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeEmployment);
                     await _ttvContext.SaveChangesAsync();
@@ -751,7 +746,7 @@ namespace api.Controllers
                     var dimPidOrcidPutCodePublication = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodePublication.PidContent = orcidPublication.PutCode.GetDbValue();
                     dimPidOrcidPutCodePublication.PidType = "ORCID put code";
-                    dimPidOrcidPutCodePublication.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodePublication.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodePublication.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodePublication);
                     await _ttvContext.SaveChangesAsync();
