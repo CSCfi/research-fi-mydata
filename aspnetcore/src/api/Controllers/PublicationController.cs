@@ -57,7 +57,7 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPublication).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(dup => dup.Id == userprofileId);
 
-            // TODO: Currently all added publications get the same data source.
+            // TODO: Currently all added publications get the same data source (Tiedejatutkimus.fi)
 
             // Get Tiedejatutkimus.fi registered data source id
             var tiedejatutkimusRegisteredDataSourceId = await _userProfileService.GetTiedejatutkimusFiRegisteredDataSourceId();
@@ -140,18 +140,22 @@ namespace api.Controllers
                     }
                 }
             }
+
+            // TODO: add Elasticsearch sync?
+
             return Ok(new ApiResponse(success: true, data: profileEditorAddPublicationResponse));
         }
 
         /*
-         *  Add publication from profile.
+         *  Remove publications from profile.
          */
-        [HttpDelete("{publicationId}")]
-        public async Task<IActionResult> DeletePublicationFromProfile(string publicationId)
+        [HttpPost]
+        [Route("remove")]
+        public async Task<IActionResult> RemoveMany([FromBody] List<string> publicationIds)
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "publicationId invalid", data: publicationId));
+                return Ok(new ApiResponse(success: false, reason: "expected list of strings", data: publicationIds));
             }
 
             // Get id of userprofile
@@ -163,20 +167,30 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            // Remove FactFieldValue
-            var factFieldValue = await _ttvContext.FactFieldValues
-                .Include(ffv => ffv.DimPublication).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == publicationId);
+            // Response object
+            var profileEditorRemovePublicationResponse = new ProfileEditorRemovePublicationResponse();
 
-            if (factFieldValue == null)
+            // Remove FactFieldValues
+            foreach(string publicationId in publicationIds.Distinct())
             {
-                // Publication is not in profile
-                return Ok(new ApiResponse(success: false, reason: "publicationId not found in profile", data: publicationId));
-            }
+                var factFieldValue = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == publicationId)
+                  .Include(ffv => ffv.DimPublication).AsNoTracking().FirstOrDefaultAsync();
 
-            _ttvContext.FactFieldValues.Remove(factFieldValue);
+                if (factFieldValue != null)
+                {
+                    profileEditorRemovePublicationResponse.publicationsRemoved.Add(publicationId);
+                    _ttvContext.FactFieldValues.Remove(factFieldValue);
+                }
+                else
+                {
+                    profileEditorRemovePublicationResponse.publicationsNotFound.Add(publicationId);
+                }
+            }
             await _ttvContext.SaveChangesAsync();
 
-            return Ok(new ApiResponse(success: true, reason: "removed", data: publicationId));
+            // TODO: add Elasticsearch sync?
+
+            return Ok(new ApiResponse(success: true, reason: "removed", data: profileEditorRemovePublicationResponse));
         }
     }
 }
