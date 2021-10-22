@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace api.Controllers
 {
@@ -22,12 +24,16 @@ namespace api.Controllers
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly UtilityService _utilityService;
+        private IMemoryCache _cache;
+        private readonly ILogger<UserProfileController> _logger;
 
-        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService)
+        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _utilityService = utilityService;
+            _logger = logger;
+            _cache = memoryCache;
         }
 
         /*
@@ -143,6 +149,9 @@ namespace api.Controllers
 
             // TODO: add Elasticsearch sync?
 
+            // Remove cached profile data response. Cache key is ORCID ID.
+            _cache.Remove(orcidId);
+
             return Ok(new ApiResponse(success: true, data: profileEditorAddPublicationResponse));
         }
 
@@ -189,6 +198,9 @@ namespace api.Controllers
             await _ttvContext.SaveChangesAsync();
 
             // TODO: add Elasticsearch sync?
+
+            // Remove cached profile data response. Cache key is ORCID ID.
+            _cache.Remove(orcidId);
 
             return Ok(new ApiResponse(success: true, reason: "removed", data: profileEditorRemovePublicationResponse));
         }
