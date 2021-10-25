@@ -412,43 +412,46 @@ namespace api.Services
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
-                            // DimPublication
-                            if (ffv.DimPublicationId != -1)
-                            {
-                                publicationGroup.items.Add(
+                            publicationGroup.items.Add(
+                                new ItemPublication()
+                                {
+                                    PublicationId = ffv.DimPublication.PublicationId,
+                                    PublicationName = ffv.DimPublication.PublicationName,
+                                    PublicationYear = ffv.DimPublication.PublicationYear,
+                                    Doi = ffv.DimPublication.Doi,
+                                    PrimaryValue = ffv.PrimaryValue
+                                }
 
-                                    new ItemPublication()
-                                    {
-                                        PublicationId = ffv.DimPublication.PublicationId,
-                                        PublicationName = ffv.DimPublication.PublicationName,
-                                        PublicationYear = ffv.DimPublication.PublicationYear,
-                                        Doi = ffv.DimPublication.Doi,
-                                        PrimaryValue = ffv.PrimaryValue
-                                    }
-
-                                );
-                            }
-
-                            // DimOrcidPublication
-                            if (ffv.DimOrcidPublicationId != -1)
-                            {
-                                publicationGroup.items.Add(
-
-                                    new ItemPublication()
-                                    {
-                                        PublicationId = ffv.DimOrcidPublication.PublicationId,
-                                        PublicationName = ffv.DimOrcidPublication.PublicationName,
-                                        PublicationYear = ffv.DimOrcidPublication.PublicationYear,
-                                        Doi = ffv.DimOrcidPublication.DoiHandle,
-                                        PrimaryValue = ffv.PrimaryValue
-                                    }
-
-                                );
-                            }
+                            );
                         }
                         if (publicationGroup.items.Count > 0)
                         {
                             person.activity.publicationGroups.Add(publicationGroup);
+                        }
+                        break;
+                    // Publication (ORCID)
+                    case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
+                        var orcidPublicationGroup = new GroupPublication()
+                        {
+                            source = source,
+                            items = new List<ItemPublication>() { }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            orcidPublicationGroup.items.Add(
+                                new ItemPublication()
+                                {
+                                    PublicationId = ffv.DimOrcidPublication.PublicationId,
+                                    PublicationName = ffv.DimOrcidPublication.PublicationName,
+                                    PublicationYear = ffv.DimOrcidPublication.PublicationYear,
+                                    Doi = ffv.DimOrcidPublication.DoiHandle,
+                                    PrimaryValue = ffv.PrimaryValue
+                                }
+                            );
+                        }
+                        if (orcidPublicationGroup.items.Count > 0)
+                        {
+                            person.activity.publicationGroups.Add(orcidPublicationGroup);
                         }
                         break;
                     default:

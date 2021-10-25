@@ -20,6 +20,7 @@ namespace api.Models
             public const int ACTIVITY_AFFILIATION = 300;
             public const int ACTIVITY_EDUCATION = 400;
             public const int ACTIVITY_PUBLICATION = 500;
+            public const int ACTIVITY_PUBLICATION_ORCID = 550;
         }
 
         public static class SourceIdentifiers

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace api.Controllers
 {
@@ -26,8 +27,10 @@ namespace api.Controllers
         private readonly ElasticsearchService _elasticsearchService;
         private readonly UtilityService _utilityService;
         private readonly ILogger<UserProfileController> _logger;
+        private readonly IMemoryCache _cache;
+        private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
 
-        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, ElasticsearchService elasticsearchService, UserProfileService userProfileService, UtilityService utilityService, ILogger<UserProfileController> logger)
+        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, ElasticsearchService elasticsearchService, UserProfileService userProfileService, UtilityService utilityService, ILogger<UserProfileController> logger, IMemoryCache memoryCache, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue)
         {
             _ttvContext = ttvContext;
             _demoDataService = demoDataService;
@@ -35,6 +38,8 @@ namespace api.Controllers
             _elasticsearchService = elasticsearchService;
             _utilityService = utilityService;
             _logger = logger;
+            _cache = memoryCache;
+            _backgroundElasticsearchPersonUpdateQueue = backgroundElasticsearchPersonUpdateQueue;
         }
 
         // Check if profile exists.
@@ -156,7 +161,8 @@ namespace api.Controllers
                     Constants.FieldIdentifiers.PERSON_WEB_LINK,
                     Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
                     Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
-                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
+                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID
                 };
 
                 // DimFieldDisplaySettings for ORCID registered data source
@@ -279,12 +285,18 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            // Remove entry from Elasticsearch index
-            // TODO use BackgroundService to handle Elasticsearch API call.
-            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            // Remove cached profile data response. Cache key is ORCID ID.
+            _cache.Remove(orcidId);
+
+            // Remove entry from Elasticsearch index in a background task.
+            _backgroundElasticsearchPersonUpdateQueue.QueueBackgroundWorkItem(async token =>
             {
+                _logger.LogInformation($"Background task for removing {orcidId} from Elasticsearch person index started at {DateTime.UtcNow}");
+                // Update Elasticsearch person index.
                 await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
-            }
+                _logger.LogInformation($"Background task for removing {orcidId} from Elasticseach person index ended at {DateTime.UtcNow}");
+            });
+
 
             // Get DimUserProfile and related data that should be removed. 
             var dimUserProfile = await _ttvContext.DimUserProfiles

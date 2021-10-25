@@ -27,7 +27,7 @@ namespace api.Controllers
         private readonly UserProfileService _userProfileService;
         private readonly ElasticsearchService _elasticsearchService;
         private readonly TtvSqlService _ttvSqlService;
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
         private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
         private readonly BackgroundProfiledata _backgroundProfiledata;
@@ -608,55 +608,64 @@ namespace api.Controllers
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
-                            // DimPublication
-                            if (ffv.DimPublicationId != -1)
-                            {
-                                publicationGroup.items.Add(
-
-                                    new ProfileEditorItemPublication()
+                            publicationGroup.items.Add(
+                                new ProfileEditorItemPublication()
+                                {
+                                    PublicationId = ffv.DimPublication.PublicationId,
+                                    PublicationName = ffv.DimPublication.PublicationName,
+                                    PublicationYear = ffv.DimPublication.PublicationYear,
+                                    Doi = ffv.DimPublication.Doi,
+                                    itemMeta = new ProfileEditorItemMeta()
                                     {
-                                        PublicationId = ffv.DimPublication.PublicationId,
-                                        PublicationName = ffv.DimPublication.PublicationName,
-                                        PublicationYear = ffv.DimPublication.PublicationYear,
-                                        Doi = ffv.DimPublication.Doi,
-                                        itemMeta = new ProfileEditorItemMeta()
-                                        {
-                                            Id = ffv.DimPublicationId,
-                                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                                            Show = ffv.Show,
-                                            PrimaryValue = ffv.PrimaryValue
-                                        }
+                                        Id = ffv.DimPublicationId,
+                                        Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
                                     }
-
-                                );
-                            }
-
-                            // DimOrcidPublication
-                            if (ffv.DimOrcidPublicationId != -1)
-                            {
-                                publicationGroup.items.Add(
-
-                                    new ProfileEditorItemPublication()
-                                    {
-                                        PublicationId = ffv.DimOrcidPublication.PublicationId,
-                                        PublicationName = ffv.DimOrcidPublication.PublicationName,
-                                        PublicationYear = ffv.DimOrcidPublication.PublicationYear,
-                                        Doi = ffv.DimOrcidPublication.DoiHandle,
-                                        itemMeta = new ProfileEditorItemMeta()
-                                        {
-                                            Id = ffv.DimOrcidPublicationId,
-                                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                                            Show = ffv.Show,
-                                            PrimaryValue = ffv.PrimaryValue
-                                        }
-                                    }
-
-                                );
-                            }
+                                }
+                            );
                         }
                         if (publicationGroup.items.Count > 0)
                         {
                             profileDataResponse.activity.publicationGroups.Add(publicationGroup);
+                        }
+                        break;
+                    // Publication (ORCID)
+                    case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
+                        var orcidPublicationGroup = new ProfileEditorGroupPublication()
+                        {
+                            source = source,
+                            items = new List<ProfileEditorItemPublication>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {      
+                            orcidPublicationGroup.items.Add(
+
+                                new ProfileEditorItemPublication()
+                                {
+                                    PublicationId = ffv.DimOrcidPublication.PublicationId,
+                                    PublicationName = ffv.DimOrcidPublication.PublicationName,
+                                    PublicationYear = ffv.DimOrcidPublication.PublicationYear,
+                                    Doi = ffv.DimOrcidPublication.DoiHandle,
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = ffv.DimOrcidPublicationId,
+                                        Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
+                                        Show = ffv.Show,
+                                        PrimaryValue = ffv.PrimaryValue
+                                    }
+                                }
+                            );
+                        }
+                        if (orcidPublicationGroup.items.Count > 0)
+                        {
+                            profileDataResponse.activity.publicationGroups.Add(orcidPublicationGroup);
                         }
                         break;
                     default:

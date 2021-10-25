@@ -752,12 +752,12 @@ namespace api.Controllers
                     await _ttvContext.SaveChangesAsync();
 
                     // Get DimFieldDisplaySettings for orcid publication
-                    var dimFieldDisplaySettingsPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION && dfdsPublication.SourceId == Constants.SourceIdentifiers.ORCID);
+                    var dimFieldDisplaySettingsOrcidPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID && dfdsPublication.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for orcid publication
                     factFieldValuesPublication = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesPublication.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesPublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
+                    factFieldValuesPublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsOrcidPublication.Id;
                     factFieldValuesPublication.DimOrcidPublicationId = dimOrcidPublication.Id;
                     factFieldValuesPublication.DimPidIdOrcidPutCode = dimPidOrcidPutCodePublication.Id;
                     _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
