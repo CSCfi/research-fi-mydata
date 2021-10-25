@@ -26,11 +26,17 @@ namespace api
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
 
-
+            // SQL Server options.
+            // Enable retry on failure.
+            // Split LINQ queriers into multiple SQL queries.
             services.AddDbContext<TtvContext>(options =>
                 options.UseSqlServer(
                     connectionString,
-                    options => options.EnableRetryOnFailure()
+                    options =>
+                    {
+                        options.EnableRetryOnFailure();
+                        options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                    }
                 )
             );
 

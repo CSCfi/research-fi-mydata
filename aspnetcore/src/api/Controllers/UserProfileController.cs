@@ -84,7 +84,7 @@ namespace api.Controllers
                     .ThenInclude(dkp => dkp.DimTelephoneNumbers)
                         .ThenInclude(dtn => dtn.DimRegisteredDataSource).AsNoTracking()
                 .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
+                    .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
 
             // Get current DateTime
             DateTime currentDateTime = _utilityService.getCurrentDateTime();
@@ -324,7 +324,7 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimKeyword).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
             {

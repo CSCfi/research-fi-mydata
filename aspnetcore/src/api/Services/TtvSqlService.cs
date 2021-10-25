@@ -49,8 +49,10 @@ namespace api.Services
                     fk_column_name = "dim_education_id";
                     break;
                 case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
-                    // TODO: ORCID publications should have separate identifier.
                     fk_column_name = "dim_publication_id";
+                    break;
+                case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
+                    fk_column_name = "dim_orcid_publication_id";
                     break;
                 default:
                     break;

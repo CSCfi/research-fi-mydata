@@ -61,7 +61,7 @@ namespace api.Controllers
                         .ThenInclude(br => br.DimRegisteredDataSource)
                             .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimPublication).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(dup => dup.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimPublication).AsNoTracking().FirstOrDefaultAsync(dup => dup.Id == userprofileId);
 
             // TODO: Currently all added publications get the same data source (Tiedejatutkimus.fi)
 

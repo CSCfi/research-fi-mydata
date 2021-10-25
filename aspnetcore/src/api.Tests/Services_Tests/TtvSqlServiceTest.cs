@@ -108,6 +108,16 @@ namespace api.Tests
             );
         }
 
+        [Fact(DisplayName = "Get FactFieldValues FK column name - dim_orcid_publication_id")]
+        public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_orcid_publication_id()
+        {
+            var ttvSqlService = new TtvSqlService();
+            // Web link
+            Assert.Equal(
+                "dim_orcid_publication_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID)
+            );
+        }
+
         [Fact(DisplayName = "Get SQL query for updating FactFieldValues, first name")]
         public void Test_getSqlQuery_Update_FactFieldValues_first_name()
         {
