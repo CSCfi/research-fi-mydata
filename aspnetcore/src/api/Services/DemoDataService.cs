@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using api.Models;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace api.Services
 {
@@ -17,6 +18,7 @@ namespace api.Services
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly UtilityService _utilityService;
+        private readonly ILogger<DemoDataService> _logger;
         private readonly string DemoOrganization1Name = "Yliopisto A";
         private readonly string DemoOrganization2Name = "Tutkimuslaitos X";
         private readonly string DemoOrganization3Name = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
@@ -28,11 +30,12 @@ namespace api.Services
         private readonly string DemoOrganization2FieldOfScience1 = "Yleislääketiede";
         private readonly string DemoOrganization2FieldOfScience2 = "Sisätaudit ja muut kliiniset lääketieteet";
 
-        public DemoDataService(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService)
+        public DemoDataService(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, ILogger<DemoDataService> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _utilityService = utilityService;
+            _logger = logger;
         }
 
         public string GetDemoOrganization1Name()
@@ -68,23 +71,24 @@ namespace api.Services
         public DimRegisteredDataSource GetOrganization1RegisteredDataSource()
         {
             var organization1 = this.GetOrganization1();
-            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganizationId == organization1.Id && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganization == organization1 && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
         public DimRegisteredDataSource GetOrganization2RegisteredDataSource()
         {
             var organization2 = this.GetOrganization2();
-            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganizationId == organization2.Id && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganization == organization2 && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
         public DimRegisteredDataSource GetOrganization3RegisteredDataSource()
         {
             var organization3 = this.GetOrganization3();
-            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganizationId == organization3.Id && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganization == organization3 && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
         public void AddOrganizations()
         {
+            _logger.LogInformation("DemoDataService: AddOrganizations");
             // Organization 1
             var organization1 = this.GetOrganization1();
             if (organization1 == null)
@@ -142,6 +146,8 @@ namespace api.Services
 
         public void AddRegisteredDatasources()
         {
+            _logger.LogInformation("DemoDataService: AddRegisteredDatasources");
+
             // Registered data source 1
             var organization1 = this.GetOrganization1();
             var registeredDatasourceOrg1 = this.GetOrganization1RegisteredDataSource();
@@ -150,7 +156,7 @@ namespace api.Services
                 registeredDatasourceOrg1 = new DimRegisteredDataSource()
                 {
                     Name = this.DemoOrganization1DataSourceName,
-                    DimOrganizationId = organization1.Id,
+                    DimOrganization = organization1,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
@@ -167,7 +173,7 @@ namespace api.Services
                 registeredDatasourceOrg2 = new DimRegisteredDataSource()
                 {
                     Name = this.DemoOrganization2DataSourceName,
-                    DimOrganizationId = organization2.Id,
+                    DimOrganization = organization2,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
@@ -184,7 +190,7 @@ namespace api.Services
                 registeredDatasourceOrg3 = new DimRegisteredDataSource()
                 {
                     Name = this.DemoOrganization3DataSourceName,
-                    DimOrganizationId = organization3.Id,
+                    DimOrganization = organization3,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
@@ -199,6 +205,8 @@ namespace api.Services
 
         public void AddReferenceData()
         {
+            _logger.LogInformation("DemoDataService: AddReferenceData");
+
             var referenceData = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == "Työsuhde");
             if (referenceData == null)
             {
@@ -231,7 +239,7 @@ namespace api.Services
         //            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
         //            Created = _utilityService.getCurrentDateTime(),
         //            Modified = _utilityService.getCurrentDateTime(),
-        //            DimRegisteredDataSourceId = registeredDatasourceOrg1.Id
+        //            DimRegisteredDataSource = registeredDatasourceOrg1
         //        }
         //    );
         //    _ttvContext.DimResearchCommunities.Add(
@@ -242,7 +250,7 @@ namespace api.Services
         //            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
         //            Created = _utilityService.getCurrentDateTime(),
         //            Modified = _utilityService.getCurrentDateTime(),
-        //            DimRegisteredDataSourceId = registeredDatasourceOrg2.Id
+        //            DimRegisteredDataSource = registeredDatasourceOrg2
         //        }
         //    );
         //    _ttvContext.SaveChanges();
@@ -251,6 +259,8 @@ namespace api.Services
 
         public void AddFieldsOfScience()
         {
+            _logger.LogInformation("DemoDataService: AddFieldsOfScience");
+
             var fieldsOfScienceNames = new List<string> {
                 this.DemoOrganization1FieldOfScience1,
                 this.DemoOrganization1FieldOfScience2,
@@ -307,27 +317,30 @@ namespace api.Services
         public async Task<DimRegisteredDataSource> GetOrganization1RegisteredDataSourceAsync()
         {
             var organization1 = await this.GetOrganization1Async();
-            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganizationId == organization1.Id && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganization == organization1 && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
         public async Task<DimRegisteredDataSource> GetOrganization2RegisteredDataSourceAsync()
         {
             var organization2 = await this.GetOrganization2Async();
-            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganizationId == organization2.Id && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganization == organization2 && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
         public async Task<DimRegisteredDataSource> GetOrganization3RegisteredDataSourceAsync()
         {
             var organization3 = await this.GetOrganization3Async();
-            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganizationId == organization3.Id && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganization == organization3 && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
-        public async Task AddDemoDataToUserProfile(DimUserProfile dimUserProfile)
+        public async Task AddDemoDataToUserProfile(string orcidId, DimUserProfile dimUserProfile)
         {
+            _logger.LogInformation("DemoDataService: AddDemoDataToUserProfile: " + orcidId);
+
             var organization1 = await this.GetOrganization1Async();
             var organization2 = await this.GetOrganization2Async();
             var organization1RegisteredDataSource = await this.GetOrganization1RegisteredDataSourceAsync();
             var organization2RegisteredDataSource = await this.GetOrganization2RegisteredDataSourceAsync();
+            var currentDateTime = _utilityService.getCurrentDateTime();
 
             // Name
             var dimFieldDisplaySettings_name_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
@@ -339,8 +352,8 @@ namespace api.Services
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime(),
+                Created = currentDateTime,
+                Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimNameOrganization1);
@@ -354,24 +367,22 @@ namespace api.Services
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime(),
+                Created = currentDateTime,
+                Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimNameOrganization2);
-            await _ttvContext.SaveChangesAsync();
 
             var factFieldValue_name_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_name_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_name_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_name_Organization1.Id;
-            factFieldValue_name_Organization1.DimNameId = dimNameOrganization1.Id;
+            factFieldValue_name_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_name_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_name_Organization1;
+            factFieldValue_name_Organization1.DimName = dimNameOrganization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_name_Organization1);
             var factFieldValue_name_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_name_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_name_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_name_Organization2.Id;
-            factFieldValue_name_Organization2.DimNameId = dimNameOrganization2.Id;
+            factFieldValue_name_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_name_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_name_Organization2;
+            factFieldValue_name_Organization2.DimName = dimNameOrganization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_name_Organization2);
-            await _ttvContext.SaveChangesAsync();
 
 
             // Other names
@@ -383,8 +394,8 @@ namespace api.Services
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime(),
+                Created = currentDateTime,
+                Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimOtherNameOrganization1_1);
@@ -395,8 +406,8 @@ namespace api.Services
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime(),
+                Created = currentDateTime,
+                Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimOtherNameOrganization1_2);
@@ -408,28 +419,26 @@ namespace api.Services
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime(),
+                Created = currentDateTime,
+                Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimOtherNameOrganization2);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_othername_Organization1_1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_othername_Organization1_1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_othername_Organization1_1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_othername_Organization1.Id;
-            factFieldValue_othername_Organization1_1.DimNameId = dimOtherNameOrganization1_1.Id;
+            factFieldValue_othername_Organization1_1.DimUserProfile = dimUserProfile;
+            factFieldValue_othername_Organization1_1.DimFieldDisplaySettings = dimFieldDisplaySettings_othername_Organization1;
+            factFieldValue_othername_Organization1_1.DimName = dimOtherNameOrganization1_1;
             _ttvContext.FactFieldValues.Add(factFieldValue_othername_Organization1_1);
             var factFieldValue_othername_Organization1_2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_othername_Organization1_2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_othername_Organization1_2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_othername_Organization1.Id;
-            factFieldValue_othername_Organization1_2.DimNameId = dimOtherNameOrganization1_2.Id;
+            factFieldValue_othername_Organization1_2.DimUserProfile = dimUserProfile;
+            factFieldValue_othername_Organization1_2.DimFieldDisplaySettings = dimFieldDisplaySettings_othername_Organization1;
+            factFieldValue_othername_Organization1_2.DimName = dimOtherNameOrganization1_2;
             _ttvContext.FactFieldValues.Add(factFieldValue_othername_Organization1_2);
             var factFieldValue_othername_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_othername_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_othername_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_othername_Organization2.Id;
-            factFieldValue_othername_Organization2.DimNameId = dimOtherNameOrganization2.Id;
+            factFieldValue_othername_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_othername_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_othername_Organization2;
+            factFieldValue_othername_Organization2.DimName = dimOtherNameOrganization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_othername_Organization2);
-            await _ttvContext.SaveChangesAsync();
 
 
             // External identifiers (DimPid)
@@ -447,20 +456,18 @@ namespace api.Services
             dimPid_Organization2.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
             dimPid_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
             dimPid_Organization2.SourceDescription = Constants.SourceDescriptions.PROFILE_API;
-            dimPid_Organization2.Created = _utilityService.getCurrentDateTime();
+            dimPid_Organization2.Created = currentDateTime;
             _ttvContext.DimPids.Add(dimPid_Organization2);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_externalIdentifier_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_externalIdentifier_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_externalIdentifier_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_externalIdentifier_Organization1.Id;
-            factFieldValue_externalIdentifier_Organization1.DimPidId = dimPid_Organization1.Id;
+            factFieldValue_externalIdentifier_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_externalIdentifier_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_externalIdentifier_Organization1;
+            factFieldValue_externalIdentifier_Organization1.DimPid = dimPid_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_externalIdentifier_Organization1);
             var factFieldValue_externalIdentifier_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_externalIdentifier_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_externalIdentifier_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_externalIdentifier_Organization2.Id;
-            factFieldValue_externalIdentifier_Organization2.DimPidId = dimPid_Organization2.Id;
+            factFieldValue_externalIdentifier_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_externalIdentifier_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_externalIdentifier_Organization2;
+            factFieldValue_externalIdentifier_Organization2.DimPid = dimPid_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_externalIdentifier_Organization2);
-            await _ttvContext.SaveChangesAsync();
 
 
             // Researcher description
@@ -474,8 +481,8 @@ namespace api.Services
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription_Organization1);
             var dimFieldDisplaySettings_researcherDescription_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
@@ -486,22 +493,20 @@ namespace api.Services
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription_Organization2);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_researcherDescription_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_researcherDescription_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_researcherDescription_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_researcherDescription_Organization1.Id;
-            factFieldValue_researcherDescription_Organization1.DimResearcherDescriptionId = dimResearcherDescription_Organization1.Id;
+            factFieldValue_researcherDescription_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_researcherDescription_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_researcherDescription_Organization1;
+            factFieldValue_researcherDescription_Organization1.DimResearcherDescription = dimResearcherDescription_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_researcherDescription_Organization1);
             var factFieldValue_researcherDescription_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_researcherDescription_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_researcherDescription_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_researcherDescription_Organization2.Id;
-            factFieldValue_researcherDescription_Organization2.DimResearcherDescriptionId = dimResearcherDescription_Organization2.Id;
+            factFieldValue_researcherDescription_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_researcherDescription_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_researcherDescription_Organization2;
+            factFieldValue_researcherDescription_Organization2.DimResearcherDescription = dimResearcherDescription_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_researcherDescription_Organization2);
-            await _ttvContext.SaveChangesAsync();
 
 
             // Keywords
@@ -512,8 +517,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             var dimKeyword2_Organization1 = new DimKeyword()
             {
@@ -521,8 +526,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             var dimKeyword3_Organization1 = new DimKeyword()
             {
@@ -530,8 +535,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             var dimKeyword4_Organization1 = new DimKeyword()
             {
@@ -539,8 +544,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             _ttvContext.DimKeywords.Add(dimKeyword1_Organization1);
             _ttvContext.DimKeywords.Add(dimKeyword2_Organization1);
@@ -553,8 +558,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             var dimKeyword2_Organization2 = new DimKeyword()
             {
@@ -562,8 +567,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             var dimKeyword3_Organization2 = new DimKeyword()
             {
@@ -571,8 +576,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             var dimKeyword4_Organization2 = new DimKeyword()
             {
@@ -580,56 +585,55 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             _ttvContext.DimKeywords.Add(dimKeyword1_Organization2);
             _ttvContext.DimKeywords.Add(dimKeyword2_Organization2);
             _ttvContext.DimKeywords.Add(dimKeyword3_Organization2);
             _ttvContext.DimKeywords.Add(dimKeyword4_Organization2);
-            await _ttvContext.SaveChangesAsync();
+  
 
             var factFieldValue_keyword1_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_keyword1_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_keyword1_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_Organization1.Id;
-            factFieldValue_keyword1_Organization1.DimKeywordId = dimKeyword1_Organization1.Id;
+            factFieldValue_keyword1_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_keyword1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization1;
+            factFieldValue_keyword1_Organization1.DimKeyword = dimKeyword1_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword1_Organization1);
             var factFieldValue_keyword2_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_keyword2_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_keyword2_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_Organization1.Id;
-            factFieldValue_keyword2_Organization1.DimKeywordId = dimKeyword2_Organization1.Id;
+            factFieldValue_keyword2_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_keyword2_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization1;
+            factFieldValue_keyword2_Organization1.DimKeyword = dimKeyword2_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword2_Organization1);
             var factFieldValue_keyword3_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_keyword3_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_keyword3_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_Organization1.Id;
-            factFieldValue_keyword3_Organization1.DimKeywordId = dimKeyword3_Organization1.Id;
+            factFieldValue_keyword3_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_keyword3_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization1;
+            factFieldValue_keyword3_Organization1.DimKeyword = dimKeyword3_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword3_Organization1);
             var factFieldValue_keyword4_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_keyword4_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_keyword4_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_Organization1.Id;
-            factFieldValue_keyword4_Organization1.DimKeywordId = dimKeyword4_Organization1.Id;
+            factFieldValue_keyword4_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_keyword4_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization1;
+            factFieldValue_keyword4_Organization1.DimKeyword = dimKeyword4_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword4_Organization1);
             var factFieldValue_keyword1_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_keyword1_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_keyword1_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_Organization2.Id;
-            factFieldValue_keyword1_Organization2.DimKeywordId = dimKeyword1_Organization2.Id;
+            factFieldValue_keyword1_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_keyword1_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization2;
+            factFieldValue_keyword1_Organization2.DimKeyword = dimKeyword1_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword1_Organization2);
             var factFieldValue_keyword2_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_keyword2_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_keyword2_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_Organization2.Id;
-            factFieldValue_keyword2_Organization2.DimKeywordId = dimKeyword2_Organization2.Id;
+            factFieldValue_keyword2_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_keyword2_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization2;
+            factFieldValue_keyword2_Organization2.DimKeyword = dimKeyword2_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword2_Organization2);
             var factFieldValue_keyword3_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_keyword3_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_keyword3_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_Organization2.Id;
-            factFieldValue_keyword3_Organization2.DimKeywordId = dimKeyword3_Organization2.Id;
+            factFieldValue_keyword3_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_keyword3_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization2;
+            factFieldValue_keyword3_Organization2.DimKeyword = dimKeyword3_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword3_Organization2);
             var factFieldValue_keyword4_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_keyword4_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_keyword4_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_keyword_Organization2.Id;
-            factFieldValue_keyword4_Organization2.DimKeywordId = dimKeyword4_Organization2.Id;
+            factFieldValue_keyword4_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_keyword4_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization2;
+            factFieldValue_keyword4_Organization2.DimKeyword = dimKeyword4_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword4_Organization2);
-            await _ttvContext.SaveChangesAsync();
 
 
             // Fields of science org1
@@ -637,14 +641,14 @@ namespace api.Services
             var dimFieldOfScience1_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
             var dimFieldOfScience2_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
             var factFieldValue_fieldOfScience1_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_fieldOfScience1_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_fieldOfScience1_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_Organization1.Id;
-            factFieldValue_fieldOfScience1_Organization1.DimFieldOfScienceId = dimFieldOfScience1_Organization1.Id;
+            factFieldValue_fieldOfScience1_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_fieldOfScience1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience_Organization1;
+            factFieldValue_fieldOfScience1_Organization1.DimFieldOfScience = dimFieldOfScience1_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience1_Organization1);
             var factFieldValue_fieldOfScience2_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_fieldOfScience2_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_fieldOfScience2_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_Organization1.Id;
-            factFieldValue_fieldOfScience2_Organization1.DimFieldOfScienceId = dimFieldOfScience2_Organization1.Id;
+            factFieldValue_fieldOfScience2_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_fieldOfScience2_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience_Organization1;
+            factFieldValue_fieldOfScience2_Organization1.DimFieldOfScience = dimFieldOfScience2_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience2_Organization1);
 
             // Fields of science org2
@@ -652,17 +656,15 @@ namespace api.Services
             var dimFieldOfScience1_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
             var dimFieldOfScience2_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
             var factFieldValue_fieldOfScience1_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_fieldOfScience1_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_fieldOfScience1_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_Organization2.Id;
-            factFieldValue_fieldOfScience1_Organization2.DimFieldOfScienceId = dimFieldOfScience1_Organization2.Id;
+            factFieldValue_fieldOfScience1_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_fieldOfScience1_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience_Organization2;
+            factFieldValue_fieldOfScience1_Organization2.DimFieldOfScience = dimFieldOfScience1_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience1_Organization2);
             var factFieldValue_fieldOfScience2_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_fieldOfScience2_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_fieldOfScience2_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_Organization2.Id;
-            factFieldValue_fieldOfScience2_Organization2.DimFieldOfScienceId = dimFieldOfScience2_Organization2.Id;
+            factFieldValue_fieldOfScience2_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_fieldOfScience2_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience_Organization2;
+            factFieldValue_fieldOfScience2_Organization2.DimFieldOfScience = dimFieldOfScience2_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience2_Organization2);
-
-            await _ttvContext.SaveChangesAsync();
 
 
 
@@ -672,25 +674,24 @@ namespace api.Services
             //    NameFi = "Yleislääketiede",
             //    FieldId = "",
             //    SourceId = Constants.SourceIdentifiers.DEMO,
-            //    Created = _utilityService.getCurrentDateTime(),
-            //    Modified = _utilityService.getCurrentDateTime()
+            //    Created = currentDateTime,
+            //    Modified = currentDateTime
             //};
             //var dimFieldOfScience2_Organization2 = new DimFieldOfScience()
             //{
             //    NameFi = "sisätaudit ja muut kliiniset lääketieteet",
             //    FieldId = "",
             //    SourceId = Constants.SourceIdentifiers.DEMO,
-            //    Created = _utilityService.getCurrentDateTime(),
-            //    Modified = _utilityService.getCurrentDateTime()
+            //    Created = currentDateTime,
+            //    Modified = currentDateTime
             //};
             //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience1_Organization2);
             //_ttvContext.DimFieldOfSciences.Add(dimFieldOfScience2_Organization2);
-            //await _ttvContext.SaveChangesAsync();
 
             //var factFieldValue_fieldOfScience1_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            //factFieldValue_fieldOfScience1_Organization1.DimUserProfileId = dimUserProfile.Id;
-            //factFieldValue_fieldOfScience1_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_fieldOfScience_Organization1.Id;
-            //factFieldValue_fieldOfScience1_Organization1.DimFieldOfScienceId = dimFieldOfScience1_Organization1.Id;
+            //factFieldValue_fieldOfScience1_Organization1.DimUserProfile = dimUserProfile;
+            //factFieldValue_fieldOfScience1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience_Organization1;
+            //factFieldValue_fieldOfScience1_Organization1.DimFieldOfScience = dimFieldOfScience1_Organization1;
             //_ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience1_Organization1);
 
 
@@ -703,8 +704,8 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             _ttvContext.DimEmailAddrresses.Add(dimEmail_Organization1);
             var dimFieldDisplaySettings_email_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
@@ -715,22 +716,20 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             _ttvContext.DimEmailAddrresses.Add(dimEmail_Organization2);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_emails_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_emails_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_emails_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_email_Organization1.Id;
-            factFieldValue_emails_Organization1.DimEmailAddrressId = dimEmail_Organization1.Id;
+            factFieldValue_emails_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_emails_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_email_Organization1;
+            factFieldValue_emails_Organization1.DimEmailAddrress = dimEmail_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_emails_Organization1);
             var factFieldValue_emails_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_emails_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_emails_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_email_Organization2.Id;
-            factFieldValue_emails_Organization2.DimEmailAddrressId = dimEmail_Organization2.Id;
+            factFieldValue_emails_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_emails_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_email_Organization2;
+            factFieldValue_emails_Organization2.DimEmailAddrress = dimEmail_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_emails_Organization2);
-            await _ttvContext.SaveChangesAsync();
 
 
             // Telephone number
@@ -742,17 +741,15 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             _ttvContext.DimTelephoneNumbers.Add(dimTelephone_Organization1);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_telephone_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_telephone_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_telephone_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_telephone_Organization1.Id;
-            factFieldValue_telephone_Organization1.DimTelephoneNumberId = dimTelephone_Organization1.Id;
+            factFieldValue_telephone_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_telephone_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_telephone_Organization1;
+            factFieldValue_telephone_Organization1.DimTelephoneNumber = dimTelephone_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_telephone_Organization1);
-            await _ttvContext.SaveChangesAsync();
 
 
             // Web link
@@ -763,17 +760,15 @@ namespace api.Services
                 LinkLabel = "Tutkijan oma verkkosivu",
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime()
+                Created = currentDateTime,
+                Modified = currentDateTime
             };
             _ttvContext.DimWebLinks.Add(dimWeblink_Organization1);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_weblink_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_weblink_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_weblink_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_weblink_Organization1.Id;
-            factFieldValue_weblink_Organization1.DimWebLinkId = dimWeblink_Organization1.Id;
+            factFieldValue_weblink_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_weblink_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_weblink_Organization1;
+            factFieldValue_weblink_Organization1.DimWebLink = dimWeblink_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_weblink_Organization1);
-            await _ttvContext.SaveChangesAsync();
 
 
             // Role in research community
@@ -783,7 +778,7 @@ namespace api.Services
             // Affiliation
             var affiliationType = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO && drd.NameFi == "Työsuhde");
             var dimFieldDisplaySettings_affiliation_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
-            var dimStartDate_affiliation_organization1 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2020 && dd.Month == 1 && dd.Day == 1);
+            var dimStartDate_affiliation_organization1 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2020 && dd.Month == 1 && dd.Day == 1);
             if (dimStartDate_affiliation_organization1 == null)
             {
                 dimStartDate_affiliation_organization1 = new DimDate()
@@ -793,35 +788,32 @@ namespace api.Services
                     Day = 1,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
                 _ttvContext.DimDates.Add(dimStartDate_affiliation_organization1);
-                await _ttvContext.SaveChangesAsync();
             }
             var dimAffiliation_Organization1 = new DimAffiliation()
             {
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 DimOrganizationId = organization1.Id,
-                StartDate = dimStartDate_affiliation_organization1.Id,
+                StartDateNavigation = dimStartDate_affiliation_organization1,
                 AffiliationType = affiliationType.Id,
                 PositionNameFi = "Akatemiatutkija",
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime(),
+                Created = currentDateTime,
+                Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimAffiliations.Add(dimAffiliation_Organization1);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_affiliation_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_affiliation_Organization1.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_affiliation_Organization1.DimFieldDisplaySettingsId = dimFieldDisplaySettings_affiliation_Organization1.Id;
-            factFieldValue_affiliation_Organization1.DimAffiliationId = dimAffiliation_Organization1.Id;
+            factFieldValue_affiliation_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_affiliation_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_affiliation_Organization1;
+            factFieldValue_affiliation_Organization1.DimAffiliation = dimAffiliation_Organization1;
             _ttvContext.FactFieldValues.Add(factFieldValue_affiliation_Organization1);
-            await _ttvContext.SaveChangesAsync();
             var dimFieldDisplaySettings_affiliation_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
-            var dimStartDate_affiliation_organization2 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2016 && dd.Month == 1 && dd.Day == 1);
+            var dimStartDate_affiliation_organization2 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2016 && dd.Month == 1 && dd.Day == 1);
             if (dimStartDate_affiliation_organization2 == null)
             {
                 dimStartDate_affiliation_organization2 = new DimDate()
@@ -831,13 +823,12 @@ namespace api.Services
                     Day = 1,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
                 _ttvContext.DimDates.Add(dimStartDate_affiliation_organization2);
-                await _ttvContext.SaveChangesAsync();
             }
-            var dimEndDate_affiliation_organization2 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2019 && dd.Month == 12 && dd.Day == 31);
+            var dimEndDate_affiliation_organization2 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2019 && dd.Month == 12 && dd.Day == 31);
             if (dimEndDate_affiliation_organization2 == null)
             {
                 dimEndDate_affiliation_organization2 = new DimDate()
@@ -847,39 +838,36 @@ namespace api.Services
                     Day = 31,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
                 _ttvContext.DimDates.Add(dimEndDate_affiliation_organization2);
-                await _ttvContext.SaveChangesAsync();
             }
             var dimAffiliation_Organization2 = new DimAffiliation()
             {
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 DimOrganizationId = organization2.Id,
-                StartDate = dimStartDate_affiliation_organization2.Id,
-                EndDate = dimEndDate_affiliation_organization2.Id,
+                StartDateNavigation = dimStartDate_affiliation_organization2,
+                EndDateNavigation = dimEndDate_affiliation_organization2,
                 AffiliationType = affiliationType.Id,
                 PositionNameFi = "Erikoistutkija",
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime(),
+                Created = currentDateTime,
+                Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimAffiliations.Add(dimAffiliation_Organization2);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_affiliation_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_affiliation_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_affiliation_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_affiliation_Organization2.Id;
-            factFieldValue_affiliation_Organization2.DimAffiliationId = dimAffiliation_Organization2.Id;
+            factFieldValue_affiliation_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_affiliation_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_affiliation_Organization2;
+            factFieldValue_affiliation_Organization2.DimAffiliation = dimAffiliation_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_affiliation_Organization2);
-            await _ttvContext.SaveChangesAsync();
 
 
             // Education
             var dimFieldDisplaySettings_education_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
-            var dimEndDate_education_organization2 = await _ttvContext.DimDates.AsNoTracking().FirstOrDefaultAsync(dd => dd.Year == 2011 && dd.Month == 0 && dd.Day == 0);
+            var dimEndDate_education_organization2 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2011 && dd.Month == 0 && dd.Day == 0);
             if (dimEndDate_education_organization2 == null)
             {
                 dimEndDate_education_organization2 = new DimDate()
@@ -889,31 +877,30 @@ namespace api.Services
                     Day = 0,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
                 _ttvContext.DimDates.Add(dimEndDate_education_organization2);
-                await _ttvContext.SaveChangesAsync();
             }
             var dimEducation_Organization2 = new DimEducation()
             {
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 NameFi = "Filosofian tohtori, luonnontieteellinen ala",
                 DegreeGrantingInstitutionName = "Yliopisto Y",
-                DimEndDate = dimEndDate_education_organization2.Id,
+                DimEndDateNavigation = dimEndDate_education_organization2,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime(),
+                Created = currentDateTime,
+                Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimEducations.Add(dimEducation_Organization2);
-            await _ttvContext.SaveChangesAsync();
             var factFieldValue_education_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
-            factFieldValue_education_Organization2.DimUserProfileId = dimUserProfile.Id;
-            factFieldValue_education_Organization2.DimFieldDisplaySettingsId = dimFieldDisplaySettings_education_Organization2.Id;
-            factFieldValue_education_Organization2.DimEducationId = dimEducation_Organization2.Id;
+            factFieldValue_education_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_education_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_education_Organization2;
+            factFieldValue_education_Organization2.DimEducation = dimEducation_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_education_Organization2);
+
             await _ttvContext.SaveChangesAsync();
         }
     }

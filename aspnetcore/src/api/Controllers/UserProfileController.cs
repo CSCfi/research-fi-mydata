@@ -260,7 +260,7 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
 
                 // Add demo data
-                await _demoDataService.AddDemoDataToUserProfile(dimUserProfile);
+                await _demoDataService.AddDemoDataToUserProfile(orcidId, dimUserProfile);
                 await _userProfileService.AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
             }
 

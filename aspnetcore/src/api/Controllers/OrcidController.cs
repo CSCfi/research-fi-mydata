@@ -125,7 +125,7 @@ namespace api.Controllers
             // Name
             var dimFieldDisplaySettingsName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsName => dimFieldDisplaysettingsName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME && dimFieldDisplaysettingsName.SourceId == Constants.SourceIdentifiers.ORCID);
             // FactFieldValues
-            var factFieldValuesName = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesName => factFieldValuesName.DimFieldDisplaySettingsId == dimFieldDisplaySettingsName.Id);
+            var factFieldValuesName = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsName);
             if (factFieldValuesName != null)
             {
                 // Update existing DimName
@@ -300,7 +300,7 @@ namespace api.Controllers
                 var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.SourceId == Constants.SourceIdentifiers.ORCID);
 
                 // Researcher description: FactFieldValues
-                var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesResearcherDescription => factFieldValuesResearcherDescription.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
+                var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
                 if (factFieldValuesResearcherDescription == null)
                 {
                     factFieldValuesResearcherDescription = _userProfileService.GetEmptyFactFieldValueOrcid();
@@ -333,7 +333,7 @@ namespace api.Controllers
                 var dimFieldDisplaySettingsEmailAddress = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS && dimFieldDisplaySettingsEmailAddress.SourceId == Constants.SourceIdentifiers.ORCID);
 
                 // Email: FactFieldValues
-                var factFieldValuesEmailAddress = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesEmailAddress => factFieldValuesEmailAddress.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id);
+                var factFieldValuesEmailAddress = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id);
                 if (factFieldValuesEmailAddress == null)
                 {
                     factFieldValuesEmailAddress = _userProfileService.GetEmptyFactFieldValueOrcid();
@@ -742,6 +742,7 @@ namespace api.Controllers
                     _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
                 }
             }
+            
             await _ttvContext.SaveChangesAsync();
 
             _logger.LogInformation(this.GetLogPrefix() + " get ORCID data success");
