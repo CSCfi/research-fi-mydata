@@ -42,40 +42,40 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            // TODO: this is a demo implementation, modify according to database model
+            // TODO: Cooperation choices must be read from the DB when the model is available. This is a demo implementation.
 
             var cooperationItems = new List<ProfileEditorCooperationItem>()
             {
                 new ProfileEditorCooperationItem()
                 {
                     Id = 1,
-                    NameFi = "foo1_fi",
-                    NameSv = "foo1_sv",
-                    NameEn = "foo1_en",
+                    NameFi = "Olen kiinnostunut tiedotusvälineiden yhteydenotoista",
+                    NameSv = "",
+                    NameEn = "",
                     Selected = false
                 },
                 new ProfileEditorCooperationItem()
                 {
                     Id = 2,
-                    NameFi = "foo2_fi",
-                    NameSv = "foo2_sv",
-                    NameEn = "foo2_en",
+                    NameFi = "Olen kiinnostunut yhteistyöstä muiden tutkijoiden ja tutkimusryhmien kanssa",
+                    NameSv = "",
+                    NameEn = "",
                     Selected = false
                 },
                 new ProfileEditorCooperationItem()
                 {
                     Id = 3,
-                    NameFi = "foo3_fi",
-                    NameSv = "foo3_sv",
-                    NameEn = "foo3_en",
+                    NameFi = "Olen kiinnostunut yhteistyöstä yritysten kanssa",
+                    NameSv = "",
+                    NameEn = "",
                     Selected = false
                 },
                 new ProfileEditorCooperationItem()
                 {
                     Id = 4,
-                    NameFi = "foo3_fi",
-                    NameSv = "foo3_sv",
-                    NameEn = "foo3_en",
+                    NameFi = "Olen kiinnostunut toimimaan tieteellisten julkaisujen vertaisarvioijana",
+                    NameSv = "",
+                    NameEn = "",
                     Selected = false
                 }
             };
