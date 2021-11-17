@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 public abstract class TtvControllerBase : ControllerBase
 {
     // Get ORCID ID from user claims
+    [NonAction]
     protected string GetOrcidId()
     {
         return User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
@@ -15,6 +16,7 @@ public abstract class TtvControllerBase : ControllerBase
 
     // Get prefix for log message
     // [timestamp][ORCID ID][ip address]
+    [NonAction]
     public string GetLogPrefix()
     {
         return "[" + DateTime.UtcNow.ToString("s") + "][" + this.GetOrcidId() +  "][" + HttpContext.Connection.RemoteIpAddress?.ToString() + "]";

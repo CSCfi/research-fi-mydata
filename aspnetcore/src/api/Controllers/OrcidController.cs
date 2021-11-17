@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -38,7 +39,11 @@ namespace api.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get ORCID data.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         // TODO: Currently adding and updating ORCID data works, but detecting deleted ORCID data and deleting them is TTV database is not implemented.
         public async Task<IActionResult> Get()
         {

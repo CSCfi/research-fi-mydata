@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -42,8 +43,11 @@ namespace api.Controllers
             _backgroundElasticsearchPersonUpdateQueue = backgroundElasticsearchPersonUpdateQueue;
         }
 
-        // Check if profile exists.
+        /// <summary>
+        /// Check if user profile exists.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
             // Get ORCID id.
@@ -62,8 +66,11 @@ namespace api.Controllers
             return Ok(new ApiResponse(success: false, reason: "profile not found"));
         }
 
-        // Create profile
+        /// <summary>
+        /// Create user profile.
+        /// </summary>
         [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Create()
         {
             // Get ORCID id.
@@ -269,8 +276,11 @@ namespace api.Controllers
         }
 
 
-        // Delete profile
+        /// <summary>
+        /// Delete user profile.
+        /// </summary>
         [HttpDelete]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Delete()
         {
             // Get ORCID id.

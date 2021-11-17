@@ -12,6 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System;
 using Microsoft.Extensions.Logging;
 using Nest;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -44,7 +45,12 @@ namespace api.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get profile data.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
             // Check that user profile exists.
@@ -59,7 +65,7 @@ namespace api.Controllers
             ProfileEditorDataResponse cachedResponse;
             if (_cache.TryGetValue(orcidId, out cachedResponse))
             {
-                return Ok(new ApiResponse(success: true, data: cachedResponse, fromCache: true));
+                return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
 
 
@@ -681,13 +687,16 @@ namespace api.Controllers
             // Save data in cache. Cache key is ORCID ID.
             _cache.Set(orcidId, profileDataResponse, cacheEntryOptions);
 
-            return Ok(new ApiResponse(success: true, data: profileDataResponse));
+            return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
 
 
 
-        // PATCH: api/ProfileData/
+        /// <summary>
+        /// Modify profile data.
+        /// </summary>
         [HttpPatch]
+        [ProducesResponseType(typeof(ApiResponseProfileDataPatch), StatusCodes.Status200OK)]
         public async Task<IActionResult> PatchMany([FromBody] ProfileEditorDataModificationRequest profileEditorDataModificationRequest)
         {
             // Return immediately if there is nothing to change.
@@ -730,7 +739,7 @@ namespace api.Controllers
                 _logger.LogInformation($"Background task for updating {orcidId} ended at {DateTime.UtcNow}");
             });
 
-            return Ok(new ApiResponse(success: true, data: profileEditorDataModificationResponse));
+            return Ok(new ApiResponseProfileDataPatch(success: true, reason: "", data: profileEditorDataModificationResponse, fromCache: false));
         }
     }
 }

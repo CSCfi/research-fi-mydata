@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -31,7 +32,11 @@ namespace api.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get cooperation selections.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponseCooperationDemoGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
             // Check that user profile exists.
@@ -80,12 +85,15 @@ namespace api.Controllers
                 }
             };
 
-            return Ok(new ApiResponse(success: true, data: cooperationItems, fromCache: false));
+            return Ok(new ApiResponseCooperationDemoGet(success: true, reason: "", data: cooperationItems, fromCache: false));
         }
 
 
-
+        /// <summary>
+        /// Modify cooperation selections.
+        /// </summary>
         [HttpPatch]
+        [ProducesResponseType(typeof(ApiResponseCooperationDemoPatch), StatusCodes.Status200OK)]
         public async Task<IActionResult> PatchMany([FromBody] ProfileEditorCooperationModificationRequest profileEditorCooperationModificationRequest)
         {
             // Return immediately if there is nothing to change.
@@ -112,7 +120,7 @@ namespace api.Controllers
                 profileEditorCooperationModificationResponse.items.Add(profileEditorCooperationItem);
             }
 
-            return Ok(new ApiResponse(success: true, data: profileEditorCooperationModificationResponse));
+            return Ok(new ApiResponseCooperationDemoPatch(success: true, reason: "", data: profileEditorCooperationModificationResponse, fromCache: false));
         }
     }
 }
