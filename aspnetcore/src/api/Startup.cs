@@ -18,15 +18,17 @@ namespace api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
+        public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
 
@@ -46,8 +48,8 @@ namespace api
 
             services.AddControllers();
 
-            // Add Swagger documentation for development
-            if (env.IsDevelopment())
+            // Swagger documentation
+            if (Environment.IsDevelopment())
             {
                 services.AddSwaggerGen(options =>
                 {
@@ -65,17 +67,17 @@ namespace api
                         Type = SecuritySchemeType.ApiKey
                     });
                     options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                    {
+                        new OpenApiSecurityScheme
                         {
-                            new OpenApiSecurityScheme
+                            Reference = new OpenApiReference
                             {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                            new string[] { }
-                        }
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] { }
+                    }
                     });
 
                     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -147,7 +149,7 @@ namespace api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DemoDataService demoDataService)
+        public void Configure(IApplicationBuilder app, DemoDataService demoDataService)
         {
             // Use Forwarded Headers Middleware to enable client ip address detection behind load balancer.
             // Must run this before other middleware.
@@ -161,7 +163,7 @@ namespace api
             demoDataService.InitDemo();
 
             // Development environment settings
-            if (env.IsDevelopment())
+            if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 IdentityModelEventSource.ShowPII = true;
@@ -172,11 +174,11 @@ namespace api
             app.UseRouting();
 
             // CORS policy depends on the environment
-            if (env.IsDevelopment())
+            if (Environment.IsDevelopment())
             {
                 app.UseCors("development");
             }
-            if (env.IsProduction())
+            if (Environment.IsProduction())
             {
                 app.UseCors("production");
             }
