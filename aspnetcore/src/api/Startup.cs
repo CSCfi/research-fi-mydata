@@ -139,6 +139,7 @@ namespace api
             services.AddScoped<UserProfileService>();
             services.AddSingleton<ElasticsearchService>();
             services.AddSingleton<UtilityService>();
+            services.AddSingleton<LanguageService>();
             services.AddScoped<DemoDataService>();
             services.AddScoped<TtvSqlService>();
             services.AddMemoryCache();

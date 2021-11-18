@@ -1,4 +1,5 @@
-﻿namespace api.Models.ProfileEditor
+﻿using api.Models.Common;
+namespace api.Models.ProfileEditor
 {
     public partial class ProfileEditorSource
     {
@@ -8,6 +9,6 @@
 
         public int Id { get; set; }
         public string RegisteredDataSource { get; set; }
-        public ProfileEditorSourceOrganization Organization { get; set; }
+        public Organization Organization { get; set; }
     }
 }

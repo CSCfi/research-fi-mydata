@@ -28,18 +28,20 @@ namespace api.Controllers
         private readonly UserProfileService _userProfileService;
         private readonly ElasticsearchService _elasticsearchService;
         private readonly TtvSqlService _ttvSqlService;
+        private readonly LanguageService _languageService;
         private readonly IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
         private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
         private readonly BackgroundProfiledata _backgroundProfiledata;
 
-        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue, BackgroundProfiledata backgroundProfiledata)
+        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, LanguageService languageService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue, BackgroundProfiledata backgroundProfiledata)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _cache = memoryCache;
             _elasticsearchService = elasticsearchService;
             _ttvSqlService = ttvSqlService;
+            _languageService = languageService;
             _backgroundElasticsearchPersonUpdateQueue = backgroundElasticsearchPersonUpdateQueue;
             _backgroundProfiledata = backgroundProfiledata;
             _logger = logger;
@@ -159,12 +161,11 @@ namespace api.Controllers
                 {
                     Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
                     RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                    Organization = new ProfileEditorSourceOrganization()
-                    {
-                        NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                        NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                        NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                    }
+                    Organization = _languageService.getOrganization(
+                        nameFi: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                        nameEn: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                        nameSv: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                    )
                 };
 
                 // FieldIdentifier defines what type of data the field contains.

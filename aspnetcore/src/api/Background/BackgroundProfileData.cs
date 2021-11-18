@@ -6,6 +6,7 @@ using api.Models.Ttv;
 using api.Models.Elasticsearch;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using api.Models.Common;
 
 namespace api.Services
 {
@@ -33,6 +34,7 @@ namespace api.Services
             // Create a scope and get TtvContext for data query.
             using var scope = _serviceScopeFactory.CreateScope();
             var localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
+            var localLanguageService = scope.ServiceProvider.GetRequiredService<LanguageService>();
 
             // Get DimFieldDisplaySettings and related entities
             var dimFieldDisplaySettings = await localTtvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Any(ffv => ffv.Show == true))
@@ -99,12 +101,11 @@ namespace api.Services
                 var source = new Source()
                 {
                     RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                    Organization = new SourceOrganization()
-                    {
-                        NameFi = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                        NameEn = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                        NameSv = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                    }
+                    Organization = localLanguageService.getOrganization(
+                        nameFi: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                        nameEn: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                        nameSv: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                    )
                 };
 
                 // FieldIdentifier defines what type of data the field contains.

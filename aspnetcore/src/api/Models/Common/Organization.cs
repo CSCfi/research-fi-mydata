@@ -1,8 +1,8 @@
-﻿namespace api.Models.Elasticsearch
+﻿namespace api.Models.Common
 {
-    public partial class SourceOrganization
+    public partial class Organization
     {
-        public SourceOrganization()
+        public Organization()
         {
             NameFi = "";
             NameEn = "";
