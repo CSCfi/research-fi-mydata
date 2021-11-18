@@ -32,11 +32,13 @@
     <Folder Include="Models\Elasticsearch\" />
     <Folder Include="Background\" />
     <Folder Include="Models\Api\" />
+    <Folder Include="Models\Common\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="NEST" />
     <None Remove="Models\Elasticsearch\" />
     <None Remove="Background\" />
     <None Remove="Models\Api\" />
+    <None Remove="Models\Common\" />
   </ItemGroup>
 </Project>

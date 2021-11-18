@@ -1,4 +1,5 @@
-﻿namespace api.Models.Elasticsearch
+﻿using api.Models.Common;
+namespace api.Models.Elasticsearch
 {
     public partial class Source
     {
@@ -7,6 +8,6 @@
         }
 
         public string RegisteredDataSource { get; set; }
-        public SourceOrganization Organization { get; set; }
+        public Organization Organization { get; set; }
     }
 }

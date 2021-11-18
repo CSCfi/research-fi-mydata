@@ -56,7 +56,7 @@ namespace api.Controllers
                     Id = 1,
                     NameFi = "Olen kiinnostunut tiedotusvälineiden yhteydenotoista",
                     NameSv = "",
-                    NameEn = "",
+                    NameEn = "I am interested in media contacts",
                     Selected = false
                 },
                 new ProfileEditorCooperationItem()
@@ -64,7 +64,7 @@ namespace api.Controllers
                     Id = 2,
                     NameFi = "Olen kiinnostunut yhteistyöstä muiden tutkijoiden ja tutkimusryhmien kanssa",
                     NameSv = "",
-                    NameEn = "",
+                    NameEn = "I am interested in cooperation with other researchers and research groups",
                     Selected = false
                 },
                 new ProfileEditorCooperationItem()
@@ -72,7 +72,7 @@ namespace api.Controllers
                     Id = 3,
                     NameFi = "Olen kiinnostunut yhteistyöstä yritysten kanssa",
                     NameSv = "",
-                    NameEn = "",
+                    NameEn = "I am interested in working with companies",
                     Selected = false
                 },
                 new ProfileEditorCooperationItem()
@@ -80,7 +80,7 @@ namespace api.Controllers
                     Id = 4,
                     NameFi = "Olen kiinnostunut toimimaan tieteellisten julkaisujen vertaisarvioijana",
                     NameSv = "",
-                    NameEn = "",
+                    NameEn = "I am interested in being a peer reviewer for scientific publications",
                     Selected = false
                 }
             };
