@@ -50,7 +50,6 @@ namespace api.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
             // Check that user profile exists.

@@ -93,11 +93,11 @@ namespace api.Controllers
         /// Modify cooperation selections.
         /// </summary>
         [HttpPatch]
-        [ProducesResponseType(typeof(ApiResponseCooperationDemoPatch), StatusCodes.Status200OK)]
-        public async Task<IActionResult> PatchMany([FromBody] ProfileEditorCooperationModificationRequest profileEditorCooperationModificationRequest)
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorCooperationItem> profileEditorCooperationItems)
         {
             // Return immediately if there is nothing to change.
-            if (profileEditorCooperationModificationRequest.items.Count == 0)
+            if (profileEditorCooperationItems.Count == 0)
             {
                 return Ok(new ApiResponse(success: true));
             }
@@ -110,17 +110,13 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            // Collect information about updated items to a response object, which will be sent in response.
-            var profileEditorCooperationModificationResponse = new ProfileEditorCooperationModificationResponse();
-
-            // Set 'Show' and 'PrimaryValue' in FactFieldValues
-            foreach (ProfileEditorCooperationItem profileEditorCooperationItem in profileEditorCooperationModificationRequest.items.ToList())
+            // Save cooperation selections
+            foreach (ProfileEditorCooperationItem profileEditorCooperationItem in profileEditorCooperationItems)
             {
                 // TODO: Save cooperation selections
-                profileEditorCooperationModificationResponse.items.Add(profileEditorCooperationItem);
             }
 
-            return Ok(new ApiResponseCooperationDemoPatch(success: true, reason: "", data: profileEditorCooperationModificationResponse, fromCache: false));
+            return Ok(new ApiResponse(success: true));
         }
     }
 }

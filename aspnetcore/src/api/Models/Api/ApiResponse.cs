@@ -7,17 +7,30 @@ namespace api.Models
     {
         public ApiResponse()
         {
+            Success = true;
+            Reason = "";
+            FromCache = false;
         }
 
         public ApiResponse(bool success)
         {
             Success = success;
+            Reason = "";
+            FromCache = false;
         }
 
         public ApiResponse(bool success, string reason)
         {
             Success = success;
             Reason = reason;
+            FromCache = false;
+        }
+
+        public ApiResponse(bool success, string reason, bool fromCache)
+        {
+            Success = success;
+            Reason = reason;
+            FromCache = fromCache;
         }
 
         public bool Success { get; set; }

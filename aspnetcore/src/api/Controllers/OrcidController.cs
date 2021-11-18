@@ -40,7 +40,7 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Get ORCID data.
+        /// Trigger backend to get ORCID record and save data into TTV database.
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
