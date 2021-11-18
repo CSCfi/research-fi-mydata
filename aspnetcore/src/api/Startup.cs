@@ -26,7 +26,7 @@ namespace api
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services, IWebHostEnvironment env)
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
 
@@ -46,39 +46,42 @@ namespace api
 
             services.AddControllers();
 
-            //// Add Swagger documentation.
-            //services.AddSwaggerGen(options =>
-            //{
-            //    options.SwaggerDoc("v1", new OpenApiInfo
-            //    {
-            //        Title = "Mydata API",
-            //        Description = "An API for Mydata frontend.",
-            //        Version = "v1"
-            //    });
-            //    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            //    {
-            //        In = ParameterLocation.Header,
-            //        Description = "Please insert JWT with Bearer into field",
-            //        Name = "Authorization",
-            //        Type = SecuritySchemeType.ApiKey
-            //    });
-            //    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
-            //        {
-            //            new OpenApiSecurityScheme
-            //            {
-            //                Reference = new OpenApiReference
-            //                {
-            //                    Type = ReferenceType.SecurityScheme,
-            //                    Id = "Bearer"
-            //                }
-            //            },
-            //            new string[] { }
-            //        }
-            //    });
+            // Add Swagger documentation for development
+            if (env.IsDevelopment())
+            {
+                services.AddSwaggerGen(options =>
+                {
+                    options.SwaggerDoc("v1", new OpenApiInfo
+                    {
+                        Title = "Mydata API",
+                        Description = "An API for Mydata frontend.",
+                        Version = "v1"
+                    });
+                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    {
+                        In = ParameterLocation.Header,
+                        Description = "Please insert JWT with Bearer into field",
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.ApiKey
+                    });
+                    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] { }
+                        }
+                    });
 
-            //    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            //    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-            //});
+                    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+                });
+            }
 
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
@@ -157,10 +160,13 @@ namespace api
             // Most of demo data is added to each user, who creates a profile.
             demoDataService.InitDemo();
 
+            // Development environment settings
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 IdentityModelEventSource.ShowPII = true;
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             app.UseRouting();
@@ -177,9 +183,6 @@ namespace api
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-            //app.UseSwagger();
-            //app.UseSwaggerUI();
 
             app.UseEndpoints(endpoints =>
             {
