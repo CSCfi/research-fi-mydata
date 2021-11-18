@@ -10,6 +10,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -36,15 +37,16 @@ namespace api.Controllers
             _cache = memoryCache;
         }
 
-        /*
-         *  Add publication(s) to profile.
-         */
+        /// <summary>
+        /// Add publicaton(s) to user profile.
+        /// </summary>
         [HttpPost]
+        [ProducesResponseType(typeof(ApiResponsePublicationPostMany), StatusCodes.Status200OK)]
         public async Task<IActionResult> PostMany([FromBody] List<ProfileEditorPublicationToAdd> profileEditorPublicationsToAdd)
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data", data: profileEditorPublicationsToAdd));
+                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
             }
 
             // Get userprofile
@@ -152,19 +154,20 @@ namespace api.Controllers
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
 
-            return Ok(new ApiResponse(success: true, data: profileEditorAddPublicationResponse));
+            return Ok(new ApiResponsePublicationPostMany(success: true, reason:"", data: profileEditorAddPublicationResponse, fromCache: false));
         }
 
-        /*
-         *  Remove publications from profile.
-         */
+        /// <summary>
+        /// Remove publicaton(s) from user profile.
+        /// </summary>
         [HttpPost]
         [Route("remove")]
+        [ProducesResponseType(typeof(ApiResponsePublicationRemoveMany), StatusCodes.Status200OK)]
         public async Task<IActionResult> RemoveMany([FromBody] List<string> publicationIds)
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "expected list of strings", data: publicationIds));
+                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
             }
 
             // Get id of userprofile
@@ -202,7 +205,7 @@ namespace api.Controllers
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
 
-            return Ok(new ApiResponse(success: true, reason: "removed", data: profileEditorRemovePublicationResponse));
+            return Ok(new ApiResponsePublicationRemoveMany(success: true, reason: "removed", data: profileEditorRemovePublicationResponse, fromCache: false));
         }
     }
 }

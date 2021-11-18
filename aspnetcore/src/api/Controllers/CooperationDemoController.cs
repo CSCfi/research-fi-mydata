@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -31,7 +32,11 @@ namespace api.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get cooperation selections.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponseCooperationDemoGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
             // Check that user profile exists.
@@ -80,16 +85,19 @@ namespace api.Controllers
                 }
             };
 
-            return Ok(new ApiResponse(success: true, data: cooperationItems, fromCache: false));
+            return Ok(new ApiResponseCooperationDemoGet(success: true, reason: "", data: cooperationItems, fromCache: false));
         }
 
 
-
+        /// <summary>
+        /// Modify cooperation selections.
+        /// </summary>
         [HttpPatch]
-        public async Task<IActionResult> PatchMany([FromBody] ProfileEditorCooperationModificationRequest profileEditorCooperationModificationRequest)
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorCooperationItem> profileEditorCooperationItems)
         {
             // Return immediately if there is nothing to change.
-            if (profileEditorCooperationModificationRequest.items.Count == 0)
+            if (profileEditorCooperationItems.Count == 0)
             {
                 return Ok(new ApiResponse(success: true));
             }
@@ -102,17 +110,13 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            // Collect information about updated items to a response object, which will be sent in response.
-            var profileEditorCooperationModificationResponse = new ProfileEditorCooperationModificationResponse();
-
-            // Set 'Show' and 'PrimaryValue' in FactFieldValues
-            foreach (ProfileEditorCooperationItem profileEditorCooperationItem in profileEditorCooperationModificationRequest.items.ToList())
+            // Save cooperation selections
+            foreach (ProfileEditorCooperationItem profileEditorCooperationItem in profileEditorCooperationItems)
             {
                 // TODO: Save cooperation selections
-                profileEditorCooperationModificationResponse.items.Add(profileEditorCooperationItem);
             }
 
-            return Ok(new ApiResponse(success: true, data: profileEditorCooperationModificationResponse));
+            return Ok(new ApiResponse(success: true));
         }
     }
 }
