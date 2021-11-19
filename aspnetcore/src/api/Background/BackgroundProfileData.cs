@@ -97,15 +97,23 @@ namespace api.Services
 
             foreach (DimFieldDisplaySetting dfds in dimFieldDisplaySettings)
             {
+                // Name translation service ensures that none of the language fields is empty.
+                var nameTranslationOrganization = localLanguageService.getNameTranslation(
+                    nameFi: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                    nameEn: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                    nameSv: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                );
+
                 // Source object containing registered data source and organization name.
                 var source = new Source()
                 {
                     RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                    Organization = localLanguageService.getOrganization(
-                        nameFi: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                        nameEn: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                        nameSv: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                    )
+                    Organization = new Organization()
+                    {
+                        NameFi = nameTranslationOrganization.NameFi,
+                        NameEn = nameTranslationOrganization.NameEn,
+                        NameSv = nameTranslationOrganization.NameSv
+                    }
                 };
 
                 // FieldIdentifier defines what type of data the field contains.
@@ -257,10 +265,19 @@ namespace api.Services
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
+                            // Name translation service ensures that none of the language fields is empty.
+                            var nameTranslationFieldOfScience = localLanguageService.getNameTranslation(
+                                nameFi: ffv.DimFieldOfScience.NameFi,
+                                nameEn: ffv.DimFieldOfScience.NameEn,
+                                nameSv: ffv.DimFieldOfScience.NameSv
+                            );
+
                             fieldOfScienceGroup.items.Add(
                                 new ItemFieldOfScience()
                                 {
-                                    NameFi = ffv.DimFieldOfScience.NameFi,
+                                    NameFi = nameTranslationFieldOfScience.NameFi,
+                                    NameEn = nameTranslationFieldOfScience.NameEn,
+                                    NameSv = nameTranslationFieldOfScience.NameSv,
                                     PrimaryValue = ffv.PrimaryValue
                                 }
                             );
@@ -324,15 +341,27 @@ namespace api.Services
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
+                            // Name translation service ensures that none of the language fields is empty.
+                            var nameTranslationAffiliationOrganization = localLanguageService.getNameTranslation(
+                                nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
+                                nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
+                                nameSv: ffv.DimAffiliation.DimOrganization.NameSv
+                            );
+                            var nameTranslationPositionName = localLanguageService.getNameTranslation(
+                                nameFi: ffv.DimAffiliation.PositionNameFi,
+                                nameEn: ffv.DimAffiliation.PositionNameEn,
+                                nameSv: ffv.DimAffiliation.PositionNameSv
+                            );
+
                             var affiliation = new ItemAffiliation()
                             {
                                 // TODO: DimOrganization handling
-                                OrganizationNameFi = ffv.DimAffiliation.DimOrganization.NameFi,
-                                OrganizationNameEn = ffv.DimAffiliation.DimOrganization.NameEn,
-                                OrganizationNameSv = ffv.DimAffiliation.DimOrganization.NameSv,
-                                PositionNameFi = ffv.DimAffiliation.PositionNameFi,
-                                PositionNameEn = ffv.DimAffiliation.PositionNameEn,
-                                PositionNameSv = ffv.DimAffiliation.PositionNameSv,
+                                OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
+                                OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
+                                OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
+                                PositionNameFi = nameTranslationPositionName.NameFi,
+                                PositionNameEn = nameTranslationPositionName.NameEn,
+                                PositionNameSv = nameTranslationPositionName.NameSv,
                                 Type = ffv.DimAffiliation.AffiliationTypeNavigation.NameFi,
                                 StartDate = new ItemDate()
                                 {
@@ -369,11 +398,18 @@ namespace api.Services
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
+                            // Name translation service ensures that none of the language fields is empty.
+                            var nameTraslationEducation = localLanguageService.getNameTranslation(
+                                nameFi: ffv.DimEducation.NameFi,
+                                nameEn: ffv.DimEducation.NameEn,
+                                nameSv: ffv.DimEducation.NameSv
+                            );
+
                             var education = new ItemEducation()
                             {
-                                NameFi = ffv.DimEducation.NameFi,
-                                NameEn = ffv.DimEducation.NameEn,
-                                NameSv = ffv.DimEducation.NameSv,
+                                NameFi = nameTraslationEducation.NameFi,
+                                NameEn = nameTraslationEducation.NameEn,
+                                NameSv = nameTraslationEducation.NameSv,
                                 DegreeGrantingInstitutionName = ffv.DimEducation.DegreeGrantingInstitutionName,
                                 PrimaryValue = ffv.PrimaryValue
                             };

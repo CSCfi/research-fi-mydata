@@ -1,6 +1,7 @@
 ﻿using api.Services;
 using api.Models;
 using api.Models.Ttv;
+using api.Models.Common;
 using api.Models.ProfileEditor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using Microsoft.Extensions.Logging;
-using Nest;
 using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
@@ -156,16 +156,24 @@ namespace api.Controllers
             // Collect data from DimFieldDisplaySettings and FactFieldValues entities
             foreach (DimFieldDisplaySetting dfds in dimFieldDisplaySettings)
             {
+                // Organization name translation
+                var nameTranslationSource = _languageService.getNameTranslation(
+                    nameFi: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                    nameEn: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
+                    nameSv: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                );
+
                 // Source object containing registered data source and organization name.
                 var source = new ProfileEditorSource()
                 {
                     Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
                     RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                    Organization = _languageService.getOrganization(
-                        nameFi: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                        nameEn: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                        nameSv: dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
-                    )
+                    Organization = new Organization()
+                    {
+                        NameFi = nameTranslationSource.NameFi,
+                        NameEn = nameTranslationSource.NameEn,
+                        NameSv = nameTranslationSource.NameSv
+                    }
                 };
 
                 // FieldIdentifier defines what type of data the field contains.
@@ -394,10 +402,19 @@ namespace api.Controllers
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
+                            // Name translation service ensures that none of the language fields is empty.
+                            var nameTranslationFieldOfScience = _languageService.getNameTranslation(
+                                nameFi: ffv.DimFieldOfScience.NameFi,
+                                nameEn: ffv.DimFieldOfScience.NameEn,
+                                nameSv: ffv.DimFieldOfScience.NameSv
+                            );
+
                             fieldOfScienceGroup.items.Add(
                                 new ProfileEditorItemFieldOfScience()
                                 {
-                                    NameFi = ffv.DimFieldOfScience.NameFi,
+                                    NameFi = nameTranslationFieldOfScience.NameFi,
+                                    NameEn = nameTranslationFieldOfScience.NameEn,
+                                    NameSv = nameTranslationFieldOfScience.NameSv,
                                     itemMeta = new ProfileEditorItemMeta()
                                     {
                                         Id = ffv.DimFieldOfScienceId,
@@ -501,15 +518,27 @@ namespace api.Controllers
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
+                            // Name translation service ensures that none of the language fields is empty.
+                            var nameTranslationAffiliationOrganization = _languageService.getNameTranslation(
+                                nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
+                                nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
+                                nameSv: ffv.DimAffiliation.DimOrganization.NameSv
+                            );
+                            var nameTranslationPositionName = _languageService.getNameTranslation(
+                                nameFi: ffv.DimAffiliation.PositionNameFi,
+                                nameEn: ffv.DimAffiliation.PositionNameEn,
+                                nameSv: ffv.DimAffiliation.PositionNameSv
+                            );
+
                             var affiliation = new ProfileEditorItemAffiliation()
                             {
                                 // TODO: DimOrganization handling
-                                OrganizationNameFi = ffv.DimAffiliation.DimOrganization.NameFi,
-                                OrganizationNameEn = ffv.DimAffiliation.DimOrganization.NameEn,
-                                OrganizationNameSv = ffv.DimAffiliation.DimOrganization.NameSv,
-                                PositionNameFi = ffv.DimAffiliation.PositionNameFi,
-                                PositionNameEn = ffv.DimAffiliation.PositionNameEn,
-                                PositionNameSv = ffv.DimAffiliation.PositionNameSv,
+                                OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
+                                OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
+                                OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
+                                PositionNameFi = nameTranslationPositionName.NameFi,
+                                PositionNameEn = nameTranslationPositionName.NameEn,
+                                PositionNameSv = nameTranslationPositionName.NameSv,
                                 Type = ffv.DimAffiliation.AffiliationTypeNavigation.NameFi,
                                 StartDate = new ProfileEditorItemDate()
                                 {
@@ -558,11 +587,18 @@ namespace api.Controllers
                         };
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
+                            // Name translation service ensures that none of the language fields is empty.
+                            var nameTraslationEducation = _languageService.getNameTranslation(
+                                nameFi: ffv.DimEducation.NameFi,
+                                nameEn: ffv.DimEducation.NameEn,
+                                nameSv: ffv.DimEducation.NameSv
+                            );
+
                             var education = new ProfileEditorItemEducation()
                             {
-                                NameFi = ffv.DimEducation.NameFi,
-                                NameEn = ffv.DimEducation.NameEn,
-                                NameSv = ffv.DimEducation.NameSv,
+                                NameFi = nameTraslationEducation.NameFi,
+                                NameEn = nameTraslationEducation.NameEn,
+                                NameSv = nameTraslationEducation.NameSv,
                                 DegreeGrantingInstitutionName = ffv.DimEducation.DegreeGrantingInstitutionName,
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
