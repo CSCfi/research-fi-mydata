@@ -39,5 +39,15 @@ namespace api.Models
         {
             public const string ORCID = "ORCID";
         }
+
+        public static class CodeSchemes
+        {
+            public const string USER_CHOICES = "user choices";
+        }
+
+        public static class Cache
+        {
+            public const int MEMORY_CACHE_EXPIRATION_SECONDS = 60;
+        }
     }
 }

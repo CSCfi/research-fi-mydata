@@ -24,6 +24,7 @@ namespace api.Models.Ttv
             DimPublicationTargetAudienceCodeNavigations = new HashSet<DimPublication>();
             DimResearchDatasetDimReferencedataAvailabilityNavigations = new HashSet<DimResearchDataset>();
             DimResearchDatasetDimReferencedataLicenseNavigations = new HashSet<DimResearchDataset>();
+            DimUserChoices = new HashSet<DimUserChoice>();
             FactContributions = new HashSet<FactContribution>();
             FactJufoClassCodesForPubChannels = new HashSet<FactJufoClassCodesForPubChannel>();
         }
@@ -55,6 +56,7 @@ namespace api.Models.Ttv
         public virtual ICollection<DimPublication> DimPublicationTargetAudienceCodeNavigations { get; set; }
         public virtual ICollection<DimResearchDataset> DimResearchDatasetDimReferencedataAvailabilityNavigations { get; set; }
         public virtual ICollection<DimResearchDataset> DimResearchDatasetDimReferencedataLicenseNavigations { get; set; }
+        public virtual ICollection<DimUserChoice> DimUserChoices { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactJufoClassCodesForPubChannel> FactJufoClassCodesForPubChannels { get; set; }
     }
