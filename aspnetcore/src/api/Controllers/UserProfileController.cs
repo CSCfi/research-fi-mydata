@@ -310,6 +310,7 @@ namespace api.Controllers
 
             // Get DimUserProfile and related data that should be removed. 
             var dimUserProfile = await _ttvContext.DimUserProfiles
+                .Include(dup => dup.DimUserChoices)
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
                 .Include(dup => dup.FactFieldValues)
@@ -459,6 +460,9 @@ namespace api.Controllers
 
             // Remove DimFieldDisplaySettings
             _ttvContext.DimFieldDisplaySettings.RemoveRange(dimUserProfile.DimFieldDisplaySettings);
+
+            // Remove cooperation user choices
+            _ttvContext.DimUserChoices.RemoveRange(dimUserProfile.DimUserChoices);
 
             // Remove DimUserProfile
             _ttvContext.DimUserProfiles.Remove(dimUserProfile);

@@ -718,7 +718,7 @@ namespace api.Controllers
             // Save response in cache
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 // Keep in cache for this time, reset time if accessed.
-                .SetSlidingExpiration(TimeSpan.FromSeconds(60));
+                .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
 
             // Save data in cache. Cache key is ORCID ID.
             _cache.Set(orcidId, profileDataResponse, cacheEntryOptions);

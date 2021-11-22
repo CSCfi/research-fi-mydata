@@ -221,8 +221,84 @@ namespace api.Services
                     Modified = _utilityService.getCurrentDateTime()
                 };
                 _ttvContext.DimReferencedata.Add(referenceData);
-                _ttvContext.SaveChanges();
             }
+
+            // User choices
+            var choice1NameFi = "Olen kiinnostunut tiedotusvälineiden yhteydenotoista";
+            var choice2NameFi = "Olen kiinnostunut yhteistyöstä muiden tutkijoiden ja tutkimusryhmien kanssa";
+            var choice3NameFi = "Olen kiinnostunut yhteistyöstä yritysten kanssa";
+            var choice4NameFi = "Olen kiinnostunut toimimaan tieteellisten julkaisujen vertaisarvioijana";
+
+            var referenceData_choice1 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == choice1NameFi);
+            if (referenceData_choice1 == null)
+            {
+                referenceData = new DimReferencedatum()
+                {
+                    CodeScheme = Constants.CodeSchemes.USER_CHOICES,
+                    CodeValue = "",
+                    NameFi = choice1NameFi,
+                    NameEn = "I am interested in media contacts",
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime()
+                };
+                _ttvContext.DimReferencedata.Add(referenceData);
+            }
+
+            var referenceData_choice2 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == choice2NameFi);
+            if (referenceData_choice2 == null)
+            {
+                referenceData = new DimReferencedatum()
+                {
+                    CodeScheme = Constants.CodeSchemes.USER_CHOICES,
+                    CodeValue = "",
+                    NameFi = choice2NameFi,
+                    NameEn = "I am interested in cooperation with other researchers and research groups",
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime()
+                };
+                _ttvContext.DimReferencedata.Add(referenceData);
+            }
+
+            var referenceData_choice3 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == choice3NameFi);
+            if (referenceData_choice3 == null)
+            {
+                referenceData = new DimReferencedatum()
+                {
+                    CodeScheme = Constants.CodeSchemes.USER_CHOICES,
+                    CodeValue = "",
+                    NameFi = choice3NameFi,
+                    NameEn = "I am interested in working with companies",
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime()
+                };
+                _ttvContext.DimReferencedata.Add(referenceData);
+            }
+
+            var referenceData_choice4 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == choice4NameFi);
+            if (referenceData_choice4 == null)
+            {
+                referenceData = new DimReferencedatum()
+                {
+                    CodeScheme = Constants.CodeSchemes.USER_CHOICES,
+                    CodeValue = "",
+                    NameFi = choice4NameFi,
+                    NameEn = "I am interested in being a peer reviewer for scientific publications",
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime()
+                };
+                _ttvContext.DimReferencedata.Add(referenceData);
+            }
+
+            _ttvContext.SaveChanges();
+
         }
 
 
