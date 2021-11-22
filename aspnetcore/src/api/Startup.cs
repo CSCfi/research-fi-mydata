@@ -30,6 +30,7 @@ namespace api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddResponseCompression();
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
 
             // SQL Server options.
@@ -152,6 +153,9 @@ namespace api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, DemoDataService demoDataService)
         {
+            // Response compression.
+            app.UseResponseCompression();
+
             // Use Forwarded Headers Middleware to enable client ip address detection behind load balancer.
             // Must run this before other middleware.
             app.UseForwardedHeaders(new ForwardedHeadersOptions
