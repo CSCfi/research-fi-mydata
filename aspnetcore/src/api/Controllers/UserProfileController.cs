@@ -169,7 +169,9 @@ namespace api.Controllers
                     Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
                     Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
                     Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID
+                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
+                    Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
+                    Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET
                 };
 
                 // DimFieldDisplaySettings for ORCID registered data source
