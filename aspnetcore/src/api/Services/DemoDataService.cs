@@ -22,6 +22,7 @@ namespace api.Services
         private readonly string DemoOrganization1Name = "Yliopisto A";
         private readonly string DemoOrganization2Name = "Tutkimuslaitos X";
         private readonly string DemoOrganization3Name = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
+        private readonly string DemoOrganizationFunderName = "Rahoittajaorganisaatio";
         private readonly string DemoOrganization1DataSourceName = "Testidata";
         private readonly string DemoOrganization2DataSourceName = "Testidata";
         private readonly string DemoOrganization3DataSourceName = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
@@ -53,6 +54,11 @@ namespace api.Services
             return this.DemoOrganization3Name;
         }
 
+        public string GetDemoOrganizationFunderName()
+        {
+            return this.DemoOrganizationFunderName;
+        }
+
         public DimOrganization GetOrganization1()
         {
             return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization1Name);
@@ -66,6 +72,11 @@ namespace api.Services
         public DimOrganization GetOrganization3()
         {
             return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization3Name);
+        }
+
+        public DimOrganization GetOrganizationFunder()
+        {
+            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganizationFunderName);
         }
 
         public DimRegisteredDataSource GetOrganization1RegisteredDataSource()
@@ -138,6 +149,23 @@ namespace api.Services
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organization3);
+            }
+
+            // Funder organization
+            var organizationFunder = this.GetOrganizationFunder();
+            if (organizationFunder == null)
+            {
+                organizationFunder = new DimOrganization()
+                {
+                    DimSectorid = -1,
+                    NameFi = this.DemoOrganizationFunderName,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
+                    DimRegisteredDataSourceId = -1
+                };
+                _ttvContext.DimOrganizations.Add(organizationFunder);
             }
 
             _ttvContext.SaveChanges();
@@ -388,6 +416,12 @@ namespace api.Services
         public async Task<DimOrganization> GetOrganization3Async()
         {
             return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization3Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
+        }
+
+        public async Task<DimOrganization> GetOrganizationFunderAsync()
+        {
+            // Do not use AsNoTracking here.
+            return await _ttvContext.DimOrganizations.FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganizationFunderName && org.SourceId == Constants.SourceIdentifiers.DEMO);
         }
 
         public async Task<DimRegisteredDataSource> GetOrganization1RegisteredDataSourceAsync()
@@ -976,6 +1010,70 @@ namespace api.Services
             factFieldValue_education_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_education_Organization2;
             factFieldValue_education_Organization2.DimEducation = dimEducation_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_education_Organization2);
+
+
+            // Funding decision
+            var dimFieldDisplaySettings_fundingDecision_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
+            var dimStartDate_fundingDecision_organization2 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2020 && dd.Month == 0 && dd.Day == 0);
+            if (dimStartDate_fundingDecision_organization2 == null)
+            {
+                dimStartDate_fundingDecision_organization2 = new DimDate()
+                {
+                    Year = 2020,
+                    Month = 0,
+                    Day = 0,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = currentDateTime,
+                    Modified = currentDateTime
+                };
+                _ttvContext.DimDates.Add(dimStartDate_fundingDecision_organization2);
+            }
+            var dimEndDate_fundingDecision_organization2 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2021 && dd.Month == 0 && dd.Day == 0);
+            if (dimEndDate_fundingDecision_organization2 == null)
+            {
+                dimEndDate_fundingDecision_organization2 = new DimDate()
+                {
+                    Year = 2021,
+                    Month = 0,
+                    Day = 0,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = currentDateTime,
+                    Modified = currentDateTime
+                };
+                _ttvContext.DimDates.Add(dimEndDate_fundingDecision_organization2);
+            }
+
+            // Funder organization
+            var organizationFunder = await this.GetOrganizationFunderAsync();
+
+            var dimFundingDecision_Organization2 = new DimFundingDecision()
+            {
+                DimDateIdApproval = -1,
+                DimDateIdStartNavigation = dimStartDate_fundingDecision_organization2,
+                DimDateIdEndNavigation = dimEndDate_fundingDecision_organization2,
+                DimNameIdContactPerson = -1,
+                DimCallProgrammeId = -1,
+                DimGeoId = -1,
+                DimTypeOfFundingId = -1,
+                DimOrganizationIdFunderNavigation = organizationFunder,
+                DimFundingDecisionIdParentDecision = -1,
+                NameFi = "Testihanke",
+                DescriptionFi = "Hankkeen kuvaus",
+                AmountInEur = 999,
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                Created = currentDateTime,
+                Modified = currentDateTime,
+                DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
+            };
+            _ttvContext.DimFundingDecisions.Add(dimFundingDecision_Organization2);
+            var factFieldValue_fundingDecision_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
+            factFieldValue_fundingDecision_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_fundingDecision_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fundingDecision_Organization2;
+            factFieldValue_fundingDecision_Organization2.DimFundingDecision = dimFundingDecision_Organization2;
+            _ttvContext.FactFieldValues.Add(factFieldValue_fundingDecision_Organization2);
 
             await _ttvContext.SaveChangesAsync();
         }

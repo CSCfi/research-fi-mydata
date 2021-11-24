@@ -337,6 +337,8 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication)
                 .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
@@ -449,6 +451,15 @@ namespace api.Controllers
                     if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
                     {
                         _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
+                    }
+                }
+
+                // DimFundingDecision
+                else if (ffv.DimFundingDecisionId != -1)
+                {
+                    if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimFundingDecisions.Remove(ffv.DimFundingDecision);
                     }
                 }
             }

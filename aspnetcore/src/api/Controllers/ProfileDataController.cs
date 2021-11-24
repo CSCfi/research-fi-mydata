@@ -775,7 +775,7 @@ namespace api.Controllers
                                 };
                             }
                             // Education EndDate can be null
-                            if (ffv.DimEducation.DimEndDateNavigation != null)
+                            if (ffv.DimFundingDecision.DimDateIdEndNavigation != null)
                             {
                                 fundingDecision.EndDate = new ProfileEditorItemDate()
                                 {
