@@ -453,15 +453,6 @@ namespace api.Controllers
                         _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
                     }
                 }
-
-                // DimFundingDecision
-                else if (ffv.DimFundingDecisionId != -1)
-                {
-                    if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimFundingDecisions.Remove(ffv.DimFundingDecision);
-                    }
-                }
             }
             await _ttvContext.SaveChangesAsync();
 

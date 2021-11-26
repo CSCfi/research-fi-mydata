@@ -84,13 +84,19 @@ namespace api.Controllers
                 // DimFundingDecision
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimOrganizationIdFunderNavigation).AsNoTracking() // Funding decision organization
+                        .ThenInclude(dfd => dfd.DimOrganizationIdFunderNavigation).AsNoTracking() // DimFundingDecision related DimOrganization (funder organization)
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimDateIdStartNavigation).AsNoTracking() // Funding decision start date
+                        .ThenInclude(dfd => dfd.DimDateIdStartNavigation).AsNoTracking() // DimFundingDecision related start date (DimDate)
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimDateIdEndNavigation).AsNoTracking() // Funding decision end date
+                        .ThenInclude(dfd => dfd.DimDateIdEndNavigation).AsNoTracking() // DimFundingDecision related end date (DimDate)
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                        .ThenInclude(dfd => dfd.DimTypeOfFunding).AsNoTracking() // DimFundingDecision related DimTypeOfFunding
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                        .ThenInclude(dfd => dfd.DimCallProgramme).AsNoTracking() // DimFundingDecision related DimCallProgramme
                 // DimPublication
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPublication).AsNoTracking()
@@ -733,27 +739,51 @@ namespace api.Controllers
                         foreach (FactFieldValue ffv in dfds.FactFieldValues)
                         {
                             // Name translation service ensures that none of the language fields is empty.
-                            var nameTraslationFundingDecision = _languageService.getNameTranslation(
+                            var nameTraslationFundingDecision_ProjectName = _languageService.getNameTranslation(
                                 nameFi: ffv.DimFundingDecision.NameFi,
-                                nameEn: ffv.DimFundingDecision.NameEn,
-                                nameSv: ffv.DimFundingDecision.NameSv
+                                nameSv: ffv.DimFundingDecision.NameSv,
+                                nameEn: ffv.DimFundingDecision.NameEn
                             );
-                            var nameTraslationFunder = _languageService.getNameTranslation(
+                            var nameTraslationFundingDecision_ProjectDescription = _languageService.getNameTranslation(
+                                nameFi: ffv.DimFundingDecision.DescriptionFi,
+                                nameSv: ffv.DimFundingDecision.DescriptionSv,
+                                nameEn: ffv.DimFundingDecision.DescriptionEn
+                            );
+                            var nameTraslationFundingDecision_FunderName = _languageService.getNameTranslation(
                                 nameFi: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameFi,
-                                nameEn: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameSv,
-                                nameSv: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameEn
+                                nameSv: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameSv,
+                                nameEn: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameEn
                             );
-
+                            var nameTranslationFundingDecision_TypeOfFunding = _languageService.getNameTranslation(
+                                nameFi: ffv.DimFundingDecision.DimTypeOfFunding.NameFi,
+                                nameSv: ffv.DimFundingDecision.DimTypeOfFunding.NameSv,
+                                nameEn: ffv.DimFundingDecision.DimTypeOfFunding.NameEn
+                            );
+                            var nameTranslationFundingDecision_CallProgramme = _languageService.getNameTranslation(
+                                nameFi: ffv.DimFundingDecision.DimCallProgramme.NameFi,
+                                nameSv: ffv.DimFundingDecision.DimCallProgramme.NameSv,
+                                nameEn: ffv.DimFundingDecision.DimCallProgramme.NameEn
+                            );
 
                             var fundingDecision = new ProfileEditorItemFundingDecision()
                             {
                                 FunderProjectNumber = ffv.DimFundingDecision.FunderProjectNumber,
-                                NameFi = nameTraslationFundingDecision.NameFi,
-                                NameSv = nameTraslationFundingDecision.NameSv,
-                                NameEn = nameTraslationFundingDecision.NameEn,
-                                FunderNameFi = nameTraslationFunder.NameFi,
-                                FunderNameEn = nameTraslationFunder.NameEn,
-                                FunderNameSv = nameTraslationFunder.NameSv,
+                                ProjectAcronym = ffv.DimFundingDecision.Acronym,
+                                ProjectNameFi = nameTraslationFundingDecision_ProjectName.NameFi,
+                                ProjectNameSv = nameTraslationFundingDecision_ProjectName.NameSv,
+                                ProjectNameEn = nameTraslationFundingDecision_ProjectName.NameEn,
+                                ProjectDescriptionFi = nameTraslationFundingDecision_ProjectDescription.NameFi,
+                                ProjectDescriptionSv = nameTraslationFundingDecision_ProjectDescription.NameSv,
+                                ProjectDescriptionEn = nameTraslationFundingDecision_ProjectDescription.NameEn,
+                                FunderNameFi = nameTraslationFundingDecision_FunderName.NameFi,
+                                FunderNameSv = nameTraslationFundingDecision_FunderName.NameSv,
+                                FunderNameEn = nameTraslationFundingDecision_FunderName.NameEn,
+                                TypeOfFundingNameFi = nameTranslationFundingDecision_TypeOfFunding.NameFi,
+                                TypeOfFundingNameSv = nameTranslationFundingDecision_TypeOfFunding.NameSv,
+                                TypeOfFundingNameEn = nameTranslationFundingDecision_TypeOfFunding.NameEn,
+                                CallProgrammeNameFi = nameTranslationFundingDecision_CallProgramme.NameFi,
+                                CallProgrammeNameSv = nameTranslationFundingDecision_CallProgramme.NameSv,
+                                CallProgrammeNameEn = nameTranslationFundingDecision_CallProgramme.NameEn,
                                 AmountInEur = ffv.DimFundingDecision.AmountInEur,
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
