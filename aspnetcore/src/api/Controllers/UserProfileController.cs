@@ -248,7 +248,7 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
 
                 // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) publications
-                var dimFieldDisplaySettingDemoOrganization3 = new DimFieldDisplaySetting()
+                var dimFieldDisplaySettingDemoOrganization3_publication = new DimFieldDisplaySetting()
                 {
                     DimUserProfileId = dimUserProfile.Id,
                     FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
@@ -258,14 +258,56 @@ namespace api.Controllers
                     Created = currentDateTime,
                     Modified = currentDateTime
                 };
-                dimFieldDisplaySettingDemoOrganization3.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                dimFieldDisplaySettingDemoOrganization3_publication.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                     new BrFieldDisplaySettingsDimRegisteredDataSource()
                     {
-                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3.Id,
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3_publication.Id,
                         DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
                     }
                 );
-                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3);
+                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3_publication);
+                await _ttvContext.SaveChangesAsync();
+
+                // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) funding decisions
+                var dimFieldDisplaySettingDemoOrganization3_fundingDecision = new DimFieldDisplaySetting()
+                {
+                    DimUserProfileId = dimUserProfile.Id,
+                    FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
+                    Show = false,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = currentDateTime,
+                    Modified = currentDateTime
+                };
+                dimFieldDisplaySettingDemoOrganization3_fundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+                    {
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3_fundingDecision.Id,
+                        DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
+                    }
+                );
+                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3_fundingDecision);
+                await _ttvContext.SaveChangesAsync();
+
+                // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) research datasets
+                var dimFieldDisplaySettingDemoOrganization3_researchDatasets = new DimFieldDisplaySetting()
+                {
+                    DimUserProfileId = dimUserProfile.Id,
+                    FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
+                    Show = false,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = currentDateTime,
+                    Modified = currentDateTime
+                };
+                dimFieldDisplaySettingDemoOrganization3_researchDatasets.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+                    {
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3_researchDatasets.Id,
+                        DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
+                    }
+                );
+                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3_researchDatasets);
                 await _ttvContext.SaveChangesAsync();
 
                 // Add demo data
