@@ -83,7 +83,20 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimWebLink).AsNoTracking()
                 // DimFundingDecision
                 .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimFundingDecision).AsNoTracking()
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                        .ThenInclude(dfd => dfd.DimOrganizationIdFunderNavigation).AsNoTracking() // DimFundingDecision related DimOrganization (funder organization)
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                        .ThenInclude(dfd => dfd.DimDateIdStartNavigation).AsNoTracking() // DimFundingDecision related start date (DimDate)
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                        .ThenInclude(dfd => dfd.DimDateIdEndNavigation).AsNoTracking() // DimFundingDecision related end date (DimDate)
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                        .ThenInclude(dfd => dfd.DimTypeOfFunding).AsNoTracking() // DimFundingDecision related DimTypeOfFunding
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                        .ThenInclude(dfd => dfd.DimCallProgramme).AsNoTracking() // DimFundingDecision related DimCallProgramme
                 // DimPublication
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPublication).AsNoTracking()
@@ -708,6 +721,105 @@ namespace api.Controllers
                         if (orcidPublicationGroup.items.Count > 0)
                         {
                             profileDataResponse.activity.publicationGroups.Add(orcidPublicationGroup);
+                        }
+                        break;
+                    // Funding decision
+                    case Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION:
+                        var fundingDecisionGroup = new ProfileEditorGroupFundingDecision()
+                        {
+                            source = source,
+                            items = new List<ProfileEditorItemFundingDecision>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            // Name translation service ensures that none of the language fields is empty.
+                            var nameTraslationFundingDecision_ProjectName = _languageService.getNameTranslation(
+                                nameFi: ffv.DimFundingDecision.NameFi,
+                                nameSv: ffv.DimFundingDecision.NameSv,
+                                nameEn: ffv.DimFundingDecision.NameEn
+                            );
+                            var nameTraslationFundingDecision_ProjectDescription = _languageService.getNameTranslation(
+                                nameFi: ffv.DimFundingDecision.DescriptionFi,
+                                nameSv: ffv.DimFundingDecision.DescriptionSv,
+                                nameEn: ffv.DimFundingDecision.DescriptionEn
+                            );
+                            var nameTraslationFundingDecision_FunderName = _languageService.getNameTranslation(
+                                nameFi: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameFi,
+                                nameSv: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameSv,
+                                nameEn: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameEn
+                            );
+                            var nameTranslationFundingDecision_TypeOfFunding = _languageService.getNameTranslation(
+                                nameFi: ffv.DimFundingDecision.DimTypeOfFunding.NameFi,
+                                nameSv: ffv.DimFundingDecision.DimTypeOfFunding.NameSv,
+                                nameEn: ffv.DimFundingDecision.DimTypeOfFunding.NameEn
+                            );
+                            var nameTranslationFundingDecision_CallProgramme = _languageService.getNameTranslation(
+                                nameFi: ffv.DimFundingDecision.DimCallProgramme.NameFi,
+                                nameSv: ffv.DimFundingDecision.DimCallProgramme.NameSv,
+                                nameEn: ffv.DimFundingDecision.DimCallProgramme.NameEn
+                            );
+
+                            var fundingDecision = new ProfileEditorItemFundingDecision()
+                            {
+                                FunderProjectNumber = ffv.DimFundingDecision.FunderProjectNumber,
+                                ProjectAcronym = ffv.DimFundingDecision.Acronym,
+                                ProjectNameFi = nameTraslationFundingDecision_ProjectName.NameFi,
+                                ProjectNameSv = nameTraslationFundingDecision_ProjectName.NameSv,
+                                ProjectNameEn = nameTraslationFundingDecision_ProjectName.NameEn,
+                                ProjectDescriptionFi = nameTraslationFundingDecision_ProjectDescription.NameFi,
+                                ProjectDescriptionSv = nameTraslationFundingDecision_ProjectDescription.NameSv,
+                                ProjectDescriptionEn = nameTraslationFundingDecision_ProjectDescription.NameEn,
+                                FunderNameFi = nameTraslationFundingDecision_FunderName.NameFi,
+                                FunderNameSv = nameTraslationFundingDecision_FunderName.NameSv,
+                                FunderNameEn = nameTraslationFundingDecision_FunderName.NameEn,
+                                TypeOfFundingNameFi = nameTranslationFundingDecision_TypeOfFunding.NameFi,
+                                TypeOfFundingNameSv = nameTranslationFundingDecision_TypeOfFunding.NameSv,
+                                TypeOfFundingNameEn = nameTranslationFundingDecision_TypeOfFunding.NameEn,
+                                CallProgrammeNameFi = nameTranslationFundingDecision_CallProgramme.NameFi,
+                                CallProgrammeNameSv = nameTranslationFundingDecision_CallProgramme.NameSv,
+                                CallProgrammeNameEn = nameTranslationFundingDecision_CallProgramme.NameEn,
+                                AmountInEur = ffv.DimFundingDecision.AmountInEur,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = ffv.DimFundingDecisionId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
+                                    Show = ffv.Show,
+                                    PrimaryValue = ffv.PrimaryValue
+                                }
+                            };
+
+                            // Funding decision start date can be null
+                            if (ffv.DimFundingDecision.DimDateIdStartNavigation != null)
+                            {
+                                fundingDecision.StartDate = new ProfileEditorItemDate()
+                                {
+                                    Year = ffv.DimFundingDecision.DimDateIdStartNavigation.Year,
+                                    Month = ffv.DimFundingDecision.DimDateIdStartNavigation.Month,
+                                    Day = ffv.DimFundingDecision.DimDateIdStartNavigation.Day
+                                };
+                            }
+                            // Education EndDate can be null
+                            if (ffv.DimFundingDecision.DimDateIdEndNavigation != null)
+                            {
+                                fundingDecision.EndDate = new ProfileEditorItemDate()
+                                {
+                                    Year = ffv.DimFundingDecision.DimDateIdEndNavigation.Year,
+                                    Month = ffv.DimFundingDecision.DimDateIdEndNavigation.Month,
+                                    Day = ffv.DimFundingDecision.DimDateIdEndNavigation.Day
+                                };
+                            }
+
+                            fundingDecisionGroup.items.Add(fundingDecision);
+                        }
+                        if (fundingDecisionGroup.items.Count > 0)
+                        {
+                            profileDataResponse.activity.fundingDecisionGroups.Add(fundingDecisionGroup);
                         }
                         break;
                     default:

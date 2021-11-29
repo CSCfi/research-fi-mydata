@@ -21,6 +21,9 @@ namespace api.Models
             public const int ACTIVITY_EDUCATION = 400;
             public const int ACTIVITY_PUBLICATION = 500;
             public const int ACTIVITY_PUBLICATION_ORCID = 550;
+            public const int ACTIVITY_RESEARCH_DATASET = 600;
+            public const int ACTIVITY_INFRASTRUCTURE = 700;
+            public const int ACTIVITY_FUNDING_DECISION = 800;
         }
 
         public static class SourceIdentifiers
