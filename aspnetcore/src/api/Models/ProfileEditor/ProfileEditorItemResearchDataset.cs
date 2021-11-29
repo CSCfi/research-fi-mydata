@@ -1,8 +1,8 @@
 ﻿namespace api.Models.ProfileEditor
 {
-    public partial class ProfileEditorItemResearchdataset : ProfileEditorItem
+    public partial class ProfileEditorItemResearchDataset : ProfileEditorItem
     {
-        public ProfileEditorItemResearchdataset()
+        public ProfileEditorItemResearchDataset()
         {
             LocalIdentifier = "";
             NameFi = "";
@@ -10,6 +10,7 @@
             NameEn = "";
         }
 
+        // TODO: Add properties according to DimResearchDataset
         public string LocalIdentifier { get; set; }
         public string NameFi { get; set; }
         public string NameSv { get; set; }

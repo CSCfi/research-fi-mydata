@@ -162,6 +162,9 @@ namespace api.Controllers
                 // DimFieldOfScience
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimFieldOfScience).AsNoTracking()
+                // DimResearchDataset
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchDataset).AsNoTracking()
                 .ToListAsync();
 
             var profileDataResponse = new ProfileEditorDataResponse() {};
@@ -820,6 +823,42 @@ namespace api.Controllers
                         if (fundingDecisionGroup.items.Count > 0)
                         {
                             profileDataResponse.activity.fundingDecisionGroups.Add(fundingDecisionGroup);
+                        }
+                        break;
+                    // Research dataset
+                    case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
+                        var researchDatasetGroup = new ProfileEditorGroupResearchDataset()
+                        {
+                            source = source,
+                            items = new List<ProfileEditorItemResearchDataset>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            // Name translation service ensures that none of the language fields is empty.
+                            var nameTraslationResearchDataset_Name = _languageService.getNameTranslation(
+                                nameFi: ffv.DimResearchDataset.NameFi,
+                                nameSv: ffv.DimResearchDataset.NameSv,
+                                nameEn: ffv.DimResearchDataset.NameEn
+                            );
+
+                            // TODO: add properties according to DimResearchDataset
+                            var researchDataset = new ProfileEditorItemResearchDataset()
+                            {
+                                LocalIdentifier = "",
+                                NameFi = nameTraslationResearchDataset_Name.NameFi,
+                                NameSv = nameTraslationResearchDataset_Name.NameSv,
+                                NameEn = nameTraslationResearchDataset_Name.NameEn
+                            };
+                        }
+                        if (researchDatasetGroup.items.Count > 0)
+                        {
+                            profileDataResponse.activity.researchDatasetGroups.Add(researchDatasetGroup);
                         }
                         break;
                     default:

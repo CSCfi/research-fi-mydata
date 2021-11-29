@@ -100,7 +100,7 @@ namespace api.Models.Ttv
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=localhost;User Id=user;Password=password;database=Ttv;");
+                optionsBuilder.UseSqlServer("Server=localhost;User Id=ttvuser;Password=Tdsfkjds7632eDSG;database=Ttv;");
             }
         }
 
@@ -4003,7 +4003,7 @@ namespace api.Models.Ttv
 
             modelBuilder.Entity<FactFieldValue>(entity =>
             {
-                entity.HasKey(e => new { e.DimUserProfileId, e.DimFieldDisplaySettingsId, e.DimNameId, e.DimWebLinkId, e.DimFundingDecisionId, e.DimPublicationId, e.DimPidId, e.DimPidIdOrcidPutCode, e.DimResearchActivityId, e.DimEventId, e.DimEducationId, e.DimCompetenceId, e.DimResearchCommunityId, e.DimTelephoneNumberId, e.DimEmailAddrressId, e.DimResearcherDescriptionId, e.DimIdentifierlessDataId, e.DimOrcidPublicationId, e.DimKeywordId, e.DimAffiliationId, e.DimResearcherToResearchCommunityId, e.DimFieldOfScienceId });
+                entity.HasKey(e => new { e.DimUserProfileId, e.DimFieldDisplaySettingsId, e.DimNameId, e.DimWebLinkId, e.DimFundingDecisionId, e.DimPublicationId, e.DimPidId, e.DimPidIdOrcidPutCode, e.DimResearchActivityId, e.DimEventId, e.DimEducationId, e.DimCompetenceId, e.DimResearchCommunityId, e.DimTelephoneNumberId, e.DimEmailAddrressId, e.DimResearcherDescriptionId, e.DimIdentifierlessDataId, e.DimOrcidPublicationId, e.DimKeywordId, e.DimAffiliationId, e.DimResearcherToResearchCommunityId, e.DimFieldOfScienceId, e.DimResearchDatasetId });
 
                 entity.ToTable("fact_field_values");
 
@@ -4050,6 +4050,8 @@ namespace api.Models.Ttv
                 entity.Property(e => e.DimResearcherToResearchCommunityId).HasColumnName("dim_researcher_to_research_community_id");
 
                 entity.Property(e => e.DimFieldOfScienceId).HasColumnName("dim_field_of_science_id");
+
+                entity.Property(e => e.DimResearchDatasetId).HasColumnName("dim_research_dataset_id");
 
                 entity.Property(e => e.Created)
                     .HasColumnType("datetime")
@@ -4173,6 +4175,12 @@ namespace api.Models.Ttv
                     .HasForeignKey(d => d.DimResearchCommunityId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKfact_field750435");
+
+                entity.HasOne(d => d.DimResearchDataset)
+                    .WithMany(p => p.FactFieldValues)
+                    .HasForeignKey(d => d.DimResearchDatasetId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKfact_field23452345");
 
                 entity.HasOne(d => d.DimResearcherDescription)
                     .WithMany(p => p.FactFieldValues)

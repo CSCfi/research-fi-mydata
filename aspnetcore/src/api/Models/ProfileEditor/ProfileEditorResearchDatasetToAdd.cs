@@ -1,8 +1,8 @@
 ﻿namespace api.Models.ProfileEditor
 {
-    public partial class ProfileEditorResearchdatasetToAdd
+    public partial class ProfileEditorResearchDatasetToAdd
     {
-        public ProfileEditorResearchdatasetToAdd()
+        public ProfileEditorResearchDatasetToAdd()
         {
         }
 

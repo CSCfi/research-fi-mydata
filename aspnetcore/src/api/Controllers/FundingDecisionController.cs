@@ -26,14 +26,16 @@ namespace api.Controllers
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly UtilityService _utilityService;
+        private readonly LanguageService _languageService;
         private IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
 
-        public FundingDecisionController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
+        public FundingDecisionController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, LanguageService languageService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _utilityService = utilityService;
+            _languageService = languageService;
             _logger = logger;
             _cache = memoryCache;
         }
@@ -73,6 +75,13 @@ namespace api.Controllers
             // Get DimFieldDisplaySetting for Tiedejatutkimus.fi
             var dimFieldDisplaySettingsFundingDecision = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION && dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == tiedejatutkimusRegisteredDataSourceId);
 
+            // Organization name translation
+            var nameTranslation_OrganizationName = _languageService.getNameTranslation(
+                nameFi: dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
+                nameSv: dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv,
+                nameEn: dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn
+            );
+
             // Response object
             var profileEditorAddFundingDecisionResponse = new ProfileEditorAddFundingDecisionResponse();
             profileEditorAddFundingDecisionResponse.source = new ProfileEditorSource()
@@ -81,9 +90,9 @@ namespace api.Controllers
                 RegisteredDataSource = dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
                 Organization = new Organization()
                 {
-                    NameFi = dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                    NameEn = dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
-                    NameSv = dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv
+                    NameFi = nameTranslation_OrganizationName.NameFi,
+                    NameSv = nameTranslation_OrganizationName.NameSv,
+                    NameEn = nameTranslation_OrganizationName.NameEn
                 }
             };
 
@@ -170,13 +179,17 @@ namespace api.Controllers
             // Remove FactFieldValues
             foreach(string funderProjectNumber in funderProjectNumbers.Distinct())
             {
-                var factFieldValue = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimFundingDecisionId != -1 && ffv.DimFundingDecision.FunderProjectNumber == funderProjectNumber)
-                  .Include(ffv => ffv.DimFundingDecision).AsNoTracking().FirstOrDefaultAsync();
+                var factFieldValue = await _ttvContext.FactFieldValues
+                    .Where(
+                        ffv => ffv.DimUserProfileId == userprofileId &&
+                        ffv.DimFundingDecisionId != -1 &&
+                        ffv.DimFundingDecision.FunderProjectNumber == funderProjectNumber
+                     ).FirstOrDefaultAsync();
 
                 if (factFieldValue != null)
                 {
-                    profileEditorRemoveFundingDecisionResponse.fundingDecisionsRemoved.Add(funderProjectNumber);
                     _ttvContext.FactFieldValues.Remove(factFieldValue);
+                    profileEditorRemoveFundingDecisionResponse.fundingDecisionsRemoved.Add(funderProjectNumber);
                 }
                 else
                 {
