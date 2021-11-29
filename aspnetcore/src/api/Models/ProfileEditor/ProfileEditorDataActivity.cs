@@ -8,10 +8,12 @@ namespace api.Models.ProfileEditor
             affiliationGroups = new List<ProfileEditorGroupAffiliation>();
             educationGroups = new List<ProfileEditorGroupEducation>();
             publicationGroups = new List<ProfileEditorGroupPublication>();
+            fundingDecisionGroups = new List<ProfileEditorGroupFundingDecision>();
         }
 
         public List<ProfileEditorGroupAffiliation> affiliationGroups { get; set; }
         public List<ProfileEditorGroupEducation> educationGroups { get; set; }
         public List<ProfileEditorGroupPublication> publicationGroups { get; set; }
+        public List<ProfileEditorGroupFundingDecision> fundingDecisionGroups { get; set; }
     }
 }
