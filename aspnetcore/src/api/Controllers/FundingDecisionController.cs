@@ -26,16 +26,14 @@ namespace api.Controllers
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly UtilityService _utilityService;
-        private readonly LanguageService _languageService;
         private IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
 
-        public FundingDecisionController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, LanguageService languageService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
+        public FundingDecisionController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _utilityService = utilityService;
-            _languageService = languageService;
             _logger = logger;
             _cache = memoryCache;
         }
@@ -66,23 +64,7 @@ namespace api.Controllers
                         .ThenInclude(br => br.DimRegisteredDataSource)
                             .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimFundingDecisionId != -1))
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimCallProgramme).AsNoTracking()
-                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimFundingDecisionId != -1))
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimOrganizationIdFunderNavigation).AsNoTracking() // DimFundingDecision related DimOrganization (funder organization)
-                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimFundingDecisionId != -1))
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimDateIdStartNavigation).AsNoTracking() // DimFundingDecision related start date (DimDate)
-                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimFundingDecisionId != -1))
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimDateIdEndNavigation).AsNoTracking() // DimFundingDecision related end date (DimDate)
-                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimFundingDecisionId != -1))
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimTypeOfFunding).AsNoTracking() // DimFundingDecision related DimTypeOfFunding
-                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimFundingDecisionId != -1))
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimCallProgramme).AsNoTracking().FirstOrDefaultAsync(); // DimFundingDecision related DimCallProgramme
+                    .ThenInclude(ffv => ffv.DimFundingDecision).FirstOrDefaultAsync();
 
             // TODO: Currently all added funding decisions get the same data source (Tiedejatutkimus.fi)
 
@@ -147,64 +129,7 @@ namespace api.Controllers
                         _ttvContext.FactFieldValues.Add(factFieldValueFunding);
                         await _ttvContext.SaveChangesAsync();
 
-                        // Response data
-                        // Name translation service ensures that none of the language fields is empty.
-                        var nameTraslationFundingDecision_ProjectName = _languageService.getNameTranslation(
-                            nameFi: dimFundingDecision.NameFi,
-                            nameSv: dimFundingDecision.NameSv,
-                            nameEn: dimFundingDecision.NameEn
-                        );
-                        var nameTraslationFundingDecision_ProjectDescription = _languageService.getNameTranslation(
-                            nameFi: dimFundingDecision.DescriptionFi,
-                            nameSv: dimFundingDecision.DescriptionSv,
-                            nameEn: dimFundingDecision.DescriptionEn
-                        );
-                        var nameTraslationFundingDecision_FunderName = _languageService.getNameTranslation(
-                            nameFi: dimFundingDecision.DimOrganizationIdFunderNavigation.NameFi,
-                            nameSv: dimFundingDecision.DimOrganizationIdFunderNavigation.NameSv,
-                            nameEn: dimFundingDecision.DimOrganizationIdFunderNavigation.NameEn
-                        );
-                        var nameTranslationFundingDecision_TypeOfFunding = _languageService.getNameTranslation(
-                            nameFi: dimFundingDecision.DimTypeOfFunding.NameFi,
-                            nameSv: dimFundingDecision.DimTypeOfFunding.NameSv,
-                            nameEn: dimFundingDecision.DimTypeOfFunding.NameEn
-                        );
-                        var nameTranslationFundingDecision_CallProgramme = _languageService.getNameTranslation(
-                            nameFi: dimFundingDecision.DimCallProgramme.NameFi,
-                            nameSv: dimFundingDecision.DimCallProgramme.NameSv,
-                            nameEn: dimFundingDecision.DimCallProgramme.NameEn
-                        );
-
-                        var fundingItem = new ProfileEditorItemFundingDecision()
-                        {
-                            FunderProjectNumber = dimFundingDecision.FunderProjectNumber,
-                            ProjectAcronym = dimFundingDecision.Acronym,
-                            ProjectNameFi = nameTraslationFundingDecision_ProjectName.NameFi,
-                            ProjectNameSv = nameTraslationFundingDecision_ProjectName.NameSv,
-                            ProjectNameEn = nameTraslationFundingDecision_ProjectName.NameEn,
-                            ProjectDescriptionFi = nameTraslationFundingDecision_ProjectDescription.NameFi,
-                            ProjectDescriptionSv = nameTraslationFundingDecision_ProjectDescription.NameSv,
-                            ProjectDescriptionEn = nameTraslationFundingDecision_ProjectDescription.NameEn,
-                            FunderNameFi = nameTraslationFundingDecision_FunderName.NameFi,
-                            FunderNameSv = nameTraslationFundingDecision_FunderName.NameSv,
-                            FunderNameEn = nameTraslationFundingDecision_FunderName.NameEn,
-                            TypeOfFundingNameFi = nameTranslationFundingDecision_TypeOfFunding.NameFi,
-                            TypeOfFundingNameSv = nameTranslationFundingDecision_TypeOfFunding.NameSv,
-                            TypeOfFundingNameEn = nameTranslationFundingDecision_TypeOfFunding.NameEn,
-                            CallProgrammeNameFi = nameTranslationFundingDecision_CallProgramme.NameFi,
-                            CallProgrammeNameSv = nameTranslationFundingDecision_CallProgramme.NameSv,
-                            CallProgrammeNameEn = nameTranslationFundingDecision_CallProgramme.NameEn,
-                            AmountInEur = dimFundingDecision.AmountInEur,
-                            itemMeta = new ProfileEditorItemMeta()
-                            {
-                                Id = dimFundingDecision.Id,
-                                Type = Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
-                                Show = factFieldValueFunding.Show,
-                                PrimaryValue = factFieldValueFunding.PrimaryValue
-                            }
-                        };
-
-                        profileEditorAddFundingDecisionResponse.fundingDecisionsAdded.Add(fundingItem);
+                        profileEditorAddFundingDecisionResponse.fundingDecisionsAdded.Add(fundingDecisionToAdd.FunderProjectNumber);
                     }
                 }
             }

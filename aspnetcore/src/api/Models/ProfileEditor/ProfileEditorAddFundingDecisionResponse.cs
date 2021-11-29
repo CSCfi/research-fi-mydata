@@ -6,13 +6,13 @@ namespace api.Models.ProfileEditor
         public ProfileEditorAddFundingDecisionResponse()
         {
             source = new ProfileEditorSource();
-            fundingDecisionsAdded = new List<ProfileEditorItemFundingDecision>();
+            fundingDecisionsAdded = new List<string>();
             fundingDecisionsAlreadyInProfile = new List<string>();
             fundingDecisionsNotFound = new List<string>();
         }
 
         public ProfileEditorSource source { get; set; }
-        public List<ProfileEditorItemFundingDecision> fundingDecisionsAdded { get; set; }
+        public List<string> fundingDecisionsAdded { get; set; }
         public List<string> fundingDecisionsAlreadyInProfile { get; set; }
         public List<string> fundingDecisionsNotFound { get; set; }
     }
