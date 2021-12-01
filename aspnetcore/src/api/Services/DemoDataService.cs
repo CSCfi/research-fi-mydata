@@ -37,6 +37,8 @@ namespace api.Services
         private readonly string DemoTypeOfFundingName2 = "laitekehitys";
         private readonly string DemoFunderProjectNumber1 = "098765";
         private readonly string DemoFunderProjectNumber2 = "123456-A";
+        private readonly string DemoResearchDatasetLocalIdentifier1 = "researchfi_demo_dataset_1";
+        private readonly string DemoResearchDatasetLocalIdentifier2 = "researchfi_demo_dataset_2";
 
         public DemoDataService(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, ILogger<DemoDataService> logger)
         {
@@ -284,6 +286,69 @@ namespace api.Services
                 };
                 _ttvContext.DimReferencedata.Add(referenceData);
             }
+
+
+
+            // Reference data actor roles
+            // Creator
+            var referencedataActorRoleCreator = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.NameEn == "Creator" && dr.CodeScheme == "agentrole");
+            if (referencedataActorRoleCreator == null)
+            {
+                _ttvContext.DimReferencedata.Add(
+                    new DimReferencedatum()
+                    {
+                        CodeScheme = "agentrole",
+                        CodeValue = "2",
+                        NameFi = "Tekijä",
+                        NameSv = "Upphovsperson",
+                        NameEn = "Creator",
+                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        Created = _utilityService.getCurrentDateTime(),
+                        Modified = _utilityService.getCurrentDateTime()
+                    }
+                );
+            }
+            // Publisher
+            var referencedataActorRolePublisher = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.NameEn == "Publisher" && dr.CodeScheme == "agentrole");
+            if (referencedataActorRolePublisher == null)
+            {
+                _ttvContext.DimReferencedata.Add(
+                    new DimReferencedatum()
+                    {
+                        CodeScheme = "agentrole",
+                        CodeValue = "4",
+                        NameFi = "Julkaisija",
+                        NameSv = "Utgivare",
+                        NameEn = "Publisher",
+                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        Created = _utilityService.getCurrentDateTime(),
+                        Modified = _utilityService.getCurrentDateTime()
+                    }
+                );
+            }
+            // Rights holder
+            var referencedataActorRoleRightsholder = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.NameEn == "Rights holder" && dr.CodeScheme == "agentrole");
+            if (referencedataActorRoleRightsholder == null)
+            {
+                _ttvContext.DimReferencedata.Add(
+                    new DimReferencedatum()
+                    {
+                        CodeScheme = "agentrole",
+                        CodeValue = "5",
+                        NameFi = "Oikeuksienhaltija",
+                        NameSv = "Rättighetsinnehavare",
+                        NameEn = "Rights holder",
+                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        Created = _utilityService.getCurrentDateTime(),
+                        Modified = _utilityService.getCurrentDateTime()
+                    }
+                );
+            }
+
+
 
             // User choices
             var choice1NameFi = "Olen kiinnostunut tiedotusvälineiden yhteydenotoista";
@@ -605,6 +670,74 @@ namespace api.Services
             _ttvContext.SaveChanges();
         }
 
+       
+
+        public void AddResearchDatasets()
+        {
+            /*
+            SELECT dbo.dim_pid.pid_type as pidType, dbo.dim_pid.pid_content as pidContent
+            FROM dbo.dim_pid
+            WHERE dbo.dim_pid.dim_research_dataset_id = RS.id and dbo.dim_pid.pid_type in ('urn', 'doi') FOR json path) AS preferredIdentifiers,
+            */
+            var researchDataset_Organization1 = _ttvContext.DimResearchDatasets.FirstOrDefault(drd => drd.LocalIdentifier == this.DemoResearchDatasetLocalIdentifier1 && drd.SourceId == Constants.SourceIdentifiers.DEMO);
+            if (researchDataset_Organization1 == null)
+            {
+                // Research dataset
+                researchDataset_Organization1 = new DimResearchDataset()
+                {
+                    LocalIdentifier = this.DemoResearchDatasetLocalIdentifier1,
+                    NameEn = "Test dataset of things - years 2010-2020",
+                    DescriptionEn = "Dataset that contains infromation from years 2010 to 2020. Includes information about subjects, tests and fully describes the outcome of analysis done. Most complete dataset to date about information. Please, see included documentation on how the analysis were done and data collected.",
+                    DatasetCreated = new DateTime(2021, 1, 1),
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
+                    DimRegisteredDataSourceId = this.GetOrganization1RegisteredDataSource().Id
+                };
+                _ttvContext.DimResearchDatasets.Add(researchDataset_Organization1);
+                _ttvContext.SaveChanges();
+
+                // DimPid
+                var dimPid_researchDataset_Organization1 = _userProfileService.GetEmptyDimPid();
+                dimPid_researchDataset_Organization1.DimResearchDatasetId = researchDataset_Organization1.Id;
+                dimPid_researchDataset_Organization1.PidType = "doi";
+                dimPid_researchDataset_Organization1.PidContent = "doi:10.23729/12348970-30de-4c86-a69a-ae4ff1c0c49f";
+                dimPid_researchDataset_Organization1.SourceId = Constants.SourceIdentifiers.DEMO;
+                _ttvContext.DimPids.Add(dimPid_researchDataset_Organization1);
+                _ttvContext.SaveChanges();
+            }
+
+            var researchDataset_Organization2 = _ttvContext.DimResearchDatasets.FirstOrDefault(drd => drd.LocalIdentifier == this.DemoResearchDatasetLocalIdentifier2 && drd.SourceId == Constants.SourceIdentifiers.DEMO);
+            if (researchDataset_Organization2 == null)
+            {
+                // Research dataset
+                researchDataset_Organization2 = new DimResearchDataset()
+                {
+                    LocalIdentifier = this.DemoResearchDatasetLocalIdentifier2,
+                    NameEn = "Preview of test subjects, first experiment",
+                    DescriptionEn = "Includes preview of test subjects and the first round of experiment. Further experiments are to be added and published later in another dataset. Data is structured so that information is clear. For any questions about dataset, analysis or experiments, contact us.",
+                    DatasetCreated = new DateTime(2017, 1, 1),
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
+                    DimRegisteredDataSourceId = this.GetOrganization2RegisteredDataSource().Id
+                };
+                _ttvContext.DimResearchDatasets.Add(researchDataset_Organization2);
+                _ttvContext.SaveChanges();
+
+                // DimPid
+                var dimPid_researchDataset_Organization2 = _userProfileService.GetEmptyDimPid();
+                dimPid_researchDataset_Organization2.DimResearchDatasetId = researchDataset_Organization2.Id;
+                dimPid_researchDataset_Organization2.PidType = "urn";
+                dimPid_researchDataset_Organization2.PidContent = "urn:nbn:fi:att:496efc55-f1fa-469a-bd39-12556068435";
+                dimPid_researchDataset_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
+                _ttvContext.DimPids.Add(dimPid_researchDataset_Organization2);
+                _ttvContext.SaveChanges();
+            }
+        }
+
 
         //public void AddResearchCommunities()
         //{
@@ -673,10 +806,11 @@ namespace api.Services
         {
             this.AddOrganizations();
             this.AddRegisteredDatasources();
-            this.AddReferenceData(); // DimAffiliation.PositionCode => DimReferenceData
+            this.AddReferenceData();
             //this.AddResearchCommunities();
             this.AddFieldsOfScience();
             this.AddFundingDecisions();
+            this.AddResearchDatasets();
         }
 
 
@@ -1314,6 +1448,24 @@ namespace api.Services
             factFieldValue_fundingDecision_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fundingDecision_Organization2;
             factFieldValue_fundingDecision_Organization2.DimFundingDecision = dimFundingDecision_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_fundingDecision_Organization2);
+
+            // Research dataset - Organization1
+            var dimResearchDataset_Organization1 = await _ttvContext.DimResearchDatasets.FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO && drd.LocalIdentifier == this.DemoResearchDatasetLocalIdentifier1);
+            var dimFieldDisplaySettings_researchDataset_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
+            var factFieldValue_researchDataset_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
+            factFieldValue_researchDataset_Organization1.DimUserProfile = dimUserProfile;
+            factFieldValue_researchDataset_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_researchDataset_Organization1;
+            factFieldValue_researchDataset_Organization1.DimResearchDataset = dimResearchDataset_Organization1;
+            _ttvContext.FactFieldValues.Add(factFieldValue_researchDataset_Organization1);
+
+            // Research dataset - Organization2
+            var dimResearchDataset_Organization2 = await _ttvContext.DimResearchDatasets.FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO && drd.LocalIdentifier == this.DemoResearchDatasetLocalIdentifier2);
+            var dimFieldDisplaySettings_researchDataset_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
+            var factFieldValue_researchDataset_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
+            factFieldValue_researchDataset_Organization2.DimUserProfile = dimUserProfile;
+            factFieldValue_researchDataset_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_researchDataset_Organization2;
+            factFieldValue_researchDataset_Organization2.DimResearchDataset = dimResearchDataset_Organization2;
+            _ttvContext.FactFieldValues.Add(factFieldValue_researchDataset_Organization2);
 
             await _ttvContext.SaveChangesAsync();
         }

@@ -846,15 +846,42 @@ namespace api.Controllers
                                 nameSv: ffv.DimResearchDataset.NameSv,
                                 nameEn: ffv.DimResearchDataset.NameEn
                             );
+                            var nameTraslationResearchDataset_Description = _languageService.getNameTranslation(
+                                nameFi: ffv.DimResearchDataset.DescriptionFi,
+                                nameSv: ffv.DimResearchDataset.DescriptionSv,
+                                nameEn: ffv.DimResearchDataset.DescriptionEn
+                            );
+
+                            // Get values from DimPid. There is no FK between DimResearchDataset and DimPid,
+                            // so the query must be done separately.
+                            var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId).AsNoTracking().ToListAsync();
+
+                            var preferredIdentifiers = new List<ProfileEditorPreferredIdentifier>();
+                            foreach (DimPid dimPid in dimPids)
+                            {
+                                preferredIdentifiers.Add(
+                                    new ProfileEditorPreferredIdentifier()
+                                    {
+                                        PidType = dimPid.PidType,
+                                        PidContent = dimPid.PidContent
+                                    }
+                                );
+                            }
 
                             // TODO: add properties according to DimResearchDataset
                             var researchDataset = new ProfileEditorItemResearchDataset()
                             {
-                                LocalIdentifier = "",
+                                Identifier = ffv.DimResearchDataset.LocalIdentifier,
                                 NameFi = nameTraslationResearchDataset_Name.NameFi,
                                 NameSv = nameTraslationResearchDataset_Name.NameSv,
-                                NameEn = nameTraslationResearchDataset_Name.NameEn
+                                NameEn = nameTraslationResearchDataset_Name.NameEn,
+                                DescriptionFi = nameTraslationResearchDataset_Description.NameFi,
+                                DescriptionSv = nameTraslationResearchDataset_Description.NameSv,
+                                DescriptionEn = nameTraslationResearchDataset_Description.NameEn,
+                                PreferredIdentifiers = preferredIdentifiers
                             };
+
+                            researchDatasetGroup.items.Add(researchDataset);
                         }
                         if (researchDatasetGroup.items.Count > 0)
                         {
