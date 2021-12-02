@@ -854,7 +854,7 @@ namespace api.Controllers
 
                             // Get values from DimPid. There is no FK between DimResearchDataset and DimPid,
                             // so the query must be done separately.
-                            var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId).AsNoTracking().ToListAsync();
+                            var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && ffv.DimResearchDatasetId > -1).AsNoTracking().ToListAsync();
 
                             var preferredIdentifiers = new List<ProfileEditorPreferredIdentifier>();
                             foreach (DimPid dimPid in dimPids)

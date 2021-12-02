@@ -381,9 +381,12 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimFundingDecision)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync(up => up.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimKeyword)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchDataset)
+                .FirstOrDefaultAsync(up => up.Id == userprofileId);
 
-            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
+            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == -1))
             {
                 // DimAffiliation. In demo version the related DimOrganization is removed.
                 if (ffv.DimAffiliationId != -1)
@@ -412,15 +415,6 @@ namespace api.Controllers
                 if (ffv.DimPidIdOrcidPutCode != -1)
                 {
                     _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
-                }
-
-                // DimName
-                if (ffv.DimNameId != -1)
-                {
-                    if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimNames.Remove(ffv.DimName);
-                    }
                 }
 
                 // DimPid
@@ -495,6 +489,32 @@ namespace api.Controllers
                         _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
                     }
                 }
+
+                // DimResarchDataset
+                else if (ffv.DimResearchDatasetId != -1)
+                {
+                    if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimResearchDatasets.Remove(ffv.DimResearchDataset);
+                    }
+
+                    // DEMO: remove test data from FactContribution
+                    var factContributions = await _ttvContext.FactContributions.Where(fc => fc.DimResearchDatasetId == ffv.DimResearchDatasetId && fc.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
+                    _ttvContext.FactContributions.RemoveRange(factContributions);
+
+                    // DEMO: remove test data from DimPid
+                    var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && dp.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
+                    _ttvContext.DimPids.RemoveRange(dimPids);
+                }
+            }
+            await _ttvContext.SaveChangesAsync();
+
+
+            // Remove DimName
+            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId != -1))
+            {
+                _ttvContext.FactFieldValues.Remove(ffv);
+                _ttvContext.DimNames.Remove(ffv.DimName);
             }
             await _ttvContext.SaveChangesAsync();
 
@@ -514,7 +534,7 @@ namespace api.Controllers
             _ttvContext.DimUserProfiles.Remove(dimUserProfile);
 
             // Must not remove DimKnownPerson.
-            // Must not remove DimPid.
+            // Must not remove DimPid (ORCID ID).
 
             await _ttvContext.SaveChangesAsync();
 
