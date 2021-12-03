@@ -164,7 +164,13 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimFieldOfScience).AsNoTracking()
                 // DimResearchDataset
                 .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchDataset).AsNoTracking()
+                    .ThenInclude(ffv => ffv.DimResearchDataset)
+                        .ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
+                            .ThenInclude(fc => fc.DimName).AsNoTracking() // DimName related to FactContribution
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchDataset)
+                        .ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
+                            .ThenInclude(fc => fc.DimReferencedataActorRole).AsNoTracking() // DimName related to DimReferencedataActorRole
                 .ToListAsync();
 
             var profileDataResponse = new ProfileEditorDataResponse() {};
@@ -868,9 +874,10 @@ namespace api.Controllers
                                 );
                             }
 
-                            // TODO: add properties according to DimResearchDataset
+                            // TODO: add properties according to ElasticSearch index
                             var researchDataset = new ProfileEditorItemResearchDataset()
                             {
+                                Actor = new List<ProfileEditorActor>(),
                                 Identifier = ffv.DimResearchDataset.LocalIdentifier,
                                 NameFi = nameTraslationResearchDataset_Name.NameFi,
                                 NameSv = nameTraslationResearchDataset_Name.NameSv,
@@ -878,8 +885,29 @@ namespace api.Controllers
                                 DescriptionFi = nameTraslationResearchDataset_Description.NameFi,
                                 DescriptionSv = nameTraslationResearchDataset_Description.NameSv,
                                 DescriptionEn = nameTraslationResearchDataset_Description.NameEn,
-                                PreferredIdentifiers = preferredIdentifiers
+                                PreferredIdentifiers = preferredIdentifiers,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = ffv.DimResearchDatasetId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
+                                    Show = ffv.Show,
+                                    PrimaryValue = ffv.PrimaryValue
+                                }
                             };
+
+                            // Fill actors list
+                            foreach(FactContribution fc in ffv.DimResearchDataset.FactContributions)
+                            {
+                                researchDataset.Actor.Add(
+                                    new ProfileEditorActor()
+                                    {
+                                        actorRole = int.Parse(fc.DimReferencedataActorRole.CodeValue),
+                                        actorRoleNameFi = fc.DimReferencedataActorRole.NameFi,
+                                        actorRoleNameSv = fc.DimReferencedataActorRole.NameSv,
+                                        actorRoleNameEn = fc.DimReferencedataActorRole.NameEn
+                                    }
+                                );
+                            }
 
                             researchDatasetGroup.items.Add(researchDataset);
                         }

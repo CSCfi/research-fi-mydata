@@ -6,6 +6,7 @@ namespace api.Models.ProfileEditor
     {
         public ProfileEditorItemResearchDataset()
         {
+            Actor = new List<ProfileEditorActor>();
             Identifier = "";
             NameFi = "";
             NameSv = "";
@@ -13,9 +14,11 @@ namespace api.Models.ProfileEditor
             DescriptionFi = "";
             DescriptionSv = "";
             DescriptionEn = "";
+            PreferredIdentifiers = new List<ProfileEditorPreferredIdentifier>();
         }
 
         // Properties are according to ElasticSearch index, not according to model DimResearchDataset
+        public List<ProfileEditorActor> Actor { get; set; }
         public string Identifier { get; set; }
         public string NameFi { get; set; }
         public string NameSv { get; set; }
