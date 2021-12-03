@@ -164,13 +164,13 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimFieldOfScience).AsNoTracking()
                 // DimResearchDataset
                 .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchDataset)
-                        .ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
-                            .ThenInclude(fc => fc.DimName).AsNoTracking() // DimName related to FactContribution
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchDataset)
-                        .ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
-                            .ThenInclude(fc => fc.DimReferencedataActorRole).AsNoTracking() // DimName related to DimReferencedataActorRole
+                    .ThenInclude(ffv => ffv.DimResearchDataset).AsNoTracking()
+                        //.ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
+                            //.ThenInclude(fc => fc.DimName).AsNoTracking() // DimName related to FactContribution
+                //.Include(dfds => dfds.FactFieldValues)
+                //    .ThenInclude(ffv => ffv.DimResearchDataset)
+                //        .ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
+                //            .ThenInclude(fc => fc.DimReferencedataActorRole).AsNoTracking() // DimName related to DimReferencedataActorRole
                 .ToListAsync();
 
             var profileDataResponse = new ProfileEditorDataResponse() {};
