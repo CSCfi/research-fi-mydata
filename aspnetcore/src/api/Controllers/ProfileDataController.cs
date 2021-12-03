@@ -162,6 +162,15 @@ namespace api.Controllers
                 // DimFieldOfScience
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimFieldOfScience).AsNoTracking()
+                // DimResearchDataset
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchDataset)
+                        .ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
+                            .ThenInclude(fc => fc.DimName).AsNoTracking() // DimName related to FactContribution
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchDataset)
+                        .ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
+                            .ThenInclude(fc => fc.DimReferencedataActorRole).AsNoTracking() // DimName related to DimReferencedataActorRole
                 .ToListAsync();
 
             var profileDataResponse = new ProfileEditorDataResponse() {};
@@ -820,6 +829,91 @@ namespace api.Controllers
                         if (fundingDecisionGroup.items.Count > 0)
                         {
                             profileDataResponse.activity.fundingDecisionGroups.Add(fundingDecisionGroup);
+                        }
+                        break;
+                    // Research dataset
+                    case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
+                        var researchDatasetGroup = new ProfileEditorGroupResearchDataset()
+                        {
+                            source = source,
+                            items = new List<ProfileEditorItemResearchDataset>() { },
+                            groupMeta = new ProfileEditorGroupMeta()
+                            {
+                                Id = dfds.Id,
+                                Type = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
+                                Show = dfds.Show
+                            }
+                        };
+                        foreach (FactFieldValue ffv in dfds.FactFieldValues)
+                        {
+                            // Name translation service ensures that none of the language fields is empty.
+                            var nameTraslationResearchDataset_Name = _languageService.getNameTranslation(
+                                nameFi: ffv.DimResearchDataset.NameFi,
+                                nameSv: ffv.DimResearchDataset.NameSv,
+                                nameEn: ffv.DimResearchDataset.NameEn
+                            );
+                            var nameTraslationResearchDataset_Description = _languageService.getNameTranslation(
+                                nameFi: ffv.DimResearchDataset.DescriptionFi,
+                                nameSv: ffv.DimResearchDataset.DescriptionSv,
+                                nameEn: ffv.DimResearchDataset.DescriptionEn
+                            );
+
+                            // Get values from DimPid. There is no FK between DimResearchDataset and DimPid,
+                            // so the query must be done separately.
+                            var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && ffv.DimResearchDatasetId > -1).AsNoTracking().ToListAsync();
+
+                            var preferredIdentifiers = new List<ProfileEditorPreferredIdentifier>();
+                            foreach (DimPid dimPid in dimPids)
+                            {
+                                preferredIdentifiers.Add(
+                                    new ProfileEditorPreferredIdentifier()
+                                    {
+                                        PidType = dimPid.PidType,
+                                        PidContent = dimPid.PidContent
+                                    }
+                                );
+                            }
+
+                            // TODO: add properties according to ElasticSearch index
+                            var researchDataset = new ProfileEditorItemResearchDataset()
+                            {
+                                Actor = new List<ProfileEditorActor>(),
+                                Identifier = ffv.DimResearchDataset.LocalIdentifier,
+                                NameFi = nameTraslationResearchDataset_Name.NameFi,
+                                NameSv = nameTraslationResearchDataset_Name.NameSv,
+                                NameEn = nameTraslationResearchDataset_Name.NameEn,
+                                DescriptionFi = nameTraslationResearchDataset_Description.NameFi,
+                                DescriptionSv = nameTraslationResearchDataset_Description.NameSv,
+                                DescriptionEn = nameTraslationResearchDataset_Description.NameEn,
+                                PreferredIdentifiers = preferredIdentifiers,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = ffv.DimResearchDatasetId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
+                                    Show = ffv.Show,
+                                    PrimaryValue = ffv.PrimaryValue
+                                }
+                            };
+
+                            // Fill actors list
+                            foreach(FactContribution fc in ffv.DimResearchDataset.FactContributions)
+                            {
+                                researchDataset.Actor.Add(
+                                    new ProfileEditorActor()
+                                    {
+                                        actorRole = int.Parse(fc.DimReferencedataActorRole.CodeValue),
+                                        actorRoleNameFi = fc.DimReferencedataActorRole.NameFi,
+                                        actorRoleNameSv = fc.DimReferencedataActorRole.NameSv,
+                                        actorRoleNameEn = fc.DimReferencedataActorRole.NameEn
+                                    }
+                                );
+                            }
+
+                            researchDatasetGroup.items.Add(researchDataset);
+                        }
+                        if (researchDatasetGroup.items.Count > 0)
+                        {
+                            profileDataResponse.activity.researchDatasetGroups.Add(researchDatasetGroup);
                         }
                         break;
                     default:

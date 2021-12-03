@@ -275,6 +275,7 @@ namespace api.Services
                 DimAffiliationId = -1,
                 DimResearcherToResearchCommunityId = -1,
                 DimFieldOfScienceId = -1,
+                DimResearchDatasetId = -1,
                 Show = false,
                 PrimaryValue = false,
                 SourceId = " ",

@@ -9,11 +9,13 @@ namespace api.Models.ProfileEditor
             educationGroups = new List<ProfileEditorGroupEducation>();
             publicationGroups = new List<ProfileEditorGroupPublication>();
             fundingDecisionGroups = new List<ProfileEditorGroupFundingDecision>();
+            researchDatasetGroups = new List<ProfileEditorGroupResearchDataset>();
         }
 
         public List<ProfileEditorGroupAffiliation> affiliationGroups { get; set; }
         public List<ProfileEditorGroupEducation> educationGroups { get; set; }
         public List<ProfileEditorGroupPublication> publicationGroups { get; set; }
         public List<ProfileEditorGroupFundingDecision> fundingDecisionGroups { get; set; }
+        public List<ProfileEditorGroupResearchDataset> researchDatasetGroups { get; set; }
     }
 }
