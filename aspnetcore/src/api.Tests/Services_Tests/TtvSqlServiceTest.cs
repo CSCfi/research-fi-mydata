@@ -118,6 +118,26 @@ namespace api.Tests
             );
         }
 
+        [Fact(DisplayName = "Get FactFieldValues FK column name - dim_funding_decision_id")]
+        public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_funding_decision_id()
+        {
+            var ttvSqlService = new TtvSqlService();
+            // Funding decision
+            Assert.Equal(
+                "dim_funding_decision_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION)
+            );
+        }
+
+        [Fact(DisplayName = "Get FactFieldValues FK column name - dim_research_dataset_id")]
+        public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_research_dataset_id()
+        {
+            var ttvSqlService = new TtvSqlService();
+            // Research dataset
+            Assert.Equal(
+                "dim_research_dataset_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET)
+            );
+        }
+
         [Fact(DisplayName = "Get SQL query for updating FactFieldValues, first name")]
         public void Test_getSqlQuery_Update_FactFieldValues_first_name()
         {

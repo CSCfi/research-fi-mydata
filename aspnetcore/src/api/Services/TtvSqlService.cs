@@ -54,6 +54,12 @@ namespace api.Services
                 case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
                     fk_column_name = "dim_orcid_publication_id";
                     break;
+                case Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION:
+                    fk_column_name = "dim_funding_decision_id";
+                    break;
+                case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
+                    fk_column_name = "dim_research_dataset_id";
+                    break;
                 default:
                     break;
             }
