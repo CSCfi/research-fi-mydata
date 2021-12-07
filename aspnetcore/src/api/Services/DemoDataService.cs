@@ -51,6 +51,11 @@ namespace api.Services
             _logger = logger;
         }
 
+        public string getSourceDescription(string orcidId)
+        {
+            return Constants.SourceDescriptions.PROFILE_API + " " + orcidId;
+        }
+
         public string GetDemoOrganization1Name()
         {
             return this.DemoOrganization1Name;
@@ -802,6 +807,7 @@ namespace api.Services
             var organization1RegisteredDataSource = await this.GetOrganization1RegisteredDataSourceAsync();
             var organization2RegisteredDataSource = await this.GetOrganization2RegisteredDataSourceAsync();
             var currentDateTime = _utilityService.getCurrentDateTime();
+            var sourceDescription = this.getSourceDescription(orcidId);
 
             // Name
             var dimFieldDisplaySettings_name_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
@@ -812,7 +818,7 @@ namespace api.Services
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
@@ -827,7 +833,7 @@ namespace api.Services
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
@@ -854,7 +860,7 @@ namespace api.Services
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
@@ -866,7 +872,7 @@ namespace api.Services
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
@@ -879,7 +885,7 @@ namespace api.Services
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                 DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
@@ -916,7 +922,7 @@ namespace api.Services
             dimPid_Organization2.PidType = "ISNI";
             dimPid_Organization2.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
             dimPid_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
-            dimPid_Organization2.SourceDescription = Constants.SourceDescriptions.PROFILE_API;
+            dimPid_Organization2.SourceDescription = sourceDescription;
             dimPid_Organization2.Created = currentDateTime;
             _ttvContext.DimPids.Add(dimPid_Organization2);
             var factFieldValue_externalIdentifier_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
@@ -941,7 +947,7 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -953,7 +959,7 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -977,7 +983,7 @@ namespace api.Services
                 Keyword = "digitalisaatio",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -986,7 +992,7 @@ namespace api.Services
                 Keyword = "aerosolit",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -995,7 +1001,7 @@ namespace api.Services
                 Keyword = "sisätaudit",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1004,7 +1010,7 @@ namespace api.Services
                 Keyword = "Suomen historia",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1018,7 +1024,7 @@ namespace api.Services
                 Keyword = "digitalization",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1027,7 +1033,7 @@ namespace api.Services
                 Keyword = "aerosols",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1036,7 +1042,7 @@ namespace api.Services
                 Keyword = "internal medicine",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1045,7 +1051,7 @@ namespace api.Services
                 Keyword = "history of Finland",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1135,6 +1141,7 @@ namespace api.Services
             //    NameFi = "Yleislääketiede",
             //    FieldId = "",
             //    SourceId = Constants.SourceIdentifiers.DEMO,
+            //    SourceDescription = sourceDescription,
             //    Created = currentDateTime,
             //    Modified = currentDateTime
             //};
@@ -1143,6 +1150,7 @@ namespace api.Services
             //    NameFi = "sisätaudit ja muut kliiniset lääketieteet",
             //    FieldId = "",
             //    SourceId = Constants.SourceIdentifiers.DEMO,
+            //    SourceDescription = sourceDescription,
             //    Created = currentDateTime,
             //    Modified = currentDateTime
             //};
@@ -1164,7 +1172,7 @@ namespace api.Services
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1176,7 +1184,7 @@ namespace api.Services
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1201,7 +1209,7 @@ namespace api.Services
                 DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1220,7 +1228,7 @@ namespace api.Services
                 Url = "https://tutkijanomaverkkosivu.yliopisto.fii",
                 LinkLabel = "Tutkijan oma verkkosivu",
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1248,7 +1256,7 @@ namespace api.Services
                     Month = 1,
                     Day = 1,
                     SourceId = Constants.SourceIdentifiers.DEMO,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    SourceDescription = sourceDescription,
                     Created = currentDateTime,
                     Modified = currentDateTime
                 };
@@ -1262,7 +1270,7 @@ namespace api.Services
                 AffiliationType = affiliationType.Id,
                 PositionNameFi = "Akatemiatutkija",
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
@@ -1285,7 +1293,7 @@ namespace api.Services
                     Month = 1,
                     Day = 1,
                     SourceId = Constants.SourceIdentifiers.DEMO,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    SourceDescription = sourceDescription,
                     Created = currentDateTime,
                     Modified = currentDateTime
                 };
@@ -1300,7 +1308,7 @@ namespace api.Services
                     Month = 12,
                     Day = 31,
                     SourceId = Constants.SourceIdentifiers.DEMO,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    SourceDescription = sourceDescription,
                     Created = currentDateTime,
                     Modified = currentDateTime
                 };
@@ -1315,7 +1323,7 @@ namespace api.Services
                 AffiliationType = affiliationType.Id,
                 PositionNameFi = "Erikoistutkija",
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
@@ -1339,7 +1347,7 @@ namespace api.Services
                     Month = 0,
                     Day = 0,
                     SourceId = Constants.SourceIdentifiers.DEMO,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    SourceDescription = sourceDescription,
                     Created = currentDateTime,
                     Modified = currentDateTime
                 };
@@ -1352,7 +1360,7 @@ namespace api.Services
                 DegreeGrantingInstitutionName = "Yliopisto Y",
                 DimEndDateNavigation = dimEndDate_education_organization2,
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime,
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
@@ -1397,7 +1405,7 @@ namespace api.Services
                     DescriptionEn = "Dataset that contains infromation from years 2010 to 2020. Includes information about subjects, tests and fully describes the outcome of analysis done. Most complete dataset to date about information. Please, see included documentation on how the analysis were done and data collected.",
                     DatasetCreated = new DateTime(2021, 1, 1),
                     SourceId = Constants.SourceIdentifiers.DEMO,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    SourceDescription = sourceDescription,
                     Created = currentDateTime,
                     Modified = currentDateTime,
                     DimRegisteredDataSourceId = this.GetOrganization1RegisteredDataSource().Id
@@ -1410,7 +1418,7 @@ namespace api.Services
             dimPid_researchDataset_Organization1.DimResearchDatasetId = researchDataset_Organization1.Id;
             dimPid_researchDataset_Organization1.PidType = "doi";
             dimPid_researchDataset_Organization1.PidContent = "doi:10.23729/12348970-30de-4c86-a69a-ae4ff1c0c49f";
-            dimPid_researchDataset_Organization1.SourceDescription = Constants.SourceDescriptions.PROFILE_API;
+            dimPid_researchDataset_Organization1.SourceDescription = sourceDescription;
             dimPid_researchDataset_Organization1.SourceId = Constants.SourceIdentifiers.DEMO;
             _ttvContext.DimPids.Add(dimPid_researchDataset_Organization1);
 
@@ -1434,7 +1442,7 @@ namespace api.Services
                 DimReferencedataActorRoleId = -1,
                 ContributionType = "",
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
@@ -1457,7 +1465,7 @@ namespace api.Services
                 DescriptionEn = "Includes preview of test subjects and the first round of experiment. Further experiments are to be added and published later in another dataset. Data is structured so that information is clear. For any questions about dataset, analysis or experiments, contact us.",
                 DatasetCreated = new DateTime(2017, 1, 1),
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = _utilityService.getCurrentDateTime(),
                 Modified = _utilityService.getCurrentDateTime(),
                 DimRegisteredDataSourceId = this.GetOrganization2RegisteredDataSource().Id
@@ -1471,6 +1479,7 @@ namespace api.Services
             dimPid_researchDataset_Organization2.PidType = "urn";
             dimPid_researchDataset_Organization2.PidContent = "urn:nbn:fi:att:496efc55-f1fa-469a-bd39-12556068435";
             dimPid_researchDataset_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
+            dimPid_researchDataset_Organization2.SourceDescription = sourceDescription;
             _ttvContext.DimPids.Add(dimPid_researchDataset_Organization2);
 
             // Research dataset - Organization2 - FactContribution
@@ -1493,7 +1502,7 @@ namespace api.Services
                 DimReferencedataActorRoleId = -1,
                 ContributionType = "",
                 SourceId = Constants.SourceIdentifiers.DEMO,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                SourceDescription = sourceDescription,
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
