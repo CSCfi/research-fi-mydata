@@ -384,9 +384,10 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimKeyword)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearchDataset)
+                        .ThenInclude(drd => drd.FactContributions)
                 .FirstOrDefaultAsync(up => up.Id == userprofileId);
 
-            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == -1))
+            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
             {
                 // DimAffiliation. In demo version the related DimOrganization is removed.
                 if (ffv.DimAffiliationId != -1)
@@ -493,41 +494,35 @@ namespace api.Controllers
                 // DimResarchDataset
                 else if (ffv.DimResearchDatasetId != -1)
                 {
+                    // DEMO: remove DimResearchDataset related FactContribution
+                    foreach (FactContribution fc in ffv.DimResearchDataset.FactContributions)
+                    {
+                        if (fc.SourceId == Constants.SourceIdentifiers.DEMO)
+                        {
+                            _ttvContext.FactContributions.Remove(fc);
+                        }
+                    }
+
+                    // DEMO: remove DimResearchDataset related DimPid
+                    var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && dp.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
+                    _ttvContext.DimPids.RemoveRange(dimPids);
+
+                    // DEMO: remove DimResearchDataset
                     if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
                     {
                         _ttvContext.DimResearchDatasets.Remove(ffv.DimResearchDataset);
                     }
-
-                    // DEMO: remove test data from FactContribution
-                    var factContributions = await _ttvContext.FactContributions.Where(fc => fc.DimResearchDatasetId == ffv.DimResearchDatasetId && fc.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
-                    foreach (FactContribution fc in factContributions)
-                    {
-                        _ttvContext.FactContributions.Remove(fc);
-                        _ttvContext.Entry(fc).State = EntityState.Deleted;
-                    }
-
-                    // DEMO: remove test data from DimPids
-                    var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && dp.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
-                    foreach (DimPid dp in dimPids)
-                    {
-                        _ttvContext.DimPids.Remove(dp);
-                        _ttvContext.Entry(dp).State = EntityState.Deleted;
-                    }
                 }
-            }
-            await _ttvContext.SaveChangesAsync();
 
-
-            // Remove DimName
-            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId != -1))
-            {
-                _ttvContext.FactFieldValues.Remove(ffv);
-                if (ffv.DimName.SourceId == Constants.SourceIdentifiers.DEMO)
+                // DimName
+                else if (ffv.DimNameId != -1)
                 {
-                    _ttvContext.DimNames.Remove(ffv.DimName);
+                    if (ffv.DimName.SourceId == Constants.SourceIdentifiers.DEMO)
+                    {
+                        _ttvContext.DimNames.Remove(ffv.DimName);
+                    }
                 }
             }
-            await _ttvContext.SaveChangesAsync();
 
             // Remove profile's DimFieldDisplaySettings relation to DimRegisteredDataSource
             foreach (DimFieldDisplaySetting dimFieldDisplaySetting in dimUserProfile.DimFieldDisplaySettings)
