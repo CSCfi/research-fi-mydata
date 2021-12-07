@@ -1509,12 +1509,11 @@ namespace api.Services
             _ttvContext.FactContributions.Add(factContribution_researchDataset_Organization2);
 
             // Research dataset - Organization2 - FactFieldValue
-            var dimResearchDataset_Organization2 = await _ttvContext.DimResearchDatasets.FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO && drd.LocalIdentifier == this.DemoResearchDatasetLocalIdentifier2);
             var dimFieldDisplaySettings_researchDataset_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
             var factFieldValue_researchDataset_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_researchDataset_Organization2.DimUserProfile = dimUserProfile;
             factFieldValue_researchDataset_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_researchDataset_Organization2;
-            factFieldValue_researchDataset_Organization2.DimResearchDataset = dimResearchDataset_Organization2;
+            factFieldValue_researchDataset_Organization2.DimResearchDataset = researchDataset_Organization2;
             _ttvContext.FactFieldValues.Add(factFieldValue_researchDataset_Organization2);
 
             await _ttvContext.SaveChangesAsync();

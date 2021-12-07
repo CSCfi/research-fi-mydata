@@ -500,11 +500,19 @@ namespace api.Controllers
 
                     // DEMO: remove test data from FactContribution
                     var factContributions = await _ttvContext.FactContributions.Where(fc => fc.DimResearchDatasetId == ffv.DimResearchDatasetId && fc.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
-                    _ttvContext.FactContributions.RemoveRange(factContributions);
+                    foreach (FactContribution fc in factContributions)
+                    {
+                        _ttvContext.FactContributions.Remove(fc);
+                        _ttvContext.Entry(fc).State = EntityState.Deleted;
+                    }
 
-                    // DEMO: remove test data from DimPid
+                    // DEMO: remove test data from DimPids
                     var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && dp.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
-                    _ttvContext.DimPids.RemoveRange(dimPids);
+                    foreach (DimPid dp in dimPids)
+                    {
+                        _ttvContext.DimPids.Remove(dp);
+                        _ttvContext.Entry(dp).State = EntityState.Deleted;
+                    }
                 }
             }
             await _ttvContext.SaveChangesAsync();
@@ -514,7 +522,10 @@ namespace api.Controllers
             foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId != -1))
             {
                 _ttvContext.FactFieldValues.Remove(ffv);
-                _ttvContext.DimNames.Remove(ffv.DimName);
+                if (ffv.DimName.SourceId == Constants.SourceIdentifiers.DEMO)
+                {
+                    _ttvContext.DimNames.Remove(ffv.DimName);
+                }
             }
             await _ttvContext.SaveChangesAsync();
 
