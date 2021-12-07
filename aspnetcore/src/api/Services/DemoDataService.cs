@@ -1400,7 +1400,7 @@ namespace api.Services
             // Research dataset - Organization1 - DimResearchDataset
             var researchDataset_Organization1 = new DimResearchDataset()
                 {
-                    LocalIdentifier = this.DemoResearchDatasetLocalIdentifier1 + orcidId,
+                    LocalIdentifier = this.DemoResearchDatasetLocalIdentifier1 + " " + orcidId,
                     NameEn = "Test dataset of things - years 2010-2020",
                     DescriptionEn = "Dataset that contains infromation from years 2010 to 2020. Includes information about subjects, tests and fully describes the outcome of analysis done. Most complete dataset to date about information. Please, see included documentation on how the analysis were done and data collected.",
                     DatasetCreated = new DateTime(2021, 1, 1),
@@ -1460,7 +1460,7 @@ namespace api.Services
             // Research dataset - Organization2 - DimResearchDataset
             var researchDataset_Organization2 = new DimResearchDataset()
             {
-                LocalIdentifier = this.DemoResearchDatasetLocalIdentifier2,
+                LocalIdentifier = this.DemoResearchDatasetLocalIdentifier2 + " " + orcidId,
                 NameEn = "Preview of test subjects, first experiment",
                 DescriptionEn = "Includes preview of test subjects and the first round of experiment. Further experiments are to be added and published later in another dataset. Data is structured so that information is clear. For any questions about dataset, analysis or experiments, contact us.",
                 DatasetCreated = new DateTime(2017, 1, 1),
