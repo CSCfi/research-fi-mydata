@@ -18,34 +18,27 @@ namespace api.Services
 
         public NameTranslation getNameTranslation(string nameFi, string nameEn, string nameSv)
         {
+            // Convert null to ""
+            if (nameFi == null) nameFi = "";
+            if (nameEn == null) nameEn = "";
+            if (nameSv == null) nameSv = "";
+
             // Only FI contains value => copy to EN and SV
-            if (
-                (nameFi != null && nameFi != "") &&
-                (nameEn == null || nameEn == "") &&
-                (nameSv == null || nameSv == "")
-            )
+            if (nameFi != "" && nameEn == "" && nameSv == "")
             {
                 nameEn = nameFi;
                 nameSv = nameFi;
             }
 
             // Only EN contains value => copy to FI and SV
-            if (
-                (nameEn != null && nameEn != "") &&
-                (nameFi == null || nameFi == "") &&
-                (nameSv == null || nameSv == "")
-            )
+            if (nameEn != "" && nameFi == "" && nameSv == "")
             {
                 nameFi = nameEn;
                 nameSv = nameEn;
             }
 
             // Only SV contains value => copy to FI and EN
-            if (
-                (nameSv != null && nameSv != "") &&
-                (nameFi == null || nameFi == "") &&
-                (nameEn == null || nameEn == "")
-            )
+            if (nameSv != "" && nameFi == "" && nameEn == "")
             {
                 nameFi = nameSv;
                 nameEn = nameSv;
