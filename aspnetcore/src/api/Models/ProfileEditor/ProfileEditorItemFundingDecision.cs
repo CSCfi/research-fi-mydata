@@ -4,7 +4,6 @@
     {
         public ProfileEditorItemFundingDecision()
         {
-            FunderProjectNumber = "";
             ProjectAcronym = "";
             ProjectNameFi = "";
             ProjectNameSv = "";
@@ -15,6 +14,7 @@
             FunderNameFi = "";
             FunderNameSv = "";
             FunderNameEn = "";
+            FunderProjectNumber = "";
             TypeOfFundingNameFi = "";
             TypeOfFundingNameSv = "";
             TypeOfFundingNameEn = "";
@@ -26,7 +26,7 @@
             AmountInEur = -1;
         }
 
-        public string FunderProjectNumber { get; set; }
+        public int ProjectId { get; set; }
         public string ProjectAcronym { get; set; }
         public string ProjectNameFi { get; set; }
         public string ProjectNameSv { get; set; }
@@ -37,6 +37,7 @@
         public string FunderNameFi { get; set; }
         public string FunderNameSv { get; set; }
         public string FunderNameEn { get; set; }
+        public string FunderProjectNumber { get; set; }
         public string TypeOfFundingNameFi { get; set; }
         public string TypeOfFundingNameSv { get; set; }
         public string TypeOfFundingNameEn { get; set; }

@@ -104,10 +104,10 @@ namespace api.Controllers
                 // Check if userprofile already includes given funding decision
                 foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
                 {
-                    if (ffv.DimFundingDecision.FunderProjectNumber == fundingDecisionToAdd.FunderProjectNumber)
+                    if (ffv.DimFundingDecision.Id == fundingDecisionToAdd.ProjecId)
                     {
                         // Funding decision is already in profile
-                        profileEditorAddFundingDecisionResponse.fundingDecisionsAlreadyInProfile.Add(fundingDecisionToAdd.FunderProjectNumber);
+                        profileEditorAddFundingDecisionResponse.fundingDecisionsAlreadyInProfile.Add(fundingDecisionToAdd.ProjecId);
                         fundingDecisionProcessed = true;
                         break;
                     }
@@ -116,12 +116,12 @@ namespace api.Controllers
                 if (!fundingDecisionProcessed)
                 {
                     // Get DimFundingDecision
-                    var dimFundingDecision = await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.FunderProjectNumber == fundingDecisionToAdd.FunderProjectNumber);
+                    var dimFundingDecision = await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.Id == fundingDecisionToAdd.ProjecId);
                     // Check if exists
                     if (dimFundingDecision == null)
                     {
                         // Does not exist
-                        profileEditorAddFundingDecisionResponse.fundingDecisionsNotFound.Add(fundingDecisionToAdd.FunderProjectNumber);
+                        profileEditorAddFundingDecisionResponse.fundingDecisionsNotFound.Add(fundingDecisionToAdd.ProjecId);
                     }
                     else
                     {
@@ -138,7 +138,7 @@ namespace api.Controllers
                         _ttvContext.FactFieldValues.Add(factFieldValueFunding);
                         await _ttvContext.SaveChangesAsync();
 
-                        profileEditorAddFundingDecisionResponse.fundingDecisionsAdded.Add(fundingDecisionToAdd.FunderProjectNumber);
+                        profileEditorAddFundingDecisionResponse.fundingDecisionsAdded.Add(fundingDecisionToAdd.ProjecId);
                     }
                 }
             }
@@ -157,7 +157,7 @@ namespace api.Controllers
         [HttpPost]
         [Route("remove")]
         [ProducesResponseType(typeof(ApiResponseFundingDecisionRemoveMany), StatusCodes.Status200OK)]
-        public async Task<IActionResult> RemoveMany([FromBody] List<string> funderProjectNumbers)
+        public async Task<IActionResult> RemoveMany([FromBody] List<int> projectIds)
         {
             if (!ModelState.IsValid)
             {
@@ -177,23 +177,23 @@ namespace api.Controllers
             var profileEditorRemoveFundingDecisionResponse = new ProfileEditorRemoveFundingDecisionResponse();
 
             // Remove FactFieldValues
-            foreach(string funderProjectNumber in funderProjectNumbers.Distinct())
+            foreach(int projectId in projectIds.Distinct())
             {
                 var factFieldValue = await _ttvContext.FactFieldValues
                     .Where(
                         ffv => ffv.DimUserProfileId == userprofileId &&
                         ffv.DimFundingDecisionId != -1 &&
-                        ffv.DimFundingDecision.FunderProjectNumber == funderProjectNumber
+                        ffv.DimFundingDecision.Id == projectId
                      ).FirstOrDefaultAsync();
 
                 if (factFieldValue != null)
                 {
                     _ttvContext.FactFieldValues.Remove(factFieldValue);
-                    profileEditorRemoveFundingDecisionResponse.fundingDecisionsRemoved.Add(funderProjectNumber);
+                    profileEditorRemoveFundingDecisionResponse.fundingDecisionsRemoved.Add(projectId);
                 }
                 else
                 {
-                    profileEditorRemoveFundingDecisionResponse.fundingDecisionsNotFound.Add(funderProjectNumber);
+                    profileEditorRemoveFundingDecisionResponse.fundingDecisionsNotFound.Add(projectId);
                 }
             }
             await _ttvContext.SaveChangesAsync();
