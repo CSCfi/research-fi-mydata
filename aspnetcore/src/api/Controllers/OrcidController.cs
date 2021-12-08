@@ -637,12 +637,14 @@ namespace api.Controllers
                 }
                 else
                 {
-                    // Create new related DimOrganization
+                    // Create new related DimOrganization.
+                    // For demo: include department name in field NameUnd.
                     // TODO: DimOrganization handling
                     var dimOrganization = new DimOrganization()
                     {
                         DimSectorid = -1,
                         NameEn = employment.OrganizationName,
+                        NameUnd = employment.DepartmentName, // TODO: this is a temporary solution for demo.
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,

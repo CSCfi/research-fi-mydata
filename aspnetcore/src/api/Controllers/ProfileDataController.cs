@@ -552,12 +552,31 @@ namespace api.Controllers
                                 nameSv: ffv.DimAffiliation.PositionNameSv
                             );
 
+                            // TODO: demo version stores ORDCID affiliation department name in DimOrganization.NameUnd
+                            var nameTranslationAffiliationDepartment = new NameTranslation()
+                            {
+                                NameFi = "",
+                                NameEn = "",
+                                NameSv = ""
+                            };
+                            if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.ORCID)
+                            {
+                                nameTranslationAffiliationDepartment = _languageService.getNameTranslation(
+                                    "",
+                                    nameEn: ffv.DimAffiliation.DimOrganization.NameUnd,
+                                    ""
+                                );
+                            }
+
                             var affiliation = new ProfileEditorItemAffiliation()
                             {
                                 // TODO: DimOrganization handling
                                 OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
                                 OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
                                 OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
+                                DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
+                                DepartmentNameEn = nameTranslationAffiliationDepartment.NameEn,
+                                DepartmentNameSv = nameTranslationAffiliationDepartment.NameSv,
                                 PositionNameFi = nameTranslationPositionName.NameFi,
                                 PositionNameEn = nameTranslationPositionName.NameEn,
                                 PositionNameSv = nameTranslationPositionName.NameSv,
