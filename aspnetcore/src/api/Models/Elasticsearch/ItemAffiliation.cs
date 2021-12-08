@@ -5,11 +5,14 @@
         public ItemAffiliation()
         {
             OrganizationNameFi = "";
-            OrganizationNameEn = "";
             OrganizationNameSv = "";
+            OrganizationNameEn = "";
+            DepartmentNameFi = "";
+            DepartmentNameSv = "";
+            DepartmentNameEn = "";
             PositionNameFi = "";
-            PositionNameEn = "";
             PositionNameSv = "";
+            PositionNameEn = "";
             Type = "";
             StartDate = new ItemDate();
             EndDate = new ItemDate();
@@ -17,11 +20,14 @@
         }
 
         public string OrganizationNameFi { get; set; }
-        public string OrganizationNameEn { get; set; }
         public string OrganizationNameSv { get; set; }
+        public string OrganizationNameEn { get; set; }
+        public string DepartmentNameFi { get; set; }
+        public string DepartmentNameSv { get; set; }
+        public string DepartmentNameEn { get; set; }
         public string PositionNameFi { get; set; }
-        public string PositionNameEn { get; set; }
         public string PositionNameSv { get; set; }
+        public string PositionNameEn { get; set; }
         public string Type { get; set; } 
         public ItemDate StartDate { get; set; }
         public ItemDate EndDate { get; set; }
