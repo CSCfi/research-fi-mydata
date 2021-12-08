@@ -795,7 +795,7 @@ namespace api.Controllers
 
                             var fundingDecision = new ProfileEditorItemFundingDecision()
                             {
-                                FunderProjectNumber = ffv.DimFundingDecision.FunderProjectNumber,
+                                ProjectId = ffv.DimFundingDecision.Id,
                                 ProjectAcronym = ffv.DimFundingDecision.Acronym,
                                 ProjectNameFi = nameTraslationFundingDecision_ProjectName.NameFi,
                                 ProjectNameSv = nameTraslationFundingDecision_ProjectName.NameSv,
@@ -806,6 +806,7 @@ namespace api.Controllers
                                 FunderNameFi = nameTraslationFundingDecision_FunderName.NameFi,
                                 FunderNameSv = nameTraslationFundingDecision_FunderName.NameSv,
                                 FunderNameEn = nameTraslationFundingDecision_FunderName.NameEn,
+                                FunderProjectNumber = ffv.DimFundingDecision.FunderProjectNumber,
                                 TypeOfFundingNameFi = nameTranslationFundingDecision_TypeOfFunding.NameFi,
                                 TypeOfFundingNameSv = nameTranslationFundingDecision_TypeOfFunding.NameSv,
                                 TypeOfFundingNameEn = nameTranslationFundingDecision_TypeOfFunding.NameEn,
