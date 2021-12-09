@@ -104,10 +104,10 @@ namespace api.Controllers
                 // Check if userprofile already includes given funding decision
                 foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
                 {
-                    if (ffv.DimFundingDecision.Id == fundingDecisionToAdd.ProjecId)
+                    if (ffv.DimFundingDecision.Id == fundingDecisionToAdd.ProjectId)
                     {
                         // Funding decision is already in profile
-                        profileEditorAddFundingDecisionResponse.fundingDecisionsAlreadyInProfile.Add(fundingDecisionToAdd.ProjecId);
+                        profileEditorAddFundingDecisionResponse.fundingDecisionsAlreadyInProfile.Add(fundingDecisionToAdd.ProjectId);
                         fundingDecisionProcessed = true;
                         break;
                     }
@@ -116,12 +116,12 @@ namespace api.Controllers
                 if (!fundingDecisionProcessed)
                 {
                     // Get DimFundingDecision
-                    var dimFundingDecision = await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.Id == fundingDecisionToAdd.ProjecId);
+                    var dimFundingDecision = await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.Id == fundingDecisionToAdd.ProjectId);
                     // Check if exists
                     if (dimFundingDecision == null)
                     {
                         // Does not exist
-                        profileEditorAddFundingDecisionResponse.fundingDecisionsNotFound.Add(fundingDecisionToAdd.ProjecId);
+                        profileEditorAddFundingDecisionResponse.fundingDecisionsNotFound.Add(fundingDecisionToAdd.ProjectId);
                     }
                     else
                     {
@@ -138,7 +138,7 @@ namespace api.Controllers
                         _ttvContext.FactFieldValues.Add(factFieldValueFunding);
                         await _ttvContext.SaveChangesAsync();
 
-                        profileEditorAddFundingDecisionResponse.fundingDecisionsAdded.Add(fundingDecisionToAdd.ProjecId);
+                        profileEditorAddFundingDecisionResponse.fundingDecisionsAdded.Add(fundingDecisionToAdd.ProjectId);
                     }
                 }
             }

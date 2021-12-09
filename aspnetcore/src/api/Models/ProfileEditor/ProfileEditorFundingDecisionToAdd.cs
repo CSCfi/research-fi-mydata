@@ -6,7 +6,7 @@
         {
         }
 
-        public int ProjecId { get; set; }
+        public int ProjectId { get; set; }
         public bool? Show { get; set; }
         public bool? PrimaryValue { get; set; }
     }
