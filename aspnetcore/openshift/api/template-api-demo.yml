@@ -1,0 +1,99 @@
+# This file is part of the research.fi service
+#
+# Copyright 2021 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: v1
+kind: Template
+metadata:
+  labels:
+    app: mydata-api-demo
+    template: mydata-api-demo
+  name: mydata-api-demo
+objects:
+  # Service (demo)
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: mydata-api-service-demo
+      labels:
+        app: mydata-api-demo
+      annotations:
+        description: Mydata api service for demo
+    spec:
+      ports:
+        - name: mydata-api-port-demo
+          port: 8080
+          targetPort: 8080
+      selector:
+        depcfg: mydata-api-depcfg-demo
+
+  # ImageStream (demo)
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: mydata-api-demo
+      labels:
+        app: mydata-api-demo
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: mydata-api-build-demo
+      labels:
+        app: mydata-api-demo
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: demo
+        contextDir: .
+      strategy:
+        dockerStrategy:
+          dockerfilePath: aspnetcore/openshift/api/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: mydata-api-demo:latest
+      successfulBuildsHistoryLimit: 2
+      failedBuildsHistoryLimit: 2
+
+  # Deployment config (demo)
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: mydata-api-deployment-demo
+      labels:
+        app: mydata-api-demo
+    spec:
+      selector:
+        app: mydata-api-demo
+        depcfg: mydata-api-depcfg-demo
+      template:
+        metadata:
+          labels:
+            app: mydata-api-demo
+            depcfg: mydata-api-depcfg-demo
+        spec:
+          containers:
+            - name: mydata-api-container-demo
+              image: researchfi/mydata-api-demo
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+      replicas: 1
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - mydata-api-container-demo
+            from:
+              kind: ImageStreamTag
+              name: mydata-api-demo:latest
+      strategy:
+        type: Rolling

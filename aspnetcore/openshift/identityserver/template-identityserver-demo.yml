@@ -1,0 +1,99 @@
+# This file is part of the research.fi service
+#
+# Copyright 2021 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: v1
+kind: Template
+metadata:
+  labels:
+    app: mydata-identityserver-demo
+    template: mydata-identityserver-demo
+  name: mydata-identityserver-demo
+objects:
+  # Service (demo)
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: mydata-identityserver-service-demo
+      labels:
+        app: mydata-identityserver-demo
+      annotations:
+        description: Mydata identityserver service for demo
+    spec:
+      ports:
+        - name: mydata-identityserver-port-demo
+          port: 8080
+          targetPort: 8080
+      selector:
+        depcfg: mydata-identityserver-depcfg-demo
+
+  # ImageStream (demo)
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: mydata-identityserver-demo
+      labels:
+        app: mydata-identityserver-demo
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: mydata-identityserver-build-demo
+      labels:
+        app: mydata-identityserver-demo
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: demo
+        contextDir: .
+      strategy:
+        dockerStrategy:
+          dockerfilePath: aspnetcore/openshift/identityserver/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: mydata-identityserver-demo:latest
+      successfulBuildsHistoryLimit: 4
+      failedBuildsHistoryLimit: 4
+
+  # Deployment config (demoopment)
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: mydata-identityserver-deployment-demo
+      labels:
+        app: mydata-identityserver-demo
+    spec:
+      selector:
+        app: mydata-identityserver-demo
+        depcfg: mydata-identityserver-depcfg-demo
+      template:
+        metadata:
+          labels:
+            app: mydata-identityserver-demo
+            depcfg: mydata-identityserver-depcfg-demo
+        spec:
+          containers:
+            - name: mydata-identityserver-container-demo
+              image: researchfi/mydata-identityserver-demo
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+      replicas: 1
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - mydata-identityserver-container-demo
+            from:
+              kind: ImageStreamTag
+              name: mydata-identityserver-demo:latest
+      strategy:
+        type: Rolling
