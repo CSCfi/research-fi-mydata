@@ -823,25 +823,15 @@ namespace api.Controllers
                                 }
                             };
 
-                            // Funding decision start date can be null
-                            if (ffv.DimFundingDecision.DimDateIdStartNavigation != null)
+                            // Funding decision start year
+                            if (ffv.DimFundingDecision.DimDateIdStartNavigation != null && ffv.DimFundingDecision.DimDateIdStartNavigation.Year > 0)
                             {
-                                fundingDecision.StartDate = new ProfileEditorItemDate()
-                                {
-                                    Year = ffv.DimFundingDecision.DimDateIdStartNavigation.Year,
-                                    Month = ffv.DimFundingDecision.DimDateIdStartNavigation.Month,
-                                    Day = ffv.DimFundingDecision.DimDateIdStartNavigation.Day
-                                };
+                                fundingDecision.FundingStartYear = ffv.DimFundingDecision.DimDateIdStartNavigation.Year;
                             }
-                            // Education EndDate can be null
-                            if (ffv.DimFundingDecision.DimDateIdEndNavigation != null)
+                            // Funding decision end year
+                            if (ffv.DimFundingDecision.DimDateIdEndNavigation != null && ffv.DimFundingDecision.DimDateIdEndNavigation.Year > 0)
                             {
-                                fundingDecision.EndDate = new ProfileEditorItemDate()
-                                {
-                                    Year = ffv.DimFundingDecision.DimDateIdEndNavigation.Year,
-                                    Month = ffv.DimFundingDecision.DimDateIdEndNavigation.Month,
-                                    Day = ffv.DimFundingDecision.DimDateIdEndNavigation.Day
-                                };
+                                fundingDecision.FundingEndYear = ffv.DimFundingDecision.DimDateIdEndNavigation.Year;
                             }
 
                             fundingDecisionGroup.items.Add(fundingDecision);

@@ -21,8 +21,8 @@
             CallProgrammeNameFi = "";
             CallProgrammeNameSv = "";
             CallProgrammeNameEn = "";
-            StartDate = new ProfileEditorItemDate();
-            EndDate = new ProfileEditorItemDate();
+            FundingStartYear = null;
+            FundingEndYear = null;
             AmountInEur = -1;
         }
 
@@ -44,8 +44,8 @@
         public string CallProgrammeNameFi { get; set; }
         public string CallProgrammeNameSv { get; set; }
         public string CallProgrammeNameEn { get; set; }
-        public ProfileEditorItemDate StartDate { get; set; }
-        public ProfileEditorItemDate EndDate { get; set; }
+        public int? FundingStartYear { get; set; }
+        public int? FundingEndYear { get; set; }
         public decimal AmountInEur { get; set; }
     }
 }
