@@ -905,6 +905,12 @@ namespace api.Controllers
                                 }
                             };
 
+                            // DatasetCreated
+                            if (ffv.DimResearchDataset.DatasetCreated != null)
+                            {
+                                researchDataset.DatasetCreated = ffv.DimResearchDataset.DatasetCreated.Value.Year;
+                            }
+
                             // Fill actors list
                             foreach(FactContribution fc in ffv.DimResearchDataset.FactContributions)
                             {
