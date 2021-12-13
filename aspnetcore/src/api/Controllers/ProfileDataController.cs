@@ -151,8 +151,8 @@ namespace api.Controllers
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
                 // DimIdentifierlessData
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking()
+                //.Include(dfds => dfds.FactFieldValues)
+                //    .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking() // TODO: update model to match SQL table
                 // DimOrcidPublication
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()

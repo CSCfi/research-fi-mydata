@@ -111,8 +111,8 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimEmailAddrress)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearcherDescription)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                //.Include(dup => dup.FactFieldValues)
+                //    .ThenInclude(ffv => ffv.DimIdentifierlessData) // TODO: update model to match SQL table
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync();
 
