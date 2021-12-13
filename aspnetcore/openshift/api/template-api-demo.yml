@@ -48,7 +48,7 @@ objects:
       source:
         git:
           uri: https://github.com/CSCfi/research-fi-mydata.git
-          ref: demo
+          ref: demo2021
         contextDir: .
       strategy:
         dockerStrategy:
