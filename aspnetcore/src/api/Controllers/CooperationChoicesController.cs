@@ -147,8 +147,11 @@ namespace api.Controllers
             // Save cooperation selections
             foreach (ProfileEditorCooperationItem profileEditorCooperationItem in profileEditorCooperationItems)
             {
-                var dimUserChoice = await _ttvContext.DimUserChoices.FindAsync(profileEditorCooperationItem.Id);
-                dimUserChoice.UserChoiceValue = profileEditorCooperationItem.Selected;
+                var dimUserChoice = await _ttvContext.DimUserChoices.Where(duc => duc.DimUserProfileId == userprofileId && duc.Id == profileEditorCooperationItem.Id).FirstOrDefaultAsync();
+                if (dimUserChoice != null)
+                {
+                    dimUserChoice.UserChoiceValue = profileEditorCooperationItem.Selected;
+                }
             }
 
             await _ttvContext.SaveChangesAsync();
