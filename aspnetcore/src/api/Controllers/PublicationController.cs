@@ -1,12 +1,17 @@
 ﻿using api.Services;
 using api.Models;
 using api.Models.Ttv;
+using api.Models.ProfileEditor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using api.Models.Common;
 
 namespace api.Controllers
 {
@@ -20,22 +25,29 @@ namespace api.Controllers
     {
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
+        private readonly UtilityService _utilityService;
+        private IMemoryCache _cache;
+        private readonly ILogger<UserProfileController> _logger;
 
-        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService)
+        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
-            _userProfileService = userProfileService;          
+            _userProfileService = userProfileService;
+            _utilityService = utilityService;
+            _logger = logger;
+            _cache = memoryCache;
         }
 
-        /*
-         *  Add publication(s) to profile.
-         */
+        /// <summary>
+        /// Add publicaton(s) to user profile.
+        /// </summary>
         [HttpPost]
+        [ProducesResponseType(typeof(ApiResponsePublicationPostMany), StatusCodes.Status200OK)]
         public async Task<IActionResult> PostMany([FromBody] List<ProfileEditorPublicationToAdd> profileEditorPublicationsToAdd)
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data", data: profileEditorPublicationsToAdd));
+                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
             }
 
             // Get userprofile
@@ -52,9 +64,9 @@ namespace api.Controllers
                         .ThenInclude(br => br.DimRegisteredDataSource)
                             .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimPublication).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(dup => dup.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimPublication).AsNoTracking().FirstOrDefaultAsync(dup => dup.Id == userprofileId);
 
-            // TODO: Currently all added publications get the same data source.
+            // TODO: Currently all added publications get the same data source (Tiedejatutkimus.fi)
 
             // Get Tiedejatutkimus.fi registered data source id
             var tiedejatutkimusRegisteredDataSourceId = await _userProfileService.GetTiedejatutkimusFiRegisteredDataSourceId();
@@ -67,7 +79,7 @@ namespace api.Controllers
             {
                 Id = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
                 RegisteredDataSource = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
-                Organization = new ProfileEditorSourceOrganization()
+                Organization = new Organization()
                 {
                     NameFi = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
                     NameEn = dimFieldDisplaySettingsPublication.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn,
@@ -112,7 +124,8 @@ namespace api.Controllers
                         factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
                         factFieldValuePublication.DimPublicationId = dimPublication.Id;
                         factFieldValuePublication.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
-                        factFieldValuePublication.Created = System.DateTime.Now;
+                        factFieldValuePublication.Created = _utilityService.getCurrentDateTime();
+                        factFieldValuePublication.Modified = _utilityService.getCurrentDateTime();
                         _ttvContext.FactFieldValues.Add(factFieldValuePublication);
                         await _ttvContext.SaveChangesAsync();
 
@@ -136,18 +149,26 @@ namespace api.Controllers
                     }
                 }
             }
-            return Ok(new ApiResponse(success: true, data: profileEditorAddPublicationResponse));
+
+            // TODO: add Elasticsearch sync?
+
+            // Remove cached profile data response. Cache key is ORCID ID.
+            _cache.Remove(orcidId);
+
+            return Ok(new ApiResponsePublicationPostMany(success: true, reason:"", data: profileEditorAddPublicationResponse, fromCache: false));
         }
 
-        /*
-         *  Add publication from profile.
-         */
-        [HttpDelete("{publicationId}")]
-        public async Task<IActionResult> DeletePublicationFromProfile(string publicationId)
+        /// <summary>
+        /// Remove publicaton(s) from user profile.
+        /// </summary>
+        [HttpPost]
+        [Route("remove")]
+        [ProducesResponseType(typeof(ApiResponsePublicationRemoveMany), StatusCodes.Status200OK)]
+        public async Task<IActionResult> RemoveMany([FromBody] List<string> publicationIds)
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "publicationId invalid", data: publicationId));
+                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
             }
 
             // Get id of userprofile
@@ -159,20 +180,33 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            // Remove FactFieldValue
-            var factFieldValue = await _ttvContext.FactFieldValues
-                .Include(ffv => ffv.DimPublication).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == publicationId);
+            // Response object
+            var profileEditorRemovePublicationResponse = new ProfileEditorRemovePublicationResponse();
 
-            if (factFieldValue == null)
+            // Remove FactFieldValues
+            foreach(string publicationId in publicationIds.Distinct())
             {
-                // Publication is not in profile
-                return Ok(new ApiResponse(success: false, reason: "publicationId not found in profile", data: publicationId));
-            }
+                var factFieldValue = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == publicationId)
+                  .Include(ffv => ffv.DimPublication).AsNoTracking().FirstOrDefaultAsync();
 
-            _ttvContext.FactFieldValues.Remove(factFieldValue);
+                if (factFieldValue != null)
+                {
+                    profileEditorRemovePublicationResponse.publicationsRemoved.Add(publicationId);
+                    _ttvContext.FactFieldValues.Remove(factFieldValue);
+                }
+                else
+                {
+                    profileEditorRemovePublicationResponse.publicationsNotFound.Add(publicationId);
+                }
+            }
             await _ttvContext.SaveChangesAsync();
 
-            return Ok(new ApiResponse(success: true, reason: "removed", data: publicationId));
+            // TODO: add Elasticsearch sync?
+
+            // Remove cached profile data response. Cache key is ORCID ID.
+            _cache.Remove(orcidId);
+
+            return Ok(new ApiResponsePublicationRemoveMany(success: true, reason: "removed", data: profileEditorRemovePublicationResponse, fromCache: false));
         }
     }
 }

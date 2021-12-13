@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using api.Models;
+﻿using System.Collections.Generic;
 
-namespace api.Models
+namespace api.Models.ProfileEditor
 {
     public partial class ProfileEditorDataActivity    {
         public ProfileEditorDataActivity()
@@ -10,10 +8,14 @@ namespace api.Models
             affiliationGroups = new List<ProfileEditorGroupAffiliation>();
             educationGroups = new List<ProfileEditorGroupEducation>();
             publicationGroups = new List<ProfileEditorGroupPublication>();
+            fundingDecisionGroups = new List<ProfileEditorGroupFundingDecision>();
+            researchDatasetGroups = new List<ProfileEditorGroupResearchDataset>();
         }
 
         public List<ProfileEditorGroupAffiliation> affiliationGroups { get; set; }
         public List<ProfileEditorGroupEducation> educationGroups { get; set; }
         public List<ProfileEditorGroupPublication> publicationGroups { get; set; }
+        public List<ProfileEditorGroupFundingDecision> fundingDecisionGroups { get; set; }
+        public List<ProfileEditorGroupResearchDataset> researchDatasetGroups { get; set; }
     }
 }

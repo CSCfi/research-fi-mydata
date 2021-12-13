@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -22,21 +24,30 @@ namespace api.Controllers
     {
         private readonly TtvContext _ttvContext;
         private readonly DemoDataService _demoDataService;
-        private readonly OrcidApiService _orcidApiService;
         private readonly UserProfileService _userProfileService;
+        private readonly ElasticsearchService _elasticsearchService;
+        private readonly UtilityService _utilityService;
         private readonly ILogger<UserProfileController> _logger;
+        private readonly IMemoryCache _cache;
+        private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
 
-        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, OrcidApiService orcidApiService, UserProfileService userProfileService, ILogger<UserProfileController> logger)
+        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, ElasticsearchService elasticsearchService, UserProfileService userProfileService, UtilityService utilityService, ILogger<UserProfileController> logger, IMemoryCache memoryCache, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue)
         {
             _ttvContext = ttvContext;
             _demoDataService = demoDataService;
-            _orcidApiService = orcidApiService;
             _userProfileService = userProfileService;
+            _elasticsearchService = elasticsearchService;
+            _utilityService = utilityService;
             _logger = logger;
+            _cache = memoryCache;
+            _backgroundElasticsearchPersonUpdateQueue = backgroundElasticsearchPersonUpdateQueue;
         }
 
-        // Check if profile exists.
+        /// <summary>
+        /// Check if user profile exists.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
             // Get ORCID id.
@@ -55,8 +66,11 @@ namespace api.Controllers
             return Ok(new ApiResponse(success: false, reason: "profile not found"));
         }
 
-        // Create profile
+        /// <summary>
+        /// Create user profile.
+        /// </summary>
         [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Create()
         {
             // Get ORCID id.
@@ -77,7 +91,10 @@ namespace api.Controllers
                     .ThenInclude(dkp => dkp.DimTelephoneNumbers)
                         .ThenInclude(dtn => dtn.DimRegisteredDataSource).AsNoTracking()
                 .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
+                    .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
+
+            // Get current DateTime
+            DateTime currentDateTime = _utilityService.getCurrentDateTime();
 
             // Check if DimPid 
             if (dimPid == null)
@@ -90,10 +107,12 @@ namespace api.Controllers
                 dimPid.PidType = Constants.PidTypes.ORCID;
 
                 // Since new DimPid is added, then new DimKnownPerson must be added
-                dimPid.DimKnownPerson = new DimKnownPerson() {
+                dimPid.DimKnownPerson = new DimKnownPerson()
+                {
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
                 dimPid.SourceId = Constants.SourceIdentifiers.ORCID;
                 _ttvContext.DimPids.Add(dimPid);
@@ -106,7 +125,8 @@ namespace api.Controllers
                 {
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
                 _ttvContext.DimKnownPeople.Add(kp);
                 dimPid.DimKnownPerson = kp;
@@ -118,11 +138,12 @@ namespace api.Controllers
             var dimUserProfile = dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault();
             if (dimUserProfile == null)
             {
-                dimUserProfile = new DimUserProfile() {
+                dimUserProfile = new DimUserProfile()
+                {
                     DimKnownPersonId = dimPid.DimKnownPerson.Id,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
+                    Created = currentDateTime,
                     AllowAllSubscriptions = false
                 };
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
@@ -149,7 +170,10 @@ namespace api.Controllers
                     Constants.FieldIdentifiers.PERSON_WEB_LINK,
                     Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
                     Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
-                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
+                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
+                    Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
+                    Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET
                 };
 
                 // DimFieldDisplaySettings for ORCID registered data source
@@ -162,7 +186,8 @@ namespace api.Controllers
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
@@ -186,7 +211,8 @@ namespace api.Controllers
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.DEMO,
                         SourceDescription = _demoDataService.GetDemoOrganization1Name(), // In demo must use Org1 name here
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
@@ -209,7 +235,8 @@ namespace api.Controllers
                         Show = false,
                         SourceId = Constants.SourceIdentifiers.DEMO,
                         SourceDescription = _demoDataService.GetDemoOrganization2Name(), // In demo must use Org2 name here
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                         new BrFieldDisplaySettingsDimRegisteredDataSource()
@@ -223,27 +250,70 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
 
                 // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) publications
-                var dimFieldDisplaySettingDemoOrganization3 = new DimFieldDisplaySetting()
+                var dimFieldDisplaySettingDemoOrganization3_publication = new DimFieldDisplaySetting()
                 {
                     DimUserProfileId = dimUserProfile.Id,
                     FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
                     Show = false,
                     SourceId = Constants.SourceIdentifiers.DEMO,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = currentDateTime,
+                    Modified = currentDateTime
                 };
-                dimFieldDisplaySettingDemoOrganization3.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                dimFieldDisplaySettingDemoOrganization3_publication.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                     new BrFieldDisplaySettingsDimRegisteredDataSource()
                     {
-                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3.Id,
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3_publication.Id,
                         DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
                     }
                 );
-                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3);
+                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3_publication);
+                await _ttvContext.SaveChangesAsync();
+
+                // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) funding decisions
+                var dimFieldDisplaySettingDemoOrganization3_fundingDecision = new DimFieldDisplaySetting()
+                {
+                    DimUserProfileId = dimUserProfile.Id,
+                    FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
+                    Show = false,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = currentDateTime,
+                    Modified = currentDateTime
+                };
+                dimFieldDisplaySettingDemoOrganization3_fundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+                    {
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3_fundingDecision.Id,
+                        DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
+                    }
+                );
+                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3_fundingDecision);
+                await _ttvContext.SaveChangesAsync();
+
+                // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) research datasets
+                var dimFieldDisplaySettingDemoOrganization3_researchDatasets = new DimFieldDisplaySetting()
+                {
+                    DimUserProfileId = dimUserProfile.Id,
+                    FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
+                    Show = false,
+                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = currentDateTime,
+                    Modified = currentDateTime
+                };
+                dimFieldDisplaySettingDemoOrganization3_researchDatasets.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
+                    new BrFieldDisplaySettingsDimRegisteredDataSource()
+                    {
+                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3_researchDatasets.Id,
+                        DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
+                    }
+                );
+                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3_researchDatasets);
                 await _ttvContext.SaveChangesAsync();
 
                 // Add demo data
-                await _demoDataService.AddDemoDataToUserProfile(dimUserProfile);
+                await _demoDataService.AddDemoDataToUserProfile(orcidId, dimUserProfile);
                 await _userProfileService.AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
             }
 
@@ -252,8 +322,11 @@ namespace api.Controllers
         }
 
 
-        // Delete profile
+        /// <summary>
+        /// Delete user profile.
+        /// </summary>
         [HttpDelete]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Delete()
         {
             // Get ORCID id.
@@ -268,8 +341,22 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
+            // Remove cached profile data response. Cache key is ORCID ID.
+            _cache.Remove(orcidId);
+
+            // Remove entry from Elasticsearch index in a background task.
+            _backgroundElasticsearchPersonUpdateQueue.QueueBackgroundWorkItem(async token =>
+            {
+                _logger.LogInformation($"Background task for removing {orcidId} from Elasticsearch person index started at {DateTime.UtcNow}");
+                // Update Elasticsearch person index.
+                await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+                _logger.LogInformation($"Background task for removing {orcidId} from Elasticseach person index ended at {DateTime.UtcNow}");
+            });
+
+
             // Get DimUserProfile and related data that should be removed. 
             var dimUserProfile = await _ttvContext.DimUserProfiles
+                .Include(dup => dup.DimUserChoices)
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
                 .Include(dup => dup.FactFieldValues)
@@ -294,9 +381,14 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimKeyword).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimKeyword)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchDataset)
+                .FirstOrDefaultAsync(up => up.Id == userprofileId);
 
-            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
+            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == -1))
             {
                 // DimAffiliation. In demo version the related DimOrganization is removed.
                 if (ffv.DimAffiliationId != -1)
@@ -315,7 +407,8 @@ namespace api.Controllers
                     {
                         _ttvContext.DimOrganizations.Remove(dimOrganization);
                     }
-                } else
+                }
+                else
                 {
                     // Always remove FactFieldValue
                     _ttvContext.FactFieldValues.Remove(ffv);
@@ -325,15 +418,6 @@ namespace api.Controllers
                 if (ffv.DimPidIdOrcidPutCode != -1)
                 {
                     _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
-                }
-
-                // DimName
-                if (ffv.DimNameId != -1)
-                {
-                    if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimNames.Remove(ffv.DimName);
-                    }
                 }
 
                 // DimPid
@@ -408,6 +492,43 @@ namespace api.Controllers
                         _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
                     }
                 }
+
+                // DimResarchDataset
+                else if (ffv.DimResearchDatasetId != -1)
+                {
+                    if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimResearchDatasets.Remove(ffv.DimResearchDataset);
+                    }
+
+                    // DEMO: remove test data from FactContribution
+                    var factContributions = await _ttvContext.FactContributions.Where(fc => fc.DimResearchDatasetId == ffv.DimResearchDatasetId && fc.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
+                    foreach (FactContribution fc in factContributions)
+                    {
+                        _ttvContext.FactContributions.Remove(fc);
+                        _ttvContext.Entry(fc).State = EntityState.Deleted;
+                    }
+
+                    // DEMO: remove test data from DimPids
+                    var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && dp.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
+                    foreach (DimPid dp in dimPids)
+                    {
+                        _ttvContext.DimPids.Remove(dp);
+                        _ttvContext.Entry(dp).State = EntityState.Deleted;
+                    }
+                }
+            }
+            await _ttvContext.SaveChangesAsync();
+
+
+            // Remove DimName
+            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId != -1))
+            {
+                _ttvContext.FactFieldValues.Remove(ffv);
+                if (ffv.DimName.SourceId == Constants.SourceIdentifiers.DEMO)
+                {
+                    _ttvContext.DimNames.Remove(ffv.DimName);
+                }
             }
             await _ttvContext.SaveChangesAsync();
 
@@ -420,14 +541,18 @@ namespace api.Controllers
             // Remove DimFieldDisplaySettings
             _ttvContext.DimFieldDisplaySettings.RemoveRange(dimUserProfile.DimFieldDisplaySettings);
 
+            // Remove cooperation user choices
+            _ttvContext.DimUserChoices.RemoveRange(dimUserProfile.DimUserChoices);
+
             // Remove DimUserProfile
             _ttvContext.DimUserProfiles.Remove(dimUserProfile);
 
             // Must not remove DimKnownPerson.
-            // Must not remove DimPid.
+            // Must not remove DimPid (ORCID ID).
 
             await _ttvContext.SaveChangesAsync();
 
+            // Log deletion
             _logger.LogInformation(this.GetLogPrefix() + " profile deleted");
 
             return Ok(new ApiResponse(success: true));

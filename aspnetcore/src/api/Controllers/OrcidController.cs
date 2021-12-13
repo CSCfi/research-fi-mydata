@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -25,23 +26,30 @@ namespace api.Controllers
         private readonly UserProfileService _userProfileService;
         private readonly OrcidApiService _orcidApiService;
         private readonly OrcidJsonParserService _orcidJsonParserService;
+        private readonly UtilityService _utilityService;
         private readonly ILogger<OrcidController> _logger;
 
-        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger)
+        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger, UtilityService utilityService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
             _orcidJsonParserService = orcidJsonParserService;
+            _utilityService = utilityService;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Trigger backend to get ORCID record and save data into TTV database.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         // TODO: Currently adding and updating ORCID data works, but detecting deleted ORCID data and deleting them is TTV database is not implemented.
         public async Task<IActionResult> Get()
         {
             // Get ORCID id.
             var orcidId = this.GetOrcidId();
+
             // Log request.
             _logger.LogInformation(this.GetLogPrefix() + " get ORCID data request");
 
@@ -57,7 +65,7 @@ namespace api.Controllers
             var json = await _orcidApiService.GetRecord(orcidId);
 
             // Get DimUserProfile and related entities
-            var dimUserProfile = await _ttvContext.DimUserProfiles
+            var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
                 .Include(dup => dup.FactFieldValues)
@@ -106,17 +114,15 @@ namespace api.Controllers
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimWebLink)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimKeyword).AsSplitQuery().FirstOrDefaultAsync(up => up.Id == userprofileId);
+                    .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync();
 
-            // Get DimKnownPerson
-            var dimKnownPerson = await _ttvContext.DimKnownPeople
-                .Include(dkp => dkp.DimNameDimKnownPersonIdConfirmedIdentityNavigations).AsSplitQuery().AsNoTracking().FirstOrDefaultAsync(dkp => dkp.Id == dimUserProfile.DimKnownPersonId);
 
             // Get ORCID registered data source id
             var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
 
+
+            // Get current DateTime
+            DateTime currentDateTime = _utilityService.getCurrentDateTime();
 
             // Must use "Constants.SourceIdentifiers.ORCID" as value for "FactFieldValue.SourceId". It is used to identify what data can be deleted when userprofile is deleted.
 
@@ -124,18 +130,19 @@ namespace api.Controllers
             // Name
             var dimFieldDisplaySettingsName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsName => dimFieldDisplaysettingsName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME && dimFieldDisplaysettingsName.SourceId == Constants.SourceIdentifiers.ORCID);
             // FactFieldValues
-            var factFieldValuesName = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesName => factFieldValuesName.DimFieldDisplaySettingsId == dimFieldDisplaySettingsName.Id);
+            var factFieldValuesName = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsName);
             if (factFieldValuesName != null)
             {
                 // Update existing DimName
                 var dimName = factFieldValuesName.DimName;
                 dimName.LastName = _orcidJsonParserService.GetFamilyName(json).Value;
                 dimName.FirstNames = _orcidJsonParserService.GetGivenNames(json).Value;
-                dimName.Modified = DateTime.Now;
+                dimName.Modified = _utilityService.getCurrentDateTime();
                 _ttvContext.Entry(dimName).State = EntityState.Modified;
                 // Update existing FactFieldValue
-                factFieldValuesName.Modified = DateTime.Now;
-                await _ttvContext.SaveChangesAsync();
+                factFieldValuesName.Show = true; // ORCID name is selected by default.
+                factFieldValuesName.Modified = currentDateTime;
+                _ttvContext.Entry(factFieldValuesName).State = EntityState.Modified;
             }
             else
             {
@@ -144,23 +151,24 @@ namespace api.Controllers
                 {
                     LastName = _orcidJsonParserService.GetFamilyName(json).Value,
                     FirstNames = _orcidJsonParserService.GetGivenNames(json).Value,
-                    DimKnownPersonIdConfirmedIdentity = dimKnownPerson.Id,
+                    DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                     DimKnownPersonidFormerNames = -1,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
+                    Created = currentDateTime,
+                    Modified = currentDateTime,
                     DimRegisteredDataSourceId = orcidRegisteredDataSourceId
                 };
                 _ttvContext.DimNames.Add(dimName);
-                await _ttvContext.SaveChangesAsync();
 
                 factFieldValuesName = _userProfileService.GetEmptyFactFieldValueOrcid();
-                factFieldValuesName.DimUserProfileId = dimUserProfile.Id;
-                factFieldValuesName.DimFieldDisplaySettingsId = dimFieldDisplaySettingsName.Id;
-                factFieldValuesName.DimNameId = dimName.Id;
+                factFieldValuesName.DimUserProfile = dimUserProfile;
+                factFieldValuesName.DimFieldDisplaySettings = dimFieldDisplaySettingsName;
+                factFieldValuesName.DimName = dimName;
+                factFieldValuesName.Show = true;
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
-                await _ttvContext.SaveChangesAsync();
             }
+
 
 
             // Other names
@@ -175,11 +183,11 @@ namespace api.Controllers
                     // Update existing DimName
                     var dimName_otherName = factFieldValuesOtherName.DimName;
                     dimName_otherName.FullName = otherName.Value;
-                    dimName_otherName.Modified = DateTime.Now;
+                    dimName_otherName.Modified = currentDateTime;
                     _ttvContext.Entry(dimName_otherName).State = EntityState.Modified;
                     // Update existing FactFieldValue
-                    factFieldValuesOtherName.Modified = DateTime.Now;
-                    await _ttvContext.SaveChangesAsync();
+                    factFieldValuesOtherName.Modified = currentDateTime;
+                    _ttvContext.Entry(factFieldValuesOtherName).State = EntityState.Modified;
                 }
                 else
                 {
@@ -187,38 +195,37 @@ namespace api.Controllers
                     var dimName_otherName = new DimName()
                     {
                         FullName = otherName.Value,
-                        DimKnownPersonIdConfirmedIdentity = dimKnownPerson.Id,
+                        DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                         DimKnownPersonidFormerNames = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimNames.Add(dimName_otherName);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Add other name ORCID put code into DimPid
                     var dimPidOrcidPutCodeOtherName = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeOtherName.PidContent = otherName.PutCode.GetDbValue();
                     dimPidOrcidPutCodeOtherName.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeOtherName.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeOtherName.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeOtherName.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeOtherName);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Get DimFieldDisplaySettings for other name
                     var dimFieldDisplaySettingsOtherName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES && dfdsWebLink.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for other name
                     factFieldValuesOtherName = _userProfileService.GetEmptyFactFieldValueOrcid();
-                    factFieldValuesOtherName.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesOtherName.DimFieldDisplaySettingsId = dimFieldDisplaySettingsOtherName.Id;
-                    factFieldValuesOtherName.DimNameId = dimName_otherName.Id;
-                    factFieldValuesOtherName.DimPidIdOrcidPutCode = dimPidOrcidPutCodeOtherName.Id;
+                    factFieldValuesOtherName.DimUserProfile = dimUserProfile;
+                    factFieldValuesOtherName.DimFieldDisplaySettings = dimFieldDisplaySettingsOtherName;
+                    factFieldValuesOtherName.DimName = dimName_otherName;
+                    factFieldValuesOtherName.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeOtherName;
                     _ttvContext.FactFieldValues.Add(factFieldValuesOtherName);
-                    await _ttvContext.SaveChangesAsync();
                 }
             }
+
 
 
             // Researcher urls
@@ -234,13 +241,12 @@ namespace api.Controllers
                     var dimWebLink = factFieldValuesWebLink.DimWebLink;
                     dimWebLink.Url = researchUrl.Url;
                     dimWebLink.LinkLabel = researchUrl.UrlName;
-                    dimWebLink.Modified = DateTime.Now;
+                    dimWebLink.Modified = currentDateTime;
                     _ttvContext.Entry(dimWebLink).State = EntityState.Modified;
 
                     // Update existing FactFieldValue
-                    factFieldValuesWebLink.Modified = DateTime.Now;
-
-                    await _ttvContext.SaveChangesAsync();
+                    factFieldValuesWebLink.Modified = currentDateTime;
+                    _ttvContext.Entry(factFieldValuesWebLink).State = EntityState.Modified;
                 }
                 else
                 {
@@ -250,38 +256,38 @@ namespace api.Controllers
                         Url = researchUrl.Url,
                         LinkLabel = researchUrl.UrlName,
                         DimOrganizationId = -1,
-                        DimKnownPersonId = dimKnownPerson.Id,
+                        DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                         DimCallProgrammeId = -1,
                         DimFundingDecisionId = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now,
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimWebLinks.Add(dimWebLink);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Add web link ORCID put code into DimPid
                     var dimPidOrcidPutCodeWebLink = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeWebLink.PidContent = researchUrl.PutCode.GetDbValue();
                     dimPidOrcidPutCodeWebLink.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeWebLink.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeWebLink.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeWebLink.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeWebLink);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Get DimFieldDisplaySettings for weblink
                     var dimFieldDisplaySettingsWebLink = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK && dfdsWebLink.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for weblink
                     factFieldValuesWebLink = _userProfileService.GetEmptyFactFieldValueOrcid();
-                    factFieldValuesWebLink.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesWebLink.DimFieldDisplaySettingsId = dimFieldDisplaySettingsWebLink.Id;
-                    factFieldValuesWebLink.DimWebLinkId = dimWebLink.Id;
-                    factFieldValuesWebLink.DimPidIdOrcidPutCode = dimPidOrcidPutCodeWebLink.Id;
+                    factFieldValuesWebLink.DimUserProfile = dimUserProfile;
+                    factFieldValuesWebLink.DimFieldDisplaySettings = dimFieldDisplaySettingsWebLink;
+                    factFieldValuesWebLink.DimWebLink = dimWebLink;
+                    factFieldValuesWebLink.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeWebLink;
                     _ttvContext.FactFieldValues.Add(factFieldValuesWebLink);
-                    await _ttvContext.SaveChangesAsync();
                 }
             }
+
+
 
             // Researcher description
             var biography = _orcidJsonParserService.GetBiography(json);
@@ -291,7 +297,7 @@ namespace api.Controllers
                     "",
                     _orcidJsonParserService.GetBiography(json).Value,
                     "",
-                    dimKnownPerson.Id,
+                    dimUserProfile.DimKnownPersonId,
                     orcidRegisteredDataSourceId
                 );
 
@@ -299,21 +305,22 @@ namespace api.Controllers
                 var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.SourceId == Constants.SourceIdentifiers.ORCID);
 
                 // Researcher description: FactFieldValues
-                var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesResearcherDescription => factFieldValuesResearcherDescription.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
+                var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
                 if (factFieldValuesResearcherDescription == null)
                 {
                     factFieldValuesResearcherDescription = _userProfileService.GetEmptyFactFieldValueOrcid();
-                    factFieldValuesResearcherDescription.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesResearcherDescription.DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id;
-                    factFieldValuesResearcherDescription.DimResearcherDescriptionId = dimResearcherDescription.Id;
+                    factFieldValuesResearcherDescription.DimUserProfile = dimUserProfile;
+                    factFieldValuesResearcherDescription.DimFieldDisplaySettings = dimFieldDisplaySettingsResearcherDescription;
+                    factFieldValuesResearcherDescription.DimResearcherDescription = dimResearcherDescription;
                     _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
                 }
                 else
                 {
-                    factFieldValuesResearcherDescription.Modified = DateTime.Now;
+                    factFieldValuesResearcherDescription.Modified = currentDateTime;
+                    _ttvContext.Entry(factFieldValuesResearcherDescription).State = EntityState.Modified;
                 }
-                await _ttvContext.SaveChangesAsync();
             }
+
 
 
             // Email
@@ -323,7 +330,7 @@ namespace api.Controllers
                 // Email: DimEmailAddrressess
                 var dimEmailAddress = await _userProfileService.AddOrUpdateDimEmailAddress(
                     email.Value,
-                    dimKnownPerson.Id,
+                    dimUserProfile.DimKnownPersonId,
                     orcidRegisteredDataSourceId
                 );
 
@@ -331,21 +338,23 @@ namespace api.Controllers
                 var dimFieldDisplaySettingsEmailAddress = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS && dimFieldDisplaySettingsEmailAddress.SourceId == Constants.SourceIdentifiers.ORCID);
 
                 // Email: FactFieldValues
-                var factFieldValuesEmailAddress = dimUserProfile.FactFieldValues.FirstOrDefault(factFieldValuesEmailAddress => factFieldValuesEmailAddress.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id);
+                var factFieldValuesEmailAddress = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id);
                 if (factFieldValuesEmailAddress == null)
                 {
                     factFieldValuesEmailAddress = _userProfileService.GetEmptyFactFieldValueOrcid();
-                    factFieldValuesEmailAddress.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesEmailAddress.DimFieldDisplaySettingsId = dimFieldDisplaySettingsEmailAddress.Id;
-                    factFieldValuesEmailAddress.DimEmailAddrressId = dimEmailAddress.Id;
+                    factFieldValuesEmailAddress.DimUserProfile = dimUserProfile;
+                    factFieldValuesEmailAddress.DimFieldDisplaySettings = dimFieldDisplaySettingsEmailAddress;
+                    factFieldValuesEmailAddress.DimEmailAddrress = dimEmailAddress;
                     _ttvContext.FactFieldValues.Add(factFieldValuesEmailAddress);
                 }
                 else
                 {
-                    factFieldValuesEmailAddress.Modified = DateTime.Now;
+                    factFieldValuesEmailAddress.Modified = currentDateTime;
+                    _ttvContext.Entry(factFieldValuesEmailAddress).State = EntityState.Modified;
                 }
-                await _ttvContext.SaveChangesAsync();
             }
+
+
 
             // Keyword
             var keywords = _orcidJsonParserService.GetKeywords(json);
@@ -363,11 +372,11 @@ namespace api.Controllers
                     // Update existing DimKeyword
                     var dimKeyword = factFieldValuesKeyword.DimKeyword;
                     dimKeyword.Keyword = keyword.Value;
-                    dimKeyword.Modified = DateTime.Now;
+                    dimKeyword.Modified = currentDateTime;
                     _ttvContext.Entry(dimKeyword).State = EntityState.Modified;
                     // Update existing FactFieldValue
-                    factFieldValuesKeyword.Modified = DateTime.Now;
-                    await _ttvContext.SaveChangesAsync();
+                    factFieldValuesKeyword.Modified = currentDateTime;
+                    _ttvContext.Entry(factFieldValuesKeyword).State = EntityState.Modified;
                 }
                 else
                 {
@@ -378,28 +387,26 @@ namespace api.Controllers
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimKeywords.Add(dimKeyword);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Add keyword ORCID put code into DimPid
                     var dimPidOrcidPutCodeKeyword = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeKeyword.PidContent = keyword.PutCode.GetDbValue();
                     dimPidOrcidPutCodeKeyword.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeKeyword.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeKeyword.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeKeyword.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeKeyword);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Create FactFieldValues for keyword
                     factFieldValuesKeyword = _userProfileService.GetEmptyFactFieldValueOrcid();
-                    factFieldValuesKeyword.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesKeyword.DimFieldDisplaySettingsId = dimFieldDisplaySettingsKeyword.Id;
-                    factFieldValuesKeyword.DimKeywordId = dimKeyword.Id;
-                    factFieldValuesKeyword.DimPidIdOrcidPutCode = dimPidOrcidPutCodeKeyword.Id;
+                    factFieldValuesKeyword.DimUserProfile = dimUserProfile;
+                    factFieldValuesKeyword.DimFieldDisplaySettings = dimFieldDisplaySettingsKeyword;
+                    factFieldValuesKeyword.DimKeyword = dimKeyword;
+                    factFieldValuesKeyword.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeKeyword;
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
-                    await _ttvContext.SaveChangesAsync();
                 }
                 processedKeywordFactFieldValues.Add(factFieldValuesKeyword);
             }
@@ -412,7 +419,6 @@ namespace api.Controllers
                     _ttvContext.DimKeywords.Remove(ffvKeyword.DimKeyword);
                 }
             }
-            await _ttvContext.SaveChangesAsync();
 
 
 
@@ -431,11 +437,11 @@ namespace api.Controllers
                     var dimPid = factFieldValuesExternalIdentifier.DimPid;
                     dimPid.PidContent = externalIdentifier.ExternalIdValue;
                     dimPid.PidType = externalIdentifier.ExternalIdType;
-                    dimPid.Modified = DateTime.Now;
+                    dimPid.Modified = currentDateTime;
                     _ttvContext.Entry(dimPid).State = EntityState.Modified;
                     // Update existing FactFieldValue
-                    factFieldValuesExternalIdentifier.Modified = DateTime.Now;
-                    await _ttvContext.SaveChangesAsync();
+                    factFieldValuesExternalIdentifier.Modified = currentDateTime;
+                    _ttvContext.Entry(factFieldValuesExternalIdentifier).State = EntityState.Modified;
                 }
                 else
                 {
@@ -443,28 +449,25 @@ namespace api.Controllers
                     var dimPid = _userProfileService.GetEmptyDimPid();
                     dimPid.PidContent = externalIdentifier.ExternalIdValue;
                     dimPid.PidType = externalIdentifier.ExternalIdType;
-                    dimPid.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPid.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPid.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPid);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Add ORCID put code into DimPid
                     var dimPidOrcidPutCodeExternalIdentifier = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeExternalIdentifier.PidContent = externalIdentifier.PutCode.GetDbValue();
                     dimPidOrcidPutCodeExternalIdentifier.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeExternalIdentifier.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeExternalIdentifier.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeExternalIdentifier.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeExternalIdentifier);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Create FactFieldValues for external identifier
                     factFieldValuesExternalIdentifier = _userProfileService.GetEmptyFactFieldValueOrcid();
-                    factFieldValuesExternalIdentifier.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesExternalIdentifier.DimFieldDisplaySettingsId = dimFieldDisplaySettingsExternalIdentifier.Id;
-                    factFieldValuesExternalIdentifier.DimPidId = dimPid.Id;
-                    factFieldValuesExternalIdentifier.DimPidIdOrcidPutCode = dimPidOrcidPutCodeExternalIdentifier.Id;
+                    factFieldValuesExternalIdentifier.DimUserProfile = dimUserProfile;
+                    factFieldValuesExternalIdentifier.DimFieldDisplaySettings = dimFieldDisplaySettingsExternalIdentifier;
+                    factFieldValuesExternalIdentifier.DimPid = dimPid;
+                    factFieldValuesExternalIdentifier.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeExternalIdentifier;
                     _ttvContext.FactFieldValues.Add(factFieldValuesExternalIdentifier);
-                    await _ttvContext.SaveChangesAsync();
                 }
             }
 
@@ -488,10 +491,10 @@ namespace api.Controllers
                         Day = education.StartDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimDates.Add(startDate);
-                    await _ttvContext.SaveChangesAsync();
                 }
                
                 // End date
@@ -505,10 +508,10 @@ namespace api.Controllers
                         Day = education.EndDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimDates.Add(endDate);
-                    await _ttvContext.SaveChangesAsync();
                 }
 
                 if (factFieldValuesEducation != null)
@@ -517,15 +520,15 @@ namespace api.Controllers
                     var dimEducation = factFieldValuesEducation.DimEducation; 
                     dimEducation.NameEn = education.RoleTitle;
                     dimEducation.DegreeGrantingInstitutionName = education.OrganizationName;
-                    dimEducation.DimStartDate = startDate.Id;
-                    dimEducation.DimEndDate = endDate.Id;
+                    dimEducation.DimStartDateNavigation = startDate;
+                    dimEducation.DimEndDateNavigation = endDate;
+                    dimEducation.Modified = currentDateTime;
                     _ttvContext.Entry(dimEducation).State = EntityState.Modified;
-                    dimEducation.Modified = DateTime.Now;
 
                     // Update existing FactFieldValue
-                    factFieldValuesEducation.Modified = DateTime.Now;
+                    factFieldValuesEducation.Modified = currentDateTime;
+                    _ttvContext.Entry(factFieldValuesEducation).State = EntityState.Modified;
 
-                    await _ttvContext.SaveChangesAsync();
                 }
                 else
                 {
@@ -534,39 +537,38 @@ namespace api.Controllers
                     {
                         NameEn = education.RoleTitle,
                         DegreeGrantingInstitutionName = education.OrganizationName,
-                        DimStartDate = startDate.Id,
-                        DimEndDate = endDate.Id,
+                        DimStartDateNavigation = startDate,
+                        DimEndDateNavigation = endDate,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimKnownPersonId = dimKnownPerson.Id,
+                        DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimEducations.Add(dimEducation);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Add education ORCID put code into DimPid
                     var dimPidOrcidPutCodeEducation = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeEducation.PidContent = education.PutCode.GetDbValue();
                     dimPidOrcidPutCodeEducation.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeEducation.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeEducation.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeEducation.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeEducation);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Get DimFieldDisplaySettings for education
                     var dimFieldDisplaySettingsEducation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsEducation => dfdsEducation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION && dfdsEducation.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for education
                     factFieldValuesEducation = _userProfileService.GetEmptyFactFieldValueOrcid();
-                    factFieldValuesEducation.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesEducation.DimFieldDisplaySettingsId = dimFieldDisplaySettingsEducation.Id;
-                    factFieldValuesEducation.DimEducationId = dimEducation.Id;
-                    factFieldValuesEducation.DimPidIdOrcidPutCode = dimPidOrcidPutCodeEducation.Id;
+                    factFieldValuesEducation.DimUserProfile = dimUserProfile;
+                    factFieldValuesEducation.DimFieldDisplaySettings = dimFieldDisplaySettingsEducation;
+                    factFieldValuesEducation.DimEducation = dimEducation;
+                    factFieldValuesEducation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeEducation;
                     _ttvContext.FactFieldValues.Add(factFieldValuesEducation);
-                    await _ttvContext.SaveChangesAsync();
                 }
             }
+
 
 
             // Employment (Affiliation in Ttv database)
@@ -588,10 +590,10 @@ namespace api.Controllers
                         Day = employment.StartDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimDates.Add(startDate);
-                    await _ttvContext.SaveChangesAsync();
                 }
 
                 // End date
@@ -605,10 +607,10 @@ namespace api.Controllers
                         Day = employment.EndDate.Day,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimDates.Add(endDate);
-                    await _ttvContext.SaveChangesAsync();
                 }
 
                 // TODO: DimOrganization handling
@@ -618,10 +620,10 @@ namespace api.Controllers
                     // Update existing DimAffiliation
                     var dimAffiliation = factFieldValuesAffiliation.DimAffiliation;
                     dimAffiliation.PositionNameEn = employment.RoleTitle;
-                    dimAffiliation.StartDate = startDate.Id;
-                    dimAffiliation.EndDate = endDate.Id;
+                    dimAffiliation.StartDateNavigation = startDate;
+                    dimAffiliation.EndDateNavigation = endDate;
                     _ttvContext.Entry(dimAffiliation).State = EntityState.Modified;
-                    dimAffiliation.Modified = DateTime.Now;
+                    dimAffiliation.Modified = currentDateTime;
 
                     // Update related DimOrganization
                     // TODO: DimOrganization handling
@@ -630,66 +632,67 @@ namespace api.Controllers
                     _ttvContext.Entry(dimOrganization).State = EntityState.Modified;
 
                     // Update existing FactFieldValue
-                    factFieldValuesAffiliation.Modified = DateTime.Now;
-
-                    await _ttvContext.SaveChangesAsync();
+                    factFieldValuesAffiliation.Modified = currentDateTime;
+                    _ttvContext.Entry(factFieldValuesAffiliation).State = EntityState.Modified;
                 }
                 else
                 {
-                    // Create new related DimOrganization
+                    // Create new related DimOrganization.
+                    // For demo: include department name in field NameUnd.
                     // TODO: DimOrganization handling
                     var dimOrganization = new DimOrganization()
                     {
                         DimSectorid = -1,
                         NameEn = employment.OrganizationName,
+                        NameUnd = employment.DepartmentName, // TODO: this is a temporary solution for demo.
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
 
                     _ttvContext.DimOrganizations.Add(dimOrganization);
-                    await _ttvContext.SaveChangesAsync();
 
 
                     // Create new DimAffiliation
                     var dimAffiliation = new DimAffiliation()
                     {
-                        DimOrganizationId = dimOrganization.Id,
-                        StartDate = startDate.Id,
-                        EndDate = endDate.Id,
+                        DimOrganization = dimOrganization,
+                        StartDateNavigation = startDate,
+                        EndDateNavigation = endDate,
                         PositionNameEn = employment.RoleTitle,
                         AffiliationType = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimKnownPersonId = dimKnownPerson.Id,
+                        DimKnownPersonId = dimUserProfile.DimKnownPersonId,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = DateTime.Now
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimAffiliations.Add(dimAffiliation);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Add employment (=affiliation) ORCID put code into DimPid
                     var dimPidOrcidPutCodeEmployment = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodeEmployment.PidContent = employment.PutCode.GetDbValue();
                     dimPidOrcidPutCodeEmployment.PidType = "ORCID put code";
-                    dimPidOrcidPutCodeEmployment.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodeEmployment.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeEmployment.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeEmployment);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Get DimFieldDisplaySettings for affiliation
                     var dimFieldDisplaySettingsAffiliation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsAffiliation => dfdsAffiliation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION && dfdsAffiliation.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for affiliation
                     factFieldValuesAffiliation = _userProfileService.GetEmptyFactFieldValueOrcid();
-                    factFieldValuesAffiliation.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesAffiliation.DimFieldDisplaySettingsId = dimFieldDisplaySettingsAffiliation.Id;
-                    factFieldValuesAffiliation.DimAffiliationId = dimAffiliation.Id;
-                    factFieldValuesAffiliation.DimPidIdOrcidPutCode = dimPidOrcidPutCodeEmployment.Id;
+                    factFieldValuesAffiliation.DimUserProfile = dimUserProfile;
+                    factFieldValuesAffiliation.DimFieldDisplaySettings = dimFieldDisplaySettingsAffiliation;
+                    factFieldValuesAffiliation.DimAffiliation = dimAffiliation;
+                    factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeEmployment;
                     _ttvContext.FactFieldValues.Add(factFieldValuesAffiliation);
-                    await _ttvContext.SaveChangesAsync();
                 }
             }
+            
 
 
             // Publication
@@ -707,11 +710,11 @@ namespace api.Controllers
                     dimOrcidPublication.PublicationName = orcidPublication.PublicationName;
                     dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
                     dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
-                    dimOrcidPublication.Modified = DateTime.Now;
+                    dimOrcidPublication.Modified = currentDateTime;
                     _ttvContext.Entry(dimOrcidPublication).State = EntityState.Modified;
                     // Update existing FactFieldValue
-                    factFieldValuesPublication.Modified = DateTime.Now;
-                    await _ttvContext.SaveChangesAsync();
+                    factFieldValuesPublication.Modified = currentDateTime;
+                    _ttvContext.Entry(factFieldValuesPublication).State = EntityState.Modified;
                 }
                 else
                 {
@@ -723,32 +726,31 @@ namespace api.Controllers
                     dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
                     dimOrcidPublication.SourceId = Constants.SourceIdentifiers.ORCID;
                     dimOrcidPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    dimOrcidPublication.Created = DateTime.Now;
+                    dimOrcidPublication.Created = currentDateTime;
                     _ttvContext.DimOrcidPublications.Add(dimOrcidPublication);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Add publication's ORCID put code into DimPid
                     var dimPidOrcidPutCodePublication = _userProfileService.GetEmptyDimPid();
                     dimPidOrcidPutCodePublication.PidContent = orcidPublication.PutCode.GetDbValue();
                     dimPidOrcidPutCodePublication.PidType = "ORCID put code";
-                    dimPidOrcidPutCodePublication.DimKnownPersonId = dimKnownPerson.Id;
+                    dimPidOrcidPutCodePublication.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodePublication.SourceId = Constants.SourceIdentifiers.ORCID;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodePublication);
-                    await _ttvContext.SaveChangesAsync();
 
                     // Get DimFieldDisplaySettings for orcid publication
-                    var dimFieldDisplaySettingsPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION && dfdsPublication.SourceId == Constants.SourceIdentifiers.ORCID);
+                    var dimFieldDisplaySettingsOrcidPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID && dfdsPublication.SourceId == Constants.SourceIdentifiers.ORCID);
 
                     // Create FactFieldValues for orcid publication
                     factFieldValuesPublication = _userProfileService.GetEmptyFactFieldValueOrcid();
-                    factFieldValuesPublication.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuesPublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
-                    factFieldValuesPublication.DimOrcidPublicationId = dimOrcidPublication.Id;
-                    factFieldValuesPublication.DimPidIdOrcidPutCode = dimPidOrcidPutCodePublication.Id;
+                    factFieldValuesPublication.DimUserProfile = dimUserProfile;
+                    factFieldValuesPublication.DimFieldDisplaySettings = dimFieldDisplaySettingsOrcidPublication;
+                    factFieldValuesPublication.DimOrcidPublication = dimOrcidPublication;
+                    factFieldValuesPublication.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
                     _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
-                    await _ttvContext.SaveChangesAsync();
                 }
             }
+            
+            await _ttvContext.SaveChangesAsync();
 
             _logger.LogInformation(this.GetLogPrefix() + " get ORCID data success");
 

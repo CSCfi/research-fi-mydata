@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using api.Models;
-
-namespace api.Models
+﻿namespace api.Models.ProfileEditor
 {
     public partial class ProfileEditorItemFieldOfScience : ProfileEditorItem
     {

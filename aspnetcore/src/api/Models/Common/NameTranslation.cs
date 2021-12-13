@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using api.Models;
-
-namespace api.Models
+﻿namespace api.Models.Common
 {
-    public partial class ProfileEditorSourceOrganization
+    public partial class NameTranslation
     {
-        public ProfileEditorSourceOrganization()
+        public NameTranslation()
         {
             NameFi = "";
             NameEn = "";

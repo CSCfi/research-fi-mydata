@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Models;
 using api.Models.Ttv;
+using api.Models.Elasticsearch;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Services
@@ -14,10 +15,12 @@ namespace api.Services
     public class UserProfileService
     {
         private readonly TtvContext _ttvContext;
+        private readonly UtilityService _utilityService;
 
-        public UserProfileService(TtvContext ttvContext)
+        public UserProfileService(TtvContext ttvContext, UtilityService utilityService)
         {
             _ttvContext = ttvContext;
+            _utilityService = utilityService;
         }
 
         /*
@@ -30,21 +33,28 @@ namespace api.Services
         }
 
         /*
-         * Get id of DimUserProfile.
+         * Get Id of DimUserProfile based on ORCID Id in DimPid.
          */
         public async Task<int> GetUserprofileId(String orcidId)
         {
-            var dimPid = await _ttvContext.DimPids
-                .Include(i => i.DimKnownPerson)
-                    .ThenInclude(kp => kp.DimUserProfiles).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
+            // Use raw SQL query.
+            var userProfileSql = $@"SELECT dup.*
+                                    FROM dim_user_profile AS dup
+                                    INNER JOIN dim_known_person AS dkp
+                                    ON dup.dim_known_person_id = dkp.id
+                                    INNER JOIN dim_pid AS dp
+                                    ON dkp.id=dp.dim_known_person_id
+                                    WHERE dp.pid_type='ORCID' AND dp.pid_content='{orcidId}'";
 
-            if (dimPid == null || dimPid.DimKnownPerson == null || dimPid.DimKnownPerson.DimUserProfiles.Count() == 0)
+            var dimUserProfile = await _ttvContext.DimUserProfiles.FromSqlRaw(userProfileSql).AsNoTracking().FirstOrDefaultAsync();
+
+            if (dimUserProfile == null)
             {
                 return -1;
             }
             else
             {
-                return dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault().Id;
+                return dimUserProfile.Id;
             }
         }
 
@@ -54,20 +64,28 @@ namespace api.Services
          */
         public async Task<int> GetOrcidOrganizationId()
         {
-            var orcidOrganization = await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameEn == "ORCID");
+            var orcidOrganizationName = "ORCID";
+
+            // Use raw SQL query.
+            var orcidOrganizationSql = $"SELECT * FROM dim_organization WHERE name_en='{orcidOrganizationName}'";
+
+            var orcidOrganization = await _ttvContext.DimOrganizations.FromSqlRaw(orcidOrganizationSql).AsNoTracking().FirstOrDefaultAsync();
+
+            // TODO: creation of ORCID organization should not be necessary when the database is properly populated. Remove this at some point?
             if (orcidOrganization == null)
             {
                 orcidOrganization = new DimOrganization()
                 {
                     DimSectorid = -1,
-                    OrganizationId = "ORCID",
+                    OrganizationId = orcidOrganizationName,
                     OrganizationActive = true,
-                    NameFi = "ORCID",
-                    NameEn = "ORCID",
-                    NameSv = "ORCID",
+                    NameFi = orcidOrganizationName,
+                    NameEn = orcidOrganizationName,
+                    NameSv = orcidOrganizationName,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(orcidOrganization);
@@ -87,7 +105,13 @@ namespace api.Services
         public async Task<int> GetOrcidRegisteredDataSourceId()
         {
             var orcidDatasourceName = "ORCID";
-            var orcidRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(p => p.Name == orcidDatasourceName);
+
+            // Use raw SQL query.
+            var orcidDatasourceSql = $"SELECT * FROM dim_registered_data_source WHERE name='{orcidDatasourceName}'";
+
+            var orcidRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.FromSqlRaw(orcidDatasourceSql).AsNoTracking().FirstOrDefaultAsync();
+
+            // TODO: creation of ORCID data source should not be necessary when the database is properly populated. Remove this at some point?
             if (orcidRegisteredDataSource == null)
             {
                 // Get ORCID organization
@@ -99,7 +123,8 @@ namespace api.Services
                     Name = orcidDatasourceName,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime()
                 };
                 _ttvContext.DimRegisteredDataSources.Add(orcidRegisteredDataSource);
                 await _ttvContext.SaveChangesAsync();
@@ -143,7 +168,8 @@ namespace api.Services
                     DimKnownPersonidFormerNames = -1,
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
                 _ttvContext.DimNames.Add(dimName);
@@ -152,7 +178,7 @@ namespace api.Services
             {
                 dimName.LastName = lastName;
                 dimName.FirstNames = firstNames;
-                dimName.Modified = DateTime.Now;
+                dimName.Modified = _utilityService.getCurrentDateTime();
             }
             await _ttvContext.SaveChangesAsync();
             return dimName;
@@ -173,7 +199,8 @@ namespace api.Services
                     ResearchDescriptionSv = description_sv,
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
                     DimKnownPersonId = dimKnownPersonId,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
@@ -184,7 +211,7 @@ namespace api.Services
                 dimResearcherDescription.ResearchDescriptionFi = description_fi;
                 dimResearcherDescription.ResearchDescriptionEn = description_en;
                 dimResearcherDescription.ResearchDescriptionSv = description_sv;
-                dimResearcherDescription.Modified = DateTime.Now;
+                dimResearcherDescription.Modified = _utilityService.getCurrentDateTime();
             }
             await _ttvContext.SaveChangesAsync();
             return dimResearcherDescription;
@@ -203,7 +230,8 @@ namespace api.Services
                     Email = emailAddress,
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = DateTime.Now,
+                    Created = _utilityService.getCurrentDateTime(),
+                    Modified = _utilityService.getCurrentDateTime(),
                     DimKnownPersonId = dimKnownPersonId,
                     DimRegisteredDataSourceId = dimRegisteredDataSourceId
                 };
@@ -211,7 +239,7 @@ namespace api.Services
             }
             else
             {
-                dimEmailAddress.Modified = DateTime.Now;
+                dimEmailAddress.Modified = _utilityService.getCurrentDateTime();
             }
             await _ttvContext.SaveChangesAsync();
             return dimEmailAddress;
@@ -247,12 +275,13 @@ namespace api.Services
                 DimAffiliationId = -1,
                 DimResearcherToResearchCommunityId = -1,
                 DimFieldOfScienceId = -1,
+                DimResearchDatasetId = -1,
                 Show = false,
                 PrimaryValue = false,
                 SourceId = " ",
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now,
-                Modified = null
+                Created = _utilityService.getCurrentDateTime(),
+                Modified = _utilityService.getCurrentDateTime()
             };
         }
 
@@ -349,7 +378,8 @@ namespace api.Services
                 DimOrcidPublicationId = -1,
                 SourceId = " ",
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                Created = DateTime.Now
+                Created = _utilityService.getCurrentDateTime(),
+                Modified = _utilityService.getCurrentDateTime()
             };
         }
 
@@ -441,7 +471,8 @@ namespace api.Services
                             Show = false,
                             SourceId = " ",
                             SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                            Created = DateTime.Now
+                            Created = _utilityService.getCurrentDateTime(),
+                            Modified = _utilityService.getCurrentDateTime()
                         };
                         dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
                             new BrFieldDisplaySettingsDimRegisteredDataSource()

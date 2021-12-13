@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using api.Models;
-
-namespace api.Models
+﻿using api.Models.Common;
+namespace api.Models.ProfileEditor
 {
     public partial class ProfileEditorSource
     {
@@ -12,6 +9,6 @@ namespace api.Models
 
         public int Id { get; set; }
         public string RegisteredDataSource { get; set; }
-        public ProfileEditorSourceOrganization Organization { get; set; }
+        public Organization Organization { get; set; }
     }
 }

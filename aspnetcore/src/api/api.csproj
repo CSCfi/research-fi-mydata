@@ -6,19 +6,39 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Api' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\net5.0\api.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\net5.0\api.xml</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.11">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.11" />
+    <PackageReference Include="NEST" Version="7.15.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Models\Orcid\" />
     <Folder Include="Services\" />
     <Folder Include="Models\ProfileEditor\" />
+    <Folder Include="Models\Elasticsearch\" />
+    <Folder Include="Background\" />
+    <Folder Include="Models\Api\" />
+    <Folder Include="Models\Common\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="NEST" />
+    <None Remove="Models\Elasticsearch\" />
+    <None Remove="Background\" />
+    <None Remove="Models\Api\" />
+    <None Remove="Models\Common\" />
   </ItemGroup>
 </Project>

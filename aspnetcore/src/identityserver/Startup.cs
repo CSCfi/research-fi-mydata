@@ -12,13 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System;
 using System.Linq;
-using System.Security.Claims;
 using IdentityModel;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using System.Reflection;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
@@ -27,6 +23,7 @@ using identityserver.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using System.Collections.Generic;
 
 namespace identityserver
 {
@@ -56,7 +53,6 @@ namespace identityserver
             services.AddControllersWithViews();
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                // options.UseSqlite(connectionString));
                 options.UseSqlServer(connectionString));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -73,9 +69,6 @@ namespace identityserver
                 // see https://identityserver4.readthedocs.io/en/latest/topics/resources.html
                 options.EmitStaticAudienceClaim = true;
             })
-                //.AddInMemoryIdentityResources(Config.IdentityResources)
-                //.AddInMemoryApiScopes(Config.ApiScopes)
-                //.AddInMemoryClients(Config.Clients)
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString,
@@ -88,7 +81,7 @@ namespace identityserver
                 })
                 .AddAspNetIdentity<ApplicationUser>();
 
-            // not recommended for production - you need to store your key material somewhere secure
+            // TODO: use AddSigningCredential() in production
             builder.AddDeveloperSigningCredential();
 
             services.AddAuthentication()
@@ -173,9 +166,9 @@ namespace identityserver
                     AllowedGrantTypes = GrantTypes.Code,
                     RequireClientSecret = false,
 
-                    RedirectUris = { Configuration["JavaScriptClient:Dev:RedirectUri"], Configuration["JavaScriptClient:Test:RedirectUri"] },
-                    PostLogoutRedirectUris = { Configuration["JavaScriptClient:Dev:PostLogoutRedirectUri"], Configuration["JavaScriptClient:Test:PostLogoutRedirectUri"] },
-                    AllowedCorsOrigins = { Configuration["JavaScriptClient:Dev:AllowedCorsOrigin"], Configuration["JavaScriptClient:Test:AllowedCorsOrigin"] },
+                    RedirectUris = Configuration.GetSection("JavaScriptClient:RedirectUris").Get<List<string>>(),
+                    PostLogoutRedirectUris = Configuration.GetSection("JavaScriptClient:PostLogoutRedirectUris").Get<List<string>>(),
+                    AllowedCorsOrigins = Configuration.GetSection("JavaScriptClient:AllowedCorsOrigins").Get<List<string>>(),
 
                     AllowedScopes =
                     {
