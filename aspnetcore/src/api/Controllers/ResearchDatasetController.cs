@@ -52,6 +52,12 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "invalid request data"));
             }
 
+            // Return immediately if there is nothing to add
+            if (profileEditorResearchdatasetToAdd.Count == 0)
+            {
+                return Ok(new ApiResponse(success: false, reason: "nothing to add"));
+            }
+
             // Get userprofile
             var orcidId = this.GetOrcidId();
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
@@ -163,6 +169,12 @@ namespace api.Controllers
             if (!ModelState.IsValid)
             {
                 return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+            }
+
+            // Return immediately if there is nothing to remove
+            if (localIdentifiers.Count == 0)
+            {
+                return Ok(new ApiResponse(success: false, reason: "nothing to remove"));
             }
 
             // Get id of userprofile

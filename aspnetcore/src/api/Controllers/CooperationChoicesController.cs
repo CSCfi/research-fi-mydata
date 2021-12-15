@@ -47,11 +47,12 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponseCooperationGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
-            // Check that user profile exists.
+            // Get userprofile
             var orcidId = this.GetOrcidId();
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
+                // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
@@ -127,10 +128,15 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> PatchMany([FromBody] List<ProfileEditorCooperationItem> profileEditorCooperationItems)
         {
-            // Return immediately if there is nothing to change.
+            if (!ModelState.IsValid)
+            {
+                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+            }
+
+            // Return immediately if there is nothing to modify.
             if (profileEditorCooperationItems.Count == 0)
             {
-                return Ok(new ApiResponse(success: true));
+                return Ok(new ApiResponse(success: false, reason: "nothing to modify"));
             }
 
             // Check that user profile exists.
