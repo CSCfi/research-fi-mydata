@@ -9,7 +9,6 @@ namespace api.Models.Ttv
     {
         public DimRegisteredDataSource()
         {
-            BrFieldDisplaySettingsDimRegisteredDataSources = new HashSet<BrFieldDisplaySettingsDimRegisteredDataSource>();
             DimAffiliations = new HashSet<DimAffiliation>();
             DimCallProgrammes = new HashSet<DimCallProgramme>();
             DimCompetences = new HashSet<DimCompetence>();
@@ -28,6 +27,7 @@ namespace api.Models.Ttv
             DimResearcherDescriptions = new HashSet<DimResearcherDescription>();
             DimResearcherToResearchCommunities = new HashSet<DimResearcherToResearchCommunity>();
             DimTelephoneNumbers = new HashSet<DimTelephoneNumber>();
+            FactFieldValues = new HashSet<FactFieldValue>();
         }
 
         public int Id { get; set; }
@@ -39,7 +39,6 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
 
         public virtual DimOrganization DimOrganization { get; set; }
-        public virtual ICollection<BrFieldDisplaySettingsDimRegisteredDataSource> BrFieldDisplaySettingsDimRegisteredDataSources { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
         public virtual ICollection<DimCallProgramme> DimCallProgrammes { get; set; }
         public virtual ICollection<DimCompetence> DimCompetences { get; set; }
@@ -58,5 +57,6 @@ namespace api.Models.Ttv
         public virtual ICollection<DimResearcherDescription> DimResearcherDescriptions { get; set; }
         public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; }
         public virtual ICollection<DimTelephoneNumber> DimTelephoneNumbers { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
     }
 }

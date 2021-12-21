@@ -139,17 +139,11 @@ namespace api.Services
         /*
          * Get id of Tiedejatutkimus.fi DimRegisteredDataSource.
          */
-        public async Task<int> GetTiedejatutkimusFiRegisteredDataSourceId()
+        public async Task<DimRegisteredDataSource?> GetTiedejatutkimusFiRegisteredDataSource()
         {
-            var tiedejatutkimusfiRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(p => p.Name == Constants.SourceIdentifiers.TIEDEJATUTKIMUS);
-            if (tiedejatutkimusfiRegisteredDataSource == null)
-            {
-                return -1;
-            }
-            else
-            {
-                return tiedejatutkimusfiRegisteredDataSource.Id;
-            }
+            var tiedejatutkimusfiRegisteredDataSource = await _ttvContext.DimRegisteredDataSources.Where(drds => drds.Name == Constants.SourceIdentifiers.TIEDEJATUTKIMUS)
+                                                                .Include(drds => drds.DimOrganization).AsNoTracking().FirstOrDefaultAsync();
+            return tiedejatutkimusfiRegisteredDataSource;
         }
 
         /*
@@ -165,7 +159,6 @@ namespace api.Services
                     LastName = lastName,
                     FirstNames = firstNames,
                     DimKnownPersonIdConfirmedIdentity = dimKnownPersonId,
-                    DimKnownPersonidFormerNames = -1,
                     SourceId = "",
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
@@ -435,12 +428,18 @@ namespace api.Services
              * NOTE! Data source for DimPublication must be taken from DimName, not from DimPublication.
              * Skip item if DimName does not have data source set.
              */
-            foreach (DimName dimName in dimKnownPerson.DimNameDimKnownPersonIdConfirmedIdentityNavigations)
+
+            // Get DimFieldDisplaySetting
+            // TODO: optimize case when dimKnownPerson.DimNames.Count == 0
+            var dimFieldDisplaySetting = await _ttvContext.DimFieldDisplaySettings.FirstOrDefaultAsync(dfds => dfds.DimUserProfileId == dimUserProfile.Id && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION);
+
+            foreach (DimName dimName in dimKnownPerson.DimNames)
             {
                 // Collect publication ids into a list.
                 var publicationsIds = new List<int>();
                 // Registered data source from DimName must be used as a publication data source.
                 var dimNameRegisteredDataSource = dimName.DimRegisteredDataSource;
+
 
                 // Skip if DimName does not have registered data source.
                 if (dimNameRegisteredDataSource != null)
@@ -451,41 +450,6 @@ namespace api.Services
                         publicationsIds.Add(factContribution.DimPublicationId);
                     }
 
-                    // Get DimFieldDisplaySetting for the registered data source.
-                    var dimFieldDisplaySetting = await _ttvContext.DimFieldDisplaySettings
-                        .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources).AsNoTracking()
-                            .FirstOrDefaultAsync(
-                                dfds =>
-                                    dfds.DimUserProfileId == dimUserProfile.Id &&
-                                    dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION &&
-                                    dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == dimNameRegisteredDataSource.Id
-                            );
-
-                    // If it was not found, then create DimFieldDisplaySetting for the registered data source.
-                    if (dimFieldDisplaySetting == null)
-                    {
-                        dimFieldDisplaySetting = new DimFieldDisplaySetting()
-                        {
-                            DimUserProfileId = dimUserProfile.Id,
-                            FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                            Show = false,
-                            SourceId = " ",
-                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                            Created = _utilityService.getCurrentDateTime(),
-                            Modified = _utilityService.getCurrentDateTime()
-                        };
-                        dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                            new BrFieldDisplaySettingsDimRegisteredDataSource()
-                            {
-                                DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
-                                DimRegisteredDataSourceId = dimNameRegisteredDataSource.Id
-                            }
-                        );
-                        _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
-
-                    }
-                    await _ttvContext.SaveChangesAsync();
-
                     // Add FactFieldValues for DimPublications
                     foreach (int publicationId in publicationsIds.Distinct())
                     {
@@ -493,6 +457,7 @@ namespace api.Services
                         factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
                         factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id;
                         factFieldValuePublication.DimPublicationId = publicationId;
+                        factFieldValuePublication.DimRegisteredDataSourceId = dimNameRegisteredDataSource.Id;
                         _ttvContext.FactFieldValues.Add(factFieldValuePublication);
                     }
                     await _ttvContext.SaveChangesAsync();

@@ -9,7 +9,6 @@ namespace api.Models.Ttv
     {
         public DimFieldDisplaySetting()
         {
-            BrFieldDisplaySettingsDimRegisteredDataSources = new HashSet<BrFieldDisplaySettingsDimRegisteredDataSource>();
             FactFieldValues = new HashSet<FactFieldValue>();
         }
 
@@ -23,7 +22,6 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
 
         public virtual DimUserProfile DimUserProfile { get; set; }
-        public virtual ICollection<BrFieldDisplaySettingsDimRegisteredDataSource> BrFieldDisplaySettingsDimRegisteredDataSources { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
     }
 }

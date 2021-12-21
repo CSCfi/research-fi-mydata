@@ -810,13 +810,12 @@ namespace api.Services
             var sourceDescription = this.getSourceDescription(orcidId);
 
             // Name
-            var dimFieldDisplaySettings_name_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
+            var dimFieldDisplaySettings_name = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
             var dimNameOrganization1 = new DimName()
             {
                 FirstNames = "Tuisku",
                 LastName = "Tutkija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
-                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -825,13 +824,11 @@ namespace api.Services
             };
             _ttvContext.DimNames.Add(dimNameOrganization1);
 
-            var dimFieldDisplaySettings_name_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
             var dimNameOrganization2 = new DimName()
             {
                 FirstNames = "Ami",
                 LastName = "Asiantuntija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
-                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -842,23 +839,24 @@ namespace api.Services
 
             var factFieldValue_name_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_name_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_name_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_name_Organization1;
+            factFieldValue_name_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_name;
             factFieldValue_name_Organization1.DimName = dimNameOrganization1;
+            factFieldValue_name_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_name_Organization1);
             var factFieldValue_name_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_name_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_name_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_name_Organization2;
+            factFieldValue_name_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_name;
             factFieldValue_name_Organization2.DimName = dimNameOrganization2;
+            factFieldValue_name_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_name_Organization2);
 
 
             // Other names
-            var dimFieldDisplaySettings_othername_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
+            var dimFieldDisplaySettings_othername = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
             var dimOtherNameOrganization1_1 = new DimName()
             {
                 FullName = "T. Tutkija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
-                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -870,7 +868,6 @@ namespace api.Services
             {
                 FullName = "T.A. Tutkija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
-                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -878,12 +875,10 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimNames.Add(dimOtherNameOrganization1_2);
-            var dimFieldDisplaySettings_othername_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
             var dimOtherNameOrganization2 = new DimName()
             {
                 FullName = "Tuisku Tutkija",
                 DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
-                DimKnownPersonidFormerNames = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -893,30 +888,32 @@ namespace api.Services
             _ttvContext.DimNames.Add(dimOtherNameOrganization2);
             var factFieldValue_othername_Organization1_1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_othername_Organization1_1.DimUserProfile = dimUserProfile;
-            factFieldValue_othername_Organization1_1.DimFieldDisplaySettings = dimFieldDisplaySettings_othername_Organization1;
+            factFieldValue_othername_Organization1_1.DimFieldDisplaySettings = dimFieldDisplaySettings_othername;
             factFieldValue_othername_Organization1_1.DimName = dimOtherNameOrganization1_1;
+            factFieldValue_othername_Organization1_1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_othername_Organization1_1);
             var factFieldValue_othername_Organization1_2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_othername_Organization1_2.DimUserProfile = dimUserProfile;
-            factFieldValue_othername_Organization1_2.DimFieldDisplaySettings = dimFieldDisplaySettings_othername_Organization1;
+            factFieldValue_othername_Organization1_2.DimFieldDisplaySettings = dimFieldDisplaySettings_othername;
             factFieldValue_othername_Organization1_2.DimName = dimOtherNameOrganization1_2;
+            factFieldValue_othername_Organization1_2.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_othername_Organization1_2);
             var factFieldValue_othername_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_othername_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_othername_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_othername_Organization2;
+            factFieldValue_othername_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_othername;
             factFieldValue_othername_Organization2.DimName = dimOtherNameOrganization2;
+            factFieldValue_othername_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_othername_Organization2);
 
 
             // External identifiers (DimPid)
-            var dimFieldDisplaySettings_externalIdentifier_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
+            var dimFieldDisplaySettings_externalIdentifier = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
             var dimPid_Organization1 = _userProfileService.GetEmptyDimPid();
             dimPid_Organization1.PidContent = "O-2000-1000";
             dimPid_Organization1.PidType = "ResearcherID";
             dimPid_Organization1.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
             dimPid_Organization1.SourceId = Constants.SourceIdentifiers.DEMO;
             _ttvContext.DimPids.Add(dimPid_Organization1);
-            var dimFieldDisplaySettings_externalIdentifier_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
             var dimPid_Organization2 = _userProfileService.GetEmptyDimPid();
             dimPid_Organization2.PidContent = "https://isni.org/isni/0000000100020003";
             dimPid_Organization2.PidType = "ISNI";
@@ -927,18 +924,20 @@ namespace api.Services
             _ttvContext.DimPids.Add(dimPid_Organization2);
             var factFieldValue_externalIdentifier_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_externalIdentifier_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_externalIdentifier_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_externalIdentifier_Organization1;
+            factFieldValue_externalIdentifier_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_externalIdentifier;
             factFieldValue_externalIdentifier_Organization1.DimPid = dimPid_Organization1;
+            factFieldValue_externalIdentifier_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_externalIdentifier_Organization1);
             var factFieldValue_externalIdentifier_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_externalIdentifier_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_externalIdentifier_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_externalIdentifier_Organization2;
+            factFieldValue_externalIdentifier_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_externalIdentifier;
             factFieldValue_externalIdentifier_Organization2.DimPid = dimPid_Organization2;
+            factFieldValue_externalIdentifier_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_externalIdentifier_Organization2);
 
 
             // Researcher description
-            var dimFieldDisplaySettings_researcherDescription_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
+            var dimFieldDisplaySettings_researcherDescription = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
             var dimResearcherDescription_Organization1 = new DimResearcherDescription()
             {
                 ResearchDescriptionFi = "Tutkimuksen kuvausta suomeksi. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -952,7 +951,6 @@ namespace api.Services
                 Modified = currentDateTime
             };
             _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription_Organization1);
-            var dimFieldDisplaySettings_researcherDescription_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
             var dimResearcherDescription_Organization2 = new DimResearcherDescription()
             {
                 ResearchDescriptionFi = "Tutkimuksen kuvausta suomeksi. Duis finibus velit rutrum euismod scelerisque. Praesent sit amet fermentum ex. Donec vitae tellus eu nisl dignissim laoreet.",
@@ -966,18 +964,20 @@ namespace api.Services
             _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription_Organization2);
             var factFieldValue_researcherDescription_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_researcherDescription_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_researcherDescription_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_researcherDescription_Organization1;
+            factFieldValue_researcherDescription_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_researcherDescription;
             factFieldValue_researcherDescription_Organization1.DimResearcherDescription = dimResearcherDescription_Organization1;
+            factFieldValue_researcherDescription_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_researcherDescription_Organization1);
             var factFieldValue_researcherDescription_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_researcherDescription_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_researcherDescription_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_researcherDescription_Organization2;
+            factFieldValue_researcherDescription_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_researcherDescription;
             factFieldValue_researcherDescription_Organization2.DimResearcherDescription = dimResearcherDescription_Organization2;
+            factFieldValue_researcherDescription_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_researcherDescription_Organization2);
 
 
             // Keywords
-            var dimFieldDisplaySettings_keyword_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
+            var dimFieldDisplaySettings_keyword = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
             var dimKeyword1_Organization1 = new DimKeyword()
             {
                 Keyword = "digitalisaatio",
@@ -1018,7 +1018,6 @@ namespace api.Services
             _ttvContext.DimKeywords.Add(dimKeyword2_Organization1);
             _ttvContext.DimKeywords.Add(dimKeyword3_Organization1);
             _ttvContext.DimKeywords.Add(dimKeyword4_Organization1);
-            var dimFieldDisplaySettings_keyword_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
             var dimKeyword1_Organization2 = new DimKeyword()
             {
                 Keyword = "digitalization",
@@ -1063,74 +1062,85 @@ namespace api.Services
 
             var factFieldValue_keyword1_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword1_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_keyword1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization1;
+            factFieldValue_keyword1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword1_Organization1.DimKeyword = dimKeyword1_Organization1;
+            factFieldValue_keyword1_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword1_Organization1);
             var factFieldValue_keyword2_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword2_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_keyword2_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization1;
+            factFieldValue_keyword2_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword2_Organization1.DimKeyword = dimKeyword2_Organization1;
+            factFieldValue_keyword2_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword2_Organization1);
             var factFieldValue_keyword3_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword3_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_keyword3_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization1;
+            factFieldValue_keyword3_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword3_Organization1.DimKeyword = dimKeyword3_Organization1;
+            factFieldValue_keyword3_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword3_Organization1);
             var factFieldValue_keyword4_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword4_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_keyword4_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization1;
+            factFieldValue_keyword4_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword4_Organization1.DimKeyword = dimKeyword4_Organization1;
+            factFieldValue_keyword4_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword4_Organization1);
             var factFieldValue_keyword1_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword1_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_keyword1_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization2;
+            factFieldValue_keyword1_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword1_Organization2.DimKeyword = dimKeyword1_Organization2;
+            factFieldValue_keyword1_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword1_Organization2);
             var factFieldValue_keyword2_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword2_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_keyword2_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization2;
+            factFieldValue_keyword2_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword2_Organization2.DimKeyword = dimKeyword2_Organization2;
+            factFieldValue_keyword2_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword2_Organization2);
             var factFieldValue_keyword3_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword3_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_keyword3_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization2;
+            factFieldValue_keyword3_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword3_Organization2.DimKeyword = dimKeyword3_Organization2;
+            factFieldValue_keyword3_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword3_Organization2);
             var factFieldValue_keyword4_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword4_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_keyword4_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword_Organization2;
+            factFieldValue_keyword4_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword4_Organization2.DimKeyword = dimKeyword4_Organization2;
+            factFieldValue_keyword4_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword4_Organization2);
 
 
             // Fields of science org1
-            var dimFieldDisplaySettings_fieldOfScience_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
+            var dimFieldDisplaySettings_fieldOfScience = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
             var dimFieldOfScience1_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
             var dimFieldOfScience2_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
             var factFieldValue_fieldOfScience1_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fieldOfScience1_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_fieldOfScience1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience_Organization1;
+            factFieldValue_fieldOfScience1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience;
             factFieldValue_fieldOfScience1_Organization1.DimFieldOfScience = dimFieldOfScience1_Organization1;
+            factFieldValue_fieldOfScience1_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience1_Organization1);
             var factFieldValue_fieldOfScience2_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fieldOfScience2_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_fieldOfScience2_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience_Organization1;
+            factFieldValue_fieldOfScience2_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience;
             factFieldValue_fieldOfScience2_Organization1.DimFieldOfScience = dimFieldOfScience2_Organization1;
+            factFieldValue_fieldOfScience2_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience2_Organization1);
 
             // Fields of science org2
-            var dimFieldDisplaySettings_fieldOfScience_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
             var dimFieldOfScience1_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
             var dimFieldOfScience2_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
             var factFieldValue_fieldOfScience1_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fieldOfScience1_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_fieldOfScience1_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience_Organization2;
+            factFieldValue_fieldOfScience1_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience;
             factFieldValue_fieldOfScience1_Organization2.DimFieldOfScience = dimFieldOfScience1_Organization2;
+            factFieldValue_fieldOfScience1_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience1_Organization2);
             var factFieldValue_fieldOfScience2_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fieldOfScience2_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_fieldOfScience2_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience_Organization2;
+            factFieldValue_fieldOfScience2_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience;
             factFieldValue_fieldOfScience2_Organization2.DimFieldOfScience = dimFieldOfScience2_Organization2;
+            factFieldValue_fieldOfScience2_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience2_Organization2);
 
 
@@ -1165,7 +1175,7 @@ namespace api.Services
 
 
             // Email
-            var dimFieldDisplaySettings_email_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
+            var dimFieldDisplaySettings_email = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
             var dimEmail_Organization1 = new DimEmailAddrress()
             {
                 Email = "tuisku.tutkija@yliopisto.fi",
@@ -1177,7 +1187,6 @@ namespace api.Services
                 Modified = currentDateTime
             };
             _ttvContext.DimEmailAddrresses.Add(dimEmail_Organization1);
-            var dimFieldDisplaySettings_email_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
             var dimEmail_Organization2 = new DimEmailAddrress()
             {
                 Email = "ami.asiantuntija@tutkimuslaitos.fi",
@@ -1191,18 +1200,20 @@ namespace api.Services
             _ttvContext.DimEmailAddrresses.Add(dimEmail_Organization2);
             var factFieldValue_emails_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_emails_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_emails_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_email_Organization1;
+            factFieldValue_emails_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_email;
             factFieldValue_emails_Organization1.DimEmailAddrress = dimEmail_Organization1;
+            factFieldValue_emails_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_emails_Organization1);
             var factFieldValue_emails_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_emails_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_emails_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_email_Organization2;
+            factFieldValue_emails_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_email;
             factFieldValue_emails_Organization2.DimEmailAddrress = dimEmail_Organization2;
+            factFieldValue_emails_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_emails_Organization2);
 
 
             // Telephone number
-            var dimFieldDisplaySettings_telephone_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER);
+            var dimFieldDisplaySettings_telephone = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER);
             var dimTelephone_Organization1 = new DimTelephoneNumber()
             {
                 TelephoneNumber = "+35899999999",
@@ -1216,13 +1227,14 @@ namespace api.Services
             _ttvContext.DimTelephoneNumbers.Add(dimTelephone_Organization1);
             var factFieldValue_telephone_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_telephone_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_telephone_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_telephone_Organization1;
+            factFieldValue_telephone_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_telephone;
             factFieldValue_telephone_Organization1.DimTelephoneNumber = dimTelephone_Organization1;
+            factFieldValue_telephone_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_telephone_Organization1);
 
 
             // Web link
-            var dimFieldDisplaySettings_weblink_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK);
+            var dimFieldDisplaySettings_weblink = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK);
             var dimWeblink_Organization1 = new DimWebLink()
             {
                 Url = "https://tutkijanomaverkkosivu.yliopisto.fii",
@@ -1235,8 +1247,9 @@ namespace api.Services
             _ttvContext.DimWebLinks.Add(dimWeblink_Organization1);
             var factFieldValue_weblink_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_weblink_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_weblink_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_weblink_Organization1;
+            factFieldValue_weblink_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_weblink;
             factFieldValue_weblink_Organization1.DimWebLink = dimWeblink_Organization1;
+            factFieldValue_weblink_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_weblink_Organization1);
 
 
@@ -1246,7 +1259,7 @@ namespace api.Services
 
             // Affiliation - Organization1
             var affiliationType = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO && drd.NameFi == "Työsuhde");
-            var dimFieldDisplaySettings_affiliation_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
+            var dimFieldDisplaySettings_affiliation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
             var dimStartDate_affiliation_organization1 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2020 && dd.Month == 1 && dd.Day == 1);
             if (dimStartDate_affiliation_organization1 == null)
             {
@@ -1278,12 +1291,12 @@ namespace api.Services
             _ttvContext.DimAffiliations.Add(dimAffiliation_Organization1);
             var factFieldValue_affiliation_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_affiliation_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_affiliation_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_affiliation_Organization1;
+            factFieldValue_affiliation_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_affiliation;
             factFieldValue_affiliation_Organization1.DimAffiliation = dimAffiliation_Organization1;
+            factFieldValue_affiliation_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_affiliation_Organization1);
 
             // Affiliation - Organization2
-            var dimFieldDisplaySettings_affiliation_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
             var dimStartDate_affiliation_organization2 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2016 && dd.Month == 1 && dd.Day == 1);
             if (dimStartDate_affiliation_organization2 == null)
             {
@@ -1331,13 +1344,14 @@ namespace api.Services
             _ttvContext.DimAffiliations.Add(dimAffiliation_Organization2);
             var factFieldValue_affiliation_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_affiliation_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_affiliation_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_affiliation_Organization2;
+            factFieldValue_affiliation_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_affiliation;
             factFieldValue_affiliation_Organization2.DimAffiliation = dimAffiliation_Organization2;
+            factFieldValue_affiliation_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_affiliation_Organization2);
 
 
             // Education
-            var dimFieldDisplaySettings_education_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
+            var dimFieldDisplaySettings_education= dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
             var dimEndDate_education_organization2 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2011 && dd.Month == 0 && dd.Day == 0);
             if (dimEndDate_education_organization2 == null)
             {
@@ -1368,27 +1382,29 @@ namespace api.Services
             _ttvContext.DimEducations.Add(dimEducation_Organization2);
             var factFieldValue_education_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_education_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_education_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_education_Organization2;
+            factFieldValue_education_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_education;
             factFieldValue_education_Organization2.DimEducation = dimEducation_Organization2;
+            factFieldValue_education_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_education_Organization2);
 
 
             // Funding decision - Organization1
             var dimFundingDecision_Organization1 = await _ttvContext.DimFundingDecisions.FirstOrDefaultAsync(dfd => dfd.SourceId == Constants.SourceIdentifiers.DEMO && dfd.FunderProjectNumber == this.DemoFunderProjectNumber1);
-            var dimFieldDisplaySettings_fundingDecision_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
+            var dimFieldDisplaySettings_fundingDecision = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
             var factFieldValue_fundingDecision_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fundingDecision_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_fundingDecision_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fundingDecision_Organization1;
+            factFieldValue_fundingDecision_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fundingDecision;
             factFieldValue_fundingDecision_Organization1.DimFundingDecision = dimFundingDecision_Organization1;
+            factFieldValue_fundingDecision_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_fundingDecision_Organization1);
 
             // Funding decision - Organization2
             var dimFundingDecision_Organization2 = await _ttvContext.DimFundingDecisions.FirstOrDefaultAsync(dfd => dfd.SourceId == Constants.SourceIdentifiers.DEMO && dfd.FunderProjectNumber == this.DemoFunderProjectNumber2);
-            var dimFieldDisplaySettings_fundingDecision_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
             var factFieldValue_fundingDecision_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fundingDecision_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_fundingDecision_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fundingDecision_Organization2;
+            factFieldValue_fundingDecision_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fundingDecision;
             factFieldValue_fundingDecision_Organization2.DimFundingDecision = dimFundingDecision_Organization2;
+            factFieldValue_fundingDecision_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_fundingDecision_Organization2);
 
 
@@ -1408,8 +1424,8 @@ namespace api.Services
                     SourceDescription = sourceDescription,
                     Created = currentDateTime,
                     Modified = currentDateTime,
-                    DimRegisteredDataSourceId = this.GetOrganization1RegisteredDataSource().Id
-                };
+                    DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
+            };
             _ttvContext.DimResearchDatasets.Add(researchDataset_Organization1);
             await _ttvContext.SaveChangesAsync(); // Do not remove this, DimPid creation requires researchDataset_Organization1.Id to be defined.
 
@@ -1449,11 +1465,12 @@ namespace api.Services
             _ttvContext.FactContributions.Add(factContribution_researchDataset_Organization1);
 
             // Research dataset - Organization1 - FactFieldValue
-            var dimFieldDisplaySettings_researchDataset_Organization1 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization1Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
+            var dimFieldDisplaySettings_researchDataset = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
             var factFieldValue_researchDataset_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_researchDataset_Organization1.DimUserProfile = dimUserProfile;
-            factFieldValue_researchDataset_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_researchDataset_Organization1;
+            factFieldValue_researchDataset_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_researchDataset;
             factFieldValue_researchDataset_Organization1.DimResearchDataset = researchDataset_Organization1;
+            factFieldValue_researchDataset_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_researchDataset_Organization1);
 
 
@@ -1468,7 +1485,7 @@ namespace api.Services
                 SourceDescription = sourceDescription,
                 Created = _utilityService.getCurrentDateTime(),
                 Modified = _utilityService.getCurrentDateTime(),
-                DimRegisteredDataSourceId = this.GetOrganization2RegisteredDataSource().Id
+                DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimResearchDatasets.Add(researchDataset_Organization2);
             await _ttvContext.SaveChangesAsync(); // Do not remove this, DimPid creation requires researchDataset_Organization2.Id to be defined.
@@ -1509,11 +1526,11 @@ namespace api.Services
             _ttvContext.FactContributions.Add(factContribution_researchDataset_Organization2);
 
             // Research dataset - Organization2 - FactFieldValue
-            var dimFieldDisplaySettings_researchDataset_Organization2 = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.SourceId == Constants.SourceIdentifiers.DEMO && dfds.SourceDescription == this.DemoOrganization2Name && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
             var factFieldValue_researchDataset_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_researchDataset_Organization2.DimUserProfile = dimUserProfile;
-            factFieldValue_researchDataset_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_researchDataset_Organization2;
+            factFieldValue_researchDataset_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_researchDataset;
             factFieldValue_researchDataset_Organization2.DimResearchDataset = researchDataset_Organization2;
+            factFieldValue_researchDataset_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_researchDataset_Organization2);
 
             await _ttvContext.SaveChangesAsync();

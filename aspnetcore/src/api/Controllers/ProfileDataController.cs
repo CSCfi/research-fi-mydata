@@ -68,12 +68,80 @@ namespace api.Controllers
             {
                 return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
+/*
+            var factFieldValues = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId)
+                // DimFieldDisplaySettings
+                .Include(ffv => ffv.DimFieldDisplaySettings).AsNoTracking()
+                // DimRegisteredDataSource
+                .Include(ffv => ffv.DimRegisteredDataSource).AsNoTracking()
+                // DimName
+                .Include(ffv => ffv.DimName).AsNoTracking()
+                // DimWebLink
+                .Include(ffv => ffv.DimWebLink).AsNoTracking()
+                // DimFundingDecision
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(dfd => dfd.DimOrganizationIdFunderNavigation).AsNoTracking() // DimFundingDecision related DimOrganization (funder organization)
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(dfd => dfd.DimDateIdStartNavigation).AsNoTracking() // DimFundingDecision related start date (DimDate)
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(dfd => dfd.DimDateIdEndNavigation).AsNoTracking() // DimFundingDecision related end date (DimDate)
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(dfd => dfd.DimTypeOfFunding).AsNoTracking() // DimFundingDecision related DimTypeOfFunding
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(dfd => dfd.DimCallProgramme).AsNoTracking() // DimFundingDecision related DimCallProgramme
+                // DimPublication
+                .Include(ffv => ffv.DimPublication).AsNoTracking()
+                // DimPid
+                .Include(ffv => ffv.DimPid).AsNoTracking()
+                // DimPidIdOrcidPutCodeNavigation
+                .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation).AsNoTracking()
+                // DimResearchActivity
+                .Include(ffv => ffv.DimResearchActivity).AsNoTracking()
+                // DimEvent
+                .Include(ffv => ffv.DimEvent).AsNoTracking()
+                // DimEducation
+                .Include(ffv => ffv.DimEducation)
+                    .ThenInclude(de => de.DimStartDateNavigation).AsNoTracking()
+                .Include(ffv => ffv.DimEducation)
+                    .ThenInclude(de => de.DimEndDateNavigation).AsNoTracking()
+                // DimAffiliation
+                .Include(ffv => ffv.DimAffiliation)
+                    .ThenInclude(da => da.StartDateNavigation).AsNoTracking()
+                .Include(ffv => ffv.DimAffiliation)
+                    .ThenInclude(da => da.EndDateNavigation).AsNoTracking()
+                .Include(ffv => ffv.DimAffiliation)
+                    .ThenInclude(da => da.DimOrganization).AsNoTracking()
+                .Include(ffv => ffv.DimAffiliation)
+                    .ThenInclude(da => da.AffiliationTypeNavigation).AsNoTracking()
+                // DimCompetence
+                .Include(ffv => ffv.DimCompetence).AsNoTracking()
+                // DimResearchCommunity
+                .Include(ffv => ffv.DimResearchCommunity).AsNoTracking()
+                .Include(ffv => ffv.DimResearcherToResearchCommunity)
+                    .ThenInclude(drtrc => drtrc.DimResearchCommunity).AsNoTracking()
+                // DimTelephoneNumber
+                .Include(ffv => ffv.DimTelephoneNumber).AsNoTracking()
+                // DimEmailAddrress
+                .Include(ffv => ffv.DimEmailAddrress).AsNoTracking()
+                // DimResearcherDescription
+                .Include(ffv => ffv.DimResearcherDescription).AsNoTracking()
+                // DimIdentifierlessData
+                //.Include(ffv => ffv.DimIdentifierlessData).AsNoTracking() // TODO: update model to match SQL table
+                // DimOrcidPublication
+                .Include(ffv => ffv.DimOrcidPublication).AsNoTracking()
+                // DimKeyword
+                .Include(ffv => ffv.DimKeyword).AsNoTracking()
+                // DimFieldOfScience
+                .Include(ffv => ffv.DimFieldOfScience).AsNoTracking()
+                // DimResearchDataset
+                .Include(ffv => ffv.DimResearchDataset).AsNoTracking().FirstOrDefaultAsync();
+        */
 
 
             // Get DimFieldDisplaySettings and related entities
             var dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
-                .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
-                    .ThenInclude(br => br.DimRegisteredDataSource)
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 // DimName
                 .Include(dfds => dfds.FactFieldValues)
@@ -697,7 +765,7 @@ namespace api.Controllers
                                     PublicationId = ffv.DimPublication.PublicationId,
                                     PublicationName = ffv.DimPublication.PublicationName,
                                     PublicationYear = ffv.DimPublication.PublicationYear,
-                                    Doi = ffv.DimPublication.Doi,
+                                    Doi = ffv.DimPublication.DoiHandle,
                                     itemMeta = new ProfileEditorItemMeta()
                                     {
                                         Id = ffv.DimPublicationId,

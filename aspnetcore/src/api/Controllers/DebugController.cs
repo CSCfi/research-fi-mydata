@@ -107,8 +107,8 @@ namespace api.Controllers
 
             // Get DimFieldDisplaySettings and related entities
             var dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
-                .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
-                    .ThenInclude(br => br.DimRegisteredDataSource)
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 // DimName
                 .Include(dfds => dfds.FactFieldValues)
@@ -223,7 +223,6 @@ namespace api.Controllers
                 // Source object containing registered data source and organization name.
                 var source = new ProfileEditorSource()
                 {
-                    Id = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
                     RegisteredDataSource = dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
                     Organization = new Organization()
                     {
@@ -732,7 +731,7 @@ namespace api.Controllers
                                     PublicationId = ffv.DimPublication.PublicationId,
                                     PublicationName = ffv.DimPublication.PublicationName,
                                     PublicationYear = ffv.DimPublication.PublicationYear,
-                                    Doi = ffv.DimPublication.Doi,
+                                    Doi = ffv.DimPublication.DoiHandle,
                                     itemMeta = new ProfileEditorItemMeta()
                                     {
                                         Id = ffv.DimPublicationId,

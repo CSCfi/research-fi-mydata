@@ -80,10 +80,10 @@ namespace api.Controllers
             // Also get related entities. Needed when searching existing data that should be automatically included in profile.
             var dimPid = await _ttvContext.DimPids
                 .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimNameDimKnownPersonIdConfirmedIdentityNavigations)
+                    .ThenInclude(dkp => dkp.DimNames)
                         .ThenInclude(dn => dn.FactContributions).AsNoTracking()
                 .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimNameDimKnownPersonIdConfirmedIdentityNavigations)
+                    .ThenInclude(dkp => dkp.DimNames)
                         .ThenInclude(dn => dn.DimRegisteredDataSource).AsNoTracking()
                 .Include(dp => dp.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimTelephoneNumbers)
@@ -147,14 +147,7 @@ namespace api.Controllers
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
                 await _ttvContext.SaveChangesAsync();
 
-
-                // Add DimFieldDisplaySettings for data sources ORCID and DEMO
-                var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
-                var demoOrganization1RegisteredDataSource = await _demoDataService.GetOrganization1RegisteredDataSourceAsync();
-                var demoOrganization2RegisteredDataSource = await _demoDataService.GetOrganization2RegisteredDataSourceAsync();
-                var demoOrganization3RegisteredDataSource = await _demoDataService.GetOrganization3RegisteredDataSourceAsync();
-
-                // TODO: Field identifiers used in demo. In production this list should be extended.
+                // TODO: Add missing field identifiers
                 var fieldIdentifiers = new List<int>
                 {
                     Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
@@ -174,7 +167,7 @@ namespace api.Controllers
                     Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET
                 };
 
-                // DimFieldDisplaySettings for ORCID registered data source
+                // Add DimFieldDisplaySettings
                 foreach (int fieldIdentifier in fieldIdentifiers)
                 {
                     var dimFieldDisplaySetting = new DimFieldDisplaySetting()
@@ -182,133 +175,15 @@ namespace api.Controllers
                         DimUserProfileId = dimUserProfile.Id,
                         FieldIdentifier = fieldIdentifier,
                         Show = false,
-                        SourceId = Constants.SourceIdentifiers.ORCID,
+                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = currentDateTime,
                         Modified = currentDateTime
                     };
-                    dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                        new BrFieldDisplaySettingsDimRegisteredDataSource()
-                        {
-                            DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
-                            DimRegisteredDataSourceId = orcidRegisteredDataSourceId
-                        }
-                    );
                     _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
                 }
                 await _ttvContext.SaveChangesAsync();
 
-
-                // DimFieldDisplaySettings for demo: Organization 1 registered data source
-                foreach (int fieldIdentifier in fieldIdentifiers)
-                {
-                    var dimFieldDisplaySetting = new DimFieldDisplaySetting()
-                    {
-                        DimUserProfileId = dimUserProfile.Id,
-                        FieldIdentifier = fieldIdentifier,
-                        Show = false,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
-                        SourceDescription = _demoDataService.GetDemoOrganization1Name(), // In demo must use Org1 name here
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                        new BrFieldDisplaySettingsDimRegisteredDataSource()
-                        {
-                            DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
-                            DimRegisteredDataSourceId = demoOrganization1RegisteredDataSource.Id
-                        }
-                    );
-                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
-                }
-                await _ttvContext.SaveChangesAsync();
-
-                // DimFieldDisplaySettings for demo: Organization 2 registered data source
-                foreach (int fieldIdentifier in fieldIdentifiers)
-                {
-                    var dimFieldDisplaySetting = new DimFieldDisplaySetting()
-                    {
-                        DimUserProfileId = dimUserProfile.Id,
-                        FieldIdentifier = fieldIdentifier,
-                        Show = false,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
-                        SourceDescription = _demoDataService.GetDemoOrganization2Name(), // In demo must use Org2 name here
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                        new BrFieldDisplaySettingsDimRegisteredDataSource()
-                        {
-                            DimFieldDisplaySettingsId = dimFieldDisplaySetting.Id,
-                            DimRegisteredDataSourceId = demoOrganization2RegisteredDataSource.Id
-                        }
-                    );
-                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
-                }
-                await _ttvContext.SaveChangesAsync();
-
-                // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) publications
-                var dimFieldDisplaySettingDemoOrganization3_publication = new DimFieldDisplaySetting()
-                {
-                    DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                    Show = false,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = currentDateTime,
-                    Modified = currentDateTime
-                };
-                dimFieldDisplaySettingDemoOrganization3_publication.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                    new BrFieldDisplaySettingsDimRegisteredDataSource()
-                    {
-                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3_publication.Id,
-                        DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
-                    }
-                );
-                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3_publication);
-                await _ttvContext.SaveChangesAsync();
-
-                // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) funding decisions
-                var dimFieldDisplaySettingDemoOrganization3_fundingDecision = new DimFieldDisplaySetting()
-                {
-                    DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
-                    Show = false,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = currentDateTime,
-                    Modified = currentDateTime
-                };
-                dimFieldDisplaySettingDemoOrganization3_fundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                    new BrFieldDisplaySettingsDimRegisteredDataSource()
-                    {
-                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3_fundingDecision.Id,
-                        DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
-                    }
-                );
-                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3_fundingDecision);
-                await _ttvContext.SaveChangesAsync();
-
-                // DimFieldDisplaySettings for demo: Organization 3 (Tiedejatutkimus.fi) research datasets
-                var dimFieldDisplaySettingDemoOrganization3_researchDatasets = new DimFieldDisplaySetting()
-                {
-                    DimUserProfileId = dimUserProfile.Id,
-                    FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
-                    Show = false,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = currentDateTime,
-                    Modified = currentDateTime
-                };
-                dimFieldDisplaySettingDemoOrganization3_researchDatasets.BrFieldDisplaySettingsDimRegisteredDataSources.Add(
-                    new BrFieldDisplaySettingsDimRegisteredDataSource()
-                    {
-                        DimFieldDisplaySettingsId = dimFieldDisplaySettingDemoOrganization3_researchDatasets.Id,
-                        DimRegisteredDataSourceId = demoOrganization3RegisteredDataSource.Id
-                    }
-                );
-                _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySettingDemoOrganization3_researchDatasets);
-                await _ttvContext.SaveChangesAsync();
 
                 // Add demo data
                 await _demoDataService.AddDemoDataToUserProfile(orcidId, dimUserProfile);
@@ -355,8 +230,9 @@ namespace api.Controllers
             // Get DimUserProfile and related data that should be removed. 
             var dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimUserChoices)
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimRegisteredDataSource)
+                        .ThenInclude(drds => drds.DimOrganization)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimName)
                 .Include(dup => dup.FactFieldValues)
@@ -529,12 +405,6 @@ namespace api.Controllers
                 }
             }
             await _ttvContext.SaveChangesAsync();
-
-            // Remove profile's DimFieldDisplaySettings relation to DimRegisteredDataSource
-            foreach (DimFieldDisplaySetting dimFieldDisplaySetting in dimUserProfile.DimFieldDisplaySettings)
-            {
-                _ttvContext.BrFieldDisplaySettingsDimRegisteredDataSources.RemoveRange(dimFieldDisplaySetting.BrFieldDisplaySettingsDimRegisteredDataSources);
-            }
 
             // Remove DimFieldDisplaySettings
             _ttvContext.DimFieldDisplaySettings.RemoveRange(dimUserProfile.DimFieldDisplaySettings);

@@ -152,7 +152,6 @@ namespace api.Controllers
                     LastName = _orcidJsonParserService.GetFamilyName(json).Value,
                     FirstNames = _orcidJsonParserService.GetGivenNames(json).Value,
                     DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
-                    DimKnownPersonidFormerNames = -1,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = currentDateTime,
@@ -196,7 +195,6 @@ namespace api.Controllers
                     {
                         FullName = otherName.Value,
                         DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
-                        DimKnownPersonidFormerNames = -1,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,

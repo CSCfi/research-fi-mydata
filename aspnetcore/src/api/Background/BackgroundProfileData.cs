@@ -38,8 +38,8 @@ namespace api.Services
 
             // Get DimFieldDisplaySettings and related entities
             var dimFieldDisplaySettings = await localTtvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Any(ffv => ffv.Show == true))
-                .Include(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
-                    .ThenInclude(br => br.DimRegisteredDataSource)
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 // DimName
                 .Include(dfds => dfds.FactFieldValues.Where(ffv => ffv.Show == true))
@@ -455,7 +455,7 @@ namespace api.Services
                                     PublicationId = ffv.DimPublication.PublicationId,
                                     PublicationName = ffv.DimPublication.PublicationName,
                                     PublicationYear = ffv.DimPublication.PublicationYear,
-                                    Doi = ffv.DimPublication.Doi,
+                                    Doi = ffv.DimPublication.DoiHandle,
                                     PrimaryValue = ffv.PrimaryValue
                                 }
 

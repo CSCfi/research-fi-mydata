@@ -31,6 +31,7 @@ namespace api.Models
             public const string ORCID = "ORCID";
             public const string DEMO = "DEMO";
             public const string TIEDEJATUTKIMUS = "Tiedejatutkimus.fi";
+            public const string PROFILE_API = "Profile API";
         }
 
         public static class SourceDescriptions
