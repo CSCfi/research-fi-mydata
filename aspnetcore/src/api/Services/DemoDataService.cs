@@ -982,6 +982,7 @@ namespace api.Services
             {
                 Keyword = "digitalisaatio",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
+                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -991,6 +992,7 @@ namespace api.Services
             {
                 Keyword = "aerosolit",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
+                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1000,6 +1002,7 @@ namespace api.Services
             {
                 Keyword = "sisätaudit",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
+                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1009,6 +1012,7 @@ namespace api.Services
             {
                 Keyword = "Suomen historia",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
+                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1022,6 +1026,7 @@ namespace api.Services
             {
                 Keyword = "digitalization",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
+                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1031,6 +1036,7 @@ namespace api.Services
             {
                 Keyword = "aerosols",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
+                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1040,6 +1046,7 @@ namespace api.Services
             {
                 Keyword = "internal medicine",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
+                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1049,6 +1056,7 @@ namespace api.Services
             {
                 Keyword = "history of Finland",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
+                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,

@@ -342,7 +342,8 @@ namespace api.Services
                 Created = null,
                 Modified = null,
                 OrcidPersonDataSource = -1,
-                DimRegisteredDataSourceId = -1
+                DimRegisteredDataSourceId = -1,
+                DimReferencedataid = -1
             };
         }
 
@@ -357,18 +358,6 @@ namespace api.Services
             {
                 PidContent = " ",
                 PidType = " ",
-                DimOrganizationId = -1,
-                DimKnownPersonId = -1,
-                DimPublicationId = -1,
-                DimServiceId = -1,
-                DimInfrastructureId = -1,
-                DimPublicationChannelId = -1,
-                DimResearchDatasetId = -1,
-                DimFundingDecisionId = -1,
-                DimResearchDataCatalogId = -1,
-                DimResearchActivityId = -1,
-                DimEventId = -1,
-                DimOrcidPublicationId = -1,
                 SourceId = " ",
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = _utilityService.getCurrentDateTime(),

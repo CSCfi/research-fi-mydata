@@ -66,6 +66,7 @@ namespace api.Controllers
 
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
+                .Include(dup => dup.DimFieldDisplaySettings)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization)
@@ -129,7 +130,7 @@ namespace api.Controllers
 
 
             // Name
-            var dimFieldDisplaySettingsName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsName => dimFieldDisplaysettingsName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME && dimFieldDisplaysettingsName.SourceId == Constants.SourceIdentifiers.ORCID);
+            var dimFieldDisplaySettingsName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsName => dimFieldDisplaysettingsName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
             // FactFieldValues
             var factFieldValuesName = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsName);
             if (factFieldValuesName != null)
@@ -214,7 +215,7 @@ namespace api.Controllers
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeOtherName);
 
                     // Get DimFieldDisplaySettings for other name
-                    var dimFieldDisplaySettingsOtherName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES && dfdsWebLink.SourceId == Constants.SourceIdentifiers.ORCID);
+                    var dimFieldDisplaySettingsOtherName = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
 
                     // Create FactFieldValues for other name
                     factFieldValuesOtherName = _userProfileService.GetEmptyFactFieldValueOrcid();
@@ -276,7 +277,7 @@ namespace api.Controllers
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeWebLink);
 
                     // Get DimFieldDisplaySettings for weblink
-                    var dimFieldDisplaySettingsWebLink = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK && dfdsWebLink.SourceId == Constants.SourceIdentifiers.ORCID);
+                    var dimFieldDisplaySettingsWebLink = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK);
 
                     // Create FactFieldValues for weblink
                     factFieldValuesWebLink = _userProfileService.GetEmptyFactFieldValueOrcid();
@@ -304,7 +305,7 @@ namespace api.Controllers
                 );
 
                 // Researcher description: DimFieldDisplaySettings
-                var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION && dimFieldDisplaySettingsResearcherDescription.SourceId == Constants.SourceIdentifiers.ORCID);
+                var dimFieldDisplaySettingsResearcherDescription = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
 
                 // Researcher description: FactFieldValues
                 var factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettingsId == dimFieldDisplaySettingsResearcherDescription.Id);
@@ -338,7 +339,7 @@ namespace api.Controllers
                 );
 
                 // Email: DimFieldDisplaySettings
-                var dimFieldDisplaySettingsEmailAddress = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS && dimFieldDisplaySettingsEmailAddress.SourceId == Constants.SourceIdentifiers.ORCID);
+                var dimFieldDisplaySettingsEmailAddress = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
 
                 // Email: FactFieldValues
                 var factFieldValuesEmailAddress = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettingsId == dimFieldDisplaySettingsEmailAddress.Id);
@@ -363,7 +364,7 @@ namespace api.Controllers
             // Keyword
             var keywords = _orcidJsonParserService.GetKeywords(json);
             // Get DimFieldDisplaySettings for keyword
-            var dimFieldDisplaySettingsKeyword = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD && dfdsKeyword.SourceId == Constants.SourceIdentifiers.ORCID);
+            var dimFieldDisplaySettingsKeyword = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
             // Collect list of processed FactFieldValues related to keyword. Needed when deleting keywords.
             var processedKeywordFactFieldValues = new List<FactFieldValue> ();
             foreach (OrcidKeyword keyword in keywords)
@@ -390,6 +391,7 @@ namespace api.Controllers
                         Keyword = keyword.Value,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        DimReferencedataIdLanguageCode = -1,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = currentDateTime,
                         Modified = currentDateTime
@@ -430,7 +432,7 @@ namespace api.Controllers
             // External identifier (=DimPid)
             var externalIdentifiers = _orcidJsonParserService.GetExternalIdentifiers(json);
             // Get DimFieldDisplaySettings for keyword
-            var dimFieldDisplaySettingsExternalIdentifier = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER && dfdsKeyword.SourceId == Constants.SourceIdentifiers.ORCID);
+            var dimFieldDisplaySettingsExternalIdentifier = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
             foreach (OrcidExternalIdentifier externalIdentifier in externalIdentifiers)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
@@ -563,7 +565,7 @@ namespace api.Controllers
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeEducation);
 
                     // Get DimFieldDisplaySettings for education
-                    var dimFieldDisplaySettingsEducation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsEducation => dfdsEducation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION && dfdsEducation.SourceId == Constants.SourceIdentifiers.ORCID);
+                    var dimFieldDisplaySettingsEducation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsEducation => dfdsEducation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
 
                     // Create FactFieldValues for education
                     factFieldValuesEducation = _userProfileService.GetEmptyFactFieldValueOrcid();
@@ -688,7 +690,7 @@ namespace api.Controllers
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeEmployment);
 
                     // Get DimFieldDisplaySettings for affiliation
-                    var dimFieldDisplaySettingsAffiliation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsAffiliation => dfdsAffiliation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION && dfdsAffiliation.SourceId == Constants.SourceIdentifiers.ORCID);
+                    var dimFieldDisplaySettingsAffiliation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsAffiliation => dfdsAffiliation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
 
                     // Create FactFieldValues for affiliation
                     factFieldValuesAffiliation = _userProfileService.GetEmptyFactFieldValueOrcid();
@@ -746,7 +748,7 @@ namespace api.Controllers
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodePublication);
 
                     // Get DimFieldDisplaySettings for orcid publication
-                    var dimFieldDisplaySettingsOrcidPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID && dfdsPublication.SourceId == Constants.SourceIdentifiers.ORCID);
+                    var dimFieldDisplaySettingsOrcidPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID);
 
                     // Create FactFieldValues for orcid publication
                     factFieldValuesPublication = _userProfileService.GetEmptyFactFieldValueOrcid();
