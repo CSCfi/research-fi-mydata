@@ -179,23 +179,25 @@ namespace api.Controllers
             foreach (DimFieldDisplaySetting dfds in dimFieldDisplaySettings)
             {
                 // Group FactFieldValues by DimRegisteredDataSourceId
-                var factFieldValues_GroupedBy_DataSourceId = dfds.FactFieldValues.GroupBy(ffv => ffv.DimRegisteredDataSource);
+                var factFieldValues_GroupedBy_DataSourceId = dfds.FactFieldValues.GroupBy(ffv => ffv.DimRegisteredDataSourceId);
 
                 // Loop groups
                 foreach (var factFieldValueGroup in factFieldValues_GroupedBy_DataSourceId)
                 {
+                    var dimRegisteredDataSource = factFieldValueGroup.First().DimRegisteredDataSource; 
+
                     // Organization name translation
                     var nameTranslationSourceOrganization = _languageService.getNameTranslation(
-                        nameFi: factFieldValueGroup.Key.DimOrganization.NameFi,
-                        nameEn: factFieldValueGroup.Key.DimOrganization.NameEn,
-                        nameSv: factFieldValueGroup.Key.DimOrganization.NameSv
+                        nameFi: dimRegisteredDataSource.DimOrganization.NameFi,
+                        nameEn: dimRegisteredDataSource.DimOrganization.NameEn,
+                        nameSv: dimRegisteredDataSource.DimOrganization.NameSv
                     );
 
                     // Source object containing registered data source and organization name.
                     var profileEditorSource = new ProfileEditorSource()
                     {
-                        Id = factFieldValueGroup.Key.Id, // Key = registered data source id
-                        RegisteredDataSource = factFieldValueGroup.Key.Name,
+                        Id = factFieldValueGroup.Key, // Key = registered data source id
+                        RegisteredDataSource = dimRegisteredDataSource.Name,
                         Organization = new Organization()
                         {
                             NameFi = nameTranslationSourceOrganization.NameFi,
