@@ -105,6 +105,10 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
+            // TODO: remove this after Ttv model update
+            return Ok(new ApiResponse(success: false, reason: "endpoint temporarily disabled"));
+
+            /*
             // Get DimFieldDisplaySettings and related entities
             var dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
                 .Include(dfds => dfds.FactFieldValues)
@@ -972,6 +976,7 @@ namespace api.Controllers
             }
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
+            */
         }
     }
 }

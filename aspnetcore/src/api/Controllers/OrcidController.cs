@@ -66,8 +66,9 @@ namespace api.Controllers
 
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
-                .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimRegisteredDataSource)
+                        .ThenInclude(drds => drds.DimOrganization)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimName)
                 .Include(dup => dup.FactFieldValues)
@@ -152,17 +153,18 @@ namespace api.Controllers
                     LastName = _orcidJsonParserService.GetFamilyName(json).Value,
                     FirstNames = _orcidJsonParserService.GetGivenNames(json).Value,
                     DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
+                    DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                     SourceId = Constants.SourceIdentifiers.ORCID,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = currentDateTime,
-                    Modified = currentDateTime,
-                    DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                    Modified = currentDateTime
                 };
                 _ttvContext.DimNames.Add(dimName);
-
+                // Create FactFieldValues for name
                 factFieldValuesName = _userProfileService.GetEmptyFactFieldValueOrcid();
                 factFieldValuesName.DimUserProfile = dimUserProfile;
                 factFieldValuesName.DimFieldDisplaySettings = dimFieldDisplaySettingsName;
+                factFieldValuesName.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                 factFieldValuesName.DimName = dimName;
                 factFieldValuesName.Show = true;
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
@@ -195,9 +197,9 @@ namespace api.Controllers
                     {
                         FullName = otherName.Value,
                         DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         SourceId = Constants.SourceIdentifiers.ORCID,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = currentDateTime,
                         Modified = currentDateTime
                     };
@@ -218,6 +220,7 @@ namespace api.Controllers
                     factFieldValuesOtherName = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesOtherName.DimUserProfile = dimUserProfile;
                     factFieldValuesOtherName.DimFieldDisplaySettings = dimFieldDisplaySettingsOtherName;
+                    factFieldValuesOtherName.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesOtherName.DimName = dimName_otherName;
                     factFieldValuesOtherName.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeOtherName;
                     _ttvContext.FactFieldValues.Add(factFieldValuesOtherName);
@@ -280,6 +283,7 @@ namespace api.Controllers
                     factFieldValuesWebLink.DimUserProfile = dimUserProfile;
                     factFieldValuesWebLink.DimFieldDisplaySettings = dimFieldDisplaySettingsWebLink;
                     factFieldValuesWebLink.DimWebLink = dimWebLink;
+                    factFieldValuesWebLink.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesWebLink.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeWebLink;
                     _ttvContext.FactFieldValues.Add(factFieldValuesWebLink);
                 }
@@ -309,6 +313,7 @@ namespace api.Controllers
                     factFieldValuesResearcherDescription = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesResearcherDescription.DimUserProfile = dimUserProfile;
                     factFieldValuesResearcherDescription.DimFieldDisplaySettings = dimFieldDisplaySettingsResearcherDescription;
+                    factFieldValuesResearcherDescription.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesResearcherDescription.DimResearcherDescription = dimResearcherDescription;
                     _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
                 }
@@ -342,6 +347,7 @@ namespace api.Controllers
                     factFieldValuesEmailAddress = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesEmailAddress.DimUserProfile = dimUserProfile;
                     factFieldValuesEmailAddress.DimFieldDisplaySettings = dimFieldDisplaySettingsEmailAddress;
+                    factFieldValuesEmailAddress.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesEmailAddress.DimEmailAddrress = dimEmailAddress;
                     _ttvContext.FactFieldValues.Add(factFieldValuesEmailAddress);
                 }
@@ -402,6 +408,7 @@ namespace api.Controllers
                     factFieldValuesKeyword = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesKeyword.DimUserProfile = dimUserProfile;
                     factFieldValuesKeyword.DimFieldDisplaySettings = dimFieldDisplaySettingsKeyword;
+                    factFieldValuesKeyword.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesKeyword.DimKeyword = dimKeyword;
                     factFieldValuesKeyword.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeKeyword;
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
@@ -463,6 +470,7 @@ namespace api.Controllers
                     factFieldValuesExternalIdentifier = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesExternalIdentifier.DimUserProfile = dimUserProfile;
                     factFieldValuesExternalIdentifier.DimFieldDisplaySettings = dimFieldDisplaySettingsExternalIdentifier;
+                    factFieldValuesExternalIdentifier.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesExternalIdentifier.DimPid = dimPid;
                     factFieldValuesExternalIdentifier.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeExternalIdentifier;
                     _ttvContext.FactFieldValues.Add(factFieldValuesExternalIdentifier);
@@ -561,6 +569,7 @@ namespace api.Controllers
                     factFieldValuesEducation = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesEducation.DimUserProfile = dimUserProfile;
                     factFieldValuesEducation.DimFieldDisplaySettings = dimFieldDisplaySettingsEducation;
+                    factFieldValuesEducation.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesEducation.DimEducation = dimEducation;
                     factFieldValuesEducation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeEducation;
                     _ttvContext.FactFieldValues.Add(factFieldValuesEducation);
@@ -685,6 +694,7 @@ namespace api.Controllers
                     factFieldValuesAffiliation = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesAffiliation.DimUserProfile = dimUserProfile;
                     factFieldValuesAffiliation.DimFieldDisplaySettings = dimFieldDisplaySettingsAffiliation;
+                    factFieldValuesAffiliation.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesAffiliation.DimAffiliation = dimAffiliation;
                     factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeEmployment;
                     _ttvContext.FactFieldValues.Add(factFieldValuesAffiliation);
@@ -742,6 +752,7 @@ namespace api.Controllers
                     factFieldValuesPublication = _userProfileService.GetEmptyFactFieldValueOrcid();
                     factFieldValuesPublication.DimUserProfile = dimUserProfile;
                     factFieldValuesPublication.DimFieldDisplaySettings = dimFieldDisplaySettingsOrcidPublication;
+                    factFieldValuesPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesPublication.DimOrcidPublication = dimOrcidPublication;
                     factFieldValuesPublication.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
                     _ttvContext.FactFieldValues.Add(factFieldValuesPublication);

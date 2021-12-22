@@ -94,7 +94,8 @@ namespace api.Services
             {
             };
 
-
+            // TODO
+            /*
             foreach (DimFieldDisplaySetting dfds in dimFieldDisplaySettings)
             {
                 // Name translation service ensures that none of the language fields is empty.
@@ -495,6 +496,7 @@ namespace api.Services
                         break;
                 }  
             }
+            */
             return person;
         }
     }
