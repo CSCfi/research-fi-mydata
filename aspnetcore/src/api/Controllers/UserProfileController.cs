@@ -229,6 +229,7 @@ namespace api.Controllers
 
             // Get DimUserProfile and related data that should be removed. 
             var dimUserProfile = await _ttvContext.DimUserProfiles
+                .Include(dup => dup.DimFieldDisplaySettings)
                 .Include(dup => dup.DimUserChoices)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
