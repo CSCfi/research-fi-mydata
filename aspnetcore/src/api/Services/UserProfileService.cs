@@ -468,7 +468,7 @@ namespace api.Services
 
 
 
-        public async Task<ProfileEditorDataResponse> GetProfileData(int userprofileId)
+        public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId)
         {
             // Get DimFieldDisplaySettings and related entities
             var dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)

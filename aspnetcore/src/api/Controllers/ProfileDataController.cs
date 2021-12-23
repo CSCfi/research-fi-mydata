@@ -70,7 +70,7 @@ namespace api.Controllers
             }
 
             // Get profile data
-            var profileDataResponse = await _userProfileService.GetProfileData(userprofileId);
+            var profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
 
             // Save response in cache
             var cacheEntryOptions = new MemoryCacheEntryOptions()
