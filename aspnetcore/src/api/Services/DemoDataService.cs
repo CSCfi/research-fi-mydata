@@ -83,45 +83,45 @@ namespace api.Services
 
         public DimOrganization GetOrganization1()
         {
-            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization1Name);
+            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && org.NameFi == this.DemoOrganization1Name);
         }
 
         public DimOrganization GetOrganization2()
         {
-            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization2Name);
+            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && org.NameFi == this.DemoOrganization2Name);
         }
 
         public DimOrganization GetOrganization3()
         {
-            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganization3Name);
+            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && org.NameFi == this.DemoOrganization3Name);
         }
 
         public DimOrganization GetOrganizationFunder1()
         {
-            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganizationFunder1Name);
+            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && org.NameFi == this.DemoOrganizationFunder1Name);
         }
 
         public DimOrganization GetOrganizationFunder2()
         {
-            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO && org.NameFi == this.DemoOrganizationFunder2Name);
+            return _ttvContext.DimOrganizations.FirstOrDefault(org => org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && org.NameFi == this.DemoOrganizationFunder2Name);
         }
 
         public DimRegisteredDataSource GetOrganization1RegisteredDataSource()
         {
             var organization1 = this.GetOrganization1();
-            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganization == organization1 && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganization == organization1 && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public DimRegisteredDataSource GetOrganization2RegisteredDataSource()
         {
             var organization2 = this.GetOrganization2();
-            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganization == organization2 && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganization == organization2 && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public DimRegisteredDataSource GetOrganization3RegisteredDataSource()
         {
             var organization3 = this.GetOrganization3();
-            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganization == organization3 && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefault(drds => drds.DimOrganization == organization3 && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public void AddOrganizations()
@@ -135,7 +135,7 @@ namespace api.Services
                 {
                     DimSectorid = -1,
                     NameFi = this.DemoOrganization1Name,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -152,7 +152,7 @@ namespace api.Services
                 {
                     DimSectorid = -1,
                     NameFi = this.DemoOrganization2Name,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -169,7 +169,7 @@ namespace api.Services
                 {
                     DimSectorid = -1,
                     NameFi = this.DemoOrganization3Name,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -186,7 +186,7 @@ namespace api.Services
                 {
                     DimSectorid = -1,
                     NameFi = this.DemoOrganizationFunder1Name,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -203,7 +203,7 @@ namespace api.Services
                 {
                     DimSectorid = -1,
                     NameFi = this.DemoOrganizationFunder2Name,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -229,7 +229,7 @@ namespace api.Services
                 {
                     Name = this.DemoOrganization1DataSourceName,
                     DimOrganization = organization1,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime()
@@ -246,7 +246,7 @@ namespace api.Services
                 {
                     Name = this.DemoOrganization2DataSourceName,
                     DimOrganization = organization2,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime()
@@ -263,7 +263,7 @@ namespace api.Services
                 {
                     Name = this.DemoOrganization3DataSourceName,
                     DimOrganization = organization3,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime()
@@ -279,7 +279,7 @@ namespace api.Services
         {
             _logger.LogInformation("DemoDataService: AddReferenceData");
 
-            var referenceData = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == "Työsuhde");
+            var referenceData = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dr.NameFi == "Työsuhde");
             if (referenceData == null)
             {
                 referenceData = new DimReferencedatum()
@@ -287,7 +287,7 @@ namespace api.Services
                     CodeScheme = "",
                     CodeValue = "",
                     NameFi = "Työsuhde",
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime()
@@ -299,7 +299,7 @@ namespace api.Services
 
             // Reference data actor roles
             // Creator
-            var referencedataActorRoleCreator = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.NameEn == "Creator" && dr.CodeScheme == "agentrole");
+            var referencedataActorRoleCreator = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.NameEn == "Creator" && dr.CodeScheme == "agentrole" && dr.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
             if (referencedataActorRoleCreator == null)
             {
                 _ttvContext.DimReferencedata.Add(
@@ -310,7 +310,7 @@ namespace api.Services
                         NameFi = "Tekijä",
                         NameSv = "Upphovsperson",
                         NameEn = "Creator",
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -318,7 +318,7 @@ namespace api.Services
                 );
             }
             // Publisher
-            var referencedataActorRolePublisher = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.NameEn == "Publisher" && dr.CodeScheme == "agentrole");
+            var referencedataActorRolePublisher = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.NameEn == "Publisher" && dr.CodeScheme == "agentrole" && dr.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
             if (referencedataActorRolePublisher == null)
             {
                 _ttvContext.DimReferencedata.Add(
@@ -329,7 +329,7 @@ namespace api.Services
                         NameFi = "Julkaisija",
                         NameSv = "Utgivare",
                         NameEn = "Publisher",
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -337,7 +337,7 @@ namespace api.Services
                 );
             }
             // Rights holder
-            var referencedataActorRoleRightsholder = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.NameEn == "Rights holder" && dr.CodeScheme == "agentrole");
+            var referencedataActorRoleRightsholder = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.NameEn == "Rights holder" && dr.CodeScheme == "agentrole" && dr.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
             if (referencedataActorRoleRightsholder == null)
             {
                 _ttvContext.DimReferencedata.Add(
@@ -348,7 +348,7 @@ namespace api.Services
                         NameFi = "Oikeuksienhaltija",
                         NameSv = "Rättighetsinnehavare",
                         NameEn = "Rights holder",
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -364,7 +364,7 @@ namespace api.Services
             var choice3NameFi = "Olen kiinnostunut yhteistyöstä yritysten kanssa";
             var choice4NameFi = "Olen kiinnostunut toimimaan tieteellisten julkaisujen vertaisarvioijana";
 
-            var referenceData_choice1 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == choice1NameFi);
+            var referenceData_choice1 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dr.NameFi == choice1NameFi);
             if (referenceData_choice1 == null)
             {
                 referenceData = new DimReferencedatum()
@@ -373,7 +373,7 @@ namespace api.Services
                     CodeValue = "",
                     NameFi = choice1NameFi,
                     NameEn = "I am interested in media contacts",
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime()
@@ -381,7 +381,7 @@ namespace api.Services
                 _ttvContext.DimReferencedata.Add(referenceData);
             }
 
-            var referenceData_choice2 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == choice2NameFi);
+            var referenceData_choice2 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dr.NameFi == choice2NameFi);
             if (referenceData_choice2 == null)
             {
                 referenceData = new DimReferencedatum()
@@ -390,7 +390,7 @@ namespace api.Services
                     CodeValue = "",
                     NameFi = choice2NameFi,
                     NameEn = "I am interested in cooperation with other researchers and research groups",
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime()
@@ -398,7 +398,7 @@ namespace api.Services
                 _ttvContext.DimReferencedata.Add(referenceData);
             }
 
-            var referenceData_choice3 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == choice3NameFi);
+            var referenceData_choice3 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dr.NameFi == choice3NameFi);
             if (referenceData_choice3 == null)
             {
                 referenceData = new DimReferencedatum()
@@ -407,7 +407,7 @@ namespace api.Services
                     CodeValue = "",
                     NameFi = choice3NameFi,
                     NameEn = "I am interested in working with companies",
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime()
@@ -415,7 +415,7 @@ namespace api.Services
                 _ttvContext.DimReferencedata.Add(referenceData);
             }
 
-            var referenceData_choice4 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO && dr.NameFi == choice4NameFi);
+            var referenceData_choice4 = _ttvContext.DimReferencedata.FirstOrDefault(dr => dr.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dr.NameFi == choice4NameFi);
             if (referenceData_choice4 == null)
             {
                 referenceData = new DimReferencedatum()
@@ -424,7 +424,7 @@ namespace api.Services
                     CodeValue = "",
                     NameFi = choice4NameFi,
                     NameEn = "I am interested in being a peer reviewer for scientific publications",
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime()
@@ -452,7 +452,7 @@ namespace api.Services
                         Year = 2021,
                         Month = 1,
                         Day = 1,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime(),
@@ -460,7 +460,7 @@ namespace api.Services
                     _ttvContext.DimDates.Add(dimDate_callProgramme);
                 }
 
-                var dimCallProgramme1 = _ttvContext.DimCallProgrammes.FirstOrDefault(dcp => dcp.SourceId == Constants.SourceIdentifiers.DEMO && dcp.NameFi == this.DemoCallProgrammeName1);
+                var dimCallProgramme1 = _ttvContext.DimCallProgrammes.FirstOrDefault(dcp => dcp.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dcp.NameFi == this.DemoCallProgrammeName1);
                 if (dimCallProgramme1 == null)
                 {
                     dimCallProgramme1 = new DimCallProgramme()
@@ -468,7 +468,7 @@ namespace api.Services
                         NameFi = this.DemoCallProgrammeName1,
                         DimDateIdOpenNavigation = dimDate_callProgramme,
                         DimDateIdDueNavigation = dimDate_callProgramme,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime(),
@@ -478,7 +478,7 @@ namespace api.Services
                 }
 
                 // Type of funding
-                var dimTypeOfFunding1 = _ttvContext.DimTypeOfFundings.FirstOrDefault(dtof => dtof.SourceId == Constants.SourceIdentifiers.DEMO && dtof.NameFi == this.DemoTypeOfFundingName1);
+                var dimTypeOfFunding1 = _ttvContext.DimTypeOfFundings.FirstOrDefault(dtof => dtof.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dtof.NameFi == this.DemoTypeOfFundingName1);
                 if (dimTypeOfFunding1 == null)
                 {
                     dimTypeOfFunding1 = new DimTypeOfFunding()
@@ -486,7 +486,7 @@ namespace api.Services
                         TypeId = "A2",
                         NameFi = this.DemoTypeOfFundingName1,
                         DimTypeOfFundingId = -1,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -503,7 +503,7 @@ namespace api.Services
                         Year = 2022,
                         Month = 0,
                         Day = 0,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -520,7 +520,7 @@ namespace api.Services
                         Year = 0,
                         Month = 0,
                         Day = 0,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -545,7 +545,7 @@ namespace api.Services
                     NameFi = "Kestävyysnäkökulmat perheiden harrastusvalinnoissa",
                     DescriptionFi = "Kestävyyskysymykset ovat nousseet vahvasti julkiseen keskusteluun kuluneen vuosikymmenen aikana. Hankkeessa selvitetään julkisen keskustelun vaikutusta perheiden harrastusvalintoihin hyödyntäen parhaita saatavilla olevia aineistoja.",
                     AmountInEur = 387400,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -570,7 +570,7 @@ namespace api.Services
                         Year = 2021,
                         Month = 1,
                         Day = 1,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -578,7 +578,7 @@ namespace api.Services
                     _ttvContext.DimDates.Add(dimDate_callProgramme);
                 }
 
-                var dimCallProgramme2 = _ttvContext.DimCallProgrammes.FirstOrDefault(dcp => dcp.SourceId == Constants.SourceIdentifiers.DEMO && dcp.NameFi == this.DemoCallProgrammeName2);
+                var dimCallProgramme2 = _ttvContext.DimCallProgrammes.FirstOrDefault(dcp => dcp.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dcp.NameFi == this.DemoCallProgrammeName2);
                 if (dimCallProgramme2 == null)
                 {
                     dimCallProgramme2 = new DimCallProgramme()
@@ -586,7 +586,7 @@ namespace api.Services
                         NameFi = this.DemoCallProgrammeName2,
                         DimDateIdOpenNavigation = dimDate_callProgramme,
                         DimDateIdDueNavigation = dimDate_callProgramme,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime(),
@@ -596,7 +596,7 @@ namespace api.Services
                 }
 
                 // Type of funding
-                var dimTypeOfFunding2 = _ttvContext.DimTypeOfFundings.FirstOrDefault(dtof => dtof.SourceId == Constants.SourceIdentifiers.DEMO && dtof.NameFi == this.DemoTypeOfFundingName2);
+                var dimTypeOfFunding2 = _ttvContext.DimTypeOfFundings.FirstOrDefault(dtof => dtof.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dtof.NameFi == this.DemoTypeOfFundingName2);
                 if (dimTypeOfFunding2 == null)
                 {
                     dimTypeOfFunding2 = new DimTypeOfFunding()
@@ -604,7 +604,7 @@ namespace api.Services
                         TypeId = "A3",
                         NameFi = this.DemoTypeOfFundingName2,
                         DimTypeOfFundingId = -1,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -621,7 +621,7 @@ namespace api.Services
                         Year = 2019,
                         Month = 0,
                         Day = 0,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -638,7 +638,7 @@ namespace api.Services
                         Year = 0,
                         Month = 0,
                         Day = 0,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -666,7 +666,7 @@ namespace api.Services
                     NameFi = "Vimpelikiihdyttimen hyödyntäminen pienhiukkasten värimäärittelyssä",
                     DescriptionFi = "Pienhiukkasten (<10 nm) värillä on havaittu olevan merkitystä mielialaan. Värimääritys on nykyään aikaavievää ja edellyttää optisen mikroskoopin manuaalista käyttöä. Laboratorion vanhan vimpelikiihdyttimen on havaittu olevan pienin muutoksin sopiva pienhiukkasten automaattiseen värikarakterisointiin. Apurahalla tehdään kiihdytimelle tarvittavat muutokset.",
                     AmountInEur = 27000,
-                    SourceId = Constants.SourceIdentifiers.DEMO,
+                    SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -722,7 +722,7 @@ namespace api.Services
             };
             foreach (string fieldOfScienceName in fieldsOfScienceNames)
             {
-                var dimFieldOfScience = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == fieldOfScienceName && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
+                var dimFieldOfScience = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == fieldOfScienceName && dfos.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
             
                 if (dimFieldOfScience == null)
                 {
@@ -730,7 +730,7 @@ namespace api.Services
                     {
                         FieldId = " ",
                         NameFi = fieldOfScienceName,
-                        SourceId = Constants.SourceIdentifiers.DEMO,
+                        SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
@@ -755,47 +755,47 @@ namespace api.Services
 
         public async Task<DimOrganization> GetOrganization1Async()
         {
-            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization1Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization1Name && org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public async Task<DimOrganization> GetOrganization2Async()
         {
-            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization2Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization2Name && org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public async Task<DimOrganization> GetOrganization3Async()
         {
-            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization3Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimOrganizations.AsNoTracking().FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganization3Name && org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public async Task<DimOrganization> GetOrganizationFunder1Async()
         {
             // Do not use AsNoTracking here.
-            return await _ttvContext.DimOrganizations.FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganizationFunder1Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimOrganizations.FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganizationFunder1Name && org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public async Task<DimOrganization> GetOrganizationFunder2Async()
         {
             // Do not use AsNoTracking here.
-            return await _ttvContext.DimOrganizations.FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganizationFunder2Name && org.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimOrganizations.FirstOrDefaultAsync(org => org.NameFi == this.DemoOrganizationFunder2Name && org.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public async Task<DimRegisteredDataSource> GetOrganization1RegisteredDataSourceAsync()
         {
             var organization1 = await this.GetOrganization1Async();
-            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganization == organization1 && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganization == organization1 && drds.Name == this.DemoOrganization1DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public async Task<DimRegisteredDataSource> GetOrganization2RegisteredDataSourceAsync()
         {
             var organization2 = await this.GetOrganization2Async();
-            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganization == organization2 && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganization == organization2 && drds.Name == this.DemoOrganization2DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public async Task<DimRegisteredDataSource> GetOrganization3RegisteredDataSourceAsync()
         {
             var organization3 = await this.GetOrganization3Async();
-            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganization == organization3 && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO);
+            return await _ttvContext.DimRegisteredDataSources.AsNoTracking().FirstOrDefaultAsync(drds => drds.DimOrganization == organization3 && drds.Name == this.DemoOrganization3DataSourceName && drds.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
         }
 
         public async Task AddDemoDataToUserProfile(string orcidId, DimUserProfile dimUserProfile)
@@ -1120,8 +1120,8 @@ namespace api.Services
 
             // Fields of science org1
             var dimFieldDisplaySettings_fieldOfScience = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE);
-            var dimFieldOfScience1_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
-            var dimFieldOfScience2_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
+            var dimFieldOfScience1_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
+            var dimFieldOfScience2_Organization1 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization1FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
             var factFieldValue_fieldOfScience1_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fieldOfScience1_Organization1.DimUserProfile = dimUserProfile;
             factFieldValue_fieldOfScience1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience;
@@ -1136,8 +1136,8 @@ namespace api.Services
             _ttvContext.FactFieldValues.Add(factFieldValue_fieldOfScience2_Organization1);
 
             // Fields of science org2
-            var dimFieldOfScience1_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
-            var dimFieldOfScience2_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO);
+            var dimFieldOfScience1_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience1 && dfos.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
+            var dimFieldOfScience2_Organization2 = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == this.DemoOrganization2FieldOfScience2 && dfos.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
             var factFieldValue_fieldOfScience1_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fieldOfScience1_Organization2.DimUserProfile = dimUserProfile;
             factFieldValue_fieldOfScience1_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fieldOfScience;
@@ -1266,7 +1266,7 @@ namespace api.Services
 
 
             // Affiliation - Organization1
-            var affiliationType = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO && drd.NameFi == "Työsuhde");
+            var affiliationType = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(drd => drd.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && drd.NameFi == "Työsuhde");
             var dimFieldDisplaySettings_affiliation = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
             var dimStartDate_affiliation_organization1 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2020 && dd.Month == 1 && dd.Day == 1);
             if (dimStartDate_affiliation_organization1 == null)
@@ -1397,7 +1397,7 @@ namespace api.Services
 
 
             // Funding decision - Organization1
-            var dimFundingDecision_Organization1 = await _ttvContext.DimFundingDecisions.FirstOrDefaultAsync(dfd => dfd.SourceId == Constants.SourceIdentifiers.DEMO && dfd.FunderProjectNumber == this.DemoFunderProjectNumber1);
+            var dimFundingDecision_Organization1 = await _ttvContext.DimFundingDecisions.FirstOrDefaultAsync(dfd => dfd.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dfd.FunderProjectNumber == this.DemoFunderProjectNumber1);
             var dimFieldDisplaySettings_fundingDecision = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
             var factFieldValue_fundingDecision_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fundingDecision_Organization1.DimUserProfile = dimUserProfile;
@@ -1407,7 +1407,7 @@ namespace api.Services
             _ttvContext.FactFieldValues.Add(factFieldValue_fundingDecision_Organization1);
 
             // Funding decision - Organization2
-            var dimFundingDecision_Organization2 = await _ttvContext.DimFundingDecisions.FirstOrDefaultAsync(dfd => dfd.SourceId == Constants.SourceIdentifiers.DEMO && dfd.FunderProjectNumber == this.DemoFunderProjectNumber2);
+            var dimFundingDecision_Organization2 = await _ttvContext.DimFundingDecisions.FirstOrDefaultAsync(dfd => dfd.SourceId == Constants.SourceIdentifiers.DEMO_COMMON && dfd.FunderProjectNumber == this.DemoFunderProjectNumber2);
             var factFieldValue_fundingDecision_Organization2 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_fundingDecision_Organization2.DimUserProfile = dimUserProfile;
             factFieldValue_fundingDecision_Organization2.DimFieldDisplaySettings = dimFieldDisplaySettings_fundingDecision;
@@ -1419,7 +1419,7 @@ namespace api.Services
             // Research datasets
 
             // Research dataset - DimReferencedata - Agentrole - Creator
-            var dimReferencedata_Agentrole_Creator = await _ttvContext.DimReferencedata.FirstOrDefaultAsync(dr => dr.CodeScheme == "agentrole" && dr.CodeValue == this.DemoReferenceDataAgentRoleCreator);
+            var dimReferencedata_Agentrole_Creator = await _ttvContext.DimReferencedata.FirstOrDefaultAsync(dr => dr.CodeScheme == "agentrole" && dr.CodeValue == this.DemoReferenceDataAgentRoleCreator && dr.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
 
             // Research dataset - Organization1 - DimResearchDataset
             var researchDataset_Organization1 = new DimResearchDataset()
@@ -1442,6 +1442,7 @@ namespace api.Services
             dimPid_researchDataset_Organization1.DimResearchDatasetId = researchDataset_Organization1.Id;
             dimPid_researchDataset_Organization1.PidType = "doi";
             dimPid_researchDataset_Organization1.PidContent = "doi:10.23729/12348970-30de-4c86-a69a-ae4ff1c0c49f";
+            dimPid_researchDataset_Organization1.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
             dimPid_researchDataset_Organization1.SourceDescription = sourceDescription;
             dimPid_researchDataset_Organization1.SourceId = Constants.SourceIdentifiers.DEMO;
             _ttvContext.DimPids.Add(dimPid_researchDataset_Organization1);
@@ -1503,6 +1504,7 @@ namespace api.Services
             dimPid_researchDataset_Organization2.DimResearchDatasetId = researchDataset_Organization2.Id;
             dimPid_researchDataset_Organization2.PidType = "urn";
             dimPid_researchDataset_Organization2.PidContent = "urn:nbn:fi:att:496efc55-f1fa-469a-bd39-12556068435";
+            dimPid_researchDataset_Organization2.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
             dimPid_researchDataset_Organization2.SourceId = Constants.SourceIdentifiers.DEMO;
             dimPid_researchDataset_Organization2.SourceDescription = sourceDescription;
             _ttvContext.DimPids.Add(dimPid_researchDataset_Organization2);

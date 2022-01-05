@@ -107,12 +107,12 @@ namespace api.Controllers
                 // Since new DimPid is added, then new DimKnownPerson must be added
                 dimPid.DimKnownPerson = new DimKnownPerson()
                 {
-                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = currentDateTime,
                     Modified = currentDateTime
                 };
-                dimPid.SourceId = Constants.SourceIdentifiers.ORCID;
+                dimPid.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                 _ttvContext.DimPids.Add(dimPid);
                 await _ttvContext.SaveChangesAsync();
             }
@@ -121,7 +121,7 @@ namespace api.Controllers
                 // DimPid was found but it does not have related DimKnownPerson.
                 var kp = new DimKnownPerson()
                 {
-                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = currentDateTime,
                     Modified = currentDateTime
@@ -139,7 +139,7 @@ namespace api.Controllers
                 dimUserProfile = new DimUserProfile()
                 {
                     DimKnownPersonId = dimPid.DimKnownPerson.Id,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = currentDateTime,
                     AllowAllSubscriptions = false
@@ -278,7 +278,7 @@ namespace api.Controllers
 
                     // Remove related DimOrganization
                     // TODO: Removal of DimOrganization only in demo version, if sourceId is ORCID
-                    if (dimOrganization.SourceId == Constants.SourceIdentifiers.ORCID)
+                    if (dimOrganization.SourceId == Constants.SourceIdentifiers.PROFILE_API || dimOrganization.SourceId == Constants.SourceIdentifiers.DEMO)
                     {
                         _ttvContext.DimOrganizations.Remove(dimOrganization);
                     }
@@ -400,7 +400,13 @@ namespace api.Controllers
             foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId != -1))
             {
                 _ttvContext.FactFieldValues.Remove(ffv);
-                if (ffv.DimName.SourceId == Constants.SourceIdentifiers.DEMO)
+
+                if (ffv.DimPidIdOrcidPutCode != -1)
+                {
+                    _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
+                }
+
+                if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
                 {
                     _ttvContext.DimNames.Remove(ffv.DimName);
                 }

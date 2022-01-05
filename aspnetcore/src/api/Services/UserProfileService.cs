@@ -32,7 +32,7 @@ namespace api.Services
         public bool CanDeleteFactFieldValueRelatedData(FactFieldValue ffv)
         {
             // ORCID and demo data can be removed.
-            return ffv.SourceId == Constants.SourceIdentifiers.ORCID || ffv.SourceId == Constants.SourceIdentifiers.DEMO;
+            return ffv.SourceId == Constants.SourceIdentifiers.PROFILE_API || ffv.SourceId == Constants.SourceIdentifiers.DEMO;
         }
 
         /*
@@ -85,7 +85,7 @@ namespace api.Services
                     NameFi = orcidOrganizationName,
                     NameEn = orcidOrganizationName,
                     NameSv = orcidOrganizationName,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -124,7 +124,7 @@ namespace api.Services
                 {
                     DimOrganizationId = orcidOrganizationId,
                     Name = orcidDatasourceName,
-                    SourceId = Constants.SourceIdentifiers.ORCID,
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime()
@@ -162,7 +162,7 @@ namespace api.Services
                     LastName = lastName,
                     FirstNames = firstNames,
                     DimKnownPersonIdConfirmedIdentity = dimKnownPersonId,
-                    SourceId = "",
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -193,7 +193,7 @@ namespace api.Services
                     ResearchDescriptionFi = description_fi,
                     ResearchDescriptionEn = description_en,
                     ResearchDescriptionSv = description_sv,
-                    SourceId = "",
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -224,7 +224,7 @@ namespace api.Services
                 dimEmailAddress = new DimEmailAddrress()
                 {
                     Email = emailAddress,
-                    SourceId = "",
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.getCurrentDateTime(),
                     Modified = _utilityService.getCurrentDateTime(),
@@ -274,21 +274,11 @@ namespace api.Services
                 DimResearchDatasetId = -1,
                 Show = false,
                 PrimaryValue = false,
-                SourceId = " ",
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = _utilityService.getCurrentDateTime(),
                 Modified = _utilityService.getCurrentDateTime()
             };
-        }
-
-        /*
-         * Get empty FactFieldValue. Set SourceID to ORCID.
-         */
-        public FactFieldValue GetEmptyFactFieldValueOrcid()
-        {
-            var factFieldValue = this.GetEmptyFactFieldValue();
-            factFieldValue.SourceId = Constants.SourceIdentifiers.ORCID;
-            return factFieldValue;
         }
 
         /*
@@ -340,7 +330,7 @@ namespace api.Services
                 Report = null,
                 ThesisTypeCode = null,
                 DoiHandle = null,
-                SourceId = "",
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = null,
                 Modified = null,
@@ -361,7 +351,7 @@ namespace api.Services
             {
                 PidContent = " ",
                 PidType = " ",
-                SourceId = " ",
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = _utilityService.getCurrentDateTime(),
                 Modified = _utilityService.getCurrentDateTime()
@@ -979,7 +969,7 @@ namespace api.Services
                                     NameEn = "",
                                     NameSv = ""
                                 };
-                                if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.ORCID)
+                                if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.PROFILE_API)
                                 {
                                     nameTranslationAffiliationDepartment = _languageService.getNameTranslation(
                                         "",

@@ -54,7 +54,7 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            var dimPids = await _ttvContext.DimPids.Where(dp => dp.PidType == Constants.PidTypes.ORCID && dp.SourceId == Constants.SourceIdentifiers.ORCID).AsNoTracking().ToListAsync();
+            var dimPids = await _ttvContext.DimPids.Where(dp => dp.PidType == Constants.PidTypes.ORCID && dp.SourceId == Constants.SourceIdentifiers.PROFILE_API).AsNoTracking().ToListAsync();
             return Ok(dimPids.Count);
         }
 
@@ -73,7 +73,7 @@ namespace api.Controllers
             }
 
             var orcidIds = new List<string>();
-            var dimPids = await _ttvContext.DimPids.Where(dp => dp.PidType == Constants.PidTypes.ORCID && dp.SourceId == Constants.SourceIdentifiers.ORCID).AsNoTracking().ToListAsync();
+            var dimPids = await _ttvContext.DimPids.Where(dp => dp.PidType == Constants.PidTypes.ORCID && dp.SourceId == Constants.SourceIdentifiers.PROFILE_API).AsNoTracking().ToListAsync();
 
             foreach (DimPid dp in dimPids)
             {

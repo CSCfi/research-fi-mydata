@@ -424,7 +424,7 @@ namespace api.Services
                                     NameEn = "",
                                     NameSv = ""
                                 };
-                                if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.ORCID)
+                                if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.PROFILE_API)
                                 {
                                     nameTranslationAffiliationDepartment = localLanguageService.getNameTranslation(
                                         "",
