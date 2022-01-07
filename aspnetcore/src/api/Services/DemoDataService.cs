@@ -975,7 +975,6 @@ namespace api.Services
             factFieldValue_researcherDescription_Organization2.DimRegisteredDataSourceId = organization2RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_researcherDescription_Organization2);
 
-
             // Keywords
             var dimFieldDisplaySettings_keyword = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
             var dimKeyword1_Organization1 = new DimKeyword()
@@ -1018,10 +1017,6 @@ namespace api.Services
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
-            _ttvContext.DimKeywords.Add(dimKeyword1_Organization1);
-            _ttvContext.DimKeywords.Add(dimKeyword2_Organization1);
-            _ttvContext.DimKeywords.Add(dimKeyword3_Organization1);
-            _ttvContext.DimKeywords.Add(dimKeyword4_Organization1);
             var dimKeyword1_Organization2 = new DimKeyword()
             {
                 Keyword = "digitalization",
@@ -1062,18 +1057,22 @@ namespace api.Services
                 Created = currentDateTime,
                 Modified = currentDateTime
             };
+            _ttvContext.DimKeywords.Add(dimKeyword1_Organization1);
+            _ttvContext.DimKeywords.Add(dimKeyword2_Organization1);
+            _ttvContext.DimKeywords.Add(dimKeyword3_Organization1);
+            _ttvContext.DimKeywords.Add(dimKeyword4_Organization1);
             _ttvContext.DimKeywords.Add(dimKeyword1_Organization2);
             _ttvContext.DimKeywords.Add(dimKeyword2_Organization2);
             _ttvContext.DimKeywords.Add(dimKeyword3_Organization2);
             _ttvContext.DimKeywords.Add(dimKeyword4_Organization2);
-  
-
+     
             var factFieldValue_keyword1_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword1_Organization1.DimUserProfile = dimUserProfile;
             factFieldValue_keyword1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword1_Organization1.DimKeyword = dimKeyword1_Organization1;
             factFieldValue_keyword1_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword1_Organization1);
+     
             var factFieldValue_keyword2_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword2_Organization1.DimUserProfile = dimUserProfile;
             factFieldValue_keyword2_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
@@ -1435,11 +1434,10 @@ namespace api.Services
                     DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimResearchDatasets.Add(researchDataset_Organization1);
-            await _ttvContext.SaveChangesAsync(); // Do not remove this, DimPid creation requires researchDataset_Organization1.Id to be defined.
 
             // Research dataset - Organization1 - DimPid
             var dimPid_researchDataset_Organization1 = _userProfileService.GetEmptyDimPid();
-            dimPid_researchDataset_Organization1.DimResearchDatasetId = researchDataset_Organization1.Id;
+            dimPid_researchDataset_Organization1.DimResearchDataset = researchDataset_Organization1;
             dimPid_researchDataset_Organization1.PidType = "doi";
             dimPid_researchDataset_Organization1.PidContent = "doi:10.23729/12348970-30de-4c86-a69a-ae4ff1c0c49f";
             dimPid_researchDataset_Organization1.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
@@ -1450,8 +1448,8 @@ namespace api.Services
             // Research dataset - Organization1 - FactContribution
             var factContribution_researchDataset_Organization1 = new FactContribution()
             {
-                DimNameId = dimNameOrganization1.Id,
-                DimResearchDatasetId = researchDataset_Organization1.Id,
+                DimName = dimNameOrganization1,
+                DimResearchDataset = researchDataset_Organization1,
                 DimReferencedataActorRole = dimReferencedata_Agentrole_Creator,
                 DimFundingDecisionId = -1,
                 DimOrganizationId = -1,
@@ -1497,11 +1495,10 @@ namespace api.Services
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimResearchDatasets.Add(researchDataset_Organization2);
-            await _ttvContext.SaveChangesAsync(); // Do not remove this, DimPid creation requires researchDataset_Organization2.Id to be defined.
 
             // Research dataset - Organization2 - DimPid
             var dimPid_researchDataset_Organization2 = _userProfileService.GetEmptyDimPid();
-            dimPid_researchDataset_Organization2.DimResearchDatasetId = researchDataset_Organization2.Id;
+            dimPid_researchDataset_Organization2.DimResearchDataset = researchDataset_Organization2;
             dimPid_researchDataset_Organization2.PidType = "urn";
             dimPid_researchDataset_Organization2.PidContent = "urn:nbn:fi:att:496efc55-f1fa-469a-bd39-12556068435";
             dimPid_researchDataset_Organization2.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
@@ -1513,7 +1510,7 @@ namespace api.Services
             var factContribution_researchDataset_Organization2 = new FactContribution()
             {
                 DimName = dimNameOrganization2,
-                DimResearchDatasetId = researchDataset_Organization2.Id,
+                DimResearchDataset = researchDataset_Organization2,
                 DimReferencedataActorRole = dimReferencedata_Agentrole_Creator,
                 DimFundingDecisionId = -1,
                 DimOrganizationId = -1,
