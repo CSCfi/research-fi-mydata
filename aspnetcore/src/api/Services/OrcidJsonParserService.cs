@@ -129,16 +129,30 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
+                JsonElement nameElement;
                 JsonElement givenNamesElement;
+
+                // Get name element
                 if (this.isFullRecord(document))
                 {
-                    givenNamesElement = document.RootElement.GetProperty("person").GetProperty("name").GetProperty("given-names");
+                    nameElement = document.RootElement.GetProperty("person").GetProperty("name");
                 }
                 else
                 {
-                    givenNamesElement = document.RootElement.GetProperty("name").GetProperty("given-names");
+                    nameElement = document.RootElement.GetProperty("name");
                 }
 
+                // Check if name element is null
+                if (nameElement.ValueKind == JsonValueKind.Null)
+                {
+                    return new OrcidGivenNames("");
+                }
+                else
+                {
+                    givenNamesElement = nameElement.GetProperty("given-names");
+                }
+
+                // Get value
                 JsonElement valueElement;
                 if (givenNamesElement.ValueKind != JsonValueKind.Null && givenNamesElement.TryGetProperty("value", out valueElement))
                 {
@@ -159,16 +173,30 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
+                JsonElement nameElement;
                 JsonElement familyNameElement;
+
+                // Get name element
                 if (this.isFullRecord(document))
                 {
-                    familyNameElement = document.RootElement.GetProperty("person").GetProperty("name").GetProperty("family-name");
+                    nameElement = document.RootElement.GetProperty("person").GetProperty("name");
                 }
                 else
                 {
-                    familyNameElement = document.RootElement.GetProperty("name").GetProperty("family-name");
+                    nameElement = document.RootElement.GetProperty("name");
                 }
 
+                // Check if name element is null
+                if (nameElement.ValueKind == JsonValueKind.Null)
+                {
+                    return new OrcidFamilyName("");
+                }
+                else
+                {
+                    familyNameElement = nameElement.GetProperty("family-name");
+                }
+
+                // Get value
                 JsonElement valueElement;
                 if (familyNameElement.ValueKind != JsonValueKind.Null && familyNameElement.TryGetProperty("value", out valueElement))
                 {
@@ -190,16 +218,30 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(json))
             {
+                JsonElement nameElement;
                 JsonElement creditNameElement;
+
+                // Get name element
                 if (this.isFullRecord(document))
                 {
-                    creditNameElement = document.RootElement.GetProperty("person").GetProperty("name").GetProperty("credit-name");
+                    nameElement = document.RootElement.GetProperty("person").GetProperty("name");
                 }
                 else
                 {
-                    creditNameElement = document.RootElement.GetProperty("name").GetProperty("credit-name");
+                    nameElement = document.RootElement.GetProperty("name");
                 }
 
+                // Check if name element is null
+                if (nameElement.ValueKind == JsonValueKind.Null)
+                {
+                    return new OrcidCreditName("");
+                }
+                else
+                {
+                    creditNameElement = nameElement.GetProperty("credit-name");
+                }
+
+                // Get value
                 JsonElement valueElement;
                 if (creditNameElement.ValueKind != JsonValueKind.Null && creditNameElement.TryGetProperty("value", out valueElement))
                 {
@@ -219,7 +261,7 @@ namespace api.Services
          */
         public List<OrcidOtherName> GetOtherNames(String json)
         {
-            var otherNamesElement = new JsonElement();
+            JsonElement otherNamesElement;
             var otherNames = new List<OrcidOtherName> { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
