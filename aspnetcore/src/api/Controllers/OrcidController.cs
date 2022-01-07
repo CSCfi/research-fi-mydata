@@ -64,63 +64,62 @@ namespace api.Controllers
             // Get record JSON from ORCID
             var json = await _orcidApiService.GetRecord(orcidId);
 
+            // Get ORCID registered data source id
+            var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
+
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimName)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimWebLink)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimFundingDecision)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimPublication)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimOrcidPublication)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimPid)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimResearchActivity)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimEvent)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimEducation)
                         .ThenInclude(de => de.DimStartDateNavigation)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimEducation)
                         .ThenInclude(de => de.DimEndDateNavigation)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimAffiliation)
                         .ThenInclude(da => da.DimOrganization)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimAffiliation)
                         .ThenInclude(da => da.StartDateNavigation)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimAffiliation)
                         .ThenInclude(da => da.EndDateNavigation)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimCompetence)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimResearchCommunity)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimTelephoneNumber)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimEmailAddrress)
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimResearcherDescription)
-                //.Include(dup => dup.FactFieldValues)
+                //.Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                 //    .ThenInclude(ffv => ffv.DimIdentifierlessData) // TODO: update model to match SQL table
-                .Include(dup => dup.FactFieldValues)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync();
-
-
-            // Get ORCID registered data source id
-            var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
 
 
             // Get current DateTime
@@ -140,11 +139,9 @@ namespace api.Controllers
                 dimName.LastName = _orcidJsonParserService.GetFamilyName(json).Value;
                 dimName.FirstNames = _orcidJsonParserService.GetGivenNames(json).Value;
                 dimName.Modified = _utilityService.getCurrentDateTime();
-                _ttvContext.Entry(dimName).State = EntityState.Modified;
                 // Update existing FactFieldValue
                 factFieldValuesName.Show = true; // ORCID name is selected by default.
                 factFieldValuesName.Modified = currentDateTime;
-                _ttvContext.Entry(factFieldValuesName).State = EntityState.Modified;
             }
             else
             {
@@ -186,10 +183,8 @@ namespace api.Controllers
                     var dimName_otherName = factFieldValuesOtherName.DimName;
                     dimName_otherName.FullName = otherName.Value;
                     dimName_otherName.Modified = currentDateTime;
-                    _ttvContext.Entry(dimName_otherName).State = EntityState.Modified;
                     // Update existing FactFieldValue
                     factFieldValuesOtherName.Modified = currentDateTime;
-                    _ttvContext.Entry(factFieldValuesOtherName).State = EntityState.Modified;
                 }
                 else
                 {
@@ -244,11 +239,9 @@ namespace api.Controllers
                     dimWebLink.Url = researchUrl.Url;
                     dimWebLink.LinkLabel = researchUrl.UrlName;
                     dimWebLink.Modified = currentDateTime;
-                    _ttvContext.Entry(dimWebLink).State = EntityState.Modified;
 
                     // Update existing FactFieldValue
                     factFieldValuesWebLink.Modified = currentDateTime;
-                    _ttvContext.Entry(factFieldValuesWebLink).State = EntityState.Modified;
                 }
                 else
                 {
@@ -321,7 +314,6 @@ namespace api.Controllers
                 else
                 {
                     factFieldValuesResearcherDescription.Modified = currentDateTime;
-                    _ttvContext.Entry(factFieldValuesResearcherDescription).State = EntityState.Modified;
                 }
             }
 
@@ -355,7 +347,6 @@ namespace api.Controllers
                 else
                 {
                     factFieldValuesEmailAddress.Modified = currentDateTime;
-                    _ttvContext.Entry(factFieldValuesEmailAddress).State = EntityState.Modified;
                 }
             }
 
@@ -378,10 +369,8 @@ namespace api.Controllers
                     var dimKeyword = factFieldValuesKeyword.DimKeyword;
                     dimKeyword.Keyword = keyword.Value;
                     dimKeyword.Modified = currentDateTime;
-                    _ttvContext.Entry(dimKeyword).State = EntityState.Modified;
                     // Update existing FactFieldValue
                     factFieldValuesKeyword.Modified = currentDateTime;
-                    _ttvContext.Entry(factFieldValuesKeyword).State = EntityState.Modified;
                 }
                 else
                 {
@@ -445,10 +434,8 @@ namespace api.Controllers
                     dimPid.PidContent = externalIdentifier.ExternalIdValue;
                     dimPid.PidType = externalIdentifier.ExternalIdType;
                     dimPid.Modified = currentDateTime;
-                    _ttvContext.Entry(dimPid).State = EntityState.Modified;
                     // Update existing FactFieldValue
                     factFieldValuesExternalIdentifier.Modified = currentDateTime;
-                    _ttvContext.Entry(factFieldValuesExternalIdentifier).State = EntityState.Modified;
                 }
                 else
                 {
@@ -531,12 +518,9 @@ namespace api.Controllers
                     dimEducation.DimStartDateNavigation = startDate;
                     dimEducation.DimEndDateNavigation = endDate;
                     dimEducation.Modified = currentDateTime;
-                    _ttvContext.Entry(dimEducation).State = EntityState.Modified;
 
                     // Update existing FactFieldValue
                     factFieldValuesEducation.Modified = currentDateTime;
-                    _ttvContext.Entry(factFieldValuesEducation).State = EntityState.Modified;
-
                 }
                 else
                 {
@@ -631,18 +615,15 @@ namespace api.Controllers
                     dimAffiliation.PositionNameEn = employment.RoleTitle;
                     dimAffiliation.StartDateNavigation = startDate;
                     dimAffiliation.EndDateNavigation = endDate;
-                    _ttvContext.Entry(dimAffiliation).State = EntityState.Modified;
                     dimAffiliation.Modified = currentDateTime;
 
                     // Update related DimOrganization
                     // TODO: DimOrganization handling
                     var dimOrganization = dimAffiliation.DimOrganization;
                     dimOrganization.NameEn = employment.OrganizationName;
-                    _ttvContext.Entry(dimOrganization).State = EntityState.Modified;
 
                     // Update existing FactFieldValue
                     factFieldValuesAffiliation.Modified = currentDateTime;
-                    _ttvContext.Entry(factFieldValuesAffiliation).State = EntityState.Modified;
                 }
                 else
                 {
@@ -721,10 +702,8 @@ namespace api.Controllers
                     dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
                     dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
                     dimOrcidPublication.Modified = currentDateTime;
-                    _ttvContext.Entry(dimOrcidPublication).State = EntityState.Modified;
                     // Update existing FactFieldValue
                     factFieldValuesPublication.Modified = currentDateTime;
-                    _ttvContext.Entry(factFieldValuesPublication).State = EntityState.Modified;
                 }
                 else
                 {
