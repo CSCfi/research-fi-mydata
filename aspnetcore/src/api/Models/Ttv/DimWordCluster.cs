@@ -9,13 +9,17 @@ namespace api.Models.Ttv
     {
         public DimWordCluster()
         {
+            BrWordClusterDimFundingDecisions = new HashSet<BrWordClusterDimFundingDecision>();
             BrWordsDefineAClusters = new HashSet<BrWordsDefineACluster>();
-            DimFundingDecisions = new HashSet<DimFundingDecision>();
         }
 
         public int Id { get; set; }
+        public string SourceId { get; set; }
+        public string SourceDescription { get; set; }
+        public DateTime? Created { get; set; }
+        public DateTime? Modified { get; set; }
 
+        public virtual ICollection<BrWordClusterDimFundingDecision> BrWordClusterDimFundingDecisions { get; set; }
         public virtual ICollection<BrWordsDefineACluster> BrWordsDefineAClusters { get; set; }
-        public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
     }
 }

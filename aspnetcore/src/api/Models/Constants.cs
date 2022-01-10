@@ -28,9 +28,11 @@ namespace api.Models
 
         public static class SourceIdentifiers
         {
-            public const string ORCID = "ORCID";
+            //public const string ORCID = "ORCID";
+            public const string DEMO_COMMON = "DEMO common";
             public const string DEMO = "DEMO";
             public const string TIEDEJATUTKIMUS = "Tiedejatutkimus.fi";
+            public const string PROFILE_API = "Profile API";
         }
 
         public static class SourceDescriptions
@@ -41,6 +43,7 @@ namespace api.Models
         public static class PidTypes
         {
             public const string ORCID = "ORCID";
+            public const string ORCID_PUT_CODE = "ORCID put code";
         }
 
         public static class CodeSchemes

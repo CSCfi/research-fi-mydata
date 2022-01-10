@@ -19,6 +19,14 @@ namespace api.Tests
             return reader.ReadToEnd();
         }
 
+        // Get ORCID record which does not contain name or other name.
+        private string getOrcidJsonRecord_NoNames()
+        {
+            var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_record_no_names.json";
+            var reader = new StreamReader(filePath);
+            return reader.ReadToEnd();
+        }
+
         // Get ORCID personal details.
         // Test file is a copy of ORCID's sandbox https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/personal-details
         private string getOrcidJsonPersonalDetails()
@@ -34,6 +42,16 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var expectedGivenNames = new OrcidGivenNames("Sofia");
+            var actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
+            Assert.Equal(expectedGivenNames.Value, actualGivenNames.Value);
+        }
+
+        [Fact(DisplayName = "Get given names from full ORCID record - handle missing name")]
+        public void TestGetGivenNames_NameIsNull()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var jsonStr = getOrcidJsonRecord_NoNames();
+            var expectedGivenNames = new OrcidGivenNames("");
             var actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
             Assert.Equal(expectedGivenNames.Value, actualGivenNames.Value);
         }
@@ -58,6 +76,16 @@ namespace api.Tests
             Assert.Equal(expectedFamilyName.Value, actualFamilyName.Value);
         }
 
+        [Fact(DisplayName = "Get family name from full ORCID record - handle missing name")]
+        public void TestGetFamilyName_NameIsNull()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var jsonStr = getOrcidJsonRecord_NoNames();
+            var expectedFamilyName = new OrcidFamilyName("");
+            var actualFamilyName = orcidJsonParserService.GetFamilyName(jsonStr);
+            Assert.Equal(expectedFamilyName.Value, actualFamilyName.Value);
+        }
+
         [Fact(DisplayName = "Get family name from personal details")]
         public void TestGetFamilyNameFromPersonalDetails()
         {
@@ -74,6 +102,16 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var expectedCreditName = new OrcidCreditName("Sofia Maria Hernandez Garcia");
+            var actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
+            Assert.Equal(expectedCreditName.Value, actualCreditName.Value);
+        }
+
+        [Fact(DisplayName = "Get credit name from full ORCID record - handle missing name")]
+        public void TestGetCreditName_NameIsNull()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var jsonStr = getOrcidJsonRecord_NoNames();
+            var expectedCreditName = new OrcidCreditName("");
             var actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
             Assert.Equal(expectedCreditName.Value, actualCreditName.Value);
         }

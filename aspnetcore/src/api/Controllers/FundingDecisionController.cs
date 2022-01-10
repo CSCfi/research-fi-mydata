@@ -68,32 +68,31 @@ namespace api.Controllers
             }
             var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION))
-                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
-                        .ThenInclude(br => br.DimRegisteredDataSource)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                             .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimFundingDecisionId != -1))
                     .ThenInclude(ffv => ffv.DimFundingDecision).FirstOrDefaultAsync();
 
             // TODO: Currently all added funding decisions get the same data source (Tiedejatutkimus.fi)
 
-            // Get Tiedejatutkimus.fi registered data source id
-            var tiedejatutkimusRegisteredDataSourceId = await _userProfileService.GetTiedejatutkimusFiRegisteredDataSourceId();
-            // Get DimFieldDisplaySetting for Tiedejatutkimus.fi
-            var dimFieldDisplaySettingsFundingDecision = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION && dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == tiedejatutkimusRegisteredDataSourceId);
+            // Get Tiedejatutkimus.fi registered data source
+            var tiedejatutkimusRegisteredDataSource = await _userProfileService.GetTiedejatutkimusFiRegisteredDataSource();
+            // Get DimFieldDisplaySetting for funding decision
+            var dimFieldDisplaySettingsFundingDecision = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
 
-            // Organization name translation
+            // Registered data source organization name translation
             var nameTranslation_OrganizationName = _languageService.getNameTranslation(
-                nameFi: dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                nameSv: dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv,
-                nameEn: dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn
+                nameFi: tiedejatutkimusRegisteredDataSource.DimOrganization.NameFi,
+                nameSv: tiedejatutkimusRegisteredDataSource.DimOrganization.NameSv,
+                nameEn: tiedejatutkimusRegisteredDataSource.DimOrganization.NameEn
             );
 
             // Response object
             var profileEditorAddFundingDecisionResponse = new ProfileEditorAddFundingDecisionResponse();
             profileEditorAddFundingDecisionResponse.source = new ProfileEditorSource()
             {
-                Id = dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                RegisteredDataSource = dimFieldDisplaySettingsFundingDecision.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                RegisteredDataSource = tiedejatutkimusRegisteredDataSource.Name,
                 Organization = new Organization()
                 {
                     NameFi = nameTranslation_OrganizationName.NameFi,
@@ -138,6 +137,7 @@ namespace api.Controllers
                         factFieldValueFunding.DimUserProfileId = dimUserProfile.Id;
                         factFieldValueFunding.DimFieldDisplaySettingsId = dimFieldDisplaySettingsFundingDecision.Id;
                         factFieldValueFunding.DimFundingDecisionId = dimFundingDecision.Id;
+                        factFieldValueFunding.DimRegisteredDataSourceId = tiedejatutkimusRegisteredDataSource.Id;
                         factFieldValueFunding.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
                         factFieldValueFunding.Created = _utilityService.getCurrentDateTime();
                         factFieldValueFunding.Modified = _utilityService.getCurrentDateTime();

@@ -15,9 +15,11 @@ namespace api.Models.Ttv
         }
 
         public int Id { get; set; }
-        public string Type { get; set; }
-        public string Value { get; set; }
         public int? DimIdentifierlessDataId { get; set; }
+        public string Type { get; set; }
+        public string ValueFi { get; set; }
+        public string ValueSv { get; set; }
+        public string ValueEn { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }

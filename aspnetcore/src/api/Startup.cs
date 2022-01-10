@@ -135,6 +135,7 @@ namespace api
                 });
             });
 
+            services.AddResponseCompression();
             services.AddHttpClient<OrcidApiService>();
             services.AddScoped<OrcidJsonParserService>();
             services.AddScoped<UserProfileService>();
@@ -176,6 +177,7 @@ namespace api
                 app.UseSwaggerUI();
             }
 
+            app.UseResponseCompression();
             app.UseRouting();
 
             // CORS policy depends on the environment

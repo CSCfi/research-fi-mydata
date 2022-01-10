@@ -16,11 +16,13 @@ namespace api.Models.Ttv
         public int Id { get; set; }
         public string Title { get; set; }
         public string FeedUrl { get; set; }
+        public int DimReferencedataId { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
+        public virtual DimReferencedatum DimReferencedata { get; set; }
         public virtual ICollection<DimNewsItem> DimNewsItems { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
     }

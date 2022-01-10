@@ -70,32 +70,31 @@ namespace api.Controllers
             // TODO: FactFieldValues relation to DimResearchDataset
             var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
-                    .ThenInclude(dfds => dfds.BrFieldDisplaySettingsDimRegisteredDataSources)
-                        .ThenInclude(br => br.DimRegisteredDataSource)
+                    .ThenInclude(dfds => dfds.FactFieldValues)
+                        .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                             .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimResearchDatasetId != -1))
                     .ThenInclude(ffv => ffv.DimResearchDataset).AsNoTracking().FirstOrDefaultAsync();
 
             // TODO: Currently all added research data get the same data source (Tiedejatutkimus.fi)
 
-            // Get Tiedejatutkimus.fi registered data source id
-            var tiedejatutkimusRegisteredDataSourceId = await _userProfileService.GetTiedejatutkimusFiRegisteredDataSourceId();
+            // Get Tiedejatutkimus.fi registered data source
+            var tiedejatutkimusRegisteredDataSource = await _userProfileService.GetTiedejatutkimusFiRegisteredDataSource();
             // Get DimFieldDisplaySetting for Tiedejatutkimus.fi
-            var dimFieldDisplaySettingsResearchDataset = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET && dfds.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSourceId == tiedejatutkimusRegisteredDataSourceId);
+            var dimFieldDisplaySettingsResearchDataset = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
 
-            // Organization name translation
+            // Registered data source organization name translation
             var nameTranslation_OrganizationName = _languageService.getNameTranslation(
-                nameFi: dimFieldDisplaySettingsResearchDataset.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameFi,
-                nameSv: dimFieldDisplaySettingsResearchDataset.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameSv,
-                nameEn: dimFieldDisplaySettingsResearchDataset.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.DimOrganization.NameEn
+                nameFi: tiedejatutkimusRegisteredDataSource.DimOrganization.NameFi,
+                nameSv: tiedejatutkimusRegisteredDataSource.DimOrganization.NameSv,
+                nameEn: tiedejatutkimusRegisteredDataSource.DimOrganization.NameEn
             );
 
             // Response object
             var profileEditorAddResearchDatasetResponse = new ProfileEditorAddResearchDatasetResponse();
             profileEditorAddResearchDatasetResponse.source = new ProfileEditorSource()
             {
-                Id = dimFieldDisplaySettingsResearchDataset.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Id,
-                RegisteredDataSource = dimFieldDisplaySettingsResearchDataset.BrFieldDisplaySettingsDimRegisteredDataSources.First().DimRegisteredDataSource.Name,
+                RegisteredDataSource = tiedejatutkimusRegisteredDataSource.Name,
                 Organization = new Organization()
                 {
                     NameFi = nameTranslation_OrganizationName.NameFi,
@@ -139,6 +138,7 @@ namespace api.Controllers
                         factFieldValueResearchDataset.DimUserProfileId = dimUserProfile.Id;
                         factFieldValueResearchDataset.DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearchDataset.Id;
                         factFieldValueResearchDataset.DimResearchDatasetId = dimResearchDataset.Id;
+                        factFieldValueResearchDataset.DimRegisteredDataSourceId = tiedejatutkimusRegisteredDataSource.Id;
                         factFieldValueResearchDataset.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
                         factFieldValueResearchDataset.Created = _utilityService.getCurrentDateTime();
                         factFieldValueResearchDataset.Modified = _utilityService.getCurrentDateTime();

@@ -81,7 +81,7 @@ namespace api.Controllers
                         UserChoiceValue = false,
                         DimUserProfileId = userprofileId,
                         DimReferencedataIdAsUserChoiceLabelNavigation = dimReferenceDataUserChoice,
-                        SourceId = "",
+                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = _utilityService.getCurrentDateTime(),
                         Modified = _utilityService.getCurrentDateTime()
