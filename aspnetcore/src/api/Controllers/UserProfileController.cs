@@ -136,6 +136,7 @@ namespace api.Controllers
             var dimUserProfile = dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault();
             if (dimUserProfile == null)
             {
+                // Add DimUserProfile
                 dimUserProfile = new DimUserProfile()
                 {
                     DimKnownPersonId = dimPid.DimKnownPerson.Id,
@@ -147,28 +148,8 @@ namespace api.Controllers
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
                 await _ttvContext.SaveChangesAsync();
 
-                // TODO: Add missing field identifiers
-                var fieldIdentifiers = new List<int>
-                {
-                    Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
-                    Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER,
-                    Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE,
-                    Constants.FieldIdentifiers.PERSON_KEYWORD,
-                    Constants.FieldIdentifiers.PERSON_NAME,
-                    Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
-                    Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
-                    Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
-                    Constants.FieldIdentifiers.PERSON_WEB_LINK,
-                    Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
-                    Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
-                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                    Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
-                    Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
-                    Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET
-                };
-
                 // Add DimFieldDisplaySettings
-                foreach (int fieldIdentifier in fieldIdentifiers)
+                foreach (int fieldIdentifier in _userProfileService.GetFieldIdentifiers())
                 {
                     var dimFieldDisplaySetting = new DimFieldDisplaySetting()
                     {

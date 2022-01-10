@@ -19,11 +19,45 @@ namespace api.Services
         private readonly UtilityService _utilityService;
         private readonly LanguageService _languageService;
 
+        /*
+         * Constructor with dependency injection.
+         */
         public UserProfileService(TtvContext ttvContext, UtilityService utilityService, LanguageService languageService)
         {
             _ttvContext = ttvContext;
             _utilityService = utilityService;
             _languageService = languageService;
+        }
+
+        /*
+         * Constructor without dependency injection.
+         * Needed for simplifying unit tests.
+         */
+        public UserProfileService(){}
+
+        /*
+         * Get FieldIdentifiers.
+         */
+        public List<int> GetFieldIdentifiers()
+        {
+            return new List<int>()
+            {
+                Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER,
+                Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE,
+                Constants.FieldIdentifiers.PERSON_KEYWORD,
+                Constants.FieldIdentifiers.PERSON_NAME,
+                Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
+                Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
+                Constants.FieldIdentifiers.PERSON_WEB_LINK,
+                Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
+                Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
+                Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET
+            };
         }
 
         /*

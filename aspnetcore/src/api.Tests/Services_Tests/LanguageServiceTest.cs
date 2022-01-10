@@ -1,9 +1,5 @@
 using Xunit;
 using api.Services;
-using api.Models;
-using api.Models.ProfileEditor;
-
-using System;
 
 namespace api.Tests
 {
