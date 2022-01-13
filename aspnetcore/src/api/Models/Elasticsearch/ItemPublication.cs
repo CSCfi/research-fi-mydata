@@ -8,6 +8,7 @@
             PublicationName = "";
             PublicationYear = null;
             Doi = "";
+            TypeCode = "";
             PrimaryValue = null;
         }
 
@@ -15,6 +16,7 @@
         public string PublicationName { get; set; }
         public int? PublicationYear { get; set; }
         public string Doi { get; set; }
+        public string TypeCode { get; set; }
         public bool? PrimaryValue { get; set; }
     }
 }

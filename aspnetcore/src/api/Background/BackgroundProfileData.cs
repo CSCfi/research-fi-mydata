@@ -538,7 +538,8 @@ namespace api.Services
                                         PublicationId = ffv.DimPublication.PublicationId,
                                         PublicationName = ffv.DimPublication.PublicationName,
                                         PublicationYear = ffv.DimPublication.PublicationYear,
-                                        Doi = ffv.DimPublication.DoiHandle
+                                        Doi = ffv.DimPublication.DoiHandle,
+                                        TypeCode = ffv.DimPublication.PublicationTypeCode
                                     }
                                 );
                             }
@@ -564,7 +565,8 @@ namespace api.Services
                                         PublicationId = ffv.DimOrcidPublication.PublicationId,
                                         PublicationName = ffv.DimOrcidPublication.PublicationName,
                                         PublicationYear = ffv.DimOrcidPublication.PublicationYear,
-                                        Doi = ffv.DimOrcidPublication.DoiHandle
+                                        Doi = ffv.DimOrcidPublication.DoiHandle,
+                                        TypeCode = "" // TODO: ORCID publication type code handling
                                     }
                                 );
                             }

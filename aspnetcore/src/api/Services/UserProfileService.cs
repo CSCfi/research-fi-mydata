@@ -1144,6 +1144,7 @@ namespace api.Services
                                         PublicationName = ffv.DimPublication.PublicationName,
                                         PublicationYear = ffv.DimPublication.PublicationYear,
                                         Doi = ffv.DimPublication.DoiHandle,
+                                        TypeCode = ffv.DimPublication.PublicationTypeCode,
                                         itemMeta = new ProfileEditorItemMeta()
                                         {
                                             Id = ffv.DimPublicationId,
@@ -1183,6 +1184,7 @@ namespace api.Services
                                         PublicationName = ffv.DimOrcidPublication.PublicationName,
                                         PublicationYear = ffv.DimOrcidPublication.PublicationYear,
                                         Doi = ffv.DimOrcidPublication.DoiHandle,
+                                        TypeCode = "", // TODO: ORCID publication type code handling
                                         itemMeta = new ProfileEditorItemMeta()
                                         {
                                             Id = ffv.DimOrcidPublicationId,
