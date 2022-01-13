@@ -7,10 +7,10 @@ namespace api.Models
 
         public ApiResponseProfileDataGet(bool success, string reason, ProfileEditorDataResponse data, bool fromCache)
         {
-            Success = true;
-            Reason = null;
+            Success = success;
+            Reason = reason;
             Data = data;
-            FromCache = false;
+            FromCache = fromCache;
         }
 
         public ProfileEditorDataResponse Data { get; set; }
