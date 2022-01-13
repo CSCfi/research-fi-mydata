@@ -151,6 +151,7 @@ namespace api.Controllers
                             PublicationName = dimPublication.PublicationName,
                             PublicationYear = dimPublication.PublicationYear,
                             Doi = dimPublication.DoiHandle,
+                            TypeCode = dimPublication.PublicationTypeCode,
                             itemMeta = new ProfileEditorItemMeta()
                             {
                                 Id = dimPublication.Id,
