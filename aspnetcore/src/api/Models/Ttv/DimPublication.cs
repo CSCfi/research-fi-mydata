@@ -68,6 +68,7 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
+        public string Doi { get; set; }
 
         public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
         public virtual DimPublication DimPublicationNavigation { get; set; }

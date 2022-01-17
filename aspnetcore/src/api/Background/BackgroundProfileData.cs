@@ -538,7 +538,7 @@ namespace api.Services
                                         PublicationId = ffv.DimPublication.PublicationId,
                                         PublicationName = ffv.DimPublication.PublicationName,
                                         PublicationYear = ffv.DimPublication.PublicationYear,
-                                        Doi = ffv.DimPublication.DoiHandle,
+                                        Doi = ffv.DimPublication.Doi,
                                         TypeCode = ffv.DimPublication.PublicationTypeCode
                                     }
                                 );

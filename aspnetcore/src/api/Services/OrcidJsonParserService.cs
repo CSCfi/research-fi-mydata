@@ -525,7 +525,7 @@ namespace api.Services
                                     new OrcidPublication()
                                     {
                                         PublicationName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
-                                        DoiHandle = this.getPublicationDoi(workElement),
+                                        Doi = this.getPublicationDoi(workElement),
                                         PublicationYear = this.getPublicationYear(workElement),
                                         Type = workElement.GetProperty("type").GetString(),
                                         PutCode = this.getOrcidPutCode(workElement)

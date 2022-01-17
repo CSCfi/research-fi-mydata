@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace api.Models.Ttv
 {
-    public partial class TtvContext : DbContext
+    public partial class Ttv_2021_12Context : DbContext
     {
-        public TtvContext()
+        public Ttv_2021_12Context()
         {
         }
 
-        public TtvContext(DbContextOptions<TtvContext> options)
+        public Ttv_2021_12Context(DbContextOptions<Ttv_2021_12Context> options)
             : base(options)
         {
         }

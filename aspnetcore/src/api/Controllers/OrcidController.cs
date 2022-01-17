@@ -700,7 +700,7 @@ namespace api.Controllers
                     dimOrcidPublication.OrcidWorkType = orcidPublication.Type;
                     dimOrcidPublication.PublicationName = orcidPublication.PublicationName;
                     dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
-                    dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
+                    dimOrcidPublication.DoiHandle = orcidPublication.Doi;
                     dimOrcidPublication.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     factFieldValuesPublication.Modified = currentDateTime;
@@ -712,7 +712,7 @@ namespace api.Controllers
                     dimOrcidPublication.OrcidWorkType = orcidPublication.Type;
                     dimOrcidPublication.PublicationName = orcidPublication.PublicationName;
                     dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
-                    dimOrcidPublication.DoiHandle = orcidPublication.DoiHandle;
+                    dimOrcidPublication.DoiHandle = orcidPublication.Doi;
                     dimOrcidPublication.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                     dimOrcidPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     dimOrcidPublication.Created = currentDateTime;
