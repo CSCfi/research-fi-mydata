@@ -14,6 +14,13 @@ public abstract class TtvControllerBase : ControllerBase
         return User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
     }
 
+    // Get ORCID access token from user claims
+    [NonAction]
+    protected string GetOrcidAccessToken()
+    {
+        return User.Claims.FirstOrDefault(x => x.Type == "orcid_access_token")?.Value;
+    }
+
     // Get prefix for log message
     // [timestamp][ORCID ID][ip address]
     [NonAction]

@@ -6,5 +6,6 @@ namespace identityserver.Models
     public class ApplicationUser : IdentityUser
     {
         public string OrcidIdentifier { get; set; }
+        public string OrcidAccessToken { get; set; }
     }
 }

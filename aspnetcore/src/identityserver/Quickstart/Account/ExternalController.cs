@@ -75,6 +75,16 @@ namespace IdentityServerHost.Quickstart.UI
             
         }
 
+        // Get ORCID access token from authenticate result
+        private string GetOrcidAccessTokenFromResult(AuthenticateResult authenticateResult)
+        {
+            if (authenticateResult.Properties.Items.ContainsKey(".Token.access_token"))
+            {
+                return authenticateResult.Properties.Items[".Token.access_token"];
+            }
+            return "";
+        }
+
         /// <summary>
         /// Post processing of external authentication
         /// </summary>
@@ -101,14 +111,15 @@ namespace IdentityServerHost.Quickstart.UI
                 // this might be where you might initiate a custom workflow for user registration
                 // in this sample we don't show how that would be done, as our sample implementation
                 // simply auto-provisions new external user
-                user = await AutoProvisionUserAsync(provider, providerUserId, claims);
+
+                var orcidAccessToken = GetOrcidAccessTokenFromResult(result);
+                user = await AutoProvisionUserAsync(provider, providerUserId, claims, orcidAccessToken);
             }
 
             // this allows us to collect any additional claims or properties
             // for the specific protocols used and store them in the local auth cookie.
             // this is typically used to store data needed for signout from those protocols.
             var additionalLocalClaims = new List<Claim>();
-            additionalLocalClaims.Add(new Claim("orcid", providerUserId));
             var localSignInProps = new AuthenticationProperties();
             ProcessLoginCallback(result, additionalLocalClaims, localSignInProps);
             
@@ -172,10 +183,19 @@ namespace IdentityServerHost.Quickstart.UI
             // find external user
             var user = await _userManager.FindByLoginAsync(provider, providerUserId);
 
+            // update ORCID access token, if it has changed
+            var orcidAccessToken = GetOrcidAccessTokenFromResult(result);
+            if (user != null && orcidAccessToken != user.OrcidAccessToken)
+            {
+                user.OrcidAccessToken = orcidAccessToken;
+                await _userManager.UpdateAsync(user);
+            }
+
             return (user, provider, providerUserId, claims);
         }
 
-        private async Task<ApplicationUser> AutoProvisionUserAsync(string provider, string providerUserId, IEnumerable<Claim> claims)
+
+        private async Task<ApplicationUser> AutoProvisionUserAsync(string provider, string providerUserId, IEnumerable<Claim> claims, string orcidAccessToken)
         {
             // create a list of claims that we want to transfer into our store
             var filtered = new List<Claim>();
@@ -223,7 +243,8 @@ namespace IdentityServerHost.Quickstart.UI
             var user = new ApplicationUser
             {
                 UserName = providerUserId,
-                OrcidIdentifier = providerUserId //// ORCID ID stored to database
+                OrcidIdentifier = providerUserId, // ORCID ID stored into database
+                OrcidAccessToken = orcidAccessToken // ORCID access token stored into database
             };
             var identityResult = await _userManager.CreateAsync(user);
             if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
