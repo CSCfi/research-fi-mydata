@@ -49,6 +49,8 @@ namespace api.Controllers
         {
             // Get ORCID id.
             var orcidId = this.GetOrcidId();
+            // Get ORCID access token
+            var orcidAccessToken = this.GetOrcidAccessToken();
 
             // Log request.
             _logger.LogInformation(this.GetLogPrefix() + " get ORCID data request");
@@ -62,7 +64,7 @@ namespace api.Controllers
             }
 
             // Get record JSON from ORCID
-            var json = await _orcidApiService.GetRecord(orcidId);
+            var json = await _orcidApiService.GetRecord(orcidId, orcidAccessToken);
 
             // Get ORCID registered data source id
             var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();

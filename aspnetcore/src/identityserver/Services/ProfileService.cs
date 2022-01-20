@@ -32,6 +32,7 @@ namespace identityserver.Services
 
             // Add custom claims in token
             claims.Add(new Claim("orcid", user.OrcidIdentifier ?? string.Empty));
+            claims.Add(new Claim("orcid_access_token", user.OrcidAccessToken ?? string.Empty));
 
             context.IssuedClaims = claims;
         }

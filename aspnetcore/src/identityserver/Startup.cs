@@ -84,6 +84,8 @@ namespace identityserver
             // TODO: use AddSigningCredential() in production
             builder.AddDeveloperSigningCredential();
 
+            // Add ORCID authentication.
+            // Scopes: https://info.orcid.org/faq/what-is-an-oauth-scope-and-which-scopes-does-orcid-support/
             services.AddAuthentication()
                 .AddOpenIdConnect("oidc", "ORCID", options =>
                 {
@@ -91,11 +93,19 @@ namespace identityserver
                     options.SignOutScheme = IdentityServerConstants.SignoutScheme;
                     options.SaveTokens = true;
 
-                    options.Authority = "https://orcid.org";
+                    // TODO: Get Authority from configuration
+                    //options.Authority = "https://orcid.org";
+                    options.Authority = "https://sandbox.orcid.org";
                     options.ClientId = Configuration["ORCID:ClientId"];
                     options.ClientSecret = Configuration["ORCID:ClientSecret"];
                     options.ResponseType = OidcConstants.ResponseTypes.Code;
+                    options.Scope.Clear();
+                    options.Scope.Add("/read-limited");
+                    options.Scope.Add("/activities/update");
+                    options.Scope.Add("/person/update");
+                    options.Scope.Add("openid");
 
+                    // TODO: Check if these custom values are really needed
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         NameClaimType = "name",
