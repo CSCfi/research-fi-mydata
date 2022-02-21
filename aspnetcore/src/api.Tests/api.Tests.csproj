@@ -20,4 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\api\api.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\.editorconfig" />
+  </ItemGroup>
 </Project>

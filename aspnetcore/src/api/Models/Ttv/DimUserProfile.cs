@@ -21,6 +21,10 @@ namespace api.Models.Ttv
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
+        public string OrcidAccessToken { get; set; }
+        public string OrcidRefreshToken { get; set; }
+        public string OrcidTokenScope { get; set; }
+        public DateTime? OrcidTokenExpires { get; set; }
 
         public virtual DimKnownPerson DimKnownPerson { get; set; }
         public virtual ICollection<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; }

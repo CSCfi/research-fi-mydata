@@ -96,7 +96,7 @@ namespace api.Services
         }
 
         /* 
-         * Get id of ORCID DimOrganization.
+         * Get Id of ORCID DimOrganization.
          * Create organization if it does not exist.
          */
         public async Task<int> GetOrcidOrganizationId()
