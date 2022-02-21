@@ -3903,6 +3903,22 @@ namespace api.Models.Ttv
                     .HasColumnType("datetime")
                     .HasColumnName("modified");
 
+                entity.Property(e => e.OrcidAccessToken)
+                    .HasMaxLength(255)
+                    .HasColumnName("orcid_access_token");
+
+                entity.Property(e => e.OrcidRefreshToken)
+                    .HasMaxLength(255)
+                    .HasColumnName("orcid_refresh_token");
+
+                entity.Property(e => e.OrcidTokenExpires)
+                    .HasColumnType("datetime")
+                    .HasColumnName("orcid_token_expires");
+
+                entity.Property(e => e.OrcidTokenScope)
+                    .HasMaxLength(255)
+                    .HasColumnName("orcid_token_scope");
+
                 entity.Property(e => e.SourceDescription)
                     .HasMaxLength(255)
                     .HasColumnName("source_description");

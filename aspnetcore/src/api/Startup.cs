@@ -144,6 +144,7 @@ namespace api
             services.AddSingleton<LanguageService>();
             services.AddScoped<DemoDataService>();
             services.AddScoped<TtvSqlService>();
+            services.AddScoped<TokenService>();
             services.AddMemoryCache();
 
             services.AddHostedService<BackgroundElasticsearchUpdateService>();

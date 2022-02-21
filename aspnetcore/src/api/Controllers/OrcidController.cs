@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 
 namespace api.Controllers
 {
@@ -27,15 +28,17 @@ namespace api.Controllers
         private readonly OrcidApiService _orcidApiService;
         private readonly OrcidJsonParserService _orcidJsonParserService;
         private readonly UtilityService _utilityService;
+        private readonly TokenService _tokenService;
         private readonly ILogger<OrcidController> _logger;
 
-        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger, UtilityService utilityService)
+        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger, UtilityService utilityService, TokenService tokenService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
             _orcidJsonParserService = orcidJsonParserService;
             _utilityService = utilityService;
+            _tokenService = tokenService;
             _logger = logger;
         }
 
@@ -49,8 +52,6 @@ namespace api.Controllers
         {
             // Get ORCID id.
             var orcidId = this.GetOrcidId();
-            // Get ORCID access token
-            var orcidAccessToken = this.GetOrcidAccessToken();
 
             // Log request.
             _logger.LogInformation(this.GetLogPrefix() + " get ORCID data request");
@@ -63,8 +64,16 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
+            // Get ORCID access token
+            //var orcidAccessToken = this.GetOrcidAccessToken();
+            var keyCloakAccessToken = _tokenService.GetAccessTokenFromHttpRequest(Request);
+            var orcidTokensJson = await _tokenService.GetOrcidTokensJsonFromKeycloak(keyCloakAccessToken);
+            var orcidTokens = _tokenService.ParseOrcidTokensJson(orcidTokensJson);
+            await _tokenService.UpdateOrcidTokensInDimUserProfile(userprofileId, orcidTokens);
+
+
             // Get record JSON from ORCID
-            var json = await _orcidApiService.GetRecord(orcidId, orcidAccessToken);
+            var json = await _orcidApiService.GetRecord(orcidId, orcidTokens.AccessToken);
 
             // Get ORCID registered data source id
             var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
