@@ -20,9 +20,10 @@ namespace api.Services
         public HttpClient Client { get; }
         public IConfiguration _configuration { get; }
 
-        public TokenService(TtvContext ttvContext, HttpClient client)
+        public TokenService(IConfiguration configuration, TtvContext ttvContext, HttpClient client)
         {
             _ttvContext = ttvContext;
+            _configuration = configuration;
             client.DefaultRequestHeaders.Add("Accept", "application/json");
             Client = client;
         }
