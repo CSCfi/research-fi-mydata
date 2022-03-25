@@ -7,6 +7,7 @@ using api.Models.Ttv;
 using api.Models.ProfileEditor;
 using Microsoft.EntityFrameworkCore;
 using api.Models.Common;
+using api.Models.Orcid;
 
 namespace api.Services
 {
@@ -58,6 +59,19 @@ namespace api.Services
                 Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
                 Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET
             };
+        }
+
+        /*
+         * Update ORCID tokens in DimUserProfile
+         */
+        public async Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens)
+        {
+            var dimUserProfile = await _ttvContext.DimUserProfiles.FindAsync(dimUserProfileId);
+            dimUserProfile.OrcidAccessToken = orcidTokens.AccessToken;
+            dimUserProfile.OrcidRefreshToken = orcidTokens.RefreshToken;
+            dimUserProfile.OrcidTokenScope = orcidTokens.Scope;
+            dimUserProfile.OrcidTokenExpires = orcidTokens.ExpiresDatetime;
+            await _ttvContext.SaveChangesAsync();
         }
 
         /*

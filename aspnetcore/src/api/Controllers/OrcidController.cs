@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace api.Controllers
 {
@@ -29,9 +30,10 @@ namespace api.Controllers
         private readonly OrcidJsonParserService _orcidJsonParserService;
         private readonly UtilityService _utilityService;
         private readonly TokenService _tokenService;
+        private readonly KeycloakAdminApiService _keycloakAdminApiService;
         private readonly ILogger<OrcidController> _logger;
 
-        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger, UtilityService utilityService, TokenService tokenService)
+        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger, UtilityService utilityService, TokenService tokenService, KeycloakAdminApiService keycloakAdminApiService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -39,6 +41,7 @@ namespace api.Controllers
             _orcidJsonParserService = orcidJsonParserService;
             _utilityService = utilityService;
             _tokenService = tokenService;
+            _keycloakAdminApiService = keycloakAdminApiService;
             _logger = logger;
         }
 
@@ -64,12 +67,12 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            // Get ORCID access token
-            //var orcidAccessToken = this.GetOrcidAccessToken();
-            var keyCloakAccessToken = _tokenService.GetAccessTokenFromHttpRequest(Request);
-            var orcidTokensJson = await _tokenService.GetOrcidTokensJsonFromKeycloak(keyCloakAccessToken);
+            // Get ORCID access token from Keycloak
+            var orcidTokensJson = await _tokenService.GetOrcidTokensJsonFromKeycloak(this.GetBearerTokenFromHttpRequest());
+            // Parse json from Keycloak into EF model
             var orcidTokens = _tokenService.ParseOrcidTokensJson(orcidTokensJson);
-            await _tokenService.UpdateOrcidTokensInDimUserProfile(userprofileId, orcidTokens);
+            // Update ORCID tokens in TTV database. 
+            await _userProfileService.UpdateOrcidTokensInDimUserProfile(userprofileId, orcidTokens);
 
 
             // Get record JSON from ORCID

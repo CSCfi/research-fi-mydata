@@ -13,6 +13,8 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
 using System;
+using IdentityModel.Client;
+using Microsoft.Net.Http.Headers;
 
 namespace api
 {
@@ -89,7 +91,7 @@ namespace api
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
                 {
-                    options.Authority = Configuration["OAUTH:AUTHORITY"];
+                    options.Authority = Configuration["KEYCLOAK:REALM"];
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateAudience = false
@@ -135,8 +137,53 @@ namespace api
                 });
             });
 
+            /*
+             * HTTP client: ORCID API
+             */
+            services.AddHttpClient("ORCID", httpClient =>
+            {
+                httpClient.BaseAddress = new Uri(Configuration["ORCID:API"]);
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            });
+
+            /*
+             * HTTP client: Keycloak Admin user token management (client credentials flow).
+             * https://identitymodel.readthedocs.io/en/latest/aspnetcore/worker.html
+             */
+            services.AddClientAccessTokenManagement(options =>
+            {
+                options.Clients.Add("keycloakAdminTokenClient", new ClientCredentialsTokenRequest
+                {
+                    Address = Configuration["KEYCLOAK:TOKENENDPOINT"],
+                    ClientId = Configuration["KEYCLOAK:ADMIN:CLIENTID"],
+                    ClientSecret = Configuration["KEYCLOAK:ADMIN:CLIENTSECRET"]
+                });
+            });
+
+            /*
+             * HTTP client: Keycloak Admin API
+             * https://www.keycloak.org/docs-api/15.0/rest-api/index.html
+             * Access token management is provided by "keycloakAdminTokenClient".
+             */
+            services.AddClientAccessTokenHttpClient(clientName: "keycloakClient", tokenClientName: "keycloakAdminTokenClient", configureClient: client =>
+            {
+                client.BaseAddress = new Uri(Configuration["KEYCLOAK:ADMIN:REALMUSERSENDPOINT"]);
+            });
+
+            /*
+             * HTTP client: Keycloak user's external IDP token retrieval.
+             * https://wjw465150.gitbooks.io/keycloak-documentation/content/server_admin/topics/identity-broker/tokens.html
+             * For retrieving user's external IDP (ORCID) access tokens from Keycloak.
+             */
+            services.AddHttpClient("keycloakUserOrcidTokens", httpClient =>
+            {
+                httpClient.BaseAddress = new Uri(Configuration["KEYCLOAK:ORCIDTOKENENDPOINT"]);
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            });
+
+
             services.AddResponseCompression();
-            services.AddHttpClient<OrcidApiService>();
+            services.AddScoped<OrcidApiService>();
             services.AddScoped<OrcidJsonParserService>();
             services.AddScoped<UserProfileService>();
             services.AddSingleton<ElasticsearchService>();
@@ -145,6 +192,7 @@ namespace api
             services.AddScoped<DemoDataService>();
             services.AddScoped<TtvSqlService>();
             services.AddScoped<TokenService>();
+            services.AddScoped<KeycloakAdminApiService>();
             services.AddMemoryCache();
 
             services.AddHostedService<BackgroundElasticsearchUpdateService>();
