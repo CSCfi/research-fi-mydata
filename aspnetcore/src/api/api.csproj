@@ -23,6 +23,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.13" />
     <PackageReference Include="NEST" Version="7.16.0" />
+    <PackageReference Include="IdentityModel.AspNetCore" Version="4.1.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,5 +41,7 @@
     <None Remove="Background\" />
     <None Remove="Models\Api\" />
     <None Remove="Models\Common\" />
+    <None Remove="IdentityModel" />
+    <None Remove="IdentityModel.AspNetCore" />
   </ItemGroup>
 </Project>

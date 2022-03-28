@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using api.Models.Orcid;
-using api.Models.Ttv;
 using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 
 namespace api.Services
 {
@@ -16,34 +17,40 @@ namespace api.Services
      */
     public class TokenService
     {
-        private readonly TtvContext _ttvContext;
-        public HttpClient Client { get; }
+        private readonly IHttpClientFactory _httpClientFactory;
         public IConfiguration _configuration { get; }
 
-        public TokenService(IConfiguration configuration, TtvContext ttvContext, HttpClient client)
+        public TokenService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
-            _ttvContext = ttvContext;
             _configuration = configuration;
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
-            Client = client;
+            _httpClientFactory = httpClientFactory;
         }
 
         /*
-         * Get access token from HttpRequest header Authorization.
+         * Get JWT from string.
          */
-        public String GetAccessTokenFromHttpRequest(HttpRequest httpRequest)
+        public JwtSecurityToken GetJwtFromString(String tokenStr)
         {
-            return httpRequest.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            return handler.ReadJwtToken(tokenStr);
         }
 
         /*
-         * Get Keycloak external IDP token enpoint for ORCID.
-         * General form is: /realms/{realm}/broker/{provider_alias}/token
-         * https://www.keycloak.org/docs/latest/server_development/#retrieving-external-idp-tokens
+         * Check if JSON Web Token contains claim "orcid".
          */
-        public string GetKeycloakExternalIdpEnpointForOrcid()
+        public static bool JwtContainsOrcid(JwtSecurityToken jwt)
         {
-            return _configuration["OAUTH:AUTHORITY"] + "/broker/orcid/token";
+            if (jwt.Claims.FirstOrDefault(x => x.Type == "orcid") != null)
+                return true;
+            return false;
+        }
+
+        /*
+         * Get Keycloak user id from JSON Web Token.
+         */
+        public string GetKeycloakUserIdFromJwt(JwtSecurityToken jwt)
+        {
+            return jwt.Subject;
         }
 
         /*
@@ -52,16 +59,15 @@ namespace api.Services
          * Those can be requested from Keycloak using IDP specific endpoint.
          * https://www.keycloak.org/docs/latest/server_development/#retrieving-external-idp-tokens
          */
-        public async Task<String> GetOrcidTokensJsonFromKeycloak(String keyCloakAccessToken)
+        public async Task<String> GetOrcidTokensJsonFromKeycloak(String usersKeycloakAccessToken)
         {
-            var keycloakExternalIdpTokenEndpoint = this.GetKeycloakExternalIdpEnpointForOrcid();
-            var requestMessage = new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(keycloakExternalIdpTokenEndpoint)
-            };
-            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", keyCloakAccessToken);
-            HttpResponseMessage response = await Client.SendAsync(requestMessage);
+            // Get http client.
+            var keycloakHttpClient = _httpClientFactory.CreateClient("keycloakUserOrcidTokens");
+            // GET request
+            var request = new HttpRequestMessage(method: HttpMethod.Get, requestUri: "");
+            // Insert ORCID access token into authorization header for each request.
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", usersKeycloakAccessToken);
+            HttpResponseMessage response = await keycloakHttpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
@@ -96,19 +102,6 @@ namespace api.Services
                 )
                 { };
             }
-        }
-
-        /*
-         * Update ORCID tokens in DimUserProfile
-         */
-        public async Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens)
-        {
-            var dimUserProfile = await _ttvContext.DimUserProfiles.FindAsync(dimUserProfileId);
-            dimUserProfile.OrcidAccessToken = orcidTokens.AccessToken;
-            dimUserProfile.OrcidRefreshToken = orcidTokens.RefreshToken;
-            dimUserProfile.OrcidTokenScope = orcidTokens.Scope;
-            dimUserProfile.OrcidTokenExpires = orcidTokens.ExpiresDatetime;
-            await _ttvContext.SaveChangesAsync();
         }
     }
 }

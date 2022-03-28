@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Text.Json;
 
 namespace api.Services
 {
@@ -11,56 +10,40 @@ namespace api.Services
      */
     public class OrcidApiService
     {
-        public HttpClient Client { get; }
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public OrcidApiService(HttpClient client)
+        public OrcidApiService(IHttpClientFactory httpClientFactory)
         {
-            // TODO: Get ORCID API address from configuration
-            // client.BaseAddress = new Uri("https://pub.orcid.org/v3.0/");
-            client.BaseAddress = new Uri("https://api.sandbox.orcid.org/v3.0/");
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
-            Client = client;
-        }
-
-        public String GetUrlRecord(String orcidId)
-        {
-            return Client.BaseAddress + orcidId + "/record";
-        }
-
-        public String GetUrlPersonalDetails(String orcidId)
-        {
-            return Client.BaseAddress + orcidId + "/personal-details";
-        }
-
-        // Get ORCID record.
-        // ORCID API call must include user's access token in authorization header.
-        // MUST NOT set the authorization via Client.DefaultRequestHeaders.
-        public async Task<String> GetRecord(String orcidId, String orcidAccessToken)
-        {
-            // TODO: check orcidId and orcidAccessToken
-            var uri = GetUrlRecord(orcidId);
-            var requestMessage = new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(uri)
-            };
-            // Set the authorization header for each request.
-            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", orcidAccessToken);
-            HttpResponseMessage response = await Client.SendAsync(requestMessage);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+            _httpClientFactory = httpClientFactory;
         }
 
         /*
-        // Get ORCID personal details
-        public async Task<String> GetPersonalDetails(String orcidId)
+         * Get path for retrieving ORCID record. 
+         */
+        public String GetOrcidRecordPath(String orcidId)
         {
-            string result = string.Empty;
-            var url = GetUrlPersonalDetails(orcidId);
-            HttpResponseMessage response = await Client.GetAsync(url);
+            return orcidId + "/record";
+        }
+
+        /*
+         * Get ORCID record.
+         * ORCID API call MUST include user's ORCID access token in the authorization header.
+         */
+        public async Task<String> GetRecord(String orcidId, String orcidAccessToken)
+        {
+            // TODO: check orcidId and orcidAccessToken
+
+            // Get ORCID specific http client.
+            var orcidApiHttpClient = _httpClientFactory.CreateClient("ORCID");
+            // Get path for retrieving ORCID record. API base address is already set in http client.
+            var orcidRecordPath = GetOrcidRecordPath(orcidId);
+            // GET request
+            var request = new HttpRequestMessage(method: HttpMethod.Get, requestUri: orcidRecordPath);
+            // Insert ORCID access token into authorization header for each request.
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", orcidAccessToken);
+            HttpResponseMessage response = await orcidApiHttpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
-        */
     }
 }
