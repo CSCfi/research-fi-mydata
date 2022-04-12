@@ -20,7 +20,7 @@ namespace api.Controllers
      */
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class CooperationChoicesController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;

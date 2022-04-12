@@ -20,7 +20,7 @@ namespace api.Controllers
      */
     [Route("api/publication")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class PublicationController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
