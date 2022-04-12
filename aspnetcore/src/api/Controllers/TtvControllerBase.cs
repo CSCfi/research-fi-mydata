@@ -19,7 +19,6 @@ public abstract class TtvControllerBase : ControllerBase
     [NonAction]
     protected string GetOrcidId()
     {
-        // TODO: Add handling of missing claim
         return User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
     }
 

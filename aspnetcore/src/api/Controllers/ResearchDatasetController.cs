@@ -20,7 +20,7 @@ namespace api.Controllers
      */
     [Route("api/researchdataset")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class ResearchDatasetController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;

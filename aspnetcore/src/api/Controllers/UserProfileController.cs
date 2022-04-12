@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Http;
@@ -19,7 +18,7 @@ namespace api.Controllers
      */
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class UserProfileController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
@@ -50,7 +49,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
-            // Get ORCID id.
+            // Get ORCID ID.
             var orcidId = this.GetOrcidId();
 
             // Get userprofile id from ORCID id.

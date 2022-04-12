@@ -15,6 +15,7 @@ using System.IO;
 using System;
 using IdentityModel.Client;
 using Microsoft.Net.Http.Headers;
+using System.Linq;
 
 namespace api
 {
@@ -98,12 +99,29 @@ namespace api
                     };
                 });
 
+            // Authorization
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("ApiScope", policy =>
+                /*
+                 * Policy RequireScopeApi1AndClaimOrcid requires
+                 *    - Authenticated user
+                 *    - scope "api1"
+                 *    - claim "orcid"
+                 */
+                options.AddPolicy("RequireScopeApi1AndClaimOrcid", policy =>
                 {
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("scope", "api1");
+                    // Required claim "orcid"
+                    policy.RequireClaim("orcid");
+                    // Required scope "api1". The following allows presence of other scopes.
+                    var scopes = new[] { "api1" };
+                    policy.RequireAssertion(context => {
+                        var claim = context.User.FindFirst("scope");
+                        if (claim == null) { return false; }
+                        return claim.Value.Split(' ').Any(s =>
+                           scopes.Contains(s, StringComparer.Ordinal)
+                        );
+                    });
                 });
             });
 

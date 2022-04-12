@@ -21,7 +21,7 @@ namespace api.Controllers
      */
     [Route("api/orcid")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class OrcidController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
