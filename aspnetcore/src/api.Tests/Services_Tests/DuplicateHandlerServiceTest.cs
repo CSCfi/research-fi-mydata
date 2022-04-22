@@ -145,7 +145,10 @@ namespace api.Tests
             Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimOrcidPublication, profileEditorPublicationExperimental));
         }
 
-        [Fact(DisplayName = "AddPublicationToProfileEditorData_SamePublicationIdHandling")]
+
+
+
+        [Fact(DisplayName = "AddPublicationToProfileEditorData_HandlePublicationIdDuplicates")]
         public void addPublicationToProfileEditorData_010()
         {
             var duplicateHandlerService = new DuplicateHandlerService();
@@ -252,44 +255,26 @@ namespace api.Tests
             Assert.Equal(profileEditorSourceA.RegisteredDataSource, publications4[0].DataSources[0].RegisteredDataSource);
         }
 
-        /*
-        [Fact(DisplayName = "AddPublicationToProfileEditorData")]
-        public void hasSameDoiButIsDifferentPublication_160()
+
+
+
+        [Fact(DisplayName = "AddPublicationToProfileEditorData_HandleDoiDuplicates")]
+        public void addPublicationToProfileEditorData_020()
         {
             var duplicateHandlerService = new DuplicateHandlerService();
 
             // Datasources
-            var profileEditorSourceA = new ProfileEditorSource()
+            var profileEditorSourceVirta = new ProfileEditorSource()
             {
                 Id = 1,
-                RegisteredDataSource = "Source A",
-                Organization = new Organization() { NameEn = "Organization name A"}
+                RegisteredDataSource = "Virta",
+                Organization = new Organization() {}
             };
-            var profileEditorSourceB = new ProfileEditorSource()
+            var profileEditorSourceOrcid = new ProfileEditorSource()
             {
                 Id = 2,
-                RegisteredDataSource = "Source B",
-                Organization = new Organization() { NameEn = "Organization name B" }
-            };
-
-            // Create FactFieldValue for ORCID publication 1
-            var ffvOrcid1 = new FactFieldValue()
-            {
-                DimOrcidPublication = new DimOrcidPublication()
-                {
-                    DoiHandle = "doi123",
-                    PublicationName = "name123"
-                }
-            };
-
-            // Create FactFieldValue for ORCID publication 2
-            var ffvOrcid2 = new FactFieldValue()
-            {
-                DimOrcidPublication = new DimOrcidPublication()
-                {
-                    DoiHandle = "doi123",
-                    PublicationName = "name123"
-                }
+                RegisteredDataSource = "ORCID",
+                Organization = new Organization() {}
             };
 
             // Create FactFieldValue for Virta publication 1
@@ -297,57 +282,53 @@ namespace api.Tests
             {
                 DimPublication = new DimPublication()
                 {
+                    PublicationId = "publicationId123",
                     Doi = "doi123",
                     PublicationName = "name123",
-                    PublicationTypeCode = "A1"
+                    PublicationTypeCode = "A4"
                 }
             };
 
-            // Create FactFieldValue for Virta publication 2
-            var ffvVirta2 = new FactFieldValue()
+            // Create FactFieldValue for ORCID publication 1. The same DOI and name as in Virta publication.
+            var ffvOrcid1 = new FactFieldValue()
             {
-                DimPublication = new DimPublication()
+                DimOrcidPublication = new DimOrcidPublication()
                 {
-                    Doi = "doi123",
-                    PublicationName = "name123",
-                    PublicationTypeCode = "A1"
+                    PublicationId = "publicationId456",
+                    DoiHandle = "doi123",
+                    PublicationName = "name123"
                 }
             };
 
-            // Create list of publications
-            var publications = new List<ProfileEditorPublicationExperimental>() {
-                new ProfileEditorPublicationExperimental()
+            // Create FactFieldValue for ORCID publication 2. The same DOI as in Virta publication but different name.
+            var ffvOrcid2 = new FactFieldValue()
+            {
+                DimOrcidPublication = new DimOrcidPublication()
                 {
-                    Doi = "d238dhuygdsfgy",
-                    PublicationName = "f328f72389fg",
-                    TypeCode = "A4",
-                    DataSources = new List<ProfileEditorSource>()
-                    {
-                        profileEditorSourceA
-                    }
-                },
-                new ProfileEditorPublicationExperimental()
-                {
-                    Doi = "doi123",
-                    PublicationName = "name123",
-                    TypeCode = "A3",
-                    DataSources = new List<ProfileEditorSource>()
-                    {
-                        profileEditorSourceA
-                    }
+                    PublicationId = "publicationId789",
+                    DoiHandle = "doi123",
+                    PublicationName = "name456"
                 }
             };
 
-            // Call AddPublicationToProfileEditorData
-            var resultPublicationList = duplicateHandlerService.AddPublicationToProfileEditorData(profileEditorSourceB, ffv, publications);
+            // Create empty list of publications
+            var publications = new List<ProfileEditorPublicationExperimental>() { };
 
-            // Check that number of publications in result is correct
-            Assert.Equal(2, resultPublicationList.Count);
-            // Check that number of data sources for the first publication in result is correct
-            Assert.Single(resultPublicationList[0].DataSources);
-            // Check that number of data sources for the second publication in result is correct
-            Assert.Equal(2, resultPublicationList[1].DataSources.Count);
+            // Add Virta publication
+            var publications1 = duplicateHandlerService.AddPublicationToProfileEditorData(profileEditorSourceVirta, ffvVirta1, publications);
+            // Add ORCID publication with the same DOI and name
+            var publications2 = duplicateHandlerService.AddPublicationToProfileEditorData(profileEditorSourceOrcid, ffvOrcid1, publications1);
+            // Check that publication list contains one publication
+            Assert.Single(publications2);
+            // Check that publication has two data sources
+            Assert.Equal(2, publications2[0].DataSources.Count);
+            Assert.Equal(profileEditorSourceVirta.RegisteredDataSource, publications2[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(profileEditorSourceOrcid.RegisteredDataSource, publications2[0].DataSources[1].RegisteredDataSource);
+
+            // Add ORCID publication with the same DOI but different name
+            var publications3 = duplicateHandlerService.AddPublicationToProfileEditorData(profileEditorSourceOrcid, ffvOrcid2, publications2);
+            // Check that publication list contains two publications
+            Assert.Equal(2, publications3.Count);
         }
-        */
     }
 }
