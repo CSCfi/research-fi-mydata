@@ -15,12 +15,12 @@ using Microsoft.AspNetCore.Http;
 namespace api.Controllers
 {
     /*
-     * ProfileDataController implements profile editor API commands, such as getting editor data and setting data visibility.
+     * ProfileDataController2 implements profile editor API commands, such as getting editor data and setting data visibility.
      */
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
-    public class ProfileDataController : TtvControllerBase
+    public class ProfileDataController2 : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
@@ -32,7 +32,7 @@ namespace api.Controllers
         private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
         private readonly BackgroundProfiledata _backgroundProfiledata;
 
-        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, LanguageService languageService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue, BackgroundProfiledata backgroundProfiledata)
+        public ProfileDataController2(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, LanguageService languageService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue, BackgroundProfiledata backgroundProfiledata)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -46,39 +46,41 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Get profile data.
+        /// Get profile data. New version using different data structure.
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
-            // Check that user profile exists.
+            // Check that user profile exists
             var orcidId = this.GetOrcidId();
             var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+            // Cache key
+            var cacheKey = orcidId + "_2";
 
-            // Send cached response, if exists. Cache key is ORCID ID
+            // Send cached response, if exists.
             ProfileEditorDataResponse cachedResponse;
-            if (_cache.TryGetValue(orcidId, out cachedResponse))
+            if (_cache.TryGetValue(cacheKey, out cachedResponse))
             {
                 return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
 
             // Get profile data
-            var profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
+            var profileDataResponse = await _userProfileService.GetProfileDataAsync2(userprofileId);
 
             // Save response in cache
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 // Keep in cache for this time, reset time if accessed.
                 .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
 
-            // Save data in cache. Cache key is ORCID ID.
-            _cache.Set(orcidId, profileDataResponse, cacheEntryOptions);
+            // Save data in cache
+            _cache.Set(cacheKey, profileDataResponse, cacheEntryOptions);
 
-            return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
+            return Ok(new ApiResponseProfileDataGet2(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
 
 

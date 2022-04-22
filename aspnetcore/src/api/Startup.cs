@@ -211,6 +211,7 @@ namespace api
             services.AddScoped<TtvSqlService>();
             services.AddScoped<TokenService>();
             services.AddScoped<KeycloakAdminApiService>();
+            services.AddScoped<DuplicateHandlerService>();
             services.AddMemoryCache();
 
             services.AddHostedService<BackgroundElasticsearchUpdateService>();
