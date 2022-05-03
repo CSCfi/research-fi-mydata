@@ -26,17 +26,19 @@ namespace api.Controllers
         private readonly UserProfileService _userProfileService;
         private readonly ElasticsearchService _elasticsearchService;
         private readonly UtilityService _utilityService;
+        private readonly KeycloakAdminApiService _keycloakAdminApiService;
         private readonly ILogger<UserProfileController> _logger;
         private readonly IMemoryCache _cache;
         private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
 
-        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, ElasticsearchService elasticsearchService, UserProfileService userProfileService, UtilityService utilityService, ILogger<UserProfileController> logger, IMemoryCache memoryCache, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue)
+        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, ElasticsearchService elasticsearchService, UserProfileService userProfileService, UtilityService utilityService, KeycloakAdminApiService keycloakAdminApiService, ILogger<UserProfileController> logger, IMemoryCache memoryCache, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue)
         {
             _ttvContext = ttvContext;
             _demoDataService = demoDataService;
             _userProfileService = userProfileService;
             _elasticsearchService = elasticsearchService;
             _utilityService = utilityService;
+            _keycloakAdminApiService = keycloakAdminApiService;
             _logger = logger;
             _cache = memoryCache;
             _backgroundElasticsearchPersonUpdateQueue = backgroundElasticsearchPersonUpdateQueue;
@@ -409,6 +411,12 @@ namespace api.Controllers
 
             // Log deletion
             _logger.LogInformation(this.GetLogPrefix() + " profile deleted");
+
+            // Keycloak: logout user
+            await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest());
+
+            // Keycloak: remove user
+            await _keycloakAdminApiService.RemoveUser(this.GetBearerTokenFromHttpRequest());
 
             return Ok(new ApiResponse(success: true));
         }

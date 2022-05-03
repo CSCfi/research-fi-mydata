@@ -7,6 +7,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace api.Services
 {
@@ -19,12 +20,14 @@ namespace api.Services
         private readonly TokenService _tokenService;
         public IConfiguration _configuration { get; }
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<KeycloakAdminApiService> _logger;
 
-        public KeycloakAdminApiService(TokenService tokenService, IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        public KeycloakAdminApiService(TokenService tokenService, IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<KeycloakAdminApiService> logger)
         {
             _tokenService = tokenService;
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         /*
@@ -49,11 +52,20 @@ namespace api.Services
          */
         public async Task<string> GetRawUserDataFromKeycloakAdminApi(string keycloakUserId)
         {
+            _logger.LogInformation("KeycloakAdminApiService: get userdata for user id: " + keycloakUserId);
             var keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
             var request = new HttpRequestMessage(method: HttpMethod.Get, requestUri: keycloakUserId);
             HttpResponseMessage response = await keycloakAdminApiHttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (HttpRequestException)
+            {
+                _logger.LogError("KeycloakAdminApiService: could not get userdata for user id: " + keycloakUserId);
+                return "";
+            }
         }
 
         /*
@@ -84,14 +96,24 @@ namespace api.Services
          * Set ORCID ID as Keycloak user attribute using Keycloak Admin API.
          * Use name HttpClient "keycloakClient".
          */
-        public async Task SetOrcidIdAsKeycloakUserAttribute(string keycloakUserId, string orcidId)
+        public async Task<bool> SetOrcidIdAsKeycloakUserAttribute(string keycloakUserId, string orcidId)
         {
+            _logger.LogInformation("KeycloakAdminApiService: Set ORCID ID " + orcidId + " as attribute to Keycloak user: " + keycloakUserId);
             var keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
             var request = new HttpRequestMessage(method: HttpMethod.Put, requestUri: keycloakUserId);
             var stringPayload = "{\"attributes\": {\"orcid\": [\"" + orcidId + "\"]}}";
             request.Content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await keycloakAdminApiHttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (HttpRequestException)
+            {
+                _logger.LogError("KeycloakAdminApiService: could not set ORCID ID " + orcidId + " as attribute to Keycloak user: " + keycloakUserId);
+                return false;
+            }
         }
 
         /*
@@ -101,7 +123,8 @@ namespace api.Services
         {
             /*
              * check is orcid already in token
-             * yes: return
+             * yes:
+             *    return
              * no:
              *    get sub (=kc user id)
              *    get userdata from kc
@@ -116,6 +139,10 @@ namespace api.Services
                 // Get Keycloak user data.
                 var keycloakUserDataRaw = await this.GetRawUserDataFromKeycloakAdminApi(keycloakUserId);
 
+                // Stop if Keycloak user data was not received.
+                if (keycloakUserDataRaw == "")
+                    return false;
+
                 // Get orcid id from user data.
                 var orcidId = this.GetOrcidIdFromRawKeycloakUserData(keycloakUserDataRaw);
 
@@ -124,9 +151,68 @@ namespace api.Services
                     return false;
 
                 // Set orcid id as Keycloak user attribute.
-                await this.SetOrcidIdAsKeycloakUserAttribute(keycloakUserId, orcidId);
+                return await this.SetOrcidIdAsKeycloakUserAttribute(keycloakUserId, orcidId);
             }
             return true;
+        }
+
+        /*
+         *  Logout Keycloak user.
+         *  Remove all user sessions associated with the user by sending Keycloak admin api message:
+         *      POST /{realm}/users/{id}/logout
+         */
+        public async Task<bool> LogoutUser(String tokenStr)
+        {
+            // Get jwt from string
+            var jwtFromUser = _tokenService.GetJwtFromString(tokenStr);
+
+            // Get Keycloak user id.
+            var keycloakUserId = _tokenService.GetKeycloakUserIdFromJwt(jwtFromUser);
+            _logger.LogInformation("KeycloakAdminApiService: Logout Keycloak user: " + keycloakUserId);
+
+            var keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
+            var request = new HttpRequestMessage(method: HttpMethod.Post, requestUri: keycloakUserId + "/logout");
+            HttpResponseMessage response = await keycloakAdminApiHttpClient.SendAsync(request);
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                _logger.LogInformation("KeycloakAdminApiService: Successfully logged out Keycloak user: " + keycloakUserId);
+                return true;
+            }
+            catch (HttpRequestException)
+            {
+                _logger.LogError("KeycloakAdminApiService: could not logout Keycloak user: " + keycloakUserId);
+                return false;
+            }
+        }
+
+        /*
+         *  Remove Keycloak user.
+         *      DELETE /{realm}/users/{id}
+         */
+        public async Task<bool> RemoveUser(String tokenStr)
+        {
+            // Get jwt from string
+            var jwtFromUser = _tokenService.GetJwtFromString(tokenStr);
+
+            // Get Keycloak user id.
+            var keycloakUserId = _tokenService.GetKeycloakUserIdFromJwt(jwtFromUser);
+            _logger.LogInformation("KeycloakAdminApiService: Delete Keycloak user: " + keycloakUserId);
+
+            var keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
+            var request = new HttpRequestMessage(method: HttpMethod.Delete, requestUri: keycloakUserId);
+            HttpResponseMessage response = await keycloakAdminApiHttpClient.SendAsync(request);
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                _logger.LogInformation("KeycloakAdminApiService: Successfully deleted Keycloak user: " + keycloakUserId);
+                return true;
+            }
+            catch (HttpRequestException)
+            {
+                _logger.LogError("KeycloakAdminApiService: could not delete Keycloak user: " + keycloakUserId);
+                return false;
+            }
         }
     }
 }
