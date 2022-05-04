@@ -3,8 +3,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
 using api.Models.Orcid;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
