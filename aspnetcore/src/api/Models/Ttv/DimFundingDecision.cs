@@ -35,6 +35,7 @@ namespace api.Models.Ttv
         public int DimGeoId { get; set; }
         public int DimTypeOfFundingId { get; set; }
         public int? DimOrganizationIdFunder { get; set; }
+        public string DimPidPidContent { get; set; }
         public int DimFundingDecisionIdParentDecision { get; set; }
         public string FunderProjectNumber { get; set; }
         public string Acronym { get; set; }

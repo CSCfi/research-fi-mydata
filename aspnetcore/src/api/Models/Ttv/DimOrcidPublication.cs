@@ -52,11 +52,9 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
         public int OrcidPersonDataSource { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
-        public int DimReferencedataid { get; set; }
 
         public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
         public virtual DimOrcidPublication DimParentOrcidPublication { get; set; }
-        public virtual DimReferencedatum DimReferencedata { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimKnownPerson OrcidPersonDataSourceNavigation { get; set; }
         public virtual DimReferencedatum ParentPublicationTypeCodeNavigation { get; set; }

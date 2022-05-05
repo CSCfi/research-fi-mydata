@@ -234,7 +234,7 @@ namespace api
 
             // Add registered data sources, organizations etc. needed in demo.
             // Most of demo data is added to each user, who creates a profile.
-            demoDataService.InitDemo();
+            // demoDataService.InitDemo();
 
             // Development environment settings
             if (Environment.IsDevelopment())

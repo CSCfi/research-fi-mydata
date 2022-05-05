@@ -27,9 +27,10 @@ namespace api.Models.Ttv
         public int Id { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
-        public string SourceProjectId { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
+        public string SourceProjectId { get; set; }
+        public int? DimRegisteredDataSourceId { get; set; }
 
         public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
         public virtual ICollection<DimCompetence> DimCompetences { get; set; }

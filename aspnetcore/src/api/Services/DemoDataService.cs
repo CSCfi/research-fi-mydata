@@ -981,7 +981,6 @@ namespace api.Services
             {
                 Keyword = "digitalisaatio",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
-                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -991,7 +990,6 @@ namespace api.Services
             {
                 Keyword = "aerosolit",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
-                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1001,7 +999,6 @@ namespace api.Services
             {
                 Keyword = "sisätaudit",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
-                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1011,7 +1008,6 @@ namespace api.Services
             {
                 Keyword = "Suomen historia",
                 DimRegisteredDataSourceId = organization1RegisteredDataSource.Id,
-                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1021,7 +1017,6 @@ namespace api.Services
             {
                 Keyword = "digitalization",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
-                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1031,7 +1026,6 @@ namespace api.Services
             {
                 Keyword = "aerosols",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
-                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1041,7 +1035,6 @@ namespace api.Services
             {
                 Keyword = "internal medicine",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
-                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1051,7 +1044,6 @@ namespace api.Services
             {
                 Keyword = "history of Finland",
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id,
-                DimReferencedataIdLanguageCode = -1,
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
                 Created = currentDateTime,
@@ -1437,7 +1429,8 @@ namespace api.Services
 
             // Research dataset - Organization1 - DimPid
             var dimPid_researchDataset_Organization1 = _userProfileService.GetEmptyDimPid();
-            dimPid_researchDataset_Organization1.DimResearchDataset = researchDataset_Organization1;
+            // TODO: check DimResearchDataset after model update
+            //dimPid_researchDataset_Organization1.DimResearchDataset = researchDataset_Organization1;
             dimPid_researchDataset_Organization1.PidType = "doi";
             dimPid_researchDataset_Organization1.PidContent = "doi:10.23729/12348970-30de-4c86-a69a-ae4ff1c0c49f";
             dimPid_researchDataset_Organization1.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
@@ -1498,7 +1491,8 @@ namespace api.Services
 
             // Research dataset - Organization2 - DimPid
             var dimPid_researchDataset_Organization2 = _userProfileService.GetEmptyDimPid();
-            dimPid_researchDataset_Organization2.DimResearchDataset = researchDataset_Organization2;
+            // TODO: check DimResearchDataset after model update
+            // dimPid_researchDataset_Organization2.DimResearchDataset = researchDataset_Organization2;
             dimPid_researchDataset_Organization2.PidType = "urn";
             dimPid_researchDataset_Organization2.PidContent = "urn:nbn:fi:att:496efc55-f1fa-469a-bd39-12556068435";
             dimPid_researchDataset_Organization2.DimKnownPersonId = dimUserProfile.DimKnownPersonId;

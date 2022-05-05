@@ -167,8 +167,8 @@ namespace api.Controllers
                 await _ttvContext.SaveChangesAsync();
 
 
-                // Add demo data
-                await _demoDataService.AddDemoDataToUserProfile(orcidId, dimUserProfile);
+                // Demo data can be added to every user profile by uncommenting the following line
+                // await _demoDataService.AddDemoDataToUserProfile(orcidId, dimUserProfile);
                 await _userProfileService.AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
             }
 

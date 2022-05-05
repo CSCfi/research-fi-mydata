@@ -394,7 +394,6 @@ namespace api.Controllers
                         Keyword = keyword.Value,
                         SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimReferencedataIdLanguageCode = -1,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = currentDateTime,
                         Modified = currentDateTime

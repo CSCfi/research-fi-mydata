@@ -82,6 +82,7 @@ namespace api.Services
         public bool CanDeleteFactFieldValueRelatedData(FactFieldValue ffv)
         {
             // ORCID and demo data can be removed.
+            // TODO: Check DimRegisteredDataSource instead of SourceId
             return ffv.SourceId == Constants.SourceIdentifiers.PROFILE_API || ffv.SourceId == Constants.SourceIdentifiers.DEMO;
         }
 
@@ -385,8 +386,7 @@ namespace api.Services
                 Created = null,
                 Modified = null,
                 OrcidPersonDataSource = -1,
-                DimRegisteredDataSourceId = -1,
-                DimReferencedataid = -1
+                DimRegisteredDataSourceId = -1
             };
         }
 
