@@ -11,8 +11,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace api.Controllers
 {
@@ -29,17 +27,19 @@ namespace api.Controllers
         private readonly OrcidApiService _orcidApiService;
         private readonly OrcidJsonParserService _orcidJsonParserService;
         private readonly UtilityService _utilityService;
+        private readonly DataSourceHelperService _dataSourceHelperService;
         private readonly TokenService _tokenService;
         private readonly KeycloakAdminApiService _keycloakAdminApiService;
         private readonly ILogger<OrcidController> _logger;
 
-        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger, UtilityService utilityService, TokenService tokenService, KeycloakAdminApiService keycloakAdminApiService)
+        public OrcidController(TtvContext ttvContext, UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidJsonParserService orcidJsonParserService, ILogger<OrcidController> logger, UtilityService utilityService, DataSourceHelperService dataSourceHelperService, TokenService tokenService, KeycloakAdminApiService keycloakAdminApiService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
             _orcidJsonParserService = orcidJsonParserService;
             _utilityService = utilityService;
+            _dataSourceHelperService = dataSourceHelperService;
             _tokenService = tokenService;
             _keycloakAdminApiService = keycloakAdminApiService;
             _logger = logger;
@@ -79,7 +79,8 @@ namespace api.Controllers
             var json = await _orcidApiService.GetRecord(orcidId, orcidTokens.AccessToken);
 
             // Get ORCID registered data source id. Create data source if it does not exist.
-            var orcidRegisteredDataSourceId = await _userProfileService.GetOrCreateOrcidRegisteredDataSourceId();
+            //var orcidRegisteredDataSourceId = await _userProfileService.GetOrCreateOrcidRegisteredDataSourceId();
+            var orcidRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_ORCID;
 
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
