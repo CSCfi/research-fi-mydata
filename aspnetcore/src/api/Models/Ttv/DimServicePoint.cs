@@ -23,8 +23,12 @@ namespace api.Models.Ttv
         public string VisitingAddress { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-        public string LinkAdditionalInfo { get; set; }
-        public string LinkAccessPolicy { get; set; }
+        public string LinkAdditionalInfoFi { get; set; }
+        public string LinkAdditionalInfoSv { get; set; }
+        public string LinkAdditionalInfoEn { get; set; }
+        public string LinkAccessPolicyFi { get; set; }
+        public string LinkAccessPolicySv { get; set; }
+        public string LinkAccessPolicyEn { get; set; }
         public string LinkInternationalInfra { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }

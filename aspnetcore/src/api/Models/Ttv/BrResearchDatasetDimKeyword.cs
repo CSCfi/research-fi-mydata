@@ -9,8 +9,5 @@ namespace api.Models.Ttv
     {
         public int DimResearchDatasetId { get; set; }
         public int DimKeywordId { get; set; }
-
-        public virtual DimKeyword DimKeyword { get; set; }
-        public virtual DimResearchDataset DimResearchDataset { get; set; }
     }
 }

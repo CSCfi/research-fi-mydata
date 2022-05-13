@@ -1,5 +1,4 @@
-﻿using System;
-namespace api.Models
+﻿namespace api.Models
 {
     public static class Constants
     {
@@ -54,6 +53,12 @@ namespace api.Models
         public static class Cache
         {
             public const int MEMORY_CACHE_EXPIRATION_SECONDS = 60;
+        }
+
+        public static class OrganizationNames
+        {
+            public const string ORCID = "ORCID";
+            public const string TTV = "Tiedejatutkimus.fi";
         }
     }
 }

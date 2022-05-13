@@ -212,6 +212,7 @@ namespace api
             services.AddScoped<TokenService>();
             services.AddScoped<KeycloakAdminApiService>();
             services.AddScoped<DuplicateHandlerService>();
+            services.AddScoped<RegisteredDataSourceService>();
             services.AddMemoryCache();
 
             services.AddHostedService<BackgroundElasticsearchUpdateService>();
@@ -220,8 +221,11 @@ namespace api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, DemoDataService demoDataService)
+        public void Configure(IApplicationBuilder app, RegisteredDataSourceService registeredDataSourceService)
         {
+            // Check that database contains required data
+            registeredDataSourceService.CheckRequiredRegisteredDataSourcesExistOnStartup();
+
             // Response compression.
             app.UseResponseCompression();
 
@@ -234,7 +238,7 @@ namespace api
 
             // Add registered data sources, organizations etc. needed in demo.
             // Most of demo data is added to each user, who creates a profile.
-            demoDataService.InitDemo();
+            // demoDataService.InitDemo();
 
             // Development environment settings
             if (Environment.IsDevelopment())

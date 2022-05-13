@@ -78,8 +78,8 @@ namespace api.Controllers
             // Get record JSON from ORCID
             var json = await _orcidApiService.GetRecord(orcidId, orcidTokens.AccessToken);
 
-            // Get ORCID registered data source id
-            var orcidRegisteredDataSourceId = await _userProfileService.GetOrcidRegisteredDataSourceId();
+            // Get ORCID registered data source id. Create data source if it does not exist.
+            var orcidRegisteredDataSourceId = await _userProfileService.GetOrCreateOrcidRegisteredDataSourceId();
 
             // Get DimUserProfile and related entities
             var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
@@ -394,7 +394,6 @@ namespace api.Controllers
                         Keyword = keyword.Value,
                         SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimReferencedataIdLanguageCode = -1,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = currentDateTime,
                         Modified = currentDateTime

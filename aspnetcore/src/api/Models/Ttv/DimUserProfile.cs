@@ -25,6 +25,8 @@ namespace api.Models.Ttv
         public string OrcidRefreshToken { get; set; }
         public string OrcidTokenScope { get; set; }
         public DateTime? OrcidTokenExpires { get; set; }
+        public string OrcidId { get; set; }
+        public int? Statuscode { get; set; }
 
         public virtual DimKnownPerson DimKnownPerson { get; set; }
         public virtual ICollection<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; }

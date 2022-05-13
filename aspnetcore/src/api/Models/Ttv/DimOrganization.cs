@@ -20,6 +20,7 @@ namespace api.Models.Ttv
             DimExternalServices = new HashSet<DimExternalService>();
             DimFundingDecisions = new HashSet<DimFundingDecision>();
             DimPids = new HashSet<DimPid>();
+            DimPurposes = new HashSet<DimPurpose>();
             DimRegisteredDataSources = new HashSet<DimRegisteredDataSource>();
             DimResearchActivities = new HashSet<DimResearchActivity>();
             DimWebLinks = new HashSet<DimWebLink>();
@@ -71,6 +72,7 @@ namespace api.Models.Ttv
         public virtual ICollection<DimExternalService> DimExternalServices { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
+        public virtual ICollection<DimPurpose> DimPurposes { get; set; }
         public virtual ICollection<DimRegisteredDataSource> DimRegisteredDataSources { get; set; }
         public virtual ICollection<DimResearchActivity> DimResearchActivities { get; set; }
         public virtual ICollection<DimWebLink> DimWebLinks { get; set; }

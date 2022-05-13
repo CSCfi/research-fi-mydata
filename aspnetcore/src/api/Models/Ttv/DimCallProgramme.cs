@@ -18,14 +18,21 @@ namespace api.Models.Ttv
         }
 
         public int Id { get; set; }
-        public int? DimDateIdDue { get; set; }
-        public int? DimDateIdOpen { get; set; }
+        public int DimDateIdDue { get; set; }
+        public int DimDateIdOpen { get; set; }
         public string Abbreviation { get; set; }
         public string EuCallId { get; set; }
         public string NameFi { get; set; }
         public string NameSv { get; set; }
         public string NameEn { get; set; }
         public string NameUnd { get; set; }
+        public string SourceId { get; set; }
+        public string SourceDescription { get; set; }
+        public DateTime? Created { get; set; }
+        public DateTime? Modified { get; set; }
+        public int? DimCallProgrammeId { get; set; }
+        public string SourceProgrammeId { get; set; }
+        public int DimRegisteredDataSourceId { get; set; }
         public string DescriptionFi { get; set; }
         public string DescriptionSv { get; set; }
         public string DescriptionEn { get; set; }
@@ -33,12 +40,8 @@ namespace api.Models.Ttv
         public string ApplicationTermsSv { get; set; }
         public string ApplicationTermsEn { get; set; }
         public string ContactInformation { get; set; }
-        public bool? ContinuosApplicationPeriod { get; set; }
-        public string SourceId { get; set; }
-        public string SourceDescription { get; set; }
-        public DateTime? Created { get; set; }
-        public DateTime? Modified { get; set; }
-        public int DimRegisteredDataSourceId { get; set; }
+        public bool? ContinuousApplicationPeriod { get; set; }
+        public bool IsOpenCall { get; set; }
 
         public virtual DimDate DimDateIdDueNavigation { get; set; }
         public virtual DimDate DimDateIdOpenNavigation { get; set; }
