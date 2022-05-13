@@ -87,21 +87,11 @@ namespace api.Services
         }
 
         /*
-         * Get Id of DimUserProfile based on ORCID Id in DimPid.
+         * Get Id of DimUserProfile based on ORCID Id.
          */
         public async Task<int> GetUserprofileId(String orcidId)
         {
-            // Use raw SQL query.
-            var userProfileSql = $@"SELECT dup.*
-                                    FROM dim_user_profile AS dup
-                                    INNER JOIN dim_known_person AS dkp
-                                    ON dup.dim_known_person_id = dkp.id
-                                    INNER JOIN dim_pid AS dp
-                                    ON dkp.id=dp.dim_known_person_id
-                                    WHERE dp.pid_type='ORCID' AND dp.pid_content='{orcidId}'";
-
-            var dimUserProfile = await _ttvContext.DimUserProfiles.FromSqlRaw(userProfileSql).AsNoTracking().FirstOrDefaultAsync();
-
+            var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking().FirstOrDefaultAsync();
             if (dimUserProfile == null)
             {
                 return -1;
@@ -156,7 +146,7 @@ namespace api.Services
          * Get id of ORCID DimRegisteredDataSource.
          * Create data source if it does not exist.
          */
-        public async Task<int> GetOrcidRegisteredDataSourceId()
+        public async Task<int> GetOrCreateOrcidRegisteredDataSourceId()
         {
             var orcidDatasourceName = "ORCID";
 
@@ -399,8 +389,20 @@ namespace api.Services
         {
             return new DimPid()
             {
-                PidContent = " ",
-                PidType = " ",
+                PidContent = "",
+                PidType = "",
+                DimOrganizationId = -1,
+                DimKnownPersonId = -1,
+                DimPublicationId = -1,
+                DimServiceId = -1,
+                DimInfrastructureId = -1,
+                DimPublicationChannelId = -1,
+                DimResearchDatasetId = -1,
+                DimFundingDecisionId = -1,
+                DimResearchDataCatalogId = -1,
+                DimResearchActivityId = -1,
+                DimEventId = -1,
+                DimOrcidPublicationId = -1,
                 SourceId = Constants.SourceIdentifiers.PROFILE_API,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = _utilityService.getCurrentDateTime(),

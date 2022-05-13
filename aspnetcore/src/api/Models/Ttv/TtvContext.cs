@@ -108,8 +108,7 @@ namespace api.Models.Ttv
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=localhost;User Id=ttvuser;Password=Tdsfkjds7632eDSG;database=Ttv_2022_05_05;");
+                optionsBuilder.UseSqlServer("Name=ConnectionStrings:DefaultConnection");
             }
         }
 
@@ -120,7 +119,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrArtpublicationTypecategory>(entity =>
             {
                 entity.HasKey(e => new { e.DimPublicationId, e.DimReferencedataid })
-                    .HasName("PK__br_artpu__7AE5307A084BCDC2");
+                    .HasName("PK__br_artpu__7AE5307A84CC324E");
 
                 entity.ToTable("br_artpublication_typecategory");
 
@@ -144,7 +143,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrCallProgrammeDimCallProgramme>(entity =>
             {
                 entity.HasKey(e => new { e.DimCallProgrammeId, e.DimCallProgrammeId2 })
-                    .HasName("PK__br_call___6F0CEDFBB1F8EAE8");
+                    .HasName("PK__br_call___6F0CEDFB46440361");
 
                 entity.ToTable("br_call_programme_dim_call_programme");
 
@@ -168,7 +167,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrDatasetDatasetRelationship>(entity =>
             {
                 entity.HasKey(e => new { e.DimResearchDatasetId, e.DimResearchDatasetId2 })
-                    .HasName("PK__br_datas__9FEA685A3E88C314");
+                    .HasName("PK__br_datas__9FEA685AE8535A03");
 
                 entity.ToTable("br_dataset_dataset_relationship");
 
@@ -197,7 +196,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrDimReferencedataDimCallProgramme>(entity =>
             {
                 entity.HasKey(e => new { e.DimCallProgrammeId, e.DimReferencedataId })
-                    .HasName("PK__br_dim_r__0A5B885D155918F4");
+                    .HasName("PK__br_dim_r__0A5B885D306ADB18");
 
                 entity.ToTable("br_dim_referencedata_dim_call_programme");
 
@@ -221,7 +220,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrEsfriDimInfrastructure>(entity =>
             {
                 entity.HasKey(e => new { e.DimEsfriId, e.DimInfrastructureId })
-                    .HasName("PK__br_esfri__A4A0FE1053F2D1FD");
+                    .HasName("PK__br_esfri__A4A0FE10CAB3657A");
 
                 entity.ToTable("br_esfri_dim_infrastructure");
 
@@ -245,7 +244,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrFieldDisplaySettingsDimRegisteredDataSource>(entity =>
             {
                 entity.HasKey(e => new { e.DimFieldDisplaySettingsId, e.DimRegisteredDataSourceId })
-                    .HasName("PK__br_field__6148A77225DC1DD7");
+                    .HasName("PK__br_field__6148A772BBC33689");
 
                 entity.ToTable("br_field_display_settings_dim_registered_data_source");
 
@@ -269,7 +268,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrFieldOfArtDimPublication>(entity =>
             {
                 entity.HasKey(e => new { e.DimFieldOfArtId, e.DimPublicationId })
-                    .HasName("PK__br_field__809A87CD2D5DB276");
+                    .HasName("PK__br_field__809A87CD97415E08");
 
                 entity.ToTable("br_field_of_art_dim_publication");
 
@@ -293,7 +292,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrFieldOfEducationDimPublication>(entity =>
             {
                 entity.HasKey(e => new { e.DimFieldOfEducationId, e.DimPublicationId })
-                    .HasName("PK__br_field__6E377B2CD7812672");
+                    .HasName("PK__br_field__6E377B2C0FF16E01");
 
                 entity.ToTable("br_field_of_education_dim_publication");
 
@@ -317,7 +316,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrFieldOfScienceDimFundingDecision>(entity =>
             {
                 entity.HasKey(e => new { e.DimFieldOfScienceId, e.DimFundingDecisionId })
-                    .HasName("PK__br_field__1A103AF76D8153F3");
+                    .HasName("PK__br_field__1A103AF730AFF80F");
 
                 entity.ToTable("br_field_of_science_dim_funding_decision");
 
@@ -341,7 +340,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrFieldOfScienceDimPublication>(entity =>
             {
                 entity.HasKey(e => new { e.DimFieldOfScienceId, e.DimPublicationId })
-                    .HasName("PK__br_field__5088B776E4C76350");
+                    .HasName("PK__br_field__5088B7766332C590");
 
                 entity.ToTable("br_field_of_science_dim_publication");
 
@@ -365,7 +364,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrFundingConsortiumParticipation>(entity =>
             {
                 entity.HasKey(e => new { e.DimFundingDecisionId, e.DimOrganizationid })
-                    .HasName("PK__br_fundi__3DB567F8B6A773F8");
+                    .HasName("PK__br_fundi__3DB567F87ABBFFA9");
 
                 entity.ToTable("br_funding_consortium_participation");
 
@@ -399,7 +398,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrFundingDecisionDimFieldOfArt>(entity =>
             {
                 entity.HasKey(e => new { e.DimFundingDecisionId, e.DimFieldOfArtId })
-                    .HasName("PK__br_fundi__07CB586D9F1A376E");
+                    .HasName("PK__br_fundi__07CB586D20BFF86B");
 
                 entity.ToTable("br_funding_decision_dim_field_of_art");
 
@@ -454,7 +453,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrInfrastructureDimFieldOfScience>(entity =>
             {
                 entity.HasKey(e => new { e.DimInfrastructureId, e.DimFieldOfScienceId })
-                    .HasName("PK__br_infra__17B77C16E61A3F18");
+                    .HasName("PK__br_infra__17B77C16825186C1");
 
                 entity.ToTable("br_infrastructure_dim_field_of_science");
 
@@ -478,7 +477,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrKeywordDimFundingDecision>(entity =>
             {
                 entity.HasKey(e => new { e.DimKeywordId, e.DimFundingDecisionId })
-                    .HasName("PK__br_keywo__8C7B929B868B198C");
+                    .HasName("PK__br_keywo__8C7B929B21F5028A");
 
                 entity.ToTable("br_keyword_dim_funding_decision");
 
@@ -502,7 +501,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrKeywordDimPublication>(entity =>
             {
                 entity.HasKey(e => new { e.DimKeywordId, e.DimPublicationId })
-                    .HasName("PK__br_keywo__C6E31F1A84D78BBD");
+                    .HasName("PK__br_keywo__C6E31F1ABABE5C19");
 
                 entity.ToTable("br_keyword_dim_publication");
 
@@ -526,7 +525,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrLanguageCodesForDataset>(entity =>
             {
                 entity.HasKey(e => new { e.DimResearchDatasetId, e.DimReferencedataId })
-                    .HasName("PK__br_langu__576647BF73878A6A");
+                    .HasName("PK__br_langu__576647BF54CFAC65");
 
                 entity.ToTable("br_language_codes_for_datasets");
 
@@ -538,7 +537,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrMerilDimInfrastructure>(entity =>
             {
                 entity.HasKey(e => new { e.DimMerilId, e.DimInfrastructureId })
-                    .HasName("PK__br_meril__A30C54DAED297A3A");
+                    .HasName("PK__br_meril__A30C54DA7582FE32");
 
                 entity.ToTable("br_meril_dim_infrastructure");
 
@@ -562,7 +561,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrOrganizationsFundCallProgramme>(entity =>
             {
                 entity.HasKey(e => new { e.DimOrganizationid, e.DimCallProgrammeid })
-                    .HasName("PK__br_organ__10F219BCDFEA36F9");
+                    .HasName("PK__br_organ__10F219BC6E5C0983");
 
                 entity.ToTable("br_organizations_fund_call_programmes");
 
@@ -586,7 +585,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrParticipatesInFundingGroup>(entity =>
             {
                 entity.HasKey(e => new { e.DimFundingDecisionid, e.DimNameId })
-                    .HasName("PK__br_parti__5EC9BC6472E5FF54");
+                    .HasName("PK__br_parti__5EC9BC64C369D361");
 
                 entity.ToTable("br_participates_in_funding_group");
 
@@ -632,7 +631,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrPredecessorOrganization>(entity =>
             {
                 entity.HasKey(e => new { e.DimOrganizationid, e.DimOrganizationid2 })
-                    .HasName("PK__br_prede__A7CAD2F4E3B2F09B");
+                    .HasName("PK__br_prede__A7CAD2F4CB0E1A8E");
 
                 entity.ToTable("br_predecessor_organization");
 
@@ -656,7 +655,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrPreviousFundingDecision>(entity =>
             {
                 entity.HasKey(e => new { e.DimFundingDecisionFromId, e.DimFundingDecisionToId })
-                    .HasName("PK__br_previ__909664914D375AB4");
+                    .HasName("PK__br_previ__90966491D4F0C457");
 
                 entity.ToTable("br_previous_funding_decision");
 
@@ -680,7 +679,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrRelatedFundingDecision>(entity =>
             {
                 entity.HasKey(e => new { e.DimFundingDecisionFromId, e.DimFundingDecisionToId })
-                    .HasName("PK__br_relat__9096649175935E65");
+                    .HasName("PK__br_relat__909664919623E695");
 
                 entity.ToTable("br_related_funding_decision");
 
@@ -704,7 +703,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrResearchDatasetDimFieldOfScience>(entity =>
             {
                 entity.HasKey(e => new { e.DimResearchDatasetid, e.DimFieldOfScienceid })
-                    .HasName("PK__br_resea__ADD3384B48D17E96");
+                    .HasName("PK__br_resea__ADD3384BB46E4B15");
 
                 entity.ToTable("br_research_dataset_dim_field_of_science");
 
@@ -716,7 +715,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrResearchDatasetDimKeyword>(entity =>
             {
                 entity.HasKey(e => new { e.DimResearchDatasetId, e.DimKeywordId })
-                    .HasName("PK__br_resea__4D226DF2D95642AA");
+                    .HasName("PK__br_resea__4D226DF2A00AACE3");
 
                 entity.ToTable("br_research_dataset_dim_keyword");
 
@@ -751,7 +750,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrSuccessorOrganization>(entity =>
             {
                 entity.HasKey(e => new { e.DimOrganizationid, e.DimOrganizationid2 })
-                    .HasName("PK__br_succe__A7CAD2F4F28E43CE");
+                    .HasName("PK__br_succe__A7CAD2F436CC1A1E");
 
                 entity.ToTable("br_successor organization");
 
@@ -775,7 +774,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrWordClusterDimFundingDecision>(entity =>
             {
                 entity.HasKey(e => new { e.DimWordClusterId, e.DimFundingDecisionId })
-                    .HasName("PK__br_word___7D640B5A855DFBD7");
+                    .HasName("PK__br_word___7D640B5A3F85B915");
 
                 entity.ToTable("br_word_cluster_dim_funding_decision");
 
@@ -816,7 +815,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrWordsDefineACluster>(entity =>
             {
                 entity.HasKey(e => new { e.DimMinedWordsId, e.DimWordClusterId })
-                    .HasName("PK__br_words__0602FA375B411B5F");
+                    .HasName("PK__br_words__0602FA370C173B6A");
 
                 entity.ToTable("br_words_define_a_cluster");
 
@@ -1604,7 +1603,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<DimFieldOfScienceDimResearchActivity>(entity =>
             {
                 entity.HasKey(e => new { e.DimFieldOfScienceId, e.DimResearchActivityId })
-                    .HasName("PK__dim_fiel__D251A5826253185C");
+                    .HasName("PK__dim_fiel__D251A5825374B163");
 
                 entity.ToTable("dim_field_of_science_dim_research_activity");
 
@@ -2101,7 +2100,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<DimKnownPersonDimFieldOfScience>(entity =>
             {
                 entity.HasKey(e => new { e.DimFieldOfScienceId, e.DimKnownPersonId })
-                    .HasName("PK__dim_know__493EE0767B0B66E4");
+                    .HasName("PK__dim_know__493EE0763377A11B");
 
                 entity.ToTable("dim_known_person_dim_field_of_science");
 
@@ -2332,7 +2331,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<DimNewsItem>(entity =>
             {
                 entity.HasKey(e => new { e.Id, e.DimNewsFeedid })
-                    .HasName("PK__dim_news__B87E6703EC085180");
+                    .HasName("PK__dim_news__B87E6703D18BE696");
 
                 entity.ToTable("dim_news_item");
 
@@ -3153,6 +3152,8 @@ namespace api.Models.Ttv
                     .HasColumnType("datetime")
                     .HasColumnName("created");
 
+                entity.Property(e => e.DimReferencedataId).HasColumnName("dim_referencedata_id");
+
                 entity.Property(e => e.Modified)
                     .HasColumnType("datetime")
                     .HasColumnName("modified");
@@ -3182,6 +3183,12 @@ namespace api.Models.Ttv
                 entity.Property(e => e.State)
                     .HasMaxLength(255)
                     .HasColumnName("state");
+
+                entity.HasOne(d => d.DimReferencedata)
+                    .WithMany(p => p.InverseDimReferencedata)
+                    .HasForeignKey(d => d.DimReferencedataId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_dim_referencedata_dim_referencedata");
             });
 
             modelBuilder.Entity<DimRegisteredDataSource>(entity =>
@@ -3334,7 +3341,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<DimResearchActivityDimKeyword>(entity =>
             {
                 entity.HasKey(e => new { e.DimResearchActivityId, e.DimKeywordId })
-                    .HasName("PK__dim_rese__F7B536BCD9191A02");
+                    .HasName("PK__dim_rese__F7B536BC499552FD");
 
                 entity.ToTable("dim_research_activity_dim_keyword");
 
@@ -3948,7 +3955,7 @@ namespace api.Models.Ttv
             {
                 entity.ToTable("dim_type_of_funding");
 
-                entity.HasIndex(e => e.TypeId, "UQ__dim_type__2C0005997DD8CB97")
+                entity.HasIndex(e => e.TypeId, "UQ__dim_type__2C00059919EB8A6B")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -4220,7 +4227,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactContribution>(entity =>
             {
                 entity.HasKey(e => new { e.DimFundingDecisionId, e.DimOrganizationId, e.DimDateId, e.DimNameId, e.DimPublicationId, e.DimGeoId, e.DimInfrastructureId, e.DimNewsFeedId, e.DimResearchDatasetId, e.DimResearchDataCatalogId, e.DimIdentifierlessDataId, e.DimResearchActivityId, e.DimResearchCommunityId, e.DimReferencedataActorRoleId })
-                    .HasName("PK__fact_con__B7D7E1B510965645");
+                    .HasName("PK__fact_con__B7D7E1B5CFA48C5A");
 
                 entity.ToTable("fact_contribution");
 
@@ -4362,7 +4369,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactFieldValue>(entity =>
             {
                 entity.HasKey(e => new { e.DimUserProfileId, e.DimFieldDisplaySettingsId, e.DimNameId, e.DimWebLinkId, e.DimFundingDecisionId, e.DimPublicationId, e.DimPidId, e.DimPidIdOrcidPutCode, e.DimResearchActivityId, e.DimEventId, e.DimEducationId, e.DimCompetenceId, e.DimResearchCommunityId, e.DimTelephoneNumberId, e.DimEmailAddrressId, e.DimResearcherDescriptionId, e.DimIdentifierlessDataId, e.DimOrcidPublicationId, e.DimKeywordId, e.DimAffiliationId, e.DimResearcherToResearchCommunityId, e.DimFieldOfScienceId, e.DimResearchDatasetId, e.DimRegisteredDataSourceId })
-                    .HasName("PK__fact_fie__A1BF31AAA7B35DB8");
+                    .HasName("PK__fact_fie__A1BF31AA946882DF");
 
                 entity.ToTable("fact_field_values");
 
@@ -4583,7 +4590,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactInfraKeyword>(entity =>
             {
                 entity.HasKey(e => new { e.DimKeywordId, e.DimServiceId, e.DimServicePointId, e.DimInfrastructureId })
-                    .HasName("PK__fact_inf__3C29B68046A4B325");
+                    .HasName("PK__fact_inf__3C29B680609CD02A");
 
                 entity.ToTable("fact_infra_keywords");
 
@@ -4640,7 +4647,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactJufoClassCodesForPubChannel>(entity =>
             {
                 entity.HasKey(e => new { e.DimPublicationChannelId, e.DimReferencedataId, e.Year })
-                    .HasName("PK__fact_juf__0E099E4BC8F287E7");
+                    .HasName("PK__fact_juf__0E099E4B753B21B6");
 
                 entity.ToTable("fact_jufo_class_codes_for_pub_channels");
 
@@ -4666,7 +4673,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactUpkeep>(entity =>
             {
                 entity.HasKey(e => new { e.DimOrganizationId, e.DimGeoId, e.DimInfrastructureId, e.DimServiceId, e.DimServicePointId, e.DimDateIdStart, e.DimDateIdEnd })
-                    .HasName("PK__fact_upk__850A8E30A563B632");
+                    .HasName("PK__fact_upk__850A8E30D5F346F4");
 
                 entity.ToTable("fact_upkeep");
 

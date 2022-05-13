@@ -28,6 +28,7 @@ namespace api.Models.Ttv
             DimUserChoices = new HashSet<DimUserChoice>();
             FactContributions = new HashSet<FactContribution>();
             FactJufoClassCodesForPubChannels = new HashSet<FactJufoClassCodesForPubChannel>();
+            InverseDimReferencedata = new HashSet<DimReferencedatum>();
         }
 
         public int Id { get; set; }
@@ -41,7 +42,9 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
         public string State { get; set; }
+        public int DimReferencedataId { get; set; }
 
+        public virtual DimReferencedatum DimReferencedata { get; set; }
         public virtual ICollection<BrArtpublicationTypecategory> BrArtpublicationTypecategories { get; set; }
         public virtual ICollection<BrDimReferencedataDimCallProgramme> BrDimReferencedataDimCallProgrammes { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliationAffiliationTypeNavigations { get; set; }
@@ -61,5 +64,6 @@ namespace api.Models.Ttv
         public virtual ICollection<DimUserChoice> DimUserChoices { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactJufoClassCodesForPubChannel> FactJufoClassCodesForPubChannels { get; set; }
+        public virtual ICollection<DimReferencedatum> InverseDimReferencedata { get; set; }
     }
 }

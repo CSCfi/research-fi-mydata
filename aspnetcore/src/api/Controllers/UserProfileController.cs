@@ -141,6 +141,7 @@ namespace api.Controllers
                 dimUserProfile = new DimUserProfile()
                 {
                     DimKnownPersonId = dimPid.DimKnownPerson.Id,
+                    OrcidId = orcidId,
                     SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = currentDateTime,
@@ -169,6 +170,8 @@ namespace api.Controllers
 
                 // Demo data can be added to every user profile by uncommenting the following line
                 // await _demoDataService.AddDemoDataToUserProfile(orcidId, dimUserProfile);
+
+                // Add Ttv data to user profile
                 await _userProfileService.AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
             }
 
