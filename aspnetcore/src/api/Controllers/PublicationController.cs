@@ -26,15 +26,17 @@ namespace api.Controllers
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly UtilityService _utilityService;
+        private readonly DataSourceHelperService _dataSourceHelperService;
         private readonly LanguageService _languageService;
         private IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
 
-        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, LanguageService languageService)
+        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, LanguageService languageService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _utilityService = utilityService;
+            _dataSourceHelperService = dataSourceHelperService;
             _languageService = languageService;
             _logger = logger;
             _cache = memoryCache;
@@ -76,23 +78,21 @@ namespace api.Controllers
 
             // TODO: Currently all added publications get the same data source (Tiedejatutkimus.fi)
 
-            // Get Tiedejatutkimus.fi registered data source
-            var tiedejatutkimusRegisteredDataSource = await _userProfileService.GetTiedejatutkimusFiRegisteredDataSource();
             // Get DimFieldDisplaySetting for publication
             var dimFieldDisplaySettingsPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION);
 
             // Registered data source organization name translation
             var nameTranslation_OrganizationName = _languageService.getNameTranslation(
-                nameFi: tiedejatutkimusRegisteredDataSource.DimOrganization.NameFi,
-                nameSv: tiedejatutkimusRegisteredDataSource.DimOrganization.NameSv,
-                nameEn: tiedejatutkimusRegisteredDataSource.DimOrganization.NameEn
+                nameFi: _dataSourceHelperService.DimOrganizationNameFi_TTV,
+                nameSv: _dataSourceHelperService.DimOrganizationNameSv_TTV,
+                nameEn: _dataSourceHelperService.DimOrganizationNameEn_TTV
             );
 
             // Response object
             var profileEditorAddPublicationResponse = new ProfileEditorAddPublicationResponse();
             profileEditorAddPublicationResponse.source = new ProfileEditorSource()
             {
-                RegisteredDataSource = tiedejatutkimusRegisteredDataSource.Name,
+                RegisteredDataSource = _dataSourceHelperService.DimRegisteredDataSourceName_TTV,
                 Organization = new Organization()
                 {
                     NameFi = nameTranslation_OrganizationName.NameFi,
@@ -137,7 +137,7 @@ namespace api.Controllers
                         factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
                         factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
                         factFieldValuePublication.DimPublicationId = dimPublication.Id;
-                        factFieldValuePublication.DimRegisteredDataSourceId = tiedejatutkimusRegisteredDataSource.Id;
+                        factFieldValuePublication.DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV;
                         factFieldValuePublication.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
                         factFieldValuePublication.Created = _utilityService.getCurrentDateTime();
                         factFieldValuePublication.Modified = _utilityService.getCurrentDateTime();

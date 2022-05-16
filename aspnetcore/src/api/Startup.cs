@@ -207,12 +207,13 @@ namespace api
             services.AddSingleton<ElasticsearchService>();
             services.AddSingleton<UtilityService>();
             services.AddSingleton<LanguageService>();
+            services.AddSingleton<DataSourceHelperService>();
             services.AddScoped<DemoDataService>();
             services.AddScoped<TtvSqlService>();
             services.AddScoped<TokenService>();
             services.AddScoped<KeycloakAdminApiService>();
             services.AddScoped<DuplicateHandlerService>();
-            services.AddScoped<RegisteredDataSourceService>();
+            services.AddScoped<StartupHelperService>();
             services.AddMemoryCache();
 
             services.AddHostedService<BackgroundElasticsearchUpdateService>();
@@ -221,10 +222,25 @@ namespace api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, RegisteredDataSourceService registeredDataSourceService)
+        public void Configure(IApplicationBuilder app, StartupHelperService startupHelperService, DataSourceHelperService dataSourceHelperService)
         {
-            // Check that database contains required data
-            registeredDataSourceService.CheckRequiredRegisteredDataSourcesExistOnStartup();
+            // Initialize
+            DimRegisteredDataSource dimRegisteredDataSource_ORCID = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_ORCID();
+            DimRegisteredDataSource dimRegisteredDataSource_TTV = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_TTV();
+
+            dataSourceHelperService.DimRegisteredDataSourceId_ORCID = dimRegisteredDataSource_ORCID.Id;
+            dataSourceHelperService.DimRegisteredDataSourceName_ORCID = dimRegisteredDataSource_ORCID.Name;
+            dataSourceHelperService.DimOrganizationId_ORCID = dimRegisteredDataSource_ORCID.DimOrganization.Id;
+            dataSourceHelperService.DimOrganizationNameFi_ORCID = dimRegisteredDataSource_ORCID.DimOrganization.NameFi;
+            dataSourceHelperService.DimOrganizationNameEn_ORCID = dimRegisteredDataSource_ORCID.DimOrganization.NameEn;
+            dataSourceHelperService.DimOrganizationNameSv_ORCID = dimRegisteredDataSource_ORCID.DimOrganization.NameSv;
+
+            dataSourceHelperService.DimRegisteredDataSourceId_TTV = dimRegisteredDataSource_TTV.Id;
+            dataSourceHelperService.DimRegisteredDataSourceName_TTV = dimRegisteredDataSource_TTV.Name;
+            dataSourceHelperService.DimOrganizationId_TTV = dimRegisteredDataSource_TTV.DimOrganization.Id;
+            dataSourceHelperService.DimOrganizationNameFi_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameFi;
+            dataSourceHelperService.DimOrganizationNameEn_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameEn;
+            dataSourceHelperService.DimOrganizationNameSv_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameSv;
 
             // Response compression.
             app.UseResponseCompression();
