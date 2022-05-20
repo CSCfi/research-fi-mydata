@@ -14,33 +14,33 @@ namespace api.Services
     public class ElasticsearchService
     {
         public ElasticClient ESclient;
-        public IConfiguration _configuration { get; }
+        public IConfiguration Configuration { get; }
         private readonly ILogger<ElasticsearchService> _logger;
 
         // Check if Elasticsearch synchronization is enabled and related configuration is valid.
         public Boolean IsElasticsearchSyncEnabled()
         {
-            return _configuration["ELASTICSEARCH:ENABLED"] != null
-                && _configuration["ELASTICSEARCH:ENABLED"] == "true"
-                && _configuration["ELASTICSEARCH:URL"] != null
+            return Configuration["ELASTICSEARCH:ENABLED"] != null
+                && Configuration["ELASTICSEARCH:ENABLED"] == "true"
+                && Configuration["ELASTICSEARCH:URL"] != null
                 && Uri.IsWellFormedUriString(
-                    _configuration["ELASTICSEARCH:URL"],
+                    Configuration["ELASTICSEARCH:URL"],
                     UriKind.Absolute
                 );
         }
 
         // Constructor.
         // Do not setup HttpClient unless configuration values are ok.
-        public ElasticsearchService(IConfiguration configuration, HttpClient client, ILogger<ElasticsearchService> logger)
+        public ElasticsearchService(IConfiguration configuration, ILogger<ElasticsearchService> logger)
         {
-            _configuration = configuration;
+            Configuration = configuration;
             _logger = logger;
 
             if (this.IsElasticsearchSyncEnabled())
             {
-                var settings = new ConnectionSettings(new Uri(_configuration["ELASTICSEARCH:URL"]))
+                ConnectionSettings settings = new ConnectionSettings(new Uri(Configuration["ELASTICSEARCH:URL"]))
                     .DefaultIndex("person")
-                    .BasicAuthentication(_configuration["ELASTICSEARCH:USERNAME"], _configuration["ELASTICSEARCH:PASSWORD"]);
+                    .BasicAuthentication(Configuration["ELASTICSEARCH:USERNAME"], Configuration["ELASTICSEARCH:PASSWORD"]);
                 ESclient = new ElasticClient(settings);
             }
         }
@@ -57,14 +57,14 @@ namespace api.Services
 
             _logger.LogInformation("ElasticsearchService: updating entry: " + orcidId);
 
-            var asyncIndexResponse = await ESclient.IndexDocumentAsync(person);
+            IndexResponse asyncIndexResponse = await ESclient.IndexDocumentAsync(person);
 
             if (asyncIndexResponse.IsValid)
             {
                 _logger.LogInformation("ElasticsearchService: updated entry: " + orcidId);
             }
             else {
-                var errormessage = "";
+                string errormessage = "";
                 if (asyncIndexResponse.OriginalException != null && asyncIndexResponse.OriginalException.Message != null)
                 {
                     errormessage = asyncIndexResponse.OriginalException.Message;
@@ -87,14 +87,14 @@ namespace api.Services
 
             _logger.LogInformation("ElasticsearchService: deleting entry: " + orcidId);
 
-            var asyncDeleteResponse = await ESclient.DeleteAsync<ElasticPerson>(orcidId);
+            DeleteResponse asyncDeleteResponse = await ESclient.DeleteAsync<ElasticPerson>(orcidId);
 
             if (asyncDeleteResponse.IsValid)
             {
                 _logger.LogInformation("ElasticsearchService: deleted entry: " + orcidId);
             }
-            else { 
-                var errormessage = "";
+            else {
+                string errormessage = "";
                 if (asyncDeleteResponse.OriginalException != null && asyncDeleteResponse.OriginalException.Message != null)
                 {
                     errormessage = asyncDeleteResponse.OriginalException.Message;

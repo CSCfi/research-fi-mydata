@@ -28,17 +28,15 @@ namespace api.Controllers
         private readonly UtilityService _utilityService;
         private readonly DataSourceHelperService _dataSourceHelperService;
         private readonly LanguageService _languageService;
-        private IMemoryCache _cache;
-        private readonly ILogger<UserProfileController> _logger;
+        private readonly IMemoryCache _cache;
 
-        public FundingDecisionController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, LanguageService languageService)
+        public FundingDecisionController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService, IMemoryCache memoryCache, LanguageService languageService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _utilityService = utilityService;
             _dataSourceHelperService = dataSourceHelperService;
             _languageService = languageService;
-            _logger = logger;
             _cache = memoryCache;
         }
 
@@ -61,14 +59,14 @@ namespace api.Controllers
             }
 
             // Get userprofile
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
-            var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
+            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION))
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimRegisteredDataSource)
@@ -79,25 +77,27 @@ namespace api.Controllers
             // TODO: Currently all added funding decisions get the same data source (Tiedejatutkimus.fi)
 
             // Get DimFieldDisplaySetting for funding decision
-            var dimFieldDisplaySettingsFundingDecision = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
+            DimFieldDisplaySetting dimFieldDisplaySettingsFundingDecision = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
 
             // Registered data source organization name translation
-            var nameTranslation_OrganizationName = _languageService.getNameTranslation(
+            NameTranslation nameTranslation_OrganizationName = _languageService.GetNameTranslation(
                 nameFi: _dataSourceHelperService.DimOrganizationNameFi_TTV,
                 nameSv: _dataSourceHelperService.DimOrganizationNameSv_TTV,
                 nameEn: _dataSourceHelperService.DimOrganizationNameEn_TTV
             );
 
             // Response object
-            var profileEditorAddFundingDecisionResponse = new ProfileEditorAddFundingDecisionResponse();
-            profileEditorAddFundingDecisionResponse.source = new ProfileEditorSource()
+            ProfileEditorAddFundingDecisionResponse profileEditorAddFundingDecisionResponse = new()
             {
-                RegisteredDataSource = _dataSourceHelperService.DimRegisteredDataSourceName_TTV,
-                Organization = new Organization()
+                source = new ProfileEditorSource()
                 {
-                    NameFi = nameTranslation_OrganizationName.NameFi,
-                    NameSv = nameTranslation_OrganizationName.NameSv,
-                    NameEn = nameTranslation_OrganizationName.NameEn
+                    RegisteredDataSource = _dataSourceHelperService.DimRegisteredDataSourceName_TTV,
+                    Organization = new Organization()
+                    {
+                        NameFi = nameTranslation_OrganizationName.NameFi,
+                        NameSv = nameTranslation_OrganizationName.NameSv,
+                        NameEn = nameTranslation_OrganizationName.NameEn
+                    }
                 }
             };
 
@@ -105,7 +105,7 @@ namespace api.Controllers
             // Loop funding decisions
             foreach (ProfileEditorFundingDecisionToAdd fundingDecisionToAdd in profileEditorFundingDecisionsToAdd)
             {
-                var fundingDecisionProcessed = false;
+                bool fundingDecisionProcessed = false;
                 // Check if userprofile already includes given funding decision
                 foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
                 {
@@ -121,7 +121,7 @@ namespace api.Controllers
                 if (!fundingDecisionProcessed)
                 {
                     // Get DimFundingDecision
-                    var dimFundingDecision = await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.Id == fundingDecisionToAdd.ProjectId);
+                    DimFundingDecision dimFundingDecision = await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.Id == fundingDecisionToAdd.ProjectId);
                     // Check if exists
                     if (dimFundingDecision == null)
                     {
@@ -131,7 +131,7 @@ namespace api.Controllers
                     else
                     {
                         // Add FactFieldValue
-                        var factFieldValueFunding = _userProfileService.GetEmptyFactFieldValue();
+                        FactFieldValue factFieldValueFunding = _userProfileService.GetEmptyFactFieldValue();
                         factFieldValueFunding.Show = fundingDecisionToAdd.Show != null ? fundingDecisionToAdd.Show : false;
                         factFieldValueFunding.PrimaryValue = fundingDecisionToAdd.PrimaryValue != null ? fundingDecisionToAdd.PrimaryValue : false;
                         factFieldValueFunding.DimUserProfileId = dimUserProfile.Id;
@@ -139,8 +139,8 @@ namespace api.Controllers
                         factFieldValueFunding.DimFundingDecisionId = dimFundingDecision.Id;
                         factFieldValueFunding.DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV;
                         factFieldValueFunding.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
-                        factFieldValueFunding.Created = _utilityService.getCurrentDateTime();
-                        factFieldValueFunding.Modified = _utilityService.getCurrentDateTime();
+                        factFieldValueFunding.Created = _utilityService.GetCurrentDateTime();
+                        factFieldValueFunding.Modified = _utilityService.GetCurrentDateTime();
                         _ttvContext.FactFieldValues.Add(factFieldValueFunding);
                         await _ttvContext.SaveChangesAsync();
 
@@ -177,8 +177,8 @@ namespace api.Controllers
             }
 
             // Get id of userprofile
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 // Userprofile not found
@@ -186,12 +186,12 @@ namespace api.Controllers
             }
 
             // Response object
-            var profileEditorRemoveFundingDecisionResponse = new ProfileEditorRemoveFundingDecisionResponse();
+            ProfileEditorRemoveFundingDecisionResponse profileEditorRemoveFundingDecisionResponse = new();
 
             // Remove FactFieldValues
             foreach(int projectId in projectIds.Distinct())
             {
-                var factFieldValue = await _ttvContext.FactFieldValues
+                FactFieldValue factFieldValue = await _ttvContext.FactFieldValues
                     .Where(
                         ffv => ffv.DimUserProfileId == userprofileId &&
                         ffv.DimFundingDecisionId != -1 &&

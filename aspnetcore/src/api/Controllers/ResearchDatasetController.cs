@@ -28,17 +28,15 @@ namespace api.Controllers
         private readonly UtilityService _utilityService;
         private readonly DataSourceHelperService _dataSourceHelperService;
         private readonly LanguageService _languageService;
-        private IMemoryCache _cache;
-        private readonly ILogger<UserProfileController> _logger;
+        private readonly IMemoryCache _cache;
 
-        public ResearchDatasetController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, LanguageService languageService)
+        public ResearchDatasetController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService, IMemoryCache memoryCache, LanguageService languageService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _utilityService = utilityService;
             _dataSourceHelperService = dataSourceHelperService;
             _languageService = languageService;
-            _logger = logger;
             _cache = memoryCache;
         }
 
@@ -61,8 +59,8 @@ namespace api.Controllers
             }
 
             // Get userprofile
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 // Userprofile not found
@@ -70,7 +68,7 @@ namespace api.Controllers
             }
 
             // TODO: FactFieldValues relation to DimResearchDataset
-            var dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
+            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimRegisteredDataSource)
@@ -81,32 +79,34 @@ namespace api.Controllers
             // TODO: Currently all added research data get the same data source (Tiedejatutkimus.fi)
 
             // Get DimFieldDisplaySetting for Tiedejatutkimus.fi
-            var dimFieldDisplaySettingsResearchDataset = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
+            DimFieldDisplaySetting dimFieldDisplaySettingsResearchDataset = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
 
             // Registered data source organization name translation
-            var nameTranslation_OrganizationName = _languageService.getNameTranslation(
+            NameTranslation nameTranslation_OrganizationName = _languageService.GetNameTranslation(
                 nameFi: _dataSourceHelperService.DimOrganizationNameFi_TTV,
                 nameSv: _dataSourceHelperService.DimOrganizationNameSv_TTV,
                 nameEn: _dataSourceHelperService.DimOrganizationNameEn_TTV
             );
 
             // Response object
-            var profileEditorAddResearchDatasetResponse = new ProfileEditorAddResearchDatasetResponse();
-            profileEditorAddResearchDatasetResponse.source = new ProfileEditorSource()
+            ProfileEditorAddResearchDatasetResponse profileEditorAddResearchDatasetResponse = new()
             {
-                RegisteredDataSource = _dataSourceHelperService.DimRegisteredDataSourceName_TTV,
-                Organization = new Organization()
+                source = new ProfileEditorSource()
                 {
-                    NameFi = nameTranslation_OrganizationName.NameFi,
-                    NameSv = nameTranslation_OrganizationName.NameSv,
-                    NameEn = nameTranslation_OrganizationName.NameEn
+                    RegisteredDataSource = _dataSourceHelperService.DimRegisteredDataSourceName_TTV,
+                    Organization = new Organization()
+                    {
+                        NameFi = nameTranslation_OrganizationName.NameFi,
+                        NameSv = nameTranslation_OrganizationName.NameSv,
+                        NameEn = nameTranslation_OrganizationName.NameEn
+                    }
                 }
             };
 
             // Loop data sets
             foreach (ProfileEditorResearchDatasetToAdd researchDatasetToAdd in profileEditorResearchdatasetToAdd)
             {
-                var researchDatasetProcessed = false;
+                bool researchDatasetProcessed = false;
                 // Check if userprofile already includes given research dataset
                 foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues)
                 {
@@ -122,7 +122,7 @@ namespace api.Controllers
                 if (!researchDatasetProcessed)
                 {
                     // Get DimResearchDataset
-                    var dimResearchDataset = await _ttvContext.DimResearchDatasets.AsNoTracking().FirstOrDefaultAsync(drd => drd.LocalIdentifier == researchDatasetToAdd.LocalIdentifier);
+                    DimResearchDataset dimResearchDataset = await _ttvContext.DimResearchDatasets.AsNoTracking().FirstOrDefaultAsync(drd => drd.LocalIdentifier == researchDatasetToAdd.LocalIdentifier);
                     // Check if DimResearchDataset exists
                     if (dimResearchDataset == null)
                     {
@@ -132,7 +132,7 @@ namespace api.Controllers
                     else
                     {
                         // Add FactFieldValue
-                        var factFieldValueResearchDataset = _userProfileService.GetEmptyFactFieldValue();
+                        FactFieldValue factFieldValueResearchDataset = _userProfileService.GetEmptyFactFieldValue();
                         factFieldValueResearchDataset.Show = researchDatasetToAdd.Show != null ? researchDatasetToAdd.Show : false;
                         factFieldValueResearchDataset.PrimaryValue = researchDatasetToAdd.PrimaryValue != null ? researchDatasetToAdd.PrimaryValue : false;
                         factFieldValueResearchDataset.DimUserProfileId = dimUserProfile.Id;
@@ -140,8 +140,8 @@ namespace api.Controllers
                         factFieldValueResearchDataset.DimResearchDatasetId = dimResearchDataset.Id;
                         factFieldValueResearchDataset.DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV;
                         factFieldValueResearchDataset.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
-                        factFieldValueResearchDataset.Created = _utilityService.getCurrentDateTime();
-                        factFieldValueResearchDataset.Modified = _utilityService.getCurrentDateTime();
+                        factFieldValueResearchDataset.Created = _utilityService.GetCurrentDateTime();
+                        factFieldValueResearchDataset.Modified = _utilityService.GetCurrentDateTime();
                         _ttvContext.FactFieldValues.Add(factFieldValueResearchDataset);
                         await _ttvContext.SaveChangesAsync();
 
@@ -178,8 +178,8 @@ namespace api.Controllers
             }
 
             // Get id of userprofile
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 // Userprofile not found
@@ -187,12 +187,12 @@ namespace api.Controllers
             }
 
             // Response object
-            var profileEditorRemoveResearchDatasetResponse = new ProfileEditorRemoveResearchDatasetResponse();
+            ProfileEditorRemoveResearchDatasetResponse profileEditorRemoveResearchDatasetResponse = new();
 
             // Remove FactFieldValues
             foreach(string localIdentifier in localIdentifiers.Distinct())
             {
-                var factFieldValue = await _ttvContext.FactFieldValues
+                FactFieldValue factFieldValue = await _ttvContext.FactFieldValues
                     .Where(
                         ffv => ffv.DimUserProfileId == userprofileId &&
                         ffv.DimResearchDatasetId != -1 &&

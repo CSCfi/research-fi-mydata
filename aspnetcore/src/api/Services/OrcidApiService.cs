@@ -34,11 +34,11 @@ namespace api.Services
             // TODO: check orcidId and orcidAccessToken
 
             // Get ORCID specific http client.
-            var orcidApiHttpClient = _httpClientFactory.CreateClient("ORCID");
+            HttpClient orcidApiHttpClient = _httpClientFactory.CreateClient("ORCID");
             // Get path for retrieving ORCID record. API base address is already set in http client.
-            var orcidRecordPath = GetOrcidRecordPath(orcidId);
+            string orcidRecordPath = GetOrcidRecordPath(orcidId);
             // GET request
-            var request = new HttpRequestMessage(method: HttpMethod.Get, requestUri: orcidRecordPath);
+            HttpRequestMessage request = new(method: HttpMethod.Get, requestUri: orcidRecordPath);
             // Insert ORCID access token into authorization header for each request.
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", orcidAccessToken);
             HttpResponseMessage response = await orcidApiHttpClient.SendAsync(request);

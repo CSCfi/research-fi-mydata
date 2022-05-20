@@ -16,15 +16,15 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // First names
             Assert.Equal(
-                "dim_name_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_FIRST_NAMES)
+                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_FIRST_NAMES)
             );
             // Last name
             Assert.Equal(
-                "dim_name_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_LAST_NAME)
+                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_LAST_NAME)
             );
             // Other names
             Assert.Equal(
-                "dim_name_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_OTHER_NAMES)
+                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_OTHER_NAMES)
             );
         }
 
@@ -34,7 +34,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Researcer description
             Assert.Equal(
-                "dim_researcher_description_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION)
+                "dim_researcher_description_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION)
             );
         }
 
@@ -44,7 +44,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Web link
             Assert.Equal(
-                "dim_web_link_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_WEB_LINK)
+                "dim_web_link_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_WEB_LINK)
             );
         }
 
@@ -54,7 +54,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Web link
             Assert.Equal(
-                "dim_email_addrress_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS)
+                "dim_email_addrress_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS)
             );
         }
 
@@ -64,7 +64,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Web link
             Assert.Equal(
-                "dim_keyword_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_KEYWORD)
+                "dim_keyword_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_KEYWORD)
             );
         }
 
@@ -74,7 +74,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Web link
             Assert.Equal(
-                "dim_telephone_number_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER)
+                "dim_telephone_number_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER)
             );
         }
 
@@ -84,7 +84,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Web link
             Assert.Equal(
-                "dim_affiliation_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_AFFILIATION)
+                "dim_affiliation_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_AFFILIATION)
             );
         }
 
@@ -94,7 +94,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Web link
             Assert.Equal(
-                "dim_education_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_EDUCATION)
+                "dim_education_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_EDUCATION)
             );
         }
 
@@ -104,7 +104,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Web link
             Assert.Equal(
-                "dim_publication_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION)
+                "dim_publication_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION)
             );
         }
 
@@ -114,7 +114,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Web link
             Assert.Equal(
-                "dim_orcid_publication_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID)
+                "dim_orcid_publication_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID)
             );
         }
 
@@ -124,7 +124,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Funding decision
             Assert.Equal(
-                "dim_funding_decision_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION)
+                "dim_funding_decision_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION)
             );
         }
 
@@ -134,7 +134,7 @@ namespace api.Tests
             var ttvSqlService = new TtvSqlService();
             // Research dataset
             Assert.Equal(
-                "dim_research_dataset_id", ttvSqlService.getFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET)
+                "dim_research_dataset_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET)
             );
         }
 
@@ -159,7 +159,7 @@ namespace api.Tests
                                 WHERE
                                     dim_user_profile_id=80 AND
                                     dim_name_id=321";
-            var actualSqlString = ttvSqlService.getSqlQuery_Update_FactFieldValues(userProfileId, profileEditorItemMeta);
+            var actualSqlString = ttvSqlService.GetSqlQuery_Update_FactFieldValues(userProfileId, profileEditorItemMeta);
 
             Assert.Equal(
                 expectedSqlString.Replace("\n", String.Empty).Replace(" ", String.Empty),
@@ -188,7 +188,7 @@ namespace api.Tests
                                 WHERE
                                     dim_user_profile_id=5678 AND
                                     dim_researcher_description_id=254";
-            var actualSqlString = ttvSqlService.getSqlQuery_Update_FactFieldValues(userProfileId, profileEditorItemMeta);
+            var actualSqlString = ttvSqlService.GetSqlQuery_Update_FactFieldValues(userProfileId, profileEditorItemMeta);
 
             Assert.Equal(
                 expectedSqlString.Replace("\n", String.Empty).Replace(" ", String.Empty),

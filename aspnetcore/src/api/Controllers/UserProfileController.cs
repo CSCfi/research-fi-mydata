@@ -22,7 +22,6 @@ namespace api.Controllers
     public class UserProfileController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
-        private readonly DemoDataService _demoDataService;
         private readonly UserProfileService _userProfileService;
         private readonly ElasticsearchService _elasticsearchService;
         private readonly UtilityService _utilityService;
@@ -31,10 +30,9 @@ namespace api.Controllers
         private readonly IMemoryCache _cache;
         private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
 
-        public UserProfileController(TtvContext ttvContext, DemoDataService demoDataService, ElasticsearchService elasticsearchService, UserProfileService userProfileService, UtilityService utilityService, KeycloakAdminApiService keycloakAdminApiService, ILogger<UserProfileController> logger, IMemoryCache memoryCache, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue)
+        public UserProfileController(TtvContext ttvContext, ElasticsearchService elasticsearchService, UserProfileService userProfileService, UtilityService utilityService, KeycloakAdminApiService keycloakAdminApiService, ILogger<UserProfileController> logger, IMemoryCache memoryCache, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue)
         {
             _ttvContext = ttvContext;
-            _demoDataService = demoDataService;
             _userProfileService = userProfileService;
             _elasticsearchService = elasticsearchService;
             _utilityService = utilityService;
@@ -52,10 +50,10 @@ namespace api.Controllers
         public async Task<IActionResult> Get()
         {
             // Get ORCID ID.
-            var orcidId = this.GetOrcidId();
+            string orcidId = GetOrcidId();
 
             // Get userprofile id from ORCID id.
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Userprofile id must be positive.
             if (userprofileId > 0)
@@ -73,13 +71,13 @@ namespace api.Controllers
         public async Task<IActionResult> Create()
         {
             // Get ORCID id.
-            var orcidId = this.GetOrcidId();
+            string orcidId = GetOrcidId();
             // Log request
             _logger.LogInformation(this.GetLogPrefix() + " create profile request");
 
             // Get DimPid by ORCID id.
             // Also get related entities. Needed when searching existing data that should be automatically included in profile.
-            var dimPid = await _ttvContext.DimPids
+            DimPid dimPid = await _ttvContext.DimPids
                 .Include(dp => dp.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimNames)
                         .ThenInclude(dn => dn.FactContributions).AsNoTracking()
@@ -93,7 +91,7 @@ namespace api.Controllers
                     .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
 
             // Get current DateTime
-            DateTime currentDateTime = _utilityService.getCurrentDateTime();
+            DateTime currentDateTime = _utilityService.GetCurrentDateTime();
 
             // Check if DimPid 
             if (dimPid == null)
@@ -120,7 +118,7 @@ namespace api.Controllers
             else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
             {
                 // DimPid was found but it does not have related DimKnownPerson.
-                var kp = new DimKnownPerson()
+                DimKnownPerson kp = new()
                 {
                     SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
@@ -134,7 +132,7 @@ namespace api.Controllers
 
 
             // Add DimUserProfile
-            var dimUserProfile = dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault();
+            DimUserProfile dimUserProfile = dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault();
             if (dimUserProfile == null)
             {
                 // Add DimUserProfile
@@ -153,7 +151,7 @@ namespace api.Controllers
                 // Add DimFieldDisplaySettings
                 foreach (int fieldIdentifier in _userProfileService.GetFieldIdentifiers())
                 {
-                    var dimFieldDisplaySetting = new DimFieldDisplaySetting()
+                    DimFieldDisplaySetting dimFieldDisplaySetting = new()
                     {
                         DimUserProfileId = dimUserProfile.Id,
                         FieldIdentifier = fieldIdentifier,
@@ -188,12 +186,12 @@ namespace api.Controllers
         public async Task<IActionResult> Delete()
         {
             // Get ORCID id.
-            var orcidId = this.GetOrcidId();
+            string orcidId = GetOrcidId();
             // Log request.
             _logger.LogInformation(this.GetLogPrefix() + " delete profile request");
 
             // Check that userprofile exists.
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
@@ -213,7 +211,7 @@ namespace api.Controllers
 
 
             // Get DimUserProfile and related data that should be removed. 
-            var dimUserProfile = await _ttvContext.DimUserProfiles
+            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimFieldDisplaySettings)
                 .Include(dup => dup.DimUserChoices)
                 .Include(dup => dup.FactFieldValues)
@@ -253,7 +251,7 @@ namespace api.Controllers
                 // DimAffiliation. In demo version the related DimOrganization is removed.
                 if (ffv.DimAffiliationId != -1)
                 {
-                    var dimOrganization = ffv.DimAffiliation.DimOrganization;
+                    DimOrganization dimOrganization = ffv.DimAffiliation.DimOrganization;
                     _ttvContext.FactFieldValues.Remove(ffv);
 
                     if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
@@ -362,7 +360,7 @@ namespace api.Controllers
                     }
 
                     // DEMO: remove test data from FactContribution
-                    var factContributions = await _ttvContext.FactContributions.Where(fc => fc.DimResearchDatasetId == ffv.DimResearchDatasetId && fc.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
+                    System.Collections.Generic.List<FactContribution> factContributions = await _ttvContext.FactContributions.Where(fc => fc.DimResearchDatasetId == ffv.DimResearchDatasetId && fc.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
                     foreach (FactContribution fc in factContributions)
                     {
                         _ttvContext.FactContributions.Remove(fc);
@@ -370,7 +368,7 @@ namespace api.Controllers
                     }
 
                     // DEMO: remove test data from DimPids
-                    var dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && dp.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
+                    System.Collections.Generic.List<DimPid> dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && dp.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
                     foreach (DimPid dp in dimPids)
                     {
                         _ttvContext.DimPids.Remove(dp);

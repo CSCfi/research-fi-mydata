@@ -32,12 +32,12 @@ namespace api.Services
         public async Task<Person> GetProfiledataForElasticsearch(string orcidId, int userprofileId)
         {
             // Create a scope and get TtvContext for data query.
-            using var scope = _serviceScopeFactory.CreateScope();
-            var localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
-            var localLanguageService = scope.ServiceProvider.GetRequiredService<LanguageService>();
+            using IServiceScope scope = _serviceScopeFactory.CreateScope();
+            TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
+            LanguageService localLanguageService = scope.ServiceProvider.GetRequiredService<LanguageService>();
 
             // Get DimFieldDisplaySettings and related entities
-            var dimFieldDisplaySettings = await localTtvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
+            List<DimFieldDisplaySetting> dimFieldDisplaySettings = await localTtvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
@@ -139,7 +139,7 @@ namespace api.Services
                 //            .ThenInclude(fc => fc.DimReferencedataActorRole).AsNoTracking() // DimName related to DimReferencedataActorRole
                 .ToListAsync();
 
-            var person = new Person(orcidId)
+            Person person = new(orcidId)
             {
             };
 
@@ -147,22 +147,22 @@ namespace api.Services
             foreach (DimFieldDisplaySetting dfds in dimFieldDisplaySettings)
             {
                 // Group FactFieldValues by DimRegisteredDataSourceId
-                var factFieldValues_GroupedBy_DataSourceId = dfds.FactFieldValues.GroupBy(ffv => ffv.DimRegisteredDataSourceId);
+                IEnumerable<IGrouping<int, FactFieldValue>> factFieldValues_GroupedBy_DataSourceId = dfds.FactFieldValues.GroupBy(ffv => ffv.DimRegisteredDataSourceId);
 
                 // Loop groups
-                foreach (var factFieldValueGroup in factFieldValues_GroupedBy_DataSourceId)
+                foreach (IGrouping<int, FactFieldValue> factFieldValueGroup in factFieldValues_GroupedBy_DataSourceId)
                 {
-                    var dimRegisteredDataSource = factFieldValueGroup.First().DimRegisteredDataSource;
+                    DimRegisteredDataSource dimRegisteredDataSource = factFieldValueGroup.First().DimRegisteredDataSource;
 
                     // Organization name translation
-                    var nameTranslationSourceOrganization = localLanguageService.getNameTranslation(
+                    NameTranslation nameTranslationSourceOrganization = localLanguageService.GetNameTranslation(
                         nameFi: dimRegisteredDataSource.DimOrganization.NameFi,
                         nameEn: dimRegisteredDataSource.DimOrganization.NameEn,
                         nameSv: dimRegisteredDataSource.DimOrganization.NameSv
                     );
 
                     // Source object containing registered data source and organization name.
-                    var profileEditorSource = new Source()
+                    Source profileEditorSource = new()
                     {
                         RegisteredDataSource = dimRegisteredDataSource.Name,
                         Organization = new Organization()
@@ -179,7 +179,7 @@ namespace api.Services
                     {
                         // Name
                         case Constants.FieldIdentifiers.PERSON_NAME:
-                            var nameGroup = new GroupName()
+                            GroupName nameGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemName>() { }
@@ -202,7 +202,7 @@ namespace api.Services
 
                         // Other name
                         case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
-                            var otherNameGroup = new GroupOtherName()
+                            GroupOtherName otherNameGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemName>() { }
@@ -224,7 +224,7 @@ namespace api.Services
 
                         // Researcher description
                         case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
-                            var researcherDescriptionGroup = new GroupResearcherDescription()
+                            GroupResearcherDescription researcherDescriptionGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemResearcherDescription>() { }
@@ -249,7 +249,7 @@ namespace api.Services
 
                         // Web link
                         case Constants.FieldIdentifiers.PERSON_WEB_LINK:
-                            var webLinkGroup = new GroupWebLink()
+                            GroupWebLink webLinkGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemWebLink>() { }
@@ -272,7 +272,7 @@ namespace api.Services
 
                         // Email address
                         case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
-                            var emailGroup = new GroupEmail()
+                            GroupEmail emailGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemEmail>() { }
@@ -294,7 +294,7 @@ namespace api.Services
 
                         // Telephone number
                         case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
-                            var telephoneNumberGroup = new GroupTelephoneNumber()
+                            GroupTelephoneNumber telephoneNumberGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemTelephoneNumber>() { }
@@ -316,7 +316,7 @@ namespace api.Services
 
                         // Field of science
                         case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
-                            var fieldOfScienceGroup = new GroupFieldOfScience()
+                            GroupFieldOfScience fieldOfScienceGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemFieldOfScience>() { }
@@ -324,7 +324,7 @@ namespace api.Services
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
                                 // Name translation service ensures that none of the language fields is empty.
-                                var nameTranslationFieldOfScience = localLanguageService.getNameTranslation(
+                                NameTranslation nameTranslationFieldOfScience = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimFieldOfScience.NameFi,
                                     nameEn: ffv.DimFieldOfScience.NameEn,
                                     nameSv: ffv.DimFieldOfScience.NameSv
@@ -347,7 +347,7 @@ namespace api.Services
 
                         // Keyword
                         case Constants.FieldIdentifiers.PERSON_KEYWORD:
-                            var keywordGroup = new GroupKeyword()
+                            GroupKeyword keywordGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemKeyword>() { }
@@ -370,7 +370,7 @@ namespace api.Services
 
                         // External identifier
                         case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
-                            var externalIdentifierGroup = new GroupExternalIdentifier()
+                            GroupExternalIdentifier externalIdentifierGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemExternalIdentifier>() { }
@@ -398,7 +398,7 @@ namespace api.Services
 
                         // Affiliation
                         case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
-                            var affiliationGroup = new GroupAffiliation()
+                            GroupAffiliation affiliationGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemAffiliation>() { }
@@ -406,19 +406,19 @@ namespace api.Services
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
                                 // Name translation service ensures that none of the language fields is empty.
-                                var nameTranslationAffiliationOrganization = localLanguageService.getNameTranslation(
+                                NameTranslation nameTranslationAffiliationOrganization = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
                                     nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
                                     nameSv: ffv.DimAffiliation.DimOrganization.NameSv
                                 );
-                                var nameTranslationPositionName = localLanguageService.getNameTranslation(
+                                NameTranslation nameTranslationPositionName = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimAffiliation.PositionNameFi,
                                     nameEn: ffv.DimAffiliation.PositionNameEn,
                                     nameSv: ffv.DimAffiliation.PositionNameSv
                                 );
 
                                 // TODO: demo version stores ORDCID affiliation department name in DimOrganization.NameUnd
-                                var nameTranslationAffiliationDepartment = new NameTranslation()
+                                NameTranslation nameTranslationAffiliationDepartment = new()
                                 {
                                     NameFi = "",
                                     NameEn = "",
@@ -426,14 +426,14 @@ namespace api.Services
                                 };
                                 if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.PROFILE_API)
                                 {
-                                    nameTranslationAffiliationDepartment = localLanguageService.getNameTranslation(
+                                    nameTranslationAffiliationDepartment = localLanguageService.GetNameTranslation(
                                         "",
                                         nameEn: ffv.DimAffiliation.DimOrganization.NameUnd,
                                         ""
                                     );
                                 }
 
-                                var affiliation = new ItemAffiliation()
+                                ItemAffiliation affiliation = new()
                                 {
                                     // TODO: DimOrganization handling
                                     OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
@@ -474,7 +474,7 @@ namespace api.Services
 
                         // Education
                         case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
-                            var educationGroup = new GroupEducation()
+                            GroupEducation educationGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemEducation>() { }
@@ -482,13 +482,13 @@ namespace api.Services
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
                                 // Name translation service ensures that none of the language fields is empty.
-                                var nameTraslationEducation = localLanguageService.getNameTranslation(
+                                NameTranslation nameTraslationEducation = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimEducation.NameFi,
                                     nameEn: ffv.DimEducation.NameEn,
                                     nameSv: ffv.DimEducation.NameSv
                                 );
 
-                                var education = new ItemEducation()
+                                ItemEducation education = new()
                                 {
                                     NameFi = nameTraslationEducation.NameFi,
                                     NameEn = nameTraslationEducation.NameEn,
@@ -525,7 +525,7 @@ namespace api.Services
 
                         // Publication
                         case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
-                            var publicationGroup = new GroupPublication()
+                            GroupPublication publicationGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemPublication>() { }
@@ -551,7 +551,7 @@ namespace api.Services
 
                         // Publication (ORCID)
                         case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
-                            var orcidPublicationGroup = new GroupPublication()
+                            GroupPublication orcidPublicationGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemPublication>() { }
@@ -578,7 +578,7 @@ namespace api.Services
 
                         // Funding decision
                         case Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION:
-                            var fundingDecisionGroup = new GroupFundingDecision()
+                            GroupFundingDecision fundingDecisionGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemFundingDecision>() { }
@@ -586,33 +586,33 @@ namespace api.Services
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
                                 // Name translation service ensures that none of the language fields is empty.
-                                var nameTraslationFundingDecision_ProjectName = localLanguageService.getNameTranslation(
+                                NameTranslation nameTraslationFundingDecision_ProjectName = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimFundingDecision.NameFi,
                                     nameSv: ffv.DimFundingDecision.NameSv,
                                     nameEn: ffv.DimFundingDecision.NameEn
                                 );
-                                var nameTraslationFundingDecision_ProjectDescription = localLanguageService.getNameTranslation(
+                                NameTranslation nameTraslationFundingDecision_ProjectDescription = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimFundingDecision.DescriptionFi,
                                     nameSv: ffv.DimFundingDecision.DescriptionSv,
                                     nameEn: ffv.DimFundingDecision.DescriptionEn
                                 );
-                                var nameTraslationFundingDecision_FunderName = localLanguageService.getNameTranslation(
+                                NameTranslation nameTraslationFundingDecision_FunderName = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameFi,
                                     nameSv: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameSv,
                                     nameEn: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameEn
                                 );
-                                var nameTranslationFundingDecision_TypeOfFunding = localLanguageService.getNameTranslation(
+                                NameTranslation nameTranslationFundingDecision_TypeOfFunding = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimFundingDecision.DimTypeOfFunding.NameFi,
                                     nameSv: ffv.DimFundingDecision.DimTypeOfFunding.NameSv,
                                     nameEn: ffv.DimFundingDecision.DimTypeOfFunding.NameEn
                                 );
-                                var nameTranslationFundingDecision_CallProgramme = localLanguageService.getNameTranslation(
+                                NameTranslation nameTranslationFundingDecision_CallProgramme = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimFundingDecision.DimCallProgramme.NameFi,
                                     nameSv: ffv.DimFundingDecision.DimCallProgramme.NameSv,
                                     nameEn: ffv.DimFundingDecision.DimCallProgramme.NameEn
                                 );
 
-                                var fundingDecision = new ItemFundingDecision()
+                                ItemFundingDecision fundingDecision = new()
                                 {
                                     ProjectId = ffv.DimFundingDecision.Id,
                                     ProjectAcronym = ffv.DimFundingDecision.Acronym,
@@ -656,7 +656,7 @@ namespace api.Services
 
                         // Research dataset
                         case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
-                            var researchDatasetGroup = new GroupResearchDataset()
+                            GroupResearchDataset researchDatasetGroup = new()
                             {
                                 source = profileEditorSource,
                                 items = new List<ItemResearchDataset>() { }
@@ -664,12 +664,12 @@ namespace api.Services
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
                                 // Name translation service ensures that none of the language fields is empty.
-                                var nameTraslationResearchDataset_Name = localLanguageService.getNameTranslation(
+                                NameTranslation nameTraslationResearchDataset_Name = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimResearchDataset.NameFi,
                                     nameSv: ffv.DimResearchDataset.NameSv,
                                     nameEn: ffv.DimResearchDataset.NameEn
                                 );
-                                var nameTraslationResearchDataset_Description = localLanguageService.getNameTranslation(
+                                NameTranslation nameTraslationResearchDataset_Description = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimResearchDataset.DescriptionFi,
                                     nameSv: ffv.DimResearchDataset.DescriptionSv,
                                     nameEn: ffv.DimResearchDataset.DescriptionEn
@@ -677,9 +677,9 @@ namespace api.Services
 
                                 // Get values from DimPid. There is no FK between DimResearchDataset and DimPid,
                                 // so the query must be done separately.
-                                var dimPids = await localTtvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && ffv.DimResearchDatasetId > -1).AsNoTracking().ToListAsync();
+                                List<DimPid> dimPids = await localTtvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && ffv.DimResearchDatasetId > -1).AsNoTracking().ToListAsync();
 
-                                var preferredIdentifiers = new List<PreferredIdentifier>();
+                                List<PreferredIdentifier> preferredIdentifiers = new();
                                 foreach (DimPid dimPid in dimPids)
                                 {
                                     preferredIdentifiers.Add(
@@ -692,7 +692,7 @@ namespace api.Services
                                 }
 
                                 // TODO: add properties according to ElasticSearch index
-                                var researchDataset = new ItemResearchDataset()
+                                ItemResearchDataset researchDataset = new()
                                 {
                                     Actor = new List<Actor>(),
                                     Identifier = ffv.DimResearchDataset.LocalIdentifier,

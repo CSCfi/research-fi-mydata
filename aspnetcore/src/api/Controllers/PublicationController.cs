@@ -28,17 +28,15 @@ namespace api.Controllers
         private readonly UtilityService _utilityService;
         private readonly DataSourceHelperService _dataSourceHelperService;
         private readonly LanguageService _languageService;
-        private IMemoryCache _cache;
-        private readonly ILogger<UserProfileController> _logger;
+        private readonly IMemoryCache _cache;
 
-        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, LanguageService languageService)
+        public PublicationController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService, IMemoryCache memoryCache, LanguageService languageService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _utilityService = utilityService;
             _dataSourceHelperService = dataSourceHelperService;
             _languageService = languageService;
-            _logger = logger;
             _cache = memoryCache;
         }
 
@@ -61,14 +59,14 @@ namespace api.Controllers
             }
 
             // Get userprofile
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
-            var dimUserProfile = await _ttvContext.DimUserProfiles
+            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles
                 .Include(dup => dup.DimFieldDisplaySettings)
                     .ThenInclude(dfds => dfds.FactFieldValues)
                         .ThenInclude(ffv => ffv.DimRegisteredDataSource)
@@ -79,25 +77,27 @@ namespace api.Controllers
             // TODO: Currently all added publications get the same data source (Tiedejatutkimus.fi)
 
             // Get DimFieldDisplaySetting for publication
-            var dimFieldDisplaySettingsPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION);
+            DimFieldDisplaySetting dimFieldDisplaySettingsPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION);
 
             // Registered data source organization name translation
-            var nameTranslation_OrganizationName = _languageService.getNameTranslation(
+            NameTranslation nameTranslation_OrganizationName = _languageService.GetNameTranslation(
                 nameFi: _dataSourceHelperService.DimOrganizationNameFi_TTV,
                 nameSv: _dataSourceHelperService.DimOrganizationNameSv_TTV,
                 nameEn: _dataSourceHelperService.DimOrganizationNameEn_TTV
             );
 
             // Response object
-            var profileEditorAddPublicationResponse = new ProfileEditorAddPublicationResponse();
-            profileEditorAddPublicationResponse.source = new ProfileEditorSource()
+            ProfileEditorAddPublicationResponse profileEditorAddPublicationResponse = new()
             {
-                RegisteredDataSource = _dataSourceHelperService.DimRegisteredDataSourceName_TTV,
-                Organization = new Organization()
+                source = new ProfileEditorSource()
                 {
-                    NameFi = nameTranslation_OrganizationName.NameFi,
-                    NameSv = nameTranslation_OrganizationName.NameSv,
-                    NameEn = nameTranslation_OrganizationName.NameEn
+                    RegisteredDataSource = _dataSourceHelperService.DimRegisteredDataSourceName_TTV,
+                    Organization = new Organization()
+                    {
+                        NameFi = nameTranslation_OrganizationName.NameFi,
+                        NameSv = nameTranslation_OrganizationName.NameSv,
+                        NameEn = nameTranslation_OrganizationName.NameEn
+                    }
                 }
             };
 
@@ -105,7 +105,7 @@ namespace api.Controllers
             // Loop publications
             foreach (ProfileEditorPublicationToAdd publicationToAdd in profileEditorPublicationsToAdd)
             {
-                var publicationProcessed = false;
+                bool publicationProcessed = false;
                 // Check if userprofile already includes given publication
                 foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimPublicationId != -1))
                 {
@@ -121,7 +121,7 @@ namespace api.Controllers
                 if (!publicationProcessed)
                 {
                     // Get DimPublication
-                    var dimPublication = await _ttvContext.DimPublications.AsNoTracking().FirstOrDefaultAsync(dp => dp.PublicationId == publicationToAdd.PublicationId);
+                    DimPublication dimPublication = await _ttvContext.DimPublications.AsNoTracking().FirstOrDefaultAsync(dp => dp.PublicationId == publicationToAdd.PublicationId);
                     // Check if DimPublication exists
                     if (dimPublication == null)
                     {
@@ -131,7 +131,7 @@ namespace api.Controllers
                     else
                     {
                         // Add FactFieldValue
-                        var factFieldValuePublication = _userProfileService.GetEmptyFactFieldValue();
+                        FactFieldValue factFieldValuePublication = _userProfileService.GetEmptyFactFieldValue();
                         factFieldValuePublication.Show = publicationToAdd.Show != null ? publicationToAdd.Show : false;
                         factFieldValuePublication.PrimaryValue = publicationToAdd.PrimaryValue != null ? publicationToAdd.PrimaryValue : false;
                         factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
@@ -139,13 +139,13 @@ namespace api.Controllers
                         factFieldValuePublication.DimPublicationId = dimPublication.Id;
                         factFieldValuePublication.DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV;
                         factFieldValuePublication.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
-                        factFieldValuePublication.Created = _utilityService.getCurrentDateTime();
-                        factFieldValuePublication.Modified = _utilityService.getCurrentDateTime();
+                        factFieldValuePublication.Created = _utilityService.GetCurrentDateTime();
+                        factFieldValuePublication.Modified = _utilityService.GetCurrentDateTime();
                         _ttvContext.FactFieldValues.Add(factFieldValuePublication);
                         await _ttvContext.SaveChangesAsync();
 
                         // Response data
-                        var publicationItem = new ProfileEditorItemPublication()
+                        ProfileEditorItemPublication publicationItem = new()
                         {
                             PublicationId = dimPublication.PublicationId,
                             PublicationName = dimPublication.PublicationName,
@@ -194,8 +194,8 @@ namespace api.Controllers
             }
 
             // Get id of userprofile
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 // Userprofile not found
@@ -203,12 +203,12 @@ namespace api.Controllers
             }
 
             // Response object
-            var profileEditorRemovePublicationResponse = new ProfileEditorRemovePublicationResponse();
+            ProfileEditorRemovePublicationResponse profileEditorRemovePublicationResponse = new();
 
             // Remove FactFieldValues
             foreach(string publicationId in publicationIds.Distinct())
             {
-                var factFieldValue = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == publicationId)
+                FactFieldValue factFieldValue = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId != -1 && ffv.DimPublication.PublicationId == publicationId)
                   .Include(ffv => ffv.DimPublication).AsNoTracking().FirstOrDefaultAsync();
 
                 if (factFieldValue != null)

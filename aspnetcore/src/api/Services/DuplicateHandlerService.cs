@@ -11,7 +11,7 @@ namespace api.Services
      */
     public class DuplicateHandlerService
     {
-        private readonly List<string> typeCodes = new List<string> { "A3", "A4", "B2", "B3", "D2", "D3", "E1" };
+        private readonly List<string> typeCodes = new() { "A3", "A4", "B2", "B3", "D2", "D3", "E1" };
 
         public DuplicateHandlerService()
         {
@@ -57,14 +57,14 @@ namespace api.Services
             foreach (ProfileEditorPublicationExperimental publication in publications)
             {
                 // Check duplicate publicationId.
-                if (!this.IsOrcidPublication(ffv) && ffv.DimPublication.PublicationId == publication.PublicationId || this.IsOrcidPublication(ffv) && ffv.DimOrcidPublication.PublicationId == publication.PublicationId)
+                if ((!IsOrcidPublication(ffv) && ffv.DimPublication.PublicationId == publication.PublicationId) || (IsOrcidPublication(ffv) && ffv.DimOrcidPublication.PublicationId == publication.PublicationId))
                 {
                     this.AddDataSource(publication, dataSource);
                     return publications;
                 }
 
                 // Check duplicate DOI.
-                if (this.IsOrcidPublication(ffv) && ffv.DimOrcidPublication.DoiHandle != "" && ffv.DimOrcidPublication.DoiHandle == publication.Doi && !this.HasSameDoiButIsDifferentPublication(ffv.DimOrcidPublication, publication))
+                if (IsOrcidPublication(ffv) && ffv.DimOrcidPublication.DoiHandle != "" && ffv.DimOrcidPublication.DoiHandle == publication.Doi && !HasSameDoiButIsDifferentPublication(ffv.DimOrcidPublication, publication))
                 {
                     this.AddDataSource(publication, dataSource);
                     return publications;

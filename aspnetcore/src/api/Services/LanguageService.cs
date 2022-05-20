@@ -16,12 +16,23 @@ namespace api.Services
          * Logic: If only one language field contains value, copy it to all other fields.
          */
 
-        public NameTranslation getNameTranslation(string nameFi, string nameEn, string nameSv)
+        public NameTranslation GetNameTranslation(string nameFi, string nameEn, string nameSv)
         {
             // Convert null to ""
-            if (nameFi == null) nameFi = "";
-            if (nameEn == null) nameEn = "";
-            if (nameSv == null) nameSv = "";
+            if (nameFi == null)
+            {
+                nameFi = "";
+            }
+
+            if (nameEn == null)
+            {
+                nameEn = "";
+            }
+
+            if (nameSv == null)
+            {
+                nameSv = "";
+            }
 
             // Only FI contains value => copy to EN and SV
             if (nameFi != "" && nameEn == "" && nameSv == "")

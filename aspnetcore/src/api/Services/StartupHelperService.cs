@@ -29,7 +29,7 @@ namespace api.Services
         {
             _logger.LogInformation("Get data source for ORCID in DimRegisteredDataSource");
             // Get data source and related organization.
-            var orcidRegisteredDataSource = _ttvContext.DimRegisteredDataSources
+            DimRegisteredDataSource orcidRegisteredDataSource = _ttvContext.DimRegisteredDataSources
                 .Include(drds => drds.DimOrganization)
                 .Where(drds => drds.DimOrganization.NameFi == Constants.OrganizationNames.ORCID).AsNoTracking().FirstOrDefault();
 
@@ -53,7 +53,7 @@ namespace api.Services
         {
             _logger.LogInformation("Get data source for TTV in DimRegisteredDataSource");
             // Get data source and related organization.
-            var ttvRegisteredDataSource = _ttvContext.DimRegisteredDataSources
+            DimRegisteredDataSource ttvRegisteredDataSource = _ttvContext.DimRegisteredDataSources
                 .Include(drds => drds.DimOrganization)
                 .Where(drds => drds.DimOrganization.NameFi == Constants.OrganizationNames.TTV).AsNoTracking().FirstOrDefault();
 
