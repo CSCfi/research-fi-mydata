@@ -26,17 +26,15 @@ namespace api.Controllers
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly TtvSqlService _ttvSqlService;
-        private readonly ILogger<UserProfileController> _logger;
         private readonly UtilityService _utilityService;
         private readonly IMemoryCache _cache;
 
-        public CooperationChoicesController(TtvContext ttvContext, UserProfileService userProfileService, TtvSqlService ttvSqlService, ILogger<UserProfileController> logger, UtilityService utilityService, IMemoryCache memoryCache)
+        public CooperationChoicesController(TtvContext ttvContext, UserProfileService userProfileService, TtvSqlService ttvSqlService, UtilityService utilityService, IMemoryCache memoryCache)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _ttvSqlService = ttvSqlService;
             _utilityService = utilityService;
-            _logger = logger;
             _cache = memoryCache;
         }
 
@@ -48,8 +46,8 @@ namespace api.Controllers
         public async Task<IActionResult> Get()
         {
             // Get userprofile
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 // Userprofile not found
@@ -57,22 +55,21 @@ namespace api.Controllers
             }
 
             // Send cached response, if exists. Cache key is ORCID ID + "_choices"
-            var cacheKey = orcidId + "_choices";
-            List<ProfileEditorCooperationItem> cachedResponse;
-            if (_cache.TryGetValue(cacheKey, out cachedResponse))
+            string cacheKey = orcidId + "_choices";
+            if (_cache.TryGetValue(cacheKey, out List<ProfileEditorCooperationItem> cachedResponse))
             {
                 return Ok(new ApiResponseCooperationGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
 
             // Get choices from DimReferencedata by code scheme.
             // MUST NOT use AsNoTracking, because it is possible that DimUserChoise entities will be added.
-            var dimReferenceDataUserChoices = await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.CodeSchemes.USER_CHOICES)
+            List<DimReferencedatum> dimReferenceDataUserChoices = await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.CodeSchemes.USER_CHOICES)
                 .Include(dr => dr.DimUserChoices.Where(duc => duc.DimUserProfileId == userprofileId)).ToListAsync();
 
             // Chech that all available choices have DimUserChoice for this user profile.
             foreach (DimReferencedatum dimReferenceDataUserChoice in dimReferenceDataUserChoices)
             {
-                var dimUserChoice = dimReferenceDataUserChoice.DimUserChoices.FirstOrDefault();
+                DimUserChoice dimUserChoice = dimReferenceDataUserChoice.DimUserChoices.FirstOrDefault();
                 if (dimUserChoice == null)
                 {
                     // Add new DimUserChoice
@@ -83,8 +80,8 @@ namespace api.Controllers
                         DimReferencedataIdAsUserChoiceLabelNavigation = dimReferenceDataUserChoice,
                         SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     };
                     _ttvContext.DimUserChoices.Add(dimUserChoice);
                 }
@@ -93,10 +90,10 @@ namespace api.Controllers
 
 
             // Collect data for API response.
-            var cooperationItems = new List<ProfileEditorCooperationItem>();
+            List<ProfileEditorCooperationItem> cooperationItems = new();
             foreach (DimReferencedatum dimReferenceDataUserChoice in dimReferenceDataUserChoices)
             {
-                var dimUserChoice = dimReferenceDataUserChoice.DimUserChoices.First();
+                DimUserChoice dimUserChoice = dimReferenceDataUserChoice.DimUserChoices.First();
                 cooperationItems.Add(
                     new ProfileEditorCooperationItem()
                     {
@@ -110,7 +107,7 @@ namespace api.Controllers
             }
 
             // Save response in cache
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
+            MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 // Keep in cache for this time, reset time if accessed.
                 .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
 
@@ -140,8 +137,8 @@ namespace api.Controllers
             }
 
             // Check that user profile exists.
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
@@ -153,7 +150,7 @@ namespace api.Controllers
             // Save cooperation selections
             foreach (ProfileEditorCooperationItem profileEditorCooperationItem in profileEditorCooperationItems)
             {
-                var dimUserChoice = await _ttvContext.DimUserChoices.Where(duc => duc.DimUserProfileId == userprofileId && duc.Id == profileEditorCooperationItem.Id).FirstOrDefaultAsync();
+                DimUserChoice dimUserChoice = await _ttvContext.DimUserChoices.Where(duc => duc.DimUserProfileId == userprofileId && duc.Id == profileEditorCooperationItem.Id).FirstOrDefaultAsync();
                 if (dimUserChoice != null)
                 {
                     dimUserChoice.UserChoiceValue = profileEditorCooperationItem.Selected;

@@ -34,7 +34,7 @@ namespace api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddResponseCompression();
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            string connectionString = Configuration.GetConnectionString("DefaultConnection");
 
             // SQL Server options.
             // Enable retry on failure.
@@ -84,7 +84,7 @@ namespace api
                     }
                     });
 
-                    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    string xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
                 });
             }
@@ -114,9 +114,9 @@ namespace api
                     // Required claim "orcid"
                     policy.RequireClaim("orcid");
                     // Required scope "api1". The following allows presence of other scopes.
-                    var scopes = new[] { "api1" };
+                    string[] scopes = new[] { "api1" };
                     policy.RequireAssertion(context => {
-                        var claim = context.User.FindFirst("scope");
+                        System.Security.Claims.Claim claim = context.User.FindFirst("scope");
                         if (claim == null) { return false; }
                         return claim.Value.Split(' ').Any(s =>
                            scopes.Contains(s, StringComparer.Ordinal)

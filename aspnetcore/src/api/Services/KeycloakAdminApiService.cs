@@ -18,14 +18,14 @@ namespace api.Services
     public class KeycloakAdminApiService
     {
         private readonly TokenService _tokenService;
-        public IConfiguration _configuration { get; }
+        public IConfiguration Configuration { get; }
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<KeycloakAdminApiService> _logger;
 
         public KeycloakAdminApiService(TokenService tokenService, IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<KeycloakAdminApiService> logger)
         {
             _tokenService = tokenService;
-            _configuration = configuration;
+            Configuration = configuration;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
         }
@@ -53,8 +53,8 @@ namespace api.Services
         public async Task<string> GetRawUserDataFromKeycloakAdminApi(string keycloakUserId)
         {
             _logger.LogInformation("KeycloakAdminApiService: get userdata for user id: " + keycloakUserId);
-            var keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
-            var request = new HttpRequestMessage(method: HttpMethod.Get, requestUri: keycloakUserId);
+            HttpClient keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
+            HttpRequestMessage request = new(method: HttpMethod.Get, requestUri: keycloakUserId);
             HttpResponseMessage response = await keycloakAdminApiHttpClient.SendAsync(request);
             try
             {
@@ -75,14 +75,11 @@ namespace api.Services
         {
             using (JsonDocument document = JsonDocument.Parse(keycloakUserDataRaw))
             {
-                JsonElement federatedIdentitiesElement;
-                document.RootElement.TryGetProperty("federatedIdentities", out federatedIdentitiesElement);
+                document.RootElement.TryGetProperty("federatedIdentities", out JsonElement federatedIdentitiesElement);
                 foreach (JsonElement identityElement in federatedIdentitiesElement.EnumerateArray())
                 {
-                    JsonElement identityProviderElement;
-                    JsonElement userIdElement;
-                    identityElement.TryGetProperty("identityProvider", out identityProviderElement);
-                    identityElement.TryGetProperty("userId", out userIdElement);
+                    identityElement.TryGetProperty("identityProvider", out JsonElement identityProviderElement);
+                    identityElement.TryGetProperty("userId", out JsonElement userIdElement);
                     if (identityProviderElement.GetString() == "orcid")
                     {
                         return userIdElement.GetString();
@@ -99,9 +96,9 @@ namespace api.Services
         public async Task<bool> SetOrcidIdAsKeycloakUserAttribute(string keycloakUserId, string orcidId)
         {
             _logger.LogInformation("KeycloakAdminApiService: Set ORCID ID " + orcidId + " as attribute to Keycloak user: " + keycloakUserId);
-            var keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
-            var request = new HttpRequestMessage(method: HttpMethod.Put, requestUri: keycloakUserId);
-            var stringPayload = "{\"attributes\": {\"orcid\": [\"" + orcidId + "\"]}}";
+            HttpClient keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
+            HttpRequestMessage request = new(method: HttpMethod.Put, requestUri: keycloakUserId);
+            string stringPayload = "{\"attributes\": {\"orcid\": [\"" + orcidId + "\"]}}";
             request.Content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await keycloakAdminApiHttpClient.SendAsync(request);
             try
@@ -134,21 +131,25 @@ namespace api.Services
             if (!TokenService.JwtContainsOrcid(jwtFromUser))
             {
                 // Get Keycloak user id.
-                var keycloakUserId = _tokenService.GetKeycloakUserIdFromJwt(jwtFromUser);
+                string keycloakUserId = _tokenService.GetKeycloakUserIdFromJwt(jwtFromUser);
 
                 // Get Keycloak user data.
-                var keycloakUserDataRaw = await this.GetRawUserDataFromKeycloakAdminApi(keycloakUserId);
+                string keycloakUserDataRaw = await this.GetRawUserDataFromKeycloakAdminApi(keycloakUserId);
 
                 // Stop if Keycloak user data was not received.
                 if (keycloakUserDataRaw == "")
+                {
                     return false;
+                }
 
                 // Get orcid id from user data.
-                var orcidId = this.GetOrcidIdFromRawKeycloakUserData(keycloakUserDataRaw);
+                string orcidId = this.GetOrcidIdFromRawKeycloakUserData(keycloakUserDataRaw);
 
                 // Stop if ORCID ID was not found.
                 if (orcidId == null)
+                {
                     return false;
+                }
 
                 // Set orcid id as Keycloak user attribute.
                 return await this.SetOrcidIdAsKeycloakUserAttribute(keycloakUserId, orcidId);
@@ -164,14 +165,14 @@ namespace api.Services
         public async Task<bool> LogoutUser(String tokenStr)
         {
             // Get jwt from string
-            var jwtFromUser = _tokenService.GetJwtFromString(tokenStr);
+            JwtSecurityToken jwtFromUser = _tokenService.GetJwtFromString(tokenStr);
 
             // Get Keycloak user id.
-            var keycloakUserId = _tokenService.GetKeycloakUserIdFromJwt(jwtFromUser);
+            string keycloakUserId = _tokenService.GetKeycloakUserIdFromJwt(jwtFromUser);
             _logger.LogInformation("KeycloakAdminApiService: Logout Keycloak user: " + keycloakUserId);
 
-            var keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
-            var request = new HttpRequestMessage(method: HttpMethod.Post, requestUri: keycloakUserId + "/logout");
+            HttpClient keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
+            HttpRequestMessage request = new(method: HttpMethod.Post, requestUri: keycloakUserId + "/logout");
             HttpResponseMessage response = await keycloakAdminApiHttpClient.SendAsync(request);
             try
             {
@@ -193,14 +194,14 @@ namespace api.Services
         public async Task<bool> RemoveUser(String tokenStr)
         {
             // Get jwt from string
-            var jwtFromUser = _tokenService.GetJwtFromString(tokenStr);
+            JwtSecurityToken jwtFromUser = _tokenService.GetJwtFromString(tokenStr);
 
             // Get Keycloak user id.
-            var keycloakUserId = _tokenService.GetKeycloakUserIdFromJwt(jwtFromUser);
+            string keycloakUserId = _tokenService.GetKeycloakUserIdFromJwt(jwtFromUser);
             _logger.LogInformation("KeycloakAdminApiService: Delete Keycloak user: " + keycloakUserId);
 
-            var keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
-            var request = new HttpRequestMessage(method: HttpMethod.Delete, requestUri: keycloakUserId);
+            HttpClient keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
+            HttpRequestMessage request = new(method: HttpMethod.Delete, requestUri: keycloakUserId);
             HttpResponseMessage response = await keycloakAdminApiHttpClient.SendAsync(request);
             try
             {

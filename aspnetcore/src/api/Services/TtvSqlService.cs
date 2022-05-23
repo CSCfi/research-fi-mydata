@@ -13,9 +13,9 @@ namespace api.Services
         }
 
         // Based on field identifier, return FactFieldValues foreign key column name.
-        public string getFactFieldValuesFKColumnNameFromFieldIdentifier(int fieldIdentifier)
+        public string GetFactFieldValuesFKColumnNameFromFieldIdentifier(int fieldIdentifier)
         {
-            var fk_column_name = "";
+            string fk_column_name = "";
             switch (fieldIdentifier)
             {
                 case Constants.FieldIdentifiers.PERSON_FIRST_NAMES:
@@ -67,11 +67,11 @@ namespace api.Services
         }
 
         // Return SQL update statement for updating FactFieldValues.
-        public string getSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta)
+        public string GetSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta)
         {
-            var fk_column_name = this.getFactFieldValuesFKColumnNameFromFieldIdentifier(profileEditorItemMeta.Type);
-            var showToSql = profileEditorItemMeta.Show == true ? "1" : "0";
-            var primaryValueToSql = profileEditorItemMeta.PrimaryValue == true ? "1" : "0";
+            string fk_column_name = GetFactFieldValuesFKColumnNameFromFieldIdentifier(profileEditorItemMeta.Type);
+            string showToSql = profileEditorItemMeta.Show == true ? "1" : "0";
+            string primaryValueToSql = profileEditorItemMeta.PrimaryValue == true ? "1" : "0";
 
             return $@"UPDATE fact_field_values
                         SET

@@ -137,8 +137,8 @@ namespace api.Services
                     NameFi = this.DemoOrganization1Name,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime(),
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime(),
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organization1);
@@ -154,8 +154,8 @@ namespace api.Services
                     NameFi = this.DemoOrganization2Name,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime(),
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime(),
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organization2);
@@ -171,8 +171,8 @@ namespace api.Services
                     NameFi = this.DemoOrganization3Name,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime(),
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime(),
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organization3);
@@ -188,8 +188,8 @@ namespace api.Services
                     NameFi = this.DemoOrganizationFunder1Name,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime(),
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime(),
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organizationFunder1);
@@ -205,8 +205,8 @@ namespace api.Services
                     NameFi = this.DemoOrganizationFunder2Name,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime(),
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime(),
                     DimRegisteredDataSourceId = -1
                 };
                 _ttvContext.DimOrganizations.Add(organizationFunder2);
@@ -231,8 +231,8 @@ namespace api.Services
                     DimOrganization = organization1,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime()
                 };
                 _ttvContext.DimRegisteredDataSources.Add(registeredDatasourceOrg1);
             }
@@ -248,8 +248,8 @@ namespace api.Services
                     DimOrganization = organization2,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime()
                 };
                 _ttvContext.DimRegisteredDataSources.Add(registeredDatasourceOrg2);
             }
@@ -265,8 +265,8 @@ namespace api.Services
                     DimOrganization = organization3,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime()
                 };
                 _ttvContext.DimRegisteredDataSources.Add(registeredDatasourceOrg3);
             }
@@ -289,8 +289,8 @@ namespace api.Services
                     NameFi = "Työsuhde",
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime()
                 };
                 _ttvContext.DimReferencedata.Add(referenceData);
             }
@@ -312,8 +312,8 @@ namespace api.Services
                         NameEn = "Creator",
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     }
                 );
             }
@@ -331,8 +331,8 @@ namespace api.Services
                         NameEn = "Publisher",
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     }
                 );
             }
@@ -350,8 +350,8 @@ namespace api.Services
                         NameEn = "Rights holder",
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     }
                 );
             }
@@ -375,8 +375,8 @@ namespace api.Services
                     NameEn = "I am interested in media contacts",
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime()
                 };
                 _ttvContext.DimReferencedata.Add(referenceData);
             }
@@ -392,8 +392,8 @@ namespace api.Services
                     NameEn = "I am interested in cooperation with other researchers and research groups",
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime()
                 };
                 _ttvContext.DimReferencedata.Add(referenceData);
             }
@@ -409,8 +409,8 @@ namespace api.Services
                     NameEn = "I am interested in working with companies",
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime()
                 };
                 _ttvContext.DimReferencedata.Add(referenceData);
             }
@@ -426,8 +426,8 @@ namespace api.Services
                     NameEn = "I am interested in being a peer reviewer for scientific publications",
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime()
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime()
                 };
                 _ttvContext.DimReferencedata.Add(referenceData);
             }
@@ -454,8 +454,8 @@ namespace api.Services
                         Day = 1,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime(),
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime(),
                     };
                     _ttvContext.DimDates.Add(dimDate_callProgramme);
                 }
@@ -470,8 +470,8 @@ namespace api.Services
                         DimDateIdDueNavigation = dimDate_callProgramme,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime(),
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime(),
                         DimRegisteredDataSourceId = -1
                     };
                     _ttvContext.DimCallProgrammes.Add(dimCallProgramme1);
@@ -488,8 +488,8 @@ namespace api.Services
                         DimTypeOfFundingId = -1,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     };
                     _ttvContext.DimTypeOfFundings.Add(dimTypeOfFunding1);
                 }
@@ -505,8 +505,8 @@ namespace api.Services
                         Day = 0,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     };
                     _ttvContext.DimDates.Add(dimStartDate_fundingDecision_organization1);
                 }
@@ -522,8 +522,8 @@ namespace api.Services
                         Day = 0,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     };
                     _ttvContext.DimDates.Add(dimEndDate_fundingDecision_organization1);
                 }
@@ -547,8 +547,8 @@ namespace api.Services
                     AmountInEur = 387400,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime(),
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime(),
                     DimRegisteredDataSourceId = this.GetOrganization1RegisteredDataSource().Id
                 };
                 _ttvContext.DimFundingDecisions.Add(dimFundingDecision_Organization1);
@@ -572,8 +572,8 @@ namespace api.Services
                         Day = 1,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     };
                     _ttvContext.DimDates.Add(dimDate_callProgramme);
                 }
@@ -588,8 +588,8 @@ namespace api.Services
                         DimDateIdDueNavigation = dimDate_callProgramme,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime(),
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime(),
                         DimRegisteredDataSourceId = -1
                     };
                     _ttvContext.DimCallProgrammes.Add(dimCallProgramme2);
@@ -606,8 +606,8 @@ namespace api.Services
                         DimTypeOfFundingId = -1,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     };
                     _ttvContext.DimTypeOfFundings.Add(dimTypeOfFunding2);
                 }
@@ -623,8 +623,8 @@ namespace api.Services
                         Day = 0,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     };
                     _ttvContext.DimDates.Add(dimStartDate_fundingDecision_organization2);
                 }
@@ -640,8 +640,8 @@ namespace api.Services
                         Day = 0,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     };
                     _ttvContext.DimDates.Add(dimEndDate_fundingDecision_organization2);
                 }
@@ -668,8 +668,8 @@ namespace api.Services
                     AmountInEur = 27000,
                     SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.getCurrentDateTime(),
-                    Modified = _utilityService.getCurrentDateTime(),
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime(),
                     DimRegisteredDataSourceId = this.GetOrganization2RegisteredDataSource().Id
                 };
                 _ttvContext.DimFundingDecisions.Add(dimFundingDecision_Organization2);
@@ -732,8 +732,8 @@ namespace api.Services
                         NameFi = fieldOfScienceName,
                         SourceId = Constants.SourceIdentifiers.DEMO_COMMON,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = _utilityService.getCurrentDateTime(),
-                        Modified = _utilityService.getCurrentDateTime()
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
                     };
                     _ttvContext.DimFieldOfSciences.Add(dimFieldOfScience);
                 }
@@ -806,7 +806,7 @@ namespace api.Services
             var organization2 = await this.GetOrganization2Async();
             var organization1RegisteredDataSource = await this.GetOrganization1RegisteredDataSourceAsync();
             var organization2RegisteredDataSource = await this.GetOrganization2RegisteredDataSourceAsync();
-            var currentDateTime = _utilityService.getCurrentDateTime();
+            var currentDateTime = _utilityService.GetCurrentDateTime();
             var sourceDescription = this.getSourceDescription(orcidId);
 
             // Name
@@ -1483,8 +1483,8 @@ namespace api.Services
                 DatasetCreated = new DateTime(2017, 1, 1),
                 SourceId = Constants.SourceIdentifiers.DEMO,
                 SourceDescription = sourceDescription,
-                Created = _utilityService.getCurrentDateTime(),
-                Modified = _utilityService.getCurrentDateTime(),
+                Created = _utilityService.GetCurrentDateTime(),
+                Modified = _utilityService.GetCurrentDateTime(),
                 DimRegisteredDataSourceId = organization2RegisteredDataSource.Id
             };
             _ttvContext.DimResearchDatasets.Add(researchDataset_Organization2);

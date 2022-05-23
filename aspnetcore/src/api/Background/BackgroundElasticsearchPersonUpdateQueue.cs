@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 public class BackgroundElasticsearchPersonUpdateQueue
 {
-    private ConcurrentQueue<Func<CancellationToken, Task>> _workItems = new ConcurrentQueue<Func<CancellationToken, Task>>();
-    private SemaphoreSlim _signal = new SemaphoreSlim(0);
+    private readonly ConcurrentQueue<Func<CancellationToken, Task>> _workItems = new();
+    private readonly SemaphoreSlim _signal = new(0);
 
     public async Task<Func<CancellationToken, Task>> DequeueAsync(CancellationToken cancellationToken)
     {
         await _signal.WaitAsync(cancellationToken);
-        _workItems.TryDequeue(out var workItem);
+        _workItems.TryDequeue(out Func<CancellationToken, Task> workItem);
 
         return workItem;
     }

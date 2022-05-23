@@ -16,11 +16,11 @@ namespace api.Services
     public class TokenService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        public IConfiguration _configuration { get; }
+        public IConfiguration Configuration { get; }
 
         public TokenService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
-            _configuration = configuration;
+            Configuration = configuration;
             _httpClientFactory = httpClientFactory;
         }
 
@@ -29,7 +29,7 @@ namespace api.Services
          */
         public JwtSecurityToken GetJwtFromString(String tokenStr)
         {
-            var handler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler handler = new();
             return handler.ReadJwtToken(tokenStr);
         }
 
@@ -38,9 +38,7 @@ namespace api.Services
          */
         public static bool JwtContainsOrcid(JwtSecurityToken jwt)
         {
-            if (jwt.Claims.FirstOrDefault(x => x.Type == "orcid") != null)
-                return true;
-            return false;
+            return jwt.Claims.FirstOrDefault(x => x.Type == "orcid") != null;
         }
 
         /*
@@ -60,9 +58,9 @@ namespace api.Services
         public async Task<String> GetOrcidTokensJsonFromKeycloak(String usersKeycloakAccessToken)
         {
             // Get http client.
-            var keycloakHttpClient = _httpClientFactory.CreateClient("keycloakUserOrcidTokens");
+            HttpClient keycloakHttpClient = _httpClientFactory.CreateClient("keycloakUserOrcidTokens");
             // GET request
-            var request = new HttpRequestMessage(method: HttpMethod.Get, requestUri: "");
+            HttpRequestMessage request = new(method: HttpMethod.Get, requestUri: "");
             // Insert ORCID access token into authorization header for each request.
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", usersKeycloakAccessToken);
             HttpResponseMessage response = await keycloakHttpClient.SendAsync(request);
@@ -75,31 +73,24 @@ namespace api.Services
          */
         public OrcidTokens ParseOrcidTokensJson(String orcidTokensJson)
         {
-            using (JsonDocument document = JsonDocument.Parse(orcidTokensJson))
-            {
-                JsonElement accessTokenElement;
-                JsonElement refreshTokenElement;
-                JsonElement scopeElement;
-                JsonElement expiresSecondsElement;
+            using JsonDocument document = JsonDocument.Parse(orcidTokensJson);
+            // Access token
+            document.RootElement.TryGetProperty("access_token", out JsonElement accessTokenElement);
+            // Refresh token
+            document.RootElement.TryGetProperty("refresh_token", out JsonElement refreshTokenElement);
+            // Scope
+            document.RootElement.TryGetProperty("scope", out JsonElement scopeElement);
+            // Access token expires seconds
+            document.RootElement.TryGetProperty("accessTokenExpiration", out JsonElement expiresSecondsElement);
 
-                // Access token
-                document.RootElement.TryGetProperty("access_token", out accessTokenElement);
-                // Refresh token
-                document.RootElement.TryGetProperty("refresh_token", out refreshTokenElement);
-                // Scope
-                document.RootElement.TryGetProperty("scope", out scopeElement);
-                // Access token expires seconds
-                document.RootElement.TryGetProperty("accessTokenExpiration", out expiresSecondsElement);
-
-                return new OrcidTokens(
-                    accessToken: accessTokenElement.ToString(),
-                    refreshToken: refreshTokenElement.ToString(),
-                    scope: scopeElement.ToString(),
-                    expiresSeconds: expiresSecondsElement.GetInt64(),
-                    expiresDatetime: null
-                )
-                { };
-            }
+            return new OrcidTokens(
+                accessToken: accessTokenElement.ToString(),
+                refreshToken: refreshTokenElement.ToString(),
+                scope: scopeElement.ToString(),
+                expiresSeconds: expiresSecondsElement.GetInt64(),
+                expiresDatetime: null
+            )
+            { };
         }
     }
 }

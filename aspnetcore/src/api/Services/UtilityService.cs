@@ -12,7 +12,7 @@ namespace api.Services
         }
 
         // Return current timestamp for database entries.
-        public DateTime getCurrentDateTime()
+        public DateTime GetCurrentDateTime()
         {
             return DateTime.UtcNow;
         }

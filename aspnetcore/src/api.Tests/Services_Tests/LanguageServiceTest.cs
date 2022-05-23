@@ -11,7 +11,7 @@ namespace api.Tests
         {
             var languageService = new LanguageService();
 
-            var nameTranslation = languageService.getNameTranslation(nameFi: "A", nameEn: "B", nameSv: "C");
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "A", nameEn: "B", nameSv: "C");
 
             Assert.Equal("A", nameTranslation.NameFi);
             Assert.Equal("B", nameTranslation.NameEn);
@@ -23,7 +23,7 @@ namespace api.Tests
         {
             var languageService = new LanguageService();
 
-            var nameTranslation = languageService.getNameTranslation(nameFi: "A", nameEn: "", nameSv: "");
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "A", nameEn: "", nameSv: "");
 
             Assert.Equal("A", nameTranslation.NameFi);
             Assert.Equal("A", nameTranslation.NameEn);
@@ -35,7 +35,7 @@ namespace api.Tests
         {
             var languageService = new LanguageService();
 
-            var nameTranslation = languageService.getNameTranslation(nameFi: "A", nameEn: null, nameSv: null);
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "A", nameEn: null, nameSv: null);
 
             Assert.Equal("A", nameTranslation.NameFi);
             Assert.Equal("A", nameTranslation.NameEn);
@@ -47,7 +47,7 @@ namespace api.Tests
         {
             var languageService = new LanguageService();
 
-            var nameTranslation = languageService.getNameTranslation(nameFi: "", nameEn: "B", nameSv: "");
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "", nameEn: "B", nameSv: "");
 
             Assert.Equal("B", nameTranslation.NameFi);
             Assert.Equal("B", nameTranslation.NameEn);
@@ -59,7 +59,7 @@ namespace api.Tests
         {
             var languageService = new LanguageService();
 
-            var nameTranslation = languageService.getNameTranslation(nameFi: null, nameEn: "B", nameSv: null);
+            var nameTranslation = languageService.GetNameTranslation(nameFi: null, nameEn: "B", nameSv: null);
 
             Assert.Equal("B", nameTranslation.NameFi);
             Assert.Equal("B", nameTranslation.NameEn);
@@ -71,7 +71,7 @@ namespace api.Tests
         {
             var languageService = new LanguageService();
 
-            var nameTranslation = languageService.getNameTranslation(nameFi: "", nameEn: "", nameSv: "C");
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "", nameEn: "", nameSv: "C");
 
             Assert.Equal("C", nameTranslation.NameFi);
             Assert.Equal("C", nameTranslation.NameEn);
@@ -83,7 +83,7 @@ namespace api.Tests
         {
             var languageService = new LanguageService();
 
-            var nameTranslation = languageService.getNameTranslation(nameFi: null, nameEn: null, nameSv: "C");
+            var nameTranslation = languageService.GetNameTranslation(nameFi: null, nameEn: null, nameSv: "C");
 
             Assert.Equal("C", nameTranslation.NameFi);
             Assert.Equal("C", nameTranslation.NameEn);

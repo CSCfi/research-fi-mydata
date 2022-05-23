@@ -17,7 +17,7 @@ namespace api.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var workItem = await queue.DequeueAsync(stoppingToken);
+                System.Func<CancellationToken, Task> workItem = await queue.DequeueAsync(stoppingToken);
                 await workItem(stoppingToken);
             }
         }

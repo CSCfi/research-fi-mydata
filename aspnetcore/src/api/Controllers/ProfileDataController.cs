@@ -26,20 +26,18 @@ namespace api.Controllers
         private readonly UserProfileService _userProfileService;
         private readonly ElasticsearchService _elasticsearchService;
         private readonly TtvSqlService _ttvSqlService;
-        private readonly LanguageService _languageService;
         private readonly IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
         private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
         private readonly BackgroundProfiledata _backgroundProfiledata;
 
-        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, LanguageService languageService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue, BackgroundProfiledata backgroundProfiledata)
+        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue, BackgroundProfiledata backgroundProfiledata)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _cache = memoryCache;
             _elasticsearchService = elasticsearchService;
             _ttvSqlService = ttvSqlService;
-            _languageService = languageService;
             _backgroundElasticsearchPersonUpdateQueue = backgroundElasticsearchPersonUpdateQueue;
             _backgroundProfiledata = backgroundProfiledata;
             _logger = logger;
@@ -53,25 +51,24 @@ namespace api.Controllers
         public async Task<IActionResult> Get()
         {
             // Check that user profile exists.
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
             // Send cached response, if exists. Cache key is ORCID ID
-            ProfileEditorDataResponse cachedResponse;
-            if (_cache.TryGetValue(orcidId, out cachedResponse))
+            if (_cache.TryGetValue(orcidId, out ProfileEditorDataResponse cachedResponse))
             {
                 return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
 
             // Get profile data
-            var profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
 
             // Save response in cache
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
+            MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 // Keep in cache for this time, reset time if accessed.
                 .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
 
@@ -97,8 +94,8 @@ namespace api.Controllers
             }
 
             // Check that user profile exists.
-            var orcidId = this.GetOrcidId();
-            var userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            string orcidId = GetOrcidId();
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
             if (userprofileId == -1)
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
@@ -109,12 +106,12 @@ namespace api.Controllers
 
 
             // Collect information about updated items to a response object, which will be sent in response.
-            var profileEditorDataModificationResponse = new ProfileEditorDataModificationResponse();
+            ProfileEditorDataModificationResponse profileEditorDataModificationResponse = new();
 
             // Set 'Show' and 'PrimaryValue' in FactFieldValues
             foreach (ProfileEditorItemMeta profileEditorItemMeta in profileEditorDataModificationRequest.items.ToList())
             {
-                var updateSql = _ttvSqlService.getSqlQuery_Update_FactFieldValues(userprofileId, profileEditorItemMeta);
+                string updateSql = _ttvSqlService.GetSqlQuery_Update_FactFieldValues(userprofileId, profileEditorItemMeta);
                 await _ttvContext.Database.ExecuteSqlRawAsync(updateSql);
                 profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
             }
@@ -124,7 +121,7 @@ namespace api.Controllers
             {
                 _logger.LogInformation($"Background task for updating {orcidId} started at {DateTime.UtcNow}");
                 // Get Elasticsearch person entry from profile data.
-                var person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                Models.Elasticsearch.Person person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
                 // Update Elasticsearch person index.
                 await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
                 _logger.LogInformation($"Background task for updating {orcidId} ended at {DateTime.UtcNow}");

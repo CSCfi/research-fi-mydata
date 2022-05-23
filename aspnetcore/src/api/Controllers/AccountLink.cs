@@ -37,15 +37,15 @@ namespace api.Controllers
             // Log request.
             _logger.LogInformation(this.GetLogPrefix() + " set ORCID ID attribute in Keycloak.");
 
-            // Get user's Keycloak access token raw string.
-            var keyCloakAccessTokenStr = this.GetBearerTokenFromHttpRequest();
             // Decode JWT.
-            var kcJwt = _tokenService.GetJwtFromString(this.GetBearerTokenFromHttpRequest());
+            System.IdentityModel.Tokens.Jwt.JwtSecurityToken kcJwt = _tokenService.GetJwtFromString(this.GetBearerTokenFromHttpRequest());
             // Return immediately if JWT already contains ORCID ID.
             if (TokenService.JwtContainsOrcid(kcJwt))
+            {
                 return Ok(new ApiResponse(success: true));
+            }
             // Set ORCID ID as a user attribute in Keycloak.
-            var setOrcidAttributeSuccess = await _keycloakAdminApiService.SetOrcidAttributedInKeycloak(kcJwt);
+            bool setOrcidAttributeSuccess = await _keycloakAdminApiService.SetOrcidAttributedInKeycloak(kcJwt);
             return Ok(new ApiResponse(success: setOrcidAttributeSuccess));
         }
     }
