@@ -8,8 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{530E1C35-DCE
 		src\.gitignore = src\.gitignore
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "identityserver", "src\identityserver\identityserver.csproj", "{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.Tests", "src\api.Tests\api.Tests.csproj", "{1C38915D-3D9C-4BF7-9C0F-B4568DE45493}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B24A6206-EA06-441C-811C-7C329851C4AA}"
@@ -32,18 +30,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Debug|x64.Build.0 = Debug|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Debug|x86.Build.0 = Debug|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Release|x64.ActiveCfg = Release|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Release|x64.Build.0 = Release|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Release|x86.ActiveCfg = Release|Any CPU
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA}.Release|x86.Build.0 = Release|Any CPU
 		{1C38915D-3D9C-4BF7-9C0F-B4568DE45493}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1C38915D-3D9C-4BF7-9C0F-B4568DE45493}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C38915D-3D9C-4BF7-9C0F-B4568DE45493}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -70,7 +56,6 @@ Global
 		{9A67B131-39EA-4D65-A99C-7650B2238308}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F470F142-9BE6-4F58-ABBA-0688AADBA3DA} = {530E1C35-DCEA-4F12-B363-E62C2554D61E}
 		{1C38915D-3D9C-4BF7-9C0F-B4568DE45493} = {530E1C35-DCEA-4F12-B363-E62C2554D61E}
 		{9A67B131-39EA-4D65-A99C-7650B2238308} = {530E1C35-DCEA-4F12-B363-E62C2554D61E}
 	EndGlobalSection
