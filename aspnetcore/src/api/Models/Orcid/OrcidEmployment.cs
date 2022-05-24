@@ -1,9 +1,10 @@
 ﻿namespace api.Models.Orcid
 {
     public partial class OrcidEmployment {
-        public OrcidEmployment(string organizationName, string departmentName, string roleTitle, OrcidDate startDate, OrcidDate endDate, OrcidPutCode putCode)
+        public OrcidEmployment(string organizationName, string disambiguatedOrganizationIdentifier, string departmentName, string roleTitle, OrcidDate startDate, OrcidDate endDate, OrcidPutCode putCode)
         {
             OrganizationName = organizationName;
+            DisambiguatedOrganizationIdentifier = disambiguatedOrganizationIdentifier;
             DepartmentName = departmentName;
             RoleTitle = roleTitle;
             StartDate = startDate;
@@ -12,6 +13,7 @@
         }
 
         public string OrganizationName { get; set; }
+        public string DisambiguatedOrganizationIdentifier { get; set; }
         public string DepartmentName { get; set; }
         public string RoleTitle { get; set; }
         public OrcidDate StartDate { get; set; }

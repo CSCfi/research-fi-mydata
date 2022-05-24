@@ -277,7 +277,7 @@ namespace api.Services
                 else
                 {
                     return new OrcidBiography(
-                        contentElement.GetString()
+                        value: contentElement.GetString()
                     );
                 }
             }
@@ -295,9 +295,9 @@ namespace api.Services
                 {
                     urls.Add(
                         new OrcidResearcherUrl(
-                            element.GetProperty("url-name").GetString(),
-                            element.GetProperty("url").GetProperty("value").GetString(),
-                            this.GetOrcidPutCode(element)
+                            urlName: element.GetProperty("url-name").GetString(),
+                            url: element.GetProperty("url").GetProperty("value").GetString(),
+                            putCode: this.GetOrcidPutCode(element)
                         )
                     );
                 }
@@ -317,8 +317,8 @@ namespace api.Services
                 {
                     emails.Add(
                         new OrcidEmail(
-                            element.GetProperty("email").GetString(),
-                            this.GetOrcidPutCode(element)
+                            value: element.GetProperty("email").GetString(),
+                            putCode: this.GetOrcidPutCode(element)
                         )
                     );
                 }
@@ -338,8 +338,8 @@ namespace api.Services
                 {
                     keywords.Add(
                         new OrcidKeyword(
-                            element.GetProperty("content").GetString(),
-                            this.GetOrcidPutCode(element)
+                            value: element.GetProperty("content").GetString(),
+                            putCode: this.GetOrcidPutCode(element)
                         )
                     );
                 }
@@ -359,10 +359,10 @@ namespace api.Services
                 {
                     externalIdentifiers.Add(
                         new OrcidExternalIdentifier(
-                            element.GetProperty("external-id-type").GetString(),
-                            element.GetProperty("external-id-value").GetString(),
-                            element.GetProperty("external-id-url").GetProperty("value").GetString(),
-                            this.GetOrcidPutCode(element)
+                            externalIdType: element.GetProperty("external-id-type").GetString(),
+                            externalIdValue: element.GetProperty("external-id-value").GetString(),
+                            externalIdUrl: element.GetProperty("external-id-url").GetProperty("value").GetString(),
+                            putCode: this.GetOrcidPutCode(element)
                         )
                     );
                 }
@@ -391,14 +391,21 @@ namespace api.Services
                             {
                                 if (summaryElement.TryGetProperty("education-summary", out JsonElement educationSummaryElement))
                                 {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    if (educationSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                    }
+
                                     educations.Add(
                                         new OrcidEducation(
-                                            educationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
-                                            educationSummaryElement.GetProperty("department-name").GetString(),
-                                            educationSummaryElement.GetProperty("role-title").GetString(),
-                                            GetOrcidDate(educationSummaryElement.GetProperty("start-date")),
-                                            GetOrcidDate(educationSummaryElement.GetProperty("end-date")),
-                                            this.GetOrcidPutCode(educationSummaryElement)
+                                            organizationName: educationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                            disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                            departmentName: educationSummaryElement.GetProperty("department-name").GetString(),
+                                            roleTitle: educationSummaryElement.GetProperty("role-title").GetString(),
+                                            startDate: GetOrcidDate(educationSummaryElement.GetProperty("start-date")),
+                                            endDate: GetOrcidDate(educationSummaryElement.GetProperty("end-date")),
+                                            putCode: this.GetOrcidPutCode(educationSummaryElement)
                                         )
                                     );
                                 }
@@ -431,14 +438,24 @@ namespace api.Services
                             {
                                 if (summaryElement.TryGetProperty("employment-summary", out JsonElement employmentSummaryElement))
                                 {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    if (employmentSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                        }
+                                    }
+
                                     employments.Add(
                                       new OrcidEmployment(
-                                          employmentSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
-                                          employmentSummaryElement.GetProperty("department-name").GetString(),
-                                          employmentSummaryElement.GetProperty("role-title").GetString(),
-                                          GetOrcidDate(employmentSummaryElement.GetProperty("start-date")),
-                                          GetOrcidDate(employmentSummaryElement.GetProperty("end-date")),
-                                          this.GetOrcidPutCode(employmentSummaryElement)
+                                          organizationName: employmentSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          departmentName: employmentSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: employmentSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(employmentSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(employmentSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(employmentSummaryElement)
                                       )
                                   );
                                 }
