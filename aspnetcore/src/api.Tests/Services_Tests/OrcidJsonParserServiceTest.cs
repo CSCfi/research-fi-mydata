@@ -322,7 +322,6 @@ namespace api.Tests
             var actualEducations = orcidJsonParserService.GetEducations(jsonStr);
             Assert.True(actualEducations.Count == 1, "Educations: should parse 1 education");
             Assert.Equal("Massachusetts Institute of Technology", actualEducations[0].OrganizationName);
-            Assert.Equal("2167", actualEducations[0].DisambiguatedOrganizationIdentifier);
             Assert.Equal("Testing Department", actualEducations[0].DepartmentName);
             Assert.Equal("BA", actualEducations[0].RoleTitle);
             Assert.Equal(1997, actualEducations[0].StartDate.Year);
@@ -345,6 +344,7 @@ namespace api.Tests
 
             Assert.Equal("ORCID", actualEmployments[0].OrganizationName);
             Assert.Equal("385488", actualEmployments[0].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("RINGGOLD", actualEmployments[0].DisambiguationSource);
             Assert.Equal("QA and Testing", actualEmployments[0].DepartmentName);
             Assert.Equal("Test account holder", actualEmployments[0].RoleTitle);
             Assert.Equal(2012, actualEmployments[0].StartDate.Year);

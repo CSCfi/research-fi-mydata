@@ -392,15 +392,16 @@ namespace api.Services
                                 if (summaryElement.TryGetProperty("education-summary", out JsonElement educationSummaryElement))
                                 {
                                     string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
                                     if (educationSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
                                     {
                                         disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                        disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
                                     }
 
                                     educations.Add(
                                         new OrcidEducation(
                                             organizationName: educationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
-                                            disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                             departmentName: educationSummaryElement.GetProperty("department-name").GetString(),
                                             roleTitle: educationSummaryElement.GetProperty("role-title").GetString(),
                                             startDate: GetOrcidDate(educationSummaryElement.GetProperty("start-date")),
@@ -439,11 +440,13 @@ namespace api.Services
                                 if (summaryElement.TryGetProperty("employment-summary", out JsonElement employmentSummaryElement))
                                 {
                                     string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
                                     if (employmentSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
                                     {
                                         if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
                                         {
                                             disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
                                         }
                                     }
 
@@ -451,6 +454,7 @@ namespace api.Services
                                       new OrcidEmployment(
                                           organizationName: employmentSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
                                           departmentName: employmentSummaryElement.GetProperty("department-name").GetString(),
                                           roleTitle: employmentSummaryElement.GetProperty("role-title").GetString(),
                                           startDate: GetOrcidDate(employmentSummaryElement.GetProperty("start-date")),

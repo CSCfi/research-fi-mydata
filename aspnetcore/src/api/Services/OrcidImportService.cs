@@ -17,14 +17,16 @@ namespace api.Services
         private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly OrcidJsonParserService _orcidJsonParserService;
+        private readonly OrganizationHandlerService _organizationHandlerService;
         private readonly DataSourceHelperService _dataSourceHelperService;
         private readonly UtilityService _utilityService;
 
-        public OrcidImportService(TtvContext ttvContext, UserProfileService userProfileService, OrcidJsonParserService orcidJsonParserService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService)
+        public OrcidImportService(TtvContext ttvContext, UserProfileService userProfileService, OrcidJsonParserService orcidJsonParserService, OrganizationHandlerService organizationHandlerService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _orcidJsonParserService = orcidJsonParserService;
+            _organizationHandlerService = organizationHandlerService;
             _utilityService = utilityService;
             _dataSourceHelperService = dataSourceHelperService;
         }
@@ -86,8 +88,8 @@ namespace api.Services
                     .ThenInclude(ffv => ffv.DimEmailAddrress)
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimResearcherDescription)
-                //.Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
-                //    .ThenInclude(ffv => ffv.DimIdentifierlessData) // TODO: update model to match SQL table
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync();
 
@@ -538,6 +540,10 @@ namespace api.Services
                 // Search organization identifier from DimPid based on ORCID's disambiguated-organization-identifier data.
                 // If organization identifier is found in DimPid, use the linked DimOrganization.
                 // If organization identifier is not found, add organization name into DimIdentifierlessData.
+                DimOrganization dimOrganization_affiliation = await _organizationHandlerService.FindOrcidDimOrganizationByOrcidDisambiguatedOrganization(
+                        orcidDisambiguatedOrganizationIdentifier: employment.DisambiguatedOrganizationIdentifier,
+                        orcidDisambiguationSource: employment.DisambiguationSource
+                    );
 
                 // Start date
                 DimDate startDate = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == employment.StartDate.Year && dd.Month == employment.StartDate.Month && dd.Day == employment.StartDate.Day);
@@ -573,55 +579,73 @@ namespace api.Services
                     _ttvContext.DimDates.Add(endDate);
                 }
 
+                /*
+                 * Check if affiliation already exists in profile.
+                 */
                 if (factFieldValuesAffiliation != null)
                 {
-                    // Update existing DimAffiliation
-                    DimAffiliation dimAffiliation = factFieldValuesAffiliation.DimAffiliation;
-                    dimAffiliation.PositionNameEn = employment.RoleTitle;
-                    dimAffiliation.StartDateNavigation = startDate;
-                    dimAffiliation.EndDateNavigation = endDate;
-                    dimAffiliation.Modified = currentDateTime;
+                    /*
+                     * Affiliation already exists in profile, update.
+                     */
+                    DimAffiliation dimAffiliation_existing = factFieldValuesAffiliation.DimAffiliation;
+                    dimAffiliation_existing.PositionNameEn = employment.RoleTitle;
+                    dimAffiliation_existing.StartDateNavigation = startDate;
+                    dimAffiliation_existing.EndDateNavigation = endDate;
+                    dimAffiliation_existing.Modified = currentDateTime;
 
-                    // Update related DimOrganization
-                    // TODO: DimOrganization handling. Find from DimOrganization, or add organization namei into DimIdentifierless data.
+                    /*
+                     * Update organization relation or identifierless data for existing affiliation.
+                     */
+                    if (dimOrganization_affiliation != null && dimOrganization_affiliation.Id > 0)
+                    {
+                        /*
+                         * Affiliation relates directly to DimOrganization.
+                         */
+                        dimAffiliation_existing.DimOrganization = dimOrganization_affiliation;
 
-                    // Update existing FactFieldValue
+                        /*
+                         * When affiliation has related DimOrganization, possibly existing DimIdentifierlessData must be removed.
+                         */
+                        if (factFieldValuesAffiliation.DimIdentifierlessDataId != -1)
+                        {
+                            _ttvContext.DimIdentifierlessData.Remove(factFieldValuesAffiliation.DimIdentifierlessData);
+                        }
+                    }
+                    else {
+                        /*
+                         * Affiliation does to relate directly to any DimOrganization.
+                         * Update or create relation to DimIdentifierlessData via FactFieldValues.
+                         */
+                        if (factFieldValuesAffiliation.DimIdentifierlessDataId != -1)
+                        {
+                            /*
+                             * Update organization name in existing DimIdentifierlessData.
+                             */
+                            factFieldValuesAffiliation.DimIdentifierlessData.ValueEn = employment.OrganizationName;
+                        }
+                        else
+                        {
+                            /*
+                             * Create new DimIdentifierlessData for organization name.
+                             */
+                            DimIdentifierlessDatum dimIdentifierlessDatum_organization_name = _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: employment.OrganizationName, nameSv: "");
+                            _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessDatum_organization_name);
+                            factFieldValuesAffiliation.DimIdentifierlessData = dimIdentifierlessDatum_organization_name;
+                        }
+                    }
+
+                    // Update modified timestamp in FactFieldValue
                     factFieldValuesAffiliation.Modified = currentDateTime;
                 }
                 else
                 {
-                    // Create new related DimIdentifierlessData.
-                    // Include department name in field DepartmentName.
-                    DimIdentifierlessDatum dimIdentifierlessDatum = new()
+                    /*
+                     * Affiliation does not yet exists in profile. Create new.
+                     * TODO: AffiliationType handling
+                     */
+                    DimAffiliation dimAffiliation_new = new()
                     {
-                        Type = "organization_name",
-                        ValueEn = employment.OrganizationName,
-                        UnlinkedIdentifier = employment.DepartmentName,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-
-                    DimOrganization dimOrganization = new()
-                    {
-                        DimSectorid = -1,
-                        NameEn = employment.OrganizationName,
-                        NameUnd = employment.DepartmentName, // TODO: this is a temporary solution for demo.
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-
-                    _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessDatum);
-
-
-                    // Create new DimAffiliation
-                    DimAffiliation dimAffiliation = new()
-                    {
-                        DimOrganization = dimOrganization,
+                        DimOrganizationId = -1,
                         StartDateNavigation = startDate,
                         EndDateNavigation = endDate,
                         PositionNameEn = employment.RoleTitle,
@@ -633,7 +657,13 @@ namespace api.Services
                         Created = currentDateTime,
                         Modified = currentDateTime
                     };
-                    _ttvContext.DimAffiliations.Add(dimAffiliation);
+
+                    // If organization was found, add relation
+                    if (dimOrganization_affiliation != null && dimOrganization_affiliation.Id > 0)
+                    {
+                        dimAffiliation_new.DimOrganization = dimOrganization_affiliation;
+                    }
+                    _ttvContext.DimAffiliations.Add(dimAffiliation_new);
 
                     // Add employment (=affiliation) ORCID put code into DimPid
                     DimPid dimPidOrcidPutCodeEmployment = _userProfileService.GetEmptyDimPid();
@@ -651,8 +681,17 @@ namespace api.Services
                     factFieldValuesAffiliation.DimUserProfile = dimUserProfile;
                     factFieldValuesAffiliation.DimFieldDisplaySettings = dimFieldDisplaySettingsAffiliation;
                     factFieldValuesAffiliation.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    factFieldValuesAffiliation.DimAffiliation = dimAffiliation;
+                    factFieldValuesAffiliation.DimAffiliation = dimAffiliation_new;
                     factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeEmployment;
+
+                    // If organization was not found, add organization_name into DimIdentifierlessData
+                    if (dimOrganization_affiliation == null)
+                    {
+                        DimIdentifierlessDatum dimIdentifierlessData_oganizationName = _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: employment.OrganizationName, nameSv: "");
+                        _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_oganizationName);
+                        factFieldValuesAffiliation.DimIdentifierlessData = dimIdentifierlessData_oganizationName;
+                    }
+
                     _ttvContext.FactFieldValues.Add(factFieldValuesAffiliation);
                 }
             }
