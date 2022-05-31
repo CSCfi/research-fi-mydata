@@ -251,10 +251,14 @@ namespace api.Controllers
                 // Always remove FactFieldValue
                 _ttvContext.FactFieldValues.Remove(ffv);
 
-                // DimAffiliation. Remove related DimIdentifierlessData
+                // DimAffiliation
                 if (ffv.DimAffiliationId != -1)
                 {
-                    _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
+                    // Remove related DimIdentifierlessData, if they store organization name or unit info.
+                    if (ffv.DimIdentifierlessDataId > 0 && (ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME || ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT))
+                    {
+                        _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
+                    }
 
                     if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
                     {

@@ -96,9 +96,6 @@ namespace api.Services
             // Get current DateTime
             DateTime currentDateTime = _utilityService.GetCurrentDateTime();
 
-            // Get "-1" DimOrganization
-            DimOrganization dimOrganizationNull = await _ttvContext.DimOrganizations.FindAsync(-1);
-
             // Must use "Constants.SourceIdentifiers.ORCID" as value for "FactFieldValue.SourceId". It is used to identify what data can be deleted when userprofile is deleted.
 
             // Name
@@ -540,7 +537,7 @@ namespace api.Services
                 // Search organization identifier from DimPid based on ORCID's disambiguated-organization-identifier data.
                 // If organization identifier is found in DimPid, use the linked DimOrganization.
                 // If organization identifier is not found, add organization name into DimIdentifierlessData.
-                DimOrganization dimOrganization_affiliation = await _organizationHandlerService.FindOrcidDimOrganizationByOrcidDisambiguatedOrganization(
+                int? dimOrganization_id_affiliation = await _organizationHandlerService.FindOrganizationIdByOrcidDisambiguationIdentifier(
                         orcidDisambiguatedOrganizationIdentifier: employment.DisambiguatedOrganizationIdentifier,
                         orcidDisambiguationSource: employment.DisambiguationSource
                     );
@@ -596,12 +593,12 @@ namespace api.Services
                     /*
                      * Update organization relation or identifierless data for existing affiliation.
                      */
-                    if (dimOrganization_affiliation != null && dimOrganization_affiliation.Id > 0)
+                    if (dimOrganization_id_affiliation != null && dimOrganization_id_affiliation > 0)
                     {
                         /*
                          * Affiliation relates directly to DimOrganization.
                          */
-                        dimAffiliation_existing.DimOrganization = dimOrganization_affiliation;
+                        dimAffiliation_existing.DimOrganizationId = (int)dimOrganization_id_affiliation;
 
                         /*
                          * When affiliation has related DimOrganization, possibly existing DimIdentifierlessData must be removed.
@@ -659,9 +656,9 @@ namespace api.Services
                     };
 
                     // If organization was found, add relation
-                    if (dimOrganization_affiliation != null && dimOrganization_affiliation.Id > 0)
+                    if (dimOrganization_id_affiliation != null && dimOrganization_id_affiliation > 0)
                     {
-                        dimAffiliation_new.DimOrganization = dimOrganization_affiliation;
+                        dimAffiliation_new.DimOrganizationId = (int)dimOrganization_id_affiliation;
                     }
                     _ttvContext.DimAffiliations.Add(dimAffiliation_new);
 
@@ -685,7 +682,7 @@ namespace api.Services
                     factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeEmployment;
 
                     // If organization was not found, add organization_name into DimIdentifierlessData
-                    if (dimOrganization_affiliation == null)
+                    if (dimOrganization_id_affiliation == null || dimOrganization_id_affiliation == -1)
                     {
                         DimIdentifierlessDatum dimIdentifierlessData_oganizationName = _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: employment.OrganizationName, nameSv: "");
                         _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_oganizationName);

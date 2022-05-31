@@ -26,7 +26,7 @@ namespace api.Services
         /*
          * Map ORCID field disambiguation-source to pid_type in DimPid
          */
-        private string mapOrcidDisambiguationSourceToPidType(string orcidDisambiguationSource)
+        private string MapOrcidDisambiguationSourceToPidType(string orcidDisambiguationSource)
         {
             string pidType = "";
             switch (orcidDisambiguationSource)
@@ -47,12 +47,12 @@ namespace api.Services
         }
 
         /*
-         * Find organization by identifier
+         * Find organization by ORCID disambiguation identifier.
          */
-        public async Task<DimOrganization> FindOrcidDimOrganizationByOrcidDisambiguatedOrganization(string orcidDisambiguationSource, string orcidDisambiguatedOrganizationIdentifier)
+        public async Task<int?> FindOrganizationIdByOrcidDisambiguationIdentifier(string orcidDisambiguationSource, string orcidDisambiguatedOrganizationIdentifier)
         {
             // Map ORCID field disambiguation-source to pid_type in DimPid. 
-            string pidType = mapOrcidDisambiguationSourceToPidType(orcidDisambiguationSource);
+            string pidType = MapOrcidDisambiguationSourceToPidType(orcidDisambiguationSource);
 
             // Exit immediately, if either of the search conditions is empty.
             if (pidType == "" || orcidDisambiguatedOrganizationIdentifier == "")
@@ -70,7 +70,7 @@ namespace api.Services
             }
             else
             {
-                return dimPid.DimOrganization;
+                return dimPid.DimOrganization.Id;
             }
         }
 
