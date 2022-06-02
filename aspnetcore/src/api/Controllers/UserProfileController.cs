@@ -244,6 +244,7 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimResearchDataset)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(did => did.InverseDimIdentifierlessData) // DimIdentifierlessData can have a child entity.
                 .FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == -1))
@@ -251,15 +252,23 @@ namespace api.Controllers
                 // Always remove FactFieldValue
                 _ttvContext.FactFieldValues.Remove(ffv);
 
+                // DimIdentifierlessData
+                if (ffv.DimIdentifierlessDataId != -1)
+                {
+                    // Remove possible child of DimIdentifierlessData
+                    //foreach (DimIdentifierlessDatum dimIdentifierlessData in ffv.DimIdentifierlessData.InverseDimIdentifierlessData.ToList())
+                    //{
+                    //    ffv.DimIdentifierlessData.InverseDimIdentifierlessData.Remove(dimIdentifierlessData);
+                    //    _ttvContext.DimIdentifierlessData.Remove(dimIdentifierlessData);
+                    //}
+
+                    _ttvContext.DimIdentifierlessData.RemoveRange(ffv.DimIdentifierlessData.InverseDimIdentifierlessData);
+                    _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
+                }
+
                 // DimAffiliation
                 if (ffv.DimAffiliationId != -1)
                 {
-                    // Remove related DimIdentifierlessData, if they store organization name or unit info.
-                    if (ffv.DimIdentifierlessDataId > 0 && (ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME || ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT))
-                    {
-                        _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
-                    }
-
                     if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
                     {
                         _ttvContext.DimAffiliations.Remove(ffv.DimAffiliation);

@@ -96,16 +96,15 @@ namespace api.Services
         }
 
         /*
-         * Create entity DimIdentifierlessData for department name.
+         * Create entity DimIdentifierlessData for organization unit.
          */
-        public DimIdentifierlessDatum CreateIdentifierlessData_DepartmentName(int? dimIdentifierlessDataId, string nameFi, string nameEn, string nameSv)
+        public DimIdentifierlessDatum CreateIdentifierlessData_OrganizationUnit(DimIdentifierlessDatum parentDimIdentifierlessData, string nameFi, string nameEn, string nameSv)
         {
-            int convertedDimIdentifierlessDataId = (dimIdentifierlessDataId == null || dimIdentifierlessDataId < 1) ? -1 : (int)dimIdentifierlessDataId;
             DateTime currentDateTime = _utilityService.GetCurrentDateTime();
             return new DimIdentifierlessDatum()
             {
                 Type = "organization_unit",
-                DimIdentifierlessDataId = convertedDimIdentifierlessDataId,
+                DimIdentifierlessData = parentDimIdentifierlessData,
                 ValueFi = nameFi,
                 ValueEn = nameEn,
                 ValueSv = nameSv,
@@ -115,6 +114,26 @@ namespace api.Services
                 Modified = currentDateTime,
                 UnlinkedIdentifier = null
             };
+        }
+
+        /*
+         * Get affiliation department name from FactFieldValue related DimIdentifierlessData.
+         */
+        public string GetAffiliationDepartmentNameFromFactFieldValue(FactFieldValue factFieldValue)
+        {
+            if (factFieldValue.DimIdentifierlessDataId > 0 && factFieldValue.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+            {
+                return factFieldValue.DimIdentifierlessData.ValueEn;
+            }
+            else if (
+                factFieldValue.DimIdentifierlessDataId > 0 && factFieldValue.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME &&
+                factFieldValue.DimIdentifierlessData.InverseDimIdentifierlessData.Count > 0 && factFieldValue.DimIdentifierlessData.InverseDimIdentifierlessData.First().Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT
+            )
+            {
+                return factFieldValue.DimIdentifierlessData.InverseDimIdentifierlessData.First().ValueEn;
+            }
+
+            return "";
         }
     }
 }

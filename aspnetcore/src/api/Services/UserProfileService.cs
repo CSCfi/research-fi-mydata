@@ -21,17 +21,19 @@ namespace api.Services
         private readonly UtilityService _utilityService;
         private readonly LanguageService _languageService;
         private readonly DuplicateHandlerService _duplicateHandlerService;
+        private readonly OrganizationHandlerService _organizationHandlerService;
 
         /*
          * Constructor with dependency injection.
          */
-        public UserProfileService(TtvContext ttvContext, DataSourceHelperService dataSourceHelperService, UtilityService utilityService, LanguageService languageService, DuplicateHandlerService duplicateHandlerService)
+        public UserProfileService(TtvContext ttvContext, DataSourceHelperService dataSourceHelperService, UtilityService utilityService, LanguageService languageService, DuplicateHandlerService duplicateHandlerService, OrganizationHandlerService organizationHandlerService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
             _utilityService = utilityService;
             _languageService = languageService;
             _duplicateHandlerService = duplicateHandlerService;
+            _organizationHandlerService = organizationHandlerService;
         }
 
         /*
@@ -507,9 +509,10 @@ namespace api.Services
                 // DimResearcherDescription
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
-                // DimIdentifierlessData
+                // DimIdentifierlessData. Can have a child entity.
                 .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking()
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(did => did.InverseDimIdentifierlessData).AsNoTracking()
                 // DimOrcidPublication
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
@@ -937,7 +940,6 @@ namespace api.Services
                                     );
                                 }
 
-
                                 // Name translation for position name
                                 NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
                                     nameFi: ffv.DimAffiliation.PositionNameFi,
@@ -945,33 +947,21 @@ namespace api.Services
                                     nameSv: ffv.DimAffiliation.PositionNameSv
                                 );
 
-                                // TODO: demo version stores ORDCID affiliation department name in DimOrganization.NameUnd
-                                /*
-                                NameTranslation nameTranslationAffiliationDepartment = new()
-                                {
-                                    NameFi = "",
-                                    NameEn = "",
-                                    NameSv = ""
-                                };
-                                if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.PROFILE_API)
-                                {
-                                    nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
-                                        "",
-                                        nameEn: ffv.DimAffiliation.DimOrganization.NameUnd,
-                                        ""
-                                    );
-                                }
-                                */
+                                // Name translation for department name
+                                NameTranslation nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
+                                    nameFi: "",
+                                    nameEn: _organizationHandlerService.GetAffiliationDepartmentNameFromFactFieldValue(factFieldValue: ffv),
+                                    nameSv: ""
+                                );
 
                                 ProfileEditorItemAffiliation affiliation = new()
                                 {
-                                    // TODO: DimOrganization handling
                                     OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
                                     OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
                                     OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
-                                    DepartmentNameFi = "", // nameTranslationAffiliationDepartment.NameFi,
-                                    DepartmentNameEn = "", // nameTranslationAffiliationDepartment.NameEn,
-                                    DepartmentNameSv = "", // nameTranslationAffiliationDepartment.NameSv,
+                                    DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
+                                    DepartmentNameEn = nameTranslationAffiliationDepartment.NameEn,
+                                    DepartmentNameSv = nameTranslationAffiliationDepartment.NameSv,
                                     PositionNameFi = nameTranslationPositionName.NameFi,
                                     PositionNameEn = nameTranslationPositionName.NameEn,
                                     PositionNameSv = nameTranslationPositionName.NameSv,
@@ -1429,9 +1419,10 @@ namespace api.Services
                 // DimResearcherDescription
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
-                // DimIdentifierlessData
+                // DimIdentifierlessData. Can have a child entity.
                 .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking()
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(did => did.InverseDimIdentifierlessData).AsNoTracking()
                 // DimOrcidPublication
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()

@@ -90,6 +90,7 @@ namespace api.Services
                     .ThenInclude(ffv => ffv.DimResearcherDescription)
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(did => did.InverseDimIdentifierlessData) // DimIdentifierlessData can have a child entity.
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync();
 
@@ -530,13 +531,20 @@ namespace api.Services
             List<OrcidEmployment> employments = _orcidJsonParserService.GetEmployments(json);
             foreach (OrcidEmployment employment in employments)
             {
+                /*
+                 * Organization handling.
+                 * Search organization identifier from DimPid based on ORCID's disambiguated-organization-identifier data.
+                 * If organization identifier is found in DimPid, use the linked DimOrganization.
+                 * If organization identifier is not found, add organization name into DimIdentifierlessData as type 'organization_name'.
+                 * 
+                 * Department name handling.
+                 * ORCID employment may contain 'department-name'. Add deparment-name into DimIdentifierlessData as type 'organization_unit'.
+                 */
+
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimAffiliation
                 FactFieldValue factFieldValuesAffiliation = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimPidIdOrcidPutCode > 0 && ffv.DimPidIdOrcidPutCodeNavigation.PidContent == employment.PutCode.Value.ToString());
 
-                // Organization handling.
                 // Search organization identifier from DimPid based on ORCID's disambiguated-organization-identifier data.
-                // If organization identifier is found in DimPid, use the linked DimOrganization.
-                // If organization identifier is not found, add organization name into DimIdentifierlessData.
                 int? dimOrganization_id_affiliation = await _organizationHandlerService.FindOrganizationIdByOrcidDisambiguationIdentifier(
                         orcidDisambiguatedOrganizationIdentifier: employment.DisambiguatedOrganizationIdentifier,
                         orcidDisambiguationSource: employment.DisambiguationSource
@@ -601,9 +609,9 @@ namespace api.Services
                         dimAffiliation_existing.DimOrganizationId = (int)dimOrganization_id_affiliation;
 
                         /*
-                         * When affiliation has related DimOrganization, possibly existing DimIdentifierlessData must be removed.
+                         * When affiliation has related DimOrganization, possibly existing DimIdentifierlessData of type organization_name must be removed.
                          */
-                        if (factFieldValuesAffiliation.DimIdentifierlessDataId != -1)
+                        if (factFieldValuesAffiliation.DimIdentifierlessDataId != -1 && factFieldValuesAffiliation.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
                         {
                             _ttvContext.DimIdentifierlessData.Remove(factFieldValuesAffiliation.DimIdentifierlessData);
                         }
@@ -613,7 +621,7 @@ namespace api.Services
                          * Affiliation does to relate directly to any DimOrganization.
                          * Update or create relation to DimIdentifierlessData via FactFieldValues.
                          */
-                        if (factFieldValuesAffiliation.DimIdentifierlessDataId != -1)
+                        if (factFieldValuesAffiliation.DimIdentifierlessDataId != -1 && factFieldValuesAffiliation.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
                         {
                             /*
                              * Update organization name in existing DimIdentifierlessData.
@@ -690,6 +698,73 @@ namespace api.Services
                     }
 
                     _ttvContext.FactFieldValues.Add(factFieldValuesAffiliation);
+                }
+
+                /*
+                 * Affiliation department name handling
+                 */
+                if (employment.DepartmentName != "")
+                {
+                    // ORCID employment contains 'department-name'
+
+                    // Check if FactFieldValue has related DimIdentifierlessData.
+                    //     If exists, check if type is 'organization_name' or 'organization_unit'
+                    //         If type is 'organization_name', check if it has related DimIdentifierlessData of type 'organization_unit'. If exists, update value. If does not exist, create new.
+                    //         If type is 'organization_unit, update value.
+                    //     If does not exist, create new using type 'organization_unit'.
+                    if (factFieldValuesAffiliation.DimIdentifierlessData != null)
+                    {
+                        // DimIdentifierlessData exists
+                        // Check type.
+                        if (factFieldValuesAffiliation.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                        {
+                            // Type is 'organization_name'. Check if it has related DimIdentifierlessData of type 'organization_unit'
+                            if (
+                                factFieldValuesAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData.Count > 0 &&
+                                factFieldValuesAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData.First().Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT
+                            )
+                            {
+                                // Has related DimIdentifierlessData of type 'organization_unit'. Update.
+                                factFieldValuesAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData.First().ValueEn = employment.DepartmentName;
+                                factFieldValuesAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData.First().ValueFi = "";
+                                factFieldValuesAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData.First().ValueSv = "";
+                                factFieldValuesAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData.First().Modified = currentDateTime;
+                            }
+                            else
+                            {
+                                // Does not have related DimIdentifierlessData of type 'organization_unit'. Add new. Set as child of DimIdentifierlessData of type 'organization_name'
+                                DimIdentifierlessDatum dimIdentifierlessData_organizationUnit =
+                                    _organizationHandlerService.CreateIdentifierlessData_OrganizationUnit(
+                                        parentDimIdentifierlessData: factFieldValuesAffiliation.DimIdentifierlessData,
+                                        nameFi: "",
+                                        nameEn: employment.DepartmentName,
+                                        nameSv: ""
+                                    );
+                                _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_organizationUnit);
+                            }
+                        }
+                        else if (factFieldValuesAffiliation.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                        {
+                            // Type is 'organization_unit'. Update
+                            factFieldValuesAffiliation.DimIdentifierlessData.ValueEn = employment.DepartmentName;
+                            factFieldValuesAffiliation.DimIdentifierlessData.ValueFi = "";
+                            factFieldValuesAffiliation.DimIdentifierlessData.ValueSv = "";
+                            factFieldValuesAffiliation.DimIdentifierlessData.Modified = currentDateTime;
+                        }
+                    }
+                    else
+                    {
+                        // DimIdentifierlessData does not exist. Create new. Do not set parent DimIdentifierlessData, instead link to FactFieldValue
+                        DimIdentifierlessDatum dimIdentifierlessData_organizationUnit =
+                            _organizationHandlerService.CreateIdentifierlessData_OrganizationUnit(
+                                parentDimIdentifierlessData: null,
+                                nameFi: "",
+                                nameEn: employment.DepartmentName,
+                                nameSv: ""
+                            );
+                        _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_organizationUnit);
+                        factFieldValuesAffiliation.DimIdentifierlessData = dimIdentifierlessData_organizationUnit;
+                    }
                 }
             }
 
