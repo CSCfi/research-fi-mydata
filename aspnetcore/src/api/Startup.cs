@@ -202,7 +202,9 @@ namespace api
 
             services.AddResponseCompression();
             services.AddScoped<OrcidApiService>();
+            services.AddScoped<OrcidImportService>();
             services.AddScoped<OrcidJsonParserService>();
+            services.AddScoped<OrganizationHandlerService>();
             services.AddScoped<UserProfileService>();
             services.AddSingleton<ElasticsearchService>();
             services.AddSingleton<UtilityService>();

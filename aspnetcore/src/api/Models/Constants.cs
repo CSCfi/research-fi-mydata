@@ -27,7 +27,6 @@
 
         public static class SourceIdentifiers
         {
-            //public const string ORCID = "ORCID";
             public const string DEMO_COMMON = "DEMO common";
             public const string DEMO = "DEMO";
             public const string TIEDEJATUTKIMUS = "Tiedejatutkimus.fi";
@@ -37,6 +36,7 @@
         public static class SourceDescriptions
         {
             public const string PROFILE_API = "Profile API";
+            public const string ORCID = "ORCID";
         }
 
         public static class PidTypes
@@ -59,6 +59,12 @@
         {
             public const string ORCID = "ORCID";
             public const string TTV = "Tiedejatutkimus.fi";
+        }
+
+        public static class IdentifierlessDataTypes
+        {
+            public const string ORGANIZATION_NAME = "organization_name";
+            public const string ORGANIZATION_UNIT = "organization_unit";
         }
     }
 }

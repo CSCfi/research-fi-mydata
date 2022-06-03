@@ -707,6 +707,69 @@
                 "visibility": "public",
                 "path": "/0000-0002-9227-8514/employment/22411"
               }
+            },
+            {
+              "employment-summary": {
+                "created-date": {
+                  "value": 1653029011477
+                },
+                "last-modified-date": {
+                  "value": 1653298285245
+                },
+                "source": {
+                  "source-orcid": {
+                    "uri": "https://sandbox.orcid.org/0000-0002-9227-8514",
+                    "path": "0000-0001-6790-8767",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-client-id": null,
+                  "source-name": {
+                    "value": "Timo J S"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 47431,
+                "department-name": "Astrophysics",
+                "role-title": "Professor",
+                "start-date": {
+                  "year": {
+                    "value": "2018"
+                  },
+                  "month": {
+                    "value": "01"
+                  },
+                  "day": {
+                    "value": "21"
+                  }
+                },
+                "end-date": {
+                  "year": {
+                    "value": "2019"
+                  },
+                  "month": {
+                    "value": "12"
+                  },
+                  "day": {
+                    "value": "31"
+                  }
+                },
+                "organization": {
+                  "name": "Test university without disambiguated organization",
+                  "address": {
+                    "city": "London",
+                    "region": null,
+                    "country": "GI"
+                  },
+                  "disambiguated-organization": null
+                },
+                "url": null,
+                "external-ids": null,
+                "display-index": "1",
+                "visibility": "public",
+                "path": "/0000-0001-6790-8767/employment/47431"
+              }
             }
           ]
         }

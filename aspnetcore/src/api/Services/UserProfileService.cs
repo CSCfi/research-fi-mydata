@@ -17,25 +17,23 @@ namespace api.Services
     public class UserProfileService
     {
         private readonly TtvContext _ttvContext;
+        private readonly DataSourceHelperService _dataSourceHelperService;
         private readonly UtilityService _utilityService;
         private readonly LanguageService _languageService;
         private readonly DuplicateHandlerService _duplicateHandlerService;
+        private readonly OrganizationHandlerService _organizationHandlerService;
 
-        /*
-         * Constructor with dependency injection.
-         */
-        public UserProfileService(TtvContext ttvContext, UtilityService utilityService, LanguageService languageService, DuplicateHandlerService duplicateHandlerService)
+        public UserProfileService(TtvContext ttvContext, DataSourceHelperService dataSourceHelperService, UtilityService utilityService, LanguageService languageService, DuplicateHandlerService duplicateHandlerService, OrganizationHandlerService organizationHandlerService)
         {
             _ttvContext = ttvContext;
+            _dataSourceHelperService = dataSourceHelperService;
             _utilityService = utilityService;
             _languageService = languageService;
             _duplicateHandlerService = duplicateHandlerService;
+            _organizationHandlerService = organizationHandlerService;
         }
 
-        /*
-         * Constructor without dependency injection.
-         * Needed for simplifying unit tests.
-         */
+        // For unit test
         public UserProfileService(){}
 
         /*
@@ -78,12 +76,11 @@ namespace api.Services
 
         /*
          * Check if data related to FactFieldValue can be removed.
+         * Data from registered data sources ORCID and TTV can be removed.
          */
         public bool CanDeleteFactFieldValueRelatedData(FactFieldValue ffv)
         {
-            // ORCID and demo data can be removed.
-            // TODO: Check DimRegisteredDataSource instead of SourceId
-            return ffv.SourceId == Constants.SourceIdentifiers.PROFILE_API || ffv.SourceId == Constants.SourceIdentifiers.DEMO;
+            return ffv.DimRegisteredDataSourceId == _dataSourceHelperService.DimRegisteredDataSourceId_ORCID || ffv.DimRegisteredDataSourceId == _dataSourceHelperService.DimRegisteredDataSourceId_TTV;
         }
 
         /*
@@ -506,9 +503,10 @@ namespace api.Services
                 // DimResearcherDescription
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
-                // DimIdentifierlessData
-                //.Include(dfds => dfds.FactFieldValues)
-                //    .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking() // TODO: update model to match SQL table
+                // DimIdentifierlessData. Can have a child entity.
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(did => did.InverseDimIdentifierlessData).AsNoTracking()
                 // DimOrcidPublication
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
@@ -916,37 +914,42 @@ namespace api.Services
                             };
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
+                                // Get organization name from related DimOrganization (ffv.DimAffiliation.DimOrganization), if exists.
+                                // Otherwise from DimIdentifierlessData (ffv.DimIdentifierlessData).
                                 // Name translation service ensures that none of the language fields is empty.
-                                NameTranslation nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
-                                    nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
-                                    nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
-                                    nameSv: ffv.DimAffiliation.DimOrganization.NameSv
-                                );
+                                NameTranslation nameTranslationAffiliationOrganization = new();
+                                if (ffv.DimAffiliation.DimOrganizationId > 0)
+                                {
+                                    nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
+                                        nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
+                                        nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
+                                        nameSv: ffv.DimAffiliation.DimOrganization.NameSv
+                                    );
+                                } else if (ffv.DimIdentifierlessDataId > -1 && ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                                {
+                                    nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
+                                        nameFi: ffv.DimIdentifierlessData.ValueFi,
+                                        nameEn: ffv.DimIdentifierlessData.ValueEn,
+                                        nameSv: ffv.DimIdentifierlessData.ValueSv
+                                    );
+                                }
+
+                                // Name translation for position name
                                 NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
                                     nameFi: ffv.DimAffiliation.PositionNameFi,
                                     nameEn: ffv.DimAffiliation.PositionNameEn,
                                     nameSv: ffv.DimAffiliation.PositionNameSv
                                 );
 
-                                // TODO: demo version stores ORDCID affiliation department name in DimOrganization.NameUnd
-                                NameTranslation nameTranslationAffiliationDepartment = new()
-                                {
-                                    NameFi = "",
-                                    NameEn = "",
-                                    NameSv = ""
-                                };
-                                if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.PROFILE_API)
-                                {
-                                    nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
-                                        "",
-                                        nameEn: ffv.DimAffiliation.DimOrganization.NameUnd,
-                                        ""
-                                    );
-                                }
+                                // Name translation for department name
+                                NameTranslation nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
+                                    nameFi: "",
+                                    nameEn: _organizationHandlerService.GetAffiliationDepartmentNameFromFactFieldValue(factFieldValue: ffv),
+                                    nameSv: ""
+                                );
 
                                 ProfileEditorItemAffiliation affiliation = new()
                                 {
-                                    // TODO: DimOrganization handling
                                     OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
                                     OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
                                     OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
@@ -1410,9 +1413,10 @@ namespace api.Services
                 // DimResearcherDescription
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
-                // DimIdentifierlessData
-                //.Include(dfds => dfds.FactFieldValues)
-                //    .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking() // TODO: update model to match SQL table
+                // DimIdentifierlessData. Can have a child entity.
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(did => did.InverseDimIdentifierlessData).AsNoTracking()
                 // DimOrcidPublication
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
@@ -1820,18 +1824,36 @@ namespace api.Services
                             };
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
+                                // Get organization name from related DimOrganization (ffv.DimAffiliation.DimOrganization), if exists.
+                                // Otherwise from DimIdentifierlessData (ffv.DimIdentifierlessData).
                                 // Name translation service ensures that none of the language fields is empty.
-                                NameTranslation nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
-                                    nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
-                                    nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
-                                    nameSv: ffv.DimAffiliation.DimOrganization.NameSv
-                                );
+                                NameTranslation nameTranslationAffiliationOrganization = new();
+                                if (ffv.DimAffiliation.DimOrganizationId > 0)
+                                {
+                                    nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
+                                        nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
+                                        nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
+                                        nameSv: ffv.DimAffiliation.DimOrganization.NameSv
+                                    );
+                                }
+                                else if (ffv.DimIdentifierlessDataId > -1 && ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                                {
+                                    nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
+                                        nameFi: ffv.DimIdentifierlessData.ValueFi,
+                                        nameEn: ffv.DimIdentifierlessData.ValueEn,
+                                        nameSv: ffv.DimIdentifierlessData.ValueSv
+                                    );
+                                }
+
+
+                                // Name translation for position name
                                 NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
                                     nameFi: ffv.DimAffiliation.PositionNameFi,
                                     nameEn: ffv.DimAffiliation.PositionNameEn,
                                     nameSv: ffv.DimAffiliation.PositionNameSv
                                 );
 
+                                /*
                                 // TODO: demo version stores ORDCID affiliation department name in DimOrganization.NameUnd
                                 NameTranslation nameTranslationAffiliationDepartment = new()
                                 {
@@ -1847,6 +1869,7 @@ namespace api.Services
                                         ""
                                     );
                                 }
+                                */
 
                                 ProfileEditorItemAffiliation affiliation = new()
                                 {
@@ -1854,9 +1877,9 @@ namespace api.Services
                                     OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
                                     OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
                                     OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
-                                    DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
-                                    DepartmentNameEn = nameTranslationAffiliationDepartment.NameEn,
-                                    DepartmentNameSv = nameTranslationAffiliationDepartment.NameSv,
+                                    DepartmentNameFi = "", // nameTranslationAffiliationDepartment.NameFi,
+                                    DepartmentNameEn = "", // nameTranslationAffiliationDepartment.NameEn,
+                                    DepartmentNameSv = "", // nameTranslationAffiliationDepartment.NameSv,
                                     PositionNameFi = nameTranslationPositionName.NameFi,
                                     PositionNameEn = nameTranslationPositionName.NameEn,
                                     PositionNameSv = nameTranslationPositionName.NameSv,

@@ -11,7 +11,7 @@ namespace api.Tests
     public class OrcidJsonParserServiceTests
     {
         // Get ORCID record.
-        // Test file is a copy of ORCID's sandbox https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/record
+        // Test file is based on ORCID's sandbox record https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/record
         private string getOrcidJsonRecord()
         {
             var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_record.json";
@@ -28,7 +28,7 @@ namespace api.Tests
         }
 
         // Get ORCID personal details.
-        // Test file is a copy of ORCID's sandbox https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/personal-details
+        // Test file is based on ORCID's sandbox record https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/personal-details
         private string getOrcidJsonPersonalDetails()
         {
             var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_personal-details.json";
@@ -339,8 +339,12 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var actualEmployments = orcidJsonParserService.GetEmployments(jsonStr);
-            Assert.True(actualEmployments.Count == 1, "Educations: should parse 1 employment");
+
+            Assert.True(actualEmployments.Count == 2, "Educations: should parse 2 employments");
+
             Assert.Equal("ORCID", actualEmployments[0].OrganizationName);
+            Assert.Equal("385488", actualEmployments[0].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("RINGGOLD", actualEmployments[0].DisambiguationSource);
             Assert.Equal("QA and Testing", actualEmployments[0].DepartmentName);
             Assert.Equal("Test account holder", actualEmployments[0].RoleTitle);
             Assert.Equal(2012, actualEmployments[0].StartDate.Year);
@@ -350,6 +354,18 @@ namespace api.Tests
             Assert.Equal(0, actualEmployments[0].EndDate.Month);
             Assert.Equal(0, actualEmployments[0].EndDate.Day);
             Assert.Equal(new OrcidPutCode(22411).Value, actualEmployments[0].PutCode.Value);
+
+            Assert.Equal("Test university without disambiguated organization", actualEmployments[1].OrganizationName);
+            Assert.Equal("", actualEmployments[1].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("Astrophysics", actualEmployments[1].DepartmentName);
+            Assert.Equal("Professor", actualEmployments[1].RoleTitle);
+            Assert.Equal(2018, actualEmployments[1].StartDate.Year);
+            Assert.Equal(1, actualEmployments[1].StartDate.Month);
+            Assert.Equal(21, actualEmployments[1].StartDate.Day);
+            Assert.Equal(2019, actualEmployments[1].EndDate.Year);
+            Assert.Equal(12, actualEmployments[1].EndDate.Month);
+            Assert.Equal(31, actualEmployments[1].EndDate.Day);
+            Assert.Equal(new OrcidPutCode(47431).Value, actualEmployments[1].PutCode.Value);
         }
 
         [Fact(DisplayName = "Get publications")]

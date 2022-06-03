@@ -216,7 +216,6 @@ namespace api.Controllers
                 .Include(dup => dup.DimUserChoices)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
-                        .ThenInclude(drds => drds.DimOrganization)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimName)
                 .Include(dup => dup.FactFieldValues)
@@ -227,7 +226,6 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimAffiliation)
-                        .ThenInclude(da => da.DimOrganization)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimEducation)
                 .Include(dup => dup.FactFieldValues)
@@ -244,32 +242,31 @@ namespace api.Controllers
                     .ThenInclude(ffv => ffv.DimKeyword)
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearchDataset)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(did => did.InverseDimIdentifierlessData) // DimIdentifierlessData can have a child entity.
                 .FirstOrDefaultAsync(up => up.Id == userprofileId);
 
             foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == -1))
             {
-                // DimAffiliation. In demo version the related DimOrganization is removed.
+                // Always remove FactFieldValue
+                _ttvContext.FactFieldValues.Remove(ffv);
+
+                // DimIdentifierlessData
+                if (ffv.DimIdentifierlessDataId != -1)
+                {
+                    // Remove children
+                    _ttvContext.DimIdentifierlessData.RemoveRange(ffv.DimIdentifierlessData.InverseDimIdentifierlessData);
+                    _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
+                }
+
+                // DimAffiliation
                 if (ffv.DimAffiliationId != -1)
                 {
-                    DimOrganization dimOrganization = ffv.DimAffiliation.DimOrganization;
-                    _ttvContext.FactFieldValues.Remove(ffv);
-
                     if (_userProfileService.CanDeleteFactFieldValueRelatedData(ffv))
                     {
                         _ttvContext.DimAffiliations.Remove(ffv.DimAffiliation);
                     }
-
-                    // Remove related DimOrganization
-                    // TODO: Removal of DimOrganization only in demo version, if sourceId is ORCID
-                    if (dimOrganization.SourceId == Constants.SourceIdentifiers.PROFILE_API || dimOrganization.SourceId == Constants.SourceIdentifiers.DEMO)
-                    {
-                        _ttvContext.DimOrganizations.Remove(dimOrganization);
-                    }
-                }
-                else
-                {
-                    // Always remove FactFieldValue
-                    _ttvContext.FactFieldValues.Remove(ffv);
                 }
 
                 // ORCID put code
