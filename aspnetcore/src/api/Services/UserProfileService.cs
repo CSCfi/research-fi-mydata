@@ -23,9 +23,6 @@ namespace api.Services
         private readonly DuplicateHandlerService _duplicateHandlerService;
         private readonly OrganizationHandlerService _organizationHandlerService;
 
-        /*
-         * Constructor with dependency injection.
-         */
         public UserProfileService(TtvContext ttvContext, DataSourceHelperService dataSourceHelperService, UtilityService utilityService, LanguageService languageService, DuplicateHandlerService duplicateHandlerService, OrganizationHandlerService organizationHandlerService)
         {
             _ttvContext = ttvContext;
@@ -36,10 +33,7 @@ namespace api.Services
             _organizationHandlerService = organizationHandlerService;
         }
 
-        /*
-         * Constructor without dependency injection.
-         * Needed for simplifying unit tests.
-         */
+        // For unit test
         public UserProfileService(){}
 
         /*

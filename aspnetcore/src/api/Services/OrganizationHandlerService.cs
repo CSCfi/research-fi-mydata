@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models;
-using api.Models.Orcid;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,27 +21,27 @@ namespace api.Services
             _utilityService = utilityService;
         }
 
+        // For unit test
+        public OrganizationHandlerService() { }
+
         /*
          * Map ORCID field disambiguation-source to pid_type in DimPid
          */
-        private string MapOrcidDisambiguationSourceToPidType(string orcidDisambiguationSource)
+        public string MapOrcidDisambiguationSourceToPidType(string orcidDisambiguationSource)
         {
-            string pidType = "";
+            // TODO: add more mappings, when both ORCID disambiguation-source and DimPid.PidType values are known
             switch (orcidDisambiguationSource)
             {
-                case "ROR":
-                    pidType = "ror";
-                    break;
-                case "FUNDREF":
-                    pidType = "fundref";
-                    break;
+                case "GRID":
+                    return "GRIDID";
                 case "RINGGOLD":
-                    pidType = "ringgold";
-                    break;
-                default:
-                    break;
+                    return "RinggoldID";
+                case "ROR":
+                    return "RORID";
             }
-            return pidType;
+            // By default return empty string, do not return original disambiguation-source.
+            // This prevents unneccessary searches for DimPid.
+            return "";
         }
 
         /*

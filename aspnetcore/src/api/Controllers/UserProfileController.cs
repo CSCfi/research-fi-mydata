@@ -255,13 +255,7 @@ namespace api.Controllers
                 // DimIdentifierlessData
                 if (ffv.DimIdentifierlessDataId != -1)
                 {
-                    // Remove possible child of DimIdentifierlessData
-                    //foreach (DimIdentifierlessDatum dimIdentifierlessData in ffv.DimIdentifierlessData.InverseDimIdentifierlessData.ToList())
-                    //{
-                    //    ffv.DimIdentifierlessData.InverseDimIdentifierlessData.Remove(dimIdentifierlessData);
-                    //    _ttvContext.DimIdentifierlessData.Remove(dimIdentifierlessData);
-                    //}
-
+                    // Remove children
                     _ttvContext.DimIdentifierlessData.RemoveRange(ffv.DimIdentifierlessData.InverseDimIdentifierlessData);
                     _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
                 }
