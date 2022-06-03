@@ -58,14 +58,18 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "nothing to add"));
             }
 
-            // Get userprofile
+            // Get ORCID id
             string orcidId = GetOrcidId();
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+
             DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION))
                     .ThenInclude(dfds => dfds.FactFieldValues)
@@ -176,14 +180,17 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "nothing to remove"));
             }
 
-            // Get id of userprofile
+            // Get ORCID id
             string orcidId = GetOrcidId();
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Response object
             ProfileEditorRemoveFundingDecisionResponse profileEditorRemoveFundingDecisionResponse = new();

@@ -1,10 +1,8 @@
 ﻿using api.Services;
 using api.Models;
-using api.Models.Ttv;
 using api.Models.ProfileEditor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
@@ -22,7 +20,6 @@ namespace api.Controllers
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class ProfileDataController : TtvControllerBase
     {
-        private readonly TtvContext _ttvContext;
         private readonly UserProfileService _userProfileService;
         private readonly ElasticsearchService _elasticsearchService;
         private readonly TtvSqlService _ttvSqlService;
@@ -31,9 +28,8 @@ namespace api.Controllers
         private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
         private readonly BackgroundProfiledata _backgroundProfiledata;
 
-        public ProfileDataController(TtvContext ttvContext, UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue, BackgroundProfiledata backgroundProfiledata)
+        public ProfileDataController(UserProfileService userProfileService, ElasticsearchService elasticsearchService, TtvSqlService ttvSqlService, IMemoryCache memoryCache, ILogger<UserProfileController> logger, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue, BackgroundProfiledata backgroundProfiledata)
         {
-            _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _cache = memoryCache;
             _elasticsearchService = elasticsearchService;
@@ -50,10 +46,11 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
-            // Check that user profile exists.
+            // Get ORCID id
             string orcidId = GetOrcidId();
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
@@ -63,6 +60,9 @@ namespace api.Controllers
             {
                 return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Get profile data
             ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
@@ -93,13 +93,17 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: true));
             }
 
-            // Check that user profile exists.
+            // Get ORCID id
             string orcidId = GetOrcidId();
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
@@ -112,7 +116,7 @@ namespace api.Controllers
             foreach (ProfileEditorItemMeta profileEditorItemMeta in profileEditorDataModificationRequest.items.ToList())
             {
                 string updateSql = _ttvSqlService.GetSqlQuery_Update_FactFieldValues(userprofileId, profileEditorItemMeta);
-                await _ttvContext.Database.ExecuteSqlRawAsync(updateSql);
+                await _userProfileService.ExecuteRawSql(updateSql);
                 profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
             }
 
