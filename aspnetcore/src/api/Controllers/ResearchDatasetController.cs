@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using api.Models.Common;
 
@@ -58,14 +57,17 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "nothing to add"));
             }
 
-            // Get userprofile
+            // Get ORCID id
             string orcidId = GetOrcidId();
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // TODO: FactFieldValues relation to DimResearchDataset
             DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
@@ -177,14 +179,17 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "nothing to remove"));
             }
 
-            // Get id of userprofile
+            // Get ORCID id
             string orcidId = GetOrcidId();
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Response object
             ProfileEditorRemoveResearchDatasetResponse profileEditorRemoveResearchDatasetResponse = new();

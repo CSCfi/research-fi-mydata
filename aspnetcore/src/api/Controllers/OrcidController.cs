@@ -1,14 +1,9 @@
 ﻿using api.Services;
 using api.Models;
-using api.Models.Ttv;
 using api.Models.Orcid;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 
@@ -52,13 +47,13 @@ namespace api.Controllers
             _logger.LogInformation(this.GetLogPrefix() + " get ORCID data request");
 
             // Check that userprofile exists.
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: GetOrcidId()))
             {
-                // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // User's ORCID access token handling
             OrcidTokens orcidTokens;

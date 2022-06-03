@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using api.Models.Ttv;
 using Microsoft.Extensions.Caching.Memory;
@@ -45,14 +44,17 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponseCooperationGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
-            // Get userprofile
+            // Get ORCID id
             string orcidId = GetOrcidId();
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                // Userprofile not found
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Send cached response, if exists. Cache key is ORCID ID + "_choices"
             string cacheKey = orcidId + "_choices";
@@ -136,13 +138,17 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "nothing to modify"));
             }
 
-            // Check that user profile exists.
+            // Get ORCID id
             string orcidId = GetOrcidId();
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Remove cached profile data response. Cache key is ORCID ID + "_choices"
             _cache.Remove(orcidId + "_choices");

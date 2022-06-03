@@ -86,7 +86,7 @@ namespace api.Services
         /*
          * Get Id of DimUserProfile based on ORCID Id.
          */
-        public async Task<int> GetUserprofileId(String orcidId)
+        public async Task<int> GetUserprofileId(string orcidId)
         {
             DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking().FirstOrDefaultAsync();
             if (dimUserProfile == null)
@@ -97,6 +97,15 @@ namespace api.Services
             {
                 return dimUserProfile.Id;
             }
+        }
+
+        /*
+         * Check if user profile exists for ORCID Id.
+         */
+        public async Task<bool> UserprofileExistsForOrcidId(string orcidId)
+        {
+            int userProfileId = await GetUserprofileId(orcidId: orcidId);
+            return userProfileId > -1;
         }
 
         /*
@@ -417,6 +426,108 @@ namespace api.Services
             await this.AddTtvPublications(dimKnownPerson, dimUserProfile);
         }
 
+        /*
+         * Create user profile.
+         */
+        public async Task CreateProfile(string orcidId)
+        {
+            // Get DimPid by ORCID id.
+            // Also get related entities. Needed when searching existing data that should be automatically included in profile.
+            DimPid dimPid = await _ttvContext.DimPids
+                .Include(dp => dp.DimKnownPerson)
+                    .ThenInclude(dkp => dkp.DimNames)
+                        .ThenInclude(dn => dn.FactContributions).AsNoTracking()
+                .Include(dp => dp.DimKnownPerson)
+                    .ThenInclude(dkp => dkp.DimNames)
+                        .ThenInclude(dn => dn.DimRegisteredDataSource).AsNoTracking()
+                .Include(dp => dp.DimKnownPerson)
+                    .ThenInclude(dkp => dkp.DimTelephoneNumbers)
+                        .ThenInclude(dtn => dtn.DimRegisteredDataSource).AsNoTracking()
+                .Include(dp => dp.DimKnownPerson)
+                    .ThenInclude(dkp => dkp.DimUserProfiles).AsNoTracking().FirstOrDefaultAsync(p => p.PidContent == orcidId && p.PidType == Constants.PidTypes.ORCID);
+
+            // Get current DateTime
+            DateTime currentDateTime = _utilityService.GetCurrentDateTime();
+
+            // Check if DimPid 
+            if (dimPid == null)
+            {
+                // DimPid was not found.
+
+                // Add new DimPid, add new DimKnownPerson
+                dimPid = GetEmptyDimPid();
+                dimPid.PidContent = orcidId;
+                dimPid.PidType = Constants.PidTypes.ORCID;
+
+                // Since new DimPid is added, then new DimKnownPerson must be added
+                dimPid.DimKnownPerson = new DimKnownPerson()
+                {
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = currentDateTime,
+                    Modified = currentDateTime
+                };
+                dimPid.SourceId = Constants.SourceIdentifiers.PROFILE_API;
+                _ttvContext.DimPids.Add(dimPid);
+                await _ttvContext.SaveChangesAsync();
+            }
+            else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
+            {
+                // DimPid was found but it does not have related DimKnownPerson.
+                DimKnownPerson kp = new()
+                {
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = currentDateTime,
+                    Modified = currentDateTime
+                };
+                _ttvContext.DimKnownPeople.Add(kp);
+                dimPid.DimKnownPerson = kp;
+                await _ttvContext.SaveChangesAsync();
+            }
+
+            // Add DimUserProfile
+            DimUserProfile dimUserProfile = dimPid.DimKnownPerson.DimUserProfiles.FirstOrDefault();
+            if (dimUserProfile == null)
+            {
+                // Add DimUserProfile
+                dimUserProfile = new DimUserProfile()
+                {
+                    DimKnownPersonId = dimPid.DimKnownPerson.Id,
+                    OrcidId = orcidId,
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = currentDateTime,
+                    AllowAllSubscriptions = false
+                };
+                _ttvContext.DimUserProfiles.Add(dimUserProfile);
+                await _ttvContext.SaveChangesAsync();
+
+                // Add DimFieldDisplaySettings
+                foreach (int fieldIdentifier in GetFieldIdentifiers())
+                {
+                    DimFieldDisplaySetting dimFieldDisplaySetting = new()
+                    {
+                        DimUserProfileId = dimUserProfile.Id,
+                        FieldIdentifier = fieldIdentifier,
+                        Show = false,
+                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        Created = currentDateTime,
+                        Modified = currentDateTime
+                    };
+                    _ttvContext.DimFieldDisplaySettings.Add(dimFieldDisplaySetting);
+                }
+                await _ttvContext.SaveChangesAsync();
+
+
+                // Demo data can be added to every user profile by uncommenting the following line
+                // await _demoDataService.AddDemoDataToUserProfile(orcidId, dimUserProfile);
+
+                // Add Ttv data to user profile
+                await AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
+            }
+        }
 
         /*
          *  Get profile data.
@@ -925,7 +1036,8 @@ namespace api.Services
                                         nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
                                         nameSv: ffv.DimAffiliation.DimOrganization.NameSv
                                     );
-                                } else if (ffv.DimIdentifierlessDataId > -1 && ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                                }
+                                else if (ffv.DimIdentifierlessDataId > -1 && ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
                                 {
                                     nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
                                         nameFi: ffv.DimIdentifierlessData.ValueFi,
@@ -1845,7 +1957,6 @@ namespace api.Services
                                     );
                                 }
 
-
                                 // Name translation for position name
                                 NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
                                     nameFi: ffv.DimAffiliation.PositionNameFi,
@@ -1853,23 +1964,12 @@ namespace api.Services
                                     nameSv: ffv.DimAffiliation.PositionNameSv
                                 );
 
-                                /*
-                                // TODO: demo version stores ORDCID affiliation department name in DimOrganization.NameUnd
-                                NameTranslation nameTranslationAffiliationDepartment = new()
-                                {
-                                    NameFi = "",
-                                    NameEn = "",
-                                    NameSv = ""
-                                };
-                                if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.PROFILE_API)
-                                {
-                                    nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
-                                        "",
-                                        nameEn: ffv.DimAffiliation.DimOrganization.NameUnd,
-                                        ""
-                                    );
-                                }
-                                */
+                                // Name translation for department name
+                                NameTranslation nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
+                                    nameFi: "",
+                                    nameEn: _organizationHandlerService.GetAffiliationDepartmentNameFromFactFieldValue(factFieldValue: ffv),
+                                    nameSv: ""
+                                );
 
                                 ProfileEditorItemAffiliation affiliation = new()
                                 {
@@ -1877,9 +1977,9 @@ namespace api.Services
                                     OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
                                     OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
                                     OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
-                                    DepartmentNameFi = "", // nameTranslationAffiliationDepartment.NameFi,
-                                    DepartmentNameEn = "", // nameTranslationAffiliationDepartment.NameEn,
-                                    DepartmentNameSv = "", // nameTranslationAffiliationDepartment.NameSv,
+                                    DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
+                                    DepartmentNameEn = nameTranslationAffiliationDepartment.NameEn,
+                                    DepartmentNameSv = nameTranslationAffiliationDepartment.NameSv,
                                     PositionNameFi = nameTranslationPositionName.NameFi,
                                     PositionNameEn = nameTranslationPositionName.NameEn,
                                     PositionNameSv = nameTranslationPositionName.NameSv,
@@ -2189,6 +2289,216 @@ namespace api.Services
             }
 
             return profileDataResponse;
+        }
+
+        /*
+         * Delete profile data.
+         */
+        public async Task DeleteProfileDataAsync(int userprofileId)
+        {
+            // Get DimUserProfile and related data that should be removed. 
+            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles
+                .Include(dup => dup.DimFieldDisplaySettings)
+                .Include(dup => dup.DimUserChoices)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimRegisteredDataSource)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimName)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimWebLink)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimPid)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimAffiliation)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimEducation)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimTelephoneNumber)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimEmailAddrress)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearcherDescription)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimOrcidPublication)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimFundingDecision)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimKeyword)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimResearchDataset)
+                .Include(dup => dup.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(did => did.InverseDimIdentifierlessData) // DimIdentifierlessData can have a child entity.
+                .FirstOrDefaultAsync(up => up.Id == userprofileId);
+
+            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == -1))
+            {
+                // Always remove FactFieldValue
+                _ttvContext.FactFieldValues.Remove(ffv);
+
+                // DimIdentifierlessData
+                if (ffv.DimIdentifierlessDataId != -1)
+                {
+                    // Remove children
+                    _ttvContext.DimIdentifierlessData.RemoveRange(ffv.DimIdentifierlessData.InverseDimIdentifierlessData);
+                    _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
+                }
+
+                // DimAffiliation
+                if (ffv.DimAffiliationId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimAffiliations.Remove(ffv.DimAffiliation);
+                    }
+                }
+
+                // ORCID put code
+                if (ffv.DimPidIdOrcidPutCode != -1)
+                {
+                    _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
+                }
+
+                // DimPid
+                // DimPids related to FactFieldValue store person's external identifiers 
+                if (ffv.DimPidId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimPids.Remove(ffv.DimPid);
+                    }
+                }
+
+                // DimWebLink
+                else if (ffv.DimWebLinkId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimWebLinks.Remove(ffv.DimWebLink);
+                    }
+                }
+
+                // DimOrcidPublication
+                else if (ffv.DimOrcidPublicationId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimOrcidPublications.Remove(ffv.DimOrcidPublication);
+                    }
+                }
+
+                // DimKeyword
+                else if (ffv.DimKeywordId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimKeywords.Remove(ffv.DimKeyword);
+                    }
+                }
+
+                // DimEducation
+                else if (ffv.DimEducationId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimEducations.Remove(ffv.DimEducation);
+                    }
+                }
+
+                // DimEmail
+                else if (ffv.DimEmailAddrressId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimEmailAddrresses.Remove(ffv.DimEmailAddrress);
+                    }
+                }
+
+                // DimResearcherDescription
+                else if (ffv.DimResearcherDescriptionId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimResearcherDescriptions.Remove(ffv.DimResearcherDescription);
+                    }
+                }
+
+                // DimTelephoneNumber
+                else if (ffv.DimTelephoneNumberId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
+                    }
+                }
+
+                // DimResarchDataset
+                else if (ffv.DimResearchDatasetId != -1)
+                {
+                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    {
+                        _ttvContext.DimResearchDatasets.Remove(ffv.DimResearchDataset);
+                    }
+
+                    // DEMO: remove test data from FactContribution
+                    System.Collections.Generic.List<FactContribution> factContributions = await _ttvContext.FactContributions.Where(fc => fc.DimResearchDatasetId == ffv.DimResearchDatasetId && fc.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
+                    foreach (FactContribution fc in factContributions)
+                    {
+                        _ttvContext.FactContributions.Remove(fc);
+                        _ttvContext.Entry(fc).State = EntityState.Deleted;
+                    }
+
+                    // DEMO: remove test data from DimPids
+                    System.Collections.Generic.List<DimPid> dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && dp.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
+                    foreach (DimPid dp in dimPids)
+                    {
+                        _ttvContext.DimPids.Remove(dp);
+                        _ttvContext.Entry(dp).State = EntityState.Deleted;
+                    }
+                }
+            }
+            await _ttvContext.SaveChangesAsync();
+
+            // Remove DimName
+            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId != -1))
+            {
+                _ttvContext.FactFieldValues.Remove(ffv);
+
+                if (ffv.DimPidIdOrcidPutCode != -1)
+                {
+                    _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
+                }
+
+                if (CanDeleteFactFieldValueRelatedData(ffv))
+                {
+                    _ttvContext.DimNames.Remove(ffv.DimName);
+                }
+            }
+            await _ttvContext.SaveChangesAsync();
+
+            // Remove DimFieldDisplaySettings
+            _ttvContext.DimFieldDisplaySettings.RemoveRange(dimUserProfile.DimFieldDisplaySettings);
+
+            // Remove cooperation user choices
+            _ttvContext.DimUserChoices.RemoveRange(dimUserProfile.DimUserChoices);
+
+            // Remove DimUserProfile
+            _ttvContext.DimUserProfiles.Remove(dimUserProfile);
+
+            // Must not remove DimKnownPerson.
+            // Must not remove DimPid (ORCID ID).
+
+            await _ttvContext.SaveChangesAsync();
+        }
+
+        /*
+         * Execute raw sql.
+         */
+        public async Task ExecuteRawSql(string sql)
+        {
+            await _ttvContext.Database.ExecuteSqlRawAsync(sql);
         }
     }
 }
