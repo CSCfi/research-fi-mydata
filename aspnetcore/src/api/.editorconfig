@@ -1,0 +1,3 @@
+﻿[*.cs]
+# IDE0058
+csharp_style_unused_value_expression_statement_preference = discard_variable:none

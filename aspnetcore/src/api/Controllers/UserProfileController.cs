@@ -23,16 +23,21 @@ namespace api.Controllers
         private readonly KeycloakAdminApiService _keycloakAdminApiService;
         private readonly ILogger<UserProfileController> _logger;
         private readonly IMemoryCache _cache;
-        private readonly BackgroundElasticsearchPersonUpdateQueue _backgroundElasticsearchPersonUpdateQueue;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
-        public UserProfileController(ElasticsearchService elasticsearchService, UserProfileService userProfileService, KeycloakAdminApiService keycloakAdminApiService, ILogger<UserProfileController> logger, IMemoryCache memoryCache, BackgroundElasticsearchPersonUpdateQueue backgroundElasticsearchPersonUpdateQueue)
+        public UserProfileController(ElasticsearchService elasticsearchService,
+            UserProfileService userProfileService,
+            KeycloakAdminApiService keycloakAdminApiService,
+            ILogger<UserProfileController> logger,
+            IMemoryCache memoryCache,
+            IBackgroundTaskQueue taskQueue)
         {
             _userProfileService = userProfileService;
             _elasticsearchService = elasticsearchService;
             _keycloakAdminApiService = keycloakAdminApiService;
             _logger = logger;
             _cache = memoryCache;
-            _backgroundElasticsearchPersonUpdateQueue = backgroundElasticsearchPersonUpdateQueue;
+            _taskQueue = taskQueue;
         }
 
         /// <summary>
@@ -113,7 +118,7 @@ namespace api.Controllers
             _cache.Remove(orcidId);
 
             // Remove entry from Elasticsearch index in a background task.
-            _backgroundElasticsearchPersonUpdateQueue.QueueBackgroundWorkItem(async token =>
+            await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
             {
                 _logger.LogInformation($"Background task for removing {orcidId} from Elasticsearch person index started at {DateTime.UtcNow}");
                 // Update Elasticsearch person index.
