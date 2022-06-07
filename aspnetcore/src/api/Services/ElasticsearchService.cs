@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using api.Models.Elasticsearch;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +17,7 @@ namespace api.Services
         private readonly ILogger<ElasticsearchService> _logger;
 
         // Check if Elasticsearch synchronization is enabled and related configuration is valid.
-        public Boolean IsElasticsearchSyncEnabled()
+        public bool IsElasticsearchSyncEnabled()
         {
             return Configuration["ELASTICSEARCH:ENABLED"] != null
                 && Configuration["ELASTICSEARCH:ENABLED"] == "true"
@@ -30,13 +29,13 @@ namespace api.Services
         }
 
         // Constructor.
-        // Do not setup HttpClient unless configuration values are ok.
+        // Do not setup Elasticsearch client unless configuration values are ok.
         public ElasticsearchService(IConfiguration configuration, ILogger<ElasticsearchService> logger)
         {
             Configuration = configuration;
             _logger = logger;
 
-            if (this.IsElasticsearchSyncEnabled())
+            if (IsElasticsearchSyncEnabled())
             {
                 ConnectionSettings settings = new ConnectionSettings(new Uri(Configuration["ELASTICSEARCH:URL"]))
                     .DefaultIndex("person")
@@ -50,7 +49,7 @@ namespace api.Services
         // TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
         public async Task UpdateEntryInElasticsearchPersonIndex(string orcidId, Person person)
         {
-            if (!this.IsElasticsearchSyncEnabled())
+            if (!IsElasticsearchSyncEnabled())
             {
                 return;
             }
@@ -78,9 +77,9 @@ namespace api.Services
         }
 
         // Delete entry from Elasticsearch person index
-        public async Task DeleteEntryFromElasticsearchPersonIndex(String orcidId)
+        public async Task DeleteEntryFromElasticsearchPersonIndex(string orcidId)
         {
-            if (!this.IsElasticsearchSyncEnabled())
+            if (!IsElasticsearchSyncEnabled())
             {
                 return;
             }

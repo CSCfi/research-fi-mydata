@@ -118,13 +118,16 @@ namespace api.Controllers
             _cache.Remove(orcidId);
 
             // Remove entry from Elasticsearch index in a background task.
-            await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
-                _logger.LogInformation($"Background task for removing {orcidId} from Elasticsearch person index started at {DateTime.UtcNow}");
-                // Update Elasticsearch person index.
-                await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
-                _logger.LogInformation($"Background task for removing {orcidId} from Elasticseach person index ended at {DateTime.UtcNow}");
-            });
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                {
+                    _logger.LogInformation($"Elasticsearch removal of {orcidId} started {DateTime.UtcNow}");
+                    // Update Elasticsearch person index.
+                    await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+                    _logger.LogInformation($"Elasticsearch removal of {orcidId} completed {DateTime.UtcNow}");
+                });
+            }
 
             // Delete profile data from database
             try

@@ -127,15 +127,18 @@ namespace api.Controllers
             }
 
             // Update Elasticsearch index in a background task.
-            await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
-                _logger.LogInformation($"Background task for updating {orcidId} started at {DateTime.UtcNow}");
-                // Get Elasticsearch person entry from profile data.
-                Models.Elasticsearch.Person person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
-                // Update Elasticsearch person index.
-                await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
-                _logger.LogInformation($"Background task for updating {orcidId} ended at {DateTime.UtcNow}");
-            });
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                {
+                    _logger.LogInformation($"Elasticsearch index update for {orcidId} started {DateTime.UtcNow}");
+                    // Get Elasticsearch person entry from profile data.
+                    Models.Elasticsearch.Person person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                    // Update Elasticsearch person index.
+                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
+                    _logger.LogInformation($"Elasticsearch index update for {orcidId} completed {DateTime.UtcNow}");
+                });
+            }
 
             return Ok(new ApiResponseProfileDataPatch(success: true, reason: "", data: profileEditorDataModificationResponse, fromCache: false));
         }

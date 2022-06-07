@@ -12,6 +12,7 @@ namespace api.Services
 {
     /*
      * BackgroundProfiledata gets user profile data and constructs an entry for Elasticsearch person index.
+     *
      * In normal controller code the request context has access to database via ttvContext.
      * In a background task that is not available, since it is disposed when the response is sent.
      * Here a local scope is created and database context can be taken from that scope.

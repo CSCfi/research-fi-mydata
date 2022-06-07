@@ -218,11 +218,12 @@ namespace api
             services.AddScoped<StartupHelperService>();
             services.AddMemoryCache();
 
+            // Background processing related services.
             services.AddTransient<BackgroundProfiledata>();
             services.AddHostedService<QueuedHostedService>();
             services.AddSingleton<IBackgroundTaskQueue>(ctx =>
             {
-                return new BackgroundTaskQueue(capacity: 100);
+                return new BackgroundTaskQueue();
             });
         }
 

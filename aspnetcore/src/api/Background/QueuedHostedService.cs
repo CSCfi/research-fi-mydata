@@ -3,7 +3,6 @@
  * https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-6.0&tabs=visual-studio#queued-background-tasks
  */
 
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
