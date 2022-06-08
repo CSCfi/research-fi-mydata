@@ -216,6 +216,7 @@ namespace api
             services.AddScoped<KeycloakAdminApiService>();
             services.AddScoped<DuplicateHandlerService>();
             services.AddScoped<StartupHelperService>();
+            services.AddScoped<SharingService>();
             services.AddMemoryCache();
 
             // Background processing related services.

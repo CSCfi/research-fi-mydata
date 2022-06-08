@@ -22,8 +22,15 @@ namespace api.Services
         private readonly LanguageService _languageService;
         private readonly DuplicateHandlerService _duplicateHandlerService;
         private readonly OrganizationHandlerService _organizationHandlerService;
+        private readonly SharingService _sharingService;
 
-        public UserProfileService(TtvContext ttvContext, DataSourceHelperService dataSourceHelperService, UtilityService utilityService, LanguageService languageService, DuplicateHandlerService duplicateHandlerService, OrganizationHandlerService organizationHandlerService)
+        public UserProfileService(TtvContext ttvContext,
+            DataSourceHelperService dataSourceHelperService,
+            UtilityService utilityService,
+            LanguageService languageService,
+            DuplicateHandlerService duplicateHandlerService,
+            OrganizationHandlerService organizationHandlerService,
+            SharingService sharingService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
@@ -31,6 +38,7 @@ namespace api.Services
             _languageService = languageService;
             _duplicateHandlerService = duplicateHandlerService;
             _organizationHandlerService = organizationHandlerService;
+            _sharingService = sharingService;
         }
 
         // For unit test
@@ -2477,6 +2485,9 @@ namespace api.Services
                 }
             }
             await _ttvContext.SaveChangesAsync();
+
+            // Remove sharing permissions.
+            await _sharingService.DeleteAllGrantedPermissionsFromUserprofile(userprofileId: userprofileId);
 
             // Remove DimFieldDisplaySettings
             _ttvContext.DimFieldDisplaySettings.RemoveRange(dimUserProfile.DimFieldDisplaySettings);

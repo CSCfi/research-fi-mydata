@@ -66,5 +66,17 @@
             public const string ORGANIZATION_NAME = "organization_name";
             public const string ORGANIZATION_UNIT = "organization_unit";
         }
+
+        public static class SharingGroupIdentifiers
+        {
+            public const int PROFILE_INFORMATION = 1;
+            public const int EMAIL_ADDRESS = 2;
+            public const int PHONE_NUMBER = 3;
+            public const int AFFILIATION_AND_EDUCATION = 4;
+            public const int PUBLICATIONS = 5;
+            public const int DATASETS = 6;
+            public const int GRANTS = 7;
+            public const int ACTIVITIES_AND_DISTINCTIONS = 8;
+        }
     }
 }
