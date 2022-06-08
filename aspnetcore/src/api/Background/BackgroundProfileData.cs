@@ -12,6 +12,7 @@ namespace api.Services
 {
     /*
      * BackgroundProfiledata gets user profile data and constructs an entry for Elasticsearch person index.
+     *
      * In normal controller code the request context has access to database via ttvContext.
      * In a background task that is not available, since it is disposed when the response is sent.
      * Here a local scope is created and database context can be taken from that scope.
@@ -35,6 +36,7 @@ namespace api.Services
             using IServiceScope scope = _serviceScopeFactory.CreateScope();
             TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
             LanguageService localLanguageService = scope.ServiceProvider.GetRequiredService<LanguageService>();
+            OrganizationHandlerService localOrganizationHandlerService = scope.ServiceProvider.GetRequiredService<OrganizationHandlerService>();
 
             // Get DimFieldDisplaySettings and related entities
             List<DimFieldDisplaySetting> dimFieldDisplaySettings = await localTtvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
@@ -116,9 +118,10 @@ namespace api.Services
                 // DimResearcherDescription
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
-                // DimIdentifierlessData
-                //.Include(dfds => dfds.FactFieldValues)
-                //    .ThenInclude(ffv => ffv.DimIdentifierlessData).AsNoTracking() // TODO: update model to match SQL table
+                // DimIdentifierlessData. Can have a child entity.
+                .Include(dfds => dfds.FactFieldValues)
+                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
+                        .ThenInclude(did => did.InverseDimIdentifierlessData).AsNoTracking()
                 // DimOrcidPublication
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
@@ -405,37 +408,43 @@ namespace api.Services
                             };
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
+                                // Get organization name from related DimOrganization (ffv.DimAffiliation.DimOrganization), if exists.
+                                // Otherwise from DimIdentifierlessData (ffv.DimIdentifierlessData).
                                 // Name translation service ensures that none of the language fields is empty.
-                                NameTranslation nameTranslationAffiliationOrganization = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
-                                    nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
-                                    nameSv: ffv.DimAffiliation.DimOrganization.NameSv
-                                );
+                                NameTranslation nameTranslationAffiliationOrganization = new();
+                                if (ffv.DimAffiliation.DimOrganizationId > 0)
+                                {
+                                    nameTranslationAffiliationOrganization = localLanguageService.GetNameTranslation(
+                                        nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
+                                        nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
+                                        nameSv: ffv.DimAffiliation.DimOrganization.NameSv
+                                    );
+                                }
+                                else if (ffv.DimIdentifierlessDataId > -1 && ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                                {
+                                    nameTranslationAffiliationOrganization = localLanguageService.GetNameTranslation(
+                                        nameFi: ffv.DimIdentifierlessData.ValueFi,
+                                        nameEn: ffv.DimIdentifierlessData.ValueEn,
+                                        nameSv: ffv.DimIdentifierlessData.ValueSv
+                                    );
+                                }
+
+                                // Name translation for position name
                                 NameTranslation nameTranslationPositionName = localLanguageService.GetNameTranslation(
                                     nameFi: ffv.DimAffiliation.PositionNameFi,
                                     nameEn: ffv.DimAffiliation.PositionNameEn,
                                     nameSv: ffv.DimAffiliation.PositionNameSv
                                 );
 
-                                // TODO: demo version stores ORDCID affiliation department name in DimOrganization.NameUnd
-                                NameTranslation nameTranslationAffiliationDepartment = new()
-                                {
-                                    NameFi = "",
-                                    NameEn = "",
-                                    NameSv = ""
-                                };
-                                if (ffv.DimAffiliation.DimOrganization.SourceId == Constants.SourceIdentifiers.PROFILE_API)
-                                {
-                                    nameTranslationAffiliationDepartment = localLanguageService.GetNameTranslation(
-                                        "",
-                                        nameEn: ffv.DimAffiliation.DimOrganization.NameUnd,
-                                        ""
-                                    );
-                                }
+                                // Name translation for department name
+                                NameTranslation nameTranslationAffiliationDepartment = localLanguageService.GetNameTranslation(
+                                    nameFi: "",
+                                    nameEn: localOrganizationHandlerService.GetAffiliationDepartmentNameFromFactFieldValue(factFieldValue: ffv),
+                                    nameSv: ""
+                                );
 
                                 ItemAffiliation affiliation = new()
                                 {
-                                    // TODO: DimOrganization handling
                                     OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
                                     OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
                                     OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,

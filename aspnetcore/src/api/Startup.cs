@@ -218,9 +218,13 @@ namespace api
             services.AddScoped<StartupHelperService>();
             services.AddMemoryCache();
 
-            services.AddHostedService<BackgroundElasticsearchUpdateService>();
-            services.AddSingleton<BackgroundElasticsearchPersonUpdateQueue>();
+            // Background processing related services.
             services.AddTransient<BackgroundProfiledata>();
+            services.AddHostedService<QueuedHostedService>();
+            services.AddSingleton<IBackgroundTaskQueue>(ctx =>
+            {
+                return new BackgroundTaskQueue();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
