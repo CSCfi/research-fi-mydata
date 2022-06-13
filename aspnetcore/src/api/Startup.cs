@@ -234,6 +234,7 @@ namespace api
             // Initialize
             DimRegisteredDataSource dimRegisteredDataSource_ORCID = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_ORCID();
             DimRegisteredDataSource dimRegisteredDataSource_TTV = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_TTV();
+            DimPurpose dimPurpose_TTV = startupHelperService.GetDimPurposeId_OnStartup_TTV();
 
             dataSourceHelperService.DimRegisteredDataSourceId_ORCID = dimRegisteredDataSource_ORCID.Id;
             dataSourceHelperService.DimRegisteredDataSourceName_ORCID = dimRegisteredDataSource_ORCID.Name;
@@ -248,6 +249,8 @@ namespace api
             dataSourceHelperService.DimOrganizationNameFi_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameFi;
             dataSourceHelperService.DimOrganizationNameEn_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameEn;
             dataSourceHelperService.DimOrganizationNameSv_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameSv;
+
+            dataSourceHelperService.DimPurposeId_TTV = dimPurpose_TTV.Id;
 
             // Response compression.
             app.UseResponseCompression();

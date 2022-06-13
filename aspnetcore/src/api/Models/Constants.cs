@@ -55,10 +55,20 @@
             public const int MEMORY_CACHE_EXPIRATION_SECONDS = 60;
         }
 
+        public static class OrganizationIds
+        {
+            public const string OKM = "0245872-8";
+        }
+
         public static class OrganizationNames
         {
             // TODO: check correct name, when these are properly populated in the database
             public const string ORCID = "ORCID (test)";
+            public const string TTV = "Tiedejatutkimus.fi (test)";
+        }
+
+        public static class PurposeNames
+        {
             public const string TTV = "Tiedejatutkimus.fi (test)";
         }
 

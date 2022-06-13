@@ -528,12 +528,13 @@ namespace api.Services
                 }
                 await _ttvContext.SaveChangesAsync();
 
-
-                // Demo data can be added to every user profile by uncommenting the following line
-                // await _demoDataService.AddDemoDataToUserProfile(orcidId, dimUserProfile);
-
                 // Add Ttv data to user profile
                 await AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
+
+                // Default sharing permissions
+                // TODO: Add permissions when BrGrantedPermission missing PK is added in the DB
+
+                await _ttvContext.SaveChangesAsync();
             }
         }
 

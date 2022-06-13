@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models;
 using api.Models.Ttv;
-using api.Models.ProfileEditor;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Services
@@ -46,27 +44,30 @@ namespace api.Services
         }
 
         /*
-         * Grant default permission set for a new user profile.
+         * Get default sharing permission set for a new user profile.
          */
-        public List<BrGrantedPermission> GrantDefaultPermissions(int userprofileId)
+        public List<BrGrantedPermission> GetDefaultSharingPermissions(int userprofileId)
         {
-            List<BrGrantedPermission> grantedPermissions = new();
+            List<BrGrantedPermission> defaultPermissions = new();
 
             // Get DimPurpose for Tiedejatutkimus.fi portal
 
             foreach (int sharingGroupIdentifier in GetSharingGroupIdentifiers())
             {
-                grantedPermissions.Add(
+                //DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.FindAsync(userprofileId);
+                //DimPurpose dimPurpose = await _ttvContext.DimPurposes.FindAsync(_dataSourceHelperService.DimPurposeId_TTV);
+
+                defaultPermissions.Add(
                     new BrGrantedPermission()
                     {
                         DimUserProfileId = userprofileId,
-                        DimExternalServiceId = -1,
+                        DimExternalServiceId = _dataSourceHelperService.DimPurposeId_TTV,
                         DimPermittedFieldGroup = sharingGroupIdentifier
                     }
                 );
             }
 
-            return grantedPermissions;
+            return defaultPermissions;
         }
 
         /*
