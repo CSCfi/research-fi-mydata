@@ -42,6 +42,7 @@ namespace api.Models.Ttv
         public string ContactInformation { get; set; }
         public bool? ContinuousApplicationPeriod { get; set; }
         public bool IsOpenCall { get; set; }
+        public TimeSpan? DueDateDueTime { get; set; }
 
         public virtual DimDate DimDateIdDueNavigation { get; set; }
         public virtual DimDate DimDateIdOpenNavigation { get; set; }
