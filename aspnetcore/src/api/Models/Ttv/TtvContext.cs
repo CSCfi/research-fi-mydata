@@ -981,6 +981,10 @@ namespace api.Models.Ttv
 
                 entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
 
+                entity.Property(e => e.DueDateDueTime)
+                    .HasColumnType("time(0)")
+                    .HasColumnName("due_date_due_time");
+
                 entity.Property(e => e.EuCallId)
                     .HasMaxLength(511)
                     .HasColumnName("eu_call_id");
