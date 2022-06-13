@@ -7,6 +7,11 @@ namespace api.Models.Ttv
 {
     public partial class DimPurpose
     {
+        public DimPurpose()
+        {
+            BrGrantedPermissions = new HashSet<BrGrantedPermission>();
+        }
+
         public int Id { get; set; }
         public int DimOrganizationId { get; set; }
         public string NameFi { get; set; }
@@ -22,5 +27,6 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
 
         public virtual DimOrganization DimOrganization { get; set; }
+        public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; }
     }
 }
