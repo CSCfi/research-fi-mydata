@@ -9,6 +9,7 @@ namespace api.Models.Ttv
     {
         public DimUserProfile()
         {
+            BrGrantedPermissions = new HashSet<BrGrantedPermission>();
             DimFieldDisplaySettings = new HashSet<DimFieldDisplaySetting>();
             DimUserChoices = new HashSet<DimUserChoice>();
             FactFieldValues = new HashSet<FactFieldValue>();
@@ -29,6 +30,7 @@ namespace api.Models.Ttv
         public int? Statuscode { get; set; }
 
         public virtual DimKnownPerson DimKnownPerson { get; set; }
+        public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; }
         public virtual ICollection<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; }
         public virtual ICollection<DimUserChoice> DimUserChoices { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }

@@ -11,6 +11,7 @@ namespace api.Models.Ttv
         {
             BrArtpublicationTypecategories = new HashSet<BrArtpublicationTypecategory>();
             BrDimReferencedataDimCallProgrammes = new HashSet<BrDimReferencedataDimCallProgramme>();
+            BrGrantedPermissions = new HashSet<BrGrantedPermission>();
             DimAffiliationAffiliationTypeNavigations = new HashSet<DimAffiliation>();
             DimAffiliationPositionCodeNavigations = new HashSet<DimAffiliation>();
             DimEducations = new HashSet<DimEducation>();
@@ -47,6 +48,7 @@ namespace api.Models.Ttv
         public virtual DimReferencedatum DimReferencedata { get; set; }
         public virtual ICollection<BrArtpublicationTypecategory> BrArtpublicationTypecategories { get; set; }
         public virtual ICollection<BrDimReferencedataDimCallProgramme> BrDimReferencedataDimCallProgrammes { get; set; }
+        public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliationAffiliationTypeNavigations { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliationPositionCodeNavigations { get; set; }
         public virtual ICollection<DimEducation> DimEducations { get; set; }

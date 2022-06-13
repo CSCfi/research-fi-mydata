@@ -421,30 +421,31 @@ namespace api.Models.Ttv
 
             modelBuilder.Entity<BrGrantedPermission>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => new { e.DimUserProfileId, e.DimExternalServiceId, e.DimPermittedFieldGroup })
+                    .HasName("PK__br_grant__F51F7BCB9EEFE4B6");
 
                 entity.ToTable("br_granted_permissions");
+
+                entity.Property(e => e.DimUserProfileId).HasColumnName("dim_user_profile_id");
 
                 entity.Property(e => e.DimExternalServiceId).HasColumnName("dim_external_service_id");
 
                 entity.Property(e => e.DimPermittedFieldGroup).HasColumnName("dim_permitted_field_group");
 
-                entity.Property(e => e.DimUserProfileId).HasColumnName("dim_user_profile_id");
-
                 entity.HasOne(d => d.DimExternalService)
-                    .WithMany()
+                    .WithMany(p => p.BrGrantedPermissions)
                     .HasForeignKey(d => d.DimExternalServiceId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKbr_granted953402");
 
                 entity.HasOne(d => d.DimPermittedFieldGroupNavigation)
-                    .WithMany()
+                    .WithMany(p => p.BrGrantedPermissions)
                     .HasForeignKey(d => d.DimPermittedFieldGroup)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("field group");
 
                 entity.HasOne(d => d.DimUserProfile)
-                    .WithMany()
+                    .WithMany(p => p.BrGrantedPermissions)
                     .HasForeignKey(d => d.DimUserProfileId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("permitted_services");
