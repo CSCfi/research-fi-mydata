@@ -206,10 +206,7 @@ namespace api
             services.AddScoped<OrcidJsonParserService>();
             services.AddScoped<OrganizationHandlerService>();
             services.AddScoped<UserProfileService>();
-            services.AddSingleton<ElasticsearchService>();
-            services.AddSingleton<UtilityService>();
-            services.AddSingleton<LanguageService>();
-            services.AddSingleton<DataSourceHelperService>();
+            services.AddScoped<LanguageService>();
             services.AddScoped<DemoDataService>();
             services.AddScoped<TtvSqlService>();
             services.AddScoped<TokenService>();
@@ -217,6 +214,9 @@ namespace api
             services.AddScoped<DuplicateHandlerService>();
             services.AddScoped<StartupHelperService>();
             services.AddScoped<SharingService>();
+            services.AddSingleton<ElasticsearchService>();
+            services.AddSingleton<UtilityService>();    
+            services.AddSingleton<DataSourceHelperService>();
             services.AddMemoryCache();
 
             // Background processing related services.

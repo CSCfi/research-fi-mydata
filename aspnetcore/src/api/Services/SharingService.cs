@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models;
+using api.Models.Common;
+using api.Models.ProfileEditor;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,12 +16,15 @@ namespace api.Services
     {
         private readonly TtvContext _ttvContext;
         private readonly DataSourceHelperService _dataSourceHelperService;
+        private readonly LanguageService _languageService;
 
         public SharingService(TtvContext ttvContext,
-            DataSourceHelperService dataSourceHelperService)
+            DataSourceHelperService dataSourceHelperService,
+            LanguageService languageService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
+            _languageService = languageService;
         }
 
         // For unit test
@@ -83,6 +88,46 @@ namespace api.Services
         {
             List<BrGrantedPermission> grantedPermissions = await _ttvContext.BrGrantedPermissions.Where(bgp => bgp.DimUserProfileId == userprofileId).ToListAsync();
             _ttvContext.BrGrantedPermissions.RemoveRange(grantedPermissions);
+        }
+
+        /*
+         * Get list of sharing items for profile editor.
+         */
+        public async Task<ProfileEditorSharingResponse> GetProfileEditorSharingResponse(int userprofileId)
+        {
+            List<ProfileEditorSharingItem> profileEditorSharingItems = new();
+
+            foreach (BrGrantedPermission brGrantedPermission in await _ttvContext.BrGrantedPermissions
+                .Include(bgp => bgp.DimExternalService).AsNoTracking()
+                .Where(bgp => bgp.DimUserProfileId == userprofileId).AsNoTracking().ToListAsync())
+            {
+                NameTranslation nameTranslation = _languageService.GetNameTranslation(
+                    nameFi: brGrantedPermission.DimExternalService.NameFi,
+                    nameEn: brGrantedPermission.DimExternalService.NameEn,
+                    nameSv: brGrantedPermission.DimExternalService.NameSv
+                );
+
+                NameTranslation descriptionTranslation = _languageService.GetNameTranslation(
+                    nameFi: brGrantedPermission.DimExternalService.DescriptionFi,
+                    nameEn: brGrantedPermission.DimExternalService.DescriptionEn,
+                    nameSv: brGrantedPermission.DimExternalService.DescriptionSv
+                );
+
+
+                profileEditorSharingItems.Add(
+                    new ProfileEditorSharingItem()
+                    {
+                        NameFi = nameTranslation.NameFi,
+                        NameEn = nameTranslation.NameEn,
+                        NameSv = nameTranslation.NameSv,
+                        DescriptionFi = descriptionTranslation.NameFi,
+                        DescriptionEn = descriptionTranslation.NameEn,
+                        DescriptionSv = descriptionTranslation.NameSv
+                    }
+                );
+            }
+
+            return new ProfileEditorSharingResponse(items: profileEditorSharingItems);
         }
     }
 }
