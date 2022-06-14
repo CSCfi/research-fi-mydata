@@ -511,6 +511,11 @@ namespace api.Services
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
                 await _ttvContext.SaveChangesAsync();
 
+                // Add default sharing permissions
+                _ttvContext.BrGrantedPermissions.AddRange(
+                    await _sharingService.GetDefaultSharingPermissionsListForUserProfile(userprofileId: dimUserProfile.Id)
+                );
+
                 // Add DimFieldDisplaySettings
                 foreach (int fieldIdentifier in GetFieldIdentifiers())
                 {
@@ -530,9 +535,6 @@ namespace api.Services
 
                 // Add Ttv data to user profile
                 await AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
-
-                // Default sharing permissions
-                // TODO: Add permissions when BrGrantedPermission missing PK is added in the DB
 
                 await _ttvContext.SaveChangesAsync();
             }

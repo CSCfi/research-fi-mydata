@@ -78,16 +78,21 @@
             public const string ORGANIZATION_UNIT = "organization_unit";
         }
 
-        public static class SharingGroupIdentifiers
+        public static class ReferenceDataCodeSchemes
         {
-            public const int PROFILE_INFORMATION = 1;
-            public const int EMAIL_ADDRESS = 2;
-            public const int PHONE_NUMBER = 3;
-            public const int AFFILIATION_AND_EDUCATION = 4;
-            public const int PUBLICATIONS = 5;
-            public const int DATASETS = 6;
-            public const int GRANTS = 7;
-            public const int ACTIVITIES_AND_DISTINCTIONS = 8;
+            public const string PROFILE_SHARING = "tutkijaprofiilin_luvitus";
+        }
+
+        public static class ReferenceDataCodeValues
+        {
+            public const string PROFILE_SHARING_PROFILE_INFORMATION = "01";
+            public const string PROFILE_SHARING_EMAIL_ADDRESS = "02";
+            public const string PROFILE_SHARING_PHONE_NUMBER = "03";
+            public const string PROFILE_SHARING_AFFILIATION_AND_EDUCATION = "04";
+            public const string PROFILE_SHARING_PUBLICATIONS = "05";
+            public const string PROFILE_SHARING_DATASETS = "06";
+            public const string PROFILE_SHARING_GRANTS = "07";
+            public const string PROFILE_SHARING_ACTIVITIES_AND_DISTINCTIONS = "08";
         }
     }
 }

@@ -26,48 +26,54 @@ namespace api.Services
         public SharingService(){}
 
         /*
-         * Get SharingGroupIdentifiers.
+         * Get DimReferenceData code_scheme for sharing.
          */
-        public List<int> GetSharingGroupIdentifiers()
+        public string GetDimReferenceDataCodeScheme()
         {
-            return new List<int>()
+            return Constants.ReferenceDataCodeSchemes.PROFILE_SHARING;
+        }
+
+        /*s
+         * Get DimReferenceData code_values for sharing.
+         */
+        public List<string> GetDimReferenceDataCodeValues()
+        {
+            return new List<string>()
             {
-                Constants.SharingGroupIdentifiers.PROFILE_INFORMATION,
-                Constants.SharingGroupIdentifiers.EMAIL_ADDRESS,
-                Constants.SharingGroupIdentifiers.PHONE_NUMBER,
-                Constants.SharingGroupIdentifiers.AFFILIATION_AND_EDUCATION,
-                Constants.SharingGroupIdentifiers.PUBLICATIONS,
-                Constants.SharingGroupIdentifiers.DATASETS,
-                Constants.SharingGroupIdentifiers.GRANTS,
-                Constants.SharingGroupIdentifiers.ACTIVITIES_AND_DISTINCTIONS
+                Constants.ReferenceDataCodeValues.PROFILE_SHARING_PROFILE_INFORMATION,
+                Constants.ReferenceDataCodeValues.PROFILE_SHARING_EMAIL_ADDRESS,
+                Constants.ReferenceDataCodeValues.PROFILE_SHARING_PHONE_NUMBER,
+                Constants.ReferenceDataCodeValues.PROFILE_SHARING_AFFILIATION_AND_EDUCATION,
+                Constants.ReferenceDataCodeValues.PROFILE_SHARING_PUBLICATIONS,
+                Constants.ReferenceDataCodeValues.PROFILE_SHARING_DATASETS,
+                Constants.ReferenceDataCodeValues.PROFILE_SHARING_GRANTS,
+                Constants.ReferenceDataCodeValues.PROFILE_SHARING_ACTIVITIES_AND_DISTINCTIONS
             };
         }
 
         /*
-         * Get default sharing permission set for a new user profile.
+         * Get a list of default user profile sharing permissions.
          */
-        public List<BrGrantedPermission> GetDefaultSharingPermissions(int userprofileId)
+        public async Task<List<BrGrantedPermission>> GetDefaultSharingPermissionsListForUserProfile(int userprofileId)
         {
-            List<BrGrantedPermission> defaultPermissions = new();
-
-            // Get DimPurpose for Tiedejatutkimus.fi portal
-
-            foreach (int sharingGroupIdentifier in GetSharingGroupIdentifiers())
+            List<BrGrantedPermission> defaultSharingPermissions = new();
+            foreach (string sharingGroupIdentifier in GetDimReferenceDataCodeValues())
             {
-                //DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.FindAsync(userprofileId);
-                //DimPurpose dimPurpose = await _ttvContext.DimPurposes.FindAsync(_dataSourceHelperService.DimPurposeId_TTV);
+                DimReferencedatum dimReferencedata = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(dr => dr.CodeScheme == GetDimReferenceDataCodeScheme() && dr.CodeValue == sharingGroupIdentifier);
 
-                defaultPermissions.Add(
-                    new BrGrantedPermission()
-                    {
-                        DimUserProfileId = userprofileId,
-                        DimExternalServiceId = _dataSourceHelperService.DimPurposeId_TTV,
-                        DimPermittedFieldGroup = sharingGroupIdentifier
-                    }
-                );
+                if (dimReferencedata != null)
+                {
+                    defaultSharingPermissions.Add(
+                        new BrGrantedPermission()
+                        {
+                            DimUserProfileId = userprofileId,
+                            DimExternalServiceId = _dataSourceHelperService.DimPurposeId_TTV,
+                            DimPermittedFieldGroup = dimReferencedata.Id
+                        }
+                    );
+                }
             }
-
-            return defaultPermissions;
+            return defaultSharingPermissions;
         }
 
         /*
