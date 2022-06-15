@@ -2338,8 +2338,6 @@ namespace api.Services
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimKeyword)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchDataset)
-                .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
                         .ThenInclude(did => did.InverseDimIdentifierlessData) // DimIdentifierlessData can have a child entity.
                 .FirstOrDefaultAsync(up => up.Id == userprofileId);
@@ -2442,31 +2440,6 @@ namespace api.Services
                     if (CanDeleteFactFieldValueRelatedData(ffv))
                     {
                         _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
-                    }
-                }
-
-                // DimResarchDataset
-                else if (ffv.DimResearchDatasetId != -1)
-                {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimResearchDatasets.Remove(ffv.DimResearchDataset);
-                    }
-
-                    // DEMO: remove test data from FactContribution
-                    System.Collections.Generic.List<FactContribution> factContributions = await _ttvContext.FactContributions.Where(fc => fc.DimResearchDatasetId == ffv.DimResearchDatasetId && fc.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
-                    foreach (FactContribution fc in factContributions)
-                    {
-                        _ttvContext.FactContributions.Remove(fc);
-                        _ttvContext.Entry(fc).State = EntityState.Deleted;
-                    }
-
-                    // DEMO: remove test data from DimPids
-                    System.Collections.Generic.List<DimPid> dimPids = await _ttvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && dp.SourceId == Constants.SourceIdentifiers.DEMO).ToListAsync();
-                    foreach (DimPid dp in dimPids)
-                    {
-                        _ttvContext.DimPids.Remove(dp);
-                        _ttvContext.Entry(dp).State = EntityState.Deleted;
                     }
                 }
             }
