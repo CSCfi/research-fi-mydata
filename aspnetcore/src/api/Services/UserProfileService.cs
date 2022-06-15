@@ -2327,8 +2327,6 @@ namespace api.Services
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimKeyword)
                 .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchDataset)
-                .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
                         .ThenInclude(did => did.InverseDimIdentifierlessData) // DimIdentifierlessData can have a child entity.
                 .FirstOrDefaultAsync(up => up.Id == userprofileId);
@@ -2431,15 +2429,6 @@ namespace api.Services
                     if (CanDeleteFactFieldValueRelatedData(ffv))
                     {
                         _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
-                    }
-                }
-
-                // DimResearchDataset
-                else if (ffv.DimResearchDatasetId != -1)
-                {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimResearchDatasets.Remove(ffv.DimResearchDataset);
                     }
                 }
             }
