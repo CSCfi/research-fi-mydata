@@ -5,7 +5,7 @@ namespace api.Models
     public class ApiResponseProfileSharingPurposesGet : ApiResponse
     {
 
-        public ApiResponseProfileSharingPurposesGet(bool success, string reason, ProfileEditorSharingPurposeResponse data, bool fromCache)
+        public ApiResponseProfileSharingPurposesGet(bool success, string reason, ProfileEditorSharingPurposesResponse data, bool fromCache)
         {
             Success = success;
             Reason = reason;
@@ -13,6 +13,6 @@ namespace api.Models
             FromCache = fromCache;
         }
 
-        public ProfileEditorSharingPurposeResponse Data { get; set; }
+        public ProfileEditorSharingPurposesResponse Data { get; set; }
     }
 }

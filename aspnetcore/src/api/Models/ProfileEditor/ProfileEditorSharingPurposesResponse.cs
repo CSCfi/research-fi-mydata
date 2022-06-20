@@ -2,8 +2,8 @@
 
 namespace api.Models.ProfileEditor
 {
-    public partial class ProfileEditorSharingPurposeResponse    {
-        public ProfileEditorSharingPurposeResponse(List<ProfileEditorSharingPurposeItem> items)
+    public partial class ProfileEditorSharingPurposesResponse    {
+        public ProfileEditorSharingPurposesResponse(List<ProfileEditorSharingPurposeItem> items)
         {
             purposes = items;
         }

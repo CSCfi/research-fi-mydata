@@ -53,6 +53,7 @@
         public static class Cache
         {
             public const int MEMORY_CACHE_EXPIRATION_SECONDS = 60;
+            public const int MEMORY_CACHE_EXPIRATION_SECONDS_LONG = 3600;
         }
 
         public static class OrganizationIds

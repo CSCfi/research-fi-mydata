@@ -110,7 +110,7 @@ namespace api.Services
         /*
          * Get list of sharing purposes for profile editor.
          */
-        public async Task<ProfileEditorSharingPurposeResponse> GetProfileEditorSharingPurposesResponse()
+        public async Task<ProfileEditorSharingPurposesResponse> GetProfileEditorSharingPurposesResponse()
         {
             List<ProfileEditorSharingPurposeItem> profileEditorSharingPurposeItems = new();
 
@@ -142,7 +142,7 @@ namespace api.Services
                 );
             }
 
-            return new ProfileEditorSharingPurposeResponse(items: profileEditorSharingPurposeItems);
+            return new ProfileEditorSharingPurposesResponse(items: profileEditorSharingPurposeItems);
         }
 
         /*

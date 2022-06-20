@@ -55,18 +55,18 @@ namespace api.Controllers
             string cacheKey = "share_purposes";
 
             // Send cached response, if exists.
-            if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingPurposeResponse cachedResponse))
+            if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingPurposesResponse cachedResponse))
             {
                 return Ok(new ApiResponseProfileSharingPurposesGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
 
             // Get purposes
-            ProfileEditorSharingPurposeResponse profileSharingPurposesResponse = await _sharingService.GetProfileEditorSharingPurposesResponse();
+            ProfileEditorSharingPurposesResponse profileSharingPurposesResponse = await _sharingService.GetProfileEditorSharingPurposesResponse();
 
             // Save response in cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 // Keep in cache for this time, reset time if accessed.
-                .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
+                .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS_LONG));
             _cache.Set(cacheKey, profileSharingPurposesResponse, cacheEntryOptions);
 
             return Ok(new ApiResponseProfileSharingPurposesGet(success: true, reason: "", data: profileSharingPurposesResponse, fromCache: false));
@@ -88,13 +88,13 @@ namespace api.Controllers
                 return Ok(new ApiResponseProfileSharingPermissionsGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
 
-            // Get sections
+            // Get permissions
             ProfileEditorSharingPermissionsResponse profileSharingPermissionsResponse = await _sharingService.GetProfileEditorSharingPermissionsResponse();
 
             // Save response in cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 // Keep in cache for this time, reset time if accessed.
-                .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
+                .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS_LONG));
             _cache.Set(cacheKey, profileSharingPermissionsResponse, cacheEntryOptions);
 
             return Ok(new ApiResponseProfileSharingPermissionsGet(success: true, reason: "", data: profileSharingPermissionsResponse, fromCache: false));
