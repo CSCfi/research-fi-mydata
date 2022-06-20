@@ -45,11 +45,68 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Get sharing settings.
+        /// Get list of sharing purposes.
+        /// </summary>
+        [HttpGet]
+        [Route("purposes")]
+        [ProducesResponseType(typeof(ApiResponseProfileSharingPurposesGet), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPurposes()
+        {
+            string cacheKey = "share_purposes";
+
+            // Send cached response, if exists.
+            if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingPurposeResponse cachedResponse))
+            {
+                return Ok(new ApiResponseProfileSharingPurposesGet(success: true, reason: "", data: cachedResponse, fromCache: true));
+            }
+
+            // Get purposes
+            ProfileEditorSharingPurposeResponse profileSharingPurposesResponse = await _sharingService.GetProfileEditorSharingPurposesResponse();
+
+            // Save response in cache
+            MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
+                // Keep in cache for this time, reset time if accessed.
+                .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
+            _cache.Set(cacheKey, profileSharingPurposesResponse, cacheEntryOptions);
+
+            return Ok(new ApiResponseProfileSharingPurposesGet(success: true, reason: "", data: profileSharingPurposesResponse, fromCache: false));
+        }
+
+        /// <summary>
+        /// Get list of sharing permissions.
+        /// </summary>
+        [HttpGet]
+        [Route("permissions")]
+        [ProducesResponseType(typeof(ApiResponseProfileSharingPermissionsGet), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPermissions()
+        {
+            string cacheKey = "share_permissions";
+
+            // Send cached response, if exists.
+            if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingPermissionsResponse cachedResponse))
+            {
+                return Ok(new ApiResponseProfileSharingPermissionsGet(success: true, reason: "", data: cachedResponse, fromCache: true));
+            }
+
+            // Get sections
+            ProfileEditorSharingPermissionsResponse profileSharingPermissionsResponse = await _sharingService.GetProfileEditorSharingPermissionsResponse();
+
+            // Save response in cache
+            MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
+                // Keep in cache for this time, reset time if accessed.
+                .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
+            _cache.Set(cacheKey, profileSharingPermissionsResponse, cacheEntryOptions);
+
+            return Ok(new ApiResponseProfileSharingPermissionsGet(success: true, reason: "", data: profileSharingPermissionsResponse, fromCache: false));
+        }
+
+
+        /// <summary>
+        /// Get currently active user profile shares.
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponseProfileSharingGet), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetShares()
         {
             // Get ORCID id
             string orcidId = GetOrcidId();
@@ -62,9 +119,9 @@ namespace api.Controllers
             }
 
             // Send cached response, if exists.
-            if (_cache.TryGetValue(cacheKey, out ProfileEditorDataResponse cachedResponse))
+            if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingResponse cachedResponse))
             {
-                return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: cachedResponse, fromCache: true));
+                return Ok(new ApiResponseProfileSharingGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
 
             // Get userprofile id

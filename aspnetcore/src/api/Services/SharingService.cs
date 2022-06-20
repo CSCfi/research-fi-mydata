@@ -28,7 +28,7 @@ namespace api.Services
         }
 
         // For unit test
-        public SharingService(){}
+        public SharingService() { }
 
         /*
          * Get DimReferenceData code_scheme for sharing.
@@ -54,6 +54,23 @@ namespace api.Services
                 Constants.ReferenceDataCodeValues.PROFILE_SHARING_GRANTS,
                 Constants.ReferenceDataCodeValues.PROFILE_SHARING_ACTIVITIES_AND_DISTINCTIONS
             };
+        }
+
+        /*
+         * Get DimReferenceData containing permission values.
+         */
+        public async Task<List<DimReferencedatum>> GetDimReferenceData()
+        {
+            List<DimReferencedatum> dimReferenceDataList = new();
+            foreach (string sharingGroupIdentifier in GetDimReferenceDataCodeValues())
+            {
+                DimReferencedatum dimReferencedata = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(dr => dr.CodeScheme == GetDimReferenceDataCodeScheme() && dr.CodeValue == sharingGroupIdentifier);
+                if (dimReferencedata != null)
+                {
+                    dimReferenceDataList.Add(dimReferencedata);
+                }
+            }
+            return dimReferenceDataList;
         }
 
         /*
@@ -91,6 +108,73 @@ namespace api.Services
         }
 
         /*
+         * Get list of sharing purposes for profile editor.
+         */
+        public async Task<ProfileEditorSharingPurposeResponse> GetProfileEditorSharingPurposesResponse()
+        {
+            List<ProfileEditorSharingPurposeItem> profileEditorSharingPurposeItems = new();
+
+            foreach (DimPurpose dimPurpose in await _ttvContext.DimPurposes.AsNoTracking().ToListAsync())
+            {
+                NameTranslation nameTranslation = _languageService.GetNameTranslation(
+                    nameFi: dimPurpose.NameFi,
+                    nameEn: dimPurpose.NameEn,
+                    nameSv: dimPurpose.NameSv
+                );
+
+                NameTranslation descriptionTranslation = _languageService.GetNameTranslation(
+                    nameFi: dimPurpose.DescriptionFi,
+                    nameEn: dimPurpose.DescriptionEn,
+                    nameSv: dimPurpose.DescriptionSv
+                );
+
+                profileEditorSharingPurposeItems.Add(
+                    new ProfileEditorSharingPurposeItem()
+                    {
+                        PurposeId = dimPurpose.Id,
+                        NameFi = nameTranslation.NameFi,
+                        NameEn = nameTranslation.NameEn,
+                        NameSv = nameTranslation.NameSv,
+                        DescriptionFi = descriptionTranslation.NameFi,
+                        DescriptionEn = descriptionTranslation.NameEn,
+                        DescriptionSv = descriptionTranslation.NameSv
+                    }
+                );
+            }
+
+            return new ProfileEditorSharingPurposeResponse(items: profileEditorSharingPurposeItems);
+        }
+
+        /*
+         * Get list of sharing permissions for profile editor.
+         */
+        public async Task<ProfileEditorSharingPermissionsResponse> GetProfileEditorSharingPermissionsResponse()
+        {
+            List<ProfileEditorSharingPermissionItem> profileEditorSharingPermissionItems = new();
+
+            foreach (DimReferencedatum dimReferencedata in await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == GetDimReferenceDataCodeScheme()).AsNoTracking().ToListAsync())
+            {
+                NameTranslation nameTranslation = _languageService.GetNameTranslation(
+                    nameFi: dimReferencedata.NameFi,
+                    nameEn: dimReferencedata.NameEn,
+                    nameSv: dimReferencedata.NameSv
+                );
+
+                profileEditorSharingPermissionItems.Add(
+                    new ProfileEditorSharingPermissionItem()
+                    {
+                        PermissionId = dimReferencedata.Id,
+                        NameFi = nameTranslation.NameFi,
+                        NameEn = nameTranslation.NameEn,
+                        NameSv = nameTranslation.NameSv,
+                    }
+                );
+            }
+
+            return new ProfileEditorSharingPermissionsResponse(items: profileEditorSharingPermissionItems);
+        }
+
+        /*
          * Get list of sharing items for profile editor.
          */
         public async Task<ProfileEditorSharingResponse> GetProfileEditorSharingResponse(int userprofileId)
@@ -122,7 +206,9 @@ namespace api.Services
                         NameSv = nameTranslation.NameSv,
                         DescriptionFi = descriptionTranslation.NameFi,
                         DescriptionEn = descriptionTranslation.NameEn,
-                        DescriptionSv = descriptionTranslation.NameSv
+                        DescriptionSv = descriptionTranslation.NameSv,
+                        Meta = new ProfileEditorSharingItemMeta(purposeId: brGrantedPermission.DimExternalServiceId,
+                            permittedFieldGroupId: brGrantedPermission.DimPermittedFieldGroup)
                     }
                 );
             }

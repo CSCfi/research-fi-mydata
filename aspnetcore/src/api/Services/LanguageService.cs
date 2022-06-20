@@ -55,6 +55,24 @@ namespace api.Services
                 nameEn = nameSv;
             }
 
+            // FI and EN contain values => copy to FI to SV
+            if (nameFi != "" && nameEn != "" && nameSv == "")
+            {
+                nameSv = nameFi;
+            }
+
+            // FI and SV contain values => copy to FI to EN
+            if (nameFi != "" && nameSv != "" && nameEn == "")
+            {
+                nameEn = nameFi;
+            }
+
+            // EN and SV contain values => copy to SV to FI
+            if (nameFi == "" && nameSv != "" && nameEn != "")
+            {
+                nameFi = nameSv;
+            }
+
             return new NameTranslation()
             {
                 NameFi = nameFi,
