@@ -57,23 +57,6 @@ namespace api.Services
         }
 
         /*
-         * Get DimReferenceData containing permission values.
-         */
-        public async Task<List<DimReferencedatum>> GetDimReferenceData()
-        {
-            List<DimReferencedatum> dimReferenceDataList = new();
-            foreach (string sharingGroupIdentifier in GetDimReferenceDataCodeValues())
-            {
-                DimReferencedatum dimReferencedata = await _ttvContext.DimReferencedata.AsNoTracking().FirstOrDefaultAsync(dr => dr.CodeScheme == GetDimReferenceDataCodeScheme() && dr.CodeValue == sharingGroupIdentifier);
-                if (dimReferencedata != null)
-                {
-                    dimReferenceDataList.Add(dimReferencedata);
-                }
-            }
-            return dimReferenceDataList;
-        }
-
-        /*
          * Get a list of default user profile sharing permissions.
          */
         public async Task<List<BrGrantedPermission>> GetDefaultSharingPermissionsListForUserProfile(int userprofileId)
@@ -99,7 +82,7 @@ namespace api.Services
         }
 
         /*
-         * Delete all granted permissions from user profile.
+         * Delete all granted permissions.
          */
         public async Task DeleteAllGrantedPermissionsFromUserprofile(int userprofileId)
         {
@@ -108,7 +91,7 @@ namespace api.Services
         }
 
         /*
-         * Get list of sharing purposes for profile editor.
+         * Get list of sharing purposes.
          */
         public async Task<ProfileEditorSharingPurposesResponse> GetProfileEditorSharingPurposesResponse()
         {
@@ -116,12 +99,14 @@ namespace api.Services
 
             foreach (DimPurpose dimPurpose in await _ttvContext.DimPurposes.AsNoTracking().ToListAsync())
             {
+                // Translate purpose name
                 NameTranslation nameTranslation = _languageService.GetNameTranslation(
                     nameFi: dimPurpose.NameFi,
                     nameEn: dimPurpose.NameEn,
                     nameSv: dimPurpose.NameSv
                 );
 
+                // Translate purpose description
                 NameTranslation descriptionTranslation = _languageService.GetNameTranslation(
                     nameFi: dimPurpose.DescriptionFi,
                     nameEn: dimPurpose.DescriptionEn,
@@ -146,7 +131,7 @@ namespace api.Services
         }
 
         /*
-         * Get list of sharing permissions for profile editor.
+         * Get list of sharing permissions.
          */
         public async Task<ProfileEditorSharingPermissionsResponse> GetProfileEditorSharingPermissionsResponse()
         {
@@ -154,6 +139,7 @@ namespace api.Services
 
             foreach (DimReferencedatum dimReferencedata in await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == GetDimReferenceDataCodeScheme()).AsNoTracking().ToListAsync())
             {
+                // Translate permission name
                 NameTranslation nameTranslation = _languageService.GetNameTranslation(
                     nameFi: dimReferencedata.NameFi,
                     nameEn: dimReferencedata.NameEn,
@@ -175,45 +161,144 @@ namespace api.Services
         }
 
         /*
-         * Get list of sharing items for profile editor.
+         * Get list of given permissions.
          */
-        public async Task<ProfileEditorSharingResponse> GetProfileEditorSharingResponse(int userprofileId)
+        public async Task<ProfileEditorSharingGivenPermissionsResponse> GetProfileEditorSharingResponse(int userprofileId)
         {
             List<ProfileEditorSharingItem> profileEditorSharingItems = new();
 
-            foreach (BrGrantedPermission brGrantedPermission in await _ttvContext.BrGrantedPermissions
+            // Get all BrGrantedPermissions related to the user profile
+            List<BrGrantedPermission> grantedPermissions = await _ttvContext.BrGrantedPermissions
                 .Include(bgp => bgp.DimExternalService).AsNoTracking()
-                .Where(bgp => bgp.DimUserProfileId == userprofileId).AsNoTracking().ToListAsync())
+                .Include(bgp => bgp.DimPermittedFieldGroupNavigation).AsNoTracking()
+                .Where(bgp => bgp.DimUserProfileId == userprofileId).AsNoTracking().ToListAsync();
+
+            // Group BrGrantedPermissions by DimExternalServiceId
+            IEnumerable<IGrouping<int, BrGrantedPermission>> groupedBrGrantedPermissions = grantedPermissions.GroupBy(bgp => bgp.DimExternalServiceId);
+
+            foreach (IGrouping<int, BrGrantedPermission> permissionGroup in groupedBrGrantedPermissions)
             {
-                NameTranslation nameTranslation = _languageService.GetNameTranslation(
-                    nameFi: brGrantedPermission.DimExternalService.NameFi,
-                    nameEn: brGrantedPermission.DimExternalService.NameEn,
-                    nameSv: brGrantedPermission.DimExternalService.NameSv
+                // Since grouping is done based on DimExternalServiceId, all items in the group
+                // are related to the same DimExternalService. Therefore the properties of
+                // DimExternalService can be taken from any item, here First() is used.
+
+                // Translate purpose name
+                NameTranslation purposeNameTranslation = _languageService.GetNameTranslation(
+                    nameFi: permissionGroup.First().DimExternalService.NameFi,
+                    nameEn: permissionGroup.First().DimExternalService.NameEn,
+                    nameSv: permissionGroup.First().DimExternalService.NameSv
                 );
 
-                NameTranslation descriptionTranslation = _languageService.GetNameTranslation(
-                    nameFi: brGrantedPermission.DimExternalService.DescriptionFi,
-                    nameEn: brGrantedPermission.DimExternalService.DescriptionEn,
-                    nameSv: brGrantedPermission.DimExternalService.DescriptionSv
+                // Translate purpose description
+                NameTranslation purposeDescriptionTranslation = _languageService.GetNameTranslation(
+                    nameFi: permissionGroup.First().DimExternalService.DescriptionFi,
+                    nameEn: permissionGroup.First().DimExternalService.DescriptionEn,
+                    nameSv: permissionGroup.First().DimExternalService.DescriptionSv
                 );
 
-
-                profileEditorSharingItems.Add(
-                    new ProfileEditorSharingItem()
+                ProfileEditorSharingItem profileEditorSharingItem = new()
+                {
+                    Purpose = new ProfileEditorSharingPurposeItem()
                     {
-                        NameFi = nameTranslation.NameFi,
-                        NameEn = nameTranslation.NameEn,
-                        NameSv = nameTranslation.NameSv,
-                        DescriptionFi = descriptionTranslation.NameFi,
-                        DescriptionEn = descriptionTranslation.NameEn,
-                        DescriptionSv = descriptionTranslation.NameSv,
-                        Meta = new ProfileEditorSharingItemMeta(purposeId: brGrantedPermission.DimExternalServiceId,
-                            permittedFieldGroupId: brGrantedPermission.DimPermittedFieldGroup)
-                    }
-                );
+                        PurposeId = permissionGroup.First().DimExternalServiceId,
+                        NameFi = purposeNameTranslation.NameFi,
+                        NameEn = purposeNameTranslation.NameEn,
+                        NameSv = purposeNameTranslation.NameSv,
+                        DescriptionFi = purposeDescriptionTranslation.NameFi,
+                        DescriptionEn = purposeDescriptionTranslation.NameEn,
+                        DescriptionSv = purposeDescriptionTranslation.NameSv
+                    },
+                    Permissions = new List<ProfileEditorSharingPermissionItem>()
+                };
+
+                // Loop group to collect related permission items.
+                foreach (BrGrantedPermission permission in permissionGroup)
+                {
+                    // Translate permission name
+                    NameTranslation permissionNameTranslation = _languageService.GetNameTranslation(
+                        nameFi: permission.DimPermittedFieldGroupNavigation.NameFi,
+                        nameEn: permission.DimPermittedFieldGroupNavigation.NameEn,
+                        nameSv: permission.DimPermittedFieldGroupNavigation.NameSv
+                    );
+
+                    profileEditorSharingItem.Permissions.Add(
+                        new ProfileEditorSharingPermissionItem()
+                        {
+                            PermissionId = permission.DimPermittedFieldGroup,
+                            NameFi = permissionNameTranslation.NameFi,
+                            NameEn = permissionNameTranslation.NameEn,
+                            NameSv = permissionNameTranslation.NameSv
+                        }
+                    );
+                }
+                profileEditorSharingItems.Add(profileEditorSharingItem);
             }
 
-            return new ProfileEditorSharingResponse(items: profileEditorSharingItems);
+            return new ProfileEditorSharingGivenPermissionsResponse(items: profileEditorSharingItems);
+        }
+
+
+        /*
+         * Add permissions.
+         */
+        public async Task AddPermissions(int userprofileId, List<ProfileEditorSharingPermissionToAddOrDelete> permissionsToAdd)
+        {
+            foreach (ProfileEditorSharingPermissionToAddOrDelete permission in permissionsToAdd)
+            {
+                // Validate purpose ID
+                DimPurpose dimPurpose = await _ttvContext.DimPurposes.Where(dp => dp.Id == permission.PurposeId).AsNoTracking().FirstOrDefaultAsync();
+                if (dimPurpose == null)
+                {
+                    break;
+                }
+
+                // Validate permission ID
+                DimReferencedatum dimReferencedata = await _ttvContext.DimReferencedata.Where(dr => dr.Id == permission.PermissionId).AsNoTracking().FirstOrDefaultAsync();
+                if (dimReferencedata == null)
+                {
+                    break;
+                }
+
+                // Check that permission is not already added
+                BrGrantedPermission brGrantedPermissionExisting = await _ttvContext.BrGrantedPermissions.Where(
+                    bgp => bgp.DimUserProfileId == userprofileId &&
+                    bgp.DimExternalServiceId == permission.PurposeId &&
+                    bgp.DimPermittedFieldGroup == permission.PermissionId
+                ).FirstOrDefaultAsync();
+
+                // Add permission
+                if (brGrantedPermissionExisting == null)
+                {
+                    _ttvContext.BrGrantedPermissions.Add(
+                        new BrGrantedPermission()
+                        {
+                            DimUserProfileId = userprofileId,
+                            DimExternalServiceId = permission.PurposeId,
+                            DimPermittedFieldGroup = permission.PermissionId
+                        }
+                    );
+                }
+            }
+        }
+
+        /*
+         * Delete permissions.
+         */
+        public async Task DeletePermissions(int userprofileId, List<ProfileEditorSharingPermissionToAddOrDelete> permissionsToDelete)
+        {
+            foreach (ProfileEditorSharingPermissionToAddOrDelete permission in permissionsToDelete)
+            {
+                BrGrantedPermission brGrantedPermission = await _ttvContext.BrGrantedPermissions.Where(
+                    bgp => bgp.DimUserProfileId == userprofileId &&
+                    bgp.DimExternalServiceId == permission.PurposeId &&
+                    bgp.DimPermittedFieldGroup == permission.PermissionId
+                ).FirstOrDefaultAsync();
+
+                if (brGrantedPermission != null)
+                {
+                    _ttvContext.BrGrantedPermissions.Remove(brGrantedPermission);
+                }
+            }
         }
     }
 }

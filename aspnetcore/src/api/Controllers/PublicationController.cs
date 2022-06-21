@@ -178,7 +178,7 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Remove publicaton(s) from user profile.
+        /// Remove publication(s) from user profile.
         /// </summary>
         [HttpPost]
         [Route("remove")]

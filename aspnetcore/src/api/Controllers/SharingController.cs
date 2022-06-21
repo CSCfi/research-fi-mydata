@@ -63,9 +63,8 @@ namespace api.Controllers
             // Get purposes
             ProfileEditorSharingPurposesResponse profileSharingPurposesResponse = await _sharingService.GetProfileEditorSharingPurposesResponse();
 
-            // Save response in cache
+            // Save response in cache. Cache life time can be long, singe the values are the same for all users.
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-                // Keep in cache for this time, reset time if accessed.
                 .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS_LONG));
             _cache.Set(cacheKey, profileSharingPurposesResponse, cacheEntryOptions);
 
@@ -91,9 +90,8 @@ namespace api.Controllers
             // Get permissions
             ProfileEditorSharingPermissionsResponse profileSharingPermissionsResponse = await _sharingService.GetProfileEditorSharingPermissionsResponse();
 
-            // Save response in cache
+            // Save response in cache. Cache life time can be long, singe the values are the same for all users.
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-                // Keep in cache for this time, reset time if accessed.
                 .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS_LONG));
             _cache.Set(cacheKey, profileSharingPermissionsResponse, cacheEntryOptions);
 
@@ -102,15 +100,18 @@ namespace api.Controllers
 
 
         /// <summary>
-        /// Get currently active user profile shares.
+        /// Get list of given permissions.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResponseProfileSharingGet), StatusCodes.Status200OK)]
+        [Route("givenpermissions")]
+        [ProducesResponseType(typeof(ApiResponseProfileSharingGivenPermissionsGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetShares()
         {
             // Get ORCID id
             string orcidId = GetOrcidId();
-            string cacheKey = orcidId + "_sharing";
+
+            // Cache key
+            string cacheKey = orcidId + "_given_permissions";
 
             // Check that userprofile exists.
             if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
@@ -119,24 +120,103 @@ namespace api.Controllers
             }
 
             // Send cached response, if exists.
-            if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingResponse cachedResponse))
+            if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingGivenPermissionsResponse cachedResponse))
             {
-                return Ok(new ApiResponseProfileSharingGet(success: true, reason: "", data: cachedResponse, fromCache: true));
+                return Ok(new ApiResponseProfileSharingGivenPermissionsGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
 
             // Get userprofile id
             int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Get profile data
-            ProfileEditorSharingResponse profileSharingResponse = await _sharingService.GetProfileEditorSharingResponse(userprofileId);
+            ProfileEditorSharingGivenPermissionsResponse profileSharingResponse = await _sharingService.GetProfileEditorSharingResponse(userprofileId);
 
             // Save response in cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-                // Keep in cache for this time, reset time if accessed.
                 .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
             _cache.Set(cacheKey, profileSharingResponse, cacheEntryOptions);
 
-            return Ok(new ApiResponseProfileSharingGet(success: true, reason: "", data: profileSharingResponse, fromCache: false));
+            return Ok(new ApiResponseProfileSharingGivenPermissionsGet(success: true, reason: "", data: profileSharingResponse, fromCache: false));
+        }
+
+        /// <summary>
+        /// Add permission(s).
+        /// </summary>
+        [HttpPost]
+        [Route("add")]
+        public async Task<IActionResult> PostMany([FromBody] List<ProfileEditorSharingPermissionToAddOrDelete> permissionsToAdd)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+            }
+
+            // Return immediately if there is nothing to add
+            if (permissionsToAdd.Count == 0)
+            {
+                return Ok(new ApiResponse(success: false, reason: "nothing to add"));
+            }
+
+            // Get ORCID id
+            string orcidId = GetOrcidId();
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            {
+                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+            }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+
+            await _sharingService.AddPermissions(userprofileId, permissionsToAdd);
+
+            await _ttvContext.SaveChangesAsync();
+
+            // Remove cached given permissions list.
+            _cache.Remove(orcidId + "_given_permissions");
+
+            return Ok(new ApiResponse(success: true));
+        }
+
+        /// <summary>
+        /// Remove permission(s).
+        /// </summary>
+        [HttpPost]
+        [Route("remove")]
+        public async Task<IActionResult> RemoveMany([FromBody] List<ProfileEditorSharingPermissionToAddOrDelete> permissionsToDelete)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+            }
+
+            // Return immediately if there is nothing to delete
+            if (permissionsToDelete.Count == 0)
+            {
+                return Ok(new ApiResponse(success: false, reason: "nothing to remove"));
+            }
+
+            // Get ORCID id
+            string orcidId = GetOrcidId();
+
+            // Check that userprofile exists.
+            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            {
+                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+            }
+
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+
+            await _sharingService.DeletePermissions(userprofileId, permissionsToDelete);
+
+            await _ttvContext.SaveChangesAsync();
+
+            // Remove cached given permissions list.
+            _cache.Remove(orcidId + "_given_permissions");
+
+            return Ok(new ApiResponse(success: true));
         }
     }
 }

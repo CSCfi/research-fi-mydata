@@ -49,6 +49,7 @@ namespace api
                     }
                 )
             );
+            services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddControllers();
 
