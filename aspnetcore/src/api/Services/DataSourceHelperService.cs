@@ -23,6 +23,7 @@
         private string dimOrganizationNameFi_TTV;
         private string dimOrganizationNameEn_TTV;
         private string dimOrganizationNameSv_TTV;
+        private int dimPurposeId_TTV;
 
         public int DimRegisteredDataSourceId_ORCID
         {
@@ -95,6 +96,12 @@
         {
             get { return this.dimOrganizationNameSv_TTV; }
             set { this.dimOrganizationNameSv_TTV = value; }
+        }
+
+        public int DimPurposeId_TTV
+        {
+            get { return this.dimPurposeId_TTV; }
+            set { this.dimPurposeId_TTV = value; }
         }
     }
 }

@@ -89,5 +89,77 @@ namespace api.Tests
             Assert.Equal("C", nameTranslation.NameEn);
             Assert.Equal("C", nameTranslation.NameSv);
         }
+
+        [Fact(DisplayName = "Get NameTranslation: value of FI is used for SV, when SV is an empty string.")]
+        public void getNameTranslation_08()
+        {
+            var languageService = new LanguageService();
+
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "A", nameEn: "B", nameSv: "");
+
+            Assert.Equal("A", nameTranslation.NameFi);
+            Assert.Equal("B", nameTranslation.NameEn);
+            Assert.Equal("A", nameTranslation.NameSv);
+        }
+
+        [Fact(DisplayName = "Get NameTranslation: value of FI is used for SV, when SV is null.")]
+        public void getNameTranslation_09()
+        {
+            var languageService = new LanguageService();
+
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "A", nameEn: "B", nameSv: null);
+
+            Assert.Equal("A", nameTranslation.NameFi);
+            Assert.Equal("B", nameTranslation.NameEn);
+            Assert.Equal("A", nameTranslation.NameSv);
+        }
+
+        [Fact(DisplayName = "Get NameTranslation: value of FI is used for EN, when EN is an empty string.")]
+        public void getNameTranslation_10()
+        {
+            var languageService = new LanguageService();
+
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "A", nameEn: "", nameSv: "B");
+
+            Assert.Equal("A", nameTranslation.NameFi);
+            Assert.Equal("A", nameTranslation.NameEn);
+            Assert.Equal("B", nameTranslation.NameSv);
+        }
+
+        [Fact(DisplayName = "Get NameTranslation: value of FI is used for EN, when EN is null.")]
+        public void getNameTranslation_11()
+        {
+            var languageService = new LanguageService();
+
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "A", nameEn: null, nameSv: "B");
+
+            Assert.Equal("A", nameTranslation.NameFi);
+            Assert.Equal("A", nameTranslation.NameEn);
+            Assert.Equal("B", nameTranslation.NameSv);
+        }
+
+        [Fact(DisplayName = "Get NameTranslation: value of SV is used for FI, when FI is an empty string.")]
+        public void getNameTranslation_12()
+        {
+            var languageService = new LanguageService();
+
+            var nameTranslation = languageService.GetNameTranslation(nameFi: "", nameEn: "A", nameSv: "B");
+
+            Assert.Equal("B", nameTranslation.NameFi);
+            Assert.Equal("A", nameTranslation.NameEn);
+            Assert.Equal("B", nameTranslation.NameSv);
+        }
+
+        [Fact(DisplayName = "Get NameTranslation: value of SV is used for FI, when FI is null.")]
+        public void getNameTranslation_13()
+        {
+            var languageService = new LanguageService();
+
+            var nameTranslation = languageService.GetNameTranslation(nameFi: null, nameEn: "A", nameSv: "B");
+
+            Assert.Equal("B", nameTranslation.NameFi);
+            Assert.Equal("A", nameTranslation.NameEn);
+            Assert.Equal("B", nameTranslation.NameSv);
+        }
     }
 }

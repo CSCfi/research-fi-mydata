@@ -49,6 +49,7 @@ namespace api
                     }
                 )
             );
+            services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddControllers();
 
@@ -206,16 +207,17 @@ namespace api
             services.AddScoped<OrcidJsonParserService>();
             services.AddScoped<OrganizationHandlerService>();
             services.AddScoped<UserProfileService>();
-            services.AddSingleton<ElasticsearchService>();
-            services.AddSingleton<UtilityService>();
-            services.AddSingleton<LanguageService>();
-            services.AddSingleton<DataSourceHelperService>();
+            services.AddScoped<LanguageService>();
             services.AddScoped<DemoDataService>();
             services.AddScoped<TtvSqlService>();
             services.AddScoped<TokenService>();
             services.AddScoped<KeycloakAdminApiService>();
             services.AddScoped<DuplicateHandlerService>();
             services.AddScoped<StartupHelperService>();
+            services.AddScoped<SharingService>();
+            services.AddSingleton<ElasticsearchService>();
+            services.AddSingleton<UtilityService>();    
+            services.AddSingleton<DataSourceHelperService>();
             services.AddMemoryCache();
 
             // Background processing related services.
@@ -233,6 +235,7 @@ namespace api
             // Initialize
             DimRegisteredDataSource dimRegisteredDataSource_ORCID = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_ORCID();
             DimRegisteredDataSource dimRegisteredDataSource_TTV = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_TTV();
+            DimPurpose dimPurpose_TTV = startupHelperService.GetDimPurposeId_OnStartup_TTV();
 
             dataSourceHelperService.DimRegisteredDataSourceId_ORCID = dimRegisteredDataSource_ORCID.Id;
             dataSourceHelperService.DimRegisteredDataSourceName_ORCID = dimRegisteredDataSource_ORCID.Name;
@@ -247,6 +250,8 @@ namespace api
             dataSourceHelperService.DimOrganizationNameFi_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameFi;
             dataSourceHelperService.DimOrganizationNameEn_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameEn;
             dataSourceHelperService.DimOrganizationNameSv_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameSv;
+
+            dataSourceHelperService.DimPurposeId_TTV = dimPurpose_TTV.Id;
 
             // Response compression.
             app.UseResponseCompression();

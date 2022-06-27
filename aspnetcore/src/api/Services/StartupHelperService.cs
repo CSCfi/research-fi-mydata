@@ -67,5 +67,27 @@ namespace api.Services
 
             return ttvRegisteredDataSource;
         }
+
+        /*
+         * Get TTV purpose.
+         * 
+         * Note! This method is synchronous, because it should be run in the application startup phase.
+         */
+        public DimPurpose GetDimPurposeId_OnStartup_TTV()
+        {
+            DimPurpose dimPurpose = _ttvContext.DimPurposes
+                .Include(dp => dp.DimOrganization)
+                .Where(dp => dp.DimOrganization.OrganizationId == Constants.OrganizationIds.OKM).AsNoTracking().FirstOrDefault();
+
+            // Log error and raise exception on missing TTV purpose. The application does not function without this.
+            if (dimPurpose == null)
+            {
+                string errorMessage = "Purpose was not found from dim_purpose for organization_id: " + Constants.OrganizationIds.OKM;
+                _logger.LogError(errorMessage);
+                throw new System.Exception(errorMessage);
+            }
+
+            return dimPurpose;
+        }
     }
 }

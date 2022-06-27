@@ -53,6 +53,12 @@
         public static class Cache
         {
             public const int MEMORY_CACHE_EXPIRATION_SECONDS = 60;
+            public const int MEMORY_CACHE_EXPIRATION_SECONDS_LONG = 3600;
+        }
+
+        public static class OrganizationIds
+        {
+            public const string OKM = "0245872-8";
         }
 
         public static class OrganizationNames
@@ -62,10 +68,32 @@
             public const string TTV = "Tiedejatutkimus.fi (test)";
         }
 
+        public static class PurposeNames
+        {
+            public const string TTV = "Tiedejatutkimus.fi (test)";
+        }
+
         public static class IdentifierlessDataTypes
         {
             public const string ORGANIZATION_NAME = "organization_name";
             public const string ORGANIZATION_UNIT = "organization_unit";
+        }
+
+        public static class ReferenceDataCodeSchemes
+        {
+            public const string PROFILE_SHARING = "tutkijaprofiilin_luvitus";
+        }
+
+        public static class ReferenceDataCodeValues
+        {
+            public const string PROFILE_SHARING_PROFILE_INFORMATION = "01";
+            public const string PROFILE_SHARING_EMAIL_ADDRESS = "02";
+            public const string PROFILE_SHARING_PHONE_NUMBER = "03";
+            public const string PROFILE_SHARING_AFFILIATION_AND_EDUCATION = "04";
+            public const string PROFILE_SHARING_PUBLICATIONS = "05";
+            public const string PROFILE_SHARING_DATASETS = "06";
+            public const string PROFILE_SHARING_GRANTS = "07";
+            public const string PROFILE_SHARING_ACTIVITIES_AND_DISTINCTIONS = "08";
         }
     }
 }
