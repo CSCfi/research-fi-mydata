@@ -58,7 +58,7 @@
 
         public static class OrganizationIds
         {
-            public const string OKM = "0245872-8";
+            public const string OKM = "02w52zt87";
         }
 
         public static class OrganizationNames
