@@ -1,0 +1,58 @@
+# This file is part of the research.fi service
+#
+# Copyright 2022 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+
+# Build mydata API devel version and push image to Artifactory
+
+apiVersion: v1
+kind: Template
+metadata:
+  name: template-artifactory-build-mydata-api-devel
+  annotations:
+    description: This template adds build configuration, which builds mydata API devel version and pushes the image into Artifactory.
+  labels:
+    app: mydata-api-devel
+
+parameters:
+  - name: ARTIFACTORY_BASE_URL 
+    displayName: Artifactory base URL. 
+    description: Base URL of Artifactory. For example "myartifactory.mydomain.fi"
+    value: ""
+    required: true 
+
+objects:
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: artifactory-build-mydata-api-devel
+      labels:
+        app: mydata-api-devel
+    spec:
+      source:
+        type: Git
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: devel
+        contextDir: .
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: aspnetcore/openshift/api/Dockerfile
+      output:
+        to:
+          kind: DockerImage
+          name: researchfi-mydata-api-docker-dev.${ARTIFACTORY_BASE_URL}/mydata-api-devel:latest
+        pushSecret:
+          name: artifactory-researchfi-mydata-api-docker-dev
+      nodeSelector: {}
+      triggers:
+        - type: ImageChange
+          imageChange:
+            from:
+              kind: ImageStreamTag
+              name: mydata-api-devel:latest
+      successfulBuildsHistoryLimit: 2
+      failedBuildsHistoryLimit: 2
