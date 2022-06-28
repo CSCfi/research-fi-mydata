@@ -49,7 +49,12 @@ namespace api
                     }
                 )
             );
-            services.AddDatabaseDeveloperPageExceptionFilter();
+
+            if (Environment.IsDevelopment())
+            {
+                // Capture database-related exceptions that can be resolved by using Entity Framework migrations
+                services.AddDatabaseDeveloperPageExceptionFilter();
+            }
 
             services.AddControllers();
 
@@ -129,7 +134,7 @@ namespace api
             // CORS policies
             services.AddCors(options =>
             {
-                // Development and testing
+                // Development
                 options.AddPolicy("development", builder =>
                 {
                     builder.WithOrigins(
@@ -142,17 +147,16 @@ namespace api
                     .AllowAnyMethod();
                 });
 
-                // Production - TODO remove localhost 
+                // Production
                 options.AddPolicy("production", builder =>
                 {
                     builder.WithOrigins(
                         "https://*.csc.fi",
-                        "https://*.rahtiapp.fi",
-                        "https://localhost:5003"
+                        "https://*.rahtiapp.fi"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowAnyHeader()  // TODO: check if AllowAnyHeader() should be removed
+                    .AllowAnyMethod(); // TODO: check if AllowAnyMethod() should be removed
                 });
             });
 
@@ -232,7 +236,56 @@ namespace api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, StartupHelperService startupHelperService, DataSourceHelperService dataSourceHelperService)
         {
-            // Initialize
+            // Init services, which depend on database values
+            SetServiceValuesFromDatabase(startupHelperService, dataSourceHelperService);
+
+            // Response compression.
+            app.UseResponseCompression();
+
+            // Use Forwarded Headers Middleware to enable client ip address detection behind load balancer.
+            // Must run this before other middleware.
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
+            // Development environment settings
+            if (Environment.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                //IdentityModelEventSource.ShowPII = true;
+                app.UseSwagger();
+                app.UseSwaggerUI();
+                app.UseCors("development");
+            }
+
+            // Production environment settings
+            if (Environment.IsProduction())
+            {
+                app.UseCors("production");
+            }
+
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+
+        /*
+         * Initialize services, which depend on database specific database entries.
+         * 
+         * The services store common values, which are used for all users.
+         * Values are queried once on application startup and later used via services when processing user requests.
+         * The aim is to reduce overall database load, since the same values are no longer queried for every user.
+         * Also this should function as a requirement check on application startup.
+         * The application will not function properly, if the database is not populated correctly.
+         */
+        public void SetServiceValuesFromDatabase(StartupHelperService startupHelperService, DataSourceHelperService dataSourceHelperService)
+        {
             DimRegisteredDataSource dimRegisteredDataSource_ORCID = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_ORCID();
             DimRegisteredDataSource dimRegisteredDataSource_TTV = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_TTV();
             DimPurpose dimPurpose_TTV = startupHelperService.GetDimPurposeId_OnStartup_TTV();
@@ -252,50 +305,6 @@ namespace api
             dataSourceHelperService.DimOrganizationNameSv_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameSv;
 
             dataSourceHelperService.DimPurposeId_TTV = dimPurpose_TTV.Id;
-
-            // Response compression.
-            app.UseResponseCompression();
-
-            // Use Forwarded Headers Middleware to enable client ip address detection behind load balancer.
-            // Must run this before other middleware.
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
-
-            // Add registered data sources, organizations etc. needed in demo.
-            // Most of demo data is added to each user, who creates a profile.
-            // demoDataService.InitDemo();
-
-            // Development environment settings
-            if (Environment.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                IdentityModelEventSource.ShowPII = true;
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseResponseCompression();
-            app.UseRouting();
-
-            // CORS policy depends on the environment
-            if (Environment.IsDevelopment())
-            {
-                app.UseCors("development");
-            }
-            if (Environment.IsProduction())
-            {
-                app.UseCors("production");
-            }
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
         }
     }
 }
