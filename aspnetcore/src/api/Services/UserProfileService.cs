@@ -14,23 +14,23 @@ namespace api.Services
     /*
      * UserProfileService implements utilities, which simplify handling of userprofile and related data.
      */
-    public class UserProfileService
+    public class UserProfileService : IUserProfileService
     {
         private readonly TtvContext _ttvContext;
-        private readonly DataSourceHelperService _dataSourceHelperService;
-        private readonly UtilityService _utilityService;
-        private readonly LanguageService _languageService;
-        private readonly DuplicateHandlerService _duplicateHandlerService;
-        private readonly OrganizationHandlerService _organizationHandlerService;
-        private readonly SharingService _sharingService;
+        private readonly IDataSourceHelperService _dataSourceHelperService;
+        private readonly IUtilityService _utilityService;
+        private readonly ILanguageService _languageService;
+        private readonly IDuplicateHandlerService _duplicateHandlerService;
+        private readonly IOrganizationHandlerService _organizationHandlerService;
+        private readonly ISharingService _sharingService;
 
         public UserProfileService(TtvContext ttvContext,
-            DataSourceHelperService dataSourceHelperService,
-            UtilityService utilityService,
-            LanguageService languageService,
-            DuplicateHandlerService duplicateHandlerService,
-            OrganizationHandlerService organizationHandlerService,
-            SharingService sharingService)
+            IDataSourceHelperService dataSourceHelperService,
+            IUtilityService utilityService,
+            ILanguageService languageService,
+            IDuplicateHandlerService duplicateHandlerService,
+            IOrganizationHandlerService organizationHandlerService,
+            ISharingService sharingService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
@@ -42,7 +42,7 @@ namespace api.Services
         }
 
         // For unit test
-        public UserProfileService(){}
+        public UserProfileService() { }
 
         /*
          * Get FieldIdentifiers.

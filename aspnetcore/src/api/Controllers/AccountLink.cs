@@ -16,11 +16,11 @@ namespace api.Controllers
     [Authorize]
     public class AccountLinkController : TtvControllerBase
     {
-        private readonly KeycloakAdminApiService _keycloakAdminApiService;
-        private readonly TokenService _tokenService;
+        private readonly IKeycloakAdminApiService _keycloakAdminApiService;
+        private readonly ITokenService _tokenService;
         private readonly ILogger<OrcidController> _logger;
 
-        public AccountLinkController(KeycloakAdminApiService keycloakAdminApiService, TokenService tokenService, ILogger<OrcidController> logger)
+        public AccountLinkController(IKeycloakAdminApiService keycloakAdminApiService, ITokenService tokenService, ILogger<OrcidController> logger)
         {
             _keycloakAdminApiService = keycloakAdminApiService;
             _tokenService = tokenService;

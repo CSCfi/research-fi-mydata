@@ -9,7 +9,7 @@ namespace api.Services
     /*
      * StartupHelperService contains methods using application startup.
      */
-    public class StartupHelperService
+    public class StartupHelperService : IStartupHelperService
     {
         private readonly TtvContext _ttvContext;
         private readonly ILogger<StartupHelperService> _logger;

@@ -11,7 +11,7 @@ namespace api.Services
      * ORCID record schema
      * https://info.orcid.org/documentation/integration-guide/orcid-record/
      */
-    public class OrcidJsonParserService
+    public class OrcidJsonParserService : IOrcidJsonParserService
     {
         /*
          * Put code

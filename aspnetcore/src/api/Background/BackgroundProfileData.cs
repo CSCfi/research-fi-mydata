@@ -17,7 +17,7 @@ namespace api.Services
      * In a background task that is not available, since it is disposed when the response is sent.
      * Here a local scope is created and database context can be taken from that scope.
      */
-    public class BackgroundProfiledata
+    public class BackgroundProfiledata : IBackgroundProfiledata
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
@@ -29,14 +29,14 @@ namespace api.Services
 
         /*
          * Get userprofile data from TTV database and construct entry for Elasticsearch person index.
-         */ 
+         */
         public async Task<Person> GetProfiledataForElasticsearch(string orcidId, int userprofileId)
         {
             // Create a scope and get TtvContext for data query.
             using IServiceScope scope = _serviceScopeFactory.CreateScope();
             TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
-            LanguageService localLanguageService = scope.ServiceProvider.GetRequiredService<LanguageService>();
-            OrganizationHandlerService localOrganizationHandlerService = scope.ServiceProvider.GetRequiredService<OrganizationHandlerService>();
+            ILanguageService localLanguageService = scope.ServiceProvider.GetRequiredService<ILanguageService>();
+            IOrganizationHandlerService localOrganizationHandlerService = scope.ServiceProvider.GetRequiredService<IOrganizationHandlerService>();
 
             // Get DimFieldDisplaySettings and related entities
             List<DimFieldDisplaySetting> dimFieldDisplaySettings = await localTtvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
@@ -240,7 +240,7 @@ namespace api.Services
                                         ResearchDescriptionEn = ffv.DimResearcherDescription.ResearchDescriptionEn,
                                         ResearchDescriptionFi = ffv.DimResearcherDescription.ResearchDescriptionFi,
                                         ResearchDescriptionSv = ffv.DimResearcherDescription.ResearchDescriptionSv,
-          
+
                                     }
                                 );
                             }

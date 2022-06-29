@@ -23,24 +23,18 @@ namespace api.Controllers
     public class SharingController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
-        private readonly UserProfileService _userProfileService;
-        private readonly SharingService _sharingService;
-        private readonly UtilityService _utilityService;
-        private readonly DataSourceHelperService _dataSourceHelperService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly ISharingService _sharingService;
         private readonly IMemoryCache _cache;
 
         public SharingController(TtvContext ttvContext,
-            UserProfileService userProfileService,
-            SharingService sharingService,
-            UtilityService utilityService,
-            DataSourceHelperService dataSourceHelperService,
+            IUserProfileService userProfileService,
+            ISharingService sharingService,
             IMemoryCache memoryCache)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _sharingService = sharingService;
-            _utilityService = utilityService;
-            _dataSourceHelperService = dataSourceHelperService;
             _cache = memoryCache;
         }
 

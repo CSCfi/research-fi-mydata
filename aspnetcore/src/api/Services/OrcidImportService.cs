@@ -12,16 +12,17 @@ namespace api.Services
     /*
      * OrcidImportService imports ORCID data into user profile.
      */
-    public class OrcidImportService
+    public class OrcidImportService : IOrcidImportService
     {
         private readonly TtvContext _ttvContext;
-        private readonly UserProfileService _userProfileService;
-        private readonly OrcidJsonParserService _orcidJsonParserService;
-        private readonly OrganizationHandlerService _organizationHandlerService;
-        private readonly DataSourceHelperService _dataSourceHelperService;
-        private readonly UtilityService _utilityService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly IOrcidJsonParserService _orcidJsonParserService;
+        private readonly IOrganizationHandlerService _organizationHandlerService;
+        private readonly IDataSourceHelperService _dataSourceHelperService;
+        private readonly IUtilityService _utilityService;
 
-        public OrcidImportService(TtvContext ttvContext, UserProfileService userProfileService, OrcidJsonParserService orcidJsonParserService, OrganizationHandlerService organizationHandlerService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService)
+        public OrcidImportService(TtvContext ttvContext, IUserProfileService userProfileService, IOrcidJsonParserService orcidJsonParserService,
+            IOrganizationHandlerService organizationHandlerService, IUtilityService utilityService, IDataSourceHelperService dataSourceHelperService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -616,7 +617,8 @@ namespace api.Services
                             _ttvContext.DimIdentifierlessData.Remove(factFieldValuesAffiliation.DimIdentifierlessData);
                         }
                     }
-                    else {
+                    else
+                    {
                         /*
                          * Affiliation does to relate directly to any DimOrganization.
                          * Update or create relation to DimIdentifierlessData via FactFieldValues.

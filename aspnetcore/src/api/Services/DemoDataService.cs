@@ -13,11 +13,11 @@ namespace api.Services
      * DemoDataService adds demo data to each profile.
      * This service is used in summer 2021 demo and must be disabled after that.
      */
-    public class DemoDataService
+    public class DemoDataService : IDemoDataService
     {
         private readonly TtvContext _ttvContext;
-        private readonly UserProfileService _userProfileService;
-        private readonly UtilityService _utilityService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly IUtilityService _utilityService;
         private readonly ILogger<DemoDataService> _logger;
         private readonly string DemoOrganization1Name = "Yliopisto A";
         private readonly string DemoOrganization2Name = "Tutkimuslaitos X";
@@ -43,7 +43,8 @@ namespace api.Services
         private readonly string DemoReferenceDataAgentRolePublisher = "4";
         private readonly string DemoReferenceDataAgentRoleRightsHolder = "5";
 
-        public DemoDataService(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, ILogger<DemoDataService> logger)
+        public DemoDataService(TtvContext ttvContext, IUserProfileService userProfileService,
+            IUtilityService utilityService, ILogger<DemoDataService> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -723,7 +724,7 @@ namespace api.Services
             foreach (string fieldOfScienceName in fieldsOfScienceNames)
             {
                 var dimFieldOfScience = _ttvContext.DimFieldOfSciences.FirstOrDefault(dfos => dfos.NameFi == fieldOfScienceName && dfos.SourceId == Constants.SourceIdentifiers.DEMO_COMMON);
-            
+
                 if (dimFieldOfScience == null)
                 {
                     dimFieldOfScience = new DimFieldOfScience()
@@ -1057,14 +1058,14 @@ namespace api.Services
             _ttvContext.DimKeywords.Add(dimKeyword2_Organization2);
             _ttvContext.DimKeywords.Add(dimKeyword3_Organization2);
             _ttvContext.DimKeywords.Add(dimKeyword4_Organization2);
-     
+
             var factFieldValue_keyword1_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword1_Organization1.DimUserProfile = dimUserProfile;
             factFieldValue_keyword1_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
             factFieldValue_keyword1_Organization1.DimKeyword = dimKeyword1_Organization1;
             factFieldValue_keyword1_Organization1.DimRegisteredDataSourceId = organization1RegisteredDataSource.Id;
             _ttvContext.FactFieldValues.Add(factFieldValue_keyword1_Organization1);
-     
+
             var factFieldValue_keyword2_Organization1 = _userProfileService.GetEmptyFactFieldValueDemo();
             factFieldValue_keyword2_Organization1.DimUserProfile = dimUserProfile;
             factFieldValue_keyword2_Organization1.DimFieldDisplaySettings = dimFieldDisplaySettings_keyword;
@@ -1350,7 +1351,7 @@ namespace api.Services
 
 
             // Education
-            var dimFieldDisplaySettings_education= dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
+            var dimFieldDisplaySettings_education = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
             var dimEndDate_education_organization2 = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == 2011 && dd.Month == 0 && dd.Day == 0);
             if (dimEndDate_education_organization2 == null)
             {
@@ -1414,16 +1415,16 @@ namespace api.Services
 
             // Research dataset - Organization1 - DimResearchDataset
             var researchDataset_Organization1 = new DimResearchDataset()
-                {
-                    LocalIdentifier = this.DemoResearchDatasetLocalIdentifier1 + " " + orcidId,
-                    NameEn = "Test dataset of things - years 2010-2020",
-                    DescriptionEn = "Dataset that contains infromation from years 2010 to 2020. Includes information about subjects, tests and fully describes the outcome of analysis done. Most complete dataset to date about information. Please, see included documentation on how the analysis were done and data collected.",
-                    DatasetCreated = new DateTime(2021, 1, 1),
-                    SourceId = Constants.SourceIdentifiers.DEMO,
-                    SourceDescription = sourceDescription,
-                    Created = currentDateTime,
-                    Modified = currentDateTime,
-                    DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
+            {
+                LocalIdentifier = this.DemoResearchDatasetLocalIdentifier1 + " " + orcidId,
+                NameEn = "Test dataset of things - years 2010-2020",
+                DescriptionEn = "Dataset that contains infromation from years 2010 to 2020. Includes information about subjects, tests and fully describes the outcome of analysis done. Most complete dataset to date about information. Please, see included documentation on how the analysis were done and data collected.",
+                DatasetCreated = new DateTime(2021, 1, 1),
+                SourceId = Constants.SourceIdentifiers.DEMO,
+                SourceDescription = sourceDescription,
+                Created = currentDateTime,
+                Modified = currentDateTime,
+                DimRegisteredDataSourceId = organization1RegisteredDataSource.Id
             };
             _ttvContext.DimResearchDatasets.Add(researchDataset_Organization1);
 

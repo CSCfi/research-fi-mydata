@@ -206,26 +206,26 @@ namespace api
 
 
             services.AddResponseCompression();
-            services.AddScoped<OrcidApiService>();
-            services.AddScoped<OrcidImportService>();
-            services.AddScoped<OrcidJsonParserService>();
-            services.AddScoped<OrganizationHandlerService>();
-            services.AddScoped<UserProfileService>();
-            services.AddScoped<LanguageService>();
-            services.AddScoped<DemoDataService>();
-            services.AddScoped<TtvSqlService>();
-            services.AddScoped<TokenService>();
-            services.AddScoped<KeycloakAdminApiService>();
-            services.AddScoped<DuplicateHandlerService>();
-            services.AddScoped<StartupHelperService>();
-            services.AddScoped<SharingService>();
-            services.AddSingleton<ElasticsearchService>();
-            services.AddSingleton<UtilityService>();    
-            services.AddSingleton<DataSourceHelperService>();
+            services.AddScoped<IOrcidApiService, OrcidApiService>();
+            services.AddScoped<IOrcidImportService, OrcidImportService>();
+            services.AddScoped<IOrcidJsonParserService, OrcidJsonParserService>();
+            services.AddScoped<IOrganizationHandlerService, OrganizationHandlerService>();
+            services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<ILanguageService, LanguageService>();
+            services.AddScoped<IDemoDataService, DemoDataService>();
+            services.AddScoped<ITtvSqlService, TtvSqlService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IKeycloakAdminApiService, KeycloakAdminApiService>();
+            services.AddScoped<IDuplicateHandlerService, DuplicateHandlerService>();
+            services.AddScoped<IStartupHelperService, StartupHelperService>();
+            services.AddScoped<ISharingService, SharingService>();
+            services.AddSingleton<IElasticsearchService, ElasticsearchService>();
+            services.AddSingleton<IUtilityService, UtilityService>();    
+            services.AddSingleton<IDataSourceHelperService, DataSourceHelperService>();
             services.AddMemoryCache();
 
             // Background processing related services.
-            services.AddTransient<BackgroundProfiledata>();
+            services.AddTransient<IBackgroundProfiledata, BackgroundProfiledata>();
             services.AddHostedService<QueuedHostedService>();
             services.AddSingleton<IBackgroundTaskQueue>(ctx =>
             {
@@ -234,7 +234,7 @@ namespace api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, StartupHelperService startupHelperService, DataSourceHelperService dataSourceHelperService)
+        public void Configure(IApplicationBuilder app, IStartupHelperService startupHelperService, IDataSourceHelperService dataSourceHelperService)
         {
             // Init services, which depend on database values
             SetServiceValuesFromDatabase(startupHelperService, dataSourceHelperService);
@@ -284,7 +284,7 @@ namespace api
          * Also this should function as a requirement check on application startup.
          * The application will not function properly, if the database is not populated correctly.
          */
-        public void SetServiceValuesFromDatabase(StartupHelperService startupHelperService, DataSourceHelperService dataSourceHelperService)
+        public void SetServiceValuesFromDatabase(IStartupHelperService startupHelperService, IDataSourceHelperService dataSourceHelperService)
         {
             DimRegisteredDataSource dimRegisteredDataSource_ORCID = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_ORCID();
             DimRegisteredDataSource dimRegisteredDataSource_TTV = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_TTV();
