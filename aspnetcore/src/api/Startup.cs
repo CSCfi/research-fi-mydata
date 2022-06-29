@@ -16,6 +16,7 @@ using System;
 using IdentityModel.Client;
 using Microsoft.Net.Http.Headers;
 using System.Linq;
+using Serilog;
 
 namespace api
 {
@@ -265,6 +266,7 @@ namespace api
                 app.UseCors("production");
             }
 
+            app.UseSerilogRequestLogging();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();

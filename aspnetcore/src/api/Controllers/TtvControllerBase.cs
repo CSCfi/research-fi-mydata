@@ -12,7 +12,8 @@ public abstract class TtvControllerBase : ControllerBase
     [NonAction]
     protected string GetKeycloakUserId()
     {
-        return User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
+        //return User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
+        return User.Claims.FirstOrDefault(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
     }
 
     // Get ORCID ID from user claims
@@ -37,10 +38,10 @@ public abstract class TtvControllerBase : ControllerBase
     }
 
     // Get prefix for log message
-    // [timestamp][Keycloak user ID][ORCID ID][ip address]
+    // [Keycloak user ID][ORCID ID][ip address]
     [NonAction]
     public string GetLogPrefix()
     {
-        return "[" + DateTime.UtcNow.ToString("s") + "][" + this.GetKeycloakUserId() + "][" + this.GetOrcidId() +  "][" + HttpContext.Connection.RemoteIpAddress?.ToString() + "]";
+        return "[Keycloak ID=" + this.GetKeycloakUserId() + "][ORCID=" + this.GetOrcidId() +  "][IP=" + HttpContext.Connection.RemoteIpAddress?.ToString() + "]";
     }
 }

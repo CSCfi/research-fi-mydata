@@ -103,6 +103,9 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
+            // Log request.
+            _logger.LogInformation(this.GetLogPrefix() + " modify profile request");
+
             // Check that userprofile exists.
             if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
