@@ -10,7 +10,7 @@ namespace api.Services
     /*
      * ElasticsearchService handles person index modifications.
      */
-    public class ElasticsearchService
+    public class ElasticsearchService : IElasticsearchService
     {
         public ElasticClient ESclient;
         public IConfiguration Configuration { get; }
@@ -43,7 +43,7 @@ namespace api.Services
                 ESclient = new ElasticClient(settings);
             }
         }
-            
+
 
         // Update entry in Elasticsearch person index
         // TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
@@ -62,7 +62,8 @@ namespace api.Services
             {
                 _logger.LogInformation("ElasticsearchService: updated entry: " + orcidId);
             }
-            else {
+            else
+            {
                 string errormessage = "";
                 if (asyncIndexResponse.OriginalException != null && asyncIndexResponse.OriginalException.Message != null)
                 {
@@ -92,7 +93,8 @@ namespace api.Services
             {
                 _logger.LogInformation("ElasticsearchService: deleted entry: " + orcidId);
             }
-            else {
+            else
+            {
                 string errormessage = "";
                 if (asyncDeleteResponse.OriginalException != null && asyncDeleteResponse.OriginalException.Message != null)
                 {

@@ -20,20 +20,21 @@ namespace api.Controllers
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class ProfileDataController : TtvControllerBase
     {
-        private readonly UserProfileService _userProfileService;
-        private readonly ElasticsearchService _elasticsearchService;
-        private readonly TtvSqlService _ttvSqlService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly IElasticsearchService _elasticsearchService;
+        private readonly ITtvSqlService _ttvSqlService;
         private readonly IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
-        private readonly BackgroundProfiledata _backgroundProfiledata;
+        private readonly IBackgroundProfiledata _backgroundProfiledata;
         private readonly IBackgroundTaskQueue _taskQueue;
 
-        public ProfileDataController(UserProfileService userProfileService,
-            ElasticsearchService elasticsearchService,
-            TtvSqlService ttvSqlService,
+        public ProfileDataController(
+            IUserProfileService userProfileService,
+            IElasticsearchService elasticsearchService,
+            ITtvSqlService ttvSqlService,
             IMemoryCache memoryCache,
             ILogger<UserProfileController> logger,
-            BackgroundProfiledata backgroundProfiledata,
+            IBackgroundProfiledata backgroundProfiledata,
             IBackgroundTaskQueue taskQueue)
         {
             _userProfileService = userProfileService;

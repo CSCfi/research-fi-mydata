@@ -18,16 +18,17 @@ namespace api.Controllers
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class UserProfileController : TtvControllerBase
     {
-        private readonly UserProfileService _userProfileService;
-        private readonly ElasticsearchService _elasticsearchService;
-        private readonly KeycloakAdminApiService _keycloakAdminApiService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly IElasticsearchService _elasticsearchService;
+        private readonly IKeycloakAdminApiService _keycloakAdminApiService;
         private readonly ILogger<UserProfileController> _logger;
         private readonly IMemoryCache _cache;
         private readonly IBackgroundTaskQueue _taskQueue;
 
-        public UserProfileController(ElasticsearchService elasticsearchService,
-            UserProfileService userProfileService,
-            KeycloakAdminApiService keycloakAdminApiService,
+        public UserProfileController(
+            IElasticsearchService elasticsearchService,
+            IUserProfileService userProfileService,
+            IKeycloakAdminApiService keycloakAdminApiService,
             ILogger<UserProfileController> logger,
             IMemoryCache memoryCache,
             IBackgroundTaskQueue taskQueue)

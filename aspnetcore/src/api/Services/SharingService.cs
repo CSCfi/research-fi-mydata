@@ -12,15 +12,14 @@ namespace api.Services
     /*
      * SharingService implements user profile sharing related functionality.
      */
-    public class SharingService
+    public class SharingService : ISharingService
     {
         private readonly TtvContext _ttvContext;
-        private readonly DataSourceHelperService _dataSourceHelperService;
-        private readonly LanguageService _languageService;
+        private readonly IDataSourceHelperService _dataSourceHelperService;
+        private readonly ILanguageService _languageService;
 
         public SharingService(TtvContext ttvContext,
-            DataSourceHelperService dataSourceHelperService,
-            LanguageService languageService)
+            IDataSourceHelperService dataSourceHelperService, ILanguageService languageService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;

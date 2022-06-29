@@ -5,7 +5,7 @@ namespace api.Services
     /*
      * LanguageService implements language and translation related functionality.
      */
-    public class LanguageService
+    public class LanguageService : ILanguageService
     {
         public LanguageService()
         {

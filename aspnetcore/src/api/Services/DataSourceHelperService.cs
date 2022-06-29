@@ -9,7 +9,7 @@
      *  Idea is to collect the values into this service during application startup.
      *  In code the values can be used from this service instead of querying the DB again.
      */
-    public class DataSourceHelperService
+    public class DataSourceHelperService : IDataSourceHelperService
     {
         private int dimRegisteredDataSourceId_ORCID;
         private string dimRegisteredDataSourceName_ORCID;

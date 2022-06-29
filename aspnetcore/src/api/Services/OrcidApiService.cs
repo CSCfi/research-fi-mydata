@@ -8,7 +8,7 @@ namespace api.Services
     /*
      * OrcidApiService handles ORCID api http requests.
      */
-    public class OrcidApiService
+    public class OrcidApiService : IOrcidApiService
     {
         private readonly IHttpClientFactory _httpClientFactory;
 

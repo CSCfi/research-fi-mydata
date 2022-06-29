@@ -17,13 +17,14 @@ namespace api.Controllers
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class OrcidController : TtvControllerBase
     {
-        private readonly UserProfileService _userProfileService;
-        private readonly OrcidApiService _orcidApiService;
-        private readonly OrcidImportService _orcidImportService;
-        private readonly TokenService _tokenService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly IOrcidApiService _orcidApiService;
+        private readonly IOrcidImportService _orcidImportService;
+        private readonly ITokenService _tokenService;
         private readonly ILogger<OrcidController> _logger;
 
-        public OrcidController(UserProfileService userProfileService, OrcidApiService orcidApiService, OrcidImportService orcidImportService, ILogger<OrcidController> logger, TokenService tokenService)
+        public OrcidController(IUserProfileService userProfileService, IOrcidApiService orcidApiService,
+            IOrcidImportService orcidImportService, ILogger<OrcidController> logger, ITokenService tokenService)
         {
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;

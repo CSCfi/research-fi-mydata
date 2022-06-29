@@ -19,10 +19,10 @@ namespace api.Controllers
     public class DebugController: ControllerBase
     {
         private readonly TtvContext _ttvContext;
-        private readonly UserProfileService _userProfileService;
+        private readonly IUserProfileService _userProfileService;
         public IConfiguration Configuration { get; }
 
-        public DebugController(IConfiguration configuration, TtvContext ttvContext, UserProfileService userProfileService)
+        public DebugController(IConfiguration configuration, TtvContext ttvContext, IUserProfileService userProfileService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;

@@ -9,7 +9,7 @@ namespace api.Services
     /*
      * DuplicateHandlerService
      */
-    public class DuplicateHandlerService
+    public class DuplicateHandlerService : IDuplicateHandlerService
     {
         private readonly List<string> typeCodes = new() { "A3", "A4", "B2", "B3", "D2", "D3", "E1" };
 

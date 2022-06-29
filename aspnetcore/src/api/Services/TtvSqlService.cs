@@ -6,7 +6,7 @@ namespace api.Services
     /*
      * TtvSqlService implements utilities for constructing TTV database SQL queries.
      */
-    public class TtvSqlService
+    public class TtvSqlService : ITtvSqlService
     {
         public TtvSqlService()
         {

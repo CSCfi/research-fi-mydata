@@ -10,12 +10,12 @@ namespace api.Services
     /*
      * OrganizationHandlerService implements logic related to DimOrganization.
      */
-    public class OrganizationHandlerService
+    public class OrganizationHandlerService : IOrganizationHandlerService
     {
         private readonly TtvContext _ttvContext;
-        private readonly UtilityService _utilityService;
+        private readonly IUtilityService _utilityService;
 
-        public OrganizationHandlerService(TtvContext ttvContext, UtilityService utilityService)
+        public OrganizationHandlerService(TtvContext ttvContext, IUtilityService utilityService)
         {
             _ttvContext = ttvContext;
             _utilityService = utilityService;

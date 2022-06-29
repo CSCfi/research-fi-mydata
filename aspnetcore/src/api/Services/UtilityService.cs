@@ -5,7 +5,7 @@ namespace api.Services
     /*
      * UtilityService implements miscellaneous utilities, which simplify code.
      */
-    public class UtilityService
+    public class UtilityService : IUtilityService
     {
         public UtilityService()
         {

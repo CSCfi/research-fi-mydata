@@ -24,13 +24,15 @@ namespace api.Controllers
     public class FundingDecisionController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
-        private readonly UserProfileService _userProfileService;
-        private readonly UtilityService _utilityService;
-        private readonly DataSourceHelperService _dataSourceHelperService;
-        private readonly LanguageService _languageService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly IUtilityService _utilityService;
+        private readonly IDataSourceHelperService _dataSourceHelperService;
+        private readonly ILanguageService _languageService;
         private readonly IMemoryCache _cache;
 
-        public FundingDecisionController(TtvContext ttvContext, UserProfileService userProfileService, UtilityService utilityService, DataSourceHelperService dataSourceHelperService, IMemoryCache memoryCache, LanguageService languageService)
+        public FundingDecisionController(TtvContext ttvContext, IUserProfileService userProfileService,
+            IUtilityService utilityService, IDataSourceHelperService dataSourceHelperService,
+            IMemoryCache memoryCache, ILanguageService languageService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;

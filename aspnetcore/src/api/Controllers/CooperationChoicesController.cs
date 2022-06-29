@@ -23,12 +23,13 @@ namespace api.Controllers
     public class CooperationChoicesController : TtvControllerBase
     {
         private readonly TtvContext _ttvContext;
-        private readonly UserProfileService _userProfileService;
-        private readonly TtvSqlService _ttvSqlService;
-        private readonly UtilityService _utilityService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly ITtvSqlService _ttvSqlService;
+        private readonly IUtilityService _utilityService;
         private readonly IMemoryCache _cache;
 
-        public CooperationChoicesController(TtvContext ttvContext, UserProfileService userProfileService, TtvSqlService ttvSqlService, UtilityService utilityService, IMemoryCache memoryCache)
+        public CooperationChoicesController(TtvContext ttvContext, IUserProfileService userProfileService,
+            ITtvSqlService ttvSqlService, IUtilityService utilityService, IMemoryCache memoryCache)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;

@@ -15,14 +15,15 @@ namespace api.Services
      * KeycloakAdminApiService implements Keycloak Admin API calls.
      * https://www.keycloak.org/docs-api/15.0/rest-api/index.html
      */
-    public class KeycloakAdminApiService
+    public class KeycloakAdminApiService : IKeycloakAdminApiService
     {
-        private readonly TokenService _tokenService;
+        private readonly ITokenService _tokenService;
         public IConfiguration Configuration { get; }
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<KeycloakAdminApiService> _logger;
 
-        public KeycloakAdminApiService(TokenService tokenService, IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<KeycloakAdminApiService> logger)
+        public KeycloakAdminApiService(ITokenService tokenService, IConfiguration configuration,
+            IHttpClientFactory httpClientFactory, ILogger<KeycloakAdminApiService> logger)
         {
             _tokenService = tokenService;
             Configuration = configuration;

@@ -13,7 +13,7 @@ namespace api.Services
     /*
      * TokenService implements functionality related to access tokens.
      */
-    public class TokenService
+    public class TokenService : ITokenService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         public IConfiguration Configuration { get; }
