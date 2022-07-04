@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace api.Controllers
 {
@@ -45,7 +46,7 @@ namespace api.Controllers
             string orcidId = this.GetOrcidId();
 
             // Log request.
-            _logger.LogInformation(this.GetLogPrefix() + " get ORCID data request");
+            //_logger.LogInformation(this.GetLogPrefix() + " get ORCID data request");
 
             // Check that userprofile exists.
             if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: GetOrcidId()))
@@ -67,40 +68,50 @@ namespace api.Controllers
                 // Update ORCID tokens in TTV database. 
                 await _userProfileService.UpdateOrcidTokensInDimUserProfile(userprofileId, orcidTokens);
             }
-            catch
+            catch (Exception ex)
             {
-                _logger.LogError(this.GetLogPrefix() + " failed getting user's ORCID tokens from Keycloak");
+                _logger.LogError(this.GetLogPrefix() + " get ORCID tokens from Keycloak failed: " + ex);
                 return Ok(new ApiResponse(success: false));
+            }
+            finally
+            {
+                _logger.LogInformation(this.GetLogPrefix() + " get ORCID tokens from Keycloak OK");
             }
 
 
             // Get record json from ORCID
-            _logger.LogInformation(this.GetLogPrefix() + " get ORCID record json from ORCID API");
             string orcidRecordJson;
             try
             {
                 orcidRecordJson = await _orcidApiService.GetRecord(orcidId, orcidTokens.AccessToken);
             }
-            catch
+            catch (Exception ex)
             {
-                _logger.LogError(this.GetLogPrefix() + " failed getting ORCID record json from ORCID API");
+                _logger.LogError(this.GetLogPrefix() + " get ORCID record json from ORCID API failed: " + ex);
                 return Ok(new ApiResponse(success: false));
+            }
+            finally
+            {
+                _logger.LogInformation(this.GetLogPrefix() + " get ORCID record json from ORCID API OK");
             }
 
 
             // Import record json into userprofile
-            _logger.LogInformation(this.GetLogPrefix() + " import ORCID record json into userprofile");
             try
             {
                 await _orcidImportService.ImportOrcidRecordJsonIntoUserProfile(userprofileId, orcidRecordJson);
             }
-            catch
+            catch (Exception ex)
             {
-                _logger.LogError(this.GetLogPrefix() + " ORCID record import to userprofile failed");
+                _logger.LogError(this.GetLogPrefix() + " import ORCID record to userprofile failed: " + ex);
                 return Ok(new ApiResponse(success: false));
             }
+            finally
+            {
 
-            _logger.LogInformation(this.GetLogPrefix() + " ORCID data imported successfully");
+            }
+
+            _logger.LogInformation(this.GetLogPrefix() + " import ORCID record to userprofile OK");
             return Ok(new ApiResponse(success: true));
         }
     }

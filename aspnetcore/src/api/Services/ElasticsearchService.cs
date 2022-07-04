@@ -54,7 +54,7 @@ namespace api.Services
                 return;
             }
 
-            _logger.LogInformation("ElasticsearchService: updating entry: " + orcidId);
+            //_logger.LogInformation("ElasticsearchService: updating entry: " + orcidId);
 
             IndexResponse asyncIndexResponse = await ESclient.IndexDocumentAsync(person);
 
@@ -85,7 +85,7 @@ namespace api.Services
                 return;
             }
 
-            _logger.LogInformation("ElasticsearchService: deleting entry: " + orcidId);
+            //_logger.LogInformation("ElasticsearchService: deleting entry: " + orcidId);
 
             DeleteResponse asyncDeleteResponse = await ESclient.DeleteAsync<ElasticPerson>(orcidId);
 
