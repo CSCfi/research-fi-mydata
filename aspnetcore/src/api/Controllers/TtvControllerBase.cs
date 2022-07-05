@@ -42,6 +42,6 @@ public abstract class TtvControllerBase : ControllerBase
     [NonAction]
     public string GetLogPrefix()
     {
-        return "[Keycloak ID=" + this.GetKeycloakUserId() + "][ORCID=" + this.GetOrcidId() +  "][IP=" + HttpContext.Connection.RemoteIpAddress?.ToString() + "]";
+        return "[ORCID=" + this.GetOrcidId() +  "][IP=" + HttpContext.Connection.RemoteIpAddress?.ToString() + "][Keycloak ID=" + this.GetKeycloakUserId() + "]";
     }
 }
