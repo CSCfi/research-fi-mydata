@@ -13,7 +13,7 @@ namespace api.Tests
             var userProfileService = new UserProfileService();
             var fieldIdentifiers = userProfileService.GetFieldIdentifiers();
 
-            Assert.Equal(15, fieldIdentifiers.Count);
+            Assert.Equal(16, fieldIdentifiers.Count);
             Assert.Contains<int>(Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS, fieldIdentifiers);
             Assert.Contains<int>(Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER, fieldIdentifiers);
             Assert.Contains<int>(Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE, fieldIdentifiers);
@@ -29,6 +29,7 @@ namespace api.Tests
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID, fieldIdentifiers);
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION, fieldIdentifiers);
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET, fieldIdentifiers);
+            Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY, fieldIdentifiers);
         }
     }
 }

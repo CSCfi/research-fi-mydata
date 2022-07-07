@@ -65,7 +65,8 @@ namespace api.Services
                 Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
                 Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
                 Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
-                Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET
+                Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
+                Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY
             };
         }
 
@@ -445,6 +446,7 @@ namespace api.Services
              *               => DimPublication
              *               => DimFundingDecision
              *               => DimResearchDataset
+             *               => DimResearchActivity
              * 
              * NOTE! Registered data source must be taken from DimName.
              * Skip item if DimName does not have registered data source.
@@ -462,6 +464,10 @@ namespace api.Services
             DimFieldDisplaySetting dimFieldDisplaySetting_researchDataset =
                 dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET).First();
 
+            // DimFieldDisplaySetting for research activity
+            DimFieldDisplaySetting dimFieldDisplaySetting_researchActivity =
+                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY).First();
+
             // Loop DimNames, which have valid registered data source
             foreach (DimName dimName in dimKnownPerson.DimNames.Where(dimName => dimName.DimRegisteredDataSourceId != -1))
             {
@@ -469,11 +475,12 @@ namespace api.Services
                 List<int> publicationsIds = new();
                 List<int> fundingDecisionIds = new();
                 List<int> researchDatasetIds = new();
+                List<int> researchActivityIds = new();
 
                 // Loop FactContributions. Collect "non -1" values only.
                 foreach (
                     FactContribution factContribution in dimName.FactContributions.Where(
-                        fc => fc.DimPublicationId != -1 || fc.DimFundingDecisionId != -1 || fc.DimResearchDatasetId != -1
+                        fc => fc.DimPublicationId != -1 || fc.DimFundingDecisionId != -1 || fc.DimResearchDatasetId != -1 || fc.DimResearchActivityId != -1
                     )
                 )
                 {
@@ -493,6 +500,12 @@ namespace api.Services
                     if (factContribution.DimResearchDatasetId != -1)
                     {
                         researchDatasetIds.Add(factContribution.DimResearchDatasetId);
+                    }
+
+                    // FactContribution is linked to DimResearchActivity
+                    if (factContribution.DimResearchActivityId != -1)
+                    {
+                        researchActivityIds.Add(factContribution.DimResearchActivityId);
                     }
                 }
 
@@ -527,6 +540,17 @@ namespace api.Services
                     factFieldValueResearchDataset.DimResearchDatasetId = researchDatasetId;
                     factFieldValueResearchDataset.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
                     _ttvContext.FactFieldValues.Add(factFieldValueResearchDataset);
+                }
+
+                // Add FactFieldValues for DimResearchActivity. Remove duplicate IDs.
+                foreach (int researchActivityId in researchActivityIds.Distinct())
+                {
+                    FactFieldValue factFieldValueResearchActivity = this.GetEmptyFactFieldValue();
+                    factFieldValueResearchActivity.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValueResearchActivity.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researchActivity.Id;
+                    factFieldValueResearchActivity.DimResearchActivityId = researchActivityId;
+                    factFieldValueResearchActivity.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                    _ttvContext.FactFieldValues.Add(factFieldValueResearchActivity);
                 }
             }
         }
