@@ -8,8 +8,8 @@ namespace api.Services
     {
         IConfiguration Configuration { get; }
 
-        Task DeleteEntryFromElasticsearchPersonIndex(string orcidId);
+        Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId);
         bool IsElasticsearchSyncEnabled();
-        Task UpdateEntryInElasticsearchPersonIndex(string orcidId, Person person);
+        Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, Person person);
     }
 }

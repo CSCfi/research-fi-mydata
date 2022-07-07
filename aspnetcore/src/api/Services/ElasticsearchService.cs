@@ -47,11 +47,11 @@ namespace api.Services
 
         // Update entry in Elasticsearch person index
         // TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
-        public async Task UpdateEntryInElasticsearchPersonIndex(string orcidId, Person person)
+        public async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, Person person)
         {
             if (!IsElasticsearchSyncEnabled())
             {
-                return;
+                return false;
             }
 
             //_logger.LogInformation("ElasticsearchService: updating entry: " + orcidId);
@@ -60,9 +60,8 @@ namespace api.Services
 
             if (asyncIndexResponse.IsValid)
             {
-                _logger.LogInformation("ElasticsearchService: updated entry: " + orcidId);
+                return true;
             }
-            else
             {
                 string errormessage = "";
                 if (asyncIndexResponse.OriginalException != null && asyncIndexResponse.OriginalException.Message != null)
@@ -74,15 +73,16 @@ namespace api.Services
                     errormessage = asyncIndexResponse.ServerError.Error.Reason;
                 }
                 _logger.LogError("ElasticsearchService: ERROR updating: " + orcidId + ": " + errormessage);
+                return false;
             }
         }
 
         // Delete entry from Elasticsearch person index
-        public async Task DeleteEntryFromElasticsearchPersonIndex(string orcidId)
+        public async Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId)
         {
             if (!IsElasticsearchSyncEnabled())
             {
-                return;
+                return false;
             }
 
             //_logger.LogInformation("ElasticsearchService: deleting entry: " + orcidId);
@@ -91,9 +91,8 @@ namespace api.Services
 
             if (asyncDeleteResponse.IsValid)
             {
-                _logger.LogInformation("ElasticsearchService: deleted entry: " + orcidId);
+                return true;
             }
-            else
             {
                 string errormessage = "";
                 if (asyncDeleteResponse.OriginalException != null && asyncDeleteResponse.OriginalException.Message != null)
@@ -105,6 +104,7 @@ namespace api.Services
                     errormessage = asyncDeleteResponse.ServerError.Error.Reason;
                 }
                 _logger.LogError("ElasticsearchService: ERROR deleting: " + orcidId + ": " + errormessage);
+                return false;
             }
         }
     }

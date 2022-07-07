@@ -58,7 +58,7 @@ namespace api.Services
         /*
          * Get a list of default user profile sharing permissions.
          */
-        public async Task<List<BrGrantedPermission>> GetDefaultSharingPermissionsListForUserProfile(int userprofileId)
+        public async Task<List<BrGrantedPermission>> GetDefaultSharingPermissionsListForUserProfile(DimUserProfile dimUserProfile)
         {
             List<BrGrantedPermission> defaultSharingPermissions = new();
             foreach (string sharingGroupIdentifier in GetDimReferenceDataCodeValues())
@@ -70,7 +70,7 @@ namespace api.Services
                     defaultSharingPermissions.Add(
                         new BrGrantedPermission()
                         {
-                            DimUserProfileId = userprofileId,
+                            DimUserProfile = dimUserProfile,
                             DimExternalServiceId = _dataSourceHelperService.DimPurposeId_TTV,
                             DimPermittedFieldGroup = dimReferencedata.Id
                         }
