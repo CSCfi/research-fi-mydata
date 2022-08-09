@@ -23,6 +23,7 @@
             public const int ACTIVITY_RESEARCH_DATASET = 600;
             public const int ACTIVITY_INFRASTRUCTURE = 700;
             public const int ACTIVITY_FUNDING_DECISION = 800;
+            public const int ACTIVITY_RESEARCH_ACTIVITY = 900;
         }
 
         public static class SourceIdentifiers

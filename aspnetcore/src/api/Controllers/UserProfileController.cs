@@ -124,10 +124,16 @@ namespace api.Controllers
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
-                    _logger.LogInformation($"Elasticsearch removal of {orcidId} started {DateTime.UtcNow}");
                     // Update Elasticsearch person index.
-                    await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
-                    _logger.LogInformation($"Elasticsearch removal of {orcidId} completed {DateTime.UtcNow}");
+                    bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+                    if (deleteSuccess)
+                    {
+                        _logger.LogInformation($"Elasticsearch: {orcidId} delete OK.");
+                    }
+                    else
+                    {
+                        _logger.LogError($"Elasticsearch: {orcidId} delete failed.");
+                    }
                 });
             }
 
