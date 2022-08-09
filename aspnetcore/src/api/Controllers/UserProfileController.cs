@@ -84,11 +84,12 @@ namespace api.Controllers
             }
             catch
             {
-                _logger.LogError(this.GetLogPrefix() + " profile creation failed");
-                return Ok(new ApiResponse(success: false, reason: "profile creation failed"));
+                string msg = " create profile failed";
+                _logger.LogError(this.GetLogPrefix() + msg);
+                return Ok(new ApiResponse(success: false, reason: msg));
             }
 
-            _logger.LogInformation(this.GetLogPrefix() + " profile created");
+            _logger.LogInformation(this.GetLogPrefix() + " create profile OK");
             return Ok(new ApiResponse(success: true));
         }
 
@@ -123,10 +124,16 @@ namespace api.Controllers
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
-                    _logger.LogInformation($"Elasticsearch removal of {orcidId} started {DateTime.UtcNow}");
                     // Update Elasticsearch person index.
-                    await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
-                    _logger.LogInformation($"Elasticsearch removal of {orcidId} completed {DateTime.UtcNow}");
+                    bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+                    if (deleteSuccess)
+                    {
+                        _logger.LogInformation($"Elasticsearch: {orcidId} delete OK.");
+                    }
+                    else
+                    {
+                        _logger.LogError($"Elasticsearch: {orcidId} delete failed.");
+                    }
                 });
             }
 
@@ -137,12 +144,13 @@ namespace api.Controllers
             } catch
             {
                 // Log error
-                _logger.LogError(this.GetLogPrefix() + " profile deletion failed");
-                return Ok(new ApiResponse(success: false, reason: "profile deletion failed"));
+                string msg = " delete profile failed";
+                _logger.LogError(this.GetLogPrefix() + msg);
+                return Ok(new ApiResponse(success: false, reason: msg));
             }
 
             // Log deletion
-            _logger.LogInformation(this.GetLogPrefix() + " profile deleted");
+            _logger.LogInformation(this.GetLogPrefix() + " delete profile OK");
 
             // Keycloak: logout user
             await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest());

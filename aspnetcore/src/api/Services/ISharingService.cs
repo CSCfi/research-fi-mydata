@@ -10,7 +10,7 @@ namespace api.Services
         Task AddPermissions(int userprofileId, List<ProfileEditorSharingPermissionToAddOrDelete> permissionsToAdd);
         Task DeleteAllGrantedPermissionsFromUserprofile(int userprofileId);
         Task DeletePermissions(int userprofileId, List<ProfileEditorSharingPermissionToAddOrDelete> permissionsToDelete);
-        Task<List<BrGrantedPermission>> GetDefaultSharingPermissionsListForUserProfile(int userprofileId);
+        Task<List<BrGrantedPermission>> GetDefaultSharingPermissionsListForUserProfile(DimUserProfile dimUserProfile);
         string GetDimReferenceDataCodeScheme();
         List<string> GetDimReferenceDataCodeValues();
         Task<ProfileEditorSharingPermissionsResponse> GetProfileEditorSharingPermissionsResponse();
