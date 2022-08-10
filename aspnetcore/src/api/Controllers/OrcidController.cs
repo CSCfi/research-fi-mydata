@@ -57,61 +57,72 @@ namespace api.Controllers
             // Get userprofile id
             int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
-            // User's ORCID access token handling
-            OrcidTokens orcidTokens;
-            try
-            {
-                // Get ORCID access token from Keycloak
-                string orcidTokensJson = await _tokenService.GetOrcidTokensJsonFromKeycloak(this.GetBearerTokenFromHttpRequest());
-                // Parse json from Keycloak into EF model
-                orcidTokens = _tokenService.ParseOrcidTokensJson(orcidTokensJson);
-                // Update ORCID tokens in TTV database. 
-                await _userProfileService.UpdateOrcidTokensInDimUserProfile(userprofileId, orcidTokens);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(this.GetLogPrefix() + " get ORCID tokens from Keycloak failed: " + ex);
-                return Ok(new ApiResponse(success: false));
-            }
-            finally
-            {
-                _logger.LogInformation(this.GetLogPrefix() + " get ORCID tokens from Keycloak OK");
-            }
+            // Get ORCID record from ORCID member or public API.
+            // If user access token has claim "use_orcid_public_api", then the record is requested from public API.
+            // In all other cases the ORCID member API will be used.
+            string orcidRecordJson = "";
 
+            if (this.GetOrcidPublicApiFlag() != null)
+            {
+                // ORCID public API should be used
+                try
+                {
+                    orcidRecordJson = await _orcidApiService.GetRecordFromPublicApi(orcidId);
+                    _logger.LogInformation(this.GetLogPrefix() + " get ORCID record json from ORCID public API OK");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(this.GetLogPrefix() + " get ORCID record json from ORCID public API failed: " + ex);
+                    return Ok(new ApiResponse(success: false));
+                }
+            }
+            else
+            {
+                // ORCID member API should be used
 
-            // Get record json from ORCID
-            string orcidRecordJson;
-            try
-            {
-                orcidRecordJson = await _orcidApiService.GetRecord(orcidId, orcidTokens.AccessToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(this.GetLogPrefix() + " get ORCID record json from ORCID API failed: " + ex);
-                return Ok(new ApiResponse(success: false));
-            }
-            finally
-            {
-                _logger.LogInformation(this.GetLogPrefix() + " get ORCID record json from ORCID API OK");
-            }
+                // User's ORCID access token handling
+                OrcidTokens orcidTokens;
+                try
+                {
+                    // Get ORCID access token from Keycloak
+                    string orcidTokensJson = await _tokenService.GetOrcidTokensJsonFromKeycloak(this.GetBearerTokenFromHttpRequest());
+                    // Parse json from Keycloak into EF model
+                    orcidTokens = _tokenService.ParseOrcidTokensJson(orcidTokensJson);
+                    // Update ORCID tokens in TTV database. 
+                    await _userProfileService.UpdateOrcidTokensInDimUserProfile(userprofileId, orcidTokens);
+                    _logger.LogInformation(this.GetLogPrefix() + " get ORCID tokens from Keycloak OK");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(this.GetLogPrefix() + " get ORCID tokens from Keycloak failed: " + ex);
+                    return Ok(new ApiResponse(success: false));
+                }
 
+                // Get record json from ORCID member API
+                try
+                {
+                    orcidRecordJson = await _orcidApiService.GetRecordFromMemberApi(orcidId, orcidTokens.AccessToken);
+                    _logger.LogInformation(this.GetLogPrefix() + " get ORCID record json from ORCID member API OK");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(this.GetLogPrefix() + " get ORCID record json from ORCID member API failed: " + ex);
+                    return Ok(new ApiResponse(success: false));
+                }
+            }
 
             // Import record json into userprofile
             try
             {
                 await _orcidImportService.ImportOrcidRecordJsonIntoUserProfile(userprofileId, orcidRecordJson);
+                _logger.LogInformation(this.GetLogPrefix() + " import ORCID record to userprofile OK");
             }
             catch (Exception ex)
             {
                 _logger.LogError(this.GetLogPrefix() + " import ORCID record to userprofile failed: " + ex);
                 return Ok(new ApiResponse(success: false));
             }
-            finally
-            {
 
-            }
-
-            _logger.LogInformation(this.GetLogPrefix() + " import ORCID record to userprofile OK");
             return Ok(new ApiResponse(success: true));
         }
     }

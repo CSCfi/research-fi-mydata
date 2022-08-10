@@ -44,4 +44,12 @@ public abstract class TtvControllerBase : ControllerBase
     {
         return "[ORCID=" + this.GetOrcidId() +  "][IP=" + HttpContext.Connection.RemoteIpAddress?.ToString() + "][Keycloak ID=" + this.GetKeycloakUserId() + "]";
     }
+
+    // Get ORCID public API flag from user claims.
+    // This flag is used in testing phase only.
+    [NonAction]
+    protected string GetOrcidPublicApiFlag()
+    {
+        return User.Claims.FirstOrDefault(x => x.Type == "use_orcid_public_api")?.Value;
+    }
 }

@@ -5,6 +5,7 @@ namespace api.Services
     public interface IOrcidApiService
     {
         string GetOrcidRecordPath(string orcidId);
-        Task<string> GetRecord(string orcidId, string orcidAccessToken);
+        Task<string> GetRecordFromPublicApi(string orcidId);
+        Task<string> GetRecordFromMemberApi(string orcidId, string orcidAccessToken);
     }
 }
