@@ -162,11 +162,20 @@ namespace api
             });
 
             /*
-             * HTTP client: ORCID API
+             * HTTP client: ORCID MEMBER API
              */
-            services.AddHttpClient("ORCID", httpClient =>
+            services.AddHttpClient("ORCID_MEMBER_API", httpClient =>
             {
-                httpClient.BaseAddress = new Uri(Configuration["ORCID:API"]);
+                httpClient.BaseAddress = new Uri(Configuration["ORCID:MEMBERAPI"]);
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            });
+
+            /*
+             * HTTP client: ORCID PUBLIC API
+             */
+            services.AddHttpClient("ORCID_PUBLIC_API", httpClient =>
+            {
+                httpClient.BaseAddress = new Uri(Configuration["ORCID:PUBLICAPI"]);
                 httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
 
