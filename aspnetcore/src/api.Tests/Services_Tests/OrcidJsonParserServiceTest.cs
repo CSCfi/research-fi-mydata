@@ -320,7 +320,8 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var actualEducations = orcidJsonParserService.GetEducations(jsonStr);
-            Assert.True(actualEducations.Count == 1, "Educations: should parse 1 education");
+            Assert.True(actualEducations.Count == 2, "Educations: should parse 2 education");
+
             Assert.Equal("Massachusetts Institute of Technology", actualEducations[0].OrganizationName);
             Assert.Equal("Testing Department", actualEducations[0].DepartmentName);
             Assert.Equal("BA", actualEducations[0].RoleTitle);
@@ -331,6 +332,17 @@ namespace api.Tests
             Assert.Equal(5, actualEducations[0].EndDate.Month);
             Assert.Equal(15, actualEducations[0].EndDate.Day);
             Assert.Equal(new OrcidPutCode(22423).Value, actualEducations[0].PutCode.Value);
+
+            Assert.Equal("Test university without disambiguated organization", actualEducations[1].OrganizationName);
+            Assert.Equal("Managing Department", actualEducations[1].DepartmentName);
+            Assert.Equal("MSc", actualEducations[1].RoleTitle);
+            Assert.Equal(1998, actualEducations[1].StartDate.Year);
+            Assert.Equal(10, actualEducations[1].StartDate.Month);
+            Assert.Equal(4, actualEducations[1].StartDate.Day);
+            Assert.Equal(2002, actualEducations[1].EndDate.Year);
+            Assert.Equal(6, actualEducations[1].EndDate.Month);
+            Assert.Equal(16, actualEducations[1].EndDate.Day);
+            Assert.Equal(new OrcidPutCode(42345).Value, actualEducations[1].PutCode.Value);
         }
 
         [Fact(DisplayName = "Get employments")]

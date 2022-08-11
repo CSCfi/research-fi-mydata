@@ -635,6 +635,69 @@
                 "visibility": "public",
                 "path": "/0000-0002-9227-8514/education/22423"
               }
+            },
+            {
+              "education-summary": {
+                "created-date": {
+                  "value": 1477583674474
+                },
+                "last-modified-date": {
+                  "value": 1477583674474
+                },
+                "source": {
+                  "source-orcid": null,
+                  "source-client-id": {
+                    "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                    "path": "APP-674MCQQR985VZZQ2",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-name": {
+                    "value": "Another Regional University"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 42345,
+                "department-name": "Managing Department",
+                "role-title": "MSc",
+                "start-date": {
+                  "year": {
+                    "value": "1998"
+                  },
+                  "month": {
+                    "value": "10"
+                  },
+                  "day": {
+                    "value": "04"
+                  }
+                },
+                "end-date": {
+                  "year": {
+                    "value": "2002"
+                  },
+                  "month": {
+                    "value": "06"
+                  },
+                  "day": {
+                    "value": "16"
+                  }
+                },
+                "organization": {
+                  "name": "Test university without disambiguated organization",
+                  "address": {
+                    "city": "London",
+                    "region": null,
+                    "country": "GI"
+                  },
+                  "disambiguated-organization": null
+                },
+                "url": null,
+                "external-ids": null,
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0002-9227-8514/education/22423"
+              }
             }
           ]
         }
