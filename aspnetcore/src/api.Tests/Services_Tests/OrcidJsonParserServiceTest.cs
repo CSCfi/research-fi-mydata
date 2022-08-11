@@ -386,27 +386,25 @@ namespace api.Tests
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
             var actualPublications = orcidJsonParserService.GetPublications(jsonStr);
-            Assert.True(actualPublications.Count == 4, "Publications: should parse 4 publications");
+            Assert.True(actualPublications.Count == 3, "Publications: should parse 3 publications");
+
             Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[0].PublicationName);
             Assert.Equal(new OrcidPutCode(1022665).Value, actualPublications[0].PutCode.Value);
             Assert.Equal(2019, actualPublications[0].PublicationYear);
             Assert.Equal("", actualPublications[0].Doi);
             Assert.Equal("journal-article", actualPublications[0].Type);
-            Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[1].PublicationName);
+
+            Assert.Equal("My research paper", actualPublications[1].PublicationName);
             Assert.Equal(new OrcidPutCode(1045646).Value, actualPublications[1].PutCode.Value);
             Assert.Equal(2019, actualPublications[1].PublicationYear);
             Assert.Equal("10.1111/test.12241", actualPublications[1].Doi);
-            Assert.Equal("journal-article", actualPublications[1].Type);
-            Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[2].PublicationName);
+            Assert.Equal("journal-article B", actualPublications[1].Type);
+
+            Assert.Equal("Another publication", actualPublications[2].PublicationName);
             Assert.Equal(new OrcidPutCode(733536).Value, actualPublications[2].PutCode.Value);
             Assert.Equal(2012, actualPublications[2].PublicationYear);
             Assert.Equal("10.1087/20120404", actualPublications[2].Doi);
-            Assert.Equal("journal-article", actualPublications[2].Type);
-            Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[3].PublicationName);
-            Assert.Equal(new OrcidPutCode(733535).Value, actualPublications[3].PutCode.Value);
-            Assert.Equal(2012, actualPublications[3].PublicationYear);
-            Assert.Equal("10.1087/20120404", actualPublications[3].Doi);
-            Assert.Equal("journal-article", actualPublications[3].Type);
+            Assert.Equal("journal-article C", actualPublications[2].Type);
         }
 
         //[Fact(DisplayName = "Template")]

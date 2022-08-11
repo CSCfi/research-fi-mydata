@@ -70,19 +70,17 @@ namespace api.Services
         /*
          * Get DOI from ORCID publication
          */
-        private string GetPublicationDoi(JsonElement workElement)
+        private string GetPublicationDoi(JsonElement externalIdsElement)
         {
             string doi = "";
-            if (workElement.TryGetProperty("external-ids", out JsonElement externalIdsElement))
+            if (externalIdsElement.ValueKind != JsonValueKind.Null && externalIdsElement.TryGetProperty("external-id", out JsonElement externalIdElement))
             {
-                if (externalIdsElement.ValueKind != JsonValueKind.Null && externalIdsElement.TryGetProperty("external-id", out JsonElement externalIdElement))
+                foreach (JsonElement idElement in externalIdElement.EnumerateArray())
                 {
-                    foreach (JsonElement idElement in externalIdElement.EnumerateArray())
+                    if (idElement.GetProperty("external-id-type").GetString() == "doi")
                     {
-                        if (idElement.GetProperty("external-id-type").GetString() == "doi")
-                        {
-                            doi = idElement.GetProperty("external-id-value").GetString();
-                        }
+                        doi = idElement.GetProperty("external-id-value").GetString();
+                        break;
                     }
                 }
             }
@@ -488,6 +486,20 @@ namespace api.Services
                 {
                     foreach (JsonElement groupElement in groupsElement.EnumerateArray())
                     {
+                        /*
+                         *  Elements in "group" can contain "external-ids" and "work-summary".
+                         *  "work-summary" can contain multiple entries of the same publication.
+                         *  Get DOI from "external-ids" and the other properties from the first element in "work-summary".
+                         */
+                        string DOI = "";
+
+                        // Get publication DOI from "external-ids" array.
+                        if (groupElement.TryGetProperty("external-ids", out JsonElement externalIdsElement))
+                        {
+                            DOI = GetPublicationDoi(externalIdsElement);
+                        }
+
+                        // Get publication properties from "work-summary" array.
                         if (groupElement.TryGetProperty("work-summary", out JsonElement workSummariesElement))
                         {
                             foreach (JsonElement workElement in workSummariesElement.EnumerateArray())
@@ -496,12 +508,15 @@ namespace api.Services
                                     new OrcidPublication()
                                     {
                                         PublicationName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
-                                        Doi = this.GetPublicationDoi(workElement),
+                                        Doi = DOI,
                                         PublicationYear = this.GetPublicationYear(workElement),
                                         Type = workElement.GetProperty("type").GetString(),
                                         PutCode = this.GetOrcidPutCode(workElement)
                                     }
                                 );
+
+                                // Import only one element from "work-summary" array.
+                                break;
                             }
                         }
                     }
