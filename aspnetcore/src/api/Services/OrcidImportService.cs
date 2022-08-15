@@ -41,7 +41,7 @@ namespace api.Services
             int orcidRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_ORCID;
 
             // Get DimUserProfile and related entities
-            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
+            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.TagWith("Insert ORCID data").Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)

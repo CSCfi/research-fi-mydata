@@ -721,7 +721,7 @@ namespace api.Services
         public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId)
         {
             // Get DimFieldDisplaySettings and related entities
-            List<DimFieldDisplaySetting> dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
+            List<DimFieldDisplaySetting> dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.TagWith("Get profile data").Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
@@ -1632,7 +1632,7 @@ namespace api.Services
         public async Task<ProfileEditorDataResponse2> GetProfileDataAsync2(int userprofileId)
         {
             // Get DimFieldDisplaySettings and related entities
-            List<DimFieldDisplaySetting> dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
+            List<DimFieldDisplaySetting> dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.TagWith("Get profile data").Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
@@ -2483,7 +2483,7 @@ namespace api.Services
         public async Task DeleteProfileDataAsync(int userprofileId)
         {
             // Get DimUserProfile and related data that should be removed. 
-            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles
+            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.TagWith("Delete profile data")
                 .Include(dup => dup.DimFieldDisplaySettings)
                 .Include(dup => dup.DimUserChoices)
                 .Include(dup => dup.FactFieldValues)

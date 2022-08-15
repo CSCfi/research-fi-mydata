@@ -66,7 +66,7 @@ namespace api.Controllers
 
             // Get choices from DimReferencedata by code scheme.
             // MUST NOT use AsNoTracking, because it is possible that DimUserChoise entities will be added.
-            List<DimReferencedatum> dimReferenceDataUserChoices = await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.CodeSchemes.USER_CHOICES)
+            List<DimReferencedatum> dimReferenceDataUserChoices = await _ttvContext.DimReferencedata.TagWith("Get user choices").Where(dr => dr.CodeScheme == Constants.CodeSchemes.USER_CHOICES)
                 .Include(dr => dr.DimUserChoices.Where(duc => duc.DimUserProfileId == userprofileId)).ToListAsync();
 
             // Chech that all available choices have DimUserChoice for this user profile.
