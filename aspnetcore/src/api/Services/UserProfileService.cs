@@ -8,6 +8,8 @@ using api.Models.ProfileEditor;
 using Microsoft.EntityFrameworkCore;
 using api.Models.Common;
 using api.Models.Orcid;
+using Nest;
+using Dapper;
 
 namespace api.Services
 {
@@ -715,11 +717,263 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
         }
 
+
+
         /*
          *  Get profile data.
          */
         public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId)
         {
+            // Response data
+            ProfileEditorDataResponse profileDataResponse = new() { };
+
+            // Raw SQL query, userprofileId in WHERE condition is dynamic
+            string profileDataSql = $@"
+                select
+                    dfds.id as 'DimFieldDisplaySettings_Id',
+                    dfds.field_identifier as 'DimFieldDisplaySettings_FieldIdentifier',
+                    ffv.show as 'FactFieldValues_Show',
+                    ffv.primary_value as 'FactFieldValues_PrimaryValue',
+                    drds.id as 'DimRegisteredDataSource_Id',
+                    drds.name as 'DimRegisteredDataSource_Name',
+                    drds_organization.name_fi as 'DimRegisteredDataSource_DimOrganization_NameFi',
+                    drds_organization.name_en as 'DimRegisteredDataSource_DimOrganization_NameEn',
+                    drds_organization.name_sv as 'DimRegisteredDataSource_DimOrganization_NameSv',
+                    ffv.dim_user_profile_id as 'FactFieldValues_DimUserProfileId',
+                    ffv.dim_field_display_settings_id as 'FactFieldValues_DimFieldDisplaySettingsId',
+                    ffv.dim_name_id as 'FactFieldValues_DimNameId',
+                    ffv.dim_web_link_id as 'FactFieldValues_DimWebLinkId',
+                    ffv.dim_researcher_description_id as 'FactFieldValues_DimResearcherDescriptionId',
+                    dim_name.last_name as 'DimName_LastName',
+                    dim_name.first_names as 'DimName_FirstNames',
+                    dim_name.full_name as 'DimName_FullName',
+                    dim_web_link.url as 'DimWebLink_Url',
+                    dim_web_link.link_label as 'DimWebLink_LinkLabel',
+                    dim_researcher_description.research_description_fi as 'DimResearcherDescription_ResearchDescriptionFi',
+                    dim_researcher_description.research_description_en as 'DimResearcherDescription_ResearchDescriptionEn',
+                    dim_researcher_description.research_description_sv as 'DimResearcherDescription_ResearchDescriptionSv'
+
+                from fact_field_values as ffv
+                join dim_field_display_settings as dfds on ffv.dim_field_display_settings_id=dfds.id
+                join dim_registered_data_source as drds on ffv.dim_registered_data_source_id=drds.id
+                join dim_organization as drds_organization on drds.dim_organization_id=drds_organization.id
+                join dim_name on ffv.dim_name_id=dim_name.id
+                join dim_web_link on ffv.dim_web_link_id=dim_web_link.id
+                join dim_researcher_description on ffv.dim_researcher_description_id=dim_researcher_description.id
+                where
+                    ffv.dim_user_profile_id={userprofileId} and
+                    (
+                        ffv.dim_name_id != -1 or
+                        ffv.dim_web_link_id != -1 or
+                        ffv.dim_researcher_description_id != -1
+                    )
+                order by dfds.field_identifier asc, ffv.dim_registered_data_source_id asc";
+
+            // Execute raw SQL query using Dapper
+            var connection = _ttvContext.Database.GetDbConnection();
+            List<ProfileDataRaw> profileDataRaws = (await connection.QueryAsync<ProfileDataRaw>(profileDataSql)).ToList();
+
+            // Group response by DimRegisteredDataSource_Id
+            IEnumerable<IGrouping<int, ProfileDataRaw>> profileDataRaw_GroupedBy_DataSourceId = profileDataRaws.GroupBy(p => p.DimRegisteredDataSource_Id);
+
+            // Loop data source groups
+            foreach (IGrouping<int, ProfileDataRaw> profileDataGroup in profileDataRaw_GroupedBy_DataSourceId)
+            {
+                // Set data source object. It can be taken from the first object in list, because all object in the group have the same data source.
+
+                // Organization name translation
+                NameTranslation nameTranslationSourceOrganization = _languageService.GetNameTranslation(
+                    nameFi: profileDataGroup.First().DimRegisteredDataSource_DimOrganization_NameFi,
+                    nameEn: profileDataGroup.First().DimRegisteredDataSource_DimOrganization_NameEn,
+                    nameSv: profileDataGroup.First().DimRegisteredDataSource_DimOrganization_NameSv
+                );
+
+                // Source object containing registered data source and organization name.
+                ProfileEditorSource profileEditorSource = new()
+                {
+                    Id = profileDataGroup.First().DimRegisteredDataSource_Id,
+                    RegisteredDataSource = profileDataGroup.First().DimRegisteredDataSource_Name,
+                    Organization = new Organization()
+                    {
+                        NameFi = nameTranslationSourceOrganization.NameFi,
+                        NameEn = nameTranslationSourceOrganization.NameEn,
+                        NameSv = nameTranslationSourceOrganization.NameSv
+                    }
+                };
+
+                // Additionally, group the items by DimFieldDisplaySettings_FieldIdentifier.
+                // FieldIdentifier indicates what type of data the field contains (name, other name, weblink, etc).
+                IEnumerable<IGrouping<int, ProfileDataRaw>> profileDataGroups2 = profileDataGroup.GroupBy(q => q.DimFieldDisplaySettings_FieldIdentifier);
+
+                // Loop field identifier groups.
+                foreach (IGrouping<int, ProfileDataRaw> profileDataGroup2 in profileDataGroups2)
+                {
+                    // Data items are collected into own lists
+                    List<ProfileEditorItemName> nameItems = new();
+                    List<ProfileEditorItemName> otherNameItems = new();
+                    List<ProfileEditorItemWebLink> weblinkItems = new();
+                    List<ProfileEditorItemResearcherDescription> researcherDescriptionItems = new();
+
+                    // Loop items in a field identifier group
+                    foreach (ProfileDataRaw profileData2 in profileDataGroup2)
+                    {
+                        // FieldIdentifier defines what type of data the field contains.
+                        switch (profileData2.DimFieldDisplaySettings_FieldIdentifier)
+                        {
+                            // Name
+                            case Constants.FieldIdentifiers.PERSON_NAME:
+                                nameItems.Add(
+                                    new ProfileEditorItemName()
+                                    {
+                                        FirstNames = profileData2.DimName_FirstNames,
+                                        LastName = profileData2.DimName_LastName,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimNameId,
+                                            Type = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
+
+                            // Other name
+                            case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
+                                otherNameItems.Add(
+                                    new ProfileEditorItemName()
+                                    {
+                                        FullName = profileData2.DimName_FullName,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimNameId,
+                                            Type = Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
+
+                            // Web link
+                            case Constants.FieldIdentifiers.PERSON_WEB_LINK:
+                                weblinkItems.Add(
+                                    new ProfileEditorItemWebLink()
+                                    {
+                                        Url = profileData2.DimWebLink_Url,
+                                        LinkLabel = profileData2.DimWebLink_LinkLabel,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimWebLinkId,
+                                            Type = Constants.FieldIdentifiers.PERSON_WEB_LINK,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
+
+                            // ResearcherDescription
+                            case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
+                                // OResearcherDescription translation
+                                NameTranslation nameTranslationResearcherDescription = _languageService.GetNameTranslation(
+                                    nameFi: profileData2.DimResearcherDescription_ResearchDescriptionFi,
+                                    nameEn: profileData2.DimResearcherDescription_ResearchDescriptionEn,
+                                    nameSv: profileData2.DimResearcherDescription_ResearchDescriptionSv
+                                );
+                                researcherDescriptionItems.Add(
+                                    new ProfileEditorItemResearcherDescription()
+                                    {
+                                        ResearchDescriptionFi = nameTranslationResearcherDescription.NameFi,
+                                        ResearchDescriptionEn = nameTranslationResearcherDescription.NameEn,
+                                        ResearchDescriptionSv = nameTranslationResearcherDescription.NameSv,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimResearcherDescriptionId,
+                                            Type = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
+                        }
+                    }
+
+                    if (nameItems.Count > 0)
+                    {
+                        profileDataResponse.personal.nameGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = nameItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.PERSON_NAME,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
+                    if (otherNameItems.Count > 0)
+                    {
+                        profileDataResponse.personal.otherNameGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = otherNameItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
+                    if (weblinkItems.Count > 0)
+                    {
+                        profileDataResponse.personal.webLinkGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = weblinkItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.PERSON_WEB_LINK,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
+                    if (researcherDescriptionItems.Count > 0)
+                    {
+                        profileDataResponse.personal.researcherDescriptionGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = researcherDescriptionItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+                }
+            }
+
+            return profileDataResponse;
+
+/*
+
             // Get DimFieldDisplaySettings and related entities
             List<DimFieldDisplaySetting> dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.TagWith("Get profile data").Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
                 .Include(dfds => dfds.FactFieldValues)
@@ -1624,6 +1878,7 @@ namespace api.Services
             }
 
             return profileDataResponse;
+*/
         }
 
         /*
