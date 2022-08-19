@@ -15,24 +15,23 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimNameId { get; set; }
         public int FactFieldValues_DimWebLinkId { get; set; }
         public int FactFieldValues_DimResearcherDescriptionId { get; set; }
+        public int FactFieldValues_DimEmailAddrressId { get; set; }
+        public int FactFieldValues_DimTelephoneNumberId { get; set; }
+        public int FactFieldValues_DimFieldOfScienceId { get; set; }
+        public int FactFieldValues_DimKeywordId { get; set; }
+        public int FactFieldValues_DimPidId { get; set; }
         //public int DimFundingDecisionId { get; set; }
         //public int DimPublicationId { get; set; }
-        //public int DimPidId { get; set; }
         //public int DimPidIdOrcidPutCode { get; set; }
         //public int DimResearchActivityId { get; set; }
         //public int DimEventId { get; set; }
         //public int DimEducationId { get; set; }
         //public int DimCompetenceId { get; set; }
         //public int DimResearchCommunityId { get; set; }
-        //public int DimTelephoneNumberId { get; set; }
-        //public int DimEmailAddrressId { get; set; }
-        //public int DimResearcherDescriptionId { get; set; }
         //public int DimIdentifierlessDataId { get; set; }
         //public int DimOrcidPublicationId { get; set; }
-        //public int DimKeywordId { get; set; }
         //public int DimAffiliationId { get; set; }
         //public int DimResearcherToResearchCommunityId { get; set; }
-        //public int DimFieldOfScienceId { get; set; }
         //public int DimResearchDatasetId { get; set; }
         //public int DimRegisteredDataSourceId { get; set; }
         // DimFieldDisplaySettings
@@ -57,5 +56,18 @@ namespace api.Models.ProfileEditor
         public string DimResearcherDescription_ResearchDescriptionFi { get; set; }
         public string DimResearcherDescription_ResearchDescriptionEn { get; set; }
         public string DimResearcherDescription_ResearchDescriptionSv { get; set; }
+        // DimEmailAddrress
+        public string DimEmailAddrress_Email { get; set; }
+        // DimTelephoneNumber
+        public string DimTelephoneNumber_TelephoneNumber { get; set; }
+        // DimFieldOfScience
+        public string DimFieldOfScience_NameFi { get; set; }
+        public string DimFieldOfScience_NameEn { get; set; }
+        public string DimFieldOfScience_NameSv { get; set; }
+        // DimKeyword
+        public string DimKeyword_Keyword { get; set; }
+        // DimPid
+        public string DimPid_PidContent { get; set; }
+        public string DimPid_PidType { get; set; }
     }
 }

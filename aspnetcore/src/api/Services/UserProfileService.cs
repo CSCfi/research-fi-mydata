@@ -729,45 +729,70 @@ namespace api.Services
 
             // Raw SQL query, userprofileId in WHERE condition is dynamic
             string profileDataSql = $@"
-                select
-                    dfds.id as 'DimFieldDisplaySettings_Id',
-                    dfds.field_identifier as 'DimFieldDisplaySettings_FieldIdentifier',
-                    ffv.show as 'FactFieldValues_Show',
-                    ffv.primary_value as 'FactFieldValues_PrimaryValue',
-                    drds.id as 'DimRegisteredDataSource_Id',
-                    drds.name as 'DimRegisteredDataSource_Name',
-                    drds_organization.name_fi as 'DimRegisteredDataSource_DimOrganization_NameFi',
-                    drds_organization.name_en as 'DimRegisteredDataSource_DimOrganization_NameEn',
-                    drds_organization.name_sv as 'DimRegisteredDataSource_DimOrganization_NameSv',
-                    ffv.dim_user_profile_id as 'FactFieldValues_DimUserProfileId',
-                    ffv.dim_field_display_settings_id as 'FactFieldValues_DimFieldDisplaySettingsId',
-                    ffv.dim_name_id as 'FactFieldValues_DimNameId',
-                    ffv.dim_web_link_id as 'FactFieldValues_DimWebLinkId',
-                    ffv.dim_researcher_description_id as 'FactFieldValues_DimResearcherDescriptionId',
-                    dim_name.last_name as 'DimName_LastName',
-                    dim_name.first_names as 'DimName_FirstNames',
-                    dim_name.full_name as 'DimName_FullName',
-                    dim_web_link.url as 'DimWebLink_Url',
-                    dim_web_link.link_label as 'DimWebLink_LinkLabel',
-                    dim_researcher_description.research_description_fi as 'DimResearcherDescription_ResearchDescriptionFi',
-                    dim_researcher_description.research_description_en as 'DimResearcherDescription_ResearchDescriptionEn',
-                    dim_researcher_description.research_description_sv as 'DimResearcherDescription_ResearchDescriptionSv'
+SELECT
+    dfds.id AS 'DimFieldDisplaySettings_Id',
+    dfds.field_identifier AS 'DimFieldDisplaySettings_FieldIdentifier',
+    dfds.show AS 'DimFieldDisplaySettings_Show',
+    ffv.show AS 'FactFieldValues_Show',
+    ffv.primary_value AS 'FactFieldValues_PrimaryValue',
+    drds.id AS 'DimRegisteredDataSource_Id',
+    drds.name AS 'DimRegisteredDataSource_Name',
+    drds_organization.name_fi AS 'DimRegisteredDataSource_DimOrganization_NameFi',
+    drds_organization.name_en AS 'DimRegisteredDataSource_DimOrganization_NameEn',
+    drds_organization.name_sv AS 'DimRegisteredDataSource_DimOrganization_NameSv',
+    ffv.dim_user_profile_id AS 'FactFieldValues_DimUserProfileId',
+    ffv.dim_name_id AS 'FactFieldValues_DimNameId',
+    ffv.dim_web_link_id AS 'FactFieldValues_DimWebLinkId',
+    ffv.dim_researcher_description_id AS 'FactFieldValues_DimResearcherDescriptionId',
+    ffv.dim_email_addrress_id AS 'FactFieldValues_DimEmailAddrressId',
+    ffv.dim_telephone_number_id AS 'FactFieldValues_DimTelephoneNumberId',
+    ffv.dim_field_of_science_id AS ' FactFieldValues_DimFieldOfScienceId',
+    ffv.dim_keyword_id AS 'FactFieldValues_DimKeywordId',
+    ffv.dim_pid_id AS 'FactFieldValues_DimPidId',
+    dim_name.lASt_name AS 'DimName_LAStName',
+    dim_name.first_names AS 'DimName_FirstNames',
+    dim_name.full_name AS 'DimName_FullName',
+    dim_web_link.url AS 'DimWebLink_Url',
+    dim_web_link.link_label AS 'DimWebLink_LinkLabel',
+    dim_researcher_description.research_description_fi AS 'DimResearcherDescription_ResearchDescriptionFi',
+    dim_researcher_description.research_description_en AS 'DimResearcherDescription_ResearchDescriptionEn',
+    dim_researcher_description.research_description_sv AS 'DimResearcherDescription_ResearchDescriptionSv',
+    dim_email_addrress.email AS 'DimEmailAddrress_Email',
+    dim_telephone_number.telephone_number AS 'DimTelephoneNumber_TelephoneNumber',
+    dim_field_of_science.name_fi AS 'DimFieldOfScience_NameFi',
+    dim_field_of_science.name_en AS 'DimFieldOfScience_NameEn',
+    dim_field_of_science.name_sv AS 'DimFieldOfScience_NameSv',
+    dim_keyword.keyword AS 'DimKeyword_Keyword',
+    dim_pid.pid_type AS 'DimPid_PidType',
+    dim_pid.pid_content AS 'DimPid_PidContent'
 
-                from fact_field_values as ffv
-                join dim_field_display_settings as dfds on ffv.dim_field_display_settings_id=dfds.id
-                join dim_registered_data_source as drds on ffv.dim_registered_data_source_id=drds.id
-                join dim_organization as drds_organization on drds.dim_organization_id=drds_organization.id
-                join dim_name on ffv.dim_name_id=dim_name.id
-                join dim_web_link on ffv.dim_web_link_id=dim_web_link.id
-                join dim_researcher_description on ffv.dim_researcher_description_id=dim_researcher_description.id
-                where
-                    ffv.dim_user_profile_id={userprofileId} and
-                    (
-                        ffv.dim_name_id != -1 or
-                        ffv.dim_web_link_id != -1 or
-                        ffv.dim_researcher_description_id != -1
-                    )
-                order by dfds.field_identifier asc, ffv.dim_registered_data_source_id asc";
+FROM fact_field_values AS ffv
+
+JOIN dim_field_display_settings AS dfds ON ffv.dim_field_display_settings_id=dfds.id
+JOIN dim_registered_data_source AS drds ON ffv.dim_registered_data_source_id=drds.id
+JOIN dim_organization AS drds_organization ON drds.dim_organization_id=drds_organization.id
+JOIN dim_name ON ffv.dim_name_id=dim_name.id
+JOIN dim_web_link ON ffv.dim_web_link_id=dim_web_link.id
+JOIN dim_researcher_description ON ffv.dim_researcher_description_id=dim_researcher_description.id
+JOIN dim_email_addrress ON ffv.dim_email_addrress_id=dim_email_addrress.id
+JOIN dim_telephone_number ON ffv.dim_telephone_number_id=dim_telephone_number.id
+JOIN dim_field_of_science ON ffv.dim_field_of_science_id=dim_field_of_science.id
+JOIN dim_keyword ON ffv.dim_keyword_id=dim_keyword.id
+JOIN dim_pid ON ffv.dim_pid_id=dim_pid.id
+
+WHERE
+    ffv.dim_user_profile_id={userprofileId} AND
+    (
+        ffv.dim_name_id != -1 OR
+        ffv.dim_web_link_id != -1 OR
+        ffv.dim_researcher_description_id != -1 OR
+        ffv.dim_email_addrress_id != -1 OR
+        ffv.dim_telephone_number_id != -1 OR
+        ffv.dim_field_of_science_id != -1 OR
+        ffv.dim_keyword_id != -1 OR
+        ffv.dim_pid_id != -1
+    )
+";
 
             // Execute raw SQL query using Dapper
             var connection = _ttvContext.Database.GetDbConnection();
@@ -813,6 +838,11 @@ namespace api.Services
                     List<ProfileEditorItemName> otherNameItems = new();
                     List<ProfileEditorItemWebLink> weblinkItems = new();
                     List<ProfileEditorItemResearcherDescription> researcherDescriptionItems = new();
+                    List<ProfileEditorItemEmail> emailItems = new();
+                    List<ProfileEditorItemTelephoneNumber> telephoneNumberItems = new();
+                    List<ProfileEditorItemFieldOfScience> fieldOfScienceItems = new();
+                    List<ProfileEditorItemKeyword> keywordItems = new();
+                    List<ProfileEditorItemExternalIdentifier> externalIdentifierItems = new();
 
                     // Loop items in a field identifier group
                     foreach (ProfileDataRaw profileData2 in profileDataGroup2)
@@ -875,7 +905,7 @@ namespace api.Services
 
                             // ResearcherDescription
                             case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
-                                // OResearcherDescription translation
+                                // Researcher description name translation
                                 NameTranslation nameTranslationResearcherDescription = _languageService.GetNameTranslation(
                                     nameFi: profileData2.DimResearcherDescription_ResearchDescriptionFi,
                                     nameEn: profileData2.DimResearcherDescription_ResearchDescriptionEn,
@@ -897,9 +927,105 @@ namespace api.Services
                                     }
                                 );
                                 break;
+
+                            // Email
+                            case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
+                                emailItems.Add(
+                                    new ProfileEditorItemEmail()
+                                    {
+                                        Value = profileData2.DimEmailAddrress_Email,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimEmailAddrressId,
+                                            Type = Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
+
+                            // Telephone number
+                            case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
+                                telephoneNumberItems.Add(
+                                    new ProfileEditorItemTelephoneNumber()
+                                    {
+                                        Value = profileData2.DimTelephoneNumber_TelephoneNumber,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimTelephoneNumberId,
+                                            Type = Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
+
+                            // Field of science
+                            case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
+                                // Field of science name translation
+                                NameTranslation nameTranslationFieldOfScience = _languageService.GetNameTranslation(
+                                    nameFi: profileData2.DimFieldOfScience_NameFi,
+                                    nameEn: profileData2.DimFieldOfScience_NameEn,
+                                    nameSv: profileData2.DimFieldOfScience_NameSv
+                                );
+
+                                fieldOfScienceItems.Add(
+                                    new ProfileEditorItemFieldOfScience()
+                                    {
+                                        NameFi = nameTranslationFieldOfScience.NameFi,
+                                        NameEn = nameTranslationFieldOfScience.NameEn,
+                                        NameSv = nameTranslationFieldOfScience.NameSv,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimFieldOfScienceId,
+                                            Type = Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
+
+                            // Keyword
+                            case Constants.FieldIdentifiers.PERSON_KEYWORD:
+                                keywordItems.Add(
+                                    new ProfileEditorItemKeyword()
+                                    {
+                                        Value = profileData2.DimKeyword_Keyword,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimKeywordId,
+                                            Type = Constants.FieldIdentifiers.PERSON_KEYWORD,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
+
+                            // External identifier
+                            case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
+                                externalIdentifierItems.Add(
+                                    new ProfileEditorItemExternalIdentifier()
+                                    {
+                                        PidContent = profileData2.DimPid_PidContent,
+                                        PidType = profileData2.DimPid_PidType,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimPidId,
+                                            Type = Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
                         }
                     }
 
+                    // Name
                     if (nameItems.Count > 0)
                     {
                         profileDataResponse.personal.nameGroups.Add(
@@ -917,6 +1043,7 @@ namespace api.Services
                         );
                     }
 
+                    // Other names
                     if (otherNameItems.Count > 0)
                     {
                         profileDataResponse.personal.otherNameGroups.Add(
@@ -934,6 +1061,7 @@ namespace api.Services
                         );
                     }
 
+                    // Web link
                     if (weblinkItems.Count > 0)
                     {
                         profileDataResponse.personal.webLinkGroups.Add(
@@ -951,6 +1079,7 @@ namespace api.Services
                         );
                     }
 
+                    // Researcher description
                     if (researcherDescriptionItems.Count > 0)
                     {
                         profileDataResponse.personal.researcherDescriptionGroups.Add(
@@ -962,6 +1091,96 @@ namespace api.Services
                                 {
                                     Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
                                     Type = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
+                    // Email
+                    if (emailItems.Count > 0)
+                    {
+                        profileDataResponse.personal.emailGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = emailItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
+                    // Telephone number
+                    if (telephoneNumberItems.Count > 0)
+                    {
+                        profileDataResponse.personal.telephoneNumberGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = telephoneNumberItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
+                    // Field of science
+                    if (fieldOfScienceItems.Count > 0)
+                    {
+                        profileDataResponse.personal.fieldOfScienceGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = fieldOfScienceItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
+                    // Keyword
+                    if (keywordItems.Count > 0)
+                    {
+                        profileDataResponse.personal.keywordGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = keywordItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.PERSON_KEYWORD,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
+                    // External identifier
+                    if (externalIdentifierItems.Count > 0)
+                    {
+                        profileDataResponse.personal.externalIdentifierGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = externalIdentifierItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER,
                                     Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
                                 }
                             }
