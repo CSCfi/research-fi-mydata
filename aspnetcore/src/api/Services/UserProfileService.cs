@@ -752,6 +752,8 @@ SELECT
     ffv.dim_affiliation_id AS 'FactFieldValues_DimAffiliationId',
     ffv.dim_identifierless_data_id AS 'FactFieldValues_DimIdentifierlessDataId',
     ffv.dim_education_id AS 'FactFieldValues_DimEducationId',
+    ffv.dim_publication_id AS 'FactFieldValues_DimPublicationId',
+    ffv.dim_orcid_publication_id AS 'FactFieldValues_DimOrcidPublicationId',
     dim_name.lASt_name AS 'DimName_LastName',
     dim_name.first_names AS 'DimName_FirstNames',
     dim_name.full_name AS 'DimName_FullName',
@@ -801,7 +803,16 @@ SELECT
     education_start_date.day AS 'DimEducation_StartDate_Day',
     education_end_date.year AS 'DimEducation_EndDate_Year',
     education_end_date.month AS 'DimEducation_EndDate_Month',
-    education_end_date.day AS 'DimEducation_EndDate_Day'
+    education_end_date.day AS 'DimEducation_EndDate_Day',
+    dim_publication.publication_id AS 'DimPublication_PublicationId',
+    dim_publication.publication_name AS 'DimPublication_PublicationName',
+    dim_publication.publication_year AS 'DimPublication_PublicationYear',
+    dim_publication.doi AS 'DimPublication_Doi',
+    dim_publication.publication_type_code AS 'DimPublication_PublicationTypeCode',
+    dim_orcid_publication.publication_id AS 'DimOrcidPublication_PublicationId',
+    dim_orcid_publication.publication_name AS 'DimOrcidPublication_PublicationName',
+    dim_orcid_publication.publication_year AS 'DimOrcidPublication_PublicationYear',
+    dim_orcid_publication.doi_handle AS 'DimOrcidPublication_Doi'
 
 FROM fact_field_values AS ffv
 
@@ -826,6 +837,8 @@ LEFT JOIN dim_identifierless_data AS did_child ON did_child.dim_identifierless_d
 JOIN dim_education ON ffv.dim_education_id=dim_education.id
 LEFT JOIN dim_date AS education_start_date ON dim_education.dim_start_date=education_start_date.id AND education_start_date.id!=-1
 LEFT JOIN dim_date AS education_end_date ON dim_education.dim_end_date=education_end_date.id AND education_end_date.id!=-1
+JOIN dim_publication ON ffv.dim_publication_id=dim_publication.id
+JOIN dim_orcid_publication ON ffv.dim_orcid_publication_id=dim_orcid_publication.id
 
 WHERE
     ffv.dim_user_profile_id={userprofileId} AND
@@ -840,7 +853,9 @@ WHERE
         ffv.dim_pid_id != -1 OR
         ffv.dim_affiliation_id != -1 OR
         ffv.dim_identifierless_data_id != -1 OR
-        ffv.dim_education_id != -1
+        ffv.dim_education_id != -1 OR
+        ffv.dim_publication_id != -1 OR
+        ffv.dim_orcid_publication_id != -1
     )
 ";
 
@@ -895,6 +910,7 @@ WHERE
                     List<ProfileEditorItemExternalIdentifier> externalIdentifierItems = new();
                     List<ProfileEditorItemAffiliation> affiliationItems = new();
                     List<ProfileEditorItemEducation> educationItems = new();
+                    List<ProfileEditorItemPublication> publicationItems = new();
 
                     // Loop items in a field identifier group
                     foreach (ProfileDataRaw profileData2 in profileDataGroup2)
@@ -1199,6 +1215,49 @@ WHERE
                                     }
                                 );
                                 break;
+
+                            // Publication
+                            case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
+                                publicationItems.Add(
+                                    new ProfileEditorItemPublication()
+                                    {
+                                        PublicationId = profileData2.DimPublication_PublicationId,
+                                        PublicationName = profileData2.DimPublication_PublicationName,
+                                        PublicationYear = profileData2.DimPublication_PublicationYear,
+                                        Doi = profileData2.DimPublication_Doi,
+                                        TypeCode = profileData2.DimPublication_PublicationTypeCode,
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimPublicationId,
+                                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+      
+                                break;
+
+                            // Publication(ORCID)
+                            case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
+                                publicationItems.Add(
+                                    new ProfileEditorItemPublication()
+                                    {
+                                        PublicationId = profileData2.DimOrcidPublication_PublicationId,
+                                        PublicationName = profileData2.DimOrcidPublication_PublicationName,
+                                        PublicationYear = profileData2.DimOrcidPublication_PublicationYear,
+                                        Doi = profileData2.DimOrcidPublication_Doi,
+                                        TypeCode = "",
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimOrcidPublicationId,
+                                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
                         }
                     }
 
@@ -1400,6 +1459,23 @@ WHERE
                         );
                     }
 
+                    // Publication groups
+                    if (publicationItems.Count > 0)
+                    {
+                        profileDataResponse.activity.publicationGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = publicationItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
                 }
             }
 

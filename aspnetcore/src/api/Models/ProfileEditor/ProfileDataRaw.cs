@@ -26,6 +26,8 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimAffiliationId { get; set; }
         public int FactFieldValues_DimIdentifierlessDataId { get; set; }
         public int FactFieldValues_DimEducationId { get; set; }
+        public int FactFieldValues_DimPublicationId { get; set; }
+        public int FactFieldValues_DimOrcidPublicationId { get; set; }
         //public int DimFundingDecisionId { get; set; }
         //public int DimPublicationId { get; set; }
         //public int DimPidIdOrcidPutCode { get; set; }
@@ -111,5 +113,16 @@ namespace api.Models.ProfileEditor
         public int DimEducation_EndDate_Year { get; set; }
         public int DimEducation_EndDate_Month { get; set; }
         public int DimEducation_EndDate_Day { get; set; }
+        // DimPublication
+        public string DimPublication_PublicationId { get; set; }
+        public string DimPublication_PublicationName { get; set; }
+        public int DimPublication_PublicationYear { get; set; }
+        public string DimPublication_Doi { get; set; }
+        public string DimPublication_PublicationTypeCode { get; set; }
+        // DimOrcidPublication
+        public string DimOrcidPublication_PublicationId { get; set; }
+        public string DimOrcidPublication_PublicationName { get; set; }
+        public int DimOrcidPublication_PublicationYear { get; set; }
+        public string DimOrcidPublication_Doi { get; set; }
     }
 }
