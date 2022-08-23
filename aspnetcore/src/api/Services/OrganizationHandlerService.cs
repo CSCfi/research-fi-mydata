@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models;
+using api.Models.ProfileEditor;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 
@@ -117,6 +118,8 @@ namespace api.Services
         /*
          * Get affiliation department name from FactFieldValue related DimIdentifierlessData.
          */
+
+        // TODO: Remove this version?
         public string GetAffiliationDepartmentNameFromFactFieldValue(FactFieldValue factFieldValue)
         {
             if (factFieldValue.DimIdentifierlessDataId > 0 && factFieldValue.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)

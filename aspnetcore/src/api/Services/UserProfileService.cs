@@ -749,7 +749,9 @@ SELECT
     ffv.dim_field_of_science_id AS ' FactFieldValues_DimFieldOfScienceId',
     ffv.dim_keyword_id AS 'FactFieldValues_DimKeywordId',
     ffv.dim_pid_id AS 'FactFieldValues_DimPidId',
-    dim_name.lASt_name AS 'DimName_LAStName',
+    ffv.dim_affiliation_id AS 'FactFieldValues_DimAffiliationId',
+    ffv.dim_identifierless_data_id AS 'FactFieldValues_DimIdentifierlessDataId',
+    dim_name.lASt_name AS 'DimName_LastName',
     dim_name.first_names AS 'DimName_FirstNames',
     dim_name.full_name AS 'DimName_FullName',
     dim_web_link.url AS 'DimWebLink_Url',
@@ -764,7 +766,31 @@ SELECT
     dim_field_of_science.name_sv AS 'DimFieldOfScience_NameSv',
     dim_keyword.keyword AS 'DimKeyword_Keyword',
     dim_pid.pid_type AS 'DimPid_PidType',
-    dim_pid.pid_content AS 'DimPid_PidContent'
+    dim_pid.pid_content AS 'DimPid_PidContent',
+    affiliation_organization.id AS 'DimAffiliation_DimOrganization_Id',
+    affiliation_organization.name_fi AS 'DimAffiliation_DimOrganization_NameFi',
+    affiliation_organization.name_en AS 'DimAffiliation_DimOrganization_NameEn',
+    affiliation_organization.name_sv AS 'DimAffiliation_DimOrganization_NameSv',
+    dim_affiliation.position_name_fi AS 'DimAffiliation_PositionNameFi',
+    dim_affiliation.position_name_en AS 'DimAffiliation_PositionNameEn',
+    dim_affiliation.position_name_sv AS 'DimAffiliation_PositionNameSv',
+    affiliation_start_date.year AS 'DimAffiliation_StartDate_Year',
+    affiliation_start_date.month AS 'DimAffiliation_StartDate_Month',
+    affiliation_start_date.day AS 'DimAffiliation_StartDate_Day',
+    affiliation_end_date.year AS 'DimAffiliation_EndDate_Year',
+    affiliation_end_date.month AS 'DimAffiliation_EndDate_Month',
+    affiliation_end_date.day AS 'DimAffiliation_EndDate_Day',
+    affiliation_type.name_fi AS 'DimAffiliation_DimReferenceData_NameFi',
+    did.type AS 'DimIdentifierlessData_Type',
+    did.value_fi AS 'DimIdentifierlessData_ValueFi',
+    did.value_en AS 'DimIdentifierlessData_ValueEn',
+    did.value_sv AS 'DimIdentifierlessData_ValueSv',
+    did.unlinked_identifier AS 'DimIdentifierlessData_UnlinkedIdentifier',
+    did_child.type AS 'DimIdentifierlessData_Child_Type',
+    did_child.value_fi AS 'DimIdentifierlessData_Child_ValueFi',
+    did_child.value_en AS 'DimIdentifierlessData_Child_ValueEn',
+    did_child.value_sv AS 'DimIdentifierlessData_Child_ValueSv',
+    did_child.unlinked_identifier AS 'DimIdentifierlessData_Child_UnlinkedIdentifier'
 
 FROM fact_field_values AS ffv
 
@@ -779,6 +805,13 @@ JOIN dim_telephone_number ON ffv.dim_telephone_number_id=dim_telephone_number.id
 JOIN dim_field_of_science ON ffv.dim_field_of_science_id=dim_field_of_science.id
 JOIN dim_keyword ON ffv.dim_keyword_id=dim_keyword.id
 JOIN dim_pid ON ffv.dim_pid_id=dim_pid.id
+JOIN dim_affiliation ON ffv.dim_affiliation_id=dim_affiliation.id
+JOIN dim_organization AS affiliation_organization ON dim_affiliation.dim_organization_id=affiliation_organization.id
+LEFT JOIN dim_date AS affiliation_start_date ON dim_affiliation.start_date=affiliation_start_date.id AND affiliation_start_date.id!=-1
+LEFT JOIN dim_date AS affiliation_end_date ON dim_affiliation.end_date=affiliation_end_date.id AND affiliation_end_date.id!=-1
+JOIN dim_referencedata AS affiliation_type ON dim_affiliation.affiliation_type=affiliation_type.id
+JOIN dim_identifierless_data AS did ON ffv.dim_identifierless_data_id=did.id
+LEFT JOIN dim_identifierless_data AS did_child ON did_child.dim_identifierless_data_id=did.id AND did_child.dim_identifierless_data_id!=-1
 
 WHERE
     ffv.dim_user_profile_id={userprofileId} AND
@@ -790,7 +823,9 @@ WHERE
         ffv.dim_telephone_number_id != -1 OR
         ffv.dim_field_of_science_id != -1 OR
         ffv.dim_keyword_id != -1 OR
-        ffv.dim_pid_id != -1
+        ffv.dim_pid_id != -1 OR
+        ffv.dim_affiliation_id != -1 OR
+        ffv.dim_identifierless_data_id != -1
     )
 ";
 
@@ -843,6 +878,7 @@ WHERE
                     List<ProfileEditorItemFieldOfScience> fieldOfScienceItems = new();
                     List<ProfileEditorItemKeyword> keywordItems = new();
                     List<ProfileEditorItemExternalIdentifier> externalIdentifierItems = new();
+                    List<ProfileEditorItemAffiliation> affiliationItems = new();
 
                     // Loop items in a field identifier group
                     foreach (ProfileDataRaw profileData2 in profileDataGroup2)
@@ -1022,6 +1058,93 @@ WHERE
                                     }
                                 );
                                 break;
+
+                            // Affiliation
+                            case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
+                                // Get affiliation organization name from related DimOrganization (ffv.DimAffiliation.DimOrganization), if exists.
+                                // Otherwise from DimIdentifierlessData (ffv.DimIdentifierlessData).
+                                // Name translation service ensures that none of the language fields is empty.
+                                NameTranslation nameTranslationAffiliationOrganization = new();
+                                if (profileData2.DimAffiliation_DimOrganization_Id > 0)
+                                {
+                                    nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
+                                        nameFi: profileData2.DimAffiliation_DimOrganization_NameFi,
+                                        nameEn: profileData2.DimAffiliation_DimOrganization_NameEn,
+                                        nameSv: profileData2.DimAffiliation_DimOrganization_NameSv
+                                    );
+                                }
+                                else if (profileData2.FactFieldValues_DimIdentifierlessDataId > -1 &&
+                                    profileData2.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                                {
+                                    nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
+                                        nameFi: profileData2.DimIdentifierlessData_ValueFi,
+                                        nameEn: profileData2.DimIdentifierlessData_ValueEn,
+                                        nameSv: profileData2.DimIdentifierlessData_ValueSv
+                                    );
+                                }
+                                
+                                // Name translation for position name
+                                NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
+                                    nameFi: profileData2.DimAffiliation_PositionNameFi,
+                                    nameEn: profileData2.DimAffiliation_PositionNameEn,
+                                    nameSv: profileData2.DimAffiliation_PositionNameSv
+                                );
+
+                                // Name translation for department name
+                                NameTranslation nameTranslationAffiliationDepartment = new();
+                                if (profileData2.DimIdentifierlessData_Type != null && profileData2.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                                {
+                                    nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
+                                        nameFi: profileData2.DimIdentifierlessData_ValueFi,
+                                        nameEn: profileData2.DimIdentifierlessData_ValueEn,
+                                        nameSv: profileData2.DimIdentifierlessData_ValueSv
+                                    );
+                                }
+                                else if (profileData2.DimIdentifierlessData_Child_Type != null && profileData2.DimIdentifierlessData_Child_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                                {
+                                    nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
+                                        nameFi: profileData2.DimIdentifierlessData_Child_ValueFi,
+                                        nameEn: profileData2.DimIdentifierlessData_Child_ValueEn,
+                                        nameSv: profileData2.DimIdentifierlessData_Child_ValueSv
+                                    );
+                                }
+                                
+                                ProfileEditorItemAffiliation affiliation = new()
+                                {
+                                    OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
+                                    OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
+                                    OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
+                                    DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
+                                    DepartmentNameEn = nameTranslationAffiliationDepartment.NameSv,
+                                    DepartmentNameSv = nameTranslationAffiliationDepartment.NameEn,
+                                    PositionNameFi = nameTranslationPositionName.NameFi,
+                                    PositionNameEn = nameTranslationPositionName.NameEn,
+                                    PositionNameSv = nameTranslationPositionName.NameSv,
+                                    Type = profileData2.DimAffiliation_DimReferenceData_NameFi,
+                                    StartDate = new ProfileEditorItemDate()
+                                    {
+                                        Year = profileData2.DimAffiliation_StartDate_Year,
+                                        Month = profileData2.DimAffiliation_StartDate_Month,
+                                        Day = profileData2.DimAffiliation_StartDate_Day
+                                    },
+                                    EndDate = new ProfileEditorItemDate()
+                                    {
+                                        Year = profileData2.DimAffiliation_EndDate_Year,
+                                        Month = profileData2.DimAffiliation_EndDate_Month,
+                                        Day = profileData2.DimAffiliation_EndDate_Day
+                                    },
+                                    itemMeta = new ProfileEditorItemMeta()
+                                    {
+                                        Id = profileData2.FactFieldValues_DimAffiliationId,
+                                        Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                        Show = profileData2.FactFieldValues_Show,
+                                        PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                    }
+                                };
+
+                                affiliationItems.Add(affiliation);
+                                break;
+
                         }
                     }
 
@@ -1186,6 +1309,25 @@ WHERE
                             }
                         );
                     }
+
+                    // Affiliation
+                    if (affiliationItems.Count > 0)
+                    {
+                        profileDataResponse.activity.affiliationGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = affiliationItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
                 }
             }
 
@@ -1242,6 +1384,7 @@ WHERE
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimEducation)
                         .ThenInclude(de => de.DimEndDateNavigation).AsNoTracking()
+
                 // DimAffiliation
                 .Include(dfds => dfds.FactFieldValues)
                    .ThenInclude(ffv => ffv.DimAffiliation)
@@ -1255,6 +1398,7 @@ WHERE
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimAffiliation)
                         .ThenInclude(da => da.AffiliationTypeNavigation).AsNoTracking()
+
                 // DimCompetence
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimCompetence).AsNoTracking()
@@ -1273,10 +1417,12 @@ WHERE
                 // DimResearcherDescription
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
+
                 // DimIdentifierlessData. Can have a child entity.
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
                         .ThenInclude(did => did.InverseDimIdentifierlessData).AsNoTracking()
+
                 // DimOrcidPublication
                 .Include(dfds => dfds.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()

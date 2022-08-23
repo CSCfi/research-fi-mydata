@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Security.Cryptography;
+using Nest;
 
 namespace api.Models.ProfileEditor
 {
@@ -20,6 +22,8 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimFieldOfScienceId { get; set; }
         public int FactFieldValues_DimKeywordId { get; set; }
         public int FactFieldValues_DimPidId { get; set; }
+        public int FactFieldValues_DimAffiliationId { get; set; }
+        public int FactFieldValues_DimIdentifierlessDataId { get; set; }
         //public int DimFundingDecisionId { get; set; }
         //public int DimPublicationId { get; set; }
         //public int DimPidIdOrcidPutCode { get; set; }
@@ -28,9 +32,7 @@ namespace api.Models.ProfileEditor
         //public int DimEducationId { get; set; }
         //public int DimCompetenceId { get; set; }
         //public int DimResearchCommunityId { get; set; }
-        //public int DimIdentifierlessDataId { get; set; }
         //public int DimOrcidPublicationId { get; set; }
-        //public int DimAffiliationId { get; set; }
         //public int DimResearcherToResearchCommunityId { get; set; }
         //public int DimResearchDatasetId { get; set; }
         //public int DimRegisteredDataSourceId { get; set; }
@@ -69,5 +71,32 @@ namespace api.Models.ProfileEditor
         // DimPid
         public string DimPid_PidContent { get; set; }
         public string DimPid_PidType { get; set; }
+        // DimAffiliation
+        public int DimAffiliation_DimOrganization_Id { get; set; }
+        public string DimAffiliation_DimOrganization_NameFi { get; set; }
+        public string DimAffiliation_DimOrganization_NameEn { get; set; }
+        public string DimAffiliation_DimOrganization_NameSv { get; set; }
+        public string DimAffiliation_PositionNameFi { get; set; }
+        public string DimAffiliation_PositionNameEn { get; set; }
+        public string DimAffiliation_PositionNameSv { get; set; }
+        public int DimAffiliation_StartDate_Year { get; set; }
+        public int DimAffiliation_StartDate_Month { get; set; }
+        public int DimAffiliation_StartDate_Day { get; set; }
+        public int DimAffiliation_EndDate_Year { get; set; }
+        public int DimAffiliation_EndDate_Month { get; set; }
+        public int DimAffiliation_EndDate_Day { get; set; }
+        public string DimAffiliation_DimReferenceData_NameFi { get; set; }
+        // DimIdentifierlessData
+        public string DimIdentifierlessData_Type { get; set; }
+        public string DimIdentifierlessData_ValueFi { get; set; }
+        public string DimIdentifierlessData_ValueEn { get; set; }
+        public string DimIdentifierlessData_ValueSv { get; set; }
+        public string DimIdentifierlessData_UnlinkedIdentifier { get; set; }
+        // DimIdentifierlessData (child)
+        public string DimIdentifierlessData_Child_Type { get; set; }
+        public string DimIdentifierlessData_Child_ValueFi { get; set; }
+        public string DimIdentifierlessData_Child_ValueEn { get; set; }
+        public string DimIdentifierlessData_Child_ValueSv { get; set; }
+        public string DimIdentifierlessData_Child_UnlinkedIdentifier { get; set; }
     }
 }
