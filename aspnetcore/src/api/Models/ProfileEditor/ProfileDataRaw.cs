@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
+using api.Models.Ttv;
 using Nest;
 
 namespace api.Models.ProfileEditor
@@ -24,6 +25,7 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimPidId { get; set; }
         public int FactFieldValues_DimAffiliationId { get; set; }
         public int FactFieldValues_DimIdentifierlessDataId { get; set; }
+        public int FactFieldValues_DimEducationId { get; set; }
         //public int DimFundingDecisionId { get; set; }
         //public int DimPublicationId { get; set; }
         //public int DimPidIdOrcidPutCode { get; set; }
@@ -98,5 +100,16 @@ namespace api.Models.ProfileEditor
         public string DimIdentifierlessData_Child_ValueEn { get; set; }
         public string DimIdentifierlessData_Child_ValueSv { get; set; }
         public string DimIdentifierlessData_Child_UnlinkedIdentifier { get; set; }
+        // DimEducation
+        public string DimEducation_NameFi { get; set; }
+        public string DimEducation_NameEn { get; set; }
+        public string DimEducation_NameSv { get; set; }
+        public string DimEducation_DegreeGrantingInstitutionName { get; set; }
+        public int DimEducation_StartDate_Year { get; set; }
+        public int DimEducation_StartDate_Month { get; set; }
+        public int DimEducation_StartDate_Day { get; set; }
+        public int DimEducation_EndDate_Year { get; set; }
+        public int DimEducation_EndDate_Month { get; set; }
+        public int DimEducation_EndDate_Day { get; set; }
     }
 }

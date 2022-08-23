@@ -751,6 +751,7 @@ SELECT
     ffv.dim_pid_id AS 'FactFieldValues_DimPidId',
     ffv.dim_affiliation_id AS 'FactFieldValues_DimAffiliationId',
     ffv.dim_identifierless_data_id AS 'FactFieldValues_DimIdentifierlessDataId',
+    ffv.dim_education_id AS 'FactFieldValues_DimEducationId',
     dim_name.lASt_name AS 'DimName_LastName',
     dim_name.first_names AS 'DimName_FirstNames',
     dim_name.full_name AS 'DimName_FullName',
@@ -790,7 +791,17 @@ SELECT
     did_child.value_fi AS 'DimIdentifierlessData_Child_ValueFi',
     did_child.value_en AS 'DimIdentifierlessData_Child_ValueEn',
     did_child.value_sv AS 'DimIdentifierlessData_Child_ValueSv',
-    did_child.unlinked_identifier AS 'DimIdentifierlessData_Child_UnlinkedIdentifier'
+    did_child.unlinked_identifier AS 'DimIdentifierlessData_Child_UnlinkedIdentifier',
+    dim_education.name_fi AS 'DimEducation_NameFi',
+    dim_education.name_en AS 'DimEducation_NameEn',
+    dim_education.name_sv AS 'DimEducation_NameSv',
+    dim_education.degree_granting_institution_name AS 'DimEducation_DegreeGrantingInstitutionName',
+    education_start_date.year AS 'DimEducation_StartDate_Year',
+    education_start_date.month AS 'DimEducation_StartDate_Month',
+    education_start_date.day AS 'DimEducation_StartDate_Day',
+    education_end_date.year AS 'DimEducation_EndDate_Year',
+    education_end_date.month AS 'DimEducation_EndDate_Month',
+    education_end_date.day AS 'DimEducation_EndDate_Day'
 
 FROM fact_field_values AS ffv
 
@@ -812,6 +823,9 @@ LEFT JOIN dim_date AS affiliation_end_date ON dim_affiliation.end_date=affiliati
 JOIN dim_referencedata AS affiliation_type ON dim_affiliation.affiliation_type=affiliation_type.id
 JOIN dim_identifierless_data AS did ON ffv.dim_identifierless_data_id=did.id
 LEFT JOIN dim_identifierless_data AS did_child ON did_child.dim_identifierless_data_id=did.id AND did_child.dim_identifierless_data_id!=-1
+JOIN dim_education ON ffv.dim_education_id=dim_education.id
+LEFT JOIN dim_date AS education_start_date ON dim_education.dim_start_date=education_start_date.id AND education_start_date.id!=-1
+LEFT JOIN dim_date AS education_end_date ON dim_education.dim_end_date=education_end_date.id AND education_end_date.id!=-1
 
 WHERE
     ffv.dim_user_profile_id={userprofileId} AND
@@ -825,7 +839,8 @@ WHERE
         ffv.dim_keyword_id != -1 OR
         ffv.dim_pid_id != -1 OR
         ffv.dim_affiliation_id != -1 OR
-        ffv.dim_identifierless_data_id != -1
+        ffv.dim_identifierless_data_id != -1 OR
+        ffv.dim_education_id != -1
     )
 ";
 
@@ -879,6 +894,7 @@ WHERE
                     List<ProfileEditorItemKeyword> keywordItems = new();
                     List<ProfileEditorItemExternalIdentifier> externalIdentifierItems = new();
                     List<ProfileEditorItemAffiliation> affiliationItems = new();
+                    List<ProfileEditorItemEducation> educationItems = new();
 
                     // Loop items in a field identifier group
                     foreach (ProfileDataRaw profileData2 in profileDataGroup2)
@@ -1108,47 +1124,85 @@ WHERE
                                         nameSv: profileData2.DimIdentifierlessData_Child_ValueSv
                                     );
                                 }
-                                
-                                ProfileEditorItemAffiliation affiliation = new()
-                                {
-                                    OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
-                                    OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
-                                    OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
-                                    DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
-                                    DepartmentNameEn = nameTranslationAffiliationDepartment.NameSv,
-                                    DepartmentNameSv = nameTranslationAffiliationDepartment.NameEn,
-                                    PositionNameFi = nameTranslationPositionName.NameFi,
-                                    PositionNameEn = nameTranslationPositionName.NameEn,
-                                    PositionNameSv = nameTranslationPositionName.NameSv,
-                                    Type = profileData2.DimAffiliation_DimReferenceData_NameFi,
-                                    StartDate = new ProfileEditorItemDate()
-                                    {
-                                        Year = profileData2.DimAffiliation_StartDate_Year,
-                                        Month = profileData2.DimAffiliation_StartDate_Month,
-                                        Day = profileData2.DimAffiliation_StartDate_Day
-                                    },
-                                    EndDate = new ProfileEditorItemDate()
-                                    {
-                                        Year = profileData2.DimAffiliation_EndDate_Year,
-                                        Month = profileData2.DimAffiliation_EndDate_Month,
-                                        Day = profileData2.DimAffiliation_EndDate_Day
-                                    },
-                                    itemMeta = new ProfileEditorItemMeta()
-                                    {
-                                        Id = profileData2.FactFieldValues_DimAffiliationId,
-                                        Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
-                                        Show = profileData2.FactFieldValues_Show,
-                                        PrimaryValue = profileData2.FactFieldValues_PrimaryValue
-                                    }
-                                };
 
-                                affiliationItems.Add(affiliation);
+                                affiliationItems.Add(
+                                    new()
+                                    {
+                                        OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
+                                        OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
+                                        OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
+                                        DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
+                                        DepartmentNameEn = nameTranslationAffiliationDepartment.NameSv,
+                                        DepartmentNameSv = nameTranslationAffiliationDepartment.NameEn,
+                                        PositionNameFi = nameTranslationPositionName.NameFi,
+                                        PositionNameEn = nameTranslationPositionName.NameEn,
+                                        PositionNameSv = nameTranslationPositionName.NameSv,
+                                        Type = profileData2.DimAffiliation_DimReferenceData_NameFi,
+                                        StartDate = new ProfileEditorItemDate()
+                                        {
+                                            Year = profileData2.DimAffiliation_StartDate_Year,
+                                            Month = profileData2.DimAffiliation_StartDate_Month,
+                                            Day = profileData2.DimAffiliation_StartDate_Day
+                                        },
+                                        EndDate = new ProfileEditorItemDate()
+                                        {
+                                            Year = profileData2.DimAffiliation_EndDate_Year,
+                                            Month = profileData2.DimAffiliation_EndDate_Month,
+                                            Day = profileData2.DimAffiliation_EndDate_Day
+                                        },
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimAffiliationId,
+                                            Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
                                 break;
 
+                            // Education
+                            case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
+                                // Name translation service ensures that none of the language fields is empty.
+                                NameTranslation nameTraslationEducation = _languageService.GetNameTranslation(
+                                    nameFi: profileData2.DimEducation_NameFi,
+                                    nameEn: profileData2.DimEducation_NameEn,
+                                    nameSv: profileData2.DimEducation_NameSv
+                                );
+
+                                educationItems.Add(
+                                    new()
+                                    {
+                                        NameFi = nameTraslationEducation.NameFi,
+                                        NameEn = nameTraslationEducation.NameEn,
+                                        NameSv = nameTraslationEducation.NameSv,
+                                        DegreeGrantingInstitutionName = profileData2.DimEducation_DegreeGrantingInstitutionName,
+                                        StartDate = new ProfileEditorItemDate()
+                                        {
+                                            Year = profileData2.DimEducation_StartDate_Year,
+                                            Month = profileData2.DimEducation_StartDate_Month,
+                                            Day = profileData2.DimEducation_StartDate_Day
+                                        },
+                                        EndDate = new ProfileEditorItemDate()
+                                        {
+                                            Year = profileData2.DimEducation_EndDate_Year,
+                                            Month = profileData2.DimEducation_EndDate_Month,
+                                            Day = profileData2.DimEducation_EndDate_Day
+                                        },
+                                        itemMeta = new ProfileEditorItemMeta()
+                                        {
+                                            Id = profileData2.FactFieldValues_DimEducationId,
+                                            Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                            Show = profileData2.FactFieldValues_Show,
+                                            PrimaryValue = profileData2.FactFieldValues_PrimaryValue
+                                        }
+                                    }
+                                );
+                                break;
                         }
                     }
 
-                    // Name
+                    // Name groups
                     if (nameItems.Count > 0)
                     {
                         profileDataResponse.personal.nameGroups.Add(
@@ -1166,7 +1220,7 @@ WHERE
                         );
                     }
 
-                    // Other names
+                    // Other name groups
                     if (otherNameItems.Count > 0)
                     {
                         profileDataResponse.personal.otherNameGroups.Add(
@@ -1184,7 +1238,7 @@ WHERE
                         );
                     }
 
-                    // Web link
+                    // Web link groups
                     if (weblinkItems.Count > 0)
                     {
                         profileDataResponse.personal.webLinkGroups.Add(
@@ -1202,7 +1256,7 @@ WHERE
                         );
                     }
 
-                    // Researcher description
+                    // Researcher description groups
                     if (researcherDescriptionItems.Count > 0)
                     {
                         profileDataResponse.personal.researcherDescriptionGroups.Add(
@@ -1220,7 +1274,7 @@ WHERE
                         );
                     }
 
-                    // Email
+                    // Email groups
                     if (emailItems.Count > 0)
                     {
                         profileDataResponse.personal.emailGroups.Add(
@@ -1238,7 +1292,7 @@ WHERE
                         );
                     }
 
-                    // Telephone number
+                    // Telephone number groups
                     if (telephoneNumberItems.Count > 0)
                     {
                         profileDataResponse.personal.telephoneNumberGroups.Add(
@@ -1256,7 +1310,7 @@ WHERE
                         );
                     }
 
-                    // Field of science
+                    // Field of science groups
                     if (fieldOfScienceItems.Count > 0)
                     {
                         profileDataResponse.personal.fieldOfScienceGroups.Add(
@@ -1274,7 +1328,7 @@ WHERE
                         );
                     }
 
-                    // Keyword
+                    // Keyword groups
                     if (keywordItems.Count > 0)
                     {
                         profileDataResponse.personal.keywordGroups.Add(
@@ -1292,7 +1346,7 @@ WHERE
                         );
                     }
 
-                    // External identifier
+                    // External identifier groups
                     if (externalIdentifierItems.Count > 0)
                     {
                         profileDataResponse.personal.externalIdentifierGroups.Add(
@@ -1310,7 +1364,7 @@ WHERE
                         );
                     }
 
-                    // Affiliation
+                    // Affiliation groups
                     if (affiliationItems.Count > 0)
                     {
                         profileDataResponse.activity.affiliationGroups.Add(
@@ -1322,6 +1376,24 @@ WHERE
                                 {
                                     Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
                                     Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                    Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
+                                }
+                            }
+                        );
+                    }
+
+                    // Education groups
+                    if  (educationItems.Count > 0)
+                    {
+                        profileDataResponse.activity.educationGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = educationItems,
+                                groupMeta = new ProfileEditorGroupMeta()
+                                {
+                                    Id = profileDataGroup2.First().DimFieldDisplaySettings_Id,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
                                     Show = profileDataGroup2.First().DimFieldDisplaySettings_Show
                                 }
                             }
