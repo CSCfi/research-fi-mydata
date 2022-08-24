@@ -7,6 +7,9 @@ using api.Models.Elasticsearch;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using api.Models.Common;
+using api.Models.ProfileEditor;
+using Dapper;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Services
 {
@@ -37,303 +40,153 @@ namespace api.Services
             TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
             ILanguageService localLanguageService = scope.ServiceProvider.GetRequiredService<ILanguageService>();
             IOrganizationHandlerService localOrganizationHandlerService = scope.ServiceProvider.GetRequiredService<IOrganizationHandlerService>();
+            ITtvSqlService localTtvSqlService = scope.ServiceProvider.GetRequiredService<ITtvSqlService>();
 
-            // Get DimFieldDisplaySettings and related entities
-            List<DimFieldDisplaySetting> dimFieldDisplaySettings = await localTtvContext.DimFieldDisplaySettings.Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimRegisteredDataSource)
-                        .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
-                // DimName
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimName).AsNoTracking()
-                // DimWebLink
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimWebLink).AsNoTracking()
-                // DimFundingDecision
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimOrganizationIdFunderNavigation).AsNoTracking() // DimFundingDecision related DimOrganization (funder organization)
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimDateIdStartNavigation).AsNoTracking() // DimFundingDecision related start date (DimDate)
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimDateIdEndNavigation).AsNoTracking() // DimFundingDecision related end date (DimDate)
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimTypeOfFunding).AsNoTracking() // DimFundingDecision related DimTypeOfFunding
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                        .ThenInclude(dfd => dfd.DimCallProgramme).AsNoTracking() // DimFundingDecision related DimCallProgramme
-                                                                                 // DimPublication
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimPublication).AsNoTracking()
-                // DimPid
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimPid).AsNoTracking()
-                // DimPidIdOrcidPutCodeNavigation
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation).AsNoTracking()
-                // DimResearchActivity
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchActivity).AsNoTracking()
-                // DimEvent
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimEvent).AsNoTracking()
-                // DimEducation
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimEducation)
-                        .ThenInclude(de => de.DimStartDateNavigation).AsNoTracking()
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimEducation)
-                        .ThenInclude(de => de.DimEndDateNavigation).AsNoTracking()
-                // DimAffiliation
-                .Include(dfds => dfds.FactFieldValues)
-                   .ThenInclude(ffv => ffv.DimAffiliation)
-                       .ThenInclude(da => da.StartDateNavigation).AsNoTracking()
-                .Include(dfds => dfds.FactFieldValues)
-                   .ThenInclude(ffv => ffv.DimAffiliation)
-                       .ThenInclude(da => da.EndDateNavigation).AsNoTracking()
-                .Include(dfds => dfds.FactFieldValues)
-                   .ThenInclude(ffv => ffv.DimAffiliation)
-                       .ThenInclude(da => da.DimOrganization).AsNoTracking()
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimAffiliation)
-                        .ThenInclude(da => da.AffiliationTypeNavigation).AsNoTracking()
-                // DimCompetence
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimCompetence).AsNoTracking()
-                // DimResearchCommunity
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchCommunity).AsNoTracking()
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearcherToResearchCommunity)
-                        .ThenInclude(drtrc => drtrc.DimResearchCommunity).AsNoTracking()
-                // DimTelephoneNumber
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimTelephoneNumber).AsNoTracking()
-                // DimEmailAddrress
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimEmailAddrress).AsNoTracking()
-                // DimResearcherDescription
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearcherDescription).AsNoTracking()
-                // DimIdentifierlessData. Can have a child entity.
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
-                        .ThenInclude(did => did.InverseDimIdentifierlessData).AsNoTracking()
-                // DimOrcidPublication
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimOrcidPublication).AsNoTracking()
-                // DimKeyword
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimKeyword).AsNoTracking()
-                // DimFieldOfScience
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimFieldOfScience).AsNoTracking()
-                // DimResearchDataset
-                .Include(dfds => dfds.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearchDataset).AsNoTracking()
-                //.ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
-                //.ThenInclude(fc => fc.DimName).AsNoTracking() // DimName related to FactContribution
-                //.Include(dfds => dfds.FactFieldValues)
-                //    .ThenInclude(ffv => ffv.DimResearchDataset)
-                //        .ThenInclude(drd => drd.FactContributions) // FactContribution related to DimResearchDataset
-                //            .ThenInclude(fc => fc.DimReferencedataActorRole).AsNoTracking() // DimName related to DimReferencedataActorRole
-                .ToListAsync();
+            // Get SQL statement for profile data query
+            string profileDataSql = localTtvSqlService.GetSqlQuery_ProfileData(userprofileId);
+
+            // Execute SQL statemen using Dapper
+            var connection = localTtvContext.Database.GetDbConnection();
+            List<ProfileDataRaw> profileDataRaws = (await connection.QueryAsync<ProfileDataRaw>(profileDataSql)).ToList();
+
+            // Group response by DimRegisteredDataSource_Id
+            IEnumerable<IGrouping<int, ProfileDataRaw>> profileDataRaw_GroupedBy_DataSourceId = profileDataRaws.GroupBy(p => p.DimRegisteredDataSource_Id);
 
             Person person = new(orcidId)
             {
             };
 
-            // Collect data from DimFieldDisplaySettings and FactFieldValues entities
-            foreach (DimFieldDisplaySetting dfds in dimFieldDisplaySettings)
+            // Loop data source groups
+            foreach (IGrouping<int, ProfileDataRaw> profileDataGroup in profileDataRaw_GroupedBy_DataSourceId)
             {
-                // Group FactFieldValues by DimRegisteredDataSourceId
-                IEnumerable<IGrouping<int, FactFieldValue>> factFieldValues_GroupedBy_DataSourceId = dfds.FactFieldValues.GroupBy(ffv => ffv.DimRegisteredDataSourceId);
+                // Set data source object. It can be taken from the first object in list, because all object in the group have the same data source.
 
-                // Loop groups
-                foreach (IGrouping<int, FactFieldValue> factFieldValueGroup in factFieldValues_GroupedBy_DataSourceId)
+                // Organization name translation
+                NameTranslation nameTranslationSourceOrganization = localLanguageService.GetNameTranslation(
+                    nameFi: profileDataGroup.First().DimRegisteredDataSource_DimOrganization_NameFi,
+                    nameEn: profileDataGroup.First().DimRegisteredDataSource_DimOrganization_NameEn,
+                    nameSv: profileDataGroup.First().DimRegisteredDataSource_DimOrganization_NameSv
+                );
+
+                // Source object containing registered data source and organization name.
+                Source profileEditorSource = new()
                 {
-                    DimRegisteredDataSource dimRegisteredDataSource = factFieldValueGroup.First().DimRegisteredDataSource;
-
-                    // Organization name translation
-                    NameTranslation nameTranslationSourceOrganization = localLanguageService.GetNameTranslation(
-                        nameFi: dimRegisteredDataSource.DimOrganization.NameFi,
-                        nameEn: dimRegisteredDataSource.DimOrganization.NameEn,
-                        nameSv: dimRegisteredDataSource.DimOrganization.NameSv
-                    );
-
-                    // Source object containing registered data source and organization name.
-                    Source profileEditorSource = new()
+                    RegisteredDataSource = profileDataGroup.First().DimRegisteredDataSource_Name,
+                    Organization = new Organization()
                     {
-                        RegisteredDataSource = dimRegisteredDataSource.Name,
-                        Organization = new Organization()
+                        NameFi = nameTranslationSourceOrganization.NameFi,
+                        NameEn = nameTranslationSourceOrganization.NameEn,
+                        NameSv = nameTranslationSourceOrganization.NameSv
+                    }
+                };
+
+                // Additionally, group the items by DimFieldDisplaySettings_FieldIdentifier.
+                // FieldIdentifier indicates what type of data the field contains (name, other name, weblink, etc).
+                IEnumerable<IGrouping<int, ProfileDataRaw>> profileDataGroups2 = profileDataGroup.GroupBy(q => q.DimFieldDisplaySettings_FieldIdentifier);
+
+                // Loop field identifier groups.
+                foreach (IGrouping<int, ProfileDataRaw> profileDataGroup2 in profileDataGroups2)
+                {
+                    // Data items are collected into own lists
+                    List<ItemName> nameItems = new();
+                    List<ItemName> otherNameItems = new();
+                    List<ItemWebLink> weblinkItems = new();
+                    List<ItemResearcherDescription> researcherDescriptionItems = new();
+                    List<ItemEmail> emailItems = new();
+                    List<ItemTelephoneNumber> telephoneNumberItems = new();
+                    List<ItemFieldOfScience> fieldOfScienceItems = new();
+                    List<ItemKeyword> keywordItems = new();
+                    List<ItemExternalIdentifier> externalIdentifierItems = new();
+                    List<ItemAffiliation> affiliationItems = new();
+                    List<ItemEducation> educationItems = new();
+                    List<ItemPublication> publicationItems = new();
+
+                    // Loop items in a field identifier group
+                    foreach (ProfileDataRaw profileData2 in profileDataGroup2)
+                    {
+                        // FieldIdentifier defines what type of data the field contains.
+                        switch (profileData2.DimFieldDisplaySettings_FieldIdentifier)
                         {
-                            NameFi = nameTranslationSourceOrganization.NameFi,
-                            NameEn = nameTranslationSourceOrganization.NameEn,
-                            NameSv = nameTranslationSourceOrganization.NameSv
-                        }
-                    };
-
-
-                    // FieldIdentifier defines what type of data the field contains.
-                    switch (dfds.FieldIdentifier)
-                    {
-                        // Name
-                        case Constants.FieldIdentifiers.PERSON_NAME:
-                            GroupName nameGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemName>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                nameGroup.items.Add(
+                            // Name
+                            case Constants.FieldIdentifiers.PERSON_NAME:
+                                nameItems.Add(
                                     new ItemName()
                                     {
-                                        FirstNames = ffv.DimName.FirstNames,
-                                        LastName = ffv.DimName.LastName,
+                                        FirstNames = profileData2.DimName_FirstNames,
+                                        LastName = profileData2.DimName_LastName
                                     }
                                 );
-                            }
-                            if (nameGroup.items.Count > 0)
-                            {
-                                person.personal.nameGroups.Add(nameGroup);
-                            }
-                            break;
+                                break;
 
-                        // Other name
-                        case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
-                            GroupOtherName otherNameGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemName>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                otherNameGroup.items.Add(
+                            // Other name
+                            case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
+                                otherNameItems.Add(
                                     new ItemName()
                                     {
-                                        FullName = ffv.DimName.FullName
+                                        FullName = profileData2.DimName_FullName
                                     }
                                 );
-                            }
-                            if (otherNameGroup.items.Count > 0)
-                            {
-                                person.personal.otherNameGroups.Add(otherNameGroup);
-                            }
-                            break;
+                                break;
 
-                        // Researcher description
-                        case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
-                            GroupResearcherDescription researcherDescriptionGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemResearcherDescription>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                researcherDescriptionGroup.items.Add(
-                                    new ItemResearcherDescription()
-                                    {
-                                        ResearchDescriptionEn = ffv.DimResearcherDescription.ResearchDescriptionEn,
-                                        ResearchDescriptionFi = ffv.DimResearcherDescription.ResearchDescriptionFi,
-                                        ResearchDescriptionSv = ffv.DimResearcherDescription.ResearchDescriptionSv,
-
-                                    }
-                                );
-                            }
-                            if (researcherDescriptionGroup.items.Count > 0)
-                            {
-                                person.personal.researcherDescriptionGroups.Add(researcherDescriptionGroup);
-                            }
-                            break;
-
-                        // Web link
-                        case Constants.FieldIdentifiers.PERSON_WEB_LINK:
-                            GroupWebLink webLinkGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemWebLink>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                webLinkGroup.items.Add(
+                            // Web link
+                            case Constants.FieldIdentifiers.PERSON_WEB_LINK:
+                                weblinkItems.Add(
                                     new ItemWebLink()
                                     {
-                                        Url = ffv.DimWebLink.Url,
-                                        LinkLabel = ffv.DimWebLink.LinkLabel
+                                        Url = profileData2.DimWebLink_Url,
+                                        LinkLabel = profileData2.DimWebLink_LinkLabel
                                     }
                                 );
-                            }
-                            if (webLinkGroup.items.Count > 0)
-                            {
-                                person.personal.webLinkGroups.Add(webLinkGroup);
-                            }
-                            break;
+                                break;
 
-                        // Email address
-                        case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
-                            GroupEmail emailGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemEmail>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                emailGroup.items.Add(
+                            // ResearcherDescription
+                            case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
+                                // Researcher description name translation
+                                NameTranslation nameTranslationResearcherDescription = localLanguageService.GetNameTranslation(
+                                    nameFi: profileData2.DimResearcherDescription_ResearchDescriptionFi,
+                                    nameEn: profileData2.DimResearcherDescription_ResearchDescriptionEn,
+                                    nameSv: profileData2.DimResearcherDescription_ResearchDescriptionSv
+                                );
+                                researcherDescriptionItems.Add(
+                                    new ItemResearcherDescription()
+                                    {
+                                        ResearchDescriptionFi = nameTranslationResearcherDescription.NameFi,
+                                        ResearchDescriptionEn = nameTranslationResearcherDescription.NameEn,
+                                        ResearchDescriptionSv = nameTranslationResearcherDescription.NameSv
+                                    }
+                                );
+                                break;
+
+                            // Email
+                            case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
+                                emailItems.Add(
                                     new ItemEmail()
                                     {
-                                        Value = ffv.DimEmailAddrress.Email
+                                        Value = profileData2.DimEmailAddrress_Email
                                     }
                                 );
-                            }
-                            if (emailGroup.items.Count > 0)
-                            {
-                                person.personal.emailGroups.Add(emailGroup);
-                            }
-                            break;
+                                break;
 
-                        // Telephone number
-                        case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
-                            GroupTelephoneNumber telephoneNumberGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemTelephoneNumber>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                telephoneNumberGroup.items.Add(
+                            // Telephone number
+                            case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
+                                telephoneNumberItems.Add(
                                     new ItemTelephoneNumber()
                                     {
-                                        Value = ffv.DimTelephoneNumber.TelephoneNumber
+                                        Value = profileData2.DimTelephoneNumber_TelephoneNumber
                                     }
                                 );
-                            }
-                            if (telephoneNumberGroup.items.Count > 0)
-                            {
-                                person.personal.telephoneNumberGroups.Add(telephoneNumberGroup);
-                            }
-                            break;
+                                break;
 
-                        // Field of science
-                        case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
-                            GroupFieldOfScience fieldOfScienceGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemFieldOfScience>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                // Name translation service ensures that none of the language fields is empty.
+                            // Field of science
+                            case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
+                                // Field of science name translation
                                 NameTranslation nameTranslationFieldOfScience = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimFieldOfScience.NameFi,
-                                    nameEn: ffv.DimFieldOfScience.NameEn,
-                                    nameSv: ffv.DimFieldOfScience.NameSv
+                                    nameFi: profileData2.DimFieldOfScience_NameFi,
+                                    nameEn: profileData2.DimFieldOfScience_NameEn,
+                                    nameSv: profileData2.DimFieldOfScience_NameSv
                                 );
 
-                                fieldOfScienceGroup.items.Add(
+                                fieldOfScienceItems.Add(
                                     new ItemFieldOfScience()
                                     {
                                         NameFi = nameTranslationFieldOfScience.NameFi,
@@ -341,409 +194,313 @@ namespace api.Services
                                         NameSv = nameTranslationFieldOfScience.NameSv
                                     }
                                 );
-                            }
-                            if (fieldOfScienceGroup.items.Count > 0)
-                            {
-                                person.personal.fieldOfScienceGroups.Add(fieldOfScienceGroup);
-                            }
-                            break;
+                                break;
 
-                        // Keyword
-                        case Constants.FieldIdentifiers.PERSON_KEYWORD:
-                            GroupKeyword keywordGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemKeyword>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                keywordGroup.items.Add(
+                            // Keyword
+                            case Constants.FieldIdentifiers.PERSON_KEYWORD:
+                                keywordItems.Add(
                                     new ItemKeyword()
                                     {
-                                        Value = ffv.DimKeyword.Keyword
+                                        Value = profileData2.DimKeyword_Keyword
                                     }
                                 );
-                            }
-                            if (keywordGroup.items.Count > 0)
-                            {
-                                person.personal.keywordGroups.Add(keywordGroup);
-                            }
-                            break;
+                                break;
 
-
-                        // External identifier
-                        case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
-                            GroupExternalIdentifier externalIdentifierGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemExternalIdentifier>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                externalIdentifierGroup.items.Add(
+                            // External identifier
+                            case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
+                                externalIdentifierItems.Add(
                                     new ItemExternalIdentifier()
                                     {
-                                        PidContent = ffv.DimPid.PidContent,
-                                        PidType = ffv.DimPid.PidType
+                                        PidContent = profileData2.DimPid_PidContent,
+                                        PidType = profileData2.DimPid_PidType
                                     }
                                 );
-                            }
-                            if (externalIdentifierGroup.items.Count > 0)
-                            {
-                                person.personal.externalIdentifierGroups.Add(externalIdentifierGroup);
-                            }
-                            break;
+                                break;
 
-                        // Role in researcher community
-                        case Constants.FieldIdentifiers.ACTIVITY_ROLE_IN_RESERCH_COMMUNITY:
-                            // TODO
-                            break;
-
-                        // Affiliation
-                        case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
-                            GroupAffiliation affiliationGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemAffiliation>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                // Get organization name from related DimOrganization (ffv.DimAffiliation.DimOrganization), if exists.
+                            // Affiliation
+                            case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
+                                // Get affiliation organization name from related DimOrganization (ffv.DimAffiliation.DimOrganization), if exists.
                                 // Otherwise from DimIdentifierlessData (ffv.DimIdentifierlessData).
                                 // Name translation service ensures that none of the language fields is empty.
                                 NameTranslation nameTranslationAffiliationOrganization = new();
-                                if (ffv.DimAffiliation.DimOrganizationId > 0)
+                                if (profileData2.DimAffiliation_DimOrganization_Id > 0)
                                 {
                                     nameTranslationAffiliationOrganization = localLanguageService.GetNameTranslation(
-                                        nameFi: ffv.DimAffiliation.DimOrganization.NameFi,
-                                        nameEn: ffv.DimAffiliation.DimOrganization.NameEn,
-                                        nameSv: ffv.DimAffiliation.DimOrganization.NameSv
+                                        nameFi: profileData2.DimAffiliation_DimOrganization_NameFi,
+                                        nameEn: profileData2.DimAffiliation_DimOrganization_NameEn,
+                                        nameSv: profileData2.DimAffiliation_DimOrganization_NameSv
                                     );
                                 }
-                                else if (ffv.DimIdentifierlessDataId > -1 && ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                                else if (profileData2.FactFieldValues_DimIdentifierlessDataId > -1 &&
+                                    profileData2.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
                                 {
                                     nameTranslationAffiliationOrganization = localLanguageService.GetNameTranslation(
-                                        nameFi: ffv.DimIdentifierlessData.ValueFi,
-                                        nameEn: ffv.DimIdentifierlessData.ValueEn,
-                                        nameSv: ffv.DimIdentifierlessData.ValueSv
+                                        nameFi: profileData2.DimIdentifierlessData_ValueFi,
+                                        nameEn: profileData2.DimIdentifierlessData_ValueEn,
+                                        nameSv: profileData2.DimIdentifierlessData_ValueSv
                                     );
                                 }
 
                                 // Name translation for position name
                                 NameTranslation nameTranslationPositionName = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimAffiliation.PositionNameFi,
-                                    nameEn: ffv.DimAffiliation.PositionNameEn,
-                                    nameSv: ffv.DimAffiliation.PositionNameSv
+                                    nameFi: profileData2.DimAffiliation_PositionNameFi,
+                                    nameEn: profileData2.DimAffiliation_PositionNameEn,
+                                    nameSv: profileData2.DimAffiliation_PositionNameSv
                                 );
 
                                 // Name translation for department name
-                                NameTranslation nameTranslationAffiliationDepartment = localLanguageService.GetNameTranslation(
-                                    nameFi: "",
-                                    nameEn: localOrganizationHandlerService.GetAffiliationDepartmentNameFromFactFieldValue(factFieldValue: ffv),
-                                    nameSv: ""
-                                );
-
-                                ItemAffiliation affiliation = new()
+                                NameTranslation nameTranslationAffiliationDepartment = new();
+                                if (profileData2.DimIdentifierlessData_Type != null && profileData2.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
                                 {
-                                    OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
-                                    OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
-                                    OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
-                                    DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
-                                    DepartmentNameEn = nameTranslationAffiliationDepartment.NameEn,
-                                    DepartmentNameSv = nameTranslationAffiliationDepartment.NameSv,
-                                    PositionNameFi = nameTranslationPositionName.NameFi,
-                                    PositionNameEn = nameTranslationPositionName.NameEn,
-                                    PositionNameSv = nameTranslationPositionName.NameSv,
-                                    Type = ffv.DimAffiliation.AffiliationTypeNavigation.NameFi,
-                                    StartDate = new ItemDate()
-                                    {
-                                        Year = ffv.DimAffiliation.StartDateNavigation.Year,
-                                        Month = ffv.DimAffiliation.StartDateNavigation.Month,
-                                        Day = ffv.DimAffiliation.StartDateNavigation.Day
-                                    }
-                                };
-
-                                // Affiliation EndDate can be null
-                                if (ffv.DimAffiliation.EndDateNavigation != null)
-                                {
-                                    affiliation.EndDate = new ItemDate()
-                                    {
-                                        Year = ffv.DimAffiliation.EndDateNavigation.Year,
-                                        Month = ffv.DimAffiliation.EndDateNavigation.Month,
-                                        Day = ffv.DimAffiliation.EndDateNavigation.Day
-                                    };
+                                    nameTranslationAffiliationDepartment = localLanguageService.GetNameTranslation(
+                                        nameFi: profileData2.DimIdentifierlessData_ValueFi,
+                                        nameEn: profileData2.DimIdentifierlessData_ValueEn,
+                                        nameSv: profileData2.DimIdentifierlessData_ValueSv
+                                    );
                                 }
-                                affiliationGroup.items.Add(affiliation);
-                            }
-                            if (affiliationGroup.items.Count > 0)
-                            {
-                                person.activity.affiliationGroups.Add(affiliationGroup);
-                            }
-                            break;
+                                else if (profileData2.DimIdentifierlessData_Child_Type != null && profileData2.DimIdentifierlessData_Child_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                                {
+                                    nameTranslationAffiliationDepartment = localLanguageService.GetNameTranslation(
+                                        nameFi: profileData2.DimIdentifierlessData_Child_ValueFi,
+                                        nameEn: profileData2.DimIdentifierlessData_Child_ValueEn,
+                                        nameSv: profileData2.DimIdentifierlessData_Child_ValueSv
+                                    );
+                                }
 
-                        // Education
-                        case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
-                            GroupEducation educationGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemEducation>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
+                                affiliationItems.Add(
+                                    new()
+                                    {
+                                        OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
+                                        OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
+                                        OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
+                                        DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
+                                        DepartmentNameEn = nameTranslationAffiliationDepartment.NameSv,
+                                        DepartmentNameSv = nameTranslationAffiliationDepartment.NameEn,
+                                        PositionNameFi = nameTranslationPositionName.NameFi,
+                                        PositionNameEn = nameTranslationPositionName.NameEn,
+                                        PositionNameSv = nameTranslationPositionName.NameSv,
+                                        Type = profileData2.DimAffiliation_DimReferenceData_NameFi,
+                                        StartDate = new ItemDate()
+                                        {
+                                            Year = profileData2.DimAffiliation_StartDate_Year,
+                                            Month = profileData2.DimAffiliation_StartDate_Month,
+                                            Day = profileData2.DimAffiliation_StartDate_Day
+                                        },
+                                        EndDate = new ItemDate()
+                                        {
+                                            Year = profileData2.DimAffiliation_EndDate_Year,
+                                            Month = profileData2.DimAffiliation_EndDate_Month,
+                                            Day = profileData2.DimAffiliation_EndDate_Day
+                                        }
+                                    }
+                                );
+                                break;
+
+                            // Education
+                            case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
                                 // Name translation service ensures that none of the language fields is empty.
                                 NameTranslation nameTraslationEducation = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimEducation.NameFi,
-                                    nameEn: ffv.DimEducation.NameEn,
-                                    nameSv: ffv.DimEducation.NameSv
+                                    nameFi: profileData2.DimEducation_NameFi,
+                                    nameEn: profileData2.DimEducation_NameEn,
+                                    nameSv: profileData2.DimEducation_NameSv
                                 );
 
-                                ItemEducation education = new()
-                                {
-                                    NameFi = nameTraslationEducation.NameFi,
-                                    NameEn = nameTraslationEducation.NameEn,
-                                    NameSv = nameTraslationEducation.NameSv,
-                                    DegreeGrantingInstitutionName = ffv.DimEducation.DegreeGrantingInstitutionName
-                                };
-                                // Education StartDate can be null
-                                if (ffv.DimEducation.DimStartDateNavigation != null)
-                                {
-                                    education.StartDate = new ItemDate()
+                                educationItems.Add(
+                                    new()
                                     {
-                                        Year = ffv.DimEducation.DimStartDateNavigation.Year,
-                                        Month = ffv.DimEducation.DimStartDateNavigation.Month,
-                                        Day = ffv.DimEducation.DimStartDateNavigation.Day
-                                    };
-                                }
-                                // Education EndDate can be null
-                                if (ffv.DimEducation.DimEndDateNavigation != null)
-                                {
-                                    education.EndDate = new ItemDate()
-                                    {
-                                        Year = ffv.DimEducation.DimEndDateNavigation.Year,
-                                        Month = ffv.DimEducation.DimEndDateNavigation.Month,
-                                        Day = ffv.DimEducation.DimEndDateNavigation.Day
-                                    };
-                                }
-                                educationGroup.items.Add(education);
-                            }
-                            if (educationGroup.items.Count > 0)
-                            {
-                                person.activity.educationGroups.Add(educationGroup);
-                            }
-                            break;
-
-                        // Publication
-                        case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
-                            GroupPublication publicationGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemPublication>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                publicationGroup.items.Add(
-                                    new ItemPublication()
-                                    {
-                                        PublicationId = ffv.DimPublication.PublicationId,
-                                        PublicationName = ffv.DimPublication.PublicationName,
-                                        PublicationYear = ffv.DimPublication.PublicationYear,
-                                        Doi = ffv.DimPublication.Doi,
-                                        TypeCode = ffv.DimPublication.PublicationTypeCode
+                                        NameFi = nameTraslationEducation.NameFi,
+                                        NameEn = nameTraslationEducation.NameEn,
+                                        NameSv = nameTraslationEducation.NameSv,
+                                        DegreeGrantingInstitutionName = profileData2.DimEducation_DegreeGrantingInstitutionName,
+                                        StartDate = new ItemDate()
+                                        {
+                                            Year = profileData2.DimEducation_StartDate_Year,
+                                            Month = profileData2.DimEducation_StartDate_Month,
+                                            Day = profileData2.DimEducation_StartDate_Day
+                                        },
+                                        EndDate = new ItemDate()
+                                        {
+                                            Year = profileData2.DimEducation_EndDate_Year,
+                                            Month = profileData2.DimEducation_EndDate_Month,
+                                            Day = profileData2.DimEducation_EndDate_Day
+                                        }
                                     }
                                 );
-                            }
-                            if (publicationGroup.items.Count > 0)
-                            {
-                                person.activity.publicationGroups.Add(publicationGroup);
-                            }
-                            break;
+                                break;
 
-                        // Publication (ORCID)
-                        case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
-                            GroupPublication orcidPublicationGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemPublication>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                orcidPublicationGroup.items.Add(
-
+                            // Publication
+                            case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
+                                publicationItems.Add(
                                     new ItemPublication()
                                     {
-                                        PublicationId = ffv.DimOrcidPublication.PublicationId,
-                                        PublicationName = ffv.DimOrcidPublication.PublicationName,
-                                        PublicationYear = ffv.DimOrcidPublication.PublicationYear,
-                                        Doi = ffv.DimOrcidPublication.DoiHandle,
-                                        TypeCode = "" // TODO: ORCID publication type code handling
+                                        PublicationId = profileData2.DimPublication_PublicationId,
+                                        PublicationName = profileData2.DimPublication_PublicationName,
+                                        PublicationYear = profileData2.DimPublication_PublicationYear,
+                                        Doi = profileData2.DimPublication_Doi,
+                                        TypeCode = profileData2.DimPublication_PublicationTypeCode
                                     }
                                 );
-                            }
-                            if (orcidPublicationGroup.items.Count > 0)
-                            {
-                                person.activity.publicationGroups.Add(orcidPublicationGroup);
-                            }
-                            break;
 
-                        // Funding decision
-                        case Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION:
-                            GroupFundingDecision fundingDecisionGroup = new()
-                            {
-                                source = profileEditorSource,
-                                items = new List<ItemFundingDecision>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                // Name translation service ensures that none of the language fields is empty.
-                                NameTranslation nameTraslationFundingDecision_ProjectName = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimFundingDecision.NameFi,
-                                    nameSv: ffv.DimFundingDecision.NameSv,
-                                    nameEn: ffv.DimFundingDecision.NameEn
-                                );
-                                NameTranslation nameTraslationFundingDecision_ProjectDescription = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimFundingDecision.DescriptionFi,
-                                    nameSv: ffv.DimFundingDecision.DescriptionSv,
-                                    nameEn: ffv.DimFundingDecision.DescriptionEn
-                                );
-                                NameTranslation nameTraslationFundingDecision_FunderName = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameFi,
-                                    nameSv: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameSv,
-                                    nameEn: ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameEn
-                                );
-                                NameTranslation nameTranslationFundingDecision_TypeOfFunding = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimFundingDecision.DimTypeOfFunding.NameFi,
-                                    nameSv: ffv.DimFundingDecision.DimTypeOfFunding.NameSv,
-                                    nameEn: ffv.DimFundingDecision.DimTypeOfFunding.NameEn
-                                );
-                                NameTranslation nameTranslationFundingDecision_CallProgramme = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimFundingDecision.DimCallProgramme.NameFi,
-                                    nameSv: ffv.DimFundingDecision.DimCallProgramme.NameSv,
-                                    nameEn: ffv.DimFundingDecision.DimCallProgramme.NameEn
-                                );
+                                break;
 
-                                ItemFundingDecision fundingDecision = new()
-                                {
-                                    ProjectId = ffv.DimFundingDecision.Id,
-                                    ProjectAcronym = ffv.DimFundingDecision.Acronym,
-                                    ProjectNameFi = nameTraslationFundingDecision_ProjectName.NameFi,
-                                    ProjectNameSv = nameTraslationFundingDecision_ProjectName.NameSv,
-                                    ProjectNameEn = nameTraslationFundingDecision_ProjectName.NameEn,
-                                    ProjectDescriptionFi = nameTraslationFundingDecision_ProjectDescription.NameFi,
-                                    ProjectDescriptionSv = nameTraslationFundingDecision_ProjectDescription.NameSv,
-                                    ProjectDescriptionEn = nameTraslationFundingDecision_ProjectDescription.NameEn,
-                                    FunderNameFi = nameTraslationFundingDecision_FunderName.NameFi,
-                                    FunderNameSv = nameTraslationFundingDecision_FunderName.NameSv,
-                                    FunderNameEn = nameTraslationFundingDecision_FunderName.NameEn,
-                                    FunderProjectNumber = ffv.DimFundingDecision.FunderProjectNumber,
-                                    TypeOfFundingNameFi = nameTranslationFundingDecision_TypeOfFunding.NameFi,
-                                    TypeOfFundingNameSv = nameTranslationFundingDecision_TypeOfFunding.NameSv,
-                                    TypeOfFundingNameEn = nameTranslationFundingDecision_TypeOfFunding.NameEn,
-                                    CallProgrammeNameFi = nameTranslationFundingDecision_CallProgramme.NameFi,
-                                    CallProgrammeNameSv = nameTranslationFundingDecision_CallProgramme.NameSv,
-                                    CallProgrammeNameEn = nameTranslationFundingDecision_CallProgramme.NameEn,
-                                    AmountInEur = ffv.DimFundingDecision.AmountInEur
-                                };
+                            // Publication(ORCID)
+                            case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
+                                publicationItems.Add(
+                                    new ItemPublication()
+                                    {
+                                        PublicationId = profileData2.DimOrcidPublication_PublicationId,
+                                        PublicationName = profileData2.DimOrcidPublication_PublicationName,
+                                        PublicationYear = profileData2.DimOrcidPublication_PublicationYear,
+                                        Doi = profileData2.DimOrcidPublication_Doi,
+                                        TypeCode = ""
+                                    }
+                                );
+                                break;
+                        }
+                    }
 
-                                // Funding decision start year
-                                if (ffv.DimFundingDecision.DimDateIdStartNavigation != null && ffv.DimFundingDecision.DimDateIdStartNavigation.Year > 0)
-                                {
-                                    fundingDecision.FundingStartYear = ffv.DimFundingDecision.DimDateIdStartNavigation.Year;
-                                }
-                                // Funding decision end year
-                                if (ffv.DimFundingDecision.DimDateIdEndNavigation != null && ffv.DimFundingDecision.DimDateIdEndNavigation.Year > 0)
-                                {
-                                    fundingDecision.FundingEndYear = ffv.DimFundingDecision.DimDateIdEndNavigation.Year;
-                                }
-
-                                fundingDecisionGroup.items.Add(fundingDecision);
-                            }
-                            if (fundingDecisionGroup.items.Count > 0)
-                            {
-                                person.activity.fundingDecisionGroups.Add(fundingDecisionGroup);
-                            }
-                            break;
-
-                        // Research dataset
-                        case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
-                            GroupResearchDataset researchDatasetGroup = new()
+                    // Name groups
+                    if (nameItems.Count > 0)
+                    {
+                        person.personal.nameGroups.Add(
+                            new()
                             {
                                 source = profileEditorSource,
-                                items = new List<ItemResearchDataset>() { }
-                            };
-                            foreach (FactFieldValue ffv in factFieldValueGroup)
-                            {
-                                // Name translation service ensures that none of the language fields is empty.
-                                NameTranslation nameTraslationResearchDataset_Name = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimResearchDataset.NameFi,
-                                    nameSv: ffv.DimResearchDataset.NameSv,
-                                    nameEn: ffv.DimResearchDataset.NameEn
-                                );
-                                NameTranslation nameTraslationResearchDataset_Description = localLanguageService.GetNameTranslation(
-                                    nameFi: ffv.DimResearchDataset.DescriptionFi,
-                                    nameSv: ffv.DimResearchDataset.DescriptionSv,
-                                    nameEn: ffv.DimResearchDataset.DescriptionEn
-                                );
-
-                                // Get values from DimPid. There is no FK between DimResearchDataset and DimPid,
-                                // so the query must be done separately.
-                                List<DimPid> dimPids = await localTtvContext.DimPids.Where(dp => dp.DimResearchDatasetId == ffv.DimResearchDatasetId && ffv.DimResearchDatasetId > -1).AsNoTracking().ToListAsync();
-
-                                List<PreferredIdentifier> preferredIdentifiers = new();
-                                foreach (DimPid dimPid in dimPids)
-                                {
-                                    preferredIdentifiers.Add(
-                                        new PreferredIdentifier()
-                                        {
-                                            PidType = dimPid.PidType,
-                                            PidContent = dimPid.PidContent
-                                        }
-                                    );
-                                }
-
-                                // TODO: add properties according to ElasticSearch index
-                                ItemResearchDataset researchDataset = new()
-                                {
-                                    Actor = new List<Actor>(),
-                                    Identifier = ffv.DimResearchDataset.LocalIdentifier,
-                                    NameFi = nameTraslationResearchDataset_Name.NameFi,
-                                    NameSv = nameTraslationResearchDataset_Name.NameSv,
-                                    NameEn = nameTraslationResearchDataset_Name.NameEn,
-                                    DescriptionFi = nameTraslationResearchDataset_Description.NameFi,
-                                    DescriptionSv = nameTraslationResearchDataset_Description.NameSv,
-                                    DescriptionEn = nameTraslationResearchDataset_Description.NameEn,
-                                    PreferredIdentifiers = preferredIdentifiers
-                                };
-
-                                // DatasetCreated
-                                if (ffv.DimResearchDataset.DatasetCreated != null)
-                                {
-                                    researchDataset.DatasetCreated = ffv.DimResearchDataset.DatasetCreated.Value.Year;
-                                }
-
-                                // Fill actors list
-                                foreach (FactContribution fc in ffv.DimResearchDataset.FactContributions)
-                                {
-                                    researchDataset.Actor.Add(
-                                        new Actor()
-                                        {
-                                            actorRole = int.Parse(fc.DimReferencedataActorRole.CodeValue),
-                                            actorRoleNameFi = fc.DimReferencedataActorRole.NameFi,
-                                            actorRoleNameSv = fc.DimReferencedataActorRole.NameSv,
-                                            actorRoleNameEn = fc.DimReferencedataActorRole.NameEn
-                                        }
-                                    );
-                                }
-
-                                researchDatasetGroup.items.Add(researchDataset);
+                                items = nameItems
                             }
-                            if (researchDatasetGroup.items.Count > 0)
-                            {
-                                person.activity.researchDatasetGroups.Add(researchDatasetGroup);
-                            }
-                            break;
+                        );
+                    }
 
-                        default:
-                            break;
+                    // Other name groups
+                    if (otherNameItems.Count > 0)
+                    {
+                        person.personal.otherNameGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = otherNameItems
+                            }
+                        );
+                    }
+
+                    // Web link groups
+                    if (weblinkItems.Count > 0)
+                    {
+                        person.personal.webLinkGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = weblinkItems
+                            }
+                        );
+                    }
+
+                    // Researcher description groups
+                    if (researcherDescriptionItems.Count > 0)
+                    {
+                        person.personal.researcherDescriptionGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = researcherDescriptionItems
+                            }
+                        );
+                    }
+
+                    // Email groups
+                    if (emailItems.Count > 0)
+                    {
+                        person.personal.emailGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = emailItems
+                            }
+                        );
+                    }
+
+                    // Telephone number groups
+                    if (telephoneNumberItems.Count > 0)
+                    {
+                        person.personal.telephoneNumberGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = telephoneNumberItems
+                            }
+                        );
+                    }
+
+                    // Field of science groups
+                    if (fieldOfScienceItems.Count > 0)
+                    {
+                        person.personal.fieldOfScienceGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = fieldOfScienceItems
+                            }
+                        );
+                    }
+
+                    // Keyword groups
+                    if (keywordItems.Count > 0)
+                    {
+                        person.personal.keywordGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = keywordItems,
+                            }
+                        );
+                    }
+
+                    // External identifier groups
+                    if (externalIdentifierItems.Count > 0)
+                    {
+                        person.personal.externalIdentifierGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = externalIdentifierItems
+                            }
+                        );
+                    }
+
+                    // Affiliation groups
+                    if (affiliationItems.Count > 0)
+                    {
+                        person.activity.affiliationGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = affiliationItems
+                            }
+                        );
+                    }
+
+                    // Education groups
+                    if (educationItems.Count > 0)
+                    {
+                        person.activity.educationGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = educationItems
+                            }
+                        );
+                    }
+
+                    // Publication groups
+                    if (publicationItems.Count > 0)
+                    {
+                        person.activity.publicationGroups.Add(
+                            new()
+                            {
+                                source = profileEditorSource,
+                                items = publicationItems
+                            }
+                        );
                     }
                 }
             }

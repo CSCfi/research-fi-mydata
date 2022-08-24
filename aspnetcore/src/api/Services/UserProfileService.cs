@@ -25,6 +25,7 @@ namespace api.Services
         private readonly IDuplicateHandlerService _duplicateHandlerService;
         private readonly IOrganizationHandlerService _organizationHandlerService;
         private readonly ISharingService _sharingService;
+        private readonly ITtvSqlService _ttvSqlService;
 
         public UserProfileService(TtvContext ttvContext,
             IDataSourceHelperService dataSourceHelperService,
@@ -32,7 +33,8 @@ namespace api.Services
             ILanguageService languageService,
             IDuplicateHandlerService duplicateHandlerService,
             IOrganizationHandlerService organizationHandlerService,
-            ISharingService sharingService)
+            ISharingService sharingService,
+            ITtvSqlService ttvSqlService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
@@ -41,6 +43,7 @@ namespace api.Services
             _duplicateHandlerService = duplicateHandlerService;
             _organizationHandlerService = organizationHandlerService;
             _sharingService = sharingService;
+            _ttvSqlService = ttvSqlService;
         }
 
         // For unit test
@@ -727,139 +730,10 @@ namespace api.Services
             // Response data
             ProfileEditorDataResponse profileDataResponse = new() { };
 
-            // Raw SQL query, userprofileId in WHERE condition is dynamic
-            string profileDataSql = $@"
-SELECT
-    dfds.id AS 'DimFieldDisplaySettings_Id',
-    dfds.field_identifier AS 'DimFieldDisplaySettings_FieldIdentifier',
-    dfds.show AS 'DimFieldDisplaySettings_Show',
-    ffv.show AS 'FactFieldValues_Show',
-    ffv.primary_value AS 'FactFieldValues_PrimaryValue',
-    drds.id AS 'DimRegisteredDataSource_Id',
-    drds.name AS 'DimRegisteredDataSource_Name',
-    drds_organization.name_fi AS 'DimRegisteredDataSource_DimOrganization_NameFi',
-    drds_organization.name_en AS 'DimRegisteredDataSource_DimOrganization_NameEn',
-    drds_organization.name_sv AS 'DimRegisteredDataSource_DimOrganization_NameSv',
-    ffv.dim_user_profile_id AS 'FactFieldValues_DimUserProfileId',
-    ffv.dim_name_id AS 'FactFieldValues_DimNameId',
-    ffv.dim_web_link_id AS 'FactFieldValues_DimWebLinkId',
-    ffv.dim_researcher_description_id AS 'FactFieldValues_DimResearcherDescriptionId',
-    ffv.dim_email_addrress_id AS 'FactFieldValues_DimEmailAddrressId',
-    ffv.dim_telephone_number_id AS 'FactFieldValues_DimTelephoneNumberId',
-    ffv.dim_field_of_science_id AS ' FactFieldValues_DimFieldOfScienceId',
-    ffv.dim_keyword_id AS 'FactFieldValues_DimKeywordId',
-    ffv.dim_pid_id AS 'FactFieldValues_DimPidId',
-    ffv.dim_affiliation_id AS 'FactFieldValues_DimAffiliationId',
-    ffv.dim_identifierless_data_id AS 'FactFieldValues_DimIdentifierlessDataId',
-    ffv.dim_education_id AS 'FactFieldValues_DimEducationId',
-    ffv.dim_publication_id AS 'FactFieldValues_DimPublicationId',
-    ffv.dim_orcid_publication_id AS 'FactFieldValues_DimOrcidPublicationId',
-    dim_name.lASt_name AS 'DimName_LastName',
-    dim_name.first_names AS 'DimName_FirstNames',
-    dim_name.full_name AS 'DimName_FullName',
-    dim_web_link.url AS 'DimWebLink_Url',
-    dim_web_link.link_label AS 'DimWebLink_LinkLabel',
-    dim_researcher_description.research_description_fi AS 'DimResearcherDescription_ResearchDescriptionFi',
-    dim_researcher_description.research_description_en AS 'DimResearcherDescription_ResearchDescriptionEn',
-    dim_researcher_description.research_description_sv AS 'DimResearcherDescription_ResearchDescriptionSv',
-    dim_email_addrress.email AS 'DimEmailAddrress_Email',
-    dim_telephone_number.telephone_number AS 'DimTelephoneNumber_TelephoneNumber',
-    dim_field_of_science.name_fi AS 'DimFieldOfScience_NameFi',
-    dim_field_of_science.name_en AS 'DimFieldOfScience_NameEn',
-    dim_field_of_science.name_sv AS 'DimFieldOfScience_NameSv',
-    dim_keyword.keyword AS 'DimKeyword_Keyword',
-    dim_pid.pid_type AS 'DimPid_PidType',
-    dim_pid.pid_content AS 'DimPid_PidContent',
-    affiliation_organization.id AS 'DimAffiliation_DimOrganization_Id',
-    affiliation_organization.name_fi AS 'DimAffiliation_DimOrganization_NameFi',
-    affiliation_organization.name_en AS 'DimAffiliation_DimOrganization_NameEn',
-    affiliation_organization.name_sv AS 'DimAffiliation_DimOrganization_NameSv',
-    dim_affiliation.position_name_fi AS 'DimAffiliation_PositionNameFi',
-    dim_affiliation.position_name_en AS 'DimAffiliation_PositionNameEn',
-    dim_affiliation.position_name_sv AS 'DimAffiliation_PositionNameSv',
-    affiliation_start_date.year AS 'DimAffiliation_StartDate_Year',
-    affiliation_start_date.month AS 'DimAffiliation_StartDate_Month',
-    affiliation_start_date.day AS 'DimAffiliation_StartDate_Day',
-    affiliation_end_date.year AS 'DimAffiliation_EndDate_Year',
-    affiliation_end_date.month AS 'DimAffiliation_EndDate_Month',
-    affiliation_end_date.day AS 'DimAffiliation_EndDate_Day',
-    affiliation_type.name_fi AS 'DimAffiliation_DimReferenceData_NameFi',
-    did.type AS 'DimIdentifierlessData_Type',
-    did.value_fi AS 'DimIdentifierlessData_ValueFi',
-    did.value_en AS 'DimIdentifierlessData_ValueEn',
-    did.value_sv AS 'DimIdentifierlessData_ValueSv',
-    did.unlinked_identifier AS 'DimIdentifierlessData_UnlinkedIdentifier',
-    did_child.type AS 'DimIdentifierlessData_Child_Type',
-    did_child.value_fi AS 'DimIdentifierlessData_Child_ValueFi',
-    did_child.value_en AS 'DimIdentifierlessData_Child_ValueEn',
-    did_child.value_sv AS 'DimIdentifierlessData_Child_ValueSv',
-    did_child.unlinked_identifier AS 'DimIdentifierlessData_Child_UnlinkedIdentifier',
-    dim_education.name_fi AS 'DimEducation_NameFi',
-    dim_education.name_en AS 'DimEducation_NameEn',
-    dim_education.name_sv AS 'DimEducation_NameSv',
-    dim_education.degree_granting_institution_name AS 'DimEducation_DegreeGrantingInstitutionName',
-    education_start_date.year AS 'DimEducation_StartDate_Year',
-    education_start_date.month AS 'DimEducation_StartDate_Month',
-    education_start_date.day AS 'DimEducation_StartDate_Day',
-    education_end_date.year AS 'DimEducation_EndDate_Year',
-    education_end_date.month AS 'DimEducation_EndDate_Month',
-    education_end_date.day AS 'DimEducation_EndDate_Day',
-    dim_publication.publication_id AS 'DimPublication_PublicationId',
-    dim_publication.publication_name AS 'DimPublication_PublicationName',
-    dim_publication.publication_year AS 'DimPublication_PublicationYear',
-    dim_publication.doi AS 'DimPublication_Doi',
-    dim_publication.publication_type_code AS 'DimPublication_PublicationTypeCode',
-    dim_orcid_publication.publication_id AS 'DimOrcidPublication_PublicationId',
-    dim_orcid_publication.publication_name AS 'DimOrcidPublication_PublicationName',
-    dim_orcid_publication.publication_year AS 'DimOrcidPublication_PublicationYear',
-    dim_orcid_publication.doi_handle AS 'DimOrcidPublication_Doi'
+            // Get SQL statement for profile data query
+            string profileDataSql = _ttvSqlService.GetSqlQuery_ProfileData(userprofileId);
 
-FROM fact_field_values AS ffv
-
-JOIN dim_field_display_settings AS dfds ON ffv.dim_field_display_settings_id=dfds.id
-JOIN dim_registered_data_source AS drds ON ffv.dim_registered_data_source_id=drds.id
-JOIN dim_organization AS drds_organization ON drds.dim_organization_id=drds_organization.id
-JOIN dim_name ON ffv.dim_name_id=dim_name.id
-JOIN dim_web_link ON ffv.dim_web_link_id=dim_web_link.id
-JOIN dim_researcher_description ON ffv.dim_researcher_description_id=dim_researcher_description.id
-JOIN dim_email_addrress ON ffv.dim_email_addrress_id=dim_email_addrress.id
-JOIN dim_telephone_number ON ffv.dim_telephone_number_id=dim_telephone_number.id
-JOIN dim_field_of_science ON ffv.dim_field_of_science_id=dim_field_of_science.id
-JOIN dim_keyword ON ffv.dim_keyword_id=dim_keyword.id
-JOIN dim_pid ON ffv.dim_pid_id=dim_pid.id
-JOIN dim_affiliation ON ffv.dim_affiliation_id=dim_affiliation.id
-JOIN dim_organization AS affiliation_organization ON dim_affiliation.dim_organization_id=affiliation_organization.id
-LEFT JOIN dim_date AS affiliation_start_date ON dim_affiliation.start_date=affiliation_start_date.id AND affiliation_start_date.id!=-1
-LEFT JOIN dim_date AS affiliation_end_date ON dim_affiliation.end_date=affiliation_end_date.id AND affiliation_end_date.id!=-1
-JOIN dim_referencedata AS affiliation_type ON dim_affiliation.affiliation_type=affiliation_type.id
-JOIN dim_identifierless_data AS did ON ffv.dim_identifierless_data_id=did.id
-LEFT JOIN dim_identifierless_data AS did_child ON did_child.dim_identifierless_data_id=did.id AND did_child.dim_identifierless_data_id!=-1
-JOIN dim_education ON ffv.dim_education_id=dim_education.id
-LEFT JOIN dim_date AS education_start_date ON dim_education.dim_start_date=education_start_date.id AND education_start_date.id!=-1
-LEFT JOIN dim_date AS education_end_date ON dim_education.dim_end_date=education_end_date.id AND education_end_date.id!=-1
-JOIN dim_publication ON ffv.dim_publication_id=dim_publication.id
-JOIN dim_orcid_publication ON ffv.dim_orcid_publication_id=dim_orcid_publication.id
-
-WHERE
-    ffv.dim_user_profile_id={userprofileId} AND
-    (
-        ffv.dim_name_id != -1 OR
-        ffv.dim_web_link_id != -1 OR
-        ffv.dim_researcher_description_id != -1 OR
-        ffv.dim_email_addrress_id != -1 OR
-        ffv.dim_telephone_number_id != -1 OR
-        ffv.dim_field_of_science_id != -1 OR
-        ffv.dim_keyword_id != -1 OR
-        ffv.dim_pid_id != -1 OR
-        ffv.dim_affiliation_id != -1 OR
-        ffv.dim_identifierless_data_id != -1 OR
-        ffv.dim_education_id != -1 OR
-        ffv.dim_publication_id != -1 OR
-        ffv.dim_orcid_publication_id != -1
-    )
-";
-
-            // Execute raw SQL query using Dapper
+            // Execute SQL statemen using Dapper
             var connection = _ttvContext.Database.GetDbConnection();
             List<ProfileDataRaw> profileDataRaws = (await connection.QueryAsync<ProfileDataRaw>(profileDataSql)).ToList();
 
