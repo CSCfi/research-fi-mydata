@@ -8,8 +8,8 @@ using api.Models.ProfileEditor;
 using Microsoft.EntityFrameworkCore;
 using api.Models.Common;
 using api.Models.Orcid;
-using Nest;
 using Dapper;
+using System.Transactions;
 
 namespace api.Services
 {
@@ -733,7 +733,7 @@ namespace api.Services
             // Get SQL statement for profile data query
             string profileDataSql = _ttvSqlService.GetSqlQuery_ProfileData(userprofileId);
 
-            // Execute SQL statemen using Dapper
+            // Execute SQL statement using Dapper
             var connection = _ttvContext.Database.GetDbConnection();
             List<ProfileDataRaw> profileDataRaws = (await connection.QueryAsync<ProfileDataRaw>(profileDataSql)).ToList();
 
@@ -988,7 +988,7 @@ namespace api.Services
                                         nameSv: profileData2.DimIdentifierlessData_ValueSv
                                     );
                                 }
-                                
+
                                 // Name translation for position name
                                 NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
                                     nameFi: profileData2.DimAffiliation_PositionNameFi,
@@ -1109,7 +1109,7 @@ namespace api.Services
                                         }
                                     }
                                 );
-      
+
                                 break;
 
                             // Publication(ORCID)
@@ -1316,7 +1316,7 @@ namespace api.Services
                     }
 
                     // Education groups
-                    if  (educationItems.Count > 0)
+                    if (educationItems.Count > 0)
                     {
                         profileDataResponse.activity.educationGroups.Add(
                             new()
@@ -2002,7 +2002,8 @@ namespace api.Services
                             // Experimental. Publications in alternative structure.
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
-                                profileDataResponse.activity.publications = _duplicateHandlerService.AddPublicationToProfileEditorData(dataSource: profileEditorSource, ffv: ffv, publications: profileDataResponse.activity.publications);
+                                profileDataResponse.activity.publications = _duplicateHandlerService.AddPublicationToProfileEditorData(dataSource: profileEditorSource, ffv: ffv, publications:
+profileDataResponse.activity.publications);
                             }
                             break;
 
@@ -2011,7 +2012,8 @@ namespace api.Services
                             // Experimental. ORCID Publications in alternative structure.
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
-                                profileDataResponse.activity.publications = _duplicateHandlerService.AddPublicationToProfileEditorData(dataSource: profileEditorSource, ffv: ffv, publications: profileDataResponse.activity.publications);
+                                profileDataResponse.activity.publications = _duplicateHandlerService.AddPublicationToProfileEditorData(dataSource: profileEditorSource, ffv: ffv, publications:
+profileDataResponse.activity.publications);
                             }
                             break;
 
@@ -2212,6 +2214,47 @@ namespace api.Services
          */
         public async Task DeleteProfileDataAsync(int userprofileId)
         {
+
+            string sqlFactFieldValues = $@"
+                SELECT * FROM fact_field_values WHERE dim_user_profile_id={userprofileId}
+            ";
+            // Execute SQL statement using Dapper
+            var connection1 = _ttvContext.Database.GetDbConnection();
+            List<FactFieldValue> factFieldValues = (await connection1.QueryAsync<FactFieldValue>(sqlFactFieldValues)).ToList();
+            connection1.Close();
+
+            using (var transaction = new TransactionScope())
+            {
+                using (var connection2 = _ttvContext.Database.GetDbConnection())
+                {
+                    try
+                    {
+                        connection2.Open();
+
+                        string sqlDeleteFactFieldValues = $@"DELETE FROM fact_field_values WHERE dim_user_profile_id={userprofileId}";
+                        await connection2.QueryAsync(sqlDeleteFactFieldValues);
+
+                        foreach (FactFieldValue factFieldValue in factFieldValues)
+                        {
+                            if (CanDeleteFactFieldValueRelatedData(factFieldValue))
+                            {
+                                string sqlDeleteFactFieldValueRelatedData = _ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(factFieldValue);
+                                await connection2.QueryAsync(sqlDeleteFactFieldValueRelatedData);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+
+                transaction.Complete();
+            }
+            
+
+            /*
+
             // Get DimUserProfile and related data that should be removed. 
             DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.TagWith("Delete profile data")
                 .Include(dup => dup.DimFieldDisplaySettings)
@@ -2383,6 +2426,7 @@ namespace api.Services
             // Must not remove DimPid (ORCID ID).
 
             await _ttvContext.SaveChangesAsync();
+            */
         }
 
         /*

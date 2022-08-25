@@ -1,5 +1,6 @@
 ﻿using api.Models.ProfileEditor;
 using api.Models;
+using api.Models.Ttv;
 
 namespace api.Services
 {
@@ -216,6 +217,31 @@ namespace api.Services
                         ffv.dim_orcid_publication_id != -1
                     )
                 ";
+        }
+
+
+        public string GetSqlQuery_Delete_FactFieldValueRelatedData(FactFieldValue ffv)
+        {
+            if (ffv.DimAffiliationId != -1) return $"DELETE FROM dim_affiliation WHERE id={ffv.DimAffiliationId}";
+            if (ffv.DimCompetenceId != -1) return $"DELETE FROM dim_competence WHERE id={ffv.DimCompetenceId}";
+            if (ffv.DimEducationId != -1) return $"DELETE FROM dim_education WHERE id={ffv.DimEducationId}";
+            if (ffv.DimEmailAddrressId != -1) return $"DELETE FROM dim_email_addrress WHERE id={ffv.DimEmailAddrressId}";
+            if (ffv.DimEventId != -1) return $"DELETE FROM dim_event WHERE id={ffv.DimEventId}";
+            if (ffv.DimFieldOfScienceId != -1) return $"DELETE FROM dim_field_of_science WHERE id={ffv.DimFieldOfScienceId}";
+            if (ffv.DimFundingDecisionId != -1) return $"DELETE FROM dim_funding_decision WHERE id={ffv.DimFundingDecisionId}";
+            if (ffv.DimIdentifierlessDataId != -1) return $"DELETE FROM dim_identifierless_data WHERE id={ffv.DimIdentifierlessDataId}";
+            if (ffv.DimKeywordId != -1) return $"DELETE FROM dim_keyword WHERE id={ffv.DimKeywordId}";
+            if (ffv.DimNameId != -1) return $"DELETE FROM dim_name WHERE id={ffv.DimNameId}";
+            if (ffv.DimOrcidPublicationId != -1) return $"DELETE FROM dim_orcid_publication WHERE id={ffv.DimOrcidPublicationId}";
+            if (ffv.DimPidId != -1) return $"DELETE FROM dim_pid WHERE id={ffv.DimPidId}";
+            if (ffv.DimPublicationId != -1) return $"DELETE FROM dim_publication WHERE id={ffv.DimPublicationId}";
+            if (ffv.DimResearchActivityId != -1) return $"DELETE FROM dim_research_activity WHERE id={ffv.DimResearchActivityId}";
+            if (ffv.DimResearchCommunityId != -1) return $"DELETE FROM dim_research_community WHERE id={ffv.DimResearchCommunityId}";
+            if (ffv.DimResearchDatasetId != -1) return $"DELETE FROM dim_research_dataset WHERE id={ffv.DimResearchDatasetId}";
+            if (ffv.DimResearcherDescriptionId != -1) return $"DELETE FROM dim_researcher_description WHERE id={ffv.DimResearcherDescriptionId}";
+            if (ffv.DimTelephoneNumberId != -1) return $"DELETE FROM dim_telephone_number WHERE id={ffv.DimTelephoneNumberId}";
+            if (ffv.DimWebLinkId != -1) return $"DELETE FROM dim_web_link WHERE id={ffv.DimWebLinkId}";
+            return "";
         }
     }
 }
