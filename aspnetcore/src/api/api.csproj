@@ -33,6 +33,7 @@
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
     <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
+    <PackageReference Include="Dapper" Version="2.0.123" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,5 +61,6 @@
     <None Remove="Serilog.Enrichers.Environment" />
     <None Remove="Serilog.Enrichers.Thread" />
     <None Remove="Serilog.Enrichers.Process" />
+    <None Remove="Dapper" />
   </ItemGroup>
 </Project>

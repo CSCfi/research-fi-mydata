@@ -5,6 +5,7 @@ namespace api.Services
     public interface ITtvSqlService
     {
         string GetFactFieldValuesFKColumnNameFromFieldIdentifier(int fieldIdentifier);
+        string GetSqlQuery_ProfileData(int userProfileId);
         string GetSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta);
     }
 }
