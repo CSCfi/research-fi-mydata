@@ -20,7 +20,7 @@ namespace api.Services
         void AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile);
         bool CanDeleteFactFieldValueRelatedData(FactFieldValue ffv);
         Task CreateProfile(string orcidId);
-        Task DeleteProfileDataAsync(int userprofileId);
+        Task<bool> DeleteProfileDataAsync(int userprofileId);
         Task ExecuteRawSql(string sql);
         DimOrcidPublication GetEmptyDimOrcidPublication();
         DimPid GetEmptyDimPid();

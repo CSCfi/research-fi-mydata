@@ -8,8 +8,10 @@ using api.Models.ProfileEditor;
 using Microsoft.EntityFrameworkCore;
 using api.Models.Common;
 using api.Models.Orcid;
-using Nest;
 using Dapper;
+using System.Transactions;
+using api.Controllers;
+using Microsoft.Extensions.Logging;
 
 namespace api.Services
 {
@@ -26,6 +28,7 @@ namespace api.Services
         private readonly IOrganizationHandlerService _organizationHandlerService;
         private readonly ISharingService _sharingService;
         private readonly ITtvSqlService _ttvSqlService;
+        private readonly ILogger<UserProfileService> _logger;
 
         public UserProfileService(TtvContext ttvContext,
             IDataSourceHelperService dataSourceHelperService,
@@ -34,7 +37,8 @@ namespace api.Services
             IDuplicateHandlerService duplicateHandlerService,
             IOrganizationHandlerService organizationHandlerService,
             ISharingService sharingService,
-            ITtvSqlService ttvSqlService)
+            ITtvSqlService ttvSqlService,
+            ILogger<UserProfileService> logger)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
@@ -44,6 +48,7 @@ namespace api.Services
             _organizationHandlerService = organizationHandlerService;
             _sharingService = sharingService;
             _ttvSqlService = ttvSqlService;
+            _logger = logger;
         }
 
         // For unit test
@@ -733,7 +738,7 @@ namespace api.Services
             // Get SQL statement for profile data query
             string profileDataSql = _ttvSqlService.GetSqlQuery_ProfileData(userprofileId);
 
-            // Execute SQL statemen using Dapper
+            // Execute SQL statement using Dapper
             var connection = _ttvContext.Database.GetDbConnection();
             List<ProfileDataRaw> profileDataRaws = (await connection.QueryAsync<ProfileDataRaw>(profileDataSql)).ToList();
 
@@ -988,7 +993,7 @@ namespace api.Services
                                         nameSv: profileData2.DimIdentifierlessData_ValueSv
                                     );
                                 }
-                                
+
                                 // Name translation for position name
                                 NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
                                     nameFi: profileData2.DimAffiliation_PositionNameFi,
@@ -1109,7 +1114,7 @@ namespace api.Services
                                         }
                                     }
                                 );
-      
+
                                 break;
 
                             // Publication(ORCID)
@@ -1316,7 +1321,7 @@ namespace api.Services
                     }
 
                     // Education groups
-                    if  (educationItems.Count > 0)
+                    if (educationItems.Count > 0)
                     {
                         profileDataResponse.activity.educationGroups.Add(
                             new()
@@ -2002,7 +2007,8 @@ namespace api.Services
                             // Experimental. Publications in alternative structure.
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
-                                profileDataResponse.activity.publications = _duplicateHandlerService.AddPublicationToProfileEditorData(dataSource: profileEditorSource, ffv: ffv, publications: profileDataResponse.activity.publications);
+                                profileDataResponse.activity.publications = _duplicateHandlerService.AddPublicationToProfileEditorData(dataSource: profileEditorSource, ffv: ffv, publications:
+profileDataResponse.activity.publications);
                             }
                             break;
 
@@ -2011,7 +2017,8 @@ namespace api.Services
                             // Experimental. ORCID Publications in alternative structure.
                             foreach (FactFieldValue ffv in factFieldValueGroup)
                             {
-                                profileDataResponse.activity.publications = _duplicateHandlerService.AddPublicationToProfileEditorData(dataSource: profileEditorSource, ffv: ffv, publications: profileDataResponse.activity.publications);
+                                profileDataResponse.activity.publications = _duplicateHandlerService.AddPublicationToProfileEditorData(dataSource: profileEditorSource, ffv: ffv, publications:
+profileDataResponse.activity.publications);
                             }
                             break;
 
@@ -2208,181 +2215,121 @@ namespace api.Services
         }
 
         /*
-         * Delete profile data.
+         * Delete profile data using Dapper
+         * - get FactFieldValues
+         * - delete FactFieldValues
+         * - delete DimIdentifierlessData (children and parent)
+         * - deöete ORCID put codes from DimPid
+         * - delete FactFieldValues related items
+         * - delete DimFieldDisplaySettings
+         * - delete BrGrantedPermissions (sharing permission)
+         * - delete DimUserChoices (co-operation selection) 
+         * - delete DimUserProfile  
          */
-        public async Task DeleteProfileDataAsync(int userprofileId)
+        public async Task<bool> DeleteProfileDataAsync(int userprofileId)
         {
-            // Get DimUserProfile and related data that should be removed. 
-            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.TagWith("Delete profile data")
-                .Include(dup => dup.DimFieldDisplaySettings)
-                .Include(dup => dup.DimUserChoices)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimRegisteredDataSource)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimName)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimWebLink)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimPid)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimAffiliation)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimEducation)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimTelephoneNumber)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimEmailAddrress)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimResearcherDescription)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimOrcidPublication)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimFundingDecision)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimKeyword)
-                .Include(dup => dup.FactFieldValues)
-                    .ThenInclude(ffv => ffv.DimIdentifierlessData)
-                        .ThenInclude(did => did.InverseDimIdentifierlessData) // DimIdentifierlessData can have a child entity.
-                .FirstOrDefaultAsync(up => up.Id == userprofileId);
+            _logger.LogInformation($"Deleting user profile (dim_user_profile.id={userprofileId})");
 
-            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId == -1))
+            using (var connection = _ttvContext.Database.GetDbConnection())
             {
-                // Always remove FactFieldValue
-                _ttvContext.FactFieldValues.Remove(ffv);
+                // Get list of FactFieldValues using Entity Framework, which ensures that model FactFieldValue populates correctly.
+                // After that delete database items using Dapper.
+                List<FactFieldValue> factFieldValues =
+                    await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId)
+                    .AsNoTracking().ToListAsync();
 
-                // DimIdentifierlessData
-                if (ffv.DimIdentifierlessDataId != -1)
-                {
-                    // Remove children
-                    _ttvContext.DimIdentifierlessData.RemoveRange(ffv.DimIdentifierlessData.InverseDimIdentifierlessData);
-                    _ttvContext.DimIdentifierlessData.Remove(ffv.DimIdentifierlessData);
-                }
+                // Open 
+                await connection.OpenAsync();
+                var transaction = connection.BeginTransaction();
 
-                // DimAffiliation
-                if (ffv.DimAffiliationId != -1)
+                try
                 {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    /*
+                    // Get fact_field_values
+                    string sqlFactFieldValues = _ttvSqlService.GetSqlQuery_Select_FactFieldValues(userprofileId);
+                    List<FactFieldValue> factFieldValues =
+                        (await connection.QueryAsync<FactFieldValue>(sql: sqlFactFieldValues, transaction: transaction)).ToList();
+                    */
+                    // Delete fact_field_values
+                    string sqlDeleteFactFieldValues = _ttvSqlService.GetSqlQuery_Delete_FactFieldValues(userprofileId);
+                    await connection.ExecuteAsync(sql: sqlDeleteFactFieldValues, transaction: transaction);
+
+                    // Delete fact_field_values related items
+                    foreach (FactFieldValue factFieldValue in factFieldValues)
                     {
-                        _ttvContext.DimAffiliations.Remove(ffv.DimAffiliation);
+                        // Not all related data should be automatically deleted
+                        if (CanDeleteFactFieldValueRelatedData(factFieldValue))
+                        {
+                            // dim_identifierless_data needs special handling, since it can have nested items
+                            if (factFieldValue.DimIdentifierlessDataId != -1)
+                            {
+                                // First delete possible child items from dim_identifierless_data
+                                string sqlDeleteDimIdentifierlessDataChildren = _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(factFieldValue.DimIdentifierlessDataId);
+                                await connection.ExecuteAsync(sql: sqlDeleteDimIdentifierlessDataChildren, transaction: transaction);
+
+                                // Then delete parent from dim_identifierless_data
+                                string sqlDeleteDimIdentifierlessDataParent = _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(factFieldValue.DimIdentifierlessDataId);
+                                await connection.ExecuteAsync(sql: sqlDeleteDimIdentifierlessDataParent, transaction: transaction);
+
+                            }
+
+                            // ORCID putcodes must be deleted separately
+                            if (factFieldValue.DimPidIdOrcidPutCode != -1)
+                            {
+                                string sqlDeleteOrcidPutCode = _ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode(factFieldValue.DimPidIdOrcidPutCode);
+                                await connection.ExecuteAsync(sql: sqlDeleteOrcidPutCode, transaction: transaction);
+                            }
+
+                            // Delete other related items than dim_identifierless_data
+                            string sqlDeleteFactFieldValueRelatedData = _ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(factFieldValue);
+                            if (sqlDeleteFactFieldValueRelatedData != "")
+                            {
+                                await connection.ExecuteAsync(sql: sqlDeleteFactFieldValueRelatedData, transaction: transaction);
+                            }
+
+                        }
                     }
-                }
 
-                // ORCID put code
-                if (ffv.DimPidIdOrcidPutCode != -1)
-                {
-                    _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
-                }
+                    // Delete dim_field_display_settings
+                    string sqlDeleteDimFieldDisplaySettings = _ttvSqlService.GetSqlQuery_Delete_DimFieldDisplaySettings(userprofileId);
+                    await connection.ExecuteAsync(sql: sqlDeleteDimFieldDisplaySettings, transaction: transaction);
 
-                // DimPid
-                // DimPids related to FactFieldValue store person's external identifiers 
-                if (ffv.DimPidId != -1)
+                    // Delete br_granted_permissions
+                    string sqlDeleteBrGrantedPermissions = _ttvSqlService.GetSqlQuery_Delete_BrGrantedPermissions(userprofileId);
+                    await connection.ExecuteAsync(sql: sqlDeleteBrGrantedPermissions, transaction: transaction);
+
+                    // Delete dim_user_choices
+                    string sqlDeleteDimUserChoices = _ttvSqlService.GetSqlQuery_Delete_DimUserChoices(userprofileId);
+                    await connection.ExecuteAsync(sql: sqlDeleteDimUserChoices, transaction: transaction);
+
+                    // Delete dim_user_profile
+                    string sqlDeleteDimUserProfile = _ttvSqlService.GetSqlQuery_Delete_DimUserProfile(userprofileId);
+                    await connection.ExecuteAsync(sql: sqlDeleteDimUserProfile, transaction: transaction);
+
+                    // Commit transaction
+                    transaction.Commit();
+                }
+                catch (Exception exceptionFromProfileDelete)
                 {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    // Log error from profile deletion
+                    _logger.LogError($"Error deleting user profile (dim_user_profile.id={userprofileId}): " + exceptionFromProfileDelete.ToString());
+
+                    // Rollback
+                    _logger.LogInformation($"Try to rollback user profile deletion (dim_user_profile.id={userprofileId})");
+                    try
                     {
-                        _ttvContext.DimPids.Remove(ffv.DimPid);
+                        transaction.Rollback();
+                        _logger.LogInformation($"Rollback success (dim_user_profile.id={userprofileId})");
                     }
-                }
-
-                // DimWebLink
-                else if (ffv.DimWebLinkId != -1)
-                {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
+                    catch (Exception exceptionFromRollback)
                     {
-                        _ttvContext.DimWebLinks.Remove(ffv.DimWebLink);
+                        // Log error from rollback
+                        _logger.LogError($"Error in rollback of user profile deletion (dim_user_profile.id={userprofileId}): " + exceptionFromRollback.ToString());
                     }
-                }
-
-                // DimOrcidPublication
-                else if (ffv.DimOrcidPublicationId != -1)
-                {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimOrcidPublications.Remove(ffv.DimOrcidPublication);
-                    }
-                }
-
-                // DimKeyword
-                else if (ffv.DimKeywordId != -1)
-                {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimKeywords.Remove(ffv.DimKeyword);
-                    }
-                }
-
-                // DimEducation
-                else if (ffv.DimEducationId != -1)
-                {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimEducations.Remove(ffv.DimEducation);
-                    }
-                }
-
-                // DimEmail
-                else if (ffv.DimEmailAddrressId != -1)
-                {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimEmailAddrresses.Remove(ffv.DimEmailAddrress);
-                    }
-                }
-
-                // DimResearcherDescription
-                else if (ffv.DimResearcherDescriptionId != -1)
-                {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimResearcherDescriptions.Remove(ffv.DimResearcherDescription);
-                    }
-                }
-
-                // DimTelephoneNumber
-                else if (ffv.DimTelephoneNumberId != -1)
-                {
-                    if (CanDeleteFactFieldValueRelatedData(ffv))
-                    {
-                        _ttvContext.DimTelephoneNumbers.Remove(ffv.DimTelephoneNumber);
-                    }
+                    return false;
                 }
             }
-            await _ttvContext.SaveChangesAsync();
-
-            // Remove DimName
-            foreach (FactFieldValue ffv in dimUserProfile.FactFieldValues.Where(ffv => ffv.DimNameId != -1))
-            {
-                _ttvContext.FactFieldValues.Remove(ffv);
-
-                if (ffv.DimPidIdOrcidPutCode != -1)
-                {
-                    _ttvContext.DimPids.Remove(ffv.DimPidIdOrcidPutCodeNavigation);
-                }
-
-                if (CanDeleteFactFieldValueRelatedData(ffv))
-                {
-                    _ttvContext.DimNames.Remove(ffv.DimName);
-                }
-            }
-            await _ttvContext.SaveChangesAsync();
-
-            // Remove sharing permissions.
-            await _sharingService.DeleteAllGrantedPermissionsFromUserprofile(userprofileId: userprofileId);
-
-            // Remove DimFieldDisplaySettings
-            _ttvContext.DimFieldDisplaySettings.RemoveRange(dimUserProfile.DimFieldDisplaySettings);
-
-            // Remove cooperation user choices
-            _ttvContext.DimUserChoices.RemoveRange(dimUserProfile.DimUserChoices);
-
-            // Remove DimUserProfile
-            _ttvContext.DimUserProfiles.Remove(dimUserProfile);
-
-            // Must not remove DimKnownPerson.
-            // Must not remove DimPid (ORCID ID).
-
-            await _ttvContext.SaveChangesAsync();
+            return true;
         }
 
         /*
