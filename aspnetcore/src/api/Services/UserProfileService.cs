@@ -2215,41 +2215,43 @@ profileDataResponse.activity.publications);
         }
 
         /*
-         * Delete profile data.
+         * Delete profile data using Dapper
+         * - get FactFieldValues
+         * - delete FactFieldValues
+         * - delete DimIdentifierlessData (children and parent)
+         * - deöete ORCID put codes from DimPid
+         * - delete FactFieldValues related items
+         * - delete DimFieldDisplaySettings
+         * - delete BrGrantedPermissions (sharing permission)
+         * - delete DimUserChoices (co-operation selection) 
+         * - delete DimUserProfile  
          */
         public async Task<bool> DeleteProfileDataAsync(int userprofileId)
         {
-
-            /*
-             * - get FactFieldValues
-             * - delete FactFieldValues
-             * - delete DimIdentifierlessData
-             * - delete FactFieldValues related items
-             * - delete DimFieldDisplaySettings
-             * - delete BrGrantedPermissions (sharing permission)
-             * - delete DimUserChoices (co-operation selection) 
-             * - delete DimUserProfile
-             * 
-             * - note:
-             *   - dim_affiliation_id and dim_identifierless_data_id can both be != -1
-             */
-
             _logger.LogInformation($"Deleting user profile (dim_user_profile.id={userprofileId})");
 
             using (var connection = _ttvContext.Database.GetDbConnection())
             {
+                // Get list of FactFieldValues using Entity Framework, which ensures that model FactFieldValue populates correctly.
+                // After that delete database items using Dapper.
+                List<FactFieldValue> factFieldValues =
+                    await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId)
+                    .AsNoTracking().ToListAsync();
+
+                // Open 
                 await connection.OpenAsync();
                 var transaction = connection.BeginTransaction();
 
                 try
                 {
+                    /*
                     // Get fact_field_values
-                    string sqlFactFieldValues = $"SELECT * FROM fact_field_values WHERE dim_user_profile_id={userprofileId}";
+                    string sqlFactFieldValues = _ttvSqlService.GetSqlQuery_Select_FactFieldValues(userprofileId);
                     List<FactFieldValue> factFieldValues =
                         (await connection.QueryAsync<FactFieldValue>(sql: sqlFactFieldValues, transaction: transaction)).ToList();
-
+                    */
                     // Delete fact_field_values
-                    string sqlDeleteFactFieldValues = $"DELETE FROM fact_field_values WHERE dim_user_profile_id={userprofileId}";
+                    string sqlDeleteFactFieldValues = _ttvSqlService.GetSqlQuery_Delete_FactFieldValues(userprofileId);
                     await connection.ExecuteAsync(sql: sqlDeleteFactFieldValues, transaction: transaction);
 
                     // Delete fact_field_values related items
@@ -2262,13 +2264,20 @@ profileDataResponse.activity.publications);
                             if (factFieldValue.DimIdentifierlessDataId != -1)
                             {
                                 // First delete possible child items from dim_identifierless_data
-                                string sqlDeleteDimIdentifierlessDataChildren = $"DELETE FROM dim_identifierless_data where dim_identifierless_data_id={factFieldValue.DimIdentifierlessDataId}";
+                                string sqlDeleteDimIdentifierlessDataChildren = _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(factFieldValue.DimIdentifierlessDataId);
                                 await connection.ExecuteAsync(sql: sqlDeleteDimIdentifierlessDataChildren, transaction: transaction);
 
                                 // Then delete parent from dim_identifierless_data
-                                string sqlDeleteDimIdentifierlessDataParent = $"DELETE FROM dim_identifierless_data where id={factFieldValue.DimIdentifierlessDataId}";
+                                string sqlDeleteDimIdentifierlessDataParent = _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(factFieldValue.DimIdentifierlessDataId);
                                 await connection.ExecuteAsync(sql: sqlDeleteDimIdentifierlessDataParent, transaction: transaction);
 
+                            }
+
+                            // ORCID putcodes must be deleted separately
+                            if (factFieldValue.DimPidIdOrcidPutCode != -1)
+                            {
+                                string sqlDeleteOrcidPutCode = _ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode(factFieldValue.DimPidIdOrcidPutCode);
+                                await connection.ExecuteAsync(sql: sqlDeleteOrcidPutCode, transaction: transaction);
                             }
 
                             // Delete other related items than dim_identifierless_data
@@ -2282,19 +2291,19 @@ profileDataResponse.activity.publications);
                     }
 
                     // Delete dim_field_display_settings
-                    string sqlDeleteDimFieldDisplaySettings = $"DELETE FROM dim_field_display_settings WHERE dim_user_profile_id={userprofileId}";
+                    string sqlDeleteDimFieldDisplaySettings = _ttvSqlService.GetSqlQuery_Delete_DimFieldDisplaySettings(userprofileId);
                     await connection.ExecuteAsync(sql: sqlDeleteDimFieldDisplaySettings, transaction: transaction);
 
                     // Delete br_granted_permissions
-                    string sqlDeleteBrGrantedPermissions = $"DELETE FROM br_granted_permissions WHERE dim_user_profile_id={userprofileId}";
+                    string sqlDeleteBrGrantedPermissions = _ttvSqlService.GetSqlQuery_Delete_BrGrantedPermissions(userprofileId);
                     await connection.ExecuteAsync(sql: sqlDeleteBrGrantedPermissions, transaction: transaction);
 
                     // Delete dim_user_choices
-                    string sqlDeleteDimUserChoices = $"DELETE FROM dim_user_choices WHERE dim_user_profile_id={userprofileId}";
+                    string sqlDeleteDimUserChoices = _ttvSqlService.GetSqlQuery_Delete_DimUserChoices(userprofileId);
                     await connection.ExecuteAsync(sql: sqlDeleteDimUserChoices, transaction: transaction);
 
                     // Delete dim_user_profile
-                    string sqlDeleteDimUserProfile = $"DELETE FROM dim_user_profile WHERE id={userprofileId}";
+                    string sqlDeleteDimUserProfile = _ttvSqlService.GetSqlQuery_Delete_DimUserProfile(userprofileId);
                     await connection.ExecuteAsync(sql: sqlDeleteDimUserProfile, transaction: transaction);
 
                     // Commit transaction

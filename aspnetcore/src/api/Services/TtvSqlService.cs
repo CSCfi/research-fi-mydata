@@ -227,6 +227,7 @@ namespace api.Services
          * - dim_field_display_settings
          * - dim_registered_data_source
          * - dim_identifierless_data (has FK to itself, and needs special handling)
+         * - dim_pid ORCID putcode (DimPidIdOrcidPutCode)
          * 
          * Those MUST NOT be added, since that would break the user profile deletion logic.
          */
@@ -243,7 +244,6 @@ namespace api.Services
             if (ffv.DimNameId != -1) return $"DELETE FROM dim_name WHERE id={ffv.DimNameId}";
             if (ffv.DimOrcidPublicationId != -1) return $"DELETE FROM dim_orcid_publication WHERE id={ffv.DimOrcidPublicationId}";
             if (ffv.DimPidId != -1) return $"DELETE FROM dim_pid WHERE id={ffv.DimPidId}";
-            if (ffv.DimPidIdOrcidPutCode != -1) return $"DELETE FROM dim_pid WHERE id={ffv.DimPidIdOrcidPutCode}";
             if (ffv.DimPublicationId != -1) return $"DELETE FROM dim_publication WHERE id={ffv.DimPublicationId}";
             if (ffv.DimResearchActivityId != -1) return $"DELETE FROM dim_research_activity WHERE id={ffv.DimResearchActivityId}";
             if (ffv.DimResearchCommunityId != -1) return $"DELETE FROM dim_research_community WHERE id={ffv.DimResearchCommunityId}";
@@ -253,6 +253,60 @@ namespace api.Services
             if (ffv.DimTelephoneNumberId != -1) return $"DELETE FROM dim_telephone_number WHERE id={ffv.DimTelephoneNumberId}";
             if (ffv.DimWebLinkId != -1) return $"DELETE FROM dim_web_link WHERE id={ffv.DimWebLinkId}";
             return "";
+        }
+
+        // Return SQL SELECT statement for fact_field_values.
+        public string GetSqlQuery_Select_FactFieldValues(int userprofileId)
+        {
+            return $"SELECT * FROM fact_field_values WHERE dim_user_profile_id={userprofileId}";
+        }
+
+        // Return SQL DELETE statement for fact_field_values.
+        public string GetSqlQuery_Delete_FactFieldValues(int userprofileId)
+        {
+            return $"DELETE FROM fact_field_values WHERE dim_user_profile_id={userprofileId}";
+        }
+
+        // Return SQL DELETE statement for dim_identifierless_data children.
+        public string GetSqlQuery_Delete_DimIdentifierlessData_Children(int dimIdentifierlessDataId)
+        {
+            return $"DELETE FROM dim_identifierless_data where dim_identifierless_data_id={dimIdentifierlessDataId}";
+        }
+
+        // Return SQL DELETE statement for dim_identifierless_data parent.
+        public string GetSqlQuery_Delete_DimIdentifierlessData_Parent(int id)
+        {
+            return $"DELETE FROM dim_identifierless_data where id={id}";
+        }
+
+        // Return SQL DELETE statement for ORCID putcode in dim_pid.
+        public string GetSqlQuery_Delete_DimPid_ORCID_PutCode(int id)
+        {
+            return $"DELETE FROM dim_pid WHERE id={id} AND pid_type='{Constants.PidTypes.ORCID_PUT_CODE}'";
+        }
+
+        // Return SQL DELETE statement for dim_field_display_settings.
+        public string GetSqlQuery_Delete_DimFieldDisplaySettings(int userprofileId)
+        {
+            return $"DELETE FROM dim_field_display_settings WHERE dim_user_profile_id={userprofileId}";
+        }
+
+        // Return SQL DELETE statement for br_granted_permissions.
+        public string GetSqlQuery_Delete_BrGrantedPermissions(int userprofileId)
+        {
+            return $"DELETE FROM br_granted_permissions WHERE dim_user_profile_id={userprofileId}";
+        }
+
+        // Return SQL DELETE statement for dim_user_choices.
+        public string GetSqlQuery_Delete_DimUserChoices(int userprofileId)
+        {
+            return $"DELETE FROM dim_user_choices WHERE dim_user_profile_id={userprofileId}";
+        }
+
+        // Return SQL DELETE statement for dim_user_profile.
+        public string GetSqlQuery_Delete_DimUserProfile(int userprofileId)
+        {
+            return $"DELETE FROM dim_user_profile WHERE id={userprofileId}";
         }
     }
 }

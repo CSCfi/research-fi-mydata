@@ -349,17 +349,6 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
-        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, pid ORCID putcode")]
-        public void Test_getSqlQuery_Delete_FactFieldValues_related_pid_ORCID_putcode()
-        {
-            TtvSqlService ttvSqlService = new();
-            FactFieldValue ffv = GetFactFieldValueForTest();
-            ffv.DimPidIdOrcidPutCode = 776655;
-            string expectedSqlString = "DELETE FROM dim_pid WHERE id=776655";
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(ffv);
-            Assert.Equal(expectedSqlString, actualSqlString);
-        }
-
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, publication")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_publication()
         {
@@ -445,6 +434,87 @@ namespace api.Tests
             ffv.DimWebLinkId = 90123;
             string expectedSqlString = "DELETE FROM dim_web_link WHERE id=90123";
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(ffv);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for selecting fact_field_values")]
+        public void Test_GetSqlQuery_Select_FactFieldValues()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "SELECT * FROM fact_field_values WHERE dim_user_profile_id=332211";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_FactFieldValues(332211);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting fact_field_values")]
+        public void Test_GetSqlQuery_Delete_FactFieldValues()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "DELETE FROM fact_field_values WHERE dim_user_profile_id=443322";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactFieldValues(443322);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting dim_identifierless_data children")]
+        public void Test_GetSqlQuery_Delete_DimIdentifierlessData_Children()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "DELETE FROM dim_identifierless_data where dim_identifierless_data_id=554433";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(554433);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting dim_identifierless_data parent")]
+        public void Test_GetSqlQuery_Delete_DimIdentifierlessData_Parent()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "DELETE FROM dim_identifierless_data where id=665544";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(665544);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting ORCID putcode in dim_pid")]
+        public void Test_GetSqlQuery_Delete_DimPid_ORCID_PutCode()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "DELETE FROM dim_pid WHERE id=776655 AND pid_type='ORCID put code'";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode(776655);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting dim_field_display_settings")]
+        public void Test_GetSqlQuery_Delete_DimFieldDisplaySettings()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "DELETE FROM dim_field_display_settings WHERE dim_user_profile_id=887766";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimFieldDisplaySettings(887766);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting br_granted_permissions")]
+        public void Test_GetSqlQuery_Delete_BrGrantedPermissions()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "DELETE FROM br_granted_permissions WHERE dim_user_profile_id=998877";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_BrGrantedPermissions(998877);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting dim_user_choices")]
+        public void Test_GetSqlQuery_Delete_DimUserChoices()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "DELETE FROM dim_user_choices WHERE dim_user_profile_id=119988";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimUserChoices(119988);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting dim_user_profile")]
+        public void Test_GetSqlQuery_Delete_DimUserProfile()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "DELETE FROM dim_user_profile WHERE id=221199";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimUserProfile(221199);
             Assert.Equal(expectedSqlString, actualSqlString);
         }
     }
