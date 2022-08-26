@@ -116,49 +116,58 @@ namespace api.Controllers
             // Get userprofile id.
             int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
-            // Remove cached profile data response. Cache key is ORCID ID.
-            _cache.Remove(orcidId);
-
-            // Remove entry from Elasticsearch index in a background task.
-            if (_elasticsearchService.IsElasticsearchSyncEnabled())
-            {
-                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
-                {
-                    // Update Elasticsearch person index.
-                    bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
-                    if (deleteSuccess)
-                    {
-                        _logger.LogInformation($"Elasticsearch: {orcidId} delete OK.");
-                    }
-                    else
-                    {
-                        _logger.LogError($"Elasticsearch: {orcidId} delete failed.");
-                    }
-                });
-            }
-
             // Delete profile data from database
+            bool deleteSuccess = false;
             try
             {
-                await _userProfileService.DeleteProfileDataAsync(userprofileId: userprofileId);
-            } catch
+                deleteSuccess = await _userProfileService.DeleteProfileDataAsync(userprofileId: userprofileId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(this.GetLogPrefix() + ex.ToString());
+            }
+
+            if (deleteSuccess)
+            {
+                // Log deletion
+                _logger.LogInformation(this.GetLogPrefix() + " delete profile from database OK");
+
+                // Remove cached profile data response. Cache key is ORCID ID.
+                _cache.Remove(orcidId);
+
+                // Remove entry from Elasticsearch index in a background task.
+                if (_elasticsearchService.IsElasticsearchSyncEnabled())
+                {
+                    await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                    {
+                        // Update Elasticsearch person index.
+                        bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+                        if (deleteSuccess)
+                        {
+                            _logger.LogInformation($"Elasticsearch: {orcidId} delete OK.");
+                        }
+                        else
+                        {
+                            _logger.LogError($"Elasticsearch: {orcidId} delete failed.");
+                        }
+                    });
+                }
+
+                // Keycloak: logout user
+                await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest());
+
+                // Keycloak: remove user
+                await _keycloakAdminApiService.RemoveUser(this.GetBearerTokenFromHttpRequest());
+
+                return Ok(new ApiResponse(success: true));
+            }
+            else
             {
                 // Log error
-                string msg = " delete profile failed";
+                string msg = " delete profile from database failed";
                 _logger.LogError(this.GetLogPrefix() + msg);
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
-
-            // Log deletion
-            _logger.LogInformation(this.GetLogPrefix() + " delete profile OK");
-
-            // Keycloak: logout user
-            await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest());
-
-            // Keycloak: remove user
-            await _keycloakAdminApiService.RemoveUser(this.GetBearerTokenFromHttpRequest());
-
-            return Ok(new ApiResponse(success: true));
         }
     }
 }

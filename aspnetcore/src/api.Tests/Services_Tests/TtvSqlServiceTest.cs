@@ -28,6 +28,7 @@ namespace api.Tests
                 DimNameId = -1,
                 DimOrcidPublicationId = -1,
                 DimPidId = -1,
+                DimPidIdOrcidPutCode = -1,
                 DimPublicationId = -1,
                 DimResearchActivityId = -1,
                 DimResearchCommunityId = -1,
@@ -304,17 +305,6 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
-        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, identifierless data")]
-        public void Test_getSqlQuery_Delete_FactFieldValues_related_identifierless_data()
-        {
-            TtvSqlService ttvSqlService = new();
-            FactFieldValue ffv = GetFactFieldValueForTest();
-            ffv.DimIdentifierlessDataId = 8901;
-            string expectedSqlString = "DELETE FROM dim_identifierless_data WHERE id=8901";
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(ffv);
-            Assert.Equal(expectedSqlString, actualSqlString);
-        }
-
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, keyword")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_keyword()
         {
@@ -355,6 +345,17 @@ namespace api.Tests
             FactFieldValue ffv = GetFactFieldValueForTest();
             ffv.DimPidId = 23456;
             string expectedSqlString = "DELETE FROM dim_pid WHERE id=23456";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(ffv);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, pid ORCID putcode")]
+        public void Test_getSqlQuery_Delete_FactFieldValues_related_pid_ORCID_putcode()
+        {
+            TtvSqlService ttvSqlService = new();
+            FactFieldValue ffv = GetFactFieldValueForTest();
+            ffv.DimPidIdOrcidPutCode = 776655;
+            string expectedSqlString = "DELETE FROM dim_pid WHERE id=776655";
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(ffv);
             Assert.Equal(expectedSqlString, actualSqlString);
         }
@@ -410,6 +411,17 @@ namespace api.Tests
             FactFieldValue ffv = GetFactFieldValueForTest();
             ffv.DimResearcherDescriptionId = 78901;
             string expectedSqlString = "DELETE FROM dim_researcher_description WHERE id=78901";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(ffv);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, researcher to research community")]
+        public void Test_getSqlQuery_Delete_FactFieldValues_related_researcher_to_research_community()
+        {
+            TtvSqlService ttvSqlService = new();
+            FactFieldValue ffv = GetFactFieldValueForTest();
+            ffv.DimResearcherToResearchCommunityId = 887766;
+            string expectedSqlString = "DELETE FROM dim_researcher_to_research_community WHERE id=887766";
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(ffv);
             Assert.Equal(expectedSqlString, actualSqlString);
         }
