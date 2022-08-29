@@ -6,17 +6,17 @@ namespace api.Models.ProfileEditor
     {
         public ProfileEditorDataActivity2()
         {
-            affiliationGroups = new List<ProfileEditorGroupAffiliation>();
-            educationGroups = new List<ProfileEditorGroupEducation>();
+            affiliations = new List<ProfileEditorAffiliation>();
+            educations = new List<ProfileEditorEducation>();
             publications = new List<ProfileEditorPublication>();
-            fundingDecisionGroups = new List<ProfileEditorGroupFundingDecision>();
-            researchDatasetGroups = new List<ProfileEditorGroupResearchDataset>();
+            fundingDecisions = new List<ProfileEditorFundingDecision>();
+            researchDatasets = new List<ProfileEditorResearchDataset>();
         }
 
-        public List<ProfileEditorGroupAffiliation> affiliationGroups { get; set; }
-        public List<ProfileEditorGroupEducation> educationGroups { get; set; }
+        public List<ProfileEditorAffiliation> affiliations { get; set; }
+        public List<ProfileEditorEducation> educations { get; set; }
         public List<ProfileEditorPublication> publications { get; set; }
-        public List<ProfileEditorGroupFundingDecision> fundingDecisionGroups { get; set; }
-        public List<ProfileEditorGroupResearchDataset> researchDatasetGroups { get; set; }
+        public List<ProfileEditorFundingDecision> fundingDecisions { get; set; }
+        public List<ProfileEditorResearchDataset> researchDatasets { get; set; }
     }
 }

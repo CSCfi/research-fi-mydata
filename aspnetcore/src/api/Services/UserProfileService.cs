@@ -1583,6 +1583,132 @@ namespace api.Services
                         );
                         break;
 
+                    // Affiliation
+                    case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
+                        // Get affiliation organization name from related DimOrganization (ffv.DimAffiliation.DimOrganization), if exists.
+                        // Otherwise from DimIdentifierlessData (ffv.DimIdentifierlessData).
+                        // Name translation service ensures that none of the language fields is empty.
+                        NameTranslation nameTranslationAffiliationOrganization = new();
+                        if (p.DimAffiliation_DimOrganization_Id > 0)
+                        {
+                            nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
+                                nameFi: p.DimAffiliation_DimOrganization_NameFi,
+                                nameEn: p.DimAffiliation_DimOrganization_NameEn,
+                                nameSv: p.DimAffiliation_DimOrganization_NameSv
+                            );
+                        }
+                        else if (p.FactFieldValues_DimIdentifierlessDataId > -1 &&
+                            p.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                        {
+                            nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
+                                nameFi: p.DimIdentifierlessData_ValueFi,
+                                nameEn: p.DimIdentifierlessData_ValueEn,
+                                nameSv: p.DimIdentifierlessData_ValueSv
+                            );
+                        }
+
+                        // Name translation for position name
+                        NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
+                            nameFi: p.DimAffiliation_PositionNameFi,
+                            nameEn: p.DimAffiliation_PositionNameEn,
+                            nameSv: p.DimAffiliation_PositionNameSv
+                        );
+
+                        // Name translation for department name
+                        NameTranslation nameTranslationAffiliationDepartment = new();
+                        if (p.DimIdentifierlessData_Type != null && p.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                        {
+                            nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
+                                nameFi: p.DimIdentifierlessData_ValueFi,
+                                nameEn: p.DimIdentifierlessData_ValueEn,
+                                nameSv: p.DimIdentifierlessData_ValueSv
+                            );
+                        }
+                        else if (p.DimIdentifierlessData_Child_Type != null && p.DimIdentifierlessData_Child_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                        {
+                            nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
+                                nameFi: p.DimIdentifierlessData_Child_ValueFi,
+                                nameEn: p.DimIdentifierlessData_Child_ValueEn,
+                                nameSv: p.DimIdentifierlessData_Child_ValueSv
+                            );
+                        }
+
+                        profileDataResponse.activity.affiliations.Add(
+                            new()
+                            {
+                                OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
+                                OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
+                                OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
+                                DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
+                                DepartmentNameEn = nameTranslationAffiliationDepartment.NameSv,
+                                DepartmentNameSv = nameTranslationAffiliationDepartment.NameEn,
+                                PositionNameFi = nameTranslationPositionName.NameFi,
+                                PositionNameEn = nameTranslationPositionName.NameEn,
+                                PositionNameSv = nameTranslationPositionName.NameSv,
+                                Type = p.DimAffiliation_DimReferenceData_NameFi,
+                                StartDate = new ProfileEditorItemDate()
+                                {
+                                    Year = p.DimAffiliation_StartDate_Year,
+                                    Month = p.DimAffiliation_StartDate_Month,
+                                    Day = p.DimAffiliation_StartDate_Day
+                                },
+                                EndDate = new ProfileEditorItemDate()
+                                {
+                                    Year = p.DimAffiliation_EndDate_Year,
+                                    Month = p.DimAffiliation_EndDate_Month,
+                                    Day = p.DimAffiliation_EndDate_Day
+                                },
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimAffiliationId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            }
+                        );
+                        break;
+
+                    // Education
+                    case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
+                        // Name translation service ensures that none of the language fields is empty.
+                        NameTranslation nameTraslationEducation = _languageService.GetNameTranslation(
+                            nameFi: p.DimEducation_NameFi,
+                            nameEn: p.DimEducation_NameEn,
+                            nameSv: p.DimEducation_NameSv
+                        );
+
+                        profileDataResponse.activity.educations.Add(
+                            new()
+                            {
+                                NameFi = nameTraslationEducation.NameFi,
+                                NameEn = nameTraslationEducation.NameEn,
+                                NameSv = nameTraslationEducation.NameSv,
+                                DegreeGrantingInstitutionName = p.DimEducation_DegreeGrantingInstitutionName,
+                                StartDate = new ProfileEditorItemDate()
+                                {
+                                    Year = p.DimEducation_StartDate_Year,
+                                    Month = p.DimEducation_StartDate_Month,
+                                    Day = p.DimEducation_StartDate_Day
+                                },
+                                EndDate = new ProfileEditorItemDate()
+                                {
+                                    Year = p.DimEducation_EndDate_Year,
+                                    Month = p.DimEducation_EndDate_Month,
+                                    Day = p.DimEducation_EndDate_Day
+                                },
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimEducationId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                }
+                            }
+                        );
+                        break;
+
                     // Publication
                     case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
                         profileDataResponse.activity.publications =
@@ -2110,6 +2236,7 @@ namespace api.Services
                             // TODO
                             break;
 
+                        /*
                         // Affiliation
                         case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
                             ProfileEditorGroupAffiliation affiliationGroup = new()
@@ -2205,7 +2332,9 @@ namespace api.Services
                                 profileDataResponse.activity.affiliationGroups.Add(affiliationGroup);
                             }
                             break;
+                        */
 
+                        /*
                         // Education
                         case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
                             ProfileEditorGroupEducation educationGroup = new()
@@ -2269,6 +2398,8 @@ namespace api.Services
                                 profileDataResponse.activity.educationGroups.Add(educationGroup);
                             }
                             break;
+                        */
+
                     /*
                         // Publication
                         case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
@@ -2290,6 +2421,8 @@ profileDataResponse.activity.publications);
                             }
                             break;
                     */
+
+                            /*
                         // Funding decision
                         case Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION:
                             ProfileEditorGroupFundingDecision fundingDecisionGroup = new()
@@ -2380,7 +2513,9 @@ profileDataResponse.activity.publications);
                                 profileDataResponse.activity.fundingDecisionGroups.Add(fundingDecisionGroup);
                             }
                             break;
+                            */
 
+                        /*
                         // Research dataset
                         case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
                             ProfileEditorGroupResearchDataset researchDatasetGroup = new()
@@ -2472,6 +2607,7 @@ profileDataResponse.activity.publications);
                                 profileDataResponse.activity.researchDatasetGroups.Add(researchDatasetGroup);
                             }
                             break;
+                        */
 
                         default:
                             break;
