@@ -1715,7 +1715,7 @@ namespace api.Services
                         profileDataResponse.activity.publications =
                             _duplicateHandlerService.AddPublicationToProfileEditorData(
                                 dataSource: profileEditorSource,
-                                p: p,
+                                profileDataRaw: p,
                                 publications: profileDataResponse.activity.publications
                             );
                         break;
@@ -1725,7 +1725,7 @@ namespace api.Services
                         profileDataResponse.activity.publications =
                             _duplicateHandlerService.AddPublicationToProfileEditorData(
                                 dataSource: profileEditorSource,
-                                p: p,
+                                profileDataRaw: p,
                                 publications: profileDataResponse.activity.publications
                             );
                         break;
