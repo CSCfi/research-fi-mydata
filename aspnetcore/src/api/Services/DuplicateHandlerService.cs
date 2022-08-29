@@ -22,7 +22,7 @@ namespace api.Services
          */
         public bool IsOrcidPublication(ProfileDataRaw p)
         {
-            return p.FactFieldValues_DimOrcidPublicationId != -1;
+            return p.FactFieldValues_DimOrcidPublicationId != -1 && p.DimFieldDisplaySettings_FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID;
         }
 
         /*
@@ -58,11 +58,11 @@ namespace api.Services
             {
                 // Check duplicate publicationId.
                 if (
-                    (!IsOrcidPublication(p) && p.DimPublication_PublicationId == publication.PublicationId) || (IsOrcidPublication(p) &&
-                    p.DimOrcidPublication_PublicationId == publication.PublicationId)
+                    (!IsOrcidPublication(p) && p.DimPublication_PublicationId != "" && p.DimPublication_PublicationId == publication.PublicationId) ||
+                    (IsOrcidPublication(p) && p.DimOrcidPublication_PublicationId != "" && p.DimOrcidPublication_PublicationId == publication.PublicationId)
                 )
                 {
-                    this.AddDataSource(publication, dataSource);
+                    AddDataSource(publication, dataSource);
                     return publications;
                 }
 
@@ -74,7 +74,7 @@ namespace api.Services
                     !HasSameDoiButIsDifferentPublication(p.DimOrcidPublication_PublicationName, publication)
                 )
                 {
-                    this.AddDataSource(publication, dataSource);
+                    AddDataSource(publication, dataSource);
                     return publications;
                 }
             }

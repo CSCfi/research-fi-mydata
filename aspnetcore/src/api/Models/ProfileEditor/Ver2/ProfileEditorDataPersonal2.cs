@@ -8,24 +8,24 @@ namespace api.Models.ProfileEditor
         {
             names = new List<ProfileEditorName> ();
             otherNames = new List<ProfileEditorName>();
-            emailGroups = new List<ProfileEditorGroupEmail>();
-            telephoneNumberGroups = new List<ProfileEditorGroupTelephoneNumber>();
-            webLinkGroups = new List<ProfileEditorGroupWebLink> ();
-            keywordGroups = new List<ProfileEditorGroupKeyword>();
-            fieldOfScienceGroups = new List<ProfileEditorGroupFieldOfScience>();
+            emails = new List<ProfileEditorEmail>();
+            telephoneNumbers = new List<ProfileEditorTelephoneNumber>();
+            webLinks = new List<ProfileEditorWebLink> ();
+            keywords = new List<ProfileEditorKeyword>();
+            fieldOfSciences = new List<ProfileEditorFieldOfScience>();
             researcherDescriptions = new List<ProfileEditorResearcherDescription>();
-            externalIdentifierGroups = new List<ProfileEditorGroupExternalIdentifier>();
+            externalIdentifiers = new List<ProfileEditorExternalIdentifier>();
         }
 
         public List<ProfileEditorName> names { get; set; }
         public List<ProfileEditorName> otherNames { get; set; }
-        public List<ProfileEditorGroupEmail> emailGroups { get; set; }
-        public List<ProfileEditorGroupTelephoneNumber> telephoneNumberGroups { get; set; }
-        public List<ProfileEditorGroupWebLink> webLinkGroups { get; set; }
-        public List<ProfileEditorGroupKeyword> keywordGroups { get; set; }
-        public List<ProfileEditorGroupFieldOfScience> fieldOfScienceGroups { get; set; }
+        public List<ProfileEditorEmail> emails { get; set; }
+        public List<ProfileEditorTelephoneNumber> telephoneNumbers { get; set; }
+        public List<ProfileEditorWebLink> webLinks { get; set; }
+        public List<ProfileEditorKeyword> keywords { get; set; }
+        public List<ProfileEditorFieldOfScience> fieldOfSciences { get; set; }
         public List<ProfileEditorResearcherDescription> researcherDescriptions { get; set; }
-        public List<ProfileEditorGroupExternalIdentifier> externalIdentifierGroups { get; set; }
+        public List<ProfileEditorExternalIdentifier> externalIdentifiers { get; set; }
     }
 }
 

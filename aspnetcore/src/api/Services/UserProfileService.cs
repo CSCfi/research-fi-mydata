@@ -1438,6 +1438,25 @@ namespace api.Services
                         );
                         break;
 
+                    // Web link
+                    case Constants.FieldIdentifiers.PERSON_WEB_LINK:
+                        profileDataResponse.personal.webLinks.Add(
+                            new ProfileEditorWebLink()
+                            {
+                                Url = p.DimWebLink_Url,
+                                LinkLabel = p.DimWebLink_LinkLabel,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimWebLinkId,
+                                    Type = Constants.FieldIdentifiers.PERSON_WEB_LINK,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            }
+                        );
+                        break;
+
                     // Researcher description
                     case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
                         // Researcher description name translation
@@ -1464,6 +1483,106 @@ namespace api.Services
                         );
                         break;
 
+                    // Email
+                    case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
+                        profileDataResponse.personal.emails.Add(
+                            new ProfileEditorEmail()
+                            {
+                                Value = p.DimEmailAddrress_Email,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimEmailAddrressId,
+                                    Type = Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            }
+                        );
+                        break;
+
+                    // Telephone number
+                    case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
+                        profileDataResponse.personal.telephoneNumbers.Add(
+                            new ProfileEditorTelephoneNumber()
+                            {
+                                Value = p.DimTelephoneNumber_TelephoneNumber,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimTelephoneNumberId,
+                                    Type = Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            }
+                        );
+                        break;
+
+                    // Field of science
+                    case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
+                        // Field of science name translation
+                        NameTranslation nameTranslationFieldOfScience = _languageService.GetNameTranslation(
+                            nameFi: p.DimFieldOfScience_NameFi,
+                            nameEn: p.DimFieldOfScience_NameEn,
+                            nameSv: p.DimFieldOfScience_NameSv
+                        );
+
+                        profileDataResponse.personal.fieldOfSciences.Add(
+                            new ProfileEditorFieldOfScience()
+                            {
+                                NameFi = nameTranslationFieldOfScience.NameFi,
+                                NameEn = nameTranslationFieldOfScience.NameEn,
+                                NameSv = nameTranslationFieldOfScience.NameSv,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimFieldOfScienceId,
+                                    Type = Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            }
+                        );
+                        break;
+
+                    // Keyword
+                    case Constants.FieldIdentifiers.PERSON_KEYWORD:
+                        profileDataResponse.personal.keywords.Add(
+                            new ProfileEditorKeyword()
+                            {
+                                Value = p.DimKeyword_Keyword,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimKeywordId,
+                                    Type = Constants.FieldIdentifiers.PERSON_KEYWORD,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            }
+                        );
+                        break;
+
+                    // External identifier
+                    case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
+                        profileDataResponse.personal.externalIdentifiers.Add(
+                            new ProfileEditorExternalIdentifier()
+                            {
+                                PidContent = p.DimPid_PidContent,
+                                PidType = p.DimPid_PidType,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimPidId,
+                                    Type = Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            }
+                        );
+                        break;
+
                     // Publication
                     case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
                         profileDataResponse.activity.publications =
@@ -1480,7 +1599,7 @@ namespace api.Services
                             _duplicateHandlerService.AddPublicationToProfileEditorData(
                                 dataSource: profileEditorSource,
                                 p: p,
-                                profileDataResponse.activity.publications
+                                publications: profileDataResponse.activity.publications
                             );
                         break;
 
@@ -1753,6 +1872,7 @@ namespace api.Services
                             break;
                         */
 
+                        /*
                         // Web link
                         case Constants.FieldIdentifiers.PERSON_WEB_LINK:
                             ProfileEditorGroupWebLink webLinkGroup = new()
@@ -1788,7 +1908,9 @@ namespace api.Services
                                 profileDataResponse.personal.webLinkGroups.Add(webLinkGroup);
                             }
                             break;
+                        */
 
+                        /*
                         // Email address
                         case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
                             ProfileEditorGroupEmail emailGroup = new()
@@ -1823,7 +1945,9 @@ namespace api.Services
                                 profileDataResponse.personal.emailGroups.Add(emailGroup);
                             }
                             break;
+                        */
 
+                        /*
                         // Telephone number
                         case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
                             ProfileEditorGroupTelephoneNumber telephoneNumberGroup = new()
@@ -1858,7 +1982,9 @@ namespace api.Services
                                 profileDataResponse.personal.telephoneNumberGroups.Add(telephoneNumberGroup);
                             }
                             break;
+                        */
 
+                        /*
                         // Field of science
                         case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
                             ProfileEditorGroupFieldOfScience fieldOfScienceGroup = new()
@@ -1902,7 +2028,9 @@ namespace api.Services
                                 profileDataResponse.personal.fieldOfScienceGroups.Add(fieldOfScienceGroup);
                             }
                             break;
+                        */
 
+                        /*
                         // Keyword
                         case Constants.FieldIdentifiers.PERSON_KEYWORD:
                             ProfileEditorGroupKeyword keywordGroup = new()
@@ -1937,8 +2065,9 @@ namespace api.Services
                                 profileDataResponse.personal.keywordGroups.Add(keywordGroup);
                             }
                             break;
+                        */
 
-
+                        /*
                         // External identifier
                         case Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER:
                             ProfileEditorGroupExternalIdentifier externalIdentifierGroup = new()
@@ -1974,6 +2103,7 @@ namespace api.Services
                                 profileDataResponse.personal.externalIdentifierGroups.Add(externalIdentifierGroup);
                             }
                             break;
+                        */
 
                         // Role in researcher community
                         case Constants.FieldIdentifiers.ACTIVITY_ROLE_IN_RESERCH_COMMUNITY:
