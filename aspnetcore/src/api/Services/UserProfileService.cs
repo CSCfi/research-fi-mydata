@@ -1361,10 +1361,142 @@ namespace api.Services
             return profileDataResponse;
         }
 
+
         /*
          *  Get profile data. New version using different data structure.
          */
         public async Task<ProfileEditorDataResponse2> GetProfileDataAsync2(int userprofileId)
+        {
+            // Response data
+            ProfileEditorDataResponse2 profileDataResponse = new() { };
+
+            // Get SQL statement for profile data query
+            string profileDataSql = _ttvSqlService.GetSqlQuery_ProfileData(userprofileId);
+
+            // Execute SQL statement using Dapper
+            var connection = _ttvContext.Database.GetDbConnection();
+            List<ProfileDataRaw> profileDataRaws = (await connection.QueryAsync<ProfileDataRaw>(profileDataSql)).ToList();
+
+
+            foreach (ProfileDataRaw p in profileDataRaws)
+            {
+                // Organization name translation
+                NameTranslation nameTranslationSourceOrganization = _languageService.GetNameTranslation(
+                    nameFi: p.DimRegisteredDataSource_DimOrganization_NameFi,
+                    nameEn: p.DimRegisteredDataSource_DimOrganization_NameEn,
+                    nameSv: p.DimRegisteredDataSource_DimOrganization_NameSv
+                );
+
+                // Source object containing registered data source and organization name.
+                ProfileEditorSource profileEditorSource = new()
+                {
+                    Id = p.DimRegisteredDataSource_Id,
+                    RegisteredDataSource = p.DimRegisteredDataSource_Name,
+                    Organization = new Organization()
+                    {
+                        NameFi = nameTranslationSourceOrganization.NameFi,
+                        NameEn = nameTranslationSourceOrganization.NameEn,
+                        NameSv = nameTranslationSourceOrganization.NameSv
+                    }
+                };
+
+                switch (p.DimFieldDisplaySettings_FieldIdentifier) {
+                    // Name
+                    case Constants.FieldIdentifiers.PERSON_NAME:
+                        profileDataResponse.personal.names.Add(
+                            new ProfileEditorName()
+                            {
+                                FirstNames = p.DimName_FirstNames,
+                                LastName = p.DimName_LastName,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimNameId,
+                                    Type = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> {profileEditorSource}
+                            }
+                        );
+                        break;
+
+                    // Other name
+                    case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
+                        profileDataResponse.personal.otherNames.Add(
+                            new ProfileEditorName()
+                            {
+                                FullName = p.DimName_FullName,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimNameId,
+                                    Type = Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            }
+                        );
+                        break;
+
+                    // Researcher description
+                    case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
+                        // Researcher description name translation
+                        NameTranslation nameTranslationResearcherDescription = _languageService.GetNameTranslation(
+                            nameFi: p.DimResearcherDescription_ResearchDescriptionFi,
+                            nameEn: p.DimResearcherDescription_ResearchDescriptionEn,
+                            nameSv: p.DimResearcherDescription_ResearchDescriptionSv
+                        );
+                        profileDataResponse.personal.researcherDescriptions.Add(
+                            new ProfileEditorResearcherDescription()
+                            {
+                                ResearchDescriptionFi = nameTranslationResearcherDescription.NameFi,
+                                ResearchDescriptionEn = nameTranslationResearcherDescription.NameEn,
+                                ResearchDescriptionSv = nameTranslationResearcherDescription.NameSv,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimResearcherDescriptionId,
+                                    Type = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            }
+                        );
+                        break;
+
+                    // Publication
+                    case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
+                        profileDataResponse.activity.publications =
+                            _duplicateHandlerService.AddPublicationToProfileEditorData(
+                                dataSource: profileEditorSource,
+                                p: p,
+                                publications: profileDataResponse.activity.publications
+                            );
+                        break;
+
+                    // Publication (ORCID)
+                    case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
+                        profileDataResponse.activity.publications =
+                            _duplicateHandlerService.AddPublicationToProfileEditorData(
+                                dataSource: profileEditorSource,
+                                p: p,
+                                profileDataResponse.activity.publications
+                            );
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            return profileDataResponse;
+        }
+
+
+        /*
+         *  Get profile data. New version using different data structure.
+         */
+        public async Task<ProfileEditorDataResponse2> GetProfileDataAsync3(int userprofileId)
         {
             // Get DimFieldDisplaySettings and related entities
             List<DimFieldDisplaySetting> dimFieldDisplaySettings = await _ttvContext.DimFieldDisplaySettings.TagWith("Get profile data").Where(dfds => dfds.DimUserProfileId == userprofileId && dfds.FactFieldValues.Count() > 0)
@@ -1508,6 +1640,7 @@ namespace api.Services
                     switch (dfds.FieldIdentifier)
                     {
                         // Name
+                        /*
                         case Constants.FieldIdentifiers.PERSON_NAME:
                             ProfileEditorGroupName nameGroup = new()
                             {
@@ -1542,7 +1675,9 @@ namespace api.Services
                                 profileDataResponse.personal.nameGroups.Add(nameGroup);
                             }
                             break;
+                        */
 
+                        /*
                         // Other name
                         case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
                             ProfileEditorGroupOtherName otherNameGroup = new()
@@ -1577,7 +1712,9 @@ namespace api.Services
                                 profileDataResponse.personal.otherNameGroups.Add(otherNameGroup);
                             }
                             break;
+                        */
 
+                        /*
                         // Researcher description
                         case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
                             ProfileEditorGroupResearcherDescription researcherDescriptionGroup = new()
@@ -1614,6 +1751,7 @@ namespace api.Services
                                 profileDataResponse.personal.researcherDescriptionGroups.Add(researcherDescriptionGroup);
                             }
                             break;
+                        */
 
                         // Web link
                         case Constants.FieldIdentifiers.PERSON_WEB_LINK:
@@ -2001,7 +2139,7 @@ namespace api.Services
                                 profileDataResponse.activity.educationGroups.Add(educationGroup);
                             }
                             break;
-
+                    /*
                         // Publication
                         case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
                             // Experimental. Publications in alternative structure.
@@ -2021,7 +2159,7 @@ profileDataResponse.activity.publications);
 profileDataResponse.activity.publications);
                             }
                             break;
-
+                    */
                         // Funding decision
                         case Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION:
                             ProfileEditorGroupFundingDecision fundingDecisionGroup = new()

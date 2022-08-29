@@ -16,9 +16,9 @@ namespace api.Controllers
     /*
      * ProfileDataController2 implements profile editor API commands, such as getting editor data and setting data visibility.
      */
-    [Route("api/[controller]")]
+    [Route("api/foobar")]
     [ApiController]
-    [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
+    //[Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class ProfileDataController2 : TtvControllerBase
     {
         private readonly IUserProfileService _userProfileService;

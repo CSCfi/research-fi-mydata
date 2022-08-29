@@ -2,16 +2,15 @@
 
 namespace api.Models.ProfileEditor
 {
-    public partial class ProfileEditorPublicationExperimental : ProfileEditorItem
+    public partial class ProfileEditorPublication : ProfileEditorItem2
     {
-        public ProfileEditorPublicationExperimental()
+        public ProfileEditorPublication()
         {
             PublicationId = "";
             PublicationName = "";
             PublicationYear = null;
             Doi = "";
             TypeCode = "";
-            DataSources = new List<ProfileEditorSource>();
         }
 
         public string PublicationId { get; set; }
@@ -19,6 +18,5 @@ namespace api.Models.ProfileEditor
         public int? PublicationYear { get; set; }
         public string Doi { get; set; }
         public string TypeCode { get; set; }
-        public List<ProfileEditorSource> DataSources {get; set; }
     }
 }
