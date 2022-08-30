@@ -17,7 +17,7 @@ namespace api.Controllers
     /*
      * CooperationChoicesController implements profile editor API for setting user choices for cooperation.
      */
-    [Route("api/[controller]")]
+    [Route("api/cooperationchoices")]
     [ApiController]
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class CooperationChoicesController : TtvControllerBase

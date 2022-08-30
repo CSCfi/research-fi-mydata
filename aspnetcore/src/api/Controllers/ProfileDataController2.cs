@@ -50,7 +50,7 @@ namespace api.Controllers
         /// Get profile data. New version using different data structure.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponseProfileDataGet2), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
             // Get ORCID id

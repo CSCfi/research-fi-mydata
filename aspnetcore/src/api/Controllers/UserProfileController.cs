@@ -13,7 +13,7 @@ namespace api.Controllers
     /*
      * UserProfileController handles creation, existence check and deletion of userprofile.
      */
-    [Route("api/[controller]")]
+    [Route("api/userprofile")]
     [ApiController]
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class UserProfileController : TtvControllerBase
