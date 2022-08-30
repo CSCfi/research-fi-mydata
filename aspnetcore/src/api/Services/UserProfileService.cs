@@ -1766,6 +1766,9 @@ namespace api.Services
                 await connection.OpenAsync();
                 var transaction = connection.BeginTransaction();
 
+                List<int> idList_dimPid = new();
+                List<int> idList_dimOrcidPublication = new();
+
                 try
                 {
                     /*
@@ -1797,11 +1800,17 @@ namespace api.Services
 
                             }
 
+                            if (factFieldValue.DimOrcidPublicationId != -1)
+                            {
+                                idList_dimOrcidPublication.Add(factFieldValue.DimOrcidPublicationId);
+                            }
+
                             // ORCID putcodes must be deleted separately
                             if (factFieldValue.DimPidIdOrcidPutCode != -1)
                             {
-                                string sqlDeleteOrcidPutCode = _ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode(factFieldValue.DimPidIdOrcidPutCode);
-                                await connection.ExecuteAsync(sql: sqlDeleteOrcidPutCode, transaction: transaction);
+                                //string sqlDeleteOrcidPutCode = _ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode(factFieldValue.DimPidIdOrcidPutCode);
+                                //await connection.ExecuteAsync(sql: sqlDeleteOrcidPutCode, transaction: transaction);
+                                idList_dimPid.Add(factFieldValue.DimPidIdOrcidPutCode);
                             }
 
                             // Delete other related items than dim_identifierless_data
@@ -1813,6 +1822,14 @@ namespace api.Services
 
                         }
                     }
+
+                    // Delete ORCID publications
+                    string sqlDeleteOrcidPublicationList = _ttvSqlService.GetSqlQuery_Delete_DimOrcidPublication_List(idList_dimOrcidPublication);
+                    await connection.ExecuteAsync(sql: sqlDeleteOrcidPublicationList, transaction: transaction);
+
+                    // Delete ORCID putcodes from dim_pid
+                    string sqlDeleteOrcidPutCodeList = _ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode_List(idList_dimPid);
+                    await connection.ExecuteAsync(sql: sqlDeleteOrcidPutCodeList, transaction: transaction);
 
                     // Delete dim_field_display_settings
                     string sqlDeleteDimFieldDisplaySettings = _ttvSqlService.GetSqlQuery_Delete_DimFieldDisplaySettings(userprofileId);

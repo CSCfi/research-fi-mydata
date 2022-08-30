@@ -1,4 +1,5 @@
-﻿using api.Models.ProfileEditor;
+﻿using System.Collections.Generic;
+using api.Models.ProfileEditor;
 using api.Models.Ttv;
 
 namespace api.Services
@@ -10,7 +11,9 @@ namespace api.Services
         string GetSqlQuery_Delete_DimFieldDisplaySettings(int userprofileId);
         string GetSqlQuery_Delete_DimIdentifierlessData_Children(int dimIdentifierlessDataId);
         string GetSqlQuery_Delete_DimIdentifierlessData_Parent(int id);
+        string GetSqlQuery_Delete_DimOrcidPublication_List(List<int> dimOrcidPublicationIds);
         string GetSqlQuery_Delete_DimPid_ORCID_PutCode(int id);
+        string GetSqlQuery_Delete_DimPid_ORCID_PutCode_List(List<int> dimPidIds);
         string GetSqlQuery_Delete_DimUserChoices(int userprofileId);
         string GetSqlQuery_Delete_DimUserProfile(int userprofileId);
         string GetSqlQuery_Delete_FactFieldValueRelatedData(FactFieldValue ffv);

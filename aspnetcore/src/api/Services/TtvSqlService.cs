@@ -1,6 +1,7 @@
 ﻿using api.Models.ProfileEditor;
 using api.Models;
 using api.Models.Ttv;
+using System.Collections.Generic;
 
 namespace api.Services
 {
@@ -242,7 +243,7 @@ namespace api.Services
             if (ffv.DimFundingDecisionId != -1) return $"DELETE FROM dim_funding_decision WHERE id={ffv.DimFundingDecisionId}";
             if (ffv.DimKeywordId != -1) return $"DELETE FROM dim_keyword WHERE id={ffv.DimKeywordId}";
             if (ffv.DimNameId != -1) return $"DELETE FROM dim_name WHERE id={ffv.DimNameId}";
-            if (ffv.DimOrcidPublicationId != -1) return $"DELETE FROM dim_orcid_publication WHERE id={ffv.DimOrcidPublicationId}";
+            //if (ffv.DimOrcidPublicationId != -1) return $"DELETE FROM dim_orcid_publication WHERE id={ffv.DimOrcidPublicationId}";
             if (ffv.DimPidId != -1) return $"DELETE FROM dim_pid WHERE id={ffv.DimPidId}";
             if (ffv.DimPublicationId != -1) return $"DELETE FROM dim_publication WHERE id={ffv.DimPublicationId}";
             if (ffv.DimResearchActivityId != -1) return $"DELETE FROM dim_research_activity WHERE id={ffv.DimResearchActivityId}";
@@ -283,6 +284,20 @@ namespace api.Services
         public string GetSqlQuery_Delete_DimPid_ORCID_PutCode(int id)
         {
             return $"DELETE FROM dim_pid WHERE id={id} AND pid_type='{Constants.PidTypes.ORCID_PUT_CODE}'";
+        }
+
+        // Return SQL DELETE statement for ORCID putcodes in dim_pid.
+        public string GetSqlQuery_Delete_DimPid_ORCID_PutCode_List(List<int> dimPidIds)
+        {
+            string idListCommaSeparatedString = string.Join<int>(",", dimPidIds);
+            return $"DELETE FROM dim_pid WHERE id IN ({idListCommaSeparatedString}) AND pid_type='{Constants.PidTypes.ORCID_PUT_CODE}'";
+        }
+
+        // Return SQL DELETE statement for dim_orcid_publication.
+        public string GetSqlQuery_Delete_DimOrcidPublication_List(List<int> dimOrcidPublicationIds)
+        {
+            string idListCommaSeparatedString = string.Join<int>(",", dimOrcidPublicationIds);
+            return $"DELETE FROM dim_orcid_publication WHERE id IN ({idListCommaSeparatedString})";
         }
 
         // Return SQL DELETE statement for dim_field_display_settings.

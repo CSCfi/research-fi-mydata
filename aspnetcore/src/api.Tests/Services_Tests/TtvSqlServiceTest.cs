@@ -4,6 +4,7 @@ using api.Models;
 using api.Models.Ttv;
 using api.Models.ProfileEditor;
 using System;
+using System.Collections.Generic;
 
 namespace api.Tests
 {
@@ -327,6 +328,7 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
+        /*
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, ORCID publication")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_ORCID_publication()
         {
@@ -335,6 +337,17 @@ namespace api.Tests
             ffv.DimOrcidPublicationId = 12345;
             string expectedSqlString = "DELETE FROM dim_orcid_publication WHERE id=12345";
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(ffv);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+        */
+
+        [Fact(DisplayName = "Get SQL query for deleting ORCID publications in dim_orcid_publication")]
+        public void Test_GetSqlQuery_Delete_DimOrcidPublication_List()
+        {
+            TtvSqlService ttvSqlService = new();
+            List<int> ids = new() { 456, 567, 678 };
+            string expectedSqlString = "DELETE FROM dim_orcid_publication WHERE id IN (456,567,678)";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimOrcidPublication_List(ids);
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
@@ -479,6 +492,16 @@ namespace api.Tests
             TtvSqlService ttvSqlService = new();
             string expectedSqlString = "DELETE FROM dim_pid WHERE id=776655 AND pid_type='ORCID put code'";
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode(776655);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting ORCID putcodes in dim_pid")]
+        public void Test_GetSqlQuery_Delete_DimPid_ORCID_PutCode_List()
+        {
+            TtvSqlService ttvSqlService = new();
+            List<int> dimPidIds = new() { 123, 234, 345 };
+            string expectedSqlString = "DELETE FROM dim_pid WHERE id IN (123,234,345) AND pid_type='ORCID put code'";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode_List(dimPidIds);
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
