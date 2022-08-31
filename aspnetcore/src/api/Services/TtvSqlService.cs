@@ -85,6 +85,12 @@ namespace api.Services
                             {fk_column_name}={profileEditorItemMeta.Id}";
         }
 
+        // Convert list of integers into a comma separated string
+        public string ConvertListOfIntsToCommaSeparatedString(List<int> listOfInts)
+        {
+            return string.Join<int>(",", listOfInts);
+        }
+
         // Return SQL statement for getting profile data
         public string GetSqlQuery_ProfileData(int userprofileId)
         {
@@ -220,42 +226,6 @@ namespace api.Services
                 ";
         }
 
-        /*
-         * Return SQL DELETE statement for deleting FactFieldValue related data.
-         * 
-         * Some relations are intentionally excluded:
-         * - dim_user_profile
-         * - dim_field_display_settings
-         * - dim_registered_data_source
-         * - dim_identifierless_data (has FK to itself, and needs special handling)
-         * - dim_pid ORCID putcode (DimPidIdOrcidPutCode)
-         * 
-         * Those MUST NOT be added, since that would break the user profile deletion logic.
-         */
-        public string GetSqlQuery_Delete_FactFieldValueRelatedData(FactFieldValue ffv)
-        {
-            if (ffv.DimAffiliationId != -1) return $"DELETE FROM dim_affiliation WHERE id={ffv.DimAffiliationId}";
-            if (ffv.DimCompetenceId != -1) return $"DELETE FROM dim_competence WHERE id={ffv.DimCompetenceId}";
-            if (ffv.DimEducationId != -1) return $"DELETE FROM dim_education WHERE id={ffv.DimEducationId}";
-            if (ffv.DimEmailAddrressId != -1) return $"DELETE FROM dim_email_addrress WHERE id={ffv.DimEmailAddrressId}";
-            if (ffv.DimEventId != -1) return $"DELETE FROM dim_event WHERE id={ffv.DimEventId}";
-            if (ffv.DimFieldOfScienceId != -1) return $"DELETE FROM dim_field_of_science WHERE id={ffv.DimFieldOfScienceId}";
-            if (ffv.DimFundingDecisionId != -1) return $"DELETE FROM dim_funding_decision WHERE id={ffv.DimFundingDecisionId}";
-            if (ffv.DimKeywordId != -1) return $"DELETE FROM dim_keyword WHERE id={ffv.DimKeywordId}";
-            if (ffv.DimNameId != -1) return $"DELETE FROM dim_name WHERE id={ffv.DimNameId}";
-            //if (ffv.DimOrcidPublicationId != -1) return $"DELETE FROM dim_orcid_publication WHERE id={ffv.DimOrcidPublicationId}";
-            if (ffv.DimPidId != -1) return $"DELETE FROM dim_pid WHERE id={ffv.DimPidId}";
-            if (ffv.DimPublicationId != -1) return $"DELETE FROM dim_publication WHERE id={ffv.DimPublicationId}";
-            if (ffv.DimResearchActivityId != -1) return $"DELETE FROM dim_research_activity WHERE id={ffv.DimResearchActivityId}";
-            if (ffv.DimResearchCommunityId != -1) return $"DELETE FROM dim_research_community WHERE id={ffv.DimResearchCommunityId}";
-            if (ffv.DimResearchDatasetId != -1) return $"DELETE FROM dim_research_dataset WHERE id={ffv.DimResearchDatasetId}";
-            if (ffv.DimResearcherDescriptionId != -1) return $"DELETE FROM dim_researcher_description WHERE id={ffv.DimResearcherDescriptionId}";
-            if (ffv.DimResearcherToResearchCommunityId != -1) return $"DELETE FROM dim_researcher_to_research_community WHERE id={ffv.DimResearcherToResearchCommunityId}";
-            if (ffv.DimTelephoneNumberId != -1) return $"DELETE FROM dim_telephone_number WHERE id={ffv.DimTelephoneNumberId}";
-            if (ffv.DimWebLinkId != -1) return $"DELETE FROM dim_web_link WHERE id={ffv.DimWebLinkId}";
-            return "";
-        }
-
         // Return SQL SELECT statement for fact_field_values.
         public string GetSqlQuery_Select_FactFieldValues(int userprofileId)
         {
@@ -278,6 +248,114 @@ namespace api.Services
         public string GetSqlQuery_Delete_DimIdentifierlessData_Parent(int id)
         {
             return $"DELETE FROM dim_identifierless_data where id={id}";
+        }
+
+        // Return SQL DELETE statement for dim_affiliation
+        public string GetSqlQuery_Delete_DimAffiliations(List<int> dimAffiliationIds)
+        {
+            return $"DELETE FROM dim_affiliation WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimAffiliationIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_competence
+        public string GetSqlQuery_Delete_DimCompetences(List<int> dimCompetenceIds)
+        {
+            return $"DELETE FROM dim_competence WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimCompetenceIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_education
+        public string GetSqlQuery_Delete_DimEducations(List<int> dimEducationIds)
+        {
+            return $"DELETE FROM dim_education WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimEducationIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_email_addrress
+        public string GetSqlQuery_Delete_DimEmailAddrresses(List<int> dimEmailAddrressIds)
+        {
+            return $"DELETE FROM dim_email_addrress WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimEmailAddrressIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_event
+        public string GetSqlQuery_Delete_DimEvents(List<int> dimEventIds)
+        {
+            return $"DELETE FROM dim_event WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimEventIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_field_of_science
+        public string GetSqlQuery_Delete_DimFieldsOfScience(List<int> dimFieldOfScienceIds)
+        {
+            return $"DELETE FROM dim_field_of_science WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimFieldOfScienceIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_funding_decision
+        public string GetSqlQuery_Delete_DimFundingDecisions(List<int> dimFundingDecisionIds)
+        {
+            return $"DELETE FROM dim_funding_decision WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimFundingDecisionIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_keyword
+        public string GetSqlQuery_Delete_DimKeyword(List<int> dimKeywordIds)
+        {
+            return $"DELETE FROM dim_keyword WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimKeywordIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_name
+        public string GetSqlQuery_Delete_DimNames(List<int> dimNameIds)
+        {
+            return $"DELETE FROM dim_name WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimNameIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_orcid_publication
+        public string GetSqlQuery_Delete_DimOrcidPublications(List<int> dimOrcidPublicationIds)
+        {
+            return $"DELETE FROM dim_orcid_publication WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimOrcidPublicationIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_pid
+        public string GetSqlQuery_Delete_DimPids(List<int> dimPidIds)
+        {
+            return $"DELETE FROM dim_pid WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimPidIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_research_activity
+        public string GetSqlQuery_Delete_DimResearchActivities(List<int> dimResearchActivityIds)
+        {
+            return $"DELETE FROM dim_research_activity WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimResearchActivityIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_research_community
+        public string GetSqlQuery_Delete_DimResearchCommunities(List<int> dimResearchCommunityIds)
+        {
+            return $"DELETE FROM dim_research_community WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimResearchCommunityIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_research_dataset
+        public string GetSqlQuery_Delete_DimResearchDatasets(List<int> dimResearchDatasetIds)
+        {
+            return $"DELETE FROM dim_research_dataset WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimResearchDatasetIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_researcher_description
+        public string GetSqlQuery_Delete_DimResearchDescriptions(List<int> dimResearcherDescriptionIds)
+        {
+            return $"DELETE FROM dim_researcher_description WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimResearcherDescriptionIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_researcher_to_research_community
+        public string GetSqlQuery_Delete_DimResearcherToResearchCommunities(List<int> dimResearcherToResearchCommunityIds)
+        {
+            return $"DELETE FROM dim_researcher_to_research_community WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimResearcherToResearchCommunityIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_pid
+        public string GetSqlQuery_Delete_DimTelephoneNumbers(List<int> dimTelephoneNumberIds)
+        {
+            return $"DELETE FROM dim_pid WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimTelephoneNumberIds)})";
+        }
+
+        // Return SQL DELETE statement for dim_web_link
+        public string GetSqlQuery_Delete_DimWebLinks(List<int> dimWebLinkIds)
+        {
+            return $"DELETE FROM dim_web_link WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimWebLinkIds)})";
         }
 
         // Return SQL DELETE statement for ORCID putcode in dim_pid.

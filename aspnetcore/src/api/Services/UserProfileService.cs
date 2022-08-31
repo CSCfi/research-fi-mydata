@@ -1762,24 +1762,39 @@ namespace api.Services
                     await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId)
                     .AsNoTracking().ToListAsync();
 
-                // Open 
+                // Open database connection
                 await connection.OpenAsync();
+                // Begin database transaction
                 var transaction = connection.BeginTransaction();
 
-                List<int> idList_dimPid = new();
-                List<int> idList_dimOrcidPublication = new();
+                // For efficiency, rows from a table are deleted in on SQL statement.
+                // Collect deletable IDs into lists.
+                List<int> dimAffiliationIds = new();
+                List<int> dimCompetenceIds = new();
+                List<int> dimEducationIds = new();
+                List<int> dimEmailAddrressIds = new();
+                List<int> dimEventIds = new();
+                List<int> dimFieldOfScienceIds = new();
+                List<int> dimFundingDecisionIds = new();
+                List<int> dimKeywordIds = new();
+                List<int> dimNameIds = new();
+                List<int> dimOrcidPublicationIds = new();
+                List<int> dimPidIds = new();
+                List<int> dimResearchActivityIds = new();
+                List<int> dimResearchCommunityIds = new();
+                List<int> dimResearchDatasetIds = new();
+                List<int> dimResearcherDescriptionIds = new();
+                List<int> dimResearcherToResearchCommunityIds = new();
+                List<int> dimTelephoneNumberIds = new();
+                List<int> dimWebLinkIds = new();
 
                 try
-                {
-                    /*
-                    // Get fact_field_values
-                    string sqlFactFieldValues = _ttvSqlService.GetSqlQuery_Select_FactFieldValues(userprofileId);
-                    List<FactFieldValue> factFieldValues =
-                        (await connection.QueryAsync<FactFieldValue>(sql: sqlFactFieldValues, transaction: transaction)).ToList();
-                    */
+                { 
                     // Delete fact_field_values
-                    string sqlDeleteFactFieldValues = _ttvSqlService.GetSqlQuery_Delete_FactFieldValues(userprofileId);
-                    await connection.ExecuteAsync(sql: sqlDeleteFactFieldValues, transaction: transaction);
+                    await connection.ExecuteAsync(
+                        sql: _ttvSqlService.GetSqlQuery_Delete_FactFieldValues(userprofileId),
+                        transaction: transaction
+                    );
 
                     // Delete fact_field_values related items
                     foreach (FactFieldValue factFieldValue in factFieldValues)
@@ -1791,61 +1806,209 @@ namespace api.Services
                             if (factFieldValue.DimIdentifierlessDataId != -1)
                             {
                                 // First delete possible child items from dim_identifierless_data
-                                string sqlDeleteDimIdentifierlessDataChildren = _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(factFieldValue.DimIdentifierlessDataId);
-                                await connection.ExecuteAsync(sql: sqlDeleteDimIdentifierlessDataChildren, transaction: transaction);
+                                await connection.ExecuteAsync(
+                                    sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(factFieldValue.DimIdentifierlessDataId),
+                                    transaction: transaction
+                                );
 
                                 // Then delete parent from dim_identifierless_data
-                                string sqlDeleteDimIdentifierlessDataParent = _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(factFieldValue.DimIdentifierlessDataId);
-                                await connection.ExecuteAsync(sql: sqlDeleteDimIdentifierlessDataParent, transaction: transaction);
-
+                                await connection.ExecuteAsync(
+                                    sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(factFieldValue.DimIdentifierlessDataId),
+                                    transaction: transaction
+                                );
                             }
 
-                            if (factFieldValue.DimOrcidPublicationId != -1)
-                            {
-                                idList_dimOrcidPublication.Add(factFieldValue.DimOrcidPublicationId);
-                            }
-
-                            // ORCID putcodes must be deleted separately
-                            if (factFieldValue.DimPidIdOrcidPutCode != -1)
-                            {
-                                //string sqlDeleteOrcidPutCode = _ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode(factFieldValue.DimPidIdOrcidPutCode);
-                                //await connection.ExecuteAsync(sql: sqlDeleteOrcidPutCode, transaction: transaction);
-                                idList_dimPid.Add(factFieldValue.DimPidIdOrcidPutCode);
-                            }
-
-                            // Delete other related items than dim_identifierless_data
-                            string sqlDeleteFactFieldValueRelatedData = _ttvSqlService.GetSqlQuery_Delete_FactFieldValueRelatedData(factFieldValue);
-                            if (sqlDeleteFactFieldValueRelatedData != "")
-                            {
-                                await connection.ExecuteAsync(sql: sqlDeleteFactFieldValueRelatedData, transaction: transaction);
-                            }
-
+                            // Collect IDs
+                            if (factFieldValue.DimAffiliationId != -1) dimAffiliationIds.Add(factFieldValue.DimAffiliationId);
+                            if (factFieldValue.DimCompetenceId != -1) dimCompetenceIds.Add(factFieldValue.DimCompetenceId);
+                            if (factFieldValue.DimEducationId != -1) dimEducationIds.Add(factFieldValue.DimEducationId);
+                            if (factFieldValue.DimEmailAddrressId != -1) dimEmailAddrressIds.Add(factFieldValue.DimEmailAddrressId);
+                            if (factFieldValue.DimEventId != -1) dimEventIds.Add(factFieldValue.DimEventId);
+                            if (factFieldValue.DimFieldOfScienceId != -1) dimFieldOfScienceIds.Add(factFieldValue.DimFieldOfScienceId);
+                            if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
+                            if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
+                            if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
+                            if (factFieldValue.DimOrcidPublicationId != -1) dimOrcidPublicationIds.Add(factFieldValue.DimOrcidPublicationId);
+                            if (factFieldValue.DimPidId != -1) dimPidIds.Add(factFieldValue.DimPidId);
+                            if (factFieldValue.DimPidIdOrcidPutCode != -1) dimPidIds.Add(factFieldValue.DimPidIdOrcidPutCode);
+                            if (factFieldValue.DimResearchActivityId != -1) dimResearchActivityIds.Add(factFieldValue.DimResearchActivityId);
+                            if (factFieldValue.DimResearchCommunityId != -1) dimResearchCommunityIds.Add(factFieldValue.DimResearchCommunityId);
+                            if (factFieldValue.DimResearchDatasetId != -1) dimResearchDatasetIds.Add(factFieldValue.DimResearchDatasetId);
+                            if (factFieldValue.DimResearcherDescriptionId != -1) dimResearcherDescriptionIds.Add(factFieldValue.DimResearcherDescriptionId);
+                            if (factFieldValue.DimResearcherToResearchCommunityId != -1) dimResearcherToResearchCommunityIds.Add(factFieldValue.DimResearcherToResearchCommunityId);
+                            if (factFieldValue.DimTelephoneNumberId != -1) dimTelephoneNumberIds.Add(factFieldValue.DimTelephoneNumberId);
+                            if (factFieldValue.DimWebLinkId != -1) dimWebLinkIds.Add(factFieldValue.DimWebLinkId);
                         }
                     }
 
+                    // Delete affiliations
+                    if (dimAffiliationIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimAffiliations(dimAffiliationIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete competences
+                    if (dimCompetenceIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimCompetences(dimCompetenceIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete educations
+                    if (dimEducationIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimEducations(dimEducationIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete email addresses
+                    if (dimEmailAddrressIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimEmailAddrresses(dimEmailAddrressIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete events
+                    if (dimEventIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimEvents(dimEventIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete fields of science
+                    if (dimFieldOfScienceIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimFieldsOfScience(dimFieldOfScienceIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete funding decisions
+                    if (dimFundingDecisionIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimFundingDecisions(dimFundingDecisionIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete Keywords
+                    if (dimKeywordIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimKeyword(dimKeywordIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete names
+                    if (dimNameIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimNames(dimNameIds),
+                            transaction: transaction
+                        );
+                    }
                     // Delete ORCID publications
-                    string sqlDeleteOrcidPublicationList = _ttvSqlService.GetSqlQuery_Delete_DimOrcidPublication_List(idList_dimOrcidPublication);
-                    await connection.ExecuteAsync(sql: sqlDeleteOrcidPublicationList, transaction: transaction);
-
-                    // Delete ORCID putcodes from dim_pid
-                    string sqlDeleteOrcidPutCodeList = _ttvSqlService.GetSqlQuery_Delete_DimPid_ORCID_PutCode_List(idList_dimPid);
-                    await connection.ExecuteAsync(sql: sqlDeleteOrcidPutCodeList, transaction: transaction);
+                    if (dimOrcidPublicationIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimOrcidPublications(dimOrcidPublicationIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete PIDs
+                    if (dimPidIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimPids(dimPidIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete research activities
+                    if (dimResearchActivityIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchActivities(dimResearchActivityIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete research communities
+                    if (dimResearchCommunityIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchCommunities(dimResearchCommunityIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete research datasets
+                    if (dimResearchDatasetIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchDatasets(dimResearchDatasetIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete researcher descriptions
+                    if (dimResearcherDescriptionIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchDescriptions(dimResearcherDescriptionIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete researcher to research communities
+                    if (dimResearcherToResearchCommunityIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimResearcherToResearchCommunities(dimResearcherToResearchCommunityIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete telephone numbers
+                    if (dimTelephoneNumberIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimTelephoneNumbers(dimTelephoneNumberIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete web links
+                    if (dimWebLinkIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimWebLinks(dimWebLinkIds),
+                            transaction: transaction
+                        );
+                    }
 
                     // Delete dim_field_display_settings
-                    string sqlDeleteDimFieldDisplaySettings = _ttvSqlService.GetSqlQuery_Delete_DimFieldDisplaySettings(userprofileId);
-                    await connection.ExecuteAsync(sql: sqlDeleteDimFieldDisplaySettings, transaction: transaction);
+                    await connection.ExecuteAsync(
+                        sql: _ttvSqlService.GetSqlQuery_Delete_DimFieldDisplaySettings(userprofileId),
+                        transaction: transaction
+                    );
 
                     // Delete br_granted_permissions
-                    string sqlDeleteBrGrantedPermissions = _ttvSqlService.GetSqlQuery_Delete_BrGrantedPermissions(userprofileId);
-                    await connection.ExecuteAsync(sql: sqlDeleteBrGrantedPermissions, transaction: transaction);
+                    await connection.ExecuteAsync(
+                        sql: _ttvSqlService.GetSqlQuery_Delete_BrGrantedPermissions(userprofileId),
+                        transaction: transaction
+                    );
 
                     // Delete dim_user_choices
-                    string sqlDeleteDimUserChoices = _ttvSqlService.GetSqlQuery_Delete_DimUserChoices(userprofileId);
-                    await connection.ExecuteAsync(sql: sqlDeleteDimUserChoices, transaction: transaction);
+                    await connection.ExecuteAsync(
+                        sql: _ttvSqlService.GetSqlQuery_Delete_DimUserChoices(userprofileId),
+                        transaction: transaction
+                    );
 
                     // Delete dim_user_profile
-                    string sqlDeleteDimUserProfile = _ttvSqlService.GetSqlQuery_Delete_DimUserProfile(userprofileId);
-                    await connection.ExecuteAsync(sql: sqlDeleteDimUserProfile, transaction: transaction);
+                    await connection.ExecuteAsync(
+                        sql: _ttvSqlService.GetSqlQuery_Delete_DimUserProfile(userprofileId),
+                        transaction: transaction
+                    );
 
                     // Commit transaction
                     transaction.Commit();
