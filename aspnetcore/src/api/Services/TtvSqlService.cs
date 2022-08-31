@@ -346,36 +346,16 @@ namespace api.Services
             return $"DELETE FROM dim_researcher_to_research_community WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimResearcherToResearchCommunityIds)})";
         }
 
-        // Return SQL DELETE statement for dim_pid
+        // Return SQL DELETE statement for dim_telephone_number
         public string GetSqlQuery_Delete_DimTelephoneNumbers(List<int> dimTelephoneNumberIds)
         {
-            return $"DELETE FROM dim_pid WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimTelephoneNumberIds)})";
+            return $"DELETE FROM dim_telephone_number WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimTelephoneNumberIds)})";
         }
 
         // Return SQL DELETE statement for dim_web_link
         public string GetSqlQuery_Delete_DimWebLinks(List<int> dimWebLinkIds)
         {
             return $"DELETE FROM dim_web_link WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimWebLinkIds)})";
-        }
-
-        // Return SQL DELETE statement for ORCID putcode in dim_pid.
-        public string GetSqlQuery_Delete_DimPid_ORCID_PutCode(int id)
-        {
-            return $"DELETE FROM dim_pid WHERE id={id} AND pid_type='{Constants.PidTypes.ORCID_PUT_CODE}'";
-        }
-
-        // Return SQL DELETE statement for ORCID putcodes in dim_pid.
-        public string GetSqlQuery_Delete_DimPid_ORCID_PutCode_List(List<int> dimPidIds)
-        {
-            string idListCommaSeparatedString = string.Join<int>(",", dimPidIds);
-            return $"DELETE FROM dim_pid WHERE id IN ({idListCommaSeparatedString}) AND pid_type='{Constants.PidTypes.ORCID_PUT_CODE}'";
-        }
-
-        // Return SQL DELETE statement for dim_orcid_publication.
-        public string GetSqlQuery_Delete_DimOrcidPublication_List(List<int> dimOrcidPublicationIds)
-        {
-            string idListCommaSeparatedString = string.Join<int>(",", dimOrcidPublicationIds);
-            return $"DELETE FROM dim_orcid_publication WHERE id IN ({idListCommaSeparatedString})";
         }
 
         // Return SQL DELETE statement for dim_field_display_settings.

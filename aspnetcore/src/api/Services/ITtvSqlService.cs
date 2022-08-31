@@ -21,10 +21,7 @@ namespace api.Services
         string GetSqlQuery_Delete_DimKeyword(List<int> dimKeywordIds);
         string GetSqlQuery_Delete_DimNames(List<int> dimNameIds);
         string GetSqlQuery_Delete_DimOrcidPublications(List<int> dimOrcidPublicationIds);
-        string GetSqlQuery_Delete_DimOrcidPublication_List(List<int> dimOrcidPublicationIds);
         string GetSqlQuery_Delete_DimPids(List<int> dimPidIds);
-        string GetSqlQuery_Delete_DimPid_ORCID_PutCode(int id);
-        string GetSqlQuery_Delete_DimPid_ORCID_PutCode_List(List<int> dimPidIds);
         string GetSqlQuery_Delete_DimResearchActivities(List<int> dimResearchActivityIds);
         string GetSqlQuery_Delete_DimResearchCommunities(List<int> dimResearchCommunityIds);
         string GetSqlQuery_Delete_DimResearchDatasets(List<int> dimResearchDatasetIds);
