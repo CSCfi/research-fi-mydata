@@ -47,13 +47,9 @@ namespace api.Tests
         public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_name_id()
         {
             TtvSqlService ttvSqlService = new();
-            // First names
+            // Names
             Assert.Equal(
-                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_FIRST_NAMES)
-            );
-            // Last name
-            Assert.Equal(
-                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_LAST_NAME)
+                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_NAME)
             );
             // Other names
             Assert.Equal(
@@ -200,7 +196,7 @@ namespace api.Tests
             ProfileEditorItemMeta profileEditorItemMeta = new()
             {
                 Id = 321,
-                Type = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
+                Type = Constants.FieldIdentifiers.PERSON_NAME,
                 PrimaryValue = false,
                 Show = true
             };

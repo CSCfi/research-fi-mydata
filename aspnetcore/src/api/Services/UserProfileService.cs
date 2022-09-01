@@ -807,7 +807,7 @@ namespace api.Services
                                         itemMeta = new ProfileEditorItemMeta()
                                         {
                                             Id = profileData2.FactFieldValues_DimNameId,
-                                            Type = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
+                                            Type = Constants.FieldIdentifiers.PERSON_NAME,
                                             Show = profileData2.FactFieldValues_Show,
                                             PrimaryValue = profileData2.FactFieldValues_PrimaryValue
                                         }
@@ -1412,7 +1412,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimNameId,
-                                    Type = Constants.FieldIdentifiers.PERSON_FIRST_NAMES,
+                                    Type = Constants.FieldIdentifiers.PERSON_NAME,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },

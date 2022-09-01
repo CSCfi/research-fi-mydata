@@ -20,10 +20,7 @@ namespace api.Services
             string fk_column_name = "";
             switch (fieldIdentifier)
             {
-                case Constants.FieldIdentifiers.PERSON_FIRST_NAMES:
-                    fk_column_name = "dim_name_id";
-                    break;
-                case Constants.FieldIdentifiers.PERSON_LAST_NAME:
+                case Constants.FieldIdentifiers.PERSON_NAME:
                     fk_column_name = "dim_name_id";
                     break;
                 case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:

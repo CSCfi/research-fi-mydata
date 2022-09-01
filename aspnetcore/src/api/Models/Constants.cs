@@ -2,11 +2,13 @@
 {
     public static class Constants
     {
+        /*
+         * FieldIdentifiers should be according to
+         * https://koodistot.suomi.fi/codescheme;registryCode=research;schemeCode=ttv_field_identifiers
+         */
         public static class FieldIdentifiers
         {
             public const int PERSON_NAME = 110;
-            public const int PERSON_LAST_NAME = 111;
-            public const int PERSON_FIRST_NAMES = 112;
             public const int PERSON_OTHER_NAMES = 120;
             public const int PERSON_EXTERNAL_IDENTIFIER = 130;
             public const int PERSON_RESEARCHER_DESCRIPTION = 140;

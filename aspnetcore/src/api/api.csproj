@@ -44,6 +44,7 @@
     <Folder Include="Background\" />
     <Folder Include="Models\Api\" />
     <Folder Include="Models\Common\" />
+    <Folder Include="Models\ProfileEditor\Ver2\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="NEST" />
@@ -62,5 +63,6 @@
     <None Remove="Serilog.Enrichers.Thread" />
     <None Remove="Serilog.Enrichers.Process" />
     <None Remove="Dapper" />
+    <None Remove="Models\ProfileEditor\Ver2\" />
   </ItemGroup>
 </Project>
