@@ -1,8 +1,10 @@
-﻿namespace api.Models.Elasticsearch
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ItemFundingDecision
+    public partial class ElasticsearchFundingDecision : ElasticsearchItemBase
     {
-        public ItemFundingDecision()
+        public ElasticsearchFundingDecision()
         {
             ProjectAcronym = "";
             ProjectNameFi = "";

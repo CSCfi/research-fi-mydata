@@ -1,8 +1,10 @@
-﻿namespace api.Models.Elasticsearch
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ItemEmail
+    public partial class ElasticsearchEmail : ElasticsearchItemBase
     {
-        public ItemEmail()
+        public ElasticsearchEmail()
         {
             Value = "";
             PrimaryValue = null;

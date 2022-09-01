@@ -1,8 +1,10 @@
-﻿namespace api.Models.Elasticsearch
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ItemWebLink
+    public partial class ElasticsearchWebLink : ElasticsearchItemBase
     {
-        public ItemWebLink()
+        public ElasticsearchWebLink()
         {
             Url = "";
             LinkLabel = "";

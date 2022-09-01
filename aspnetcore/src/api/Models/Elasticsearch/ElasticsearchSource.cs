@@ -1,9 +1,9 @@
 ﻿using api.Models.Common;
 namespace api.Models.Elasticsearch
 {
-    public partial class Source
+    public partial class ElasticsearchSource
     {
-        public Source()
+        public ElasticsearchSource()
         {
         }
 

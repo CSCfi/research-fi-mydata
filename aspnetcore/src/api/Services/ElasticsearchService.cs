@@ -47,7 +47,7 @@ namespace api.Services
 
         // Update entry in Elasticsearch person index
         // TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
-        public async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, Person person)
+        public async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person)
         {
             if (!IsElasticsearchSyncEnabled())
             {
@@ -87,7 +87,7 @@ namespace api.Services
 
             //_logger.LogInformation("ElasticsearchService: deleting entry: " + orcidId);
 
-            DeleteResponse asyncDeleteResponse = await ESclient.DeleteAsync<ElasticPerson>(orcidId);
+            DeleteResponse asyncDeleteResponse = await ESclient.DeleteAsync<ElasticsearchPerson>(orcidId);
 
             if (asyncDeleteResponse.IsValid)
             {

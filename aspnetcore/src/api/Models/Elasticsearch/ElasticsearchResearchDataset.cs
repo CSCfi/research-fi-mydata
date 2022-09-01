@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using api.Models.ProfileEditor;
 
 namespace api.Models.Elasticsearch
 {
-    public partial class ItemResearchDataset
+    public partial class ElasticsearchResearchDataset : ElasticsearchItemBase
     {
-        public ItemResearchDataset()
+        public ElasticsearchResearchDataset()
         {
-            Actor = new List<Actor>();
+            Actor = new List<ElasticsearchActor>();
             Identifier = "";
             NameFi = "";
             NameSv = "";
@@ -15,11 +16,11 @@ namespace api.Models.Elasticsearch
             DescriptionSv = "";
             DescriptionEn = "";
             DatasetCreated = null;
-            PreferredIdentifiers = new List<PreferredIdentifier>();
+            PreferredIdentifiers = new List<ElasticsearchPreferredIdentifier>();
         }
 
         // Properties are according to ElasticSearch index, not according to model DimResearchDataset
-        public List<Actor> Actor { get; set; }
+        public List<ElasticsearchActor> Actor { get; set; }
         public string Identifier { get; set; }
         public string NameFi { get; set; }
         public string NameSv { get; set; }
@@ -28,6 +29,6 @@ namespace api.Models.Elasticsearch
         public string DescriptionSv { get; set; }
         public string DescriptionEn { get; set; }
         public int? DatasetCreated { get; set; }
-        public List<PreferredIdentifier> PreferredIdentifiers { get; set; }
+        public List<ElasticsearchPreferredIdentifier> PreferredIdentifiers { get; set; }
     }
 }

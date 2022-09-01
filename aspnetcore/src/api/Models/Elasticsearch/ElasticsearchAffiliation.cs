@@ -1,8 +1,10 @@
-﻿namespace api.Models.Elasticsearch
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ItemAffiliation
+    public partial class ElasticsearchAffiliation : ElasticsearchItemBase
     {
-        public ItemAffiliation()
+        public ElasticsearchAffiliation()
         {
             OrganizationNameFi = "";
             OrganizationNameSv = "";
@@ -14,8 +16,8 @@
             PositionNameSv = "";
             PositionNameEn = "";
             Type = "";
-            StartDate = new ItemDate();
-            EndDate = new ItemDate();
+            StartDate = new ElasticsearchDate();
+            EndDate = new ElasticsearchDate();
             PrimaryValue = null;
         }
 
@@ -29,8 +31,8 @@
         public string PositionNameSv { get; set; }
         public string PositionNameEn { get; set; }
         public string Type { get; set; } 
-        public ItemDate StartDate { get; set; }
-        public ItemDate EndDate { get; set; }
+        public ElasticsearchDate StartDate { get; set; }
+        public ElasticsearchDate EndDate { get; set; }
         public bool? PrimaryValue { get; set; }
     }
 }

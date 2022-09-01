@@ -12,6 +12,7 @@ using Dapper;
 using System.Transactions;
 using api.Controllers;
 using Microsoft.Extensions.Logging;
+using api.Models.Elasticsearch;
 
 namespace api.Services
 {
@@ -1021,7 +1022,7 @@ namespace api.Services
                                 }
 
                                 affiliationItems.Add(
-                                    new()
+                                    new ProfileEditorItemAffiliation()
                                     {
                                         OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
                                         OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
@@ -1066,7 +1067,7 @@ namespace api.Services
                                 );
 
                                 educationItems.Add(
-                                    new()
+                                    new ProfileEditorItemEducation()
                                     {
                                         NameFi = nameTraslationEducation.NameFi,
                                         NameEn = nameTraslationEducation.NameEn,
@@ -1705,7 +1706,8 @@ namespace api.Services
                                     Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
-                                }
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
                         break;

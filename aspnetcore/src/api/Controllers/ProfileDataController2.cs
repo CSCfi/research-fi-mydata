@@ -137,7 +137,7 @@ namespace api.Controllers
                 {
                     _logger.LogInformation($"Elasticsearch index update for {orcidId} started {DateTime.UtcNow}");
                     // Get Elasticsearch person entry from profile data.
-                    Models.Elasticsearch.Person person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                    Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
                     // Update Elasticsearch person index.
                     await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
                     _logger.LogInformation($"Elasticsearch index update for {orcidId} completed {DateTime.UtcNow}");
