@@ -5,6 +5,6 @@ namespace api.Services
 {
     public interface IBackgroundProfiledata
     {
-        Task<Person> GetProfiledataForElasticsearch(string orcidId, int userprofileId);
+        Task<ElasticsearchPerson> GetProfiledataForElasticsearch(string orcidId, int userprofileId);
     }
 }

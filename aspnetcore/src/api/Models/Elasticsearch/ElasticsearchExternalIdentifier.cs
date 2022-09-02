@@ -1,8 +1,10 @@
-﻿namespace api.Models.Elasticsearch
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ItemExternalIdentifier
+    public partial class ElasticsearchExternalIdentifier : ElasticsearchItemBase
     {
-        public ItemExternalIdentifier()
+        public ElasticsearchExternalIdentifier()
         {
             PidContent = "";
             PidType = "";

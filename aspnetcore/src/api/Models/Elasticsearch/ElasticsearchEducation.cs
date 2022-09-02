@@ -1,15 +1,17 @@
-﻿namespace api.Models.Elasticsearch
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ItemEducation
+    public partial class ElasticsearchEducation : ElasticsearchItemBase
     {
-        public ItemEducation()
+        public ElasticsearchEducation()
         {
             NameFi = "";
             NameEn = "";
             NameSv = "";
             DegreeGrantingInstitutionName = "";
-            StartDate = new ItemDate();
-            EndDate = new ItemDate();
+            StartDate = new ElasticsearchDate();
+            EndDate = new ElasticsearchDate();
             PrimaryValue = null;
         }
 
@@ -17,8 +19,8 @@
         public string NameEn { get; set; }
         public string NameSv { get; set; }
         public string DegreeGrantingInstitutionName { get; set; }
-        public ItemDate StartDate { get; set; }
-        public ItemDate EndDate { get; set; }
+        public ElasticsearchDate StartDate { get; set; }
+        public ElasticsearchDate EndDate { get; set; }
         public bool? PrimaryValue { get; set; }
     }
 }

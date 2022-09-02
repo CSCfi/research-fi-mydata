@@ -34,6 +34,8 @@
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
     <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
     <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +47,7 @@
     <Folder Include="Models\Api\" />
     <Folder Include="Models\Common\" />
     <Folder Include="Models\ProfileEditor\Ver2\" />
+    <Folder Include="Automapper\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="NEST" />
@@ -64,5 +67,8 @@
     <None Remove="Serilog.Enrichers.Process" />
     <None Remove="Dapper" />
     <None Remove="Models\ProfileEditor\Ver2\" />
+    <None Remove="AutoMapper" />
+    <None Remove="AutoMapper.Extensions.Microsoft.DependencyInjection" />
+    <None Remove="Automapper\" />
   </ItemGroup>
 </Project>

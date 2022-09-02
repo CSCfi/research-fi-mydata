@@ -1,8 +1,10 @@
-﻿namespace api.Models.Elasticsearch
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ItemTelephoneNumber
+    public partial class ElasticsearchKeyword : ElasticsearchItemBase
     {
-        public ItemTelephoneNumber()
+        public ElasticsearchKeyword()
         {
             Value = "";
             PrimaryValue = null;

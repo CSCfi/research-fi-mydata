@@ -1,8 +1,8 @@
 ﻿namespace api.Models.Elasticsearch
 {
-    public partial class ItemDate
+    public partial class ElasticsearchDate
     {
-        public ItemDate()
+        public ElasticsearchDate()
         {
             Year = 0;
             Month = 0;

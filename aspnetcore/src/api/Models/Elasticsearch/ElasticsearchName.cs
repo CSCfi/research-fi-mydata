@@ -1,8 +1,10 @@
-﻿namespace api.Models.Elasticsearch
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ItemName
+    public partial class ElasticsearchName : ElasticsearchItemBase
     {
-        public ItemName()
+        public ElasticsearchName()
         {
             FirstNames = "";
             LastName = "";

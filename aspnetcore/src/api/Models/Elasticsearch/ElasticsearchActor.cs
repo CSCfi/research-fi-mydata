@@ -2,9 +2,9 @@
 
 namespace api.Models.Elasticsearch
 {
-    public partial class Actor
+    public partial class ElasticsearchActor
     {
-        public Actor()
+        public ElasticsearchActor()
         {
         }
 

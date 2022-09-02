@@ -17,6 +17,7 @@ using IdentityModel.Client;
 using Microsoft.Net.Http.Headers;
 using System.Linq;
 using Serilog;
+using AutoMapper;
 
 namespace api
 {
@@ -213,6 +214,16 @@ namespace api
                 httpClient.BaseAddress = new Uri(Configuration["KEYCLOAK:ORCIDTOKENENDPOINT"]);
                 httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
+
+            // Automapper
+            // Auto Mapper Configurations
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
 
 
             services.AddResponseCompression();

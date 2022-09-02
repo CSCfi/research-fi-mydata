@@ -136,7 +136,7 @@ namespace api.Controllers
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
                     // Get Elasticsearch person entry from profile data.
-                    Models.Elasticsearch.Person person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                    Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
                     // Update Elasticsearch person index.
                     bool updateSuccess = await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
                     if (updateSuccess)

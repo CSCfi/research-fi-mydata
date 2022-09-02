@@ -1,8 +1,8 @@
 ﻿namespace api.Models.Elasticsearch
 {
-    public partial class PreferredIdentifier
+    public partial class ElasticsearchPreferredIdentifier
     {
-        public PreferredIdentifier()
+        public ElasticsearchPreferredIdentifier()
         {
             PidContent = "";
             PidType = "";

@@ -1,8 +1,10 @@
-﻿namespace api.Models.Elasticsearch
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ItemFieldOfScience
+    public partial class ElasticsearchFieldOfScience : ElasticsearchItemBase
     {
-        public ItemFieldOfScience()
+        public ElasticsearchFieldOfScience()
         {
             NameFi = "";
             NameEn = "";
