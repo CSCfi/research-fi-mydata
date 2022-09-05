@@ -34,7 +34,7 @@ namespace api.Services
             IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
             IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
-            ProfileEditorDataResponse2 profileEditorDataResponse = await localUserProfileService.GetProfileDataAsync2(userprofileId);
+            ProfileEditorDataResponse2 profileEditorDataResponse = await localUserProfileService.GetProfileDataAsync2(userprofileId: userprofileId, forElasticsearch: true);
 
             // Convert profile editor model into Elasticsearch model using Automapper.
             // Set id to ORCID ID

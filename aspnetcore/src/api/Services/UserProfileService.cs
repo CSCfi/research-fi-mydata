@@ -731,13 +731,13 @@ namespace api.Services
         /*
          *  Get profile data.
          */
-        public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId)
+        public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, bool forElasticsearch = false)
         {
             // Response data
             ProfileEditorDataResponse profileDataResponse = new() { };
 
             // Get SQL statement for profile data query
-            string profileDataSql = _ttvSqlService.GetSqlQuery_ProfileData(userprofileId);
+            string profileDataSql = _ttvSqlService.GetSqlQuery_ProfileData(userprofileId, forElasticsearch);
 
             // Execute SQL statement using Dapper
             var connection = _ttvContext.Database.GetDbConnection();
@@ -1367,13 +1367,13 @@ namespace api.Services
          *  Get profile data. New version using data structure,
          *  where each item contains a list of data sources.
          */
-        public async Task<ProfileEditorDataResponse2> GetProfileDataAsync2(int userprofileId)
+        public async Task<ProfileEditorDataResponse2> GetProfileDataAsync2(int userprofileId, bool forElasticsearch = false)
         {
             // Response data
             ProfileEditorDataResponse2 profileDataResponse = new() { };
 
             // Get SQL statement for profile data query
-            string profileDataSql = _ttvSqlService.GetSqlQuery_ProfileData(userprofileId);
+            string profileDataSql = _ttvSqlService.GetSqlQuery_ProfileData(userprofileId, forElasticsearch);
 
             // Execute SQL statement using Dapper
             var connection = _ttvContext.Database.GetDbConnection();
@@ -1402,7 +1402,8 @@ namespace api.Services
                     }
                 };
 
-                switch (p.DimFieldDisplaySettings_FieldIdentifier) {
+                switch (p.DimFieldDisplaySettings_FieldIdentifier)
+                {
                     // Name
                     case Constants.FieldIdentifiers.PERSON_NAME:
                         profileDataResponse.personal.names.Add(
@@ -1417,7 +1418,7 @@ namespace api.Services
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
-                                DataSources = new List<ProfileEditorSource> {profileEditorSource}
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
                         break;
@@ -1791,7 +1792,7 @@ namespace api.Services
                 List<int> dimWebLinkIds = new();
 
                 try
-                { 
+                {
                     // Delete fact_field_values
                     await connection.ExecuteAsync(
                         sql: _ttvSqlService.GetSqlQuery_Delete_FactFieldValues(userprofileId),
