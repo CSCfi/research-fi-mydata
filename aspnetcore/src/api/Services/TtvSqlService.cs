@@ -88,8 +88,12 @@ namespace api.Services
             return string.Join<int>(",", listOfInts);
         }
 
-        // Return SQL statement for getting profile data
-        public string GetSqlQuery_ProfileData(int userprofileId)
+        /*
+         * Return SQL statement for getting profile data.
+         * Parameter forElasticsearch controls if query should be limited to
+         * contain only user's published items.
+         */
+        public string GetSqlQuery_ProfileData(int userprofileId, bool forElasticsearch = false)
         {
             return $@"
                 SELECT
@@ -204,7 +208,7 @@ namespace api.Services
                 JOIN dim_orcid_publication ON ffv.dim_orcid_publication_id=dim_orcid_publication.id
 
                 WHERE
-                    ffv.dim_user_profile_id={userprofileId} AND
+                    ffv.dim_user_profile_id={userprofileId} AND {(forElasticsearch ? " ffv.show=1 AND " : "")}
                     (
                         ffv.dim_name_id != -1 OR
                         ffv.dim_web_link_id != -1 OR

@@ -27,8 +27,8 @@ namespace api.Services
         FactFieldValue GetEmptyFactFieldValue();
         FactFieldValue GetEmptyFactFieldValueDemo();
         List<int> GetFieldIdentifiers();
-        Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId);
-        Task<ProfileEditorDataResponse2> GetProfileDataAsync2(int userprofileId);
+        Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, bool forElasticsearch = false);
+        Task<ProfileEditorDataResponse2> GetProfileDataAsync2(int userprofileId, bool forElasticsearch = false);
         Task<int> GetUserprofileId(string orcidId);
         Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens);
         Task<bool> UserprofileExistsForOrcidId(string orcidId);

@@ -32,7 +32,7 @@ namespace api.Services
         string GetSqlQuery_Delete_DimUserProfile(int userprofileId);
         string GetSqlQuery_Delete_DimWebLinks(List<int> dimWebLinkIds);
         string GetSqlQuery_Delete_FactFieldValues(int userprofileId);
-        string GetSqlQuery_ProfileData(int userprofileId);
+        string GetSqlQuery_ProfileData(int userprofileId, bool forElasticsearch = false);
         string GetSqlQuery_Select_FactFieldValues(int userprofileId);
         string GetSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta);
     }
