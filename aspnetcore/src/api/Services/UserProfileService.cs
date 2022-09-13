@@ -1733,6 +1733,43 @@ namespace api.Services
                             );
                         break;
 
+                    case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
+                        NameTranslation nameTraslationResearchActivityName = _languageService.GetNameTranslation(
+                            nameFi: p.DimResearchActivity_NameFi,
+                            nameEn: p.DimResearchActivity_NameEn,
+                            nameSv: p.DimResearchActivity_NameSv
+                        );
+                        NameTranslation nameTraslationResearchActivityDescription = _languageService.GetNameTranslation(
+                            nameFi: p.DimResearchActivity_DescriptionFi,
+                            nameEn: p.DimResearchActivity_DescriptionEn,
+                            nameSv: p.DimResearchActivity_DescriptionSv
+                        );
+                        profileDataResponse.activity.activitiesAndRewards.Add(
+                            new ProfileEditorActivityAndReward()
+                            {
+                                NameFi = nameTraslationResearchActivityName.NameFi,
+                                NameEn = nameTraslationResearchActivityName.NameEn,
+                                NameSv = nameTraslationResearchActivityName.NameSv,
+                                DescriptionFi = nameTraslationResearchActivityDescription.NameFi,
+                                DescriptionEn = nameTraslationResearchActivityDescription.NameEn,
+                                DescriptionSv = nameTraslationResearchActivityDescription.NameSv,
+                                InternationalCollaboration = p.DimResearchActivity_InternationalCollaboration,
+                                StartDate = new ProfileEditorItemDate()
+                                {
+                                    Year = p.DimResearchActivity_StartDate_Year,
+                                    Month = p.DimResearchActivity_StartDate_Month,
+                                    Day = p.DimResearchActivity_StartDate_Day
+                                },
+                                EndDate = new ProfileEditorItemDate()
+                                {
+                                    Year = p.DimResearchActivity_EndDate_Year,
+                                    Month = p.DimResearchActivity_EndDate_Month,
+                                    Day = p.DimResearchActivity_EndDate_Day
+                                },
+                            }
+                        );
+                        break;
+
                     default:
                         break;
                 }

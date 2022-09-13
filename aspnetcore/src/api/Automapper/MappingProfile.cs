@@ -27,5 +27,6 @@ public class MappingProfile : Profile
         CreateMap<ProfileEditorWebLink, ElasticsearchWebLink>();
         CreateMap<ProfileEditorActor, ElasticsearchActor>();
         CreateMap<ProfileEditorPreferredIdentifier, ElasticsearchPreferredIdentifier>();
+        CreateMap<ProfileEditorActivityAndReward, ElasticsearchActivityAndReward>();
     }
 }

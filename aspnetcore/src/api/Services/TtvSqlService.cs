@@ -121,6 +121,7 @@ namespace api.Services
                     ffv.dim_education_id AS 'FactFieldValues_DimEducationId',
                     ffv.dim_publication_id AS 'FactFieldValues_DimPublicationId',
                     ffv.dim_orcid_publication_id AS 'FactFieldValues_DimOrcidPublicationId',
+                    ffv.dim_research_activity_id AS 'FactFieldValues_DimResearchActivityId',
                     dim_name.lASt_name AS 'DimName_LastName',
                     dim_name.first_names AS 'DimName_FirstNames',
                     dim_name.full_name AS 'DimName_FullName',
@@ -179,7 +180,20 @@ namespace api.Services
                     dim_orcid_publication.publication_id AS 'DimOrcidPublication_PublicationId',
                     dim_orcid_publication.publication_name AS 'DimOrcidPublication_PublicationName',
                     dim_orcid_publication.publication_year AS 'DimOrcidPublication_PublicationYear',
-                    dim_orcid_publication.doi_handle AS 'DimOrcidPublication_Doi'
+                    dim_orcid_publication.doi_handle AS 'DimOrcidPublication_Doi',
+                    dim_research_activity.name_fi AS 'DimResearchActivity_NameFi',
+                    dim_research_activity.name_en AS 'DimResearchActivity_NameEn',
+                    dim_research_activity.name_sv AS 'DimResearchActivity_NameSv',
+                    dim_research_activity.description_fi AS 'DimResearchActivity_DescriptionFi',
+                    dim_research_activity.description_en AS 'DimResearchActivity_DescriptionEn',
+                    dim_research_activity.description_sv AS 'DimResearchActivity_DescriptionSv',
+                    dim_research_activity.international_collaboration AS 'DimResearchActivity_InternationalCollaboration',
+                    research_activity_start_date.year AS 'DimResearchActivity_StartDate_Year',
+                    research_activity_start_date.month AS 'DimResearchActivity_StartDate_Month',
+                    research_activity_start_date.day AS 'DimResearchActivity_StartDate_Day',
+                    research_activity_end_date.year AS 'DimResearchActivity_EndDate_Year',
+                    research_activity_end_date.month AS 'DimResearchActivity_EndDate_Month',
+                    research_activity_end_date.day AS 'DimResearchActivity_EndDate_Day'
 
                 FROM fact_field_values AS ffv
 
@@ -206,6 +220,9 @@ namespace api.Services
                 LEFT JOIN dim_date AS education_end_date ON dim_education.dim_end_date=education_end_date.id AND education_end_date.id!=-1
                 JOIN dim_publication ON ffv.dim_publication_id=dim_publication.id
                 JOIN dim_orcid_publication ON ffv.dim_orcid_publication_id=dim_orcid_publication.id
+                JOIN dim_research_activity ON ffv.dim_research_activity_id=dim_research_activity.id
+                LEFT JOIN dim_date AS research_activity_start_date ON dim_research_activity.dim_start_date=research_activity_start_date.id AND research_activity_start_date.id!=-1
+                LEFT JOIN dim_date AS research_activity_end_date ON dim_research_activity.dim_end_date=research_activity_end_date.id AND research_activity_end_date.id!=-1
 
                 WHERE
                     ffv.dim_user_profile_id={userprofileId} AND {(forElasticsearch ? " ffv.show=1 AND " : "")}
@@ -222,7 +239,8 @@ namespace api.Services
                         ffv.dim_identifierless_data_id != -1 OR
                         ffv.dim_education_id != -1 OR
                         ffv.dim_publication_id != -1 OR
-                        ffv.dim_orcid_publication_id != -1
+                        ffv.dim_orcid_publication_id != -1 OR
+                        ffv.dim_research_activity_id != -1
                     )
                 ";
         }

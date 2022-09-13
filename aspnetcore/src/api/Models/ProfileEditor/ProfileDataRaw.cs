@@ -28,10 +28,10 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimEducationId { get; set; }
         public int FactFieldValues_DimPublicationId { get; set; }
         public int FactFieldValues_DimOrcidPublicationId { get; set; }
+        public int FactFieldValues_DimResearchActivityId { get; set; }
         //public int DimFundingDecisionId { get; set; }
         //public int DimPublicationId { get; set; }
         //public int DimPidIdOrcidPutCode { get; set; }
-        //public int DimResearchActivityId { get; set; }
         //public int DimEventId { get; set; }
         //public int DimEducationId { get; set; }
         //public int DimCompetenceId { get; set; }
@@ -124,5 +124,19 @@ namespace api.Models.ProfileEditor
         public string DimOrcidPublication_PublicationName { get; set; }
         public int DimOrcidPublication_PublicationYear { get; set; }
         public string DimOrcidPublication_Doi { get; set; }
+        // DimResearchActivity
+        public string DimResearchActivity_NameFi { get; set; }
+        public string DimResearchActivity_NameEn { get; set; }
+        public string DimResearchActivity_NameSv { get; set; }
+        public string DimResearchActivity_DescriptionFi { get; set; }
+        public string DimResearchActivity_DescriptionEn { get; set; }
+        public string DimResearchActivity_DescriptionSv { get; set; }
+        public bool DimResearchActivity_InternationalCollaboration { get; set; }
+        public int DimResearchActivity_StartDate_Year { get; set; }
+        public int DimResearchActivity_StartDate_Month { get; set; }
+        public int DimResearchActivity_StartDate_Day { get; set; }
+        public int DimResearchActivity_EndDate_Year { get; set; }
+        public int DimResearchActivity_EndDate_Month { get; set; }
+        public int DimResearchActivity_EndDate_Day { get; set; }
     }
 }
