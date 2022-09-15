@@ -193,7 +193,27 @@ namespace api.Services
                     research_activity_start_date.day AS 'DimResearchActivity_StartDate_Day',
                     research_activity_end_date.year AS 'DimResearchActivity_EndDate_Year',
                     research_activity_end_date.month AS 'DimResearchActivity_EndDate_Month',
-                    research_activity_end_date.day AS 'DimResearchActivity_EndDate_Day'
+                    research_activity_end_date.day AS 'DimResearchActivity_EndDate_Day',
+                    dfd.acronym AS 'DimFundingDecision_Acronym',
+                    dfd.funder_project_number AS 'DimFundingDecision_FunderProjectNumber',
+                    dfd.name_fi AS 'DimFundingDecision_NameFi',
+                    dfd.name_en AS 'DimFundingDecision_NameEn',
+                    dfd.name_sv AS 'DimFundingDecision_NameSv',
+                    dfd.description_fi AS 'DimFundingDecision_DescriptionFi',
+                    dfd.description_en AS 'DimFundingDecision_DescriptionEn',
+                    dfd.description_sv AS 'DimFundingDecision_DescriptionSv',
+                    dfd.amount_in_EUR AS 'DimFundingDecision_AmountInEur',
+                    funding_decision_start_date.year AS 'DimFundingDecision_StartDate_Year',
+                    funding_decision_end_date.year AS 'DimFundingDecision_EndDate_Year',
+                    dim_type_of_funding.name_fi AS 'DimFundingDecision_DimTypeOfFunding_NameFi',
+                    dim_type_of_funding.name_en AS 'DimFundingDecision_DimTypeOfFunding_NameEn',
+                    dim_type_of_funding.name_sv AS 'DimFundingDecision_DimTypeOfFunding_NameSv',
+                    dim_call_programme.name_fi AS 'DimFundingDecision_DimCallProgramme_NameFi',
+                    dim_call_programme.name_en AS 'DimFundingDecision_DimCallProgramme_NameEn',
+                    dim_call_programme.name_sv AS 'DimFundingDecision_DimCallProgramme_NameSv',
+                    dfd_organization.name_fi AS 'DimFundingDecision_Funder_NameFi',
+                    dfd_organization.name_en AS 'DimFundingDecision_Funder_NameEn',
+                    dfd_organization.name_sv AS 'DimFundingDecision_Funder_NameSv'
 
                 FROM fact_field_values AS ffv
 
@@ -223,6 +243,13 @@ namespace api.Services
                 JOIN dim_research_activity ON ffv.dim_research_activity_id=dim_research_activity.id
                 LEFT JOIN dim_date AS research_activity_start_date ON dim_research_activity.dim_start_date=research_activity_start_date.id AND research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS research_activity_end_date ON dim_research_activity.dim_end_date=research_activity_end_date.id AND research_activity_end_date.id!=-1
+                JOIN dim_funding_decision AS dfd ON ffv.dim_funding_decision_id=dfd.id
+                LEFT JOIN dim_date AS funding_decision_start_date ON dfd.dim_date_id_start=funding_decision_start_date.id AND funding_decision_start_date.id!=-1
+                LEFT JOIN dim_date AS funding_decision_end_date ON dfd.dim_date_id_end=funding_decision_end_date.id AND funding_decision_end_date.id!=-1
+                LEFT JOIN dim_call_programme ON dim_call_programme.id=dfd.dim_call_programme_id
+                LEFT JOIN dim_type_of_funding ON dim_type_of_funding.id=dfd.dim_type_of_funding_id
+                LEFT JOIN dim_organization AS dfd_organization ON dfd_organization.id=dfd.dim_organization_id_funder
+                JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
 
                 WHERE
                     ffv.dim_user_profile_id={userprofileId} AND {(forElasticsearch ? " ffv.show=1 AND " : "")}
@@ -240,7 +267,9 @@ namespace api.Services
                         ffv.dim_education_id != -1 OR
                         ffv.dim_publication_id != -1 OR
                         ffv.dim_orcid_publication_id != -1 OR
-                        ffv.dim_research_activity_id != -1
+                        ffv.dim_research_activity_id != -1 OR
+                        ffv.dim_funding_decision_id != -1 OR
+                        ffv.dim_research_dataset_id != -1
                     )
                 ";
         }
