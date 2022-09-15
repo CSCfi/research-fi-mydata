@@ -29,16 +29,14 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimPublicationId { get; set; }
         public int FactFieldValues_DimOrcidPublicationId { get; set; }
         public int FactFieldValues_DimResearchActivityId { get; set; }
-        //public int DimFundingDecisionId { get; set; }
+        public int FactFieldValues_DimFundingDecisionId { get; set; }
+        public int FactFieldValues_DimResearchDatasetId { get; set; }
         //public int DimPublicationId { get; set; }
         //public int DimPidIdOrcidPutCode { get; set; }
         //public int DimEventId { get; set; }
-        //public int DimEducationId { get; set; }
         //public int DimCompetenceId { get; set; }
         //public int DimResearchCommunityId { get; set; }
-        //public int DimOrcidPublicationId { get; set; }
         //public int DimResearcherToResearchCommunityId { get; set; }
-        //public int DimResearchDatasetId { get; set; }
         //public int DimRegisteredDataSourceId { get; set; }
         // DimFieldDisplaySettings
         public int DimFieldDisplaySettings_Id { get; set; }
@@ -138,5 +136,26 @@ namespace api.Models.ProfileEditor
         public int DimResearchActivity_EndDate_Year { get; set; }
         public int DimResearchActivity_EndDate_Month { get; set; }
         public int DimResearchActivity_EndDate_Day { get; set; }
+        // DimFundingDecision
+        public string DimFundingDecision_Acronym { get; set; }
+        public string DimFundingDecision_FunderProjectNumber { get; set; }
+        public string DimFundingDecision_NameFi { get; set; }
+        public string DimFundingDecision_NameEn { get; set; }
+        public string DimFundingDecision_NameSv { get; set; }
+        public string DimFundingDecision_DescriptionFi { get; set; }
+        public string DimFundingDecision_DescriptionEn { get; set; }
+        public string DimFundingDecision_DescriptionSv { get; set; }
+        public decimal DimFundingDecision_amount_in_EUR { get; set; }
+        public int DimFundingDecision_StartDate_Year { get; set; }
+        public int DimFundingDecision_EndDate_Year { get; set; }
+        public string DimFundingDecision_DimTypeOfFunding_NameFi { get; set; }
+        public string DimFundingDecision_DimTypeOfFunding_NameEn { get; set; }
+        public string DimFundingDecision_DimTypeOfFunding_NameSv { get; set; }
+        public string DimFundingDecision_DimCallProgramme_NameFi { get; set; }
+        public string DimFundingDecision_DimCallProgramme_NameEn { get; set; }
+        public string DimFundingDecision_DimCallProgramme_NameSv { get; set; }
+        public string DimFundingDecision_Funder_NameFi { get; set; }
+        public string DimFundingDecision_Funder_NameEn { get; set; }
+        public string DimFundingDecision_Funder_NameSv { get; set; }
     }
 }
