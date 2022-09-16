@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace api.Models.Elasticsearch
+﻿namespace api.Models.Elasticsearch
 {
     public partial class ElasticsearchFundingDecision : ElasticsearchItemBase
     {

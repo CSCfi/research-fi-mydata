@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using api.Models.ProfileEditor;
 
 namespace api.Models.Elasticsearch
 {
