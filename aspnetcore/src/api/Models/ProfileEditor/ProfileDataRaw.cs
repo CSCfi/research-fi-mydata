@@ -157,5 +157,14 @@ namespace api.Models.ProfileEditor
         public string DimFundingDecision_Funder_NameFi { get; set; }
         public string DimFundingDecision_Funder_NameEn { get; set; }
         public string DimFundingDecision_Funder_NameSv { get; set; }
+        // DimResearchDataset
+        public string DimResearchDataset_LocalIdentifier { get; set; }
+        public string DimResearchDataset_NameFi { get; set; }
+        public string DimResearchDataset_NameEn { get; set; }
+        public string DimResearchDataset_NameSv { get; set; }
+        public string DimResearchDataset_DescriptionFi { get; set; }
+        public string DimResearchDataset_DescriptionEn { get; set; }
+        public string DimResearchDataset_DescriptionSv { get; set; }
+        public DateTime? DimResearchDataset_DatasetCreated {get; set; }
     }
 }

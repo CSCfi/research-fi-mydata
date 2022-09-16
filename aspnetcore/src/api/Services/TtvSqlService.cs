@@ -122,6 +122,8 @@ namespace api.Services
                     ffv.dim_publication_id AS 'FactFieldValues_DimPublicationId',
                     ffv.dim_orcid_publication_id AS 'FactFieldValues_DimOrcidPublicationId',
                     ffv.dim_research_activity_id AS 'FactFieldValues_DimResearchActivityId',
+                    ffv.dim_funding_decision_id AS 'FactFieldValues_DimFundingDecisionId',
+                    ffv.dim_research_dataset_id AS 'FactFieldValues_DimResearchDatasetId',
                     dim_name.lASt_name AS 'DimName_LastName',
                     dim_name.first_names AS 'DimName_FirstNames',
                     dim_name.full_name AS 'DimName_FullName',
@@ -213,7 +215,15 @@ namespace api.Services
                     dim_call_programme.name_sv AS 'DimFundingDecision_DimCallProgramme_NameSv',
                     dfd_organization.name_fi AS 'DimFundingDecision_Funder_NameFi',
                     dfd_organization.name_en AS 'DimFundingDecision_Funder_NameEn',
-                    dfd_organization.name_sv AS 'DimFundingDecision_Funder_NameSv'
+                    dfd_organization.name_sv AS 'DimFundingDecision_Funder_NameSv',
+                    dim_research_dataset.local_identifier AS 'DimResearchDataset_LocalIdentifier',
+                    dim_research_dataset.name_fi AS 'DimResearchDataset_NameFi',
+                    dim_research_dataset.name_en AS 'DimResearchDataset_NameEn',
+                    dim_research_dataset.name_sv AS 'DimResearchDataset_NameSv',
+                    dim_research_dataset.description_fi AS 'DimResearchDataset_DescriptionFi',
+                    dim_research_dataset.description_en AS 'DimResearchDataset_DescriptionEn',
+                    dim_research_dataset.description_sv AS 'DimResearchDataset_DescriptionSv',
+                    dim_research_dataset.dataset_created AS 'DimResearchDataset_DatasetCreated'
 
                 FROM fact_field_values AS ffv
 
