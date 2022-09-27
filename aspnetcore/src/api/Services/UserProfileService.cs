@@ -1767,6 +1767,14 @@ namespace api.Services
                                     Month = p.DimResearchActivity_EndDate_Month,
                                     Day = p.DimResearchActivity_EndDate_Day
                                 },
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimResearchActivityId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
                         break;
@@ -1826,7 +1834,15 @@ namespace api.Services
                                 CallProgrammeNameSv = nameTranslationCallProgramme.NameSv,
                                 FundingStartYear = p.DimFundingDecision_StartDate_Year,
                                 FundingEndYear = p.DimFundingDecision_EndDate_Year,
-                                AmountInEur = p.DimFundingDecision_amount_in_EUR
+                                AmountInEur = p.DimFundingDecision_amount_in_EUR,
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimFundingDecisionId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
                         break;
@@ -1862,7 +1878,15 @@ namespace api.Services
                                 PreferredIdentifiers =
                                     (await connection.QueryAsync<ProfileEditorPreferredIdentifier>(
                                         $"SELECT pid_type AS 'PidType', pid_content AS 'PidContent' FROM dim_pid WHERE dim_research_dataset_id={p.FactFieldValues_DimResearchDatasetId}"
-                                    )).ToList()
+                                    )).ToList(),
+                                itemMeta = new ProfileEditorItemMeta()
+                                {
+                                    Id = p.FactFieldValues_DimResearchDatasetId,
+                                    Type = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
                         break;
