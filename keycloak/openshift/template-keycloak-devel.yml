@@ -8,42 +8,42 @@ apiVersion: v1
 kind: Template
 metadata:
   labels:
-    app: keycloak-devel
-    template: keycloak-devel
-  name: keycloak-devel
+    app: keycloak19-devel
+    template: keycloak19-devel
+  name: keycloak19-devel
 objects:
   # Service (devel)
   - apiVersion: v1
     kind: Service
     metadata:
-      name: keycloak-service-devel
+      name: keycloak19-service-devel
       labels:
-        app: keycloak-devel
+        app: keycloak19-devel
       annotations:
         description: Keycloak service for devel branch
     spec:
       ports:
-        - name: keycloak-port-devel
+        - name: keycloak19-port-devel
           port: 8080
           targetPort: 8080
       selector:
-        depcfg: keycloak-depcfg-devel
+        depcfg: keycloak19-depcfg-devel
 
   # ImageStream (development)
   - apiVersion: v1
     kind: ImageStream
     metadata:
-      name: keycloak-devel
+      name: keycloak19-devel
       labels:
-        app: keycloak-devel
+        app: keycloak19-devel
 
   # BuildConfig using Docker build strategy
   - apiVersion: v1
     kind: BuildConfig
     metadata:
-      name: keycloak-build-devel
+      name: keycloak19-build-devel
       labels:
-        app: keycloak-devel
+        app: keycloak19-devel
     spec:
       source:
         git:
@@ -56,7 +56,7 @@ objects:
       output:
         to:
           kind: ImageStreamTag
-          name: keycloak-devel:latest
+          name: keycloak19-devel:latest
       successfulBuildsHistoryLimit: 2
       failedBuildsHistoryLimit: 2
 
@@ -64,22 +64,22 @@ objects:
   - apiVersion: v1
     kind: DeploymentConfig
     metadata:
-      name: keycloak-deployment-devel
+      name: keycloak19-deployment-devel
       labels:
-        app: keycloak-devel
+        app: keycloak19-devel
     spec:
       selector:
-        app: keycloak-devel
-        depcfg: keycloak-depcfg-devel
+        app: keycloak19-devel
+        depcfg: keycloak19-depcfg-devel
       template:
         metadata:
           labels:
-            app: keycloak-devel
-            depcfg: keycloak-depcfg-devel
+            app: keycloak19-devel
+            depcfg: keycloak19-depcfg-devel
         spec:
           containers:
-            - name: keycloak-container-devel
-              image: researchfi/keycloak-devel
+            - name: keycloak19-container-devel
+              image: researchfi/keycloak19-devel
               imagePullPolicy: Always
               ports:
                 - containerPort: 8080
@@ -90,9 +90,9 @@ objects:
           imageChangeParams:
             automatic: true
             containerNames:
-              - keycloak-container-devel
+              - keycloak19-container-devel
             from:
               kind: ImageStreamTag
-              name: keycloak-devel:latest
+              name: keycloak19-devel:latest
       strategy:
         type: Recreate
