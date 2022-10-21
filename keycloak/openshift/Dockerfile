@@ -1,22 +1,35 @@
+#
+# Build container
+#
 FROM quay.io/keycloak/keycloak:19.0.3 as builder
-
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
 ENV KC_DB=mssql
-# Install custom providers
-#RUN curl -sL https://github.com/aerogear/keycloak-metrics-spi/releases/download/2.5.3/keycloak-metrics-spi-2.5.3.jar -o /opt/keycloak/providers/keycloak-metrics-spi-2.5.3.jar
-#COPY ttv.jar /opt/keycloak/providers/ttv.jar
+# Copy custom providers. Researchfi customization jar file should be added here.
+#COPY researchfi.mapper-0.0.1-BETA.jar /opt/keycloak/providers/researchfi.mapper-0.0.1-BETA.jar
 RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 
+
+#
+# Optimized container
+#
 FROM quay.io/keycloak/keycloak:19.0.3
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
-# for demonstration purposes only, please make sure to use proper certificates in production instead
+# For demonstration purposes only, please make sure to use proper certificates in production instead
 RUN keytool -genkeypair -storepass password -storetype PKCS12 -keyalg RSA -keysize 2048 -dname "CN=server" -alias server -ext "SAN:c=DNS:localhost,IP:127.0.0.1" -keystore conf/server.keystore
-# change these values to point to a running postgres instance
+
+# Database connection can be specified here, but it is better to provide it from container environment. For example, as a secret in OpenShift.
+# ENV KC_DB_URL=jdbc:sqlserver://myservername:1433;DatabaseName=mydatabasename;
+# ENV KC_DB_USERNAME=mydatabaseusername
+# ENV KC_DB_PASSWORD=mydatabasepassword
+
+# Environment variables KC_HOSTNAME_STRICT, KC_HOSTNAME_STRICT_HTTPS, KC_PROXY and HTTP_ADDRESS_FORWARDING are needed, so that Keycloak operate behing a reverse proxy.
 ENV KC_HOSTNAME_STRICT=false
 ENV KC_HOSTNAME_STRICT_HTTPS=false
 ENV KC_PROXY=edge
 ENV HTTP_ADDRESS_FORWARDING=true
+
+# Start the container in production mode.
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized"]
