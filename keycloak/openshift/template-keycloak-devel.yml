@@ -1,0 +1,98 @@
+# This file is part of the research.fi service
+#
+# Copyright 2022 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: v1
+kind: Template
+metadata:
+  labels:
+    app: mydata-keycloak-devel
+    template: mydata-keycloak-devel
+  name: mydata-keycloak-devel
+objects:
+  # Service (devel)
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: mydata-keycloak-service-devel
+      labels:
+        app: mydata-keycloak-devel
+      annotations:
+        description: Mydata Keycloak service for devel branch
+    spec:
+      ports:
+        - name: mydata-keycloak-port-devel
+          port: 8080
+          targetPort: 8080
+      selector:
+        depcfg: mydata-keycloak-depcfg-devel
+
+  # ImageStream (development)
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: mydata-keycloak-devel
+      labels:
+        app: mydata-keycloak-devel
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: mydata-keycloak-build-devel
+      labels:
+        app: mydata-keycloak-devel
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: devel
+        contextDir: .
+      strategy:
+        dockerStrategy:
+          dockerfilePath: keycloak/openshift/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: mydata-keycloak-devel:latest
+      successfulBuildsHistoryLimit: 2
+      failedBuildsHistoryLimit: 2
+
+  # Deployment config (development)
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: mydata-keycloak-deployment-devel
+      labels:
+        app: mydata-keycloak-devel
+    spec:
+      selector:
+        app: mydata-keycloak-devel
+        depcfg: mydata-keycloak-depcfg-devel
+      template:
+        metadata:
+          labels:
+            app: mydata-keycloak-devel
+            depcfg: mydata-keycloak-depcfg-devel
+        spec:
+          containers:
+            - name: mydata-keycloak-container-devel
+              image: researchfi/mydata-keycloak-devel
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+      replicas: 1
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - mydata-keycloak-container-devel
+            from:
+              kind: ImageStreamTag
+              name: mydata-keycloak-devel:latest
+      strategy:
+        type: Recreate
