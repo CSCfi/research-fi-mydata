@@ -13,14 +13,16 @@ RUN curl -sL https://github.com/CSCfi/research-fi-mydata/raw/devel/keycloak/cust
 RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 
 
+
 #
 # Optimized container
 #
 FROM quay.io/keycloak/keycloak:19.0.3
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
+
 # For demonstration purposes only, please make sure to use proper certificates in production instead
-RUN keytool -genkeypair -storepass password -storetype PKCS12 -keyalg RSA -keysize 2048 -dname "CN=server" -alias server -ext "SAN:c=DNS:localhost,IP:127.0.0.1" -keystore conf/server.keystore
+# RUN keytool -genkeypair -storepass password -storetype PKCS12 -keyalg RSA -keysize 2048 -dname "CN=server" -alias server -ext "SAN:c=DNS:localhost,IP:127.0.0.1" -keystore conf/server.keystore
 
 # Database connection can be specified here, but it is better to provide it from container environment. For example, as a secret in OpenShift.
 # ENV KC_DB_URL=jdbc:sqlserver://myservername:1433;DatabaseName=mydatabasename;
