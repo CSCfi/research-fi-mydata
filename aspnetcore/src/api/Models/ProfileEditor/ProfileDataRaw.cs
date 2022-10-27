@@ -49,6 +49,8 @@ namespace api.Models.ProfileEditor
         public string DimRegisteredDataSource_DimOrganization_NameFi { get; set; }
         public string DimRegisteredDataSource_DimOrganization_NameSv { get; set; }
         public string DimRegisteredDataSource_DimOrganization_NameEn { get; set; }
+        // DimRegisteredDataSource => DimOrganization => DimSector
+        public string DimRegisteredDataSource_DimOrganization_DimSector_SectorId { get; set; }
         // DimName
         public string DimName_LastName { get; set; }
         public string DimName_FirstNames { get; set; }
