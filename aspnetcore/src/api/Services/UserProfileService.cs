@@ -1400,7 +1400,8 @@ namespace api.Services
                     {
                         NameFi = nameTranslationSourceOrganization.NameFi,
                         NameEn = nameTranslationSourceOrganization.NameEn,
-                        NameSv = nameTranslationSourceOrganization.NameSv
+                        NameSv = nameTranslationSourceOrganization.NameSv,
+                        SectorId = p.DimRegisteredDataSource_DimOrganization_DimSector_SectorId
                     }
                 };
 

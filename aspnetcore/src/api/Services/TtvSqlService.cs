@@ -107,6 +107,7 @@ namespace api.Services
                     drds_organization.name_fi AS 'DimRegisteredDataSource_DimOrganization_NameFi',
                     drds_organization.name_en AS 'DimRegisteredDataSource_DimOrganization_NameEn',
                     drds_organization.name_sv AS 'DimRegisteredDataSource_DimOrganization_NameSv',
+                    drds_organization_sector.sector_id AS 'DimRegisteredDataSource_DimOrganization_DimSector_SectorId',
                     ffv.dim_user_profile_id AS 'FactFieldValues_DimUserProfileId',
                     ffv.dim_name_id AS 'FactFieldValues_DimNameId',
                     ffv.dim_web_link_id AS 'FactFieldValues_DimWebLinkId',
@@ -230,6 +231,7 @@ namespace api.Services
                 JOIN dim_field_display_settings AS dfds ON ffv.dim_field_display_settings_id=dfds.id
                 JOIN dim_registered_data_source AS drds ON ffv.dim_registered_data_source_id=drds.id
                 JOIN dim_organization AS drds_organization ON drds.dim_organization_id=drds_organization.id
+                JOIN dim_sector AS drds_organization_sector ON drds_organization.dim_sectorid=drds_organization_sector.id
                 JOIN dim_name ON ffv.dim_name_id=dim_name.id
                 JOIN dim_web_link ON ffv.dim_web_link_id=dim_web_link.id
                 JOIN dim_researcher_description ON ffv.dim_researcher_description_id=dim_researcher_description.id
