@@ -1379,6 +1379,8 @@ namespace api.Services
             var connection = _ttvContext.Database.GetDbConnection();
             List<ProfileDataRaw> profileDataRaws = (await connection.QueryAsync<ProfileDataRaw>(profileDataSql)).ToList();
 
+            // Helper list, which is used in collecting list of unique data sources and detecting whether the item is already in the list.
+            List<int> uniqueDataSourceIds = new();
 
             foreach (ProfileDataRaw p in profileDataRaws)
             {
@@ -1401,6 +1403,13 @@ namespace api.Services
                         NameSv = nameTranslationSourceOrganization.NameSv
                     }
                 };
+
+                // Add data source into list of unique data sources.
+                if (!uniqueDataSourceIds.Contains(profileEditorSource.Id))
+                {
+                    profileDataResponse.uniqueDataSources.Add(profileEditorSource);
+                    uniqueDataSourceIds.Add(profileEditorSource.Id);
+                }
 
                 switch (p.DimFieldDisplaySettings_FieldIdentifier)
                 {
