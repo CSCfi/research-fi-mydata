@@ -2,12 +2,13 @@
 
 namespace api.Models.Elasticsearch
 {
-    public partial class ElasticsearchItemBase
+    public partial class ElasticsearchItem
     {
-        public ElasticsearchItemBase()
+        public ElasticsearchItem()
         {
         }
 
+        public ElasticsearchItemMeta itemMeta { get; set; }
         public List<ElasticsearchSource> DataSources { get; set; }
     }
 }

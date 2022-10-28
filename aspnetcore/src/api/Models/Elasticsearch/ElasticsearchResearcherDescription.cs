@@ -1,6 +1,6 @@
 ﻿namespace api.Models.Elasticsearch
 {
-    public partial class ElasticsearchResearcherDescription : ElasticsearchItemBase
+    public partial class ElasticsearchResearcherDescription : ElasticsearchItem
     {
         public ElasticsearchResearcherDescription()
         {

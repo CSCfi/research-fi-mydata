@@ -2,7 +2,7 @@
 
 namespace api.Models.Elasticsearch
 {
-    public partial class ElasticsearchPublication : ElasticsearchItemBase
+    public partial class ElasticsearchPublication : ElasticsearchItem
     {
         public ElasticsearchPublication()
         {

@@ -10,7 +10,8 @@ public class MappingProfile : Profile
         CreateMap<ProfileEditorDataPersonal2, ElasticsearchPersonal>();
         CreateMap<ProfileEditorDataActivity2, ElasticsearchActivity>();
         CreateMap<ProfileEditorSource, ElasticsearchSource>();
-        CreateMap<ProfileEditorItem2, ElasticsearchItemBase>();
+        CreateMap<ProfileEditorItem2, ElasticsearchItem>();
+        CreateMap<ProfileEditorItemMeta, ElasticsearchItemMeta>();
         CreateMap<ProfileEditorAffiliation, ElasticsearchAffiliation>();
         CreateMap<ProfileEditorEducation, ElasticsearchEducation>();
         CreateMap<ProfileEditorItemDate, ElasticsearchDate>();
