@@ -2,7 +2,7 @@
 
 namespace api.Models.Elasticsearch
 {
-    public partial class ElasticsearchFieldOfScience : ElasticsearchItemBase
+    public partial class ElasticsearchFieldOfScience : ElasticsearchItem
     {
         public ElasticsearchFieldOfScience()
         {

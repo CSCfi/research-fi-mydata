@@ -2,7 +2,7 @@
 
 namespace api.Models.Elasticsearch
 {
-    public partial class ElasticsearchExternalIdentifier : ElasticsearchItemBase
+    public partial class ElasticsearchExternalIdentifier : ElasticsearchItem
     {
         public ElasticsearchExternalIdentifier()
         {

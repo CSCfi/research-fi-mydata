@@ -2,7 +2,7 @@
 
 namespace api.Models.Elasticsearch
 {
-    public partial class ElasticsearchTelephoneNumber : ElasticsearchItemBase
+    public partial class ElasticsearchTelephoneNumber : ElasticsearchItem
     {
         public ElasticsearchTelephoneNumber()
         {

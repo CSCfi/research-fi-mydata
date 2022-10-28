@@ -2,7 +2,7 @@
 
 namespace api.Models.Elasticsearch
 {
-    public partial class ElasticsearchActivityAndReward : ElasticsearchItemBase
+    public partial class ElasticsearchActivityAndReward : ElasticsearchItem
     {
         public ElasticsearchActivityAndReward()
         {

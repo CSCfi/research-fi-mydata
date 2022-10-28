@@ -2,7 +2,7 @@
 
 namespace api.Models.Elasticsearch
 {
-    public partial class ElasticsearchWebLink : ElasticsearchItemBase
+    public partial class ElasticsearchWebLink : ElasticsearchItem
     {
         public ElasticsearchWebLink()
         {

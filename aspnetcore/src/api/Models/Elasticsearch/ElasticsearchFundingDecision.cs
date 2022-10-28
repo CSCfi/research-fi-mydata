@@ -1,6 +1,6 @@
 ﻿namespace api.Models.Elasticsearch
 {
-    public partial class ElasticsearchFundingDecision : ElasticsearchItemBase
+    public partial class ElasticsearchFundingDecision : ElasticsearchItem
     {
         public ElasticsearchFundingDecision()
         {
