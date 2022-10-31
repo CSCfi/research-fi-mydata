@@ -233,7 +233,6 @@ namespace api
             services.AddScoped<IOrganizationHandlerService, OrganizationHandlerService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<ILanguageService, LanguageService>();
-            services.AddScoped<IDemoDataService, DemoDataService>();
             services.AddScoped<ITtvSqlService, TtvSqlService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IKeycloakAdminApiService, KeycloakAdminApiService>();
