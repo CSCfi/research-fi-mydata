@@ -1,7 +1,8 @@
 ﻿using api.Services;
-using api.Models;
+using api.Models.Api;
 using api.Models.Ttv;
 using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -91,19 +92,22 @@ namespace api.Controllers
                 nameEn: _dataSourceHelperService.DimOrganizationNameEn_TTV
             );
 
+            // Data source
+            ProfileEditorSource dataSource = new ProfileEditorSource()
+            {
+                RegisteredDataSource = _dataSourceHelperService.DimRegisteredDataSourceName_TTV,
+                Organization = new Organization()
+                {
+                    NameFi = nameTranslation_OrganizationName.NameFi,
+                    NameSv = nameTranslation_OrganizationName.NameSv,
+                    NameEn = nameTranslation_OrganizationName.NameEn
+                }
+            };
+
             // Response object
             ProfileEditorAddPublicationResponse profileEditorAddPublicationResponse = new()
             {
-                source = new ProfileEditorSource()
-                {
-                    RegisteredDataSource = _dataSourceHelperService.DimRegisteredDataSourceName_TTV,
-                    Organization = new Organization()
-                    {
-                        NameFi = nameTranslation_OrganizationName.NameFi,
-                        NameSv = nameTranslation_OrganizationName.NameSv,
-                        NameEn = nameTranslation_OrganizationName.NameEn
-                    }
-                }
+                source = dataSource
             };
 
 
@@ -150,7 +154,7 @@ namespace api.Controllers
                         await _ttvContext.SaveChangesAsync();
 
                         // Response data
-                        ProfileEditorItemPublication publicationItem = new()
+                        ProfileEditorPublication publicationItem = new()
                         {
                             PublicationId = dimPublication.PublicationId,
                             PublicationName = dimPublication.PublicationName,
@@ -163,6 +167,10 @@ namespace api.Controllers
                                 Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
                                 Show = factFieldValuePublication.Show,
                                 PrimaryValue = factFieldValuePublication.PrimaryValue
+                            },
+                            DataSources = new List<ProfileEditorSource>
+                            {
+                                dataSource
                             }
                         };
 

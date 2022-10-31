@@ -1,8 +1,8 @@
 using Xunit;
 using api.Services;
-using api.Models;
+using api.Models.Common;
 using api.Models.Ttv;
-using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
 using System;
 using System.Collections.Generic;
 

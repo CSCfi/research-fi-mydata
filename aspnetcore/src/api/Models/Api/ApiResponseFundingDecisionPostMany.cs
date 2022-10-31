@@ -1,6 +1,6 @@
-﻿using api.Models.ProfileEditor;
+﻿using api.Models.ProfileEditor.Items;
 
-namespace api.Models
+namespace api.Models.Api
 {
     public class ApiResponseFundingDecisionPostMany : ApiResponse
     {

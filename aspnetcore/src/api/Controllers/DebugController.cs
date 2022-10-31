@@ -1,7 +1,8 @@
 ﻿using api.Services;
-using api.Models;
+using api.Models.Api;
+using api.Models.Common;
 using api.Models.Ttv;
-using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -123,7 +124,7 @@ namespace api.Controllers
             }
 
             // Get profile data
-            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync2(userprofileId);
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }

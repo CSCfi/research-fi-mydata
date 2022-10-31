@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using api.Models;
+using api.Models.Common;
 using api.Models.ProfileEditor;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;

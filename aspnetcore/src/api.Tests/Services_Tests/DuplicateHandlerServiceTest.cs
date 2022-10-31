@@ -4,6 +4,7 @@ using api.Services;
 using api.Models;
 using api.Models.Common;
 using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
 using api.Models.Ttv;
 
 namespace api.Tests
@@ -169,7 +170,7 @@ namespace api.Tests
             };
 
             // Create ProfileDataRaw for Virta publication 1
-            ProfileDataRaw profileDataRawVirta1 = new()
+            ProfileDataFromSql profileDataVirta1 = new()
             {
                 DimPublication_PublicationId = "publicationId123",
                 DimPublication_Doi = "doi123",
@@ -179,7 +180,7 @@ namespace api.Tests
             };
 
             // Create ProfileDataRaw for Virta publication 2
-            ProfileDataRaw profileDataRawVirta2 = new()
+            ProfileDataFromSql profileDataVirta2 = new()
             {
                 DimPublication_PublicationId = "publicationId456",
                 DimPublication_Doi = "doi456",
@@ -196,7 +197,7 @@ namespace api.Tests
             //
             List<ProfileEditorPublication> publications1 = duplicateHandlerService.AddPublicationToProfileEditorData(
                 dataSource: profileEditorSourceA,
-                profileDataRaw: profileDataRawVirta1,
+                profileData: profileDataVirta1,
                 publications: publications
             );
             // Check that publication list contains one publication
@@ -213,7 +214,7 @@ namespace api.Tests
             //
             List<ProfileEditorPublication> publications2 = duplicateHandlerService.AddPublicationToProfileEditorData(
                 dataSource: profileEditorSourceA,
-                profileDataRaw: profileDataRawVirta1,
+                profileData: profileDataVirta1,
                 publications: publications1
             );
             // Check that publication list contains one publication
@@ -230,7 +231,7 @@ namespace api.Tests
             //
             List<ProfileEditorPublication> publications3 = duplicateHandlerService.AddPublicationToProfileEditorData(
                 dataSource: profileEditorSourceB,
-                profileDataRaw: profileDataRawVirta1,
+                profileData: profileDataVirta1,
                 publications: publications2
             );
 
@@ -249,7 +250,7 @@ namespace api.Tests
             //
             List<ProfileEditorPublication> publications4 = duplicateHandlerService.AddPublicationToProfileEditorData(
                 dataSource: profileEditorSourceA,
-                profileDataRaw: profileDataRawVirta2,
+                profileData: profileDataVirta2,
                 publications: publications3
             );
             // Check that publication list contains two publications
@@ -292,7 +293,7 @@ namespace api.Tests
             };
 
             // Create ProfileDataRaw for Virta publication 1
-            ProfileDataRaw profileDataRawVirta1 = new()
+            ProfileDataFromSql profileDataVirta1 = new()
             {
                 DimPublication_PublicationId = "publicationId123",
                 DimPublication_Doi = "doi123",
@@ -302,7 +303,7 @@ namespace api.Tests
             };
 
             // Create ProfileDataRaw for ORCID publication 1. The same DOI and name as in Virta publication.
-            ProfileDataRaw profileDataRawOrcid1 = new()
+            ProfileDataFromSql profileDataOrcid1 = new()
             {
                 DimOrcidPublication_PublicationId = "publicationId456",
                 DimOrcidPublication_Doi = "doi123",
@@ -311,7 +312,7 @@ namespace api.Tests
             };
 
             // Create ProfileDataRaw for ORCID publication 2. The same DOI as in Virta publication but different name.
-            ProfileDataRaw profileDataRawOrcid2 = new()
+            ProfileDataFromSql profileDataOrcid2 = new()
             {
                 DimOrcidPublication_PublicationId = "publicationId789",
                 DimOrcidPublication_Doi = "doi123",
@@ -325,13 +326,13 @@ namespace api.Tests
             // Add Virta publication
             List<ProfileEditorPublication> publications1 = duplicateHandlerService.AddPublicationToProfileEditorData(
                 dataSource: profileEditorSourceVirta,
-                profileDataRaw: profileDataRawVirta1,
+                profileData: profileDataVirta1,
                 publications: publications
             );
             // Add ORCID publication with the same DOI and name
             List<ProfileEditorPublication> publications2 = duplicateHandlerService.AddPublicationToProfileEditorData(
                 dataSource: profileEditorSourceOrcid,
-                profileDataRaw: profileDataRawOrcid1,
+                profileData: profileDataOrcid1,
                 publications: publications1
             );
             // Check that publication list contains one publication
@@ -344,7 +345,7 @@ namespace api.Tests
             // Add ORCID publication with the same DOI but different name
             List<ProfileEditorPublication> publications3 = duplicateHandlerService.AddPublicationToProfileEditorData(
                 dataSource: profileEditorSourceOrcid,
-                profileDataRaw: profileDataRawOrcid2,
+                profileData: profileDataOrcid2,
                 publications: publications2
             );
             // Check that publication list contains two publications

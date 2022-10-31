@@ -1,7 +1,8 @@
 ﻿using api.Services;
-using api.Models;
+using api.Models.Api;
 using api.Models.Ttv;
 using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
