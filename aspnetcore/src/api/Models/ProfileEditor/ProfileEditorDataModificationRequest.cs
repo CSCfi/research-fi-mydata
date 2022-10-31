@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using api.Models.ProfileEditor.Items;
 
 namespace api.Models.ProfileEditor
 {

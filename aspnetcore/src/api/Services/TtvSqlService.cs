@@ -1,5 +1,5 @@
-﻿using api.Models.ProfileEditor;
-using api.Models;
+﻿using api.Models.ProfileEditor.Items;
+using api.Models.Common;
 using api.Models.Ttv;
 using System.Collections.Generic;
 

@@ -1,5 +1,6 @@
 ﻿using api.Services;
-using api.Models;
+using api.Models.Api;
+using api.Models.Common;
 using api.Models.Ttv;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

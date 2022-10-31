@@ -1,7 +1,8 @@
 ﻿
 using System.Collections.Generic;
-using api.Models;
+using api.Models.Common;
 using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
 using api.Models.Ttv;
 
 namespace api.Services
@@ -20,9 +21,9 @@ namespace api.Services
         /*
          * Check if ProfileDataRaw contains ORCID publication.
          */
-        public bool IsOrcidPublication(ProfileDataRaw p)
+        public bool IsOrcidPublication(ProfileDataFromSql profileData)
         {
-            return p.FactFieldValues_DimOrcidPublicationId != -1 && p.DimFieldDisplaySettings_FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID;
+            return profileData.FactFieldValues_DimOrcidPublicationId != -1 && profileData.DimFieldDisplaySettings_FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID;
         }
 
         /*
@@ -51,15 +52,15 @@ namespace api.Services
          * Add publication to publication list.
          * Handle duplicates by matching DOI. Handle special case in DOI matching regarding Virta publication type codes.
          */
-        public List<ProfileEditorPublication> AddPublicationToProfileEditorData(ProfileEditorSource dataSource, ProfileDataRaw profileDataRaw, List<ProfileEditorPublication> publications)
+        public List<ProfileEditorPublication> AddPublicationToProfileEditorData(ProfileEditorSource dataSource, ProfileDataFromSql profileData, List<ProfileEditorPublication> publications)
         {
             // Loop existing publications and check for duplicates.
             foreach (ProfileEditorPublication publication in publications)
             {
                 // Check duplicate publicationId.
                 if (
-                    (!IsOrcidPublication(profileDataRaw) && profileDataRaw.DimPublication_PublicationId != "" && profileDataRaw.DimPublication_PublicationId == publication.PublicationId) ||
-                    (IsOrcidPublication(profileDataRaw) && profileDataRaw.DimOrcidPublication_PublicationId != "" && profileDataRaw.DimOrcidPublication_PublicationId == publication.PublicationId)
+                    (!IsOrcidPublication(profileData) && profileData.DimPublication_PublicationId != "" && profileData.DimPublication_PublicationId == publication.PublicationId) ||
+                    (IsOrcidPublication(profileData) && profileData.DimOrcidPublication_PublicationId != "" && profileData.DimOrcidPublication_PublicationId == publication.PublicationId)
                 )
                 {
                     AddDataSource(publication, dataSource);
@@ -68,10 +69,10 @@ namespace api.Services
 
                 // Check duplicate DOI.
                 if (
-                    IsOrcidPublication(profileDataRaw) &&
-                    profileDataRaw.DimOrcidPublication_Doi != "" &&
-                    profileDataRaw.DimOrcidPublication_Doi == publication.Doi &&
-                    !HasSameDoiButIsDifferentPublication(profileDataRaw.DimOrcidPublication_PublicationName, publication)
+                    IsOrcidPublication(profileData) &&
+                    profileData.DimOrcidPublication_Doi != "" &&
+                    profileData.DimOrcidPublication_Doi == publication.Doi &&
+                    !HasSameDoiButIsDifferentPublication(profileData.DimOrcidPublication_PublicationName, publication)
                 )
                 {
                     AddDataSource(publication, dataSource);
@@ -80,23 +81,23 @@ namespace api.Services
             }
 
             // Duplication not detected. Add publication to list of publications.
-            if (!this.IsOrcidPublication(profileDataRaw))
+            if (!this.IsOrcidPublication(profileData))
             {
                 // Add Virta publication
                 publications.Add(
                     new ProfileEditorPublication()
                     {
-                        PublicationId = profileDataRaw.DimPublication_PublicationId,
-                        PublicationName = profileDataRaw.DimPublication_PublicationName,
-                        PublicationYear = profileDataRaw.DimPublication_PublicationYear,
-                        Doi = profileDataRaw.DimPublication_Doi,
-                        TypeCode = profileDataRaw.DimPublication_PublicationTypeCode,
+                        PublicationId = profileData.DimPublication_PublicationId,
+                        PublicationName = profileData.DimPublication_PublicationName,
+                        PublicationYear = profileData.DimPublication_PublicationYear,
+                        Doi = profileData.DimPublication_Doi,
+                        TypeCode = profileData.DimPublication_PublicationTypeCode,
                         itemMeta = new ProfileEditorItemMeta()
                         {
-                            Id = profileDataRaw.FactFieldValues_DimPublicationId,
+                            Id = profileData.FactFieldValues_DimPublicationId,
                             Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                            Show = profileDataRaw.FactFieldValues_Show,
-                            PrimaryValue = profileDataRaw.FactFieldValues_PrimaryValue
+                            Show = profileData.FactFieldValues_Show,
+                            PrimaryValue = profileData.FactFieldValues_PrimaryValue
                         },
                         DataSources = new List<ProfileEditorSource> { dataSource }
                     }
@@ -108,17 +109,17 @@ namespace api.Services
                 publications.Add(
                     new ProfileEditorPublication()
                     {
-                        PublicationId = profileDataRaw.DimOrcidPublication_PublicationId,
-                        PublicationName = profileDataRaw.DimOrcidPublication_PublicationName,
-                        PublicationYear = profileDataRaw.DimOrcidPublication_PublicationYear,
-                        Doi = profileDataRaw.DimOrcidPublication_Doi,
+                        PublicationId = profileData.DimOrcidPublication_PublicationId,
+                        PublicationName = profileData.DimOrcidPublication_PublicationName,
+                        PublicationYear = profileData.DimOrcidPublication_PublicationYear,
+                        Doi = profileData.DimOrcidPublication_Doi,
                         TypeCode = "",
                         itemMeta = new ProfileEditorItemMeta()
                         {
-                            Id = profileDataRaw.FactFieldValues_DimOrcidPublicationId,
+                            Id = profileData.FactFieldValues_DimOrcidPublicationId,
                             Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
-                            Show = profileDataRaw.FactFieldValues_Show,
-                            PrimaryValue = profileDataRaw.FactFieldValues_PrimaryValue
+                            Show = profileData.FactFieldValues_Show,
+                            PrimaryValue = profileData.FactFieldValues_PrimaryValue
                         },
                         DataSources = new List<ProfileEditorSource> { dataSource }
                     }

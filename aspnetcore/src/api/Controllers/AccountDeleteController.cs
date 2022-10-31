@@ -1,5 +1,5 @@
 ﻿using api.Services;
-using api.Models;
+using api.Models.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;

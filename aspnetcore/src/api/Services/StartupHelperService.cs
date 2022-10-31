@@ -1,4 +1,4 @@
-﻿using api.Models;
+﻿using api.Models.Common;
 using api.Models.Ttv;
 using Microsoft.Extensions.Logging;
 using System.Linq;

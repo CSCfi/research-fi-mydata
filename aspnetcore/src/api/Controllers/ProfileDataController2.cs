@@ -1,7 +1,9 @@
 ﻿using api.Services;
-using api.Models;
+using api.Models.Api;
+using api.Models.Common;
 using api.Models.Ttv;
 using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -50,7 +52,7 @@ namespace api.Controllers
         /// Get profile data. New version using different data structure.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResponseProfileDataGet2), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
             // Get ORCID id
@@ -75,7 +77,7 @@ namespace api.Controllers
             }
 
             // Get profile data
-            ProfileEditorDataResponse2 profileDataResponse = await _userProfileService.GetProfileDataAsync2(userprofileId);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync2(userprofileId);
 
             // Save response in cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -85,7 +87,7 @@ namespace api.Controllers
             // Save data in cache
             _cache.Set(cacheKey, profileDataResponse, cacheEntryOptions);
 
-            return Ok(new ApiResponseProfileDataGet2(success: true, reason: "", data: profileDataResponse, fromCache: false));
+            return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
 
 

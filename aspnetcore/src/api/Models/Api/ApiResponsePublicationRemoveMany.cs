@@ -1,6 +1,6 @@
 ﻿using api.Models.ProfileEditor;
 
-namespace api.Models
+namespace api.Models.Api
 {
     public class ApiResponsePublicationRemoveMany : ApiResponse
     {

@@ -1,6 +1,6 @@
 using Xunit;
 using api.Services;
-using api.Models;
+using api.Models.Common;
 
 namespace api.Tests
 {

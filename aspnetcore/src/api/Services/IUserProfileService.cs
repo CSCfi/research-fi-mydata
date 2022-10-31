@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using api.Models.Orcid;
-using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
 using api.Models.Ttv;
 
 namespace api.Services
@@ -27,8 +27,7 @@ namespace api.Services
         FactFieldValue GetEmptyFactFieldValue();
         FactFieldValue GetEmptyFactFieldValueDemo();
         List<int> GetFieldIdentifiers();
-        Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, bool forElasticsearch = false);
-        Task<ProfileEditorDataResponse2> GetProfileDataAsync2(int userprofileId, bool forElasticsearch = false);
+        Task<ProfileEditorDataResponse> GetProfileDataAsync2(int userprofileId, bool forElasticsearch = false);
         Task<int> GetUserprofileId(string orcidId);
         Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens);
         Task<bool> UserprofileExistsForOrcidId(string orcidId);
