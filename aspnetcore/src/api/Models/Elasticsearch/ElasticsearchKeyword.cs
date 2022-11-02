@@ -7,10 +7,8 @@ namespace api.Models.Elasticsearch
         public ElasticsearchKeyword()
         {
             Value = "";
-            PrimaryValue = null;
         }
 
         public string Value { get; set; }
-        public bool? PrimaryValue { get; set; }
     }
 }

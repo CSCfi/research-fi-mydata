@@ -8,11 +8,9 @@ namespace api.Models.Elasticsearch
         {
             PidContent = "";
             PidType = "";
-            PrimaryValue = null;
         }
 
         public string PidContent { get; set; }
         public string PidType { get; set; }
-        public bool? PrimaryValue { get; set; }
     }
 }

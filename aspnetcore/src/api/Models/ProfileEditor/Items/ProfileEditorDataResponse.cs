@@ -1,18 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using api.Models.Elasticsearch;
+using System.Collections.Generic;
 
 namespace api.Models.ProfileEditor.Items
 {
-    public partial class ProfileEditorName : ProfileEditorItem
-    {
-        public ProfileEditorName()
+    public partial class ProfileEditorDataResponse {
+        public ProfileEditorDataResponse()
         {
-            FirstNames = "";
-            LastName = "";
-            FullName = "";
+            personal = new();
+            activity = new();
+            uniqueDataSources = new();
         }
 
-        public string FirstNames { get; set; }
-        public string LastName { get; set; }
-        public string FullName { get; set; }
+        public ProfileEditorDataPersonal personal { get; set; }
+        public ProfileEditorDataActivity activity { get; set; }
+        public List<ProfileEditorSource> uniqueDataSources { get; set; }
     }
 }

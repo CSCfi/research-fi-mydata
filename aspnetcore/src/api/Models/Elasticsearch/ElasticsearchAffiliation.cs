@@ -18,7 +18,6 @@ namespace api.Models.Elasticsearch
             Type = "";
             StartDate = new ElasticsearchDate();
             EndDate = new ElasticsearchDate();
-            PrimaryValue = null;
         }
 
         public string OrganizationNameFi { get; set; }
@@ -33,6 +32,5 @@ namespace api.Models.Elasticsearch
         public string Type { get; set; } 
         public ElasticsearchDate StartDate { get; set; }
         public ElasticsearchDate EndDate { get; set; }
-        public bool? PrimaryValue { get; set; }
     }
 }
