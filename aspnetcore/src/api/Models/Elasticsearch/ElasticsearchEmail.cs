@@ -7,10 +7,8 @@ namespace api.Models.Elasticsearch
         public ElasticsearchEmail()
         {
             Value = "";
-            PrimaryValue = null;
         }
 
         public string Value { get; set; }
-        public bool? PrimaryValue { get; set; }
     }
 }

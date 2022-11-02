@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace api.Models.Elasticsearch
+namespace api.Models.ProfileEditor.Items
 {
-    public partial class ElasticsearchName : ElasticsearchItem
+    public partial class ProfileEditorName : ProfileEditorItem
     {
-        public ElasticsearchName()
+        public ProfileEditorName()
         {
             FirstNames = "";
             LastName = "";

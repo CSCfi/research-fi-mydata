@@ -12,7 +12,6 @@ namespace api.Models.Elasticsearch
             DegreeGrantingInstitutionName = "";
             StartDate = new ElasticsearchDate();
             EndDate = new ElasticsearchDate();
-            PrimaryValue = null;
         }
 
         public string NameFi { get; set; }
@@ -21,6 +20,5 @@ namespace api.Models.Elasticsearch
         public string DegreeGrantingInstitutionName { get; set; }
         public ElasticsearchDate StartDate { get; set; }
         public ElasticsearchDate EndDate { get; set; }
-        public bool? PrimaryValue { get; set; }
     }
 }
