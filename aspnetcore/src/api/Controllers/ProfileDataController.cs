@@ -16,12 +16,12 @@ using Microsoft.AspNetCore.Http;
 namespace api.Controllers
 {
     /*
-     * ProfileDataController2 implements profile editor API commands, such as getting editor data and setting data visibility.
+     * ProfileDataController implements profile editor API commands, such as getting editor data and setting data visibility.
      */
-    [Route("api/profiledata2")]
+    [Route("api/profiledata")]
     [ApiController]
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
-    public class ProfileDataController2 : TtvControllerBase
+    public class ProfileDataController : TtvControllerBase
     {
         private readonly IUserProfileService _userProfileService;
         private readonly IElasticsearchService _elasticsearchService;
@@ -31,7 +31,7 @@ namespace api.Controllers
         private readonly IBackgroundProfiledata _backgroundProfiledata;
         private readonly IBackgroundTaskQueue _taskQueue;
 
-        public ProfileDataController2(IUserProfileService userProfileService,
+        public ProfileDataController(IUserProfileService userProfileService,
             IElasticsearchService elasticsearchService,
             ITtvSqlService ttvSqlService,
             IMemoryCache memoryCache,
