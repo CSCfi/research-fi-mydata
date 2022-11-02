@@ -11,7 +11,6 @@ namespace api.Models.Elasticsearch
             PublicationYear = null;
             Doi = "";
             TypeCode = "";
-            PrimaryValue = null;
         }
 
         public string PublicationId { get; set; }
@@ -19,6 +18,5 @@ namespace api.Models.Elasticsearch
         public int? PublicationYear { get; set; }
         public string Doi { get; set; }
         public string TypeCode { get; set; }
-        public bool? PrimaryValue { get; set; }
     }
 }
