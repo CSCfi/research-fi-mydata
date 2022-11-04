@@ -1,0 +1,99 @@
+# This file is part of the research.fi service
+#
+# Copyright 2022 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: v1
+kind: Template
+metadata:
+  labels:
+    app: mydata-api-production
+    template: mydata-api-production
+  name: mydata-api-production
+objects:
+  # Service (production)
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: mydata-api-service-production
+      labels:
+        app: mydata-api-production
+      annotations:
+        description: Mydata api service for production branch (master)
+    spec:
+      ports:
+        - name: mydata-api-port-production
+          port: 8080
+          targetPort: 8080
+      selector:
+        depcfg: mydata-api-depcfg-production
+
+  # ImageStream (production)
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: mydata-api-production
+      labels:
+        app: mydata-api-production
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: mydata-api-build-production
+      labels:
+        app: mydata-api-production
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: master
+        contextDir: .
+      strategy:
+        dockerStrategy:
+          dockerfilePath: aspnetcore/openshift/api/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: mydata-api-production:latest
+      successfulBuildsHistoryLimit: 2
+      failedBuildsHistoryLimit: 2
+
+  # Deployment config (production)
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: mydata-api-deployment-production
+      labels:
+        app: mydata-api-production
+    spec:
+      selector:
+        app: mydata-api-production
+        depcfg: mydata-api-depcfg-production
+      template:
+        metadata:
+          labels:
+            app: mydata-api-production
+            depcfg: mydata-api-depcfg-production
+        spec:
+          containers:
+            - name: mydata-api-container-production
+              image: researchfi/mydata-api-production
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+      replicas: 1
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - mydata-api-container-production
+            from:
+              kind: ImageStreamTag
+              name: mydata-api-production:latest
+      strategy:
+        type: Rolling
