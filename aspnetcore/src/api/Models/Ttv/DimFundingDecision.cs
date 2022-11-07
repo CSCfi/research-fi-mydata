@@ -18,6 +18,7 @@ namespace api.Models.Ttv
             BrPreviousFundingDecisionDimFundingDecisionTos = new HashSet<BrPreviousFundingDecision>();
             BrRelatedFundingDecisionDimFundingDecisionFroms = new HashSet<BrRelatedFundingDecision>();
             BrRelatedFundingDecisionDimFundingDecisionTos = new HashSet<BrRelatedFundingDecision>();
+            BrWordClusterDimFundingDecisions = new HashSet<BrWordClusterDimFundingDecision>();
             DimPids = new HashSet<DimPid>();
             DimWebLinks = new HashSet<DimWebLink>();
             FactContributions = new HashSet<FactContribution>();
@@ -75,6 +76,7 @@ namespace api.Models.Ttv
         public virtual ICollection<BrPreviousFundingDecision> BrPreviousFundingDecisionDimFundingDecisionTos { get; set; }
         public virtual ICollection<BrRelatedFundingDecision> BrRelatedFundingDecisionDimFundingDecisionFroms { get; set; }
         public virtual ICollection<BrRelatedFundingDecision> BrRelatedFundingDecisionDimFundingDecisionTos { get; set; }
+        public virtual ICollection<BrWordClusterDimFundingDecision> BrWordClusterDimFundingDecisions { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }

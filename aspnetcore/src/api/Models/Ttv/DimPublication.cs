@@ -9,6 +9,7 @@ namespace api.Models.Ttv
     {
         public DimPublication()
         {
+            BrArtpublicationTypecategories = new HashSet<BrArtpublicationTypecategory>();
             BrFieldOfArtDimPublications = new HashSet<BrFieldOfArtDimPublication>();
             BrFieldOfEducationDimPublications = new HashSet<BrFieldOfEducationDimPublication>();
             BrFieldOfScienceDimPublications = new HashSet<BrFieldOfScienceDimPublication>();
@@ -47,7 +48,7 @@ namespace api.Models.Ttv
         public string PublicationTypeCode { get; set; }
         public bool InternationalCollaboration { get; set; }
         public bool HospitalDistrictCollaboration { get; set; }
-        public bool InternationalPublication { get; set; }
+        public int InternationalPublication { get; set; }
         public bool GovermentCollaboration { get; set; }
         public bool OtherCollaboration { get; set; }
         public string LanguageCode { get; set; }
@@ -69,18 +70,22 @@ namespace api.Models.Ttv
         public bool? PeerReviewed { get; set; }
         public bool? Report { get; set; }
         public int? ThesisTypeCode { get; set; }
+        public string SelfArchivedCode { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
-        public string SelfArchivedCode { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
+        public string OpenAccess { get; set; }
+        public string PublisherOpenAccessCode { get; set; }
+        public string Abstract { get; set; }
 
         public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimReferencedatum ParentPublicationTypeCodeNavigation { get; set; }
         public virtual DimReferencedatum PublicationTypeCode2Navigation { get; set; }
         public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
+        public virtual ICollection<BrArtpublicationTypecategory> BrArtpublicationTypecategories { get; set; }
         public virtual ICollection<BrFieldOfArtDimPublication> BrFieldOfArtDimPublications { get; set; }
         public virtual ICollection<BrFieldOfEducationDimPublication> BrFieldOfEducationDimPublications { get; set; }
         public virtual ICollection<BrFieldOfScienceDimPublication> BrFieldOfScienceDimPublications { get; set; }

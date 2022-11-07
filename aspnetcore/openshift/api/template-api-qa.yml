@@ -1,0 +1,99 @@
+# This file is part of the research.fi service
+#
+# Copyright 2022 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: v1
+kind: Template
+metadata:
+  labels:
+    app: mydata-api-qa
+    template: mydata-api-qa
+  name: mydata-api-qa
+objects:
+  # Service (qa)
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: mydata-api-service-qa
+      labels:
+        app: mydata-api-qa
+      annotations:
+        description: Mydata api service for qa branch
+    spec:
+      ports:
+        - name: mydata-api-port-qa
+          port: 8080
+          targetPort: 8080
+      selector:
+        depcfg: mydata-api-depcfg-qa
+
+  # ImageStream (qa)
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: mydata-api-qa
+      labels:
+        app: mydata-api-qa
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: mydata-api-build-qa
+      labels:
+        app: mydata-api-qa
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: qa
+        contextDir: .
+      strategy:
+        dockerStrategy:
+          dockerfilePath: aspnetcore/openshift/api/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: mydata-api-qa:latest
+      successfulBuildsHistoryLimit: 2
+      failedBuildsHistoryLimit: 2
+
+  # Deployment config (qa)
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: mydata-api-deployment-qa
+      labels:
+        app: mydata-api-qa
+    spec:
+      selector:
+        app: mydata-api-qa
+        depcfg: mydata-api-depcfg-qa
+      template:
+        metadata:
+          labels:
+            app: mydata-api-qa
+            depcfg: mydata-api-depcfg-qa
+        spec:
+          containers:
+            - name: mydata-api-container-qa
+              image: researchfi/mydata-api-qa
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+      replicas: 1
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - mydata-api-container-qa
+            from:
+              kind: ImageStreamTag
+              name: mydata-api-qa:latest
+      strategy:
+        type: Rolling

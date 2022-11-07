@@ -35,6 +35,8 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
         public int DimFieldOfScienceId { get; set; }
+        public int DimResearchDatasetId { get; set; }
+        public int DimRegisteredDataSourceId { get; set; }
 
         public virtual DimAffiliation DimAffiliation { get; set; }
         public virtual DimCompetence DimCompetence { get; set; }
@@ -51,8 +53,10 @@ namespace api.Models.Ttv
         public virtual DimPid DimPid { get; set; }
         public virtual DimPid DimPidIdOrcidPutCodeNavigation { get; set; }
         public virtual DimPublication DimPublication { get; set; }
+        public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimResearchActivity DimResearchActivity { get; set; }
         public virtual DimResearchCommunity DimResearchCommunity { get; set; }
+        public virtual DimResearchDataset DimResearchDataset { get; set; }
         public virtual DimResearcherDescription DimResearcherDescription { get; set; }
         public virtual DimResearcherToResearchCommunity DimResearcherToResearchCommunity { get; set; }
         public virtual DimTelephoneNumber DimTelephoneNumber { get; set; }

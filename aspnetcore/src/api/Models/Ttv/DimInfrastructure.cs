@@ -27,18 +27,18 @@ namespace api.Models.Ttv
         public string DescriptionFi { get; set; }
         public string DescriptionSv { get; set; }
         public string DescriptionEn { get; set; }
-        public string ScientificDescriptionFi { get; set; }
-        public string ScientificDescriptionSv { get; set; }
-        public string ScientificDescriptionEn { get; set; }
         public int? StartYear { get; set; }
         public int? EndYear { get; set; }
         public string Acronym { get; set; }
         public bool FinlandRoadmap { get; set; }
-        public string Urn { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
+        public string Urn { get; set; }
+        public string ScientificDescriptionFi { get; set; }
+        public string ScientificDescriptionSv { get; set; }
+        public string ScientificDescriptionEn { get; set; }
 
         public virtual DimInfrastructure NextInfastructure { get; set; }
         public virtual ICollection<BrEsfriDimInfrastructure> BrEsfriDimInfrastructures { get; set; }

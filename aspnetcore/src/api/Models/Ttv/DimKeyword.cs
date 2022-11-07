@@ -11,7 +11,6 @@ namespace api.Models.Ttv
         {
             BrKeywordDimFundingDecisions = new HashSet<BrKeywordDimFundingDecision>();
             BrKeywordDimPublications = new HashSet<BrKeywordDimPublication>();
-            BrResearchDatasetDimKeywords = new HashSet<BrResearchDatasetDimKeyword>();
             FactFieldValues = new HashSet<FactFieldValue>();
             FactInfraKeywords = new HashSet<FactInfraKeyword>();
             InverseDimKeywordCloseMatchNavigation = new HashSet<DimKeyword>();
@@ -40,7 +39,6 @@ namespace api.Models.Ttv
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual ICollection<BrKeywordDimFundingDecision> BrKeywordDimFundingDecisions { get; set; }
         public virtual ICollection<BrKeywordDimPublication> BrKeywordDimPublications { get; set; }
-        public virtual ICollection<BrResearchDatasetDimKeyword> BrResearchDatasetDimKeywords { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
         public virtual ICollection<FactInfraKeyword> FactInfraKeywords { get; set; }
         public virtual ICollection<DimKeyword> InverseDimKeywordCloseMatchNavigation { get; set; }

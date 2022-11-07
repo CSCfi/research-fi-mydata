@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using api.Models;
+﻿using System.Collections.Generic;
+using api.Models.ProfileEditor.Items;
 
-namespace api.Models
+namespace api.Models.ProfileEditor
 {
     public partial class ProfileEditorDataModificationRequest    {
         public ProfileEditorDataModificationRequest()

@@ -23,16 +23,18 @@ namespace api.Models.Ttv
         public int? DimFundingDecisionId { get; set; }
         public int? DimResearchDataCatalogId { get; set; }
         public int? DimResearchDatasetId { get; set; }
+        public int? DimResearchCommunityId { get; set; }
         public string SourceDescription { get; set; }
         public string SourceId { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
-        public int? DimResearchCommunityId { get; set; }
+        public int? DimResearchActivityId { get; set; }
 
         public virtual DimCallProgramme DimCallProgramme { get; set; }
         public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimKnownPerson DimKnownPerson { get; set; }
         public virtual DimOrganization DimOrganization { get; set; }
+        public virtual DimResearchActivity DimResearchActivity { get; set; }
         public virtual DimResearchCommunity DimResearchCommunity { get; set; }
         public virtual DimResearchDataCatalog DimResearchDataCatalog { get; set; }
         public virtual DimResearchDataset DimResearchDataset { get; set; }

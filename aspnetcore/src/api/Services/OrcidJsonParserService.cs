@@ -11,14 +11,14 @@ namespace api.Services
      * ORCID record schema
      * https://info.orcid.org/documentation/integration-guide/orcid-record/
      */
-    public class OrcidJsonParserService
+    public class OrcidJsonParserService : IOrcidJsonParserService
     {
         /*
          * Put code
          */
-        private OrcidPutCode getOrcidPutCode(JsonElement orcidJsonElement)
+        private OrcidPutCode GetOrcidPutCode(JsonElement orcidJsonElement)
         {
-            var putCode = new OrcidPutCode(null);
+            OrcidPutCode putCode = new(null);
 
             // put code
             if (orcidJsonElement.TryGetProperty("put-code", out JsonElement putCodeElement))
@@ -36,28 +36,28 @@ namespace api.Services
         /*
          * Date
          */
-        private OrcidDate getOrcidDate(JsonElement orcidJsonDateElement)
+        private OrcidDate GetOrcidDate(JsonElement orcidJsonDateElement)
         {
-            var orcidDate = new OrcidDate();
+            OrcidDate orcidDate = new();
 
             if (orcidJsonDateElement.ValueKind != JsonValueKind.Null)
             {
                 // Year
-                orcidJsonDateElement.TryGetProperty("year", out var yearElement);
+                orcidJsonDateElement.TryGetProperty("year", out JsonElement yearElement);
                 if (yearElement.ValueKind != JsonValueKind.Null)
                 {
                     orcidDate.Year = int.Parse(yearElement.GetProperty("value").GetString());
                 }
 
                 // Month
-                orcidJsonDateElement.TryGetProperty("month", out var monthElement);
+                orcidJsonDateElement.TryGetProperty("month", out JsonElement monthElement);
                 if (monthElement.ValueKind != JsonValueKind.Null)
                 {
                     orcidDate.Month = int.Parse(monthElement.GetProperty("value").GetString());
                 }
 
                 // Day
-                orcidJsonDateElement.TryGetProperty("day", out var dayElement);
+                orcidJsonDateElement.TryGetProperty("day", out JsonElement dayElement);
                 if (dayElement.ValueKind != JsonValueKind.Null)
                 {
                     orcidDate.Day = int.Parse(dayElement.GetProperty("value").GetString());
@@ -70,21 +70,17 @@ namespace api.Services
         /*
          * Get DOI from ORCID publication
          */
-        private string getPublicationDoi(JsonElement workElement)
+        private string GetPublicationDoi(JsonElement externalIdsElement)
         {
             string doi = "";
-            JsonElement externalIdsElement;
-            if (workElement.TryGetProperty("external-ids", out externalIdsElement))
+            if (externalIdsElement.ValueKind != JsonValueKind.Null && externalIdsElement.TryGetProperty("external-id", out JsonElement externalIdElement))
             {
-                JsonElement externalIdElement;
-                if (externalIdsElement.ValueKind != JsonValueKind.Null && externalIdsElement.TryGetProperty("external-id", out externalIdElement))
+                foreach (JsonElement idElement in externalIdElement.EnumerateArray())
                 {
-                    foreach (JsonElement idElement in externalIdElement.EnumerateArray())
+                    if (idElement.GetProperty("external-id-type").GetString() == "doi")
                     {
-                        if (idElement.GetProperty("external-id-type").GetString() == "doi")
-                        {
-                            doi = idElement.GetProperty("external-id-value").GetString();
-                        }
+                        doi = idElement.GetProperty("external-id-value").GetString();
+                        break;
                     }
                 }
             }
@@ -94,17 +90,14 @@ namespace api.Services
         /*
          * Get publication year from ORCID publication
          */
-        private int? getPublicationYear(JsonElement workElement)
+        private int? GetPublicationYear(JsonElement workElement)
         {
             int? publicationYear = null;
-            JsonElement publicationDateElement;
-            if (workElement.TryGetProperty("publication-date", out publicationDateElement))
+            if (workElement.TryGetProperty("publication-date", out JsonElement publicationDateElement))
             {
-                JsonElement yearElement;
-                if (publicationDateElement.ValueKind != JsonValueKind.Null && publicationDateElement.TryGetProperty("year", out yearElement))
+                if (publicationDateElement.ValueKind != JsonValueKind.Null && publicationDateElement.TryGetProperty("year", out JsonElement yearElement))
                 {
-                    JsonElement valueElement;
-                    if (yearElement.ValueKind != JsonValueKind.Null && yearElement.TryGetProperty("value", out valueElement))
+                    if (yearElement.ValueKind != JsonValueKind.Null && yearElement.TryGetProperty("value", out JsonElement valueElement))
                     {
                         publicationYear = Int32.Parse(valueElement.GetString());
                     }
@@ -116,10 +109,12 @@ namespace api.Services
         /*
          * Check if Json document is full ORCID record
          */
-        private Boolean isFullRecord(JsonDocument orcidJsonDocument)
+        private Boolean IsFullRecord(JsonDocument orcidJsonDocument)
         {
-            var myValue = new System.Text.Json.JsonElement();
-            return orcidJsonDocument.RootElement.TryGetProperty("person", out myValue);
+            //var myValue = new System.Text.Json.JsonElement();
+            //return orcidJsonDocument.RootElement.TryGetProperty("person", out myValue);
+
+            return orcidJsonDocument.RootElement.TryGetProperty("person", out _);
         }
 
         /*
@@ -127,28 +122,34 @@ namespace api.Services
          */
         public OrcidGivenNames GetGivenNames(String json)
         {
-            using (JsonDocument document = JsonDocument.Parse(json))
-            {
-                JsonElement givenNamesElement;
-                if (this.isFullRecord(document))
-                {
-                    givenNamesElement = document.RootElement.GetProperty("person").GetProperty("name").GetProperty("given-names");
-                }
-                else
-                {
-                    givenNamesElement = document.RootElement.GetProperty("name").GetProperty("given-names");
-                }
+            using JsonDocument document = JsonDocument.Parse(json);
 
-                JsonElement valueElement;
-                if (givenNamesElement.ValueKind != JsonValueKind.Null && givenNamesElement.TryGetProperty("value", out valueElement))
-                {
-                    return new OrcidGivenNames(
-                        valueElement.GetString()
-                    );
-                } else
-                {
-                    return new OrcidGivenNames("");
-                }
+            // Get name element
+            JsonElement nameElement = IsFullRecord(document)
+                ? document.RootElement.GetProperty("person").GetProperty("name")
+                : document.RootElement.GetProperty("name");
+
+            JsonElement givenNamesElement;
+            // Check if name element is null
+            if (nameElement.ValueKind == JsonValueKind.Null)
+            {
+                return new OrcidGivenNames("");
+            }
+            else
+            {
+                givenNamesElement = nameElement.GetProperty("given-names");
+            }
+
+            // Get value
+            if (givenNamesElement.ValueKind != JsonValueKind.Null && givenNamesElement.TryGetProperty("value", out JsonElement valueElement))
+            {
+                return new OrcidGivenNames(
+                    valueElement.GetString()
+                );
+            }
+            else
+            {
+                return new OrcidGivenNames("");
             }
         }
 
@@ -157,29 +158,34 @@ namespace api.Services
          */
         public OrcidFamilyName GetFamilyName(String json)
         {
-            using (JsonDocument document = JsonDocument.Parse(json))
-            {
-                JsonElement familyNameElement;
-                if (this.isFullRecord(document))
-                {
-                    familyNameElement = document.RootElement.GetProperty("person").GetProperty("name").GetProperty("family-name");
-                }
-                else
-                {
-                    familyNameElement = document.RootElement.GetProperty("name").GetProperty("family-name");
-                }
+            using JsonDocument document = JsonDocument.Parse(json);
 
-                JsonElement valueElement;
-                if (familyNameElement.ValueKind != JsonValueKind.Null && familyNameElement.TryGetProperty("value", out valueElement))
-                {
-                    return new OrcidFamilyName(
-                        valueElement.GetString()
-                    );
-                }
-                else
-                {
-                    return new OrcidFamilyName("");
-                }
+            // Get name element
+            JsonElement nameElement = IsFullRecord(document)
+                ? document.RootElement.GetProperty("person").GetProperty("name")
+                : document.RootElement.GetProperty("name");
+
+            JsonElement familyNameElement;
+            // Check if name element is null
+            if (nameElement.ValueKind == JsonValueKind.Null)
+            {
+                return new OrcidFamilyName("");
+            }
+            else
+            {
+                familyNameElement = nameElement.GetProperty("family-name");
+            }
+
+            // Get value
+            if (familyNameElement.ValueKind != JsonValueKind.Null && familyNameElement.TryGetProperty("value", out JsonElement valueElement))
+            {
+                return new OrcidFamilyName(
+                    valueElement.GetString()
+                );
+            }
+            else
+            {
+                return new OrcidFamilyName("");
             }
         }
 
@@ -188,29 +194,34 @@ namespace api.Services
          */
         public OrcidCreditName GetCreditName(String json)
         {
-            using (JsonDocument document = JsonDocument.Parse(json))
-            {
-                JsonElement creditNameElement;
-                if (this.isFullRecord(document))
-                {
-                    creditNameElement = document.RootElement.GetProperty("person").GetProperty("name").GetProperty("credit-name");
-                }
-                else
-                {
-                    creditNameElement = document.RootElement.GetProperty("name").GetProperty("credit-name");
-                }
+            using JsonDocument document = JsonDocument.Parse(json);
 
-                JsonElement valueElement;
-                if (creditNameElement.ValueKind != JsonValueKind.Null && creditNameElement.TryGetProperty("value", out valueElement))
-                {
-                    return new OrcidCreditName(
-                        valueElement.GetString()
-                    );
-                }
-                else
-                {
-                    return new OrcidCreditName("");
-                }
+            // Get name element
+            JsonElement nameElement = IsFullRecord(document)
+                ? document.RootElement.GetProperty("person").GetProperty("name")
+                : document.RootElement.GetProperty("name");
+
+            JsonElement creditNameElement;
+            // Check if name element is null
+            if (nameElement.ValueKind == JsonValueKind.Null)
+            {
+                return new OrcidCreditName("");
+            }
+            else
+            {
+                creditNameElement = nameElement.GetProperty("credit-name");
+            }
+
+            // Get value
+            if (creditNameElement.ValueKind != JsonValueKind.Null && creditNameElement.TryGetProperty("value", out JsonElement valueElement))
+            {
+                return new OrcidCreditName(
+                    valueElement.GetString()
+                );
+            }
+            else
+            {
+                return new OrcidCreditName("");
             }
         }
 
@@ -219,23 +230,17 @@ namespace api.Services
          */
         public List<OrcidOtherName> GetOtherNames(String json)
         {
-            var otherNamesElement = new JsonElement();
-            var otherNames = new List<OrcidOtherName> { };
+            List<OrcidOtherName> otherNames = new() { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                if (this.isFullRecord(document))
-                {
-                    otherNamesElement = document.RootElement.GetProperty("person").GetProperty("other-names");
-                }
-                else
-                {
-                    otherNamesElement = document.RootElement.GetProperty("other-names");
-                }
+                JsonElement otherNamesElement = IsFullRecord(document)
+                    ? document.RootElement.GetProperty("person").GetProperty("other-names")
+                    : document.RootElement.GetProperty("other-names");
 
                 foreach (JsonElement element in otherNamesElement.GetProperty("other-name").EnumerateArray())
                 {
-                    var value = element.GetProperty("content").GetString();
-                    var putCode = this.getOrcidPutCode(element);
+                    string value = element.GetProperty("content").GetString();
+                    OrcidPutCode putCode = this.GetOrcidPutCode(element);
                     otherNames.Add(
                         new OrcidOtherName(value, putCode)
                     );
@@ -249,38 +254,29 @@ namespace api.Services
          */
         public OrcidBiography GetBiography(String json)
         {
-            using (JsonDocument document = JsonDocument.Parse(json))
+            using JsonDocument document = JsonDocument.Parse(json);
+
+            JsonElement biographyElement = IsFullRecord(document)
+                ? document.RootElement.GetProperty("person").GetProperty("biography")
+                : document.RootElement.GetProperty("biography");
+
+            if (biographyElement.ValueKind == JsonValueKind.Null)
             {
-                JsonElement biographyElement;
-                JsonElement contentElement;
+                return null;
+            }
+            else
+            {
+                biographyElement.TryGetProperty("content", out JsonElement contentElement);
 
-                if (this.isFullRecord(document))
-                {
-                    biographyElement = document.RootElement.GetProperty("person").GetProperty("biography");
-                }
-                else
-                {
-                    biographyElement = document.RootElement.GetProperty("biography");
-                }
-
-                if (biographyElement.ValueKind == JsonValueKind.Null)
+                if (contentElement.ValueKind.Equals(null))
                 {
                     return null;
                 }
                 else
                 {
-                    biographyElement.TryGetProperty("content", out contentElement);
-
-                    if (contentElement.ValueKind.Equals(null))
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return new OrcidBiography(
-                            contentElement.GetString()
-                        );
-                    }
+                    return new OrcidBiography(
+                        value: contentElement.GetString()
+                    );
                 }
             }
         }
@@ -290,16 +286,16 @@ namespace api.Services
          */
         public List<OrcidResearcherUrl> GetResearcherUrls(String json)
         {
-            var urls = new List<OrcidResearcherUrl> { };
+            List<OrcidResearcherUrl> urls = new() { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("researcher-urls").GetProperty("researcher-url").EnumerateArray())
                 {
                     urls.Add(
                         new OrcidResearcherUrl(
-                            element.GetProperty("url-name").GetString(),
-                            element.GetProperty("url").GetProperty("value").GetString(),
-                            this.getOrcidPutCode(element)
+                            urlName: element.GetProperty("url-name").GetString(),
+                            url: element.GetProperty("url").GetProperty("value").GetString(),
+                            putCode: this.GetOrcidPutCode(element)
                         )
                     );
                 }
@@ -312,15 +308,15 @@ namespace api.Services
          */
         public List<OrcidEmail> GetEmails(String json)
         {
-            var emails = new List<OrcidEmail> { };
+            List<OrcidEmail> emails = new() { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("emails").GetProperty("email").EnumerateArray())
                 {
                     emails.Add(
                         new OrcidEmail(
-                            element.GetProperty("email").GetString(),
-                            this.getOrcidPutCode(element)
+                            value: element.GetProperty("email").GetString(),
+                            putCode: this.GetOrcidPutCode(element)
                         )
                     );
                 }
@@ -333,15 +329,15 @@ namespace api.Services
          */
         public List<OrcidKeyword> GetKeywords(String json)
         {
-            var keywords = new List<OrcidKeyword> { };
+            List<OrcidKeyword> keywords = new() { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("keywords").GetProperty("keyword").EnumerateArray())
                 {
                     keywords.Add(
                         new OrcidKeyword(
-                            element.GetProperty("content").GetString(),
-                            this.getOrcidPutCode(element)
+                            value: element.GetProperty("content").GetString(),
+                            putCode: this.GetOrcidPutCode(element)
                         )
                     );
                 }
@@ -354,17 +350,17 @@ namespace api.Services
          */
         public List<OrcidExternalIdentifier> GetExternalIdentifiers(String json)
         {
-            var externalIdentifiers = new List<OrcidExternalIdentifier> { };
+            List<OrcidExternalIdentifier> externalIdentifiers = new() { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("external-identifiers").GetProperty("external-identifier").EnumerateArray())
                 {
                     externalIdentifiers.Add(
                         new OrcidExternalIdentifier(
-                            element.GetProperty("external-id-type").GetString(),
-                            element.GetProperty("external-id-value").GetString(),
-                            element.GetProperty("external-id-url").GetProperty("value").GetString(),
-                            this.getOrcidPutCode(element)
+                            externalIdType: element.GetProperty("external-id-type").GetString(),
+                            externalIdValue: element.GetProperty("external-id-value").GetString(),
+                            externalIdUrl: element.GetProperty("external-id-url").GetProperty("value").GetString(),
+                            putCode: this.GetOrcidPutCode(element)
                         )
                     );
                 }
@@ -377,31 +373,41 @@ namespace api.Services
          */
         public List<OrcidEducation> GetEducations(String json)
         {
-            var educations = new List <OrcidEducation> { };
+            List<OrcidEducation> educations = new() { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 JsonElement educationsElement = document.RootElement.GetProperty("activities-summary").GetProperty("educations");
-                JsonElement affiliationGroupsElement;
 
-                if (educationsElement.TryGetProperty("affiliation-group", out affiliationGroupsElement))
-                { 
-                    foreach(JsonElement affiliationGroupElement in affiliationGroupsElement.EnumerateArray()) { 
-                        JsonElement summariesElement;
+                if (educationsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement.EnumerateArray())
+                    {
 
-                        if (affiliationGroupElement.TryGetProperty("summaries", out summariesElement))
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
                         {
                             foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
                             {
-                                JsonElement educationSummaryElement;
-                                if (summaryElement.TryGetProperty("education-summary", out educationSummaryElement)) {
+                                if (summaryElement.TryGetProperty("education-summary", out JsonElement educationSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (educationSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
                                     educations.Add(
                                         new OrcidEducation(
-                                            educationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
-                                            educationSummaryElement.GetProperty("department-name").GetString(),
-                                            educationSummaryElement.GetProperty("role-title").GetString(),
-                                            getOrcidDate(educationSummaryElement.GetProperty("start-date")),
-                                            getOrcidDate(educationSummaryElement.GetProperty("end-date")),
-                                            this.getOrcidPutCode(educationSummaryElement)
+                                            organizationName: educationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                            departmentName: educationSummaryElement.GetProperty("department-name").GetString(),
+                                            roleTitle: educationSummaryElement.GetProperty("role-title").GetString(),
+                                            startDate: GetOrcidDate(educationSummaryElement.GetProperty("start-date")),
+                                            endDate: GetOrcidDate(educationSummaryElement.GetProperty("end-date")),
+                                            putCode: this.GetOrcidPutCode(educationSummaryElement)
                                         )
                                     );
                                 }
@@ -418,33 +424,43 @@ namespace api.Services
          */
         public List<OrcidEmployment> GetEmployments(String json)
         {
-            var employments = new List<OrcidEmployment> { };
+            List<OrcidEmployment> employments = new() { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 JsonElement employmentsElement = document.RootElement.GetProperty("activities-summary").GetProperty("employments");
-                JsonElement affiliationGroupsElement;
 
-                if (employmentsElement.TryGetProperty("affiliation-group", out affiliationGroupsElement))
+                if (employmentsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement))
                 {
                     foreach (JsonElement affiliationGroupElement in affiliationGroupsElement.EnumerateArray())
                     {
-                        JsonElement summariesElement;
 
-                        if (affiliationGroupElement.TryGetProperty("summaries", out summariesElement))
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
                         {
                             foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
                             {
-                                JsonElement employmentSummaryElement;
-                                if (summaryElement.TryGetProperty("employment-summary", out employmentSummaryElement))
+                                if (summaryElement.TryGetProperty("employment-summary", out JsonElement employmentSummaryElement))
                                 {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (employmentSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
                                     employments.Add(
                                       new OrcidEmployment(
-                                          employmentSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
-                                          employmentSummaryElement.GetProperty("department-name").GetString(),
-                                          employmentSummaryElement.GetProperty("role-title").GetString(),
-                                          getOrcidDate(employmentSummaryElement.GetProperty("start-date")),
-                                          getOrcidDate(employmentSummaryElement.GetProperty("end-date")),
-                                          this.getOrcidPutCode(employmentSummaryElement)
+                                          organizationName: employmentSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: employmentSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: employmentSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(employmentSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(employmentSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(employmentSummaryElement)
                                       )
                                   );
                                 }
@@ -461,18 +477,30 @@ namespace api.Services
          */
         public List<OrcidPublication> GetPublications(String json)
         {
-            var publications = new List<OrcidPublication> { };
+            List<OrcidPublication> publications = new() { };
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 JsonElement publicationsElement = document.RootElement.GetProperty("activities-summary").GetProperty("works");
-                JsonElement groupsElement;
 
-                if (publicationsElement.TryGetProperty("group", out groupsElement))
+                if (publicationsElement.TryGetProperty("group", out JsonElement groupsElement))
                 {
                     foreach (JsonElement groupElement in groupsElement.EnumerateArray())
                     {
-                        JsonElement workSummariesElement;
-                        if (groupElement.TryGetProperty("work-summary", out workSummariesElement))
+                        /*
+                         *  Elements in "group" can contain "external-ids" and "work-summary".
+                         *  "work-summary" can contain multiple entries of the same publication.
+                         *  Get DOI from "external-ids" and the other properties from the first element in "work-summary".
+                         */
+                        string DOI = "";
+
+                        // Get publication DOI from "external-ids" array.
+                        if (groupElement.TryGetProperty("external-ids", out JsonElement externalIdsElement))
+                        {
+                            DOI = GetPublicationDoi(externalIdsElement);
+                        }
+
+                        // Get publication properties from "work-summary" array.
+                        if (groupElement.TryGetProperty("work-summary", out JsonElement workSummariesElement))
                         {
                             foreach (JsonElement workElement in workSummariesElement.EnumerateArray())
                             {
@@ -480,12 +508,15 @@ namespace api.Services
                                     new OrcidPublication()
                                     {
                                         PublicationName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
-                                        DoiHandle = this.getPublicationDoi(workElement),
-                                        PublicationYear = this.getPublicationYear(workElement),
+                                        Doi = DOI,
+                                        PublicationYear = this.GetPublicationYear(workElement),
                                         Type = workElement.GetProperty("type").GetString(),
-                                        PutCode = this.getOrcidPutCode(workElement)
+                                        PutCode = this.GetOrcidPutCode(workElement)
                                     }
                                 );
+
+                                // Import only one element from "work-summary" array.
+                                break;
                             }
                         }
                     }
