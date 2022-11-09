@@ -68,7 +68,7 @@ namespace api.Controllers
             int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Cache key
-            string cacheKey = orcidId + "_2";
+            string cacheKey = orcidId;
 
             // Send cached response, if exists.
             if (_cache.TryGetValue(cacheKey, out ProfileEditorDataResponse cachedResponse))
