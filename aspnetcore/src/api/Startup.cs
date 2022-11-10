@@ -153,12 +153,16 @@ namespace api
                 options.AddPolicy("production", builder =>
                 {
                     builder.WithOrigins(
-                        "https://*.csc.fi",
-                        "https://*.rahtiapp.fi"
+                        "https://tiedejatutkimus.fi",
+                        "https://forskning.fi",
+                        "https://research.fi",
+                        "https://www.tiedejatutkimus.fi",
+                        "https://www.forskning.fi",
+                        "https://www.research.fi"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
-                    .AllowAnyHeader()  // TODO: check if AllowAnyHeader() should be removed
-                    .AllowAnyMethod(); // TODO: check if AllowAnyMethod() should be removed
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
                 });
             });
 
