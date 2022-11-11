@@ -1,4 +1,5 @@
 ﻿using System;
+using api.Models.Common;
 
 namespace api.Services
 {
@@ -15,6 +16,30 @@ namespace api.Services
         public DateTime GetCurrentDateTime()
         {
             return DateTime.UtcNow;
+        }
+
+        /*
+         * Get ORCID data source organization name.
+         */
+        public string GetDatasourceOrganizationName_ORCID()
+        {
+            return Constants.OrganizationNames.ORCID;
+        }
+
+        /*
+         * Get TTV data source organization name.
+         */
+        public string GetDatasourceOrganizationName_TTV()
+        {
+            return Constants.OrganizationNames.TTV;
+        }
+
+        /*
+         * Get OKM organization id.
+         */
+        public string GetOrganizationId_OKM()
+        {
+            return Constants.OrganizationIds.OKM;
         }
     }
 }
