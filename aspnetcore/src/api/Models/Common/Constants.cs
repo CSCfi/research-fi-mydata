@@ -67,8 +67,8 @@
         public static class OrganizationNames
         {
             // TODO: check correct name, when these are properly populated in the database
-            public const string ORCID = "ORCID (test)";
-            public const string TTV = "Tiedejatutkimus.fi (test)";
+            public const string ORCID = "ORCID";
+            public const string TTV = "Tiedejatutkimus.fi";
         }
 
         public static class PurposeNames
