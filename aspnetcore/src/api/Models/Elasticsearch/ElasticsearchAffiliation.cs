@@ -18,6 +18,7 @@ namespace api.Models.Elasticsearch
             Type = "";
             StartDate = new ElasticsearchDate();
             EndDate = new ElasticsearchDate();
+            sector = new List<ElasticsearchSector> {};
         }
 
         public string OrganizationNameFi { get; set; }
@@ -32,5 +33,6 @@ namespace api.Models.Elasticsearch
         public string Type { get; set; } 
         public ElasticsearchDate StartDate { get; set; }
         public ElasticsearchDate EndDate { get; set; }
+        public List<ElasticsearchSector> sector { get; set; }
     }
 }

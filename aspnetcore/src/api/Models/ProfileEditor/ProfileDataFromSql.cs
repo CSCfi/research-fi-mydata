@@ -77,9 +77,14 @@ namespace api.Models.ProfileEditor
         public string DimPid_PidType { get; set; }
         // DimAffiliation
         public int DimAffiliation_DimOrganization_Id { get; set; }
+        public string DimAffiliation_DimOrganization_OrganizationId { get; set; }
         public string DimAffiliation_DimOrganization_NameFi { get; set; }
         public string DimAffiliation_DimOrganization_NameEn { get; set; }
         public string DimAffiliation_DimOrganization_NameSv { get; set; }
+        public string DimAffiliation_DimOrganization_DimSector_SectorId { get; set; }
+        public string DimAffiliation_DimOrganization_DimSector_NameFi { get; set; }
+        public string DimAffiliation_DimOrganization_DimSector_NameEn { get; set; }
+        public string DimAffiliation_DimOrganization_DimSector_NameSv { get; set; }
         public string DimAffiliation_PositionNameFi { get; set; }
         public string DimAffiliation_PositionNameEn { get; set; }
         public string DimAffiliation_PositionNameSv { get; set; }

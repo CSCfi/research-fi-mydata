@@ -124,7 +124,7 @@ namespace api.Controllers
             }
 
             // Get profile data
-            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync2(userprofileId);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }

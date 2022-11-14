@@ -142,9 +142,14 @@ namespace api.Services
                     dim_pid.pid_type AS 'DimPid_PidType',
                     dim_pid.pid_content AS 'DimPid_PidContent',
                     affiliation_organization.id AS 'DimAffiliation_DimOrganization_Id',
+                    affiliation_organization.organization_id AS 'DimAffiliation_DimOrganization_OrganizationId',
                     affiliation_organization.name_fi AS 'DimAffiliation_DimOrganization_NameFi',
                     affiliation_organization.name_en AS 'DimAffiliation_DimOrganization_NameEn',
                     affiliation_organization.name_sv AS 'DimAffiliation_DimOrganization_NameSv',
+                    affiliation_organization_sector.sector_id AS 'DimAffiliation_DimOrganization_DimSector_SectorId',
+                    affiliation_organization_sector.name_fi AS 'DimAffiliation_DimOrganization_DimSector_NameFi',
+                    affiliation_organization_sector.name_en AS 'DimAffiliation_DimOrganization_DimSector_NameEn',
+                    affiliation_organization_sector.name_sv AS 'DimAffiliation_DimOrganization_DimSector_NameSv',
                     dim_affiliation.position_name_fi AS 'DimAffiliation_PositionNameFi',
                     dim_affiliation.position_name_en AS 'DimAffiliation_PositionNameEn',
                     dim_affiliation.position_name_sv AS 'DimAffiliation_PositionNameSv',
@@ -242,6 +247,7 @@ namespace api.Services
                 JOIN dim_pid ON ffv.dim_pid_id=dim_pid.id
                 JOIN dim_affiliation ON ffv.dim_affiliation_id=dim_affiliation.id
                 JOIN dim_organization AS affiliation_organization ON dim_affiliation.dim_organization_id=affiliation_organization.id
+                JOIN dim_sector AS affiliation_organization_sector ON affiliation_organization.dim_sectorid=affiliation_organization_sector.id
                 LEFT JOIN dim_date AS affiliation_start_date ON dim_affiliation.start_date=affiliation_start_date.id AND affiliation_start_date.id!=-1
                 LEFT JOIN dim_date AS affiliation_end_date ON dim_affiliation.end_date=affiliation_end_date.id AND affiliation_end_date.id!=-1
                 JOIN dim_referencedata AS affiliation_type ON dim_affiliation.affiliation_type=affiliation_type.id
