@@ -158,7 +158,10 @@ namespace api
                         "https://research.fi",
                         "https://www.tiedejatutkimus.fi",
                         "https://www.forskning.fi",
-                        "https://www.research.fi"
+                        "https://www.research.fi",
+                        "https://researchfi-qa.rahtiapp.fi",
+                        "https://researchfi-qa-sv.rahtiapp.fi",
+                        "https://researchfi-qa-en.rahtiapp.fi"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()
