@@ -66,6 +66,8 @@ namespace api.Services
 
                 if (dimReferencedata != null)
                 {
+                    // TODO: Uncomment when sharing permissions feature is enabled.
+                    /*
                     defaultSharingPermissions.Add(
                         new BrGrantedPermission()
                         {
@@ -74,6 +76,7 @@ namespace api.Services
                             DimPermittedFieldGroup = dimReferencedata.Id
                         }
                     );
+                    */
                 }
             }
             return defaultSharingPermissions;
