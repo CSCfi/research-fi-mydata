@@ -1,4 +1,7 @@
-﻿namespace api.Models.ProfileEditor.Items
+﻿using api.Models.Elasticsearch;
+using System.Collections.Generic;
+
+namespace api.Models.ProfileEditor.Items
 {
     public partial class ProfileEditorAffiliation : ProfileEditorItem
     {
@@ -16,6 +19,7 @@
             Type = "";
             StartDate = new ProfileEditorDate();
             EndDate = new ProfileEditorDate();
+            sector = new List<ProfileEditorSector> { };
         }
 
         public string OrganizationNameFi { get; set; }
@@ -30,5 +34,8 @@
         public string Type { get; set; } 
         public ProfileEditorDate StartDate { get; set; }
         public ProfileEditorDate EndDate { get; set; }
+
+        // Fields required in Elasticsearch person index. Elasticsearch model is mapped from ProfileEditor model.
+        public List<ProfileEditorSector> sector { get; set; }
     }
 }

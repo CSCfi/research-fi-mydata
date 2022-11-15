@@ -77,7 +77,7 @@ namespace api.Controllers
             }
 
             // Get profile data
-            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync2(userprofileId);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
 
             // Save response in cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()

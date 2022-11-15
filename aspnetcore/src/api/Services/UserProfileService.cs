@@ -732,7 +732,7 @@ namespace api.Services
          *  Get profile data. New version using data structure,
          *  where each item contains a list of data sources.
          */
-        public async Task<ProfileEditorDataResponse> GetProfileDataAsync2(int userprofileId, bool forElasticsearch = false)
+        public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, bool forElasticsearch = false)
         {
             // Response data
             ProfileEditorDataResponse profileDataResponse = new() { };
@@ -985,6 +985,13 @@ namespace api.Services
                             );
                         }
 
+                        // Name translation for organization sector
+                        NameTranslation nameTranslationAffiliationOrganizationSector = _languageService.GetNameTranslation(
+                            nameFi: p.DimAffiliation_DimOrganization_DimSector_NameFi,
+                            nameEn: p.DimAffiliation_DimOrganization_DimSector_NameEn,
+                            nameSv: p.DimAffiliation_DimOrganization_DimSector_NameSv
+                        );
+
                         // Name translation for position name
                         NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
                             nameFi: p.DimAffiliation_PositionNameFi,
@@ -1011,41 +1018,64 @@ namespace api.Services
                             );
                         }
 
-                        profileDataResponse.activity.affiliations.Add(
-                            new()
+                        ProfileEditorAffiliation affiliation = new()
+                        {
+                            OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
+                            OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
+                            OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
+                            DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
+                            DepartmentNameEn = nameTranslationAffiliationDepartment.NameSv,
+                            DepartmentNameSv = nameTranslationAffiliationDepartment.NameEn,
+                            PositionNameFi = nameTranslationPositionName.NameFi,
+                            PositionNameEn = nameTranslationPositionName.NameEn,
+                            PositionNameSv = nameTranslationPositionName.NameSv,
+                            Type = p.DimAffiliation_DimReferenceData_NameFi,
+                            StartDate = new ProfileEditorDate()
                             {
-                                OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
-                                OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
-                                OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv,
-                                DepartmentNameFi = nameTranslationAffiliationDepartment.NameFi,
-                                DepartmentNameEn = nameTranslationAffiliationDepartment.NameSv,
-                                DepartmentNameSv = nameTranslationAffiliationDepartment.NameEn,
-                                PositionNameFi = nameTranslationPositionName.NameFi,
-                                PositionNameEn = nameTranslationPositionName.NameEn,
-                                PositionNameSv = nameTranslationPositionName.NameSv,
-                                Type = p.DimAffiliation_DimReferenceData_NameFi,
-                                StartDate = new ProfileEditorDate()
+                                Year = p.DimAffiliation_StartDate_Year,
+                                Month = p.DimAffiliation_StartDate_Month,
+                                Day = p.DimAffiliation_StartDate_Day
+                            },
+                            EndDate = new ProfileEditorDate()
+                            {
+                                Year = p.DimAffiliation_EndDate_Year,
+                                Month = p.DimAffiliation_EndDate_Month,
+                                Day = p.DimAffiliation_EndDate_Day
+                            },
+                            itemMeta = new ProfileEditorItemMeta()
+                            {
+                                Id = p.FactFieldValues_DimAffiliationId,
+                                Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                Show = p.FactFieldValues_Show,
+                                PrimaryValue = p.FactFieldValues_PrimaryValue
+                            },
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                        };
+
+                        // Add Elasticsearch person index related data.
+                        if (forElasticsearch && !String.IsNullOrWhiteSpace(p.DimAffiliation_DimOrganization_DimSector_SectorId))
+                        {
+                            affiliation.sector = new List<ProfileEditorSector>
+                            {
+                                new ProfileEditorSector()
                                 {
-                                    Year = p.DimAffiliation_StartDate_Year,
-                                    Month = p.DimAffiliation_StartDate_Month,
-                                    Day = p.DimAffiliation_StartDate_Day
-                                },
-                                EndDate = new ProfileEditorDate()
-                                {
-                                    Year = p.DimAffiliation_EndDate_Year,
-                                    Month = p.DimAffiliation_EndDate_Month,
-                                    Day = p.DimAffiliation_EndDate_Day
-                                },
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimAffiliationId,
-                                    Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
-                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
-                            }
-                        );
+                                    sectorId = p.DimAffiliation_DimOrganization_DimSector_SectorId,
+                                    nameFiSector = nameTranslationAffiliationOrganizationSector.NameFi,
+                                    nameEnSector = nameTranslationAffiliationOrganizationSector.NameEn,
+                                    nameSvSector = nameTranslationAffiliationOrganizationSector.NameSv,
+                                    organization = new List<ProfileEditorSectorOrganization>() {
+                                        new ProfileEditorSectorOrganization()
+                                        {
+                                            organizationId = p.DimAffiliation_DimOrganization_OrganizationId,
+                                            OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
+                                            OrganizationNameEn = nameTranslationAffiliationOrganization.NameEn,
+                                            OrganizationNameSv = nameTranslationAffiliationOrganization.NameSv
+                                        }
+                                    }
+                                }
+                            };
+                        }
+                        profileDataResponse.activity.affiliations.Add(affiliation);
                         break;
 
                     // Education
