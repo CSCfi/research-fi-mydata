@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using Nest;
 
 namespace api.Models.Elasticsearch
 {
+    [ElasticsearchType(RelationName = "sector")]
     public partial class ElasticsearchSector
     {
         public ElasticsearchSector()
@@ -17,6 +19,9 @@ namespace api.Models.Elasticsearch
         public string nameFiSector { get; set; }
         public string nameEnSector { get; set; }
         public string nameSvSector { get; set; }
+
+        [Nested]
+        [PropertyName("organization")]
         public List<ElasticsearchSectorOrganization> organization { get; set; }
     }
 }

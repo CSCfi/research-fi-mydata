@@ -15,6 +15,7 @@ namespace api.Services
         public ElasticClient ESclient;
         public IConfiguration Configuration { get; }
         private readonly ILogger<ElasticsearchService> _logger;
+        private readonly string elasticsearchProfileIndexName = "person";
 
         // Check if Elasticsearch synchronization is enabled and related configuration is valid.
         public bool IsElasticsearchSyncEnabled()
@@ -37,10 +38,33 @@ namespace api.Services
 
             if (IsElasticsearchSyncEnabled())
             {
+                // Elasticsearch client
                 ConnectionSettings settings = new ConnectionSettings(new Uri(Configuration["ELASTICSEARCH:URL"]))
-                    .DefaultIndex("person")
+                    .MaximumRetries(3)
+                    .DefaultIndex(elasticsearchProfileIndexName)
                     .BasicAuthentication(Configuration["ELASTICSEARCH:USERNAME"], Configuration["ELASTICSEARCH:PASSWORD"]);
                 ESclient = new ElasticClient(settings);
+
+                // Ensure required index exists.
+                // Use attribute mapping when creating index:
+                //     https://www.elastic.co/guide/en/elasticsearch/client/net-api/7.17/attribute-mapping.html
+                if (!ESclient.Indices.Exists(elasticsearchProfileIndexName).Exists)
+                {
+                    _logger.LogInformation("ElasticsearchService: required index not found, creating index: " + elasticsearchProfileIndexName);
+
+                    var createIndexResponse = ESclient.Indices.Create(elasticsearchProfileIndexName, c => c
+                        .Map<ElasticsearchAffiliation>(m => m.AutoMap())
+                    );
+
+                    if (!createIndexResponse.IsValid)
+                    {
+                        _logger.LogError("ElasticsearchService: failed creating index: " + elasticsearchProfileIndexName + " : " + createIndexResponse.ToString());
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation("ElasticsearchService: required index found: " + elasticsearchProfileIndexName);
+                }
             }
         }
 
