@@ -221,6 +221,23 @@ namespace api.Services
         }
 
         /*
+         * Get new DimKnownPerson.
+         * - ORCID ID must be used as a source_id.
+         * - Registered data source must point to ORCID.
+         */
+        public DimKnownPerson GetNewDimKnownPerson(string orcidId, DateTime currentDateTime)
+        {
+            return new DimKnownPerson()
+            {
+                SourceId = orcidId, // ORCID ID must be used in dim_known_person.source_id
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                Created = currentDateTime,
+                Modified = currentDateTime,
+                DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_ORCID
+            };
+        }
+
+        /*
          * Get empty FactFieldValue.
          * Must use -1 in required foreign keys.
          */
@@ -647,26 +664,13 @@ namespace api.Services
                 dimPid.SourceId = Constants.SourceIdentifiers.PROFILE_API;
 
                 // Since new DimPid is added, then new DimKnownPerson must be added.
-                dimPid.DimKnownPerson = new DimKnownPerson()
-                {
-                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = currentDateTime,
-                    Modified = currentDateTime
-                };
-
+                dimPid.DimKnownPerson = GetNewDimKnownPerson(orcidId, currentDateTime);
                 _ttvContext.DimPids.Add(dimPid);
             }
             else if (dimPid.DimKnownPerson == null || dimPid.DimKnownPersonId == -1)
             {
                 // DimPid was found but it does not have related DimKnownPerson, add new.
-                DimKnownPerson kp = new()
-                {
-                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = currentDateTime,
-                    Modified = currentDateTime
-                };
+                DimKnownPerson kp = GetNewDimKnownPerson(orcidId, currentDateTime);
                 _ttvContext.DimKnownPeople.Add(kp);
                 dimPid.DimKnownPerson = kp;
             }
