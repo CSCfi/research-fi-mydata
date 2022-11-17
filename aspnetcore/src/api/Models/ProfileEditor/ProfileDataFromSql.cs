@@ -143,6 +143,10 @@ namespace api.Models.ProfileEditor
         public int DimResearchActivity_EndDate_Year { get; set; }
         public int DimResearchActivity_EndDate_Month { get; set; }
         public int DimResearchActivity_EndDate_Day { get; set; }
+        public string DimResearchActivity_Role_CodeValue { get; set; }
+        public string DimResearchActivity_Role_NameFi { get; set; }
+        public string DimResearchActivity_Role_NameEn { get; set; }
+        public string DimResearchActivity_Role_NameSv { get; set; }
         // DimFundingDecision
         public string DimFundingDecision_Acronym { get; set; }
         public string DimFundingDecision_FunderProjectNumber { get; set; }

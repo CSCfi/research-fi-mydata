@@ -202,6 +202,10 @@ namespace api.Services
                     research_activity_end_date.year AS 'DimResearchActivity_EndDate_Year',
                     research_activity_end_date.month AS 'DimResearchActivity_EndDate_Month',
                     research_activity_end_date.day AS 'DimResearchActivity_EndDate_Day',
+					research_acticity_fact_contribution_dim_referencedata.code_value AS 'DimResearchActivity_Role_CodeValue',
+					research_acticity_fact_contribution_dim_referencedata.name_fi AS 'DimResearchActivity_Role_NameFi',
+					research_acticity_fact_contribution_dim_referencedata.name_en AS 'DimResearchActivity_Role_NameEn',
+					research_acticity_fact_contribution_dim_referencedata.name_sv AS 'DimResearchActivity_Role_NameSv',
                     dfd.acronym AS 'DimFundingDecision_Acronym',
                     dfd.funder_project_number AS 'DimFundingDecision_FunderProjectNumber',
                     dfd.name_fi AS 'DimFundingDecision_NameFi',
@@ -261,6 +265,12 @@ namespace api.Services
                 JOIN dim_research_activity ON ffv.dim_research_activity_id=dim_research_activity.id
                 LEFT JOIN dim_date AS research_activity_start_date ON dim_research_activity.dim_start_date=research_activity_start_date.id AND research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS research_activity_end_date ON dim_research_activity.dim_end_date=research_activity_end_date.id AND research_activity_end_date.id!=-1
+				LEFT JOIN fact_contribution AS research_activity_fact_contribution ON dim_research_activity.id=research_activity_fact_contribution.dim_research_activity_id AND
+					dim_research_activity.id!=-1 AND
+					research_activity_fact_contribution.contribution_type='researcher_name_activity'
+				LEFT JOIN dim_referencedata AS research_acticity_fact_contribution_dim_referencedata ON
+					research_activity_fact_contribution.dim_referencedata_actor_role_id=research_acticity_fact_contribution_dim_referencedata.id AND
+					research_acticity_fact_contribution_dim_referencedata.id!=-1
                 JOIN dim_funding_decision AS dfd ON ffv.dim_funding_decision_id=dfd.id
                 LEFT JOIN dim_date AS funding_decision_start_date ON dfd.dim_date_id_start=funding_decision_start_date.id AND funding_decision_start_date.id!=-1
                 LEFT JOIN dim_date AS funding_decision_end_date ON dfd.dim_date_id_end=funding_decision_end_date.id AND funding_decision_end_date.id!=-1

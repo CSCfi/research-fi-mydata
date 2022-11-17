@@ -1154,6 +1154,11 @@ namespace api.Services
                             nameEn: p.DimResearchActivity_DescriptionEn,
                             nameSv: p.DimResearchActivity_DescriptionSv
                         );
+                        NameTranslation nameTraslationResearchActivityRoleName = _languageService.GetNameTranslation(
+                            nameFi: p.DimResearchActivity_Role_NameFi,
+                            nameEn: p.DimResearchActivity_Role_NameEn,
+                            nameSv: p.DimResearchActivity_Role_NameSv
+                        );
                         profileDataResponse.activity.activitiesAndRewards.Add(
                             new ProfileEditorActivityAndReward()
                             {
@@ -1183,6 +1188,10 @@ namespace api.Services
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
+                                RoleCode = p.DimResearchActivity_Role_CodeValue,
+                                RoleNameFi = nameTraslationResearchActivityRoleName.NameFi,
+                                RoleNameEn = nameTraslationResearchActivityRoleName.NameEn,
+                                RoleNameSv = nameTraslationResearchActivityRoleName.NameSv,
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
