@@ -13,6 +13,10 @@
             InternationalCollaboration = false;
             StartDate = new ProfileEditorDate();
             EndDate = new ProfileEditorDate();
+            RoleCode = "";
+            RoleNameFi = "";
+            RoleNameEn = "";
+            RoleNameSv = "";
         }
 
         public string NameFi { get; set; }
@@ -24,5 +28,9 @@
         public bool InternationalCollaboration { get; set; }
         public ProfileEditorDate StartDate { get; set; }
         public ProfileEditorDate EndDate { get; set; }
+        public string RoleCode { get; set; }
+        public string RoleNameFi { get; set; }
+        public string RoleNameEn { get; set; }
+        public string RoleNameSv { get; set; }
     }
 }
