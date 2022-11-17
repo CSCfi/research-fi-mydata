@@ -497,7 +497,7 @@ namespace api.Services
                 dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY).First();
 
             // Loop DimNames, which have valid registered data source
-            foreach (DimName dimName in dimKnownPerson.DimNames.Where(dimName => dimName.DimRegisteredDataSourceId != -1))
+            foreach (DimName dimName in dimKnownPerson.DimNames)
             {
                 // Collect entity IDs into lists.
                 List<int> publicationsIds = new();
