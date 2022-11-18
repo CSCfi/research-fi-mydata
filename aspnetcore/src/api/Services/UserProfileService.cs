@@ -13,6 +13,7 @@ using System.Transactions;
 using api.Controllers;
 using Microsoft.Extensions.Logging;
 using api.Models.Elasticsearch;
+using Elasticsearch.Net;
 
 namespace api.Services
 {
@@ -365,248 +366,167 @@ namespace api.Services
             };
         }
 
-        /*
-         * Search DimAffiliation items from TTV database and link them to user profile.
-         */
-        public void AddDimAffiliationToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
-        {
-            DimFieldDisplaySetting dimFieldDisplaySetting_affiliation =
-                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION).First();
 
-            foreach (DimAffiliation dimAffiliation in dimKnownPerson.DimAffiliations.Where(dimAffiliation => dimAffiliation.DimRegisteredDataSourceId != -1))
-            {
-                FactFieldValue factFieldValueAffiliation = this.GetEmptyFactFieldValue();
-                factFieldValueAffiliation.DimUserProfileId = dimUserProfile.Id;
-                factFieldValueAffiliation.DimFieldDisplaySettingsId = dimFieldDisplaySetting_affiliation.Id;
-                factFieldValueAffiliation.DimAffiliationId = dimAffiliation.Id;
-                factFieldValueAffiliation.DimRegisteredDataSourceId = dimAffiliation.DimRegisteredDataSourceId;
-                _ttvContext.FactFieldValues.Add(factFieldValueAffiliation);
-            }
-        }
 
-        /*
-         * Search DimEducation items from TTV database and link them to user profile.
-         */
-        public void AddDimEducationToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
-        {
-            DimFieldDisplaySetting dimFieldDisplaySetting_education =
-                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION).First();
-
-            foreach (DimEducation dimEducation in dimKnownPerson.DimEducations.Where(dimEducation => dimEducation.DimRegisteredDataSourceId != -1))
-            {
-                FactFieldValue factFieldValueEducation = this.GetEmptyFactFieldValue();
-                factFieldValueEducation.DimUserProfileId = dimUserProfile.Id;
-                factFieldValueEducation.DimFieldDisplaySettingsId = dimFieldDisplaySetting_education.Id;
-                factFieldValueEducation.DimEducationId = dimEducation.Id;
-                factFieldValueEducation.DimRegisteredDataSourceId = dimEducation.DimRegisteredDataSourceId;
-                _ttvContext.FactFieldValues.Add(factFieldValueEducation);
-            }
-        }
-
-        /*
-         * Search DimResearcherDescription items from TTV database and link them to user profile.
-         */
-        public void AddDimResearcherDescriptionToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
-        {
-            DimFieldDisplaySetting dimFieldDisplaySetting_researcher_description =
-                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION).First();
-
-            foreach (DimResearcherDescription dimResearcherDescription in dimKnownPerson.DimResearcherDescriptions.Where(dimResearcherDescription => dimResearcherDescription.DimRegisteredDataSourceId != -1))
-            {
-                FactFieldValue factFieldValueResearcherDescription = this.GetEmptyFactFieldValue();
-                factFieldValueResearcherDescription.DimUserProfileId = dimUserProfile.Id;
-                factFieldValueResearcherDescription.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researcher_description.Id;
-                factFieldValueResearcherDescription.DimResearcherDescriptionId = dimResearcherDescription.Id;
-                factFieldValueResearcherDescription.DimRegisteredDataSourceId = dimResearcherDescription.DimRegisteredDataSourceId;
-                _ttvContext.FactFieldValues.Add(factFieldValueResearcherDescription);
-            }
-        }
-
-        /*
-         * Search DimEmailAddress items from TTV database and link them to user profile.
-         */
-        public void AddDimEmailAddressItemsToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
-        {
-            DimFieldDisplaySetting dimFieldDisplaySetting_emailAddress =
-                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS).First();
-
-            foreach (DimEmailAddrress dimEmailAddress in dimKnownPerson.DimEmailAddrresses.Where(dimEmailAddress => dimEmailAddress.DimRegisteredDataSourceId != -1))
-            {
-                FactFieldValue factFieldValueEmailAddress = this.GetEmptyFactFieldValue();
-                factFieldValueEmailAddress.DimUserProfileId = dimUserProfile.Id;
-                factFieldValueEmailAddress.DimFieldDisplaySettingsId = dimFieldDisplaySetting_emailAddress.Id;
-                factFieldValueEmailAddress.DimEmailAddrressId = dimEmailAddress.Id;
-                factFieldValueEmailAddress.DimRegisteredDataSourceId = dimEmailAddress.DimRegisteredDataSourceId;
-                _ttvContext.FactFieldValues.Add(factFieldValueEmailAddress);
-            }
-        }
-        
-        /*
-         * Search DimTelephoneNumber items from TTV database and link them to user profile.
-         */
-        public void AddDimTelephoneItemsToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
-        {
-            DimFieldDisplaySetting dimFieldDisplaySetting_telephoneNumber =
-               dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER).First();
-
-            foreach (DimTelephoneNumber dimTelephoneNumber in dimKnownPerson.DimTelephoneNumbers.Where(dimTelephoneNumber => dimTelephoneNumber.DimRegisteredDataSourceId != -1))
-            {
-                FactFieldValue factFieldValueTelephoneNumber = this.GetEmptyFactFieldValue();
-                factFieldValueTelephoneNumber.DimUserProfileId = dimUserProfile.Id;
-                factFieldValueTelephoneNumber.DimFieldDisplaySettingsId = dimFieldDisplaySetting_telephoneNumber.Id;
-                factFieldValueTelephoneNumber.DimTelephoneNumberId = dimTelephoneNumber.Id;
-                factFieldValueTelephoneNumber.DimRegisteredDataSourceId = dimTelephoneNumber.DimRegisteredDataSourceId;
-                _ttvContext.FactFieldValues.Add(factFieldValueTelephoneNumber);
-            }
-        }
-
-        /*
-         * Search FactContribution related items from TTV database and link them to user profile.
-         */
-        public void AddFactContributionItemsToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
-        {
-            /*
-             * Loop DimNames, then related FactContributions.
-             * 
-             *   DimKnownPerson
-             *       => DimName
-             *           => FactContribution
-             *               => DimPublication
-             *               => DimFundingDecision
-             *               => DimResearchDataset
-             *               => DimResearchActivity
-             * 
-             * NOTE! Registered data source must be taken from DimName.
-             * Skip item if DimName does not have registered data source.
-             */
-
-            // DimFieldDisplaySetting for publications
-            DimFieldDisplaySetting dimFieldDisplaySetting_publication =
-                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION).First();
-
-            // DimFieldDisplaySetting for funding decisions
-            DimFieldDisplaySetting dimFieldDisplaySetting_fundingDecision =
-                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION).First();
-
-            // DimFieldDisplaySetting for research datasets
-            DimFieldDisplaySetting dimFieldDisplaySetting_researchDataset =
-                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET).First();
-
-            // DimFieldDisplaySetting for research activity
-            DimFieldDisplaySetting dimFieldDisplaySetting_researchActivity =
-                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY).First();
-
-            // Loop DimNames, which have valid registered data source
-            foreach (DimName dimName in dimKnownPerson.DimNames.Where(dimName => dimName.DimRegisteredDataSourceId != -1))
-            {
-                // Collect entity IDs into lists.
-                List<int> publicationsIds = new();
-                List<int> fundingDecisionIds = new();
-                List<int> researchDatasetIds = new();
-                List<int> researchActivityIds = new();
-
-                // Loop FactContributions. Collect "non -1" values only.
-                foreach (
-                    FactContribution factContribution in dimName.FactContributions.Where(
-                        fc => fc.DimPublicationId != -1 || fc.DimFundingDecisionId != -1 || fc.DimResearchDatasetId != -1 || fc.DimResearchActivityId != -1
-                    )
-                )
-                {
-                    // FactContribution is linked to DimPublication
-                    if (factContribution.DimPublicationId != -1)
-                    {
-                        publicationsIds.Add(factContribution.DimPublicationId);
-                    }
-
-                    // FactContribution is linked to DimFundingDecision
-                    if (factContribution.DimFundingDecisionId != -1)
-                    {
-                        fundingDecisionIds.Add(factContribution.DimFundingDecisionId);
-                    }
-
-                    // FactContribution is linked to DimResearchDataset
-                    if (factContribution.DimResearchDatasetId != -1)
-                    {
-                        researchDatasetIds.Add(factContribution.DimResearchDatasetId);
-                    }
-
-                    // FactContribution is linked to DimResearchActivity
-                    if (factContribution.DimResearchActivityId != -1)
-                    {
-                        researchActivityIds.Add(factContribution.DimResearchActivityId);
-                    }
-                }
-
-                // Add FactFieldValues for DimPublication. Remove duplicate IDs.
-                foreach (int publicationId in publicationsIds.Distinct())
-                {
-                    FactFieldValue factFieldValuePublication = this.GetEmptyFactFieldValue();
-                    factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting_publication.Id;
-                    factFieldValuePublication.DimPublicationId = publicationId;
-                    factFieldValuePublication.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                    _ttvContext.FactFieldValues.Add(factFieldValuePublication);
-                }
-
-                // Add FactFieldValues for DimFundingDecision. Remove duplicate IDs.
-                foreach (int fundingDecisionId in fundingDecisionIds.Distinct())
-                {
-                    FactFieldValue factFieldValueFundingDecision = this.GetEmptyFactFieldValue();
-                    factFieldValueFundingDecision.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValueFundingDecision.DimFieldDisplaySettingsId = dimFieldDisplaySetting_fundingDecision.Id;
-                    factFieldValueFundingDecision.DimFundingDecisionId = fundingDecisionId;
-                    factFieldValueFundingDecision.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                    _ttvContext.FactFieldValues.Add(factFieldValueFundingDecision);
-                }
-
-                // Add FactFieldValues for DimResearchDataset. Remove duplicate IDs.
-                foreach (int researchDatasetId in researchDatasetIds.Distinct())
-                {
-                    FactFieldValue factFieldValueResearchDataset = this.GetEmptyFactFieldValue();
-                    factFieldValueResearchDataset.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValueResearchDataset.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researchDataset.Id;
-                    factFieldValueResearchDataset.DimResearchDatasetId = researchDatasetId;
-                    factFieldValueResearchDataset.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                    _ttvContext.FactFieldValues.Add(factFieldValueResearchDataset);
-                }
-
-                // Add FactFieldValues for DimResearchActivity. Remove duplicate IDs.
-                foreach (int researchActivityId in researchActivityIds.Distinct())
-                {
-                    FactFieldValue factFieldValueResearchActivity = this.GetEmptyFactFieldValue();
-                    factFieldValueResearchActivity.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValueResearchActivity.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researchActivity.Id;
-                    factFieldValueResearchActivity.DimResearchActivityId = researchActivityId;
-                    factFieldValueResearchActivity.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                    _ttvContext.FactFieldValues.Add(factFieldValueResearchActivity);
-                }
-            }
-        }
 
         /*
          * Search and add data from TTV database.
          * This is data that is already linked to the ORCID id in DimPid and it's related DimKnownPerson.
          */
-        public void AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
+        public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
         {
-            // DimEmailAddress
-            AddDimEmailAddressItemsToUserProfile(dimKnownPerson, dimUserProfile);
+            using (var connection = _ttvContext.Database.GetDbConnection())
+            {
+                // email
+                string emailSql = _ttvSqlService.GetSqlQuery_Select_DimEmailAddrress(dimKnownPerson.Id);
+                List<DimTableMinimalDTO> emails = (await connection.QueryAsync<DimTableMinimalDTO>(emailSql)).ToList();
+                DimFieldDisplaySetting dimFieldDisplaySetting_emailAddress =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS).First();
+                foreach (DimTableMinimalDTO email in emails)
+                {
+                    FactFieldValue factFieldValueEmailAddress = this.GetEmptyFactFieldValue();
+                    factFieldValueEmailAddress.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValueEmailAddress.DimFieldDisplaySettingsId = dimFieldDisplaySetting_emailAddress.Id;
+                    factFieldValueEmailAddress.DimEmailAddrressId = email.Id;
+                    factFieldValueEmailAddress.DimRegisteredDataSourceId = email.DimRegisteredDataSourceId;
+                    _ttvContext.FactFieldValues.Add(factFieldValueEmailAddress);
+                }
 
-            // DimTelephoneNumber
-            AddDimTelephoneItemsToUserProfile(dimKnownPerson, dimUserProfile);
+                // web link
+                // TODO: Add after table 'dim_web_link' is fixed (FK missing in field dim_registered_data_source_id)
 
-            // DimAffiliation
-            AddDimAffiliationToUserProfile(dimKnownPerson, dimUserProfile);
+                // telephone number
+                string telephoneNumberSql = _ttvSqlService.GetSqlQuery_Select_DimTelephoneNumber(dimKnownPerson.Id);
+                List<DimTableMinimalDTO> telephoneNumbers = (await connection.QueryAsync<DimTableMinimalDTO>(telephoneNumberSql)).ToList();
+                DimFieldDisplaySetting dimFieldDisplaySetting_telephoneNumber =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER).First();
+                foreach (DimTableMinimalDTO telephoneNumber in telephoneNumbers)
+                {
+                    FactFieldValue factFieldValueTelephoneNumber = this.GetEmptyFactFieldValue();
+                    factFieldValueTelephoneNumber.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValueTelephoneNumber.DimFieldDisplaySettingsId = dimFieldDisplaySetting_telephoneNumber.Id;
+                    factFieldValueTelephoneNumber.DimTelephoneNumberId = telephoneNumber.Id;
+                    factFieldValueTelephoneNumber.DimRegisteredDataSourceId = telephoneNumber.DimRegisteredDataSourceId;
+                    _ttvContext.FactFieldValues.Add(factFieldValueTelephoneNumber);
+                }
 
-            // DimEducation
-            AddDimEducationToUserProfile(dimKnownPerson, dimUserProfile);
+                // researcher description
+                string researcherDescriptionSql = _ttvSqlService.GetSqlQuery_Select_DimResearcherDescription(dimKnownPerson.Id);
+                List<DimTableMinimalDTO> researcherDescriptions = (await connection.QueryAsync<DimTableMinimalDTO>(researcherDescriptionSql)).ToList();
+                DimFieldDisplaySetting dimFieldDisplaySetting_researcherDescription =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION).First();
+                foreach (DimTableMinimalDTO researcherDescription in researcherDescriptions)
+                {
+                    FactFieldValue factFieldValueResearcherDescription = this.GetEmptyFactFieldValue();
+                    factFieldValueResearcherDescription.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValueResearcherDescription.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researcherDescription.Id;
+                    factFieldValueResearcherDescription.DimResearcherDescriptionId = researcherDescription.Id;
+                    factFieldValueResearcherDescription.DimRegisteredDataSourceId = researcherDescription.DimRegisteredDataSourceId;
+                    _ttvContext.FactFieldValues.Add(factFieldValueResearcherDescription);
+                }
 
-            // DimResearcherDescription
-            AddDimResearcherDescriptionToUserProfile(dimKnownPerson, dimUserProfile);
+                // affiliation
+                string affiliationSql = _ttvSqlService.GetSqlQuery_Select_DimAffiliation(dimKnownPerson.Id);
+                List<DimTableMinimalDTO> affiliations = (await connection.QueryAsync<DimTableMinimalDTO>(affiliationSql)).ToList();
+                DimFieldDisplaySetting dimFieldDisplaySetting_affiliation =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION).First();
+                foreach (DimTableMinimalDTO affiliation in affiliations)
+                {
+                    FactFieldValue factFieldValueAffiliation = this.GetEmptyFactFieldValue();
+                    factFieldValueAffiliation.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValueAffiliation.DimFieldDisplaySettingsId = dimFieldDisplaySetting_affiliation.Id;
+                    factFieldValueAffiliation.DimAffiliationId = affiliation.Id;
+                    factFieldValueAffiliation.DimRegisteredDataSourceId = affiliation.DimRegisteredDataSourceId;
+                    _ttvContext.FactFieldValues.Add(factFieldValueAffiliation);
+                }
 
-            // FactContribution
-            AddFactContributionItemsToUserProfile(dimKnownPerson, dimUserProfile);
+                // education
+                string educationSql = _ttvSqlService.GetSqlQuery_Select_DimEducation(dimKnownPerson.Id);
+                List<DimTableMinimalDTO> educations = (await connection.QueryAsync<DimTableMinimalDTO>(educationSql)).ToList();
+                DimFieldDisplaySetting dimFieldDisplaySetting_education =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION).First();
+                foreach (DimTableMinimalDTO education in educations)
+                {
+                    FactFieldValue factFieldValueEducation = this.GetEmptyFactFieldValue();
+                    factFieldValueEducation.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValueEducation.DimFieldDisplaySettingsId = dimFieldDisplaySetting_affiliation.Id;
+                    factFieldValueEducation.DimEducationId = education.Id;
+                    factFieldValueEducation.DimRegisteredDataSourceId = education.DimRegisteredDataSourceId;
+                    _ttvContext.FactFieldValues.Add(factFieldValueEducation);
+                }
+
+
+
+                // fact_contribution
+                DimFieldDisplaySetting dimFieldDisplaySetting_publication =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION).First();
+                DimFieldDisplaySetting dimFieldDisplaySetting_fundingDecision =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION).First();
+                DimFieldDisplaySetting dimFieldDisplaySetting_researchActivity =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY).First();
+                DimFieldDisplaySetting dimFieldDisplaySetting_researchDataset =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET).First();
+
+                // Loop DimNames, which have valid registered data source
+                foreach (DimName dimName in dimKnownPerson.DimNames.Where(dimName => dimName.DimRegisteredDataSourceId != -1))
+                {
+                    string factContributionSql = _ttvSqlService.GetSqlQuery_Select_FactContribution(dimName.Id);
+                    List<FactContributionTableMinimalDTO> factContributions = (await connection.QueryAsync<FactContributionTableMinimalDTO>(factContributionSql)).ToList();
+
+                    foreach (FactContributionTableMinimalDTO fc in factContributions)
+                    {
+                        // publication
+                        if (fc.DimPublicationId != -1)
+                        {
+                            FactFieldValue factFieldValuePublication = this.GetEmptyFactFieldValue();
+                            factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
+                            factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting_publication.Id;
+                            factFieldValuePublication.DimPublicationId = fc.DimPublicationId;
+                            factFieldValuePublication.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                            _ttvContext.FactFieldValues.Add(factFieldValuePublication);
+                        }
+
+                        // funding decision
+                        if (fc.DimFundingDecisionId != -1)
+                        {
+                            FactFieldValue factFieldValueFundingDecision = this.GetEmptyFactFieldValue();
+                            factFieldValueFundingDecision.DimUserProfileId = dimUserProfile.Id;
+                            factFieldValueFundingDecision.DimFieldDisplaySettingsId = dimFieldDisplaySetting_fundingDecision.Id;
+                            factFieldValueFundingDecision.DimFundingDecisionId = fc.DimFundingDecisionId;
+                            factFieldValueFundingDecision.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                            _ttvContext.FactFieldValues.Add(factFieldValueFundingDecision);
+                        }
+
+                        // research activity
+                        if (fc.DimResearchActivityId != -1)
+                        {
+                            FactFieldValue factFieldValueResearchActivity = this.GetEmptyFactFieldValue();
+                            factFieldValueResearchActivity.DimUserProfileId = dimUserProfile.Id;
+                            factFieldValueResearchActivity.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researchActivity.Id;
+                            factFieldValueResearchActivity.DimResearchActivityId = fc.DimResearchActivityId;
+                            factFieldValueResearchActivity.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                            _ttvContext.FactFieldValues.Add(factFieldValueResearchActivity);
+                        }
+
+                        // research dataset
+                        if (fc.DimResearchDatasetId != -1)
+                        {
+                            FactFieldValue factFieldValueResearchDataset = this.GetEmptyFactFieldValue();
+                            factFieldValueResearchDataset.DimUserProfileId = dimUserProfile.Id;
+                            factFieldValueResearchDataset.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researchDataset.Id;
+                            factFieldValueResearchDataset.DimResearchDatasetId = fc.DimResearchDatasetId;
+                            factFieldValueResearchDataset.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                            _ttvContext.FactFieldValues.Add(factFieldValueResearchDataset);
+                        }
+                    }
+                }
+
+                await _ttvContext.SaveChangesAsync();
+
+            }
         }
+
+
 
         /*
          * Create user profile.
@@ -621,7 +541,6 @@ namespace api.Services
         public async Task CreateProfile(string orcidId)
         {
             // Get DimPid by ORCID ID.
-            // Also get all related entities, that should be automatically included in profile.
             DimPid dimPid = await _ttvContext.DimPids
                 // FactContribution
                 .Include(dp => dp.DimKnownPerson)
@@ -630,21 +549,6 @@ namespace api.Services
                 // DimName
                 .Include(dp => dp.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimNames).AsNoTracking()
-                // DimAffiliation
-                .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimAffiliations).AsNoTracking()
-                // DimEducation
-                .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimEducations).AsNoTracking()
-                // DimReseacherDescription
-                .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimResearcherDescriptions).AsNoTracking()
-                // DimEmailAddress
-                .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimEmailAddrresses).AsNoTracking()
-                // DimTelephoneNumber
-                .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimTelephoneNumbers).AsNoTracking()
                 // DimUserProfile
                 .Include(dp => dp.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimUserProfiles)
@@ -724,7 +628,9 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
 
             // FactFieldValues - Search TTV database and add related entries into user profile.
-            AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
+            //AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
+
+            await AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
 
             // Save FactFieldValues changes.
             await _ttvContext.SaveChangesAsync();
@@ -1278,7 +1184,7 @@ namespace api.Services
                             nameFi: p.DimResearchDataset_DescriptionFi,
                             nameEn: p.DimResearchDataset_DescriptionEn,
                             nameSv: p.DimResearchDataset_DescriptionSv
-                        );   
+                        );
                         profileDataResponse.activity.researchDatasets.Add(
                             new ProfileEditorResearchDataset()
                             {
