@@ -449,7 +449,7 @@ namespace api.Services
                 {
                     FactFieldValue factFieldValueEducation = this.GetEmptyFactFieldValue();
                     factFieldValueEducation.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValueEducation.DimFieldDisplaySettingsId = dimFieldDisplaySetting_affiliation.Id;
+                    factFieldValueEducation.DimFieldDisplaySettingsId = dimFieldDisplaySetting_education.Id;
                     factFieldValueEducation.DimEducationId = education.Id;
                     factFieldValueEducation.DimRegisteredDataSourceId = education.DimRegisteredDataSourceId;
                     _ttvContext.FactFieldValues.Add(factFieldValueEducation);
