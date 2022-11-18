@@ -440,7 +440,7 @@ namespace api.Services
                 _ttvContext.FactFieldValues.Add(factFieldValueEmailAddress);
             }
         }
-
+        
         /*
          * Search DimTelephoneNumber items from TTV database and link them to user profile.
          */
@@ -497,7 +497,7 @@ namespace api.Services
                 dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY).First();
 
             // Loop DimNames, which have valid registered data source
-            foreach (DimName dimName in dimKnownPerson.DimNames)
+            foreach (DimName dimName in dimKnownPerson.DimNames.Where(dimName => dimName.DimRegisteredDataSourceId != -1))
             {
                 // Collect entity IDs into lists.
                 List<int> publicationsIds = new();
