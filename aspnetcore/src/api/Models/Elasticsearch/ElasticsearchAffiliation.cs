@@ -3,7 +3,7 @@ using Nest;
 
 namespace api.Models.Elasticsearch
 {
-    [ElasticsearchType(RelationName = "affiliation")]
+    [ElasticsearchType(RelationName = "affiliations")]
     public partial class ElasticsearchAffiliation : ElasticsearchItem
     {
         public ElasticsearchAffiliation()

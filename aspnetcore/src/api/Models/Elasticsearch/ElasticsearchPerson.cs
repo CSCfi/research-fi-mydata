@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Nest;
 
 namespace api.Models.Elasticsearch
 {
@@ -22,6 +23,8 @@ namespace api.Models.Elasticsearch
 
         public string id { get; set; } 
         public ElasticsearchPersonal personal { get; set; }
+        [Nested]
+        [PropertyName("activity")]
         public ElasticsearchActivity activity { get; set; }
         public List<ElasticsearchSource> uniqueDataSources { get; set; }
     }
