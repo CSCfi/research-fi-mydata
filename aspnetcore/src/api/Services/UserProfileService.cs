@@ -458,6 +458,10 @@ namespace api.Services
 
 
                 // fact_contribution
+                DimFieldDisplaySetting dimFieldDisplaySetting_name =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME).First();
+                DimFieldDisplaySetting dimFieldDisplaySetting_otherNames =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES).First();
                 DimFieldDisplaySetting dimFieldDisplaySetting_publication =
                     dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION).First();
                 DimFieldDisplaySetting dimFieldDisplaySetting_fundingDecision =
@@ -473,6 +477,30 @@ namespace api.Services
                     string factContributionSql = _ttvSqlService.GetSqlQuery_Select_FactContribution(dimName.Id);
                     List<FactContributionTableMinimalDTO> factContributions = (await connection.QueryAsync<FactContributionTableMinimalDTO>(factContributionSql)).ToList();
 
+                    // name
+                    if (!String.IsNullOrWhiteSpace(dimName.FirstNames) && !String.IsNullOrWhiteSpace(dimName.LastName))
+                    {
+                        // name: first_names & last_name
+                        FactFieldValue factFieldValueName = this.GetEmptyFactFieldValue();
+                        factFieldValueName.DimUserProfileId = dimUserProfile.Id;
+                        factFieldValueName.DimFieldDisplaySettingsId = dimFieldDisplaySetting_name.Id;
+                        factFieldValueName.DimNameId = dimName.Id;
+                        factFieldValueName.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                        _ttvContext.FactFieldValues.Add(factFieldValueName);
+                    }
+                    else if (!String.IsNullOrWhiteSpace(dimName.FullName))
+                    {
+                        // other name: full_name
+                        FactFieldValue factFieldValueOtherNames = this.GetEmptyFactFieldValue();
+                        factFieldValueOtherNames.DimUserProfileId = dimUserProfile.Id;
+                        factFieldValueOtherNames.DimFieldDisplaySettingsId = dimFieldDisplaySetting_otherNames.Id;
+                        factFieldValueOtherNames.DimNameId = dimName.Id;
+                        factFieldValueOtherNames.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                        _ttvContext.FactFieldValues.Add(factFieldValueOtherNames);
+                    }
+
+
+                    // Loop FactContributions related to a DimName
                     foreach (FactContributionTableMinimalDTO fc in factContributions)
                     {
                         // publication
