@@ -1060,6 +1060,11 @@ namespace api.Services
                             nameEn: p.DimResearchActivity_DescriptionEn,
                             nameSv: p.DimResearchActivity_DescriptionSv
                         );
+                        NameTranslation nameTraslationResearchActivityTypeName = _languageService.GetNameTranslation(
+                            nameFi: p.DimResearchActivity_ActivityType_NameFi,
+                            nameEn: p.DimResearchActivity_ActivityType_NameEn,
+                            nameSv: p.DimResearchActivity_ActivityType_NameSv
+                        );
                         NameTranslation nameTraslationResearchActivityRoleName = _languageService.GetNameTranslation(
                             nameFi: p.DimResearchActivity_Role_NameFi,
                             nameEn: p.DimResearchActivity_Role_NameEn,
@@ -1094,6 +1099,10 @@ namespace api.Services
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
+                                ActivityTypeCode = p.DimResearchActivity_ActivityType_CodeValue,
+                                ActivityTypeNameFi = nameTraslationResearchActivityTypeName.NameFi,
+                                ActivityTypeNameEn = nameTraslationResearchActivityTypeName.NameEn,
+                                ActivityTypeNameSv = nameTraslationResearchActivityTypeName.NameSv,
                                 RoleCode = p.DimResearchActivity_Role_CodeValue,
                                 RoleNameFi = nameTraslationResearchActivityRoleName.NameFi,
                                 RoleNameEn = nameTraslationResearchActivityRoleName.NameEn,
