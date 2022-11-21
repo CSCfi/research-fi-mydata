@@ -15,6 +15,10 @@ namespace api.Models.Elasticsearch
             InternationalCollaboration = false;
             StartDate = new ElasticsearchDate();
             EndDate = new ElasticsearchDate();
+            ActivityTypeCode = "";
+            ActivityTypeNameFi = "";
+            ActivityTypeNameEn = "";
+            ActivityTypeNameSv = "";
             RoleCode = "";
             RoleNameFi = "";
             RoleNameEn = "";
@@ -30,6 +34,10 @@ namespace api.Models.Elasticsearch
         public bool InternationalCollaboration { get; set; }
         public ElasticsearchDate StartDate { get; set; }
         public ElasticsearchDate EndDate { get; set; }
+        public string ActivityTypeCode { get; set; }
+        public string ActivityTypeNameFi { get; set; }
+        public string ActivityTypeNameEn { get; set; }
+        public string ActivityTypeNameSv { get; set; }
         public string RoleCode { get; set; }
         public string RoleNameFi { get; set; }
         public string RoleNameEn { get; set; }
