@@ -2,6 +2,7 @@
 using api.Models.Common;
 using api.Models.Ttv;
 using System.Collections.Generic;
+using Nest;
 
 namespace api.Services
 {
@@ -456,6 +457,58 @@ namespace api.Services
         public string GetSqlQuery_Delete_DimUserProfile(int userprofileId)
         {
             return $"DELETE FROM dim_user_profile WHERE id={userprofileId}";
+        }
+
+
+        // Return SQL SELECT statement for dim_email_addrress
+        public string GetSqlQuery_Select_DimEmailAddrress(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_email_addrress
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for dim_researcher_description
+        public string GetSqlQuery_Select_DimResearcherDescription(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_researcher_description
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for dim_telephone_number
+        public string GetSqlQuery_Select_DimTelephoneNumber(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_telephone_number
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for dim_affiliation
+        public string GetSqlQuery_Select_DimAffiliation(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_affiliation
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for dim_education
+        public string GetSqlQuery_Select_DimEducation(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_education
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for fact_contribution
+        public string GetSqlQuery_Select_FactContribution(int dimNameId)
+        {
+            return $@"SELECT
+                        dim_funding_decision_id AS 'DimFundingDecisionId',
+                        dim_research_activity_id AS 'DimResearchActivityId',
+                        dim_research_dataset_id AS 'DimResearchDatasetId',
+                        dim_publication_id AS 'DimPublicationId'
+                      FROM fact_contribution WHERE dim_name_id = {dimNameId}";
         }
     }
 }
