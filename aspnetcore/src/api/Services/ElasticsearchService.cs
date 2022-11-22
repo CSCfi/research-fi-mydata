@@ -53,7 +53,7 @@ namespace api.Services
                     _logger.LogInformation("ElasticsearchService: required index not found, creating index: " + elasticsearchProfileIndexName);
 
                     var createIndexResponse = ESclient.Indices.Create(elasticsearchProfileIndexName, c => c
-                        .Map<ElasticsearchAffiliation>(m => m.AutoMap())
+                        .Map<ElasticsearchPerson>(m => m.AutoMap())
                     );
 
                     if (!createIndexResponse.IsValid)
