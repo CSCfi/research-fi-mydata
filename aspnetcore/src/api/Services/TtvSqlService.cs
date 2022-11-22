@@ -516,11 +516,17 @@ namespace api.Services
         public string GetSqlQuery_Select_FactContribution(int dimNameId)
         {
             return $@"SELECT
-                        dim_funding_decision_id AS 'DimFundingDecisionId',
                         dim_research_activity_id AS 'DimResearchActivityId',
                         dim_research_dataset_id AS 'DimResearchDatasetId',
                         dim_publication_id AS 'DimPublicationId'
                       FROM fact_contribution WHERE dim_name_id = {dimNameId}";
+        }
+
+        public string GetSqlQuery_Select_BrParticipatesInFundingGroup(int dimNameId)
+        {
+            return $@"SELECT dim_funding_decisionid as 'DimFundingDecisionId'
+                        FROM br_participates_in_funding_group
+                        WHERE dim_name_id = {dimNameId}";
         }
     }
 }

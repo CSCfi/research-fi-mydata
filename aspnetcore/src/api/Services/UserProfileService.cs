@@ -457,7 +457,6 @@ namespace api.Services
 
 
 
-                // fact_contribution
                 DimFieldDisplaySetting dimFieldDisplaySetting_name =
                     dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME).First();
                 DimFieldDisplaySetting dimFieldDisplaySetting_otherNames =
@@ -514,17 +513,6 @@ namespace api.Services
                             _ttvContext.FactFieldValues.Add(factFieldValuePublication);
                         }
 
-                        // funding decision
-                        if (fc.DimFundingDecisionId != -1)
-                        {
-                            FactFieldValue factFieldValueFundingDecision = this.GetEmptyFactFieldValue();
-                            factFieldValueFundingDecision.DimUserProfileId = dimUserProfile.Id;
-                            factFieldValueFundingDecision.DimFieldDisplaySettingsId = dimFieldDisplaySetting_fundingDecision.Id;
-                            factFieldValueFundingDecision.DimFundingDecisionId = fc.DimFundingDecisionId;
-                            factFieldValueFundingDecision.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                            _ttvContext.FactFieldValues.Add(factFieldValueFundingDecision);
-                        }
-
                         // research activity
                         if (fc.DimResearchActivityId != -1)
                         {
@@ -546,6 +534,19 @@ namespace api.Services
                             factFieldValueResearchDataset.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
                             _ttvContext.FactFieldValues.Add(factFieldValueResearchDataset);
                         }
+                    }
+
+                    // Funding decisions via br_participates_in_funding_group
+                    string brParticipatesInFundingGroupSql = _ttvSqlService.GetSqlQuery_Select_BrParticipatesInFundingGroup(dimName.Id);
+                    List<int> fundingDecisionIds = (await connection.QueryAsync<int>(brParticipatesInFundingGroupSql)).ToList();
+                    foreach (int fundingDecisionId in fundingDecisionIds)
+                    {
+                        FactFieldValue factFieldValueFundingDecision = this.GetEmptyFactFieldValue();
+                        factFieldValueFundingDecision.DimUserProfileId = dimUserProfile.Id;
+                        factFieldValueFundingDecision.DimFieldDisplaySettingsId = dimFieldDisplaySetting_fundingDecision.Id;
+                        factFieldValueFundingDecision.DimFundingDecisionId = fundingDecisionId;
+                        factFieldValueFundingDecision.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                        _ttvContext.FactFieldValues.Add(factFieldValueFundingDecision);
                     }
                 }
 
