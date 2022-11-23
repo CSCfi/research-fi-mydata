@@ -488,6 +488,15 @@ namespace api.Services
                         WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
         }
 
+        // Return SQL SELECT statement for dim_web_link
+        // TODO: IS NOT NULL condition can be removed, when table dim_web_link.dim_registered_data_source_id is modified to disallow NULL.
+        public string GetSqlQuery_Select_DimWebLink(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_web_link
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL";
+        }
+
         // Return SQL SELECT statement for dim_telephone_number
         public string GetSqlQuery_Select_DimTelephoneNumber(int dimKnownPersonId)
         {

@@ -39,6 +39,7 @@ namespace api.Services
         string GetSqlQuery_Select_DimEmailAddrress(int dimKnownPersonId);
         string GetSqlQuery_Select_DimResearcherDescription(int dimKnownPersonId);
         string GetSqlQuery_Select_DimTelephoneNumber(int dimKnownPersonId);
+        string GetSqlQuery_Select_DimWebLink(int dimKnownPersonId);
         string GetSqlQuery_Select_FactContribution(int dimNameId);
         string GetSqlQuery_Select_FactFieldValues(int userprofileId);
         string GetSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta);
