@@ -60,6 +60,9 @@ namespace api.Services
                 case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
                     fk_column_name = "dim_research_dataset_id";
                     break;
+                case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY:
+                    fk_column_name = "dim_research_activity_id";
+                    break;
                 default:
                     break;
             }

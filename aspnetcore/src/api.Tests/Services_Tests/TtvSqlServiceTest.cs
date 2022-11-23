@@ -167,6 +167,16 @@ namespace api.Tests
             );
         }
 
+        [Fact(DisplayName = "Get FactFieldValues FK column name - dim_research_activity_id")]
+        public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_research_activity_id()
+        {
+            TtvSqlService ttvSqlService = new();
+            // Research activity
+            Assert.Equal(
+                "dim_research_activity_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY)
+            );
+        }
+
         [Fact(DisplayName = "Test that list of integers is converted to a comma separated string")]
         public void Test_ConvertListOfIntsToCommaSeparatedString()
         {
