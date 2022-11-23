@@ -528,26 +528,39 @@ namespace api.Services
                 // Loop DimNames, which have valid registered data source
                 foreach (DimName dimName in dimKnownPerson.DimNames.Where(dimName => dimName.DimRegisteredDataSourceId != -1))
                 {
-                    // name
-                    if (!String.IsNullOrWhiteSpace(dimName.FirstNames) && !String.IsNullOrWhiteSpace(dimName.LastName))
+                    // Name
+                    // Exclude DimNames, whose registered data source is any of the following:
+                    // - virta
+                    // - metax
+                    // - sftp_funding
+                    if (
+                        !(
+                            dimName.DimRegisteredDataSource.Name == "virta" ||
+                            dimName.DimRegisteredDataSource.Name == "metax" ||
+                            dimName.DimRegisteredDataSource.Name == "sftp_funding"
+                        )
+                    )
                     {
-                        // name: first_names & last_name
-                        FactFieldValue factFieldValueName = this.GetEmptyFactFieldValue();
-                        factFieldValueName.DimUserProfileId = dimUserProfile.Id;
-                        factFieldValueName.DimFieldDisplaySettingsId = dimFieldDisplaySetting_name.Id;
-                        factFieldValueName.DimNameId = dimName.Id;
-                        factFieldValueName.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                        _ttvContext.FactFieldValues.Add(factFieldValueName);
-                    }
-                    else if (!String.IsNullOrWhiteSpace(dimName.FullName))
-                    {
-                        // other name: full_name
-                        FactFieldValue factFieldValueOtherNames = this.GetEmptyFactFieldValue();
-                        factFieldValueOtherNames.DimUserProfileId = dimUserProfile.Id;
-                        factFieldValueOtherNames.DimFieldDisplaySettingsId = dimFieldDisplaySetting_otherNames.Id;
-                        factFieldValueOtherNames.DimNameId = dimName.Id;
-                        factFieldValueOtherNames.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                        _ttvContext.FactFieldValues.Add(factFieldValueOtherNames);
+                        if (!String.IsNullOrWhiteSpace(dimName.FirstNames) && !String.IsNullOrWhiteSpace(dimName.LastName))
+                        {
+                            // name: first_names & last_name
+                            FactFieldValue factFieldValueName = this.GetEmptyFactFieldValue();
+                            factFieldValueName.DimUserProfileId = dimUserProfile.Id;
+                            factFieldValueName.DimFieldDisplaySettingsId = dimFieldDisplaySetting_name.Id;
+                            factFieldValueName.DimNameId = dimName.Id;
+                            factFieldValueName.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                            _ttvContext.FactFieldValues.Add(factFieldValueName);
+                        }
+                        else if (!String.IsNullOrWhiteSpace(dimName.FullName))
+                        {
+                            // other name: full_name
+                            FactFieldValue factFieldValueOtherNames = this.GetEmptyFactFieldValue();
+                            factFieldValueOtherNames.DimUserProfileId = dimUserProfile.Id;
+                            factFieldValueOtherNames.DimFieldDisplaySettingsId = dimFieldDisplaySetting_otherNames.Id;
+                            factFieldValueOtherNames.DimNameId = dimName.Id;
+                            factFieldValueOtherNames.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
+                            _ttvContext.FactFieldValues.Add(factFieldValueOtherNames);
+                        }
                     }
 
                     // fact_contribution
@@ -647,7 +660,8 @@ namespace api.Services
                         .ThenInclude(dn => dn.FactContributions).AsNoTracking()
                 // DimName
                 .Include(dp => dp.DimKnownPerson)
-                    .ThenInclude(dkp => dkp.DimNames).AsNoTracking()
+                    .ThenInclude(dkp => dkp.DimNames)
+                        .ThenInclude(dn => dn.DimRegisteredDataSource).AsNoTracking()
                 // DimUserProfile
                 .Include(dp => dp.DimKnownPerson)
                     .ThenInclude(dkp => dkp.DimUserProfiles)
