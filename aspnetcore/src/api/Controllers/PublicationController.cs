@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Http;
 using api.Models.Common;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace api.Controllers
 {
@@ -29,10 +31,18 @@ namespace api.Controllers
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly ILanguageService _languageService;
         private readonly IMemoryCache _cache;
+        private readonly ILogger<UserProfileController> _logger;
+        private readonly IElasticsearchService _elasticsearchService;
+        private readonly IBackgroundProfiledata _backgroundProfiledata;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
         public PublicationController(TtvContext ttvContext, IUserProfileService userProfileService,
             IUtilityService utilityService, IDataSourceHelperService dataSourceHelperService,
-            IMemoryCache memoryCache, ILanguageService languageService)
+            IMemoryCache memoryCache, ILanguageService languageService,
+            IElasticsearchService elasticsearchService,
+            ILogger<UserProfileController> logger,
+            IBackgroundProfiledata backgroundProfiledata,
+            IBackgroundTaskQueue taskQueue)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -40,6 +50,10 @@ namespace api.Controllers
             _dataSourceHelperService = dataSourceHelperService;
             _languageService = languageService;
             _cache = memoryCache;
+            _elasticsearchService = elasticsearchService;
+            _backgroundProfiledata = backgroundProfiledata;
+            _logger = logger;
+            _taskQueue = taskQueue;
         }
 
         /// <summary>
@@ -179,7 +193,19 @@ namespace api.Controllers
                 }
             }
 
-            // TODO: add Elasticsearch sync?
+            // Update Elasticsearch index in a background task.
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            {
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                {
+                    _logger.LogInformation($"Elasticsearch index update for {orcidId} started from PublicationController {DateTime.UtcNow}");
+                    // Get Elasticsearch person entry from profile data.
+                    Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                    // Update Elasticsearch person index.
+                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
+                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from PublicationController completed {DateTime.UtcNow}");
+                });
+            }
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
@@ -239,7 +265,19 @@ namespace api.Controllers
             }
             await _ttvContext.SaveChangesAsync();
 
-            // TODO: add Elasticsearch sync?
+            // Update Elasticsearch index in a background task.
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            {
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                {
+                    _logger.LogInformation($"Elasticsearch index update for {orcidId} started from PublicationController {DateTime.UtcNow}");
+                    // Get Elasticsearch person entry from profile data.
+                    Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                    // Update Elasticsearch person index.
+                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
+                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from PublicationController completed {DateTime.UtcNow}");
+                });
+            }
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);

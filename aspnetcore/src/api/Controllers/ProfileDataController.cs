@@ -137,12 +137,12 @@ namespace api.Controllers
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} started {DateTime.UtcNow}");
+                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from ProfileDataController started {DateTime.UtcNow}");
                     // Get Elasticsearch person entry from profile data.
                     Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
                     // Update Elasticsearch person index.
                     await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} completed {DateTime.UtcNow}");
+                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from ProfileDataController completed {DateTime.UtcNow}");
                 });
             }
 
