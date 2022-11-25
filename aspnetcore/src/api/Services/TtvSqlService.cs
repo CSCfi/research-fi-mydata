@@ -542,11 +542,11 @@ namespace api.Services
         // Return SQL SELECT statement for fact_contribution
         public string GetSqlQuery_Select_FactContribution(int dimNameId)
         {
-            return $@"SELECT
+            return $@"SELECT DISTINCT
                         dim_research_activity_id AS 'DimResearchActivityId',
                         dim_research_dataset_id AS 'DimResearchDatasetId',
                         dim_publication_id AS 'DimPublicationId'
-                      FROM fact_contribution WHERE dim_name_id = {dimNameId}";
+                      FROM fact_contribution WHERE dim_name_id = {dimNameId} AND (dim_research_activity_id!=-1 OR dim_research_dataset_id!=-1 OR dim_publication_id!=-1)";
         }
 
         public string GetSqlQuery_Select_BrParticipatesInFundingGroup(int dimNameId)
