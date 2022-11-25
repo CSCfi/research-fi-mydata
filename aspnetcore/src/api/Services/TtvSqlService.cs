@@ -145,6 +145,7 @@ namespace api.Services
                     dim_keyword.keyword AS 'DimKeyword_Keyword',
                     dim_pid.pid_type AS 'DimPid_PidType',
                     dim_pid.pid_content AS 'DimPid_PidContent',
+
                     affiliation_organization.id AS 'DimAffiliation_DimOrganization_Id',
                     affiliation_organization.organization_id AS 'DimAffiliation_DimOrganization_OrganizationId',
                     affiliation_organization.name_fi AS 'DimAffiliation_DimOrganization_NameFi',
@@ -154,6 +155,15 @@ namespace api.Services
                     affiliation_organization_sector.name_fi AS 'DimAffiliation_DimOrganization_DimSector_NameFi',
                     affiliation_organization_sector.name_en AS 'DimAffiliation_DimOrganization_DimSector_NameEn',
                     affiliation_organization_sector.name_sv AS 'DimAffiliation_DimOrganization_DimSector_NameSv',
+                    affiliation_organization_broader.id AS 'DimAffiliation_DimOrganizationBroader_Id',
+                    affiliation_organization_broader.organization_id AS 'DimAffiliation_DimOrganizationBroader_OrganizationId',
+                    affiliation_organization_broader.name_fi AS 'DimAffiliation_DimOrganizationBroader_NameFi',
+                    affiliation_organization_broader.name_en AS 'DimAffiliation_DimOrganizationBroader_NameEn',
+                    affiliation_organization_broader.name_sv AS 'DimAffiliation_DimOrganizationBroader_NameSv',
+                    affiliation_organization_broader_sector.sector_id AS 'DimAffiliation_DimOrganizationBroader_DimSector_SectorId',
+                    affiliation_organization_broader_sector.name_fi AS 'DimAffiliation_DimOrganizationBroader_DimSector_NameFi',
+                    affiliation_organization_broader_sector.name_en AS 'DimAffiliation_DimOrganizationBroader_DimSector_NameEn',
+                    affiliation_organization_broader_sector.name_sv AS 'DimAffiliation_DimOrganizationBroader_DimSector_NameSv',
                     dim_affiliation.position_name_fi AS 'DimAffiliation_PositionNameFi',
                     dim_affiliation.position_name_en AS 'DimAffiliation_PositionNameEn',
                     dim_affiliation.position_name_sv AS 'DimAffiliation_PositionNameSv',
@@ -174,6 +184,7 @@ namespace api.Services
                     did_child.value_en AS 'DimIdentifierlessData_Child_ValueEn',
                     did_child.value_sv AS 'DimIdentifierlessData_Child_ValueSv',
                     did_child.unlinked_identifier AS 'DimIdentifierlessData_Child_UnlinkedIdentifier',
+
                     dim_education.name_fi AS 'DimEducation_NameFi',
                     dim_education.name_en AS 'DimEducation_NameEn',
                     dim_education.name_sv AS 'DimEducation_NameSv',
@@ -257,14 +268,18 @@ namespace api.Services
                 JOIN dim_field_of_science ON ffv.dim_field_of_science_id=dim_field_of_science.id
                 JOIN dim_keyword ON ffv.dim_keyword_id=dim_keyword.id
                 JOIN dim_pid ON ffv.dim_pid_id=dim_pid.id
+
                 JOIN dim_affiliation ON ffv.dim_affiliation_id=dim_affiliation.id
                 JOIN dim_organization AS affiliation_organization ON dim_affiliation.dim_organization_id=affiliation_organization.id
+                LEFT JOIN dim_organization AS affiliation_organization_broader ON affiliation_organization_broader.id=affiliation_organization.dim_organization_broader AND affiliation_organization.dim_organization_broader!=-1
                 JOIN dim_sector AS affiliation_organization_sector ON affiliation_organization.dim_sectorid=affiliation_organization_sector.id
+                LEFT JOIN dim_sector AS affiliation_organization_broader_sector ON affiliation_organization_broader.dim_sectorid=affiliation_organization_broader_sector.id
                 LEFT JOIN dim_date AS affiliation_start_date ON dim_affiliation.start_date=affiliation_start_date.id AND affiliation_start_date.id!=-1
                 LEFT JOIN dim_date AS affiliation_end_date ON dim_affiliation.end_date=affiliation_end_date.id AND affiliation_end_date.id!=-1
                 JOIN dim_referencedata AS affiliation_type ON dim_affiliation.affiliation_type=affiliation_type.id
                 JOIN dim_identifierless_data AS did ON ffv.dim_identifierless_data_id=did.id
                 LEFT JOIN dim_identifierless_data AS did_child ON did_child.dim_identifierless_data_id=did.id AND did_child.dim_identifierless_data_id!=-1
+
                 JOIN dim_education ON ffv.dim_education_id=dim_education.id
                 LEFT JOIN dim_date AS education_start_date ON dim_education.dim_start_date=education_start_date.id AND education_start_date.id!=-1
                 LEFT JOIN dim_date AS education_end_date ON dim_education.dim_end_date=education_end_date.id AND education_end_date.id!=-1

@@ -85,6 +85,15 @@ namespace api.Models.ProfileEditor
         public string DimAffiliation_DimOrganization_DimSector_NameFi { get; set; }
         public string DimAffiliation_DimOrganization_DimSector_NameEn { get; set; }
         public string DimAffiliation_DimOrganization_DimSector_NameSv { get; set; }
+        public int DimAffiliation_DimOrganizationBroader_Id { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_OrganizationId { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_NameFi { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_NameEn { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_NameSv { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_DimSector_SectorId { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_DimSector_NameFi { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_DimSector_NameEn { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_DimSector_NameSv { get; set; }
         public string DimAffiliation_PositionNameFi { get; set; }
         public string DimAffiliation_PositionNameEn { get; set; }
         public string DimAffiliation_PositionNameSv { get; set; }

@@ -986,16 +986,44 @@ namespace api.Services
 
                     // Affiliation
                     case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
-                        // Get affiliation organization name from related DimOrganization (ffv.DimAffiliation.DimOrganization), if exists.
-                        // Otherwise from DimIdentifierlessData (ffv.DimIdentifierlessData).
+                        // Affiliation organization search order:
+                        // 1. DimAffiliation_DimOrganizationBroader_Id
+                        // 2. DimAffiliation_DimOrganization_Id
+                        // 3. DimIdentifierlessData
+                        // 
+
                         // Name translation service ensures that none of the language fields is empty.
                         NameTranslation nameTranslationAffiliationOrganization = new();
-                        if (p.DimAffiliation_DimOrganization_Id > 0)
+                        NameTranslation nameTranslationAffiliationOrganizationSector = new();
+                        NameTranslation nameTranslationAffiliationDepartment = new();
+
+                        // Organization name
+                        if (p.DimAffiliation_DimOrganizationBroader_Id > 0)
+                        {
+                            nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
+                                nameFi: p.DimAffiliation_DimOrganizationBroader_NameFi,
+                                nameEn: p.DimAffiliation_DimOrganizationBroader_NameEn,
+                                nameSv: p.DimAffiliation_DimOrganizationBroader_NameSv
+                            );
+
+                            nameTranslationAffiliationOrganizationSector = _languageService.GetNameTranslation(
+                                nameFi: p.DimAffiliation_DimOrganizationBroader_DimSector_NameFi,
+                                nameEn: p.DimAffiliation_DimOrganizationBroader_DimSector_NameEn,
+                                nameSv: p.DimAffiliation_DimOrganizationBroader_DimSector_NameSv
+                            );
+                        }
+                        else if (p.DimAffiliation_DimOrganization_Id > 0)
                         {
                             nameTranslationAffiliationOrganization = _languageService.GetNameTranslation(
                                 nameFi: p.DimAffiliation_DimOrganization_NameFi,
                                 nameEn: p.DimAffiliation_DimOrganization_NameEn,
                                 nameSv: p.DimAffiliation_DimOrganization_NameSv
+                            );
+
+                            nameTranslationAffiliationOrganizationSector = _languageService.GetNameTranslation(
+                                nameFi: p.DimAffiliation_DimOrganization_DimSector_NameFi,
+                                nameEn: p.DimAffiliation_DimOrganization_DimSector_NameEn,
+                                nameSv: p.DimAffiliation_DimOrganization_DimSector_NameSv
                             );
                         }
                         else if (p.FactFieldValues_DimIdentifierlessDataId > -1 &&
@@ -1008,23 +1036,17 @@ namespace api.Services
                             );
                         }
 
-                        // Name translation for organization sector
-                        NameTranslation nameTranslationAffiliationOrganizationSector = _languageService.GetNameTranslation(
-                            nameFi: p.DimAffiliation_DimOrganization_DimSector_NameFi,
-                            nameEn: p.DimAffiliation_DimOrganization_DimSector_NameEn,
-                            nameSv: p.DimAffiliation_DimOrganization_DimSector_NameSv
-                        );
-
-                        // Name translation for position name
-                        NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
-                            nameFi: p.DimAffiliation_PositionNameFi,
-                            nameEn: p.DimAffiliation_PositionNameEn,
-                            nameSv: p.DimAffiliation_PositionNameSv
-                        );
-
-                        // Name translation for department name
-                        NameTranslation nameTranslationAffiliationDepartment = new();
-                        if (p.DimIdentifierlessData_Type != null && p.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                        // Department name
+                        if (p.DimAffiliation_DimOrganizationBroader_Id > 0)
+                        {
+                            // When DimOrganizationBroader is available, it contains the organization name and DimOrganization contains department name.
+                            nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
+                                nameFi: p.DimAffiliation_DimOrganization_NameFi,
+                                nameEn: p.DimAffiliation_DimOrganization_NameEn,
+                                nameSv: p.DimAffiliation_DimOrganization_NameSv
+                            );
+                        }
+                        else if (p.DimIdentifierlessData_Type != null && p.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
                         {
                             nameTranslationAffiliationDepartment = _languageService.GetNameTranslation(
                                 nameFi: p.DimIdentifierlessData_ValueFi,
@@ -1040,6 +1062,13 @@ namespace api.Services
                                 nameSv: p.DimIdentifierlessData_Child_ValueSv
                             );
                         }
+
+                        // Name translation for position name
+                        NameTranslation nameTranslationPositionName = _languageService.GetNameTranslation(
+                            nameFi: p.DimAffiliation_PositionNameFi,
+                            nameEn: p.DimAffiliation_PositionNameEn,
+                            nameSv: p.DimAffiliation_PositionNameSv
+                        );
 
                         ProfileEditorAffiliation affiliation = new()
                         {
