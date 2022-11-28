@@ -12,6 +12,9 @@ namespace api.Models.Elasticsearch
             Doi = "";
             AuthorsText = "";
             TypeCode = "";
+            JournalName = "";
+            ConferenceName = "";
+            ParentPublicationName = "";
         }
 
         public string PublicationId { get; set; }
@@ -20,5 +23,8 @@ namespace api.Models.Elasticsearch
         public string Doi { get; set; }
         public string AuthorsText { get; set; }
         public string TypeCode { get; set; }
+        public string JournalName { get; set; }
+        public string ConferenceName { get; set; }
+        public string ParentPublicationName { get; set; }
     }
 }

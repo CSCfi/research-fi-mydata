@@ -134,6 +134,9 @@ namespace api.Models.ProfileEditor
         public string DimPublication_Doi { get; set; }
         public string DimPublication_AuthorsText { get; set; }
         public string DimPublication_PublicationTypeCode { get; set; }
+        public string DimPublication_JournalName { get; set; }
+        public string DimPublication_ConferenceName { get; set; }
+        public string DimPublication_ParentPublicationName { get; set; }
         // DimOrcidPublication
         public string DimOrcidPublication_PublicationId { get; set; }
         public string DimOrcidPublication_PublicationName { get; set; }
