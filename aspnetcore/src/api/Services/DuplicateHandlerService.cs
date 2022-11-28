@@ -48,6 +48,7 @@ namespace api.Services
             return publication.DataSources;
         }
 
+
         /*
          * Add publication to publication list.
          * Handle duplicates by matching DOI. Handle special case in DOI matching regarding Virta publication type codes.
@@ -91,7 +92,11 @@ namespace api.Services
                         PublicationName = profileData.DimPublication_PublicationName,
                         PublicationYear = profileData.DimPublication_PublicationYear,
                         Doi = profileData.DimPublication_Doi,
+                        AuthorsText = profileData.DimPublication_AuthorsText,
                         TypeCode = profileData.DimPublication_PublicationTypeCode,
+                        JournalName = profileData.DimPublication_JournalName,
+                        ConferenceName = profileData.DimPublication_ConferenceName,
+                        ParentPublicationName = profileData.DimPublication_ParentPublicationName,
                         itemMeta = new ProfileEditorItemMeta()
                         {
                             Id = profileData.FactFieldValues_DimPublicationId,
@@ -113,7 +118,11 @@ namespace api.Services
                         PublicationName = profileData.DimOrcidPublication_PublicationName,
                         PublicationYear = profileData.DimOrcidPublication_PublicationYear,
                         Doi = profileData.DimOrcidPublication_Doi,
+                        AuthorsText = "",
                         TypeCode = "",
+                        JournalName = "",
+                        ConferenceName = "",
+                        ParentPublicationName = "",
                         itemMeta = new ProfileEditorItemMeta()
                         {
                             Id = profileData.FactFieldValues_DimOrcidPublicationId,
