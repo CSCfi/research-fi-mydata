@@ -10,6 +10,7 @@ namespace api.Models.ProfileEditor.Items
             PublicationName = "";
             PublicationYear = null;
             Doi = "";
+            AuthorsText = "";
             TypeCode = "";
         }
 
@@ -17,6 +18,7 @@ namespace api.Models.ProfileEditor.Items
         public string PublicationName { get; set; }
         public int? PublicationYear { get; set; }
         public string Doi { get; set; }
+        public string AuthorsText { get; set; }
         public string TypeCode { get; set; }
     }
 }

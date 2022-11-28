@@ -91,6 +91,7 @@ namespace api.Services
                         PublicationName = profileData.DimPublication_PublicationName,
                         PublicationYear = profileData.DimPublication_PublicationYear,
                         Doi = profileData.DimPublication_Doi,
+                        AuthorsText = profileData.DimPublication_AuthorsText,
                         TypeCode = profileData.DimPublication_PublicationTypeCode,
                         itemMeta = new ProfileEditorItemMeta()
                         {

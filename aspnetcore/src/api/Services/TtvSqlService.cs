@@ -199,6 +199,7 @@ namespace api.Services
                     dim_publication.publication_name AS 'DimPublication_PublicationName',
                     dim_publication.publication_year AS 'DimPublication_PublicationYear',
                     dim_publication.doi AS 'DimPublication_Doi',
+                    dim_publication.authors_text AS 'DimPublication_AuthorsText',
                     dim_publication.publication_type_code AS 'DimPublication_PublicationTypeCode',
                     dim_orcid_publication.publication_id AS 'DimOrcidPublication_PublicationId',
                     dim_orcid_publication.publication_name AS 'DimOrcidPublication_PublicationName',

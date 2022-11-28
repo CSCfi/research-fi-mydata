@@ -132,6 +132,7 @@ namespace api.Models.ProfileEditor
         public string DimPublication_PublicationName { get; set; }
         public int DimPublication_PublicationYear { get; set; }
         public string DimPublication_Doi { get; set; }
+        public string DimPublication_AuthorsText { get; set; }
         public string DimPublication_PublicationTypeCode { get; set; }
         // DimOrcidPublication
         public string DimOrcidPublication_PublicationId { get; set; }
