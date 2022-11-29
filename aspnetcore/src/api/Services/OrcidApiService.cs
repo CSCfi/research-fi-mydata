@@ -12,6 +12,8 @@ namespace api.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
+        public OrcidApiService(){}
+
         public OrcidApiService(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
