@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using System;
+using Microsoft.AspNetCore.Hosting;
 
 namespace api.Controllers
 {
@@ -23,15 +24,21 @@ namespace api.Controllers
         private readonly IOrcidImportService _orcidImportService;
         private readonly ITokenService _tokenService;
         private readonly ILogger<OrcidController> _logger;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public OrcidController(IUserProfileService userProfileService, IOrcidApiService orcidApiService,
-            IOrcidImportService orcidImportService, ILogger<OrcidController> logger, ITokenService tokenService)
+        public OrcidController(IUserProfileService userProfileService,
+            IOrcidApiService orcidApiService,
+            IOrcidImportService orcidImportService,
+            ILogger<OrcidController> logger,
+            ITokenService tokenService,
+            IWebHostEnvironment webHostEnvironment)
         {
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
             _orcidImportService = orcidImportService;
             _tokenService = tokenService;
             _logger = logger;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         /// <summary>
@@ -58,11 +65,12 @@ namespace api.Controllers
             int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Get ORCID record from ORCID member or public API.
-            // If user access token has claim "use_orcid_public_api", then the record is requested from public API.
+            // If environment is not "Production" and user access token has claim "use_orcid_public_api",
+            // then the record is requested from public API.
             // In all other cases the ORCID member API will be used.
             string orcidRecordJson = "";
 
-            if (this.GetOrcidPublicApiFlag() != null)
+            if (_webHostEnvironment.EnvironmentName!="Production" && this.GetOrcidPublicApiFlag() != null)
             {
                 // ORCID public API should be used
                 try
