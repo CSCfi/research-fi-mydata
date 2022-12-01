@@ -98,7 +98,8 @@ namespace api.Controllers
             // TODO: Currently all added research data get the same data source (Tiedejatutkimus.fi)
 
             // Get DimFieldDisplaySetting for Tiedejatutkimus.fi
-            DimFieldDisplaySetting dimFieldDisplaySettingsResearchDataset = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
+            DimFieldDisplaySetting dimFieldDisplaySettingsResearchDataset =
+                dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
 
             // Registered data source organization name translation
             NameTranslation nameTranslation_OrganizationName = _languageService.GetNameTranslation(
@@ -122,8 +123,8 @@ namespace api.Controllers
                 }
             };
 
-            // Loop data sets
-            foreach (ProfileEditorResearchDatasetToAdd researchDatasetToAdd in profileEditorResearchdatasetToAdd)
+            // Loop data sets, ignore possible duplicates
+            foreach (ProfileEditorResearchDatasetToAdd researchDatasetToAdd in profileEditorResearchdatasetToAdd.DistinctBy(r => r.LocalIdentifier))
             {
                 bool researchDatasetProcessed = false;
                 // Check if userprofile already includes given research dataset
@@ -141,7 +142,8 @@ namespace api.Controllers
                 if (!researchDatasetProcessed)
                 {
                     // Get DimResearchDataset
-                    DimResearchDataset dimResearchDataset = await _ttvContext.DimResearchDatasets.AsNoTracking().FirstOrDefaultAsync(drd => drd.LocalIdentifier == researchDatasetToAdd.LocalIdentifier);
+                    DimResearchDataset dimResearchDataset =
+                        await _ttvContext.DimResearchDatasets.AsNoTracking().FirstOrDefaultAsync(drd => drd.LocalIdentifier == researchDatasetToAdd.LocalIdentifier);
                     // Check if DimResearchDataset exists
                     if (dimResearchDataset == null)
                     {

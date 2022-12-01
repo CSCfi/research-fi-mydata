@@ -97,7 +97,8 @@ namespace api.Controllers
             // TODO: Currently all added publications get the same data source (Tiedejatutkimus.fi)
 
             // Get DimFieldDisplaySetting for publication
-            DimFieldDisplaySetting dimFieldDisplaySettingsPublication = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION);
+            DimFieldDisplaySetting dimFieldDisplaySettingsPublication =
+                dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION);
 
             // Registered data source organization name translation
             NameTranslation nameTranslation_OrganizationName = _languageService.GetNameTranslation(
@@ -125,8 +126,8 @@ namespace api.Controllers
             };
 
 
-            // Loop publications
-            foreach (ProfileEditorPublicationToAdd publicationToAdd in profileEditorPublicationsToAdd)
+            // Loop publications, ignore possible duplicates
+            foreach (ProfileEditorPublicationToAdd publicationToAdd in profileEditorPublicationsToAdd.DistinctBy(p => p.PublicationId))
             {
                 bool publicationProcessed = false;
                 // Check if userprofile already includes given publication
