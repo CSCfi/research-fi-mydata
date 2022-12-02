@@ -97,7 +97,8 @@ namespace api.Controllers
             // TODO: Currently all added funding decisions get the same data source (Tiedejatutkimus.fi)
 
             // Get DimFieldDisplaySetting for funding decision
-            DimFieldDisplaySetting dimFieldDisplaySettingsFundingDecision = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
+            DimFieldDisplaySetting dimFieldDisplaySettingsFundingDecision =
+                dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
 
             // Registered data source organization name translation
             NameTranslation nameTranslation_OrganizationName = _languageService.GetNameTranslation(
@@ -122,8 +123,8 @@ namespace api.Controllers
             };
 
 
-            // Loop funding decisions
-            foreach (ProfileEditorFundingDecisionToAdd fundingDecisionToAdd in profileEditorFundingDecisionsToAdd)
+            // Loop funding decisions, ignore possible duplicates
+            foreach (ProfileEditorFundingDecisionToAdd fundingDecisionToAdd in profileEditorFundingDecisionsToAdd.DistinctBy(f => f.ProjectId))
             {
                 bool fundingDecisionProcessed = false;
                 // Check if userprofile already includes given funding decision
@@ -141,7 +142,8 @@ namespace api.Controllers
                 if (!fundingDecisionProcessed)
                 {
                     // Get DimFundingDecision
-                    DimFundingDecision dimFundingDecision = await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.Id == fundingDecisionToAdd.ProjectId);
+                    DimFundingDecision dimFundingDecision =
+                        await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.Id == fundingDecisionToAdd.ProjectId);
                     // Check if exists
                     if (dimFundingDecision == null)
                     {
