@@ -2461,17 +2461,7 @@
               },
               "url": null,
               "type": "journal-article C",
-              "publication-date": {
-                "year": {
-                  "value": "2012"
-                },
-                "month": {
-                  "value": "10"
-                },
-                "day": {
-                  "value": "01"
-                }
-              },
+              "publication-date": null,
               "journal-title": {
                 "value": "Learned Publishing"
               },
