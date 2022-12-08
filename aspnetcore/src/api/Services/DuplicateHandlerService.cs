@@ -27,6 +27,20 @@ namespace api.Services
         }
 
         /*
+         * Make sure that publication year contains either a valid year or null.
+         */
+        public int? HandlePublicationYear(int? dimDateYear)
+        {
+            if (dimDateYear == null || dimDateYear < 1)
+            {
+                return null;
+            }
+            else {
+                return dimDateYear;
+            }
+        }
+
+        /*
          * When two publications have the same DOI, they will be considered as DIFFERENT publications if:
          *     - Virta publication code is A3, A4, B2, B3, D2, D3 or E1
          *     - AND the publication names differ
@@ -90,7 +104,7 @@ namespace api.Services
                     {
                         PublicationId = profileData.DimPublication_PublicationId,
                         PublicationName = profileData.DimPublication_PublicationName,
-                        PublicationYear = profileData.DimPublication_PublicationYear,
+                        PublicationYear = HandlePublicationYear(profileData.DimPublication_PublicationYear),
                         Doi = profileData.DimPublication_Doi,
                         AuthorsText = profileData.DimPublication_AuthorsText,
                         TypeCode = profileData.DimPublication_PublicationTypeCode,
@@ -116,7 +130,7 @@ namespace api.Services
                     {
                         PublicationId = profileData.DimOrcidPublication_PublicationId,
                         PublicationName = profileData.DimOrcidPublication_PublicationName,
-                        PublicationYear = profileData.DimOrcidPublication_PublicationYear,
+                        PublicationYear = HandlePublicationYear(profileData.DimOrcidPublication_PublicationYear),
                         Doi = profileData.DimOrcidPublication_Doi,
                         AuthorsText = "",
                         TypeCode = "",

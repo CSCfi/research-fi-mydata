@@ -283,13 +283,13 @@ namespace api.Tests
             {
                 Id = 1,
                 RegisteredDataSource = "Virta",
-                Organization = new Organization() {}
+                Organization = new Organization() { }
             };
             ProfileEditorSource profileEditorSourceOrcid = new()
             {
                 Id = 2,
                 RegisteredDataSource = "ORCID",
-                Organization = new Organization() {}
+                Organization = new Organization() { }
             };
 
             // Create ProfileDataRaw for Virta publication 1
@@ -350,6 +350,22 @@ namespace api.Tests
             );
             // Check that publication list contains two publications
             Assert.Equal(2, publications3.Count);
+        }
+
+
+        [Fact(DisplayName = "TestPublicationYearHandling")]
+        public void testPublicationYearHandling()
+        {
+            DuplicateHandlerService duplicateHandlerService = new();
+
+            // Valid publication year
+            Assert.Equal<int?>(2022, duplicateHandlerService.HandlePublicationYear(2022));
+            // Publication year 0
+            Assert.Null(duplicateHandlerService.HandlePublicationYear(0));
+            // Publication year negative
+            Assert.Null(duplicateHandlerService.HandlePublicationYear(-1));
+            // Publication year null
+            Assert.Null(duplicateHandlerService.HandlePublicationYear(null));
         }
     }
 }

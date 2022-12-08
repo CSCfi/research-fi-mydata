@@ -402,7 +402,7 @@ namespace api.Tests
 
             Assert.Equal("Another publication", actualPublications[2].PublicationName);
             Assert.Equal(new OrcidPutCode(733536).Value, actualPublications[2].PutCode.Value);
-            Assert.Equal(2012, actualPublications[2].PublicationYear);
+            Assert.Null(actualPublications[2].PublicationYear);
             Assert.Equal("10.1087/20120404", actualPublications[2].Doi);
             Assert.Equal("journal-article C", actualPublications[2].Type);
         }
