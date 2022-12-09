@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimOrganization
@@ -10,12 +8,7 @@ namespace api.Models.Ttv
         public DimOrganization()
         {
             BrFundingConsortiumParticipations = new HashSet<BrFundingConsortiumParticipation>();
-            BrOrganizationsFundCallProgrammes = new HashSet<BrOrganizationsFundCallProgramme>();
             BrParticipatesInFundingGroups = new HashSet<BrParticipatesInFundingGroup>();
-            BrPredecessorOrganizationDimOrganizationid2Navigations = new HashSet<BrPredecessorOrganization>();
-            BrPredecessorOrganizationDimOrganizations = new HashSet<BrPredecessorOrganization>();
-            BrSuccessorOrganizationDimOrganizationid2Navigations = new HashSet<BrSuccessorOrganization>();
-            BrSuccessorOrganizationDimOrganizations = new HashSet<BrSuccessorOrganization>();
             DimAffiliations = new HashSet<DimAffiliation>();
             DimExternalServices = new HashSet<DimExternalService>();
             DimFundingDecisions = new HashSet<DimFundingDecision>();
@@ -27,6 +20,11 @@ namespace api.Models.Ttv
             FactContributions = new HashSet<FactContribution>();
             FactUpkeeps = new HashSet<FactUpkeep>();
             InverseDimOrganizationBroaderNavigation = new HashSet<DimOrganization>();
+            DimCallProgrammes = new HashSet<DimCallProgramme>();
+            DimOrganizationid2s = new HashSet<DimOrganization>();
+            DimOrganizationid2sNavigation = new HashSet<DimOrganization>();
+            DimOrganizations = new HashSet<DimOrganization>();
+            DimOrganizationsNavigation = new HashSet<DimOrganization>();
         }
 
         public int Id { get; set; }
@@ -62,12 +60,7 @@ namespace api.Models.Ttv
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimSector DimSector { get; set; }
         public virtual ICollection<BrFundingConsortiumParticipation> BrFundingConsortiumParticipations { get; set; }
-        public virtual ICollection<BrOrganizationsFundCallProgramme> BrOrganizationsFundCallProgrammes { get; set; }
         public virtual ICollection<BrParticipatesInFundingGroup> BrParticipatesInFundingGroups { get; set; }
-        public virtual ICollection<BrPredecessorOrganization> BrPredecessorOrganizationDimOrganizationid2Navigations { get; set; }
-        public virtual ICollection<BrPredecessorOrganization> BrPredecessorOrganizationDimOrganizations { get; set; }
-        public virtual ICollection<BrSuccessorOrganization> BrSuccessorOrganizationDimOrganizationid2Navigations { get; set; }
-        public virtual ICollection<BrSuccessorOrganization> BrSuccessorOrganizationDimOrganizations { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
         public virtual ICollection<DimExternalService> DimExternalServices { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
@@ -79,5 +72,11 @@ namespace api.Models.Ttv
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactUpkeep> FactUpkeeps { get; set; }
         public virtual ICollection<DimOrganization> InverseDimOrganizationBroaderNavigation { get; set; }
+
+        public virtual ICollection<DimCallProgramme> DimCallProgrammes { get; set; }
+        public virtual ICollection<DimOrganization> DimOrganizationid2s { get; set; }
+        public virtual ICollection<DimOrganization> DimOrganizationid2sNavigation { get; set; }
+        public virtual ICollection<DimOrganization> DimOrganizations { get; set; }
+        public virtual ICollection<DimOrganization> DimOrganizationsNavigation { get; set; }
     }
 }

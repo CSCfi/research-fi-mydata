@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimPublication
     {
         public DimPublication()
         {
-            BrArtpublicationTypecategories = new HashSet<BrArtpublicationTypecategory>();
-            BrFieldOfArtDimPublications = new HashSet<BrFieldOfArtDimPublication>();
-            BrFieldOfEducationDimPublications = new HashSet<BrFieldOfEducationDimPublication>();
-            BrFieldOfScienceDimPublications = new HashSet<BrFieldOfScienceDimPublication>();
-            BrKeywordDimPublications = new HashSet<BrKeywordDimPublication>();
             DimLocallyReportedPubInfos = new HashSet<DimLocallyReportedPubInfo>();
             DimPids = new HashSet<DimPid>();
             FactContributions = new HashSet<FactContribution>();
             FactFieldValues = new HashSet<FactFieldValue>();
+            DimFieldOfArts = new HashSet<DimFieldOfArt>();
+            DimFieldOfEducations = new HashSet<DimFieldOfEducation>();
+            DimFieldOfSciences = new HashSet<DimFieldOfScience>();
+            DimKeywords = new HashSet<DimKeyword>();
+            DimReferencedata = new HashSet<DimReferencedatum>();
         }
 
         public int Id { get; set; }
@@ -85,14 +83,15 @@ namespace api.Models.Ttv
         public virtual DimReferencedatum ParentPublicationTypeCodeNavigation { get; set; }
         public virtual DimReferencedatum PublicationTypeCode2Navigation { get; set; }
         public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
-        public virtual ICollection<BrArtpublicationTypecategory> BrArtpublicationTypecategories { get; set; }
-        public virtual ICollection<BrFieldOfArtDimPublication> BrFieldOfArtDimPublications { get; set; }
-        public virtual ICollection<BrFieldOfEducationDimPublication> BrFieldOfEducationDimPublications { get; set; }
-        public virtual ICollection<BrFieldOfScienceDimPublication> BrFieldOfScienceDimPublications { get; set; }
-        public virtual ICollection<BrKeywordDimPublication> BrKeywordDimPublications { get; set; }
         public virtual ICollection<DimLocallyReportedPubInfo> DimLocallyReportedPubInfos { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
+
+        public virtual ICollection<DimFieldOfArt> DimFieldOfArts { get; set; }
+        public virtual ICollection<DimFieldOfEducation> DimFieldOfEducations { get; set; }
+        public virtual ICollection<DimFieldOfScience> DimFieldOfSciences { get; set; }
+        public virtual ICollection<DimKeyword> DimKeywords { get; set; }
+        public virtual ICollection<DimReferencedatum> DimReferencedata { get; set; }
     }
 }

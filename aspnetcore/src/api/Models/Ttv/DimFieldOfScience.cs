@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimFieldOfScience
     {
         public DimFieldOfScience()
         {
-            BrFieldOfScienceDimFundingDecisions = new HashSet<BrFieldOfScienceDimFundingDecision>();
-            BrFieldOfScienceDimPublications = new HashSet<BrFieldOfScienceDimPublication>();
-            BrInfrastructureDimFieldOfSciences = new HashSet<BrInfrastructureDimFieldOfScience>();
-            DimFieldOfScienceDimResearchActivities = new HashSet<DimFieldOfScienceDimResearchActivity>();
-            DimKnownPersonDimFieldOfSciences = new HashSet<DimKnownPersonDimFieldOfScience>();
             FactFieldValues = new HashSet<FactFieldValue>();
+            DimFundingDecisions = new HashSet<DimFundingDecision>();
+            DimInfrastructures = new HashSet<DimInfrastructure>();
+            DimKnownPeople = new HashSet<DimKnownPerson>();
+            DimPublications = new HashSet<DimPublication>();
+            DimResearchActivities = new HashSet<DimResearchActivity>();
+            DimResearchDatasets = new HashSet<DimResearchDataset>();
         }
 
         public int Id { get; set; }
@@ -27,11 +26,13 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
-        public virtual ICollection<BrFieldOfScienceDimFundingDecision> BrFieldOfScienceDimFundingDecisions { get; set; }
-        public virtual ICollection<BrFieldOfScienceDimPublication> BrFieldOfScienceDimPublications { get; set; }
-        public virtual ICollection<BrInfrastructureDimFieldOfScience> BrInfrastructureDimFieldOfSciences { get; set; }
-        public virtual ICollection<DimFieldOfScienceDimResearchActivity> DimFieldOfScienceDimResearchActivities { get; set; }
-        public virtual ICollection<DimKnownPersonDimFieldOfScience> DimKnownPersonDimFieldOfSciences { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
+
+        public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
+        public virtual ICollection<DimInfrastructure> DimInfrastructures { get; set; }
+        public virtual ICollection<DimKnownPerson> DimKnownPeople { get; set; }
+        public virtual ICollection<DimPublication> DimPublications { get; set; }
+        public virtual ICollection<DimResearchActivity> DimResearchActivities { get; set; }
+        public virtual ICollection<DimResearchDataset> DimResearchDatasets { get; set; }
     }
 }

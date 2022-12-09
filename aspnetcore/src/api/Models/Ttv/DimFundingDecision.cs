@@ -1,29 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimFundingDecision
     {
         public DimFundingDecision()
         {
-            BrFieldOfScienceDimFundingDecisions = new HashSet<BrFieldOfScienceDimFundingDecision>();
             BrFundingConsortiumParticipations = new HashSet<BrFundingConsortiumParticipation>();
-            BrFundingDecisionDimFieldOfArts = new HashSet<BrFundingDecisionDimFieldOfArt>();
-            BrKeywordDimFundingDecisions = new HashSet<BrKeywordDimFundingDecision>();
             BrParticipatesInFundingGroups = new HashSet<BrParticipatesInFundingGroup>();
-            BrPreviousFundingDecisionDimFundingDecisionFroms = new HashSet<BrPreviousFundingDecision>();
-            BrPreviousFundingDecisionDimFundingDecisionTos = new HashSet<BrPreviousFundingDecision>();
-            BrRelatedFundingDecisionDimFundingDecisionFroms = new HashSet<BrRelatedFundingDecision>();
-            BrRelatedFundingDecisionDimFundingDecisionTos = new HashSet<BrRelatedFundingDecision>();
             BrWordClusterDimFundingDecisions = new HashSet<BrWordClusterDimFundingDecision>();
             DimPids = new HashSet<DimPid>();
             DimWebLinks = new HashSet<DimWebLink>();
             FactContributions = new HashSet<FactContribution>();
             FactFieldValues = new HashSet<FactFieldValue>();
             InverseDimFundingDecisionIdParentDecisionNavigation = new HashSet<DimFundingDecision>();
+            DimFieldOfArts = new HashSet<DimFieldOfArt>();
+            DimFieldOfSciences = new HashSet<DimFieldOfScience>();
+            DimFundingDecisionFroms = new HashSet<DimFundingDecision>();
+            DimFundingDecisionFromsNavigation = new HashSet<DimFundingDecision>();
+            DimFundingDecisionTos = new HashSet<DimFundingDecision>();
+            DimFundingDecisionTosNavigation = new HashSet<DimFundingDecision>();
+            DimKeywords = new HashSet<DimKeyword>();
         }
 
         public int Id { get; set; }
@@ -67,20 +65,21 @@ namespace api.Models.Ttv
         public virtual DimOrganization DimOrganizationIdFunderNavigation { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimTypeOfFunding DimTypeOfFunding { get; set; }
-        public virtual ICollection<BrFieldOfScienceDimFundingDecision> BrFieldOfScienceDimFundingDecisions { get; set; }
         public virtual ICollection<BrFundingConsortiumParticipation> BrFundingConsortiumParticipations { get; set; }
-        public virtual ICollection<BrFundingDecisionDimFieldOfArt> BrFundingDecisionDimFieldOfArts { get; set; }
-        public virtual ICollection<BrKeywordDimFundingDecision> BrKeywordDimFundingDecisions { get; set; }
         public virtual ICollection<BrParticipatesInFundingGroup> BrParticipatesInFundingGroups { get; set; }
-        public virtual ICollection<BrPreviousFundingDecision> BrPreviousFundingDecisionDimFundingDecisionFroms { get; set; }
-        public virtual ICollection<BrPreviousFundingDecision> BrPreviousFundingDecisionDimFundingDecisionTos { get; set; }
-        public virtual ICollection<BrRelatedFundingDecision> BrRelatedFundingDecisionDimFundingDecisionFroms { get; set; }
-        public virtual ICollection<BrRelatedFundingDecision> BrRelatedFundingDecisionDimFundingDecisionTos { get; set; }
         public virtual ICollection<BrWordClusterDimFundingDecision> BrWordClusterDimFundingDecisions { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
         public virtual ICollection<DimFundingDecision> InverseDimFundingDecisionIdParentDecisionNavigation { get; set; }
+
+        public virtual ICollection<DimFieldOfArt> DimFieldOfArts { get; set; }
+        public virtual ICollection<DimFieldOfScience> DimFieldOfSciences { get; set; }
+        public virtual ICollection<DimFundingDecision> DimFundingDecisionFroms { get; set; }
+        public virtual ICollection<DimFundingDecision> DimFundingDecisionFromsNavigation { get; set; }
+        public virtual ICollection<DimFundingDecision> DimFundingDecisionTos { get; set; }
+        public virtual ICollection<DimFundingDecision> DimFundingDecisionTosNavigation { get; set; }
+        public virtual ICollection<DimKeyword> DimKeywords { get; set; }
     }
 }

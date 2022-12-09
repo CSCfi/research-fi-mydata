@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimPid
@@ -43,6 +41,7 @@ namespace api.Models.Ttv
         public virtual DimPublicationChannel DimPublicationChannel { get; set; }
         public virtual DimResearchActivity DimResearchActivity { get; set; }
         public virtual DimResearchDataCatalog DimResearchDataCatalog { get; set; }
+        public virtual DimResearchDataset DimResearchDataset { get; set; }
         public virtual DimService DimService { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValueDimPidIdOrcidPutCodeNavigations { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValueDimPids { get; set; }

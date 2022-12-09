@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimMeril
     {
         public DimMeril()
         {
-            BrMerilDimInfrastructures = new HashSet<BrMerilDimInfrastructure>();
+            DimInfrastructures = new HashSet<DimInfrastructure>();
         }
 
         public int Id { get; set; }
@@ -21,6 +19,6 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
-        public virtual ICollection<BrMerilDimInfrastructure> BrMerilDimInfrastructures { get; set; }
+        public virtual ICollection<DimInfrastructure> DimInfrastructures { get; set; }
     }
 }
