@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimEsfri
     {
         public DimEsfri()
         {
-            BrEsfriDimInfrastructures = new HashSet<BrEsfriDimInfrastructure>();
+            DimInfrastructures = new HashSet<DimInfrastructure>();
         }
 
         public int Id { get; set; }
@@ -21,6 +19,6 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
         public DateTime? Created { get; set; }
 
-        public virtual ICollection<BrEsfriDimInfrastructure> BrEsfriDimInfrastructures { get; set; }
+        public virtual ICollection<DimInfrastructure> DimInfrastructures { get; set; }
     }
 }

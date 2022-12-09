@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimEducation
@@ -13,7 +11,7 @@ namespace api.Models.Ttv
         }
 
         public int Id { get; set; }
-        public int? LocalIdentifier { get; set; }
+        public string LocalIdentifier { get; set; }
         public float? Credits { get; set; }
         public string NameFi { get; set; }
         public string NameSv { get; set; }

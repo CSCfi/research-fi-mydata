@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimResearchActivity
     {
         public DimResearchActivity()
         {
-            DimFieldOfScienceDimResearchActivities = new HashSet<DimFieldOfScienceDimResearchActivity>();
             DimPids = new HashSet<DimPid>();
             DimResearchActivityDimKeywords = new HashSet<DimResearchActivityDimKeyword>();
             DimWebLinks = new HashSet<DimWebLink>();
             FactContributions = new HashSet<FactContribution>();
             FactFieldValues = new HashSet<FactFieldValue>();
+            DimFieldOfSciences = new HashSet<DimFieldOfScience>();
         }
 
         public int Id { get; set; }
@@ -47,11 +45,12 @@ namespace api.Models.Ttv
         public virtual DimPublicationChannel DimPublicationChannel { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimDate DimStartDateNavigation { get; set; }
-        public virtual ICollection<DimFieldOfScienceDimResearchActivity> DimFieldOfScienceDimResearchActivities { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<DimResearchActivityDimKeyword> DimResearchActivityDimKeywords { get; set; }
         public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
+
+        public virtual ICollection<DimFieldOfScience> DimFieldOfSciences { get; set; }
     }
 }

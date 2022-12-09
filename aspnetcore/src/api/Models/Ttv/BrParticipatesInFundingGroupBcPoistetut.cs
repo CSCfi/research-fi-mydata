@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace api.Models.Ttv
 {
-    public partial class BrParticipatesInFundingGroup
+    public partial class BrParticipatesInFundingGroupBcPoistetut
     {
         public int DimFundingDecisionid { get; set; }
         public int DimNameId { get; set; }
@@ -12,9 +12,5 @@ namespace api.Models.Ttv
         public decimal? ShareOfFundingInEur { get; set; }
         public string SourceId { get; set; }
         public bool? EndOfParticipation { get; set; }
-
-        public virtual DimFundingDecision DimFundingDecision { get; set; }
-        public virtual DimName DimName { get; set; }
-        public virtual DimOrganization DimOrganization { get; set; }
     }
 }
