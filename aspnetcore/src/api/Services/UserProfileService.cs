@@ -106,6 +106,14 @@ namespace api.Services
         }
 
         /*
+         * Get DimUserProfile based on ORCID Id.
+         */
+        public async Task<DimUserProfile> GetUserprofile(string orcidId)
+        {
+            return await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking().FirstOrDefaultAsync();
+        }
+
+        /*
          * Get Id of DimUserProfile based on ORCID Id.
          */
         public async Task<int> GetUserprofileId(string orcidId)

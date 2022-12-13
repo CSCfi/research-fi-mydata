@@ -24,6 +24,7 @@ namespace api.Services
         List<int> GetFieldIdentifiers();
         DimKnownPerson GetNewDimKnownPerson(string orcidId, DateTime currentDateTime);
         Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, bool forElasticsearch = false);
+        Task<DimUserProfile> GetUserprofile(string orcidId);
         Task<int> GetUserprofileId(string orcidId);
         Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens);
         Task<bool> UserprofileExistsForOrcidId(string orcidId);
