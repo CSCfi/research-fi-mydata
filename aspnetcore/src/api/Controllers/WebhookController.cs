@@ -11,12 +11,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace api.Controllers
 {
     /*
-     * OrcidController handles webhook related actions:
-     * - ORCID notification webhook
+     * WebhookController handles webhook related actions:
+     * - ORCID notification webhook: update ORCID data in a background task.
      * 
      * This controller does not require authorization, since the endpoints must
      * be accessible from 3rd party services. Each endpoint must prevent misuse
-     * by, for example, requiring precence of token in the webhook url.
+     * by, for example, requiring presence of predefined token in the webhook url.
      */
     [ApiController]
     public class WebhookController : ControllerBase

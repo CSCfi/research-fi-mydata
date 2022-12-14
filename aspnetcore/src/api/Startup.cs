@@ -170,7 +170,7 @@ namespace api
             });
 
             /*
-             * HTTP client: ORCID MEMBER API
+             * HTTP client: ORCID member API
              */
             services.AddHttpClient("ORCID_MEMBER_API", httpClient =>
             {
@@ -179,11 +179,20 @@ namespace api
             });
 
             /*
-             * HTTP client: ORCID PUBLIC API
+             * HTTP client: ORCID public API
              */
             services.AddHttpClient("ORCID_PUBLIC_API", httpClient =>
             {
                 httpClient.BaseAddress = new Uri(Configuration["ORCID:PUBLICAPI"]);
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            });
+
+            /*
+             * HTTP client: ORCID webhook API
+             */
+            services.AddHttpClient("ORCID_WEBHOOK_API", httpClient =>
+            {
+                httpClient.BaseAddress = new Uri(Configuration["ORCID:WEBHOOKAPI"]);
                 httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
 

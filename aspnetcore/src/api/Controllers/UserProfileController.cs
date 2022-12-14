@@ -89,6 +89,8 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
 
+            // Register ORCID webhook
+
             _logger.LogInformation(this.GetLogPrefix() + " create profile OK");
             return Ok(new ApiResponse(success: true));
         }
@@ -115,6 +117,8 @@ namespace api.Controllers
 
             // Get userprofile id.
             int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+
+            // TODO: Unregister ORCID webhook
 
             // Delete profile data from database
             bool deleteSuccess = false;
