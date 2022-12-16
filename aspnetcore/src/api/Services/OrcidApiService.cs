@@ -16,7 +16,7 @@ namespace api.Services
         private readonly IHttpClientFactory _httpClientFactory;
         public IConfiguration Configuration { get; }
 
-        public OrcidApiService(){} // for unit test
+        public OrcidApiService() { } // for unit test
         public OrcidApiService(IConfiguration configuration) { Configuration = configuration; } // for unit test
 
         public OrcidApiService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
