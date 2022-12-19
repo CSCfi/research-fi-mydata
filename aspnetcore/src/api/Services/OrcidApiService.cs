@@ -4,7 +4,9 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Nest;
+using Serilog.Core;
 
 namespace api.Services
 {
@@ -15,13 +17,15 @@ namespace api.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         public IConfiguration Configuration { get; }
+        private readonly ILogger<OrcidApiService> _logger;
 
         public OrcidApiService() { } // for unit test
         public OrcidApiService(IConfiguration configuration) { Configuration = configuration; } // for unit test
 
-        public OrcidApiService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public OrcidApiService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<OrcidApiService> logger)
         {
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
             Configuration = configuration;
         }
 
@@ -73,6 +77,25 @@ namespace api.Services
         }
 
         /*
+         * Check if ORCID webhook is enabled and related configuration is valid.
+         * Required configuration:
+         * - ORCID:WEBHOOK:ENABLED
+         * - ORCID:WEBHOOK:API
+         * - ORCID:WEBHOOK:ACCESSTOKEN
+         */
+        public bool IsOrcidWebhookEnabled()
+        {
+            return !string.IsNullOrWhiteSpace(Configuration["ORCID:WEBHOOK:ENABLED"])
+                && Configuration["ORCID:WEBHOOK:ENABLED"] == "true"
+                && !string.IsNullOrWhiteSpace(Configuration["ORCID:WEBHOOK:API"])
+                && Uri.IsWellFormedUriString(
+                    Configuration["ORCID:WEBHOOK:API"],
+                    UriKind.Absolute
+                )
+                && !string.IsNullOrWhiteSpace(Configuration["ORCID:WEBHOOK:ACCESSTOKEN"]);
+        }
+
+        /*
          * Get ORCID webhook callback URL
          */
         public string? GetOrcidWebhookCallbackUri(string orcidId)
@@ -101,7 +124,7 @@ namespace api.Services
             // URL encode callback uri
             string urlEncodedCallbackUri = GetUrlEncodedString(callBackUri);
 
-            UriBuilder webhookRegistrationUri = new(Configuration["ORCID:WEBHOOKAPI"]);
+            UriBuilder webhookRegistrationUri = new(Configuration["ORCID:WEBHOOK:API"]);
             webhookRegistrationUri.Scheme = "https";
             webhookRegistrationUri.Path = $"{orcidId}/webhook/{urlEncodedCallbackUri}";
             return webhookRegistrationUri.Uri.ToString();
@@ -112,7 +135,7 @@ namespace api.Services
          */
         public string GetOrcidWebhookAccessToken()
         {
-            return Configuration["ORCID:WEBHOOKACCESSTOKEN"];
+            return Configuration["ORCID:WEBHOOK:ACCESSTOKEN"];
         }
 
         /*

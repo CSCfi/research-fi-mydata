@@ -93,14 +93,21 @@ namespace api.Controllers
             }
 
             // Register ORCID webhook. Continue profile creation in case of error.
-            try
+            if (_orcidApiService.IsOrcidWebhookEnabled())
             {
-                await _orcidApiService.RegisterOrcidWebhook(orcidId: orcidId);
-                _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook register OK");
+                try
+                {
+                    await _orcidApiService.RegisterOrcidWebhook(orcidId: orcidId);
+                    _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook register OK");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(this.GetLogPrefix() + " ORCID webhook registration failed: " + ex);
+                }
             }
-            catch(Exception ex)
+            else
             {
-                _logger.LogError(this.GetLogPrefix() + " ORCID webhook registration failed: " + ex);
+                _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook feature disabled in configuration");
             }
 
             _logger.LogInformation(this.GetLogPrefix() + " create profile OK");
@@ -174,14 +181,21 @@ namespace api.Controllers
                 await _keycloakAdminApiService.RemoveUser(this.GetBearerTokenFromHttpRequest());
 
                 // Unregister ORCID webhook. Continue profile deletion in case of error.
-                try
+                if (_orcidApiService.IsOrcidWebhookEnabled())
                 {
-                    await _orcidApiService.UnregisterOrcidWebhook(orcidId: orcidId);
-                    _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook unregister OK");
+                    try
+                    {
+                        await _orcidApiService.UnregisterOrcidWebhook(orcidId: orcidId);
+                        _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook unregister OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(this.GetLogPrefix() + " ORCID webhook unregistration failed: " + ex);
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    _logger.LogError(this.GetLogPrefix() + " ORCID webhook unregistration failed: " + ex);
+                    _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook feature disabled in configuration");
                 }
 
                 return Ok(new ApiResponse(success: true));

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using static System.Net.WebRequestMethods;
 using System.Security.Cryptography;
+using System.Collections;
 
 namespace api.Tests
 {
@@ -18,13 +19,86 @@ namespace api.Tests
         {
             Dictionary<string, string> inMemorySettings = new Dictionary<string, string> {
                 { "SERVICEURL", "https://mydata-api.service.example.fi"},
-                { "ORCID:WEBHOOKAPI", "https://api.sandbox.orcid.org/"},
-                { "ORCID:WEBHOOKACCESSTOKEN", "fake20e90b06-0384f05d-3ffc9bd9-31ab06ff" }
+                { "ORCID:WEBHOOK:ENABLED", "true"},
+                { "ORCID:WEBHOOK:API", "https://api.sandbox.orcid.org/"},
+                { "ORCID:WEBHOOK:ACCESSTOKEN", "fake20e90b06-0384f05d-3ffc9bd9-31ab06ff" }
             };
             IConfiguration testConfiguration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
             return testConfiguration;
+        }
+
+        /*
+         * Create test data for unit test IsOrcidWebhookEnabled_ReturnsIsOrcidWebhookFeatureEnabled
+         */
+        public class IsOrcidWebhookEnabledTestData : IEnumerable<object[]>
+        {
+            public IEnumerator<object[]> GetEnumerator()
+            {
+                // Valid configuration
+                yield return new object[] {
+                    new Dictionary<string, string> {
+                        { "SERVICEURL", "https://mydata-api.service.example.fi"},
+                        { "ORCID:WEBHOOK:ENABLED", "true"},
+                        { "ORCID:WEBHOOK:API", "https://api.sandbox.orcid.org/"},
+                        { "ORCID:WEBHOOK:ACCESSTOKEN", "fake20e90b06-0384f05d-3ffc9bd9-31ab06ff" }
+                    },
+                    true
+                };
+                // Required configuration completely missing
+                yield return new object[] {
+                    new Dictionary<string, string> {},
+                    false
+                };
+                // SERVICEURL is not defined
+                yield return new object[] {
+                    new Dictionary<string, string> {
+                        { "ORCID:WEBHOOK:ENABLED", "false"},
+                        { "ORCID:WEBHOOK:API", "https://api.sandbox.orcid.org/"},
+                        { "ORCID:WEBHOOK:ACCESSTOKEN", "fake20e90b06-0384f05d-3ffc9bd9-31ab06ff" }
+                    },
+                    false
+                };
+                // ORCID:WEBHOOK:ENABLED = false
+                yield return new object[] {
+                    new Dictionary<string, string> {
+                        { "SERVICEURL", "https://mydata-api.service.example.fi"},
+                        { "ORCID:WEBHOOK:ENABLED", "false"},
+                        { "ORCID:WEBHOOK:API", "https://api.sandbox.orcid.org/"},
+                        { "ORCID:WEBHOOK:ACCESSTOKEN", "fake20e90b06-0384f05d-3ffc9bd9-31ab06ff" }
+                    },
+                    false
+                };
+                // ORCID:WEBHOOK:ENABLED is not defined
+                yield return new object[] {
+                    new Dictionary<string, string> {
+                        { "SERVICEURL", "https://mydata-api.service.example.fi"},
+                        { "ORCID:WEBHOOK:API", "https://api.sandbox.orcid.org/"},
+                        { "ORCID:WEBHOOK:ACCESSTOKEN", "fake20e90b06-0384f05d-3ffc9bd9-31ab06ff" }
+                    },
+                    false
+                };
+                // ORCID:WEBHOOK:API is not defined
+                yield return new object[] {
+                    new Dictionary<string, string> {
+                        { "SERVICEURL", "https://mydata-api.service.example.fi"},
+                        { "ORCID:WEBHOOK:ENABLED", "true"},
+                        { "ORCID:WEBHOOK:ACCESSTOKEN", "fake20e90b06-0384f05d-3ffc9bd9-31ab06ff" }
+                    },
+                    false
+                };
+                // ORCID:WEBHOOK:ACCESSTOKEN is not defined
+                yield return new object[] {
+                    new Dictionary<string, string> {
+                        { "SERVICEURL", "https://mydata-api.service.example.fi"},
+                        { "ORCID:WEBHOOK:ENABLED", "true"},
+                        { "ORCID:WEBHOOK:API", "https://api.sandbox.orcid.org/"}
+                    },
+                    false
+                };
+            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
         [Fact(DisplayName = "Get correct path for ORCID record")]
@@ -36,6 +110,21 @@ namespace api.Tests
             string actualOrcidRecordPath = orcidApiService.GetOrcidRecordPath("1234-5678-8765-4321");
             // Assert
             Assert.Equal("1234-5678-8765-4321/record", actualOrcidRecordPath);
+        }
+
+        [Theory(DisplayName = "Check is ORCID webhook feature enabled")]
+        [ClassData(typeof(IsOrcidWebhookEnabledTestData))]
+        public void IsOrcidWebhookEnabled_ReturnsIsOrcidWebhookFeatureEnabled(Dictionary<string, string> inMemorySettings, bool expectedResult)
+        {
+            // Arrange
+            IConfiguration testConfiguration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+            OrcidApiService orcidApiService = new OrcidApiService(testConfiguration);
+            // Act
+            bool actualIsOrcidWebhookEnabled = orcidApiService.IsOrcidWebhookEnabled();
+            // Assert
+            Assert.Equal(expectedResult, actualIsOrcidWebhookEnabled);
         }
 
         [Fact(DisplayName = "Get ORCID webhook callback URI for ORCID ID")]

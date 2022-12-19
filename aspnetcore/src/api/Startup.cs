@@ -192,7 +192,7 @@ namespace api
              */
             services.AddHttpClient("ORCID_WEBHOOK_API", httpClient =>
             {
-                httpClient.BaseAddress = new Uri(Configuration["ORCID:WEBHOOKAPI"]);
+                httpClient.BaseAddress = new Uri(Configuration["ORCID:WEBHOOK:API"]);
                 httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
 
