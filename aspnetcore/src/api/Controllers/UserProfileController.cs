@@ -21,6 +21,7 @@ namespace api.Controllers
         private readonly IUserProfileService _userProfileService;
         private readonly IElasticsearchService _elasticsearchService;
         private readonly IKeycloakAdminApiService _keycloakAdminApiService;
+        private readonly IOrcidApiService _orcidApiService;
         private readonly ILogger<UserProfileController> _logger;
         private readonly IMemoryCache _cache;
         private readonly IBackgroundTaskQueue _taskQueue;
@@ -29,6 +30,7 @@ namespace api.Controllers
             IElasticsearchService elasticsearchService,
             IUserProfileService userProfileService,
             IKeycloakAdminApiService keycloakAdminApiService,
+            IOrcidApiService orcidApiService,
             ILogger<UserProfileController> logger,
             IMemoryCache memoryCache,
             IBackgroundTaskQueue taskQueue)
@@ -36,6 +38,7 @@ namespace api.Controllers
             _userProfileService = userProfileService;
             _elasticsearchService = elasticsearchService;
             _keycloakAdminApiService = keycloakAdminApiService;
+            _orcidApiService = orcidApiService;
             _logger = logger;
             _cache = memoryCache;
             _taskQueue = taskQueue;
@@ -87,6 +90,24 @@ namespace api.Controllers
                 string msg = " create profile failed";
                 _logger.LogError(this.GetLogPrefix() + msg);
                 return Ok(new ApiResponse(success: false, reason: msg));
+            }
+
+            // Register ORCID webhook. Continue profile creation in case of error.
+            if (_orcidApiService.IsOrcidWebhookEnabled())
+            {
+                try
+                {
+                    await _orcidApiService.RegisterOrcidWebhook(orcidId: orcidId);
+                    _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook register OK");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(this.GetLogPrefix() + " ORCID webhook registration failed: " + ex);
+                }
+            }
+            else
+            {
+                _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook feature disabled in configuration");
             }
 
             _logger.LogInformation(this.GetLogPrefix() + " create profile OK");
@@ -158,6 +179,24 @@ namespace api.Controllers
 
                 // Keycloak: remove user
                 await _keycloakAdminApiService.RemoveUser(this.GetBearerTokenFromHttpRequest());
+
+                // Unregister ORCID webhook. Continue profile deletion in case of error.
+                if (_orcidApiService.IsOrcidWebhookEnabled())
+                {
+                    try
+                    {
+                        await _orcidApiService.UnregisterOrcidWebhook(orcidId: orcidId);
+                        _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook unregister OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(this.GetLogPrefix() + " ORCID webhook unregistration failed: " + ex);
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook feature disabled in configuration");
+                }
 
                 return Ok(new ApiResponse(success: true));
             }
