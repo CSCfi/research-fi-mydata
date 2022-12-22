@@ -243,6 +243,8 @@ namespace api
 
 
             services.AddResponseCompression();
+
+            services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IOrcidApiService, OrcidApiService>();
             services.AddScoped<IOrcidImportService, OrcidImportService>();
             services.AddScoped<IOrcidJsonParserService, OrcidJsonParserService>();

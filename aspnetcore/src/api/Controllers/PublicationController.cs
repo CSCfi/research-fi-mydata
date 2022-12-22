@@ -195,6 +195,7 @@ namespace api.Controllers
             }
 
             // Update Elasticsearch index in a background task.
+            // ElasticsearchService is singleton, no need to create local scope.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
@@ -267,6 +268,7 @@ namespace api.Controllers
             await _ttvContext.SaveChangesAsync();
 
             // Update Elasticsearch index in a background task.
+            // ElasticsearchService is singleton, no need to create local scope.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
