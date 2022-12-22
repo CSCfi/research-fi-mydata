@@ -51,6 +51,7 @@ namespace api.Controllers
             _logger.LogInformation(this.GetLogPrefix() + " hide profile request. Delete from Elasticsearch index.");
 
             // Remove entry from Elasticsearch index in a background task.
+            // ElasticsearchService is singleton, no need to create local scope.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>

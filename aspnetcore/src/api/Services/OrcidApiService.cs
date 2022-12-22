@@ -144,7 +144,6 @@ namespace api.Services
          */
         public async Task<bool> RegisterOrcidWebhook(string orcidId)
         {
-            bool success = false;
             // Get ORCID webhook API specific http client.
             HttpClient orcidWebhookApiHttpClient = _httpClientFactory.CreateClient("ORCID_WEBHOOK_API");
             // PUT request
@@ -152,9 +151,17 @@ namespace api.Services
             // Insert ORCID webhook access token into authorization header for each request.
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", GetOrcidWebhookAccessToken());
             // Send request
-            HttpResponseMessage response = await orcidWebhookApiHttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            return success;
+            try
+            {
+                HttpResponseMessage response = await orcidWebhookApiHttpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError($"OrcidApiService: {ex.ToString()}");
+                return false;
+            }
+            return true;
         }
 
         /*
@@ -163,7 +170,6 @@ namespace api.Services
          */
         public async Task<bool> UnregisterOrcidWebhook(string orcidId)
         {
-            bool success = false;
             // Get ORCID webhook API specific http client.
             HttpClient orcidWebhookApiHttpClient = _httpClientFactory.CreateClient("ORCID_WEBHOOK_API");
             // DELETE request
@@ -171,9 +177,17 @@ namespace api.Services
             // Insert ORCID webhook access token into authorization header for each request.
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", GetOrcidWebhookAccessToken());
             // Send request
-            HttpResponseMessage response = await orcidWebhookApiHttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            return success;
+            try
+            {
+                HttpResponseMessage response = await orcidWebhookApiHttpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError($"OrcidApiService: {ex.ToString()}");
+                return false;
+            }
+            return true;
         }
     }
 }
