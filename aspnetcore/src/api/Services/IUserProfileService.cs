@@ -25,7 +25,9 @@ namespace api.Services
         DimKnownPerson GetNewDimKnownPerson(string orcidId, DateTime currentDateTime);
         Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, bool forElasticsearch = false);
         Task<DimUserProfile> GetUserprofile(string orcidId);
+        Task<DimUserProfile> GetUserprofileById(int Id);
         Task<int> GetUserprofileId(string orcidId);
+        Task<bool> IsUserprofilePublished(int dimUserProfileId);
         Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens);
         Task<bool> UserprofileExistsForOrcidId(string orcidId);
     }

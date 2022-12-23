@@ -507,5 +507,17 @@ namespace api.Tests
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimUserProfile(221199);
             Assert.Equal(expectedSqlString, actualSqlString);
         }
+
+        [Fact(DisplayName = "Get SQL query for counting number of published items in userprofile")]
+        public void GetSqlQuery_Select_CountPublishedItemsInUserprofile()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = $@"SELECT COUNT(ffv.show) AS 'PublishedCount'
+                        FROM fact_field_values AS ffv
+                        JOIN dim_user_profile AS dup ON ffv.dim_user_profile_id=dup.id
+                        WHERE dup.id=335577 AND ffv.show=1";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_CountPublishedItemsInUserprofile(335577);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
     }
 }

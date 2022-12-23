@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using api.Models.Elasticsearch;
 using Elasticsearch.Net;
 using api.Models.Api;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace api.Services
 {
@@ -111,6 +112,14 @@ namespace api.Services
         public async Task<DimUserProfile> GetUserprofile(string orcidId)
         {
             return await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking().FirstOrDefaultAsync();
+        }
+
+        /*
+         * Get DimUserProfile based on Id.
+         */
+        public async Task<DimUserProfile> GetUserprofileById(int Id)
+        {
+            return await _ttvContext.DimUserProfiles.Where(dup => dup.Id == Id).AsNoTracking().FirstOrDefaultAsync();
         }
 
         /*
@@ -1678,6 +1687,24 @@ namespace api.Services
                 }
             }
             return true;
+        }
+
+        /*
+         * Check by dim_user_profile.id if user profile is published.
+         * Logic: User profile is considered as published, if more than 1 item has property show=true.
+         *        Property 'show' is checked from table fact_field_values
+         *        
+         *        In user profile, the name from ORCID has always show=1, hence the requirement "more than 1 item".
+         */
+        public async Task<bool> IsUserprofilePublished(int dimUserProfileId)
+        {
+            int publishedCount = 0;
+            using (var connection = _ttvContext.Database.GetDbConnection())
+            {
+                string publishedCountSql = _ttvSqlService.GetSqlQuery_Select_CountPublishedItemsInUserprofile(dimUserProfileId);
+                publishedCount = (await connection.QueryAsync<int>(publishedCountSql)).First();
+            }
+            return publishedCount > 1;
         }
 
         /*
