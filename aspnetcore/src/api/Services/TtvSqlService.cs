@@ -553,11 +553,21 @@ namespace api.Services
                       FROM fact_contribution WHERE dim_name_id = {dimNameId} AND (dim_research_activity_id!=-1 OR dim_research_dataset_id!=-1 OR dim_publication_id!=-1)";
         }
 
+        // Return SQL SELECT statement for br_participates_in_funding_group
         public string GetSqlQuery_Select_BrParticipatesInFundingGroup(int dimNameId)
         {
             return $@"SELECT dim_funding_decisionid as 'DimFundingDecisionId'
                         FROM br_participates_in_funding_group
                         WHERE dim_name_id = {dimNameId}";
+        }
+
+        // Return SQL SELECT statement for counting number of published items in userprofile
+        public string GetSqlQuery_Select_CountPublishedItemsInUserprofile(int dimUserProfileId)
+        {
+            return $@"SELECT COUNT(ffv.show) AS 'PublishedCount'
+                        FROM fact_field_values AS ffv
+                        JOIN dim_user_profile AS dup ON ffv.dim_user_profile_id=dup.id
+                        WHERE dup.id={dimUserProfileId} AND ffv.show=1";
         }
     }
 }
