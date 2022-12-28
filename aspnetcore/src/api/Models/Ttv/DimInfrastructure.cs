@@ -9,6 +9,7 @@ namespace api.Models.Ttv
         {
             DimPids = new HashSet<DimPid>();
             FactContributions = new HashSet<FactContribution>();
+            FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
             FactInfraKeywords = new HashSet<FactInfraKeyword>();
             FactUpkeeps = new HashSet<FactUpkeep>();
             InverseNextInfastructure = new HashSet<DimInfrastructure>();
@@ -41,6 +42,7 @@ namespace api.Models.Ttv
         public virtual DimInfrastructure NextInfastructure { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
+        public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
         public virtual ICollection<FactInfraKeyword> FactInfraKeywords { get; set; }
         public virtual ICollection<FactUpkeep> FactUpkeeps { get; set; }
         public virtual ICollection<DimInfrastructure> InverseNextInfastructure { get; set; }

@@ -10,10 +10,10 @@ namespace api.Models.Ttv
             DimLocallyReportedPubInfos = new HashSet<DimLocallyReportedPubInfo>();
             DimPids = new HashSet<DimPid>();
             FactContributions = new HashSet<FactContribution>();
+            FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
             FactFieldValues = new HashSet<FactFieldValue>();
             DimFieldOfArts = new HashSet<DimFieldOfArt>();
             DimFieldOfEducations = new HashSet<DimFieldOfEducation>();
-            DimFieldOfSciences = new HashSet<DimFieldOfScience>();
             DimKeywords = new HashSet<DimKeyword>();
             DimReferencedata = new HashSet<DimReferencedatum>();
         }
@@ -86,11 +86,11 @@ namespace api.Models.Ttv
         public virtual ICollection<DimLocallyReportedPubInfo> DimLocallyReportedPubInfos { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
+        public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
 
         public virtual ICollection<DimFieldOfArt> DimFieldOfArts { get; set; }
         public virtual ICollection<DimFieldOfEducation> DimFieldOfEducations { get; set; }
-        public virtual ICollection<DimFieldOfScience> DimFieldOfSciences { get; set; }
         public virtual ICollection<DimKeyword> DimKeywords { get; set; }
         public virtual ICollection<DimReferencedatum> DimReferencedata { get; set; }
     }
