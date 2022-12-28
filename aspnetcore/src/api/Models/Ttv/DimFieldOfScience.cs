@@ -11,7 +11,6 @@ namespace api.Models.Ttv
             DimFundingDecisions = new HashSet<DimFundingDecision>();
             DimInfrastructures = new HashSet<DimInfrastructure>();
             DimKnownPeople = new HashSet<DimKnownPerson>();
-            DimPublications = new HashSet<DimPublication>();
             DimResearchActivities = new HashSet<DimResearchActivity>();
             DimResearchDatasets = new HashSet<DimResearchDataset>();
         }
@@ -31,7 +30,6 @@ namespace api.Models.Ttv
         public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
         public virtual ICollection<DimInfrastructure> DimInfrastructures { get; set; }
         public virtual ICollection<DimKnownPerson> DimKnownPeople { get; set; }
-        public virtual ICollection<DimPublication> DimPublications { get; set; }
         public virtual ICollection<DimResearchActivity> DimResearchActivities { get; set; }
         public virtual ICollection<DimResearchDataset> DimResearchDatasets { get; set; }
     }

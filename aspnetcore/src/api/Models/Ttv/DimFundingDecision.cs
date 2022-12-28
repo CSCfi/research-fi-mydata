@@ -13,6 +13,7 @@ namespace api.Models.Ttv
             DimPids = new HashSet<DimPid>();
             DimWebLinks = new HashSet<DimWebLink>();
             FactContributions = new HashSet<FactContribution>();
+            FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
             FactFieldValues = new HashSet<FactFieldValue>();
             InverseDimFundingDecisionIdParentDecisionNavigation = new HashSet<DimFundingDecision>();
             DimFieldOfArts = new HashSet<DimFieldOfArt>();
@@ -71,6 +72,7 @@ namespace api.Models.Ttv
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
+        public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
         public virtual ICollection<DimFundingDecision> InverseDimFundingDecisionIdParentDecisionNavigation { get; set; }
 
