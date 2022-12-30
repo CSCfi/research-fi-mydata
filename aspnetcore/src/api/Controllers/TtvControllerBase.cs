@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using api.Models.Log;
 
 /*
  * TtvControllerBase implements utility methods which can be used by all controllers. 
@@ -37,6 +38,7 @@ public abstract class TtvControllerBase : ControllerBase
         return User.Claims.FirstOrDefault(x => x.Type == "orcid_access_token")?.Value;
     }
 
+    /*
     // Get prefix for log message
     // [Keycloak user ID][ORCID ID][ip address]
     [NonAction]
@@ -44,6 +46,7 @@ public abstract class TtvControllerBase : ControllerBase
     {
         return "[ORCID=" + this.GetOrcidId() +  "][IP=" + HttpContext.Connection.RemoteIpAddress?.ToString() + "][Keycloak ID=" + this.GetKeycloakUserId() + "]";
     }
+    */
 
     // Get ORCID public API flag from user claims.
     // This flag is used in testing phase only.
@@ -51,5 +54,16 @@ public abstract class TtvControllerBase : ControllerBase
     protected string GetOrcidPublicApiFlag()
     {
         return User.Claims.FirstOrDefault(x => x.Type == "use_orcid_public_api")?.Value;
+    }
+
+    // Get user identification object for structured logging.
+    [NonAction]
+    protected UserIdentification GetUserIdentification()
+    {
+        return new UserIdentification(
+            keycloakId: this.GetKeycloakUserId(),
+            orcid: this.GetOrcidId(),
+            ip: HttpContext.Connection.RemoteIpAddress?.ToString()
+        );
     }
 }

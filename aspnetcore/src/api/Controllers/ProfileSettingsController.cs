@@ -48,7 +48,7 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
-            _logger.LogInformation(this.GetLogPrefix() + " hide profile request. Delete from Elasticsearch index.");
+            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "hide profile request. Delete from Elasticsearch index");
 
             // Remove entry from Elasticsearch index in a background task.
             // ElasticsearchService is singleton, no need to create local scope.

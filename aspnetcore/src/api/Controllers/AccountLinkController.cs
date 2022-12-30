@@ -18,9 +18,9 @@ namespace api.Controllers
     {
         private readonly IKeycloakAdminApiService _keycloakAdminApiService;
         private readonly ITokenService _tokenService;
-        private readonly ILogger<OrcidController> _logger;
+        private readonly ILogger<AccountLinkController> _logger;
 
-        public AccountLinkController(IKeycloakAdminApiService keycloakAdminApiService, ITokenService tokenService, ILogger<OrcidController> logger)
+        public AccountLinkController(IKeycloakAdminApiService keycloakAdminApiService, ITokenService tokenService, ILogger<AccountLinkController> logger)
         {
             _keycloakAdminApiService = keycloakAdminApiService;
             _tokenService = tokenService;
@@ -35,7 +35,7 @@ namespace api.Controllers
         public async Task<IActionResult> Get()
         {
             // Log request.
-            _logger.LogInformation(this.GetLogPrefix() + " set ORCID ID attribute in Keycloak.");
+            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "set ORCID ID attribute in Keycloak");
 
             // Decode JWT.
             System.IdentityModel.Tokens.Jwt.JwtSecurityToken kcJwt = _tokenService.GetJwtFromString(this.GetBearerTokenFromHttpRequest());

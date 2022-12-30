@@ -52,6 +52,7 @@
     <Folder Include="Models\ProfileEditor\ManageFundingDecisions\" />
     <Folder Include="Models\ProfileEditor\ManageResearchDatasets\" />
     <Folder Include="Models\ProfileEditor\ManageSharing\" />
+    <Folder Include="Models\Log\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="NEST" />
@@ -78,5 +79,6 @@
     <None Remove="Models\ProfileEditor\ManageSharing\" />
     <None Remove="Serilog.Sinks.OpenSearch" />
     <None Remove="Serilog.Formatting.OpenSearch" />
+    <None Remove="Models\Log\" />
   </ItemGroup>
 </Project>

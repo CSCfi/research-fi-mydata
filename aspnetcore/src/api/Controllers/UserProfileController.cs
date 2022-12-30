@@ -7,6 +7,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Http;
+using Serilog;
 
 namespace api.Controllers
 {
@@ -71,12 +72,12 @@ namespace api.Controllers
             // Get ORCID id.
             string orcidId = GetOrcidId();
             // Log request
-            _logger.LogInformation(this.GetLogPrefix() + " create profile request");
+            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "create profile");
 
             // Return immediately, if profile already exist.
             if (await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                _logger.LogInformation(this.GetLogPrefix() + " profile already exists");
+                _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "create profile", "profile already exists");
                 return Ok(new ApiResponse(success: true));
             }
 
@@ -87,8 +88,8 @@ namespace api.Controllers
             }
             catch
             {
-                string msg = " create profile failed";
-                _logger.LogError(this.GetLogPrefix() + msg);
+                string msg = "create profile failed";
+                _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "create profile", msg);
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
 
@@ -98,19 +99,19 @@ namespace api.Controllers
                 try
                 {
                     await _orcidApiService.RegisterOrcidWebhook(orcidId: orcidId);
-                    _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook register OK");
+                    _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "ORCID webhook register OK");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(this.GetLogPrefix() + " ORCID webhook registration failed: " + ex);
+                    _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "ORCID webhook registration failed", ex);
                 }
             }
             else
             {
-                _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook feature disabled in configuration");
+                _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "ORCID webhook feature disabled in configuration");
             }
 
-            _logger.LogInformation(this.GetLogPrefix() + " create profile OK");
+            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "create profile OK");
             return Ok(new ApiResponse(success: true));
         }
 
@@ -125,12 +126,12 @@ namespace api.Controllers
             // Get ORCID id.
             string orcidId = GetOrcidId();
             // Log request.
-            _logger.LogInformation(this.GetLogPrefix() + " delete profile request");
+            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "delete profile request");
 
             // Return immediately, if profile does not exist.
             if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                _logger.LogInformation(this.GetLogPrefix() + " nothing deleted, profile does not exist");
+                _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "nothing deleted, profile does not exist");
                 return Ok(new ApiResponse(success: true));
             }
 
@@ -145,13 +146,13 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(this.GetLogPrefix() + ex.ToString());
+                _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "delete profile from database failed", ex);
             }
 
             if (deleteSuccess)
             {
                 // Log deletion
-                _logger.LogInformation(this.GetLogPrefix() + " delete profile from database OK");
+                _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "delete profile from database OK");
 
                 // Remove cached profile data response. Cache key is ORCID ID.
                 _cache.Remove(orcidId);
@@ -187,16 +188,16 @@ namespace api.Controllers
                     try
                     {
                         await _orcidApiService.UnregisterOrcidWebhook(orcidId: orcidId);
-                        _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook unregister OK");
+                        _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "ORCID webhook unregister OK");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(this.GetLogPrefix() + " ORCID webhook unregistration failed: " + ex);
+                        _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "ORCID webhook unregistration failed", ex);
                     }
                 }
                 else
                 {
-                    _logger.LogInformation(this.GetLogPrefix() + " ORCID webhook feature disabled in configuration");
+                    _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "ORCID webhook feature disabled in configuration");
                 }
 
                 return Ok(new ApiResponse(success: true));
@@ -204,8 +205,8 @@ namespace api.Controllers
             else
             {
                 // Log error
-                string msg = " delete profile from database failed";
-                _logger.LogError(this.GetLogPrefix() + msg);
+                string msg = "delete profile from database failed";
+                _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "delete profile from database", msg);
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
         }

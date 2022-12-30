@@ -35,7 +35,7 @@ namespace api.Controllers
         public async Task<IActionResult> Delete()
         {
             // Log request.
-            _logger.LogInformation(this.GetLogPrefix() + " delete user from Keycloak.");
+            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "delete user from Keycloak");
 
             // Keycloak: logout user
             await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest());
