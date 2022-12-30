@@ -14,7 +14,6 @@ namespace api.Models.Ttv
             FactContributions = new HashSet<FactContribution>();
             FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
             FactFieldValues = new HashSet<FactFieldValue>();
-            DimFieldOfSciences = new HashSet<DimFieldOfScience>();
             DimKeywords = new HashSet<DimKeyword>();
             DimReferencedata = new HashSet<DimReferencedatum>();
         }
@@ -57,7 +56,6 @@ namespace api.Models.Ttv
         public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
 
-        public virtual ICollection<DimFieldOfScience> DimFieldOfSciences { get; set; }
         public virtual ICollection<DimKeyword> DimKeywords { get; set; }
         public virtual ICollection<DimReferencedatum> DimReferencedata { get; set; }
     }
