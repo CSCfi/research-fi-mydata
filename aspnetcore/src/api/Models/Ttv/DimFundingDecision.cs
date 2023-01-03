@@ -17,7 +17,6 @@ namespace api.Models.Ttv
             FactFieldValues = new HashSet<FactFieldValue>();
             InverseDimFundingDecisionIdParentDecisionNavigation = new HashSet<DimFundingDecision>();
             DimFieldOfArts = new HashSet<DimFieldOfArt>();
-            DimFieldOfSciences = new HashSet<DimFieldOfScience>();
             DimFundingDecisionFroms = new HashSet<DimFundingDecision>();
             DimFundingDecisionFromsNavigation = new HashSet<DimFundingDecision>();
             DimFundingDecisionTos = new HashSet<DimFundingDecision>();
@@ -77,7 +76,6 @@ namespace api.Models.Ttv
         public virtual ICollection<DimFundingDecision> InverseDimFundingDecisionIdParentDecisionNavigation { get; set; }
 
         public virtual ICollection<DimFieldOfArt> DimFieldOfArts { get; set; }
-        public virtual ICollection<DimFieldOfScience> DimFieldOfSciences { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisionFroms { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisionFromsNavigation { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisionTos { get; set; }
