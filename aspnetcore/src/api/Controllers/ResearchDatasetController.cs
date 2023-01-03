@@ -1,5 +1,6 @@
 ﻿using api.Services;
 using api.Models.Api;
+using api.Models.Log;
 using api.Models.Ttv;
 using api.Models.ProfileEditor;
 using api.Models.ProfileEditor.Items;
@@ -177,12 +178,14 @@ namespace api.Controllers
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} started from ResearchDatasetController {DateTime.UtcNow}");
+                    _logger.LogInformation(
+                        "{@UserIdentification}, {@ApiInfo}",
+                        this.GetUserIdentification(),
+                        new ApiInfo(action: LogContent.Action.ELASTICSEARCH_UPDATE, message: "ResearchDatasetController"));
                     // Get Elasticsearch person entry from profile data.
                     Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
                     // Update Elasticsearch person index.
                     await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from ResearchDatasetController completed {DateTime.UtcNow}");
                 });
             }
 
@@ -254,12 +257,14 @@ namespace api.Controllers
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} started from ResearchDatasetController {DateTime.UtcNow}");
+                    _logger.LogInformation(
+                        "{@UserIdentification}, {@ApiInfo}",
+                        this.GetUserIdentification(),
+                        new ApiInfo(action: LogContent.Action.ELASTICSEARCH_UPDATE, message: "ResearchDatasetController"));
                     // Get Elasticsearch person entry from profile data.
                     Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
                     // Update Elasticsearch person index.
                     await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from ResearchDatasetController completed {DateTime.UtcNow}");
                 });
             }
 

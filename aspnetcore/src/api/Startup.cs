@@ -303,7 +303,7 @@ namespace api
                 app.UseCors("production");
             }
 
-            app.UseSerilogRequestLogging();
+            //app.UseSerilogRequestLogging();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();

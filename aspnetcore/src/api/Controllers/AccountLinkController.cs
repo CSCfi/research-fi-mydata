@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -34,8 +35,10 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
-            // Log request.
-            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "set ORCID ID attribute in Keycloak");
+            _logger.LogInformation(
+                "{@UserIdentification}, {@ApiInfo}",
+                this.GetUserIdentification(),
+                new ApiInfo(action: LogContent.Action.KEYCLOAK_SET_ORCID_ATTRIBUTE));
 
             // Decode JWT.
             System.IdentityModel.Tokens.Jwt.JwtSecurityToken kcJwt = _tokenService.GetJwtFromString(this.GetBearerTokenFromHttpRequest());

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -138,12 +139,14 @@ namespace api.Controllers
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from ProfileDataController started {DateTime.UtcNow}");
+                    _logger.LogInformation(
+                        "{@UserIdentification}, {@ApiInfo}",
+                        this.GetUserIdentification(),
+                        new ApiInfo(action: LogContent.Action.ELASTICSEARCH_UPDATE, message: "ProfileDataController"));
                     // Get Elasticsearch person entry from profile data.
                     Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
                     // Update Elasticsearch person index.
                     await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from ProfileDataController completed {DateTime.UtcNow}");
                 });
             }
 

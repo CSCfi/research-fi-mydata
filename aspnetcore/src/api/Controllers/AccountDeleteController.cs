@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -35,7 +36,10 @@ namespace api.Controllers
         public async Task<IActionResult> Delete()
         {
             // Log request.
-            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "delete user from Keycloak");
+            _logger.LogInformation(
+                "{@UserIdentification}, {@ApiInfo}",
+                this.GetUserIdentification(),
+                new ApiInfo(action: LogContent.Action.KEYCLOAK_DELETE_USER));
 
             // Keycloak: logout user
             await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest());

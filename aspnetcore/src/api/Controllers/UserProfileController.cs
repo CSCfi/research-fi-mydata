@@ -1,5 +1,6 @@
 ﻿using api.Services;
 using api.Models.Api;
+using api.Models.Log;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -72,12 +73,19 @@ namespace api.Controllers
             // Get ORCID id.
             string orcidId = GetOrcidId();
             // Log request
-            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "create profile");
+            _logger.LogInformation(
+                "{@UserIdentification}, {@ApiInfo}",
+                this.GetUserIdentification(),
+                new ApiInfo(action: LogContent.Action.PROFILE_CREATE, message: "start"));
 
             // Return immediately, if profile already exist.
+            // Log error, but pass silently in user profile API.
             if (await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "create profile", "profile already exists");
+                _logger.LogError(
+                    "{@UserIdentification}, {@ApiInfo}",
+                    this.GetUserIdentification(),
+                    new ApiInfo(action: LogContent.Action.PROFILE_CREATE, success: false, message: "already exists"));
                 return Ok(new ApiResponse(success: true));
             }
 
@@ -88,9 +96,11 @@ namespace api.Controllers
             }
             catch
             {
-                string msg = "create profile failed";
-                _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "create profile", msg);
-                return Ok(new ApiResponse(success: false, reason: msg));
+                _logger.LogError(
+                    "{@UserIdentification}, {@ApiInfo}",
+                    this.GetUserIdentification(),
+                    new ApiInfo(action: LogContent.Action.PROFILE_CREATE, success: false, message: "failed"));
+                return Ok(new ApiResponse(success: false, reason: "create profile failed"));
             }
 
             // Register ORCID webhook. Continue profile creation in case of error.
@@ -99,19 +109,31 @@ namespace api.Controllers
                 try
                 {
                     await _orcidApiService.RegisterOrcidWebhook(orcidId: orcidId);
-                    _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "ORCID webhook register OK");
+                    _logger.LogInformation(
+                        "{@UserIdentification}, {@ApiInfo}",
+                        this.GetUserIdentification(),
+                        new ApiInfo(action: LogContent.Action.ORCID_WEBHOOK_REGISTER, success: true));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "ORCID webhook registration failed", ex);
+                    _logger.LogError(
+                        "{@UserIdentification}, {@ApiInfo}",
+                        this.GetUserIdentification(),
+                        new ApiInfo(action: LogContent.Action.ORCID_WEBHOOK_REGISTER, success: false, message: ex.ToString()));
                 }
             }
             else
             {
-                _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "ORCID webhook feature disabled in configuration");
+                _logger.LogInformation(
+                    "{@UserIdentification}, {@ApiInfo}",
+                    this.GetUserIdentification(),
+                    new ApiInfo(action: LogContent.Action.ORCID_WEBHOOK_REGISTER, message: "disabled in configuration"));
             }
 
-            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "create profile OK");
+            _logger.LogInformation(
+                "{@UserIdentification}, {@ApiInfo}",
+                this.GetUserIdentification(),
+                new ApiInfo(action: LogContent.Action.PROFILE_CREATE, success: true));
             return Ok(new ApiResponse(success: true));
         }
 
@@ -126,12 +148,18 @@ namespace api.Controllers
             // Get ORCID id.
             string orcidId = GetOrcidId();
             // Log request.
-            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "delete profile request");
+            _logger.LogInformation(
+                "{@UserIdentification}, {@ApiInfo}",
+                this.GetUserIdentification(),
+                new ApiInfo(action: LogContent.Action.PROFILE_DELETE, message: "start processing"));
 
             // Return immediately, if profile does not exist.
             if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "nothing deleted, profile does not exist");
+                _logger.LogInformation(
+                    "{@UserIdentification}, {@ApiInfo}",
+                    this.GetUserIdentification(),
+                    new ApiInfo(action: LogContent.Action.PROFILE_DELETE, message: "nothing deleted, profile does not exist"));
                 return Ok(new ApiResponse(success: true));
             }
 
@@ -146,13 +174,19 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "delete profile from database failed", ex);
+                _logger.LogError(
+                    "{@UserIdentification}, {@ApiInfo}",
+                    this.GetUserIdentification(),
+                    new ApiInfo(action: LogContent.Action.PROFILE_DELETE, success: false, message: ex.ToString()));
             }
 
             if (deleteSuccess)
             {
                 // Log deletion
-                _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "delete profile from database OK");
+                _logger.LogInformation(
+                    "{@UserIdentification}, {@ApiInfo}",
+                    this.GetUserIdentification(),
+                    new ApiInfo(action: LogContent.Action.PROFILE_DELETE, success: true));
 
                 // Remove cached profile data response. Cache key is ORCID ID.
                 _cache.Remove(orcidId);
@@ -167,11 +201,17 @@ namespace api.Controllers
                         bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
                         if (deleteSuccess)
                         {
-                            _logger.LogInformation($"Elasticsearch: {orcidId} delete OK.");
+                            _logger.LogInformation(
+                                "{@UserIdentification}, {@ApiInfo}",
+                                this.GetUserIdentification(),
+                                new ApiInfo(action: LogContent.Action.ELASTICSEARCH_DELETE, success: true));
                         }
                         else
                         {
-                            _logger.LogError($"Elasticsearch: {orcidId} delete failed.");
+                            _logger.LogError(
+                                "{@UserIdentification}, {@ApiInfo}",
+                                this.GetUserIdentification(),
+                                new ApiInfo(action: LogContent.Action.ELASTICSEARCH_DELETE, success: false));
                         }
                     });
                 }
@@ -188,16 +228,25 @@ namespace api.Controllers
                     try
                     {
                         await _orcidApiService.UnregisterOrcidWebhook(orcidId: orcidId);
-                        _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "ORCID webhook unregister OK");
+                        _logger.LogInformation(
+                            "{@UserIdentification}, {@ApiInfo}",
+                            this.GetUserIdentification(),
+                            new ApiInfo(action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER, success: true));
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "ORCID webhook unregistration failed", ex);
+                        _logger.LogError(
+                            "{@UserIdentification}, {@ApiInfo}",
+                            this.GetUserIdentification(),
+                            new ApiInfo(action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER, success: false, message: ex.ToString()));    
                     }
                 }
                 else
                 {
-                    _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "ORCID webhook feature disabled in configuration");
+                    _logger.LogInformation(
+                        "{@UserIdentification}, {@ApiInfo}",
+                        this.GetUserIdentification(),
+                        new ApiInfo(action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER, success: false, message: "disabled in configuration"));
                 }
 
                 return Ok(new ApiResponse(success: true));
@@ -205,8 +254,12 @@ namespace api.Controllers
             else
             {
                 // Log error
-                string msg = "delete profile from database failed";
-                _logger.LogError("{@UserIdentification}, {Action}, {Error}", this.GetUserIdentification(), "delete profile from database", msg);
+                string msg = "database delete failed";
+                _logger.LogError(
+                    "{@UserIdentification}, {@ApiInfo}",
+                    this.GetUserIdentification(),
+                    new ApiInfo(action: LogContent.Action.PROFILE_DELETE, success: false, message: "database delete failed"));
+
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
         }

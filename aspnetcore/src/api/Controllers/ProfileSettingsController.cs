@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using api.Models.ProfileEditor;
 using System;
 using Microsoft.Extensions.Logging;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -48,7 +49,10 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
-            _logger.LogInformation("{@UserIdentification}, {Action}", this.GetUserIdentification(), "hide profile request. Delete from Elasticsearch index");
+            _logger.LogInformation(
+                        "{@UserIdentification}, {@ApiInfo}",
+                        this.GetUserIdentification(),
+                        new ApiInfo(action: LogContent.Action.ELASTICSEARCH_DELETE, message: "ProfileSettingsController: hide profile"));
 
             // Remove entry from Elasticsearch index in a background task.
             // ElasticsearchService is singleton, no need to create local scope.
@@ -58,13 +62,12 @@ namespace api.Controllers
                 {
                     // Update Elasticsearch person index.
                     bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
-                    if (deleteSuccess)
+                    if (!deleteSuccess)
                     {
-                        _logger.LogInformation($"Elasticsearch: {orcidId} delete OK.");
-                    }
-                    else
-                    {
-                        _logger.LogError($"Elasticsearch: {orcidId} delete failed.");
+                        _logger.LogError(
+                            "{@UserIdentification}, {@ApiInfo}",
+                            this.GetUserIdentification(),
+                            new ApiInfo(action: LogContent.Action.ELASTICSEARCH_DELETE, success: false));
                     }
                 });
             }
