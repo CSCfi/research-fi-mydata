@@ -35,18 +35,25 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Delete()
         {
-            // Log request.
             _logger.LogInformation(
-                "{@UserIdentification}, {@ApiInfo}",
-                this.GetUserIdentification(),
-                new ApiInfo(action: LogContent.Action.KEYCLOAK_DELETE_USER));
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.KEYCLOAK_ACCOUNT_DELETE,
+                    state: LogContent.ActionState.START));
 
             // Keycloak: logout user
-            await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest());
+            await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest(), this.GetLogUserIdentification());
 
             // Keycloak: remove user
-            await _keycloakAdminApiService.RemoveUser(this.GetBearerTokenFromHttpRequest());
+            await _keycloakAdminApiService.RemoveUser(this.GetBearerTokenFromHttpRequest(), this.GetLogUserIdentification());
 
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.KEYCLOAK_ACCOUNT_DELETE,
+                    state: LogContent.ActionState.COMPLETE));
             return Ok(new ApiResponse(success: true));
         }
     }

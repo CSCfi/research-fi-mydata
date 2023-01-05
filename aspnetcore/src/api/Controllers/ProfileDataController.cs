@@ -78,7 +78,7 @@ namespace api.Controllers
             }
 
             // Get profile data
-            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId: userprofileId, logUserIdentification: this.GetLogUserIdentification());
 
             // Save response in cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -132,21 +132,38 @@ namespace api.Controllers
                 await _userProfileService.ExecuteRawSql(updateSql);
                 profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
             }
-
+            
             // Update Elasticsearch index in a background task.
             // ElasticsearchService is singleton, no need to create local scope.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
+                LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
                     _logger.LogInformation(
-                        "{@UserIdentification}, {@ApiInfo}",
-                        this.GetUserIdentification(),
-                        new ApiInfo(action: LogContent.Action.ELASTICSEARCH_UPDATE, message: "ProfileDataController"));
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.START));
+
                     // Get Elasticsearch person entry from profile data.
-                    Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                    Models.Elasticsearch.ElasticsearchPerson person =
+                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
+                            orcidId: orcidId,
+                            userprofileId: userprofileId,
+                            logUserIdentification: logUserIdentification);
+
                     // Update Elasticsearch person index.
-                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
+                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification);
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.COMPLETE));
                 });
             }
 

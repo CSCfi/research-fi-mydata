@@ -8,6 +8,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using api.Models.Ttv;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -67,19 +68,30 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            string logPrefix = $"AdminController: register ORCID webhook for {webhookOrcidId}: ";
-
             // Check that ORCID webhook feature is enabled
             if (!_orcidApiService.IsOrcidWebhookEnabled())
             {
-                _logger.LogError($"{logPrefix}failed: ORCID webhook feature disabled in configuration");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: "disabled in configuration"));
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
             // Register webhook in a background task
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
             {
-                _logger.LogInformation($"{logPrefix}background task started {DateTime.UtcNow}");
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER,
+                        state: LogContent.ActionState.START,
+                        message: $"(ORCID={webhookOrcidId})"));
 
                 // Create service scope and get required services.
                 // Do not use services from controller scope in a background task.
@@ -87,7 +99,14 @@ namespace api.Controllers
                 IAdminService localAdminService = scope.ServiceProvider.GetRequiredService<IAdminService>();
                 await localAdminService.RegisterOrcidWebhookForSingleUserprofile(webhookOrcidId);
 
-                _logger.LogInformation($"{logPrefix}background task ended {DateTime.UtcNow}");
+                
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER,
+                        state: LogContent.ActionState.COMPLETE,
+                        message: $"(ORCID={webhookOrcidId})"));
             });
 
             return Ok();
@@ -112,19 +131,30 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            string logPrefix = $"AdminController: unregister ORCID webhook for {webhookOrcidId}: ";
-
             // Check that ORCID webhook feature is enabled
             if (!_orcidApiService.IsOrcidWebhookEnabled())
             {
-                _logger.LogError($"{logPrefix}failed: ORCID webhook feature disabled in configuration");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: "disabled in configuration"));
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
             // Register webhook in a background task
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
             {
-                _logger.LogInformation($"{logPrefix}background task started {DateTime.UtcNow}");
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER,
+                        state: LogContent.ActionState.START,
+                        message: $"ORCID={webhookOrcidId}"));
 
                 // Create service scope and get required services.
                 // Do not use services from controller scope in a background task.
@@ -132,7 +162,13 @@ namespace api.Controllers
                 IAdminService localAdminService = scope.ServiceProvider.GetRequiredService<IAdminService>();
                 await localAdminService.UnregisterOrcidWebhookForSingleUserprofile(webhookOrcidId);
 
-                _logger.LogInformation($"{logPrefix}background task ended {DateTime.UtcNow}");
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER,
+                        state: LogContent.ActionState.COMPLETE,
+                        message: $"ORCID={webhookOrcidId}"));
             });
 
             return Ok();
@@ -151,19 +187,29 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            string logPrefix = "AdminController: register ORCID webhook for all user profiles: ";
-
             // Check that ORCID webhook feature is enabled
             if (!_orcidApiService.IsOrcidWebhookEnabled())
             {
-                _logger.LogError($"{logPrefix}failed: ORCID webhook feature disabled in configuration");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER_ALL,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: "disabled in configuration"));
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
             // Register webhooks in a background task
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
             {
-                _logger.LogInformation($"{logPrefix}background task started {DateTime.UtcNow}");
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER_ALL,
+                        state: LogContent.ActionState.START));
 
                 // Create service scope and get required services.
                 // Do not use services from controller scope in a background task.
@@ -171,7 +217,12 @@ namespace api.Controllers
                 IAdminService localAdminService = scope.ServiceProvider.GetRequiredService<IAdminService>();
                 await localAdminService.RegisterOrcidWebhookForAllUserprofiles();
 
-                _logger.LogInformation($"{logPrefix}background task ended {DateTime.UtcNow}");
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER_ALL,
+                        state: LogContent.ActionState.COMPLETE));
             });
  
             return Ok();
@@ -190,19 +241,29 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            string logPrefix = "AdminController: unregister ORCID webhook for all user profiles: ";
-
             // Check that ORCID webhook feature is enabled
             if (!_orcidApiService.IsOrcidWebhookEnabled())
             {
-                _logger.LogError($"{logPrefix}failed: ORCID webhook feature disabled in configuration");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER_ALL,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: "disabled in configuration"));
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
             // Unregister webhooks in a background task
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
             {
-                _logger.LogInformation($"{logPrefix}background task started {DateTime.UtcNow}");
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER_ALL,
+                        state: LogContent.ActionState.START));
 
                 // Create service scope and get required services.
                 // Do not use services from controller scope in a background task.
@@ -210,7 +271,12 @@ namespace api.Controllers
                 IAdminService localAdminService = scope.ServiceProvider.GetRequiredService<IAdminService>();
                 await localAdminService.UnregisterOrcidWebhookForAllUserprofiles();
 
-                _logger.LogInformation($"{logPrefix}background task ended {DateTime.UtcNow}");
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER_ALL,
+                        state: LogContent.ActionState.COMPLETE));
             });
 
             return Ok();
@@ -235,16 +301,22 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            string logPrefix = $"AdminController: update Elasticsearch index (dim_user_profile.id={dimUserProfileId}):";
-
             // Get DimUserProfile
             DimUserProfile dimUserProfile = await _userProfileService.GetUserprofileById(dimUserProfileId);
             // Check that user profile exists
             if (dimUserProfile == null)
             {
-                _logger.LogError($"{logPrefix}user profile not found");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: $"profile not found (dim_user_profile.id={dimUserProfileId})"));
                 return NotFound();
             }
+
 
             // Store ORCID ID for background process
             string orcidId = dimUserProfile.OrcidId;
@@ -261,12 +333,28 @@ namespace api.Controllers
                 {
                     await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                     {
-                        _logger.LogInformation($"Elasticsearch index update for {orcidId} started from AdminController {DateTime.UtcNow}");
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            this.GetLogUserIdentification(),
+                            new LogApiInfo(
+                                action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
+                                state: LogContent.ActionState.START));
+
                         // Get Elasticsearch person entry from profile data.
-                        Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, dimUserProfileId);
+                        Models.Elasticsearch.ElasticsearchPerson person =
+                            await _backgroundProfiledata.GetProfiledataForElasticsearch(
+                                orcidId: orcidId,
+                                userprofileId: dimUserProfileId,
+                                logUserIdentification: this.GetLogUserIdentification());
                         // Update Elasticsearch person index.
-                        await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
-                        _logger.LogInformation($"Elasticsearch index update for {orcidId} from AdminController completed {DateTime.UtcNow}");
+                        await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, this.GetLogUserIdentification());
+
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            this.GetLogUserIdentification(),
+                            new LogApiInfo(
+                                action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
+                                state: LogContent.ActionState.COMPLETE));
                     });
                 }
             }
@@ -279,16 +367,33 @@ namespace api.Controllers
                 {
                     await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                     {
-                        _logger.LogInformation($"Elasticsearch delete for {orcidId} started from AdminController {DateTime.UtcNow}");
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            this.GetLogUserIdentification(),
+                            new LogApiInfo(
+                                action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
+                                state: LogContent.ActionState.START));
+
                         // Update Elasticsearch person index.
-                        bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+                        bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, this.GetLogUserIdentification());
                         if (deleteSuccess)
                         {
-                            _logger.LogInformation($"Elasticsearch delete for {orcidId} from AdminController completed {DateTime.UtcNow}");
+                            _logger.LogInformation(
+                                LogContent.MESSAGE_TEMPLATE,
+                                this.GetLogUserIdentification(),
+                                new LogApiInfo(
+                                    action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
+                                    state: LogContent.ActionState.COMPLETE));
                         }
                         else
                         {
-                            _logger.LogError($"Elasticsearch delete for {orcidId} from AdminController failed {DateTime.UtcNow}");
+                            _logger.LogError(
+                                LogContent.MESSAGE_TEMPLATE,
+                                this.GetLogUserIdentification(),
+                                new LogApiInfo(
+                                    action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
+                                    state: LogContent.ActionState.FAILED,
+                                    error: true));
                         }
                     });
                 }

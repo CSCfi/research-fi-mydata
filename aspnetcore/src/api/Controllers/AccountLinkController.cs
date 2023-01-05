@@ -36,9 +36,11 @@ namespace api.Controllers
         public async Task<IActionResult> Get()
         {
             _logger.LogInformation(
-                "{@UserIdentification}, {@ApiInfo}",
-                this.GetUserIdentification(),
-                new ApiInfo(action: LogContent.Action.KEYCLOAK_SET_ORCID_ATTRIBUTE));
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.KEYCLOAK_LINK_ORCID,
+                    state: LogContent.ActionState.START));
 
             // Decode JWT.
             System.IdentityModel.Tokens.Jwt.JwtSecurityToken kcJwt = _tokenService.GetJwtFromString(this.GetBearerTokenFromHttpRequest());
@@ -47,8 +49,16 @@ namespace api.Controllers
             {
                 return Ok(new ApiResponse(success: true));
             }
+
             // Set ORCID ID as a user attribute in Keycloak.
-            bool setOrcidAttributeSuccess = await _keycloakAdminApiService.SetOrcidAttributedInKeycloak(kcJwt);
+            bool setOrcidAttributeSuccess = await _keycloakAdminApiService.SetOrcidAttributedInKeycloak(kcJwt, this.GetLogUserIdentification());
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.KEYCLOAK_LINK_ORCID,
+                    state: LogContent.ActionState.COMPLETE));
             return Ok(new ApiResponse(success: setOrcidAttributeSuccess));
         }
     }

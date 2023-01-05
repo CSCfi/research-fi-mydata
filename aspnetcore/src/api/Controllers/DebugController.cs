@@ -1,6 +1,7 @@
 ﻿using api.Services;
 using api.Models.Api;
 using api.Models.Common;
+using api.Models.Log;
 using api.Models.Ttv;
 using api.Models.ProfileEditor.Items;
 using Microsoft.AspNetCore.Mvc;
@@ -126,8 +127,11 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+
             // Get profile data
-            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
@@ -172,10 +176,13 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "DEBUG Either ORCID ID does not exist in dim_pid, or it is not linked to any dim_known_person."));
             }
 
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+
             // Create profile
             try
             {
-                await _userProfileService.CreateProfile(orcidId: orcidId);
+                await _userProfileService.CreateProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
             }
             catch
             {
@@ -225,6 +232,9 @@ namespace api.Controllers
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
 
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+
             // Remove entry from Elasticsearch index in a background task.
             // ElasticsearchService is singleton, no need to create local scope.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
@@ -233,7 +243,7 @@ namespace api.Controllers
                 {
                     _logger.LogInformation($"Elasticsearch removal of {orcidId} started {DateTime.UtcNow}");
                     // Update Elasticsearch person index.
-                    await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+                    await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
                     _logger.LogInformation($"Elasticsearch removal of {orcidId} completed {DateTime.UtcNow}");
                 });
             }
@@ -241,7 +251,7 @@ namespace api.Controllers
             // Delete profile data from database
             try
             {
-                await _userProfileService.DeleteProfileDataAsync(userprofileId: userprofileId);
+                await _userProfileService.DeleteProfileDataAsync(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
             }
             catch
             {

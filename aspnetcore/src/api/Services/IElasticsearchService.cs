@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using api.Models.Elasticsearch;
+using api.Models.Log;
 using Microsoft.Extensions.Configuration;
 
 namespace api.Services
@@ -8,8 +9,8 @@ namespace api.Services
     {
         IConfiguration Configuration { get; }
 
-        Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId);
+        Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId, LogUserIdentification logUserIdentification);
         bool IsElasticsearchSyncEnabled();
-        Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person);
+        Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person, LogUserIdentification logUserIdentification);
     }
 }

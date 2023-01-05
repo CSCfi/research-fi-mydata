@@ -49,10 +49,14 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
             _logger.LogInformation(
-                        "{@UserIdentification}, {@ApiInfo}",
-                        this.GetUserIdentification(),
-                        new ApiInfo(action: LogContent.Action.ELASTICSEARCH_DELETE, message: "ProfileSettingsController: hide profile"));
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_DELETE,
+                            state: LogContent.ActionState.START));
 
             // Remove entry from Elasticsearch index in a background task.
             // ElasticsearchService is singleton, no need to create local scope.
@@ -61,13 +65,24 @@ namespace api.Controllers
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
                     // Update Elasticsearch person index.
-                    bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+                    bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
                     if (!deleteSuccess)
                     {
                         _logger.LogError(
-                            "{@UserIdentification}, {@ApiInfo}",
-                            this.GetUserIdentification(),
-                            new ApiInfo(action: LogContent.Action.ELASTICSEARCH_DELETE, success: false));
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ELASTICSEARCH_DELETE,
+                                state: LogContent.ActionState.FAILED,
+                                error: true));
+                    } else
+                    {
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ELASTICSEARCH_DELETE,
+                                state: LogContent.ActionState.COMPLETE));
                     }
                 });
             }

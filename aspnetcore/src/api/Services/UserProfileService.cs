@@ -8,6 +8,7 @@ using api.Models.ProfileEditor.Items;
 using Microsoft.EntityFrameworkCore;
 using api.Models.Common;
 using api.Models.Orcid;
+using api.Models.Log;
 using Dapper;
 using System.Transactions;
 using api.Controllers;
@@ -15,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using api.Models.Elasticsearch;
 using Elasticsearch.Net;
 using api.Models.Api;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Serilog;
 
 namespace api.Services
 {
@@ -391,7 +392,7 @@ namespace api.Services
          * Search and add data from TTV database.
          * This is data that is already linked to the ORCID id in DimPid and it's related DimKnownPerson.
          */
-        public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
+        public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile, LogUserIdentification logUserIdentification)
         {
             using (var connection = _ttvContext.Database.GetDbConnection())
             {
@@ -414,7 +415,14 @@ namespace api.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Add TTV data failed: email: " + ex);
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: $"email: {ex.ToString()}"));
                 }
 
                 // web link
@@ -436,7 +444,14 @@ namespace api.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Add TTV data failed: web link: " + ex);
+                    _logger.LogError(
+                      LogContent.MESSAGE_TEMPLATE,
+                      logUserIdentification,
+                      new LogApiInfo(
+                          action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                          state: LogContent.ActionState.FAILED,
+                          error: true,
+                          message: $"web link: {ex.ToString()}"));
                 }
 
                 // telephone number
@@ -458,7 +473,14 @@ namespace api.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Add TTV data failed: telephone number: " + ex);
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: $"telephone number: {ex.ToString()}"));
                 }
 
                 // researcher description
@@ -480,7 +502,14 @@ namespace api.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Add TTV data failed: researcher description: " + ex);
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: $"researcher description: {ex.ToString()}"));
                 }
 
                 // affiliation
@@ -502,7 +531,14 @@ namespace api.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Add TTV data failed: affiliation: " + ex);
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: $"affiliation: {ex.ToString()}"));
                 }
 
                 // education
@@ -524,7 +560,14 @@ namespace api.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Add TTV data failed: education: " + ex);
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: $"education: {ex.ToString()}"));
                 }
 
 
@@ -625,7 +668,14 @@ namespace api.Services
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("Add TTV data failed: fact_contribution: " + ex);
+                        _logger.LogError(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                                state: LogContent.ActionState.FAILED,
+                                error: true,
+                                message: $"fact_contribution: {ex.ToString()}"));
                     }
 
                     // Funding decisions via br_participates_in_funding_group
@@ -646,7 +696,14 @@ namespace api.Services
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("Add TTV data failed: br_participates_in_funding_group: " + ex);
+                        _logger.LogError(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                                state: LogContent.ActionState.FAILED,
+                                error: true,
+                                message: $"br_participates_in_funding_group: {ex.ToString()}"));
                     }
                 }
 
@@ -667,7 +724,7 @@ namespace api.Services
          *   - FactFieldValues
          *   - BrGrantedPermissions
          */
-        public async Task CreateProfile(string orcidId)
+        public async Task CreateProfile(string orcidId, LogUserIdentification logUserIdentification)
         {
             // Get DimPid by ORCID ID.
             DimPid dimPid = await _ttvContext.DimPids
@@ -760,7 +817,10 @@ namespace api.Services
             // FactFieldValues - Search TTV database and add related entries into user profile.
             //AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
 
-            await AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
+            await AddTtvDataToUserProfile(
+                dimKnownPerson: dimPid.DimKnownPerson,
+                dimUserProfile: dimUserProfile,
+                logUserIdentification: logUserIdentification);
 
             // Save FactFieldValues changes.
             await _ttvContext.SaveChangesAsync();
@@ -772,7 +832,7 @@ namespace api.Services
          *  Get profile data. New version using data structure,
          *  where each item contains a list of data sources.
          */
-        public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, bool forElasticsearch = false)
+        public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
         {
             // Response data
             ProfileEditorDataResponse profileDataResponse = new() { };
@@ -1403,10 +1463,8 @@ namespace api.Services
          * - delete DimUserChoices (co-operation selection) 
          * - delete DimUserProfile  
          */
-        public async Task<bool> DeleteProfileDataAsync(int userprofileId)
+        public async Task<bool> DeleteProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification)
         {
-            _logger.LogInformation($"Deleting user profile (dim_user_profile.id={userprofileId})");
-
             using (var connection = _ttvContext.Database.GetDbConnection())
             {
                 // Get list of FactFieldValues using Entity Framework, which ensures that model FactFieldValue populates correctly.

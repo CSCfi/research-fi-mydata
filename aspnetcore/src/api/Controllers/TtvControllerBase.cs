@@ -58,9 +58,9 @@ public abstract class TtvControllerBase : ControllerBase
 
     // Get user identification object for structured logging.
     [NonAction]
-    protected UserIdentification GetUserIdentification()
+    protected LogUserIdentification GetLogUserIdentification()
     {
-        return new UserIdentification(
+        return new LogUserIdentification(
             keycloakId: this.GetKeycloakUserId(),
             orcid: this.GetOrcidId(),
             ip: HttpContext.Connection.RemoteIpAddress?.ToString()
