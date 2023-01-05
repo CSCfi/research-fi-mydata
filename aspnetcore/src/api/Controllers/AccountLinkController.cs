@@ -47,6 +47,12 @@ namespace api.Controllers
             // Return immediately if JWT already contains ORCID ID.
             if (TokenService.JwtContainsOrcid(kcJwt))
             {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.KEYCLOAK_LINK_ORCID,
+                        state: LogContent.ActionState.COMPLETE));
                 return Ok(new ApiResponse(success: true));
             }
 
