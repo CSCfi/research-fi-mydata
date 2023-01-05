@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /app
 # Copy csproj and restore as distinct layers
-COPY custom_nuget ./custom_nuget
+COPY custom_nuget/ ./
 COPY aspnetcore/nuget.config ./aspnetcore/nuget.config
 COPY aspnetcore/src/api/api.csproj ./
 RUN dotnet restore
