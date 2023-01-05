@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using api.Models.Elasticsearch;
+using api.Models.Log;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -71,7 +72,7 @@ namespace api.Services
 
         // Update entry in Elasticsearch person index
         // TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
-        public async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person)
+        public async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person, LogUserIdentification logUserIdentification)
         {
             if (!IsElasticsearchSyncEnabled())
             {
@@ -96,13 +97,21 @@ namespace api.Services
                 {
                     errormessage = asyncIndexResponse.ServerError.Error.Reason;
                 }
-                _logger.LogError("ElasticsearchService: ERROR updating: " + orcidId + ": " + errormessage);
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: errormessage));
+
                 return false;
             }
         }
 
         // Delete entry from Elasticsearch person index
-        public async Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId)
+        public async Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId, LogUserIdentification logUserIdentification)
         {
             if (!IsElasticsearchSyncEnabled())
             {
@@ -127,7 +136,16 @@ namespace api.Services
                 {
                     errormessage = asyncDeleteResponse.ServerError.Error.Reason;
                 }
-                _logger.LogError("ElasticsearchService: ERROR deleting: " + orcidId + ": " + errormessage);
+
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ELASTICSEARCH_DELETE,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: errormessage));
+
                 return false;
             }
         }

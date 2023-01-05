@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using api.Models.Log;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
 /*
@@ -11,5 +12,16 @@ public abstract class TtvAdminControllerBase : ControllerBase
     protected bool IsAdminTokenAuthorized(IConfiguration configuration)
     {
         return !string.IsNullOrWhiteSpace(configuration["ADMINTOKEN"]) && Request.Headers["admintoken"] == configuration["ADMINTOKEN"];
+    }
+
+    // Get user identification object for structured logging.
+    [NonAction]
+    protected LogUserIdentification GetLogUserIdentification()
+    {
+        return new LogUserIdentification(
+            keycloakId: "",
+            orcid: "",
+            ip: HttpContext.Connection.RemoteIpAddress?.ToString()
+        );
     }
 }

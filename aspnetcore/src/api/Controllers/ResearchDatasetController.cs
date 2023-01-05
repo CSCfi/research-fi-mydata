@@ -1,5 +1,6 @@
 ﻿using api.Services;
 using api.Models.Api;
+using api.Models.Log;
 using api.Models.Ttv;
 using api.Models.ProfileEditor;
 using api.Models.ProfileEditor.Items;
@@ -175,14 +176,33 @@ namespace api.Controllers
             // ElasticsearchService is singleton, no need to create local scope.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
+                LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} started from ResearchDatasetController {DateTime.UtcNow}");
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.START));
+
                     // Get Elasticsearch person entry from profile data.
-                    Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                    Models.Elasticsearch.ElasticsearchPerson person =
+                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
+                            orcidId: orcidId,
+                            userprofileId: userprofileId,
+                            logUserIdentification: logUserIdentification);
+
                     // Update Elasticsearch person index.
-                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from ResearchDatasetController completed {DateTime.UtcNow}");
+                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification);
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.COMPLETE));
                 });
             }
 
@@ -252,14 +272,33 @@ namespace api.Controllers
             // ElasticsearchService is singleton, no need to create local scope.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
+                LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} started from ResearchDatasetController {DateTime.UtcNow}");
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.START));
+
                     // Get Elasticsearch person entry from profile data.
-                    Models.Elasticsearch.ElasticsearchPerson person = await _backgroundProfiledata.GetProfiledataForElasticsearch(orcidId, userprofileId);
+                    Models.Elasticsearch.ElasticsearchPerson person =
+                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
+                            orcidId: orcidId,
+                            userprofileId: userprofileId,
+                            logUserIdentification: logUserIdentification);
+
                     // Update Elasticsearch person index.
-                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person);
-                    _logger.LogInformation($"Elasticsearch index update for {orcidId} from ResearchDatasetController completed {DateTime.UtcNow}");
+                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification);
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.COMPLETE));
                 });
             }
 

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using api.Models.ProfileEditor;
 using System;
 using Microsoft.Extensions.Logging;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -48,7 +49,14 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
-            _logger.LogInformation(this.GetLogPrefix() + " hide profile request. Delete from Elasticsearch index.");
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
+            _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_DELETE,
+                            state: LogContent.ActionState.START));
 
             // Remove entry from Elasticsearch index in a background task.
             // ElasticsearchService is singleton, no need to create local scope.
@@ -57,14 +65,24 @@ namespace api.Controllers
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
                     // Update Elasticsearch person index.
-                    bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
-                    if (deleteSuccess)
+                    bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
+                    if (!deleteSuccess)
                     {
-                        _logger.LogInformation($"Elasticsearch: {orcidId} delete OK.");
-                    }
-                    else
+                        _logger.LogError(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ELASTICSEARCH_DELETE,
+                                state: LogContent.ActionState.FAILED,
+                                error: true));
+                    } else
                     {
-                        _logger.LogError($"Elasticsearch: {orcidId} delete failed.");
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ELASTICSEARCH_DELETE,
+                                state: LogContent.ActionState.COMPLETE));
                     }
                 });
             }
