@@ -52,7 +52,7 @@
     <Folder Include="Models\ProfileEditor\ManageFundingDecisions\" />
     <Folder Include="Models\ProfileEditor\ManageResearchDatasets\" />
     <Folder Include="Models\ProfileEditor\ManageSharing\" />
-    <Folder Include="Models\Log\" />
+    <Folder Include="Models\StructuredLog\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="NEST" />
