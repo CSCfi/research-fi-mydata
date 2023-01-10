@@ -118,7 +118,7 @@ namespace api.Services
                     ffv.dim_researcher_description_id AS 'FactFieldValues_DimResearcherDescriptionId',
                     ffv.dim_email_addrress_id AS 'FactFieldValues_DimEmailAddrressId',
                     ffv.dim_telephone_number_id AS 'FactFieldValues_DimTelephoneNumberId',
-                    ffv.dim_field_of_science_id AS ' FactFieldValues_DimFieldOfScienceId',
+                    ffv.dim_referencedata_field_of_science_id AS ' FactFieldValues_DimReferencedataFieldOfScienceId',
                     ffv.dim_keyword_id AS 'FactFieldValues_DimKeywordId',
                     ffv.dim_pid_id AS 'FactFieldValues_DimPidId',
                     ffv.dim_affiliation_id AS 'FactFieldValues_DimAffiliationId',
@@ -139,9 +139,6 @@ namespace api.Services
                     dim_researcher_description.research_description_sv AS 'DimResearcherDescription_ResearchDescriptionSv',
                     dim_email_addrress.email AS 'DimEmailAddrress_Email',
                     dim_telephone_number.telephone_number AS 'DimTelephoneNumber_TelephoneNumber',
-                    dim_field_of_science.name_fi AS 'DimFieldOfScience_NameFi',
-                    dim_field_of_science.name_en AS 'DimFieldOfScience_NameEn',
-                    dim_field_of_science.name_sv AS 'DimFieldOfScience_NameSv',
                     dim_keyword.keyword AS 'DimKeyword_Keyword',
                     dim_pid.pid_type AS 'DimPid_PidType',
                     dim_pid.pid_content AS 'DimPid_PidContent',
@@ -269,7 +266,6 @@ namespace api.Services
                 JOIN dim_researcher_description ON ffv.dim_researcher_description_id=dim_researcher_description.id
                 JOIN dim_email_addrress ON ffv.dim_email_addrress_id=dim_email_addrress.id
                 JOIN dim_telephone_number ON ffv.dim_telephone_number_id=dim_telephone_number.id
-                JOIN dim_field_of_science ON ffv.dim_field_of_science_id=dim_field_of_science.id
                 JOIN dim_keyword ON ffv.dim_keyword_id=dim_keyword.id
                 JOIN dim_pid ON ffv.dim_pid_id=dim_pid.id
 
@@ -322,7 +318,7 @@ namespace api.Services
                         ffv.dim_researcher_description_id != -1 OR
                         ffv.dim_email_addrress_id != -1 OR
                         ffv.dim_telephone_number_id != -1 OR
-                        ffv.dim_field_of_science_id != -1 OR
+                        ffv.dim_referencedata_field_of_science_id != -1 OR
                         ffv.dim_keyword_id != -1 OR
                         ffv.dim_pid_id != -1 OR
                         ffv.dim_affiliation_id != -1 OR

@@ -20,7 +20,7 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimResearcherDescriptionId { get; set; }
         public int FactFieldValues_DimEmailAddrressId { get; set; }
         public int FactFieldValues_DimTelephoneNumberId { get; set; }
-        public int FactFieldValues_DimFieldOfScienceId { get; set; }
+        public int FactFieldValues_DimReferencedataFieldOfScienceId { get; set; }
         public int FactFieldValues_DimKeywordId { get; set; }
         public int FactFieldValues_DimPidId { get; set; }
         public int FactFieldValues_DimAffiliationId { get; set; }
@@ -66,10 +66,6 @@ namespace api.Models.ProfileEditor
         public string DimEmailAddrress_Email { get; set; }
         // DimTelephoneNumber
         public string DimTelephoneNumber_TelephoneNumber { get; set; }
-        // DimFieldOfScience
-        public string DimFieldOfScience_NameFi { get; set; }
-        public string DimFieldOfScience_NameEn { get; set; }
-        public string DimFieldOfScience_NameSv { get; set; }
         // DimKeyword
         public string DimKeyword_Keyword { get; set; }
         // DimPid

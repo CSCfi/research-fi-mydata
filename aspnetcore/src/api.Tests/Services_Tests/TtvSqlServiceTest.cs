@@ -22,7 +22,7 @@ namespace api.Tests
                 DimEmailAddrressId = -1,
                 DimEventId = -1,
                 DimFieldDisplaySettingsId = -1,
-                DimFieldOfScienceId = -1,
+                DimReferencedataFieldOfScienceId = -1,
                 DimFundingDecisionId = -1,
                 DimIdentifierlessDataId = -1,
                 DimKeywordId = -1,
