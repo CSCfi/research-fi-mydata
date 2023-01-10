@@ -286,8 +286,8 @@ namespace api.Services
                 DimKeywordId = -1,
                 DimAffiliationId = -1,
                 DimResearcherToResearchCommunityId = -1,
-                DimFieldOfScienceId = -1,
                 DimResearchDatasetId = -1,
+                DimReferencedataFieldOfScienceId = -1,
                 Show = false,
                 PrimaryValue = false,
                 SourceId = Constants.SourceIdentifiers.PROFILE_API,
@@ -998,6 +998,7 @@ namespace api.Services
                         break;
 
                     // Field of science
+                    /*
                     case Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE:
                         // Field of science name translation
                         NameTranslation nameTranslationFieldOfScience = _languageService.GetNameTranslation(
@@ -1023,6 +1024,7 @@ namespace api.Services
                             }
                         );
                         break;
+                    */
 
                     // Keyword
                     case Constants.FieldIdentifiers.PERSON_KEYWORD:
@@ -1535,7 +1537,7 @@ namespace api.Services
                             if (factFieldValue.DimEducationId != -1) dimEducationIds.Add(factFieldValue.DimEducationId);
                             if (factFieldValue.DimEmailAddrressId != -1) dimEmailAddrressIds.Add(factFieldValue.DimEmailAddrressId);
                             if (factFieldValue.DimEventId != -1) dimEventIds.Add(factFieldValue.DimEventId);
-                            if (factFieldValue.DimFieldOfScienceId != -1) dimFieldOfScienceIds.Add(factFieldValue.DimFieldOfScienceId);
+                            if (factFieldValue.DimReferencedataFieldOfScienceId != -1) dimFieldOfScienceIds.Add(factFieldValue.DimReferencedataFieldOfScienceId);
                             if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);

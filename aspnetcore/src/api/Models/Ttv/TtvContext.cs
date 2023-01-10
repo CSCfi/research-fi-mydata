@@ -80,11 +80,11 @@ namespace api.Models.Ttv
         public virtual DbSet<FactInfraKeyword> FactInfraKeywords { get; set; }
         public virtual DbSet<FactJufoClassCodesForPubChannel> FactJufoClassCodesForPubChannels { get; set; }
         public virtual DbSet<FactUpkeep> FactUpkeeps { get; set; }
-        public virtual DbSet<TempBrFieldOfScienceDimFundingDecision> TempBrFieldOfScienceDimFundingDecisions { get; set; }
+        public virtual DbSet<TempBrInfrastructureDimFieldOfScience> TempBrInfrastructureDimFieldOfSciences { get; set; }
         public virtual DbSet<TempBrParticipatesInFundingGroup> TempBrParticipatesInFundingGroups { get; set; }
-        public virtual DbSet<TempBrResearchDatasetDimFieldOfScience> TempBrResearchDatasetDimFieldOfSciences { get; set; }
         public virtual DbSet<TempDimRegisteredDataSource> TempDimRegisteredDataSources { get; set; }
         public virtual DbSet<TempDimRegisteredDataSource20221121> TempDimRegisteredDataSource20221121s { get; set; }
+        public virtual DbSet<TempFactDimReferencedataFieldOfScience> TempFactDimReferencedataFieldOfSciences { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -99,7 +99,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrDatasetDatasetRelationship>(entity =>
             {
                 entity.HasKey(e => new { e.DimResearchDatasetId, e.DimResearchDatasetId2 })
-                    .HasName("PK__br_datas__9FEA685AEF67087E");
+                    .HasName("PK__br_datas__9FEA685A5FEE4AEF");
 
                 entity.ToTable("br_dataset_dataset_relationship");
 
@@ -128,7 +128,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrFundingConsortiumParticipation>(entity =>
             {
                 entity.HasKey(e => new { e.DimFundingDecisionId, e.DimOrganizationid })
-                    .HasName("PK__br_fundi__3DB567F82DA15AFC");
+                    .HasName("PK__br_fundi__3DB567F8F345F076");
 
                 entity.ToTable("br_funding_consortium_participation");
 
@@ -162,7 +162,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrGrantedPermission>(entity =>
             {
                 entity.HasKey(e => new { e.DimUserProfileId, e.DimExternalServiceId, e.DimPermittedFieldGroup })
-                    .HasName("PK__br_grant__F51F7BCB87E3B781");
+                    .HasName("PK__br_grant__F51F7BCB162F9D0B");
 
                 entity.ToTable("br_granted_permissions");
 
@@ -194,7 +194,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrParticipatesInFundingGroup>(entity =>
             {
                 entity.HasKey(e => new { e.DimFundingDecisionid, e.DimNameId })
-                    .HasName("PK__br_parti__5EC9BC64C724BC95");
+                    .HasName("PK__br_parti__5EC9BC64C923D602");
 
                 entity.ToTable("br_participates_in_funding_group");
 
@@ -290,7 +290,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrWordClusterDimFundingDecision>(entity =>
             {
                 entity.HasKey(e => new { e.DimWordClusterId, e.DimFundingDecisionId })
-                    .HasName("PK__br_word___7D640B5A7467F20C");
+                    .HasName("PK__br_word___7D640B5A0254B61D");
 
                 entity.ToTable("br_word_cluster_dim_funding_decision");
 
@@ -331,7 +331,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<BrWordsDefineACluster>(entity =>
             {
                 entity.HasKey(e => new { e.DimMinedWordsId, e.DimWordClusterId })
-                    .HasName("PK__br_words__0602FA3727EA245E");
+                    .HasName("PK__br_words__0602FA372F9B857F");
 
                 entity.ToTable("br_words_define_a_cluster");
 
@@ -566,7 +566,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimCallProgramme>().WithMany().HasForeignKey("DimCallProgrammeId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("belongs to / a part of "),
                         j =>
                         {
-                            j.HasKey("DimCallProgrammeId", "DimCallProgrammeId2").HasName("PK__br_call___6F0CEDFBC9C83E54");
+                            j.HasKey("DimCallProgrammeId", "DimCallProgrammeId2").HasName("PK__br_call___6F0CEDFB5685F50B");
 
                             j.ToTable("br_call_programme_dim_call_programme");
 
@@ -583,7 +583,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimCallProgramme>().WithMany().HasForeignKey("DimCallProgrammeId2").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_call_pr785575"),
                         j =>
                         {
-                            j.HasKey("DimCallProgrammeId", "DimCallProgrammeId2").HasName("PK__br_call___6F0CEDFBC9C83E54");
+                            j.HasKey("DimCallProgrammeId", "DimCallProgrammeId2").HasName("PK__br_call___6F0CEDFB5685F50B");
 
                             j.ToTable("br_call_programme_dim_call_programme");
 
@@ -600,7 +600,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimCallProgramme>().WithMany().HasForeignKey("DimCallProgrammeId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("has disciplines"),
                         j =>
                         {
-                            j.HasKey("DimCallProgrammeId", "DimReferencedataId").HasName("PK__br_dim_r__0A5B885D3EC796D3");
+                            j.HasKey("DimCallProgrammeId", "DimReferencedataId").HasName("PK__br_dim_r__0A5B885D0996EA60");
 
                             j.ToTable("br_dim_referencedata_dim_call_programme");
 
@@ -905,7 +905,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimEsfri>().WithMany().HasForeignKey("DimEsfriId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_esfri_d559740"),
                         j =>
                         {
-                            j.HasKey("DimEsfriId", "DimInfrastructureId").HasName("PK__br_esfri__A4A0FE1076132087");
+                            j.HasKey("DimEsfriId", "DimInfrastructureId").HasName("PK__br_esfri__A4A0FE10B16F3C75");
 
                             j.ToTable("br_esfri_dim_infrastructure");
 
@@ -1072,7 +1072,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimFieldDisplaySetting>().WithMany().HasForeignKey("DimFieldDisplaySettingsId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_field_d783303"),
                         j =>
                         {
-                            j.HasKey("DimFieldDisplaySettingsId", "DimRegisteredDataSourceId").HasName("PK__br_field__6148A772196597FE");
+                            j.HasKey("DimFieldDisplaySettingsId", "DimRegisteredDataSourceId").HasName("PK__br_field__6148A77275EFD9AC");
 
                             j.ToTable("br_field_display_settings_dim_registered_data_source");
 
@@ -1131,7 +1131,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimFieldOfArt>().WithMany().HasForeignKey("DimFieldOfArtId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_field_o978876"),
                         j =>
                         {
-                            j.HasKey("DimFieldOfArtId", "DimPublicationId").HasName("PK__br_field__809A87CDE5E0D113");
+                            j.HasKey("DimFieldOfArtId", "DimPublicationId").HasName("PK__br_field__809A87CDCEDC37CF");
 
                             j.ToTable("br_field_of_art_dim_publication");
 
@@ -1190,7 +1190,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimFieldOfEducation>().WithMany().HasForeignKey("DimFieldOfEducationId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_field_o983513"),
                         j =>
                         {
-                            j.HasKey("DimFieldOfEducationId", "DimPublicationId").HasName("PK__br_field__6E377B2CDAE08B5B");
+                            j.HasKey("DimFieldOfEducationId", "DimPublicationId").HasName("PK__br_field__6E377B2C72EE1ED6");
 
                             j.ToTable("br_field_of_education_dim_publication");
 
@@ -1240,40 +1240,6 @@ namespace api.Models.Ttv
                     .IsRequired()
                     .HasMaxLength(255)
                     .HasColumnName("source_id");
-
-                entity.HasMany(d => d.DimKnownPeople)
-                    .WithMany(p => p.DimFieldOfSciences)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "DimKnownPersonDimFieldOfScience",
-                        l => l.HasOne<DimKnownPerson>().WithMany().HasForeignKey("DimKnownPersonId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKdim_known_232019"),
-                        r => r.HasOne<DimFieldOfScience>().WithMany().HasForeignKey("DimFieldOfScienceId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKdim_known_609663"),
-                        j =>
-                        {
-                            j.HasKey("DimFieldOfScienceId", "DimKnownPersonId").HasName("PK__dim_know__493EE076C38CA59B");
-
-                            j.ToTable("dim_known_person_dim_field_of_science");
-
-                            j.IndexerProperty<int>("DimFieldOfScienceId").HasColumnName("dim_field_of_science_id");
-
-                            j.IndexerProperty<int>("DimKnownPersonId").HasColumnName("dim_known_person_id");
-                        });
-
-                entity.HasMany(d => d.DimResearchActivities)
-                    .WithMany(p => p.DimFieldOfSciences)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "DimFieldOfScienceDimResearchActivity",
-                        l => l.HasOne<DimResearchActivity>().WithMany().HasForeignKey("DimResearchActivityId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKdim_field_982235"),
-                        r => r.HasOne<DimFieldOfScience>().WithMany().HasForeignKey("DimFieldOfScienceId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKdim_field_235508"),
-                        j =>
-                        {
-                            j.HasKey("DimFieldOfScienceId", "DimResearchActivityId").HasName("PK__dim_fiel__D251A582256A62FD");
-
-                            j.ToTable("dim_field_of_science_dim_research_activity");
-
-                            j.IndexerProperty<int>("DimFieldOfScienceId").HasColumnName("dim_field_of_science_id");
-
-                            j.IndexerProperty<int>("DimResearchActivityId").HasColumnName("dim_research_activity_id");
-                        });
             });
 
             modelBuilder.Entity<DimFundingDecision>(entity =>
@@ -1437,7 +1403,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimFundingDecision>().WithMany().HasForeignKey("DimFundingDecisionId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_funding281737"),
                         j =>
                         {
-                            j.HasKey("DimFundingDecisionId", "DimFieldOfArtId").HasName("PK__br_fundi__07CB586DB6C7B85C");
+                            j.HasKey("DimFundingDecisionId", "DimFieldOfArtId").HasName("PK__br_fundi__07CB586D4C093A8E");
 
                             j.ToTable("br_funding_decision_dim_field_of_art");
 
@@ -1454,7 +1420,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimFundingDecision>().WithMany().HasForeignKey("DimFundingDecisionToId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_previou440746"),
                         j =>
                         {
-                            j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_previ__9096649116BBE246");
+                            j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_previ__90966491010226C7");
 
                             j.ToTable("br_previous_funding_decision");
 
@@ -1471,7 +1437,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimFundingDecision>().WithMany().HasForeignKey("DimFundingDecisionToId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_related689923"),
                         j =>
                         {
-                            j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_relat__9096649177433C3C");
+                            j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_relat__909664918926D3B7");
 
                             j.ToTable("br_related_funding_decision");
 
@@ -1488,7 +1454,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimFundingDecision>().WithMany().HasForeignKey("DimFundingDecisionFromId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_previou481541"),
                         j =>
                         {
-                            j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_previ__9096649116BBE246");
+                            j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_previ__90966491010226C7");
 
                             j.ToTable("br_previous_funding_decision");
 
@@ -1505,7 +1471,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimFundingDecision>().WithMany().HasForeignKey("DimFundingDecisionFromId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_related232364"),
                         j =>
                         {
-                            j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_relat__9096649177433C3C");
+                            j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_relat__909664918926D3B7");
 
                             j.ToTable("br_related_funding_decision");
 
@@ -1728,23 +1694,6 @@ namespace api.Models.Ttv
                     .HasForeignKey(d => d.NextInfastructureId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKdim_infras462742");
-
-                entity.HasMany(d => d.DimFieldOfSciences)
-                    .WithMany(p => p.DimInfrastructures)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "BrInfrastructureDimFieldOfScience",
-                        l => l.HasOne<DimFieldOfScience>().WithMany().HasForeignKey("DimFieldOfScienceId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_infrast565984"),
-                        r => r.HasOne<DimInfrastructure>().WithMany().HasForeignKey("DimInfrastructureId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_infrast156732"),
-                        j =>
-                        {
-                            j.HasKey("DimInfrastructureId", "DimFieldOfScienceId").HasName("PK__br_infra__17B77C160CD41CE9");
-
-                            j.ToTable("br_infrastructure_dim_field_of_science");
-
-                            j.IndexerProperty<int>("DimInfrastructureId").HasColumnName("dim_infrastructure_id");
-
-                            j.IndexerProperty<int>("DimFieldOfScienceId").HasColumnName("dim_field_of_science_id");
-                        });
             });
 
             modelBuilder.Entity<DimKeyword>(entity =>
@@ -1828,7 +1777,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimKeyword>().WithMany().HasForeignKey("DimKeywordId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_keyword224605"),
                         j =>
                         {
-                            j.HasKey("DimKeywordId", "DimFundingDecisionId").HasName("PK__br_keywo__8C7B929B1356093C");
+                            j.HasKey("DimKeywordId", "DimFundingDecisionId").HasName("PK__br_keywo__8C7B929B63C03C1E");
 
                             j.ToTable("br_keyword_dim_funding_decision");
 
@@ -1845,7 +1794,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimKeyword>().WithMany().HasForeignKey("DimKeywordId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_keyword944303"),
                         j =>
                         {
-                            j.HasKey("DimKeywordId", "DimPublicationId").HasName("PK__br_keywo__C6E31F1AD299DA2C");
+                            j.HasKey("DimKeywordId", "DimPublicationId").HasName("PK__br_keywo__C6E31F1A50941DF8");
 
                             j.ToTable("br_keyword_dim_publication");
 
@@ -1987,7 +1936,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimMeril>().WithMany().HasForeignKey("DimMerilId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_meril_d209645"),
                         j =>
                         {
-                            j.HasKey("DimMerilId", "DimInfrastructureId").HasName("PK__br_meril__A30C54DAE4FD4511");
+                            j.HasKey("DimMerilId", "DimInfrastructureId").HasName("PK__br_meril__A30C54DAB06A58AC");
 
                             j.ToTable("br_meril_dim_infrastructure");
 
@@ -2117,7 +2066,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<DimNewsItem>(entity =>
             {
                 entity.HasKey(e => new { e.Id, e.DimNewsFeedid })
-                    .HasName("PK__dim_news__B87E67037522FFB3");
+                    .HasName("PK__dim_news__B87E6703459D631B");
 
                 entity.ToTable("dim_news_item");
 
@@ -2500,7 +2449,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimOrganization>().WithMany().HasForeignKey("DimOrganizationid").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_organiz621686"),
                         j =>
                         {
-                            j.HasKey("DimOrganizationid", "DimCallProgrammeid").HasName("PK__br_organ__10F219BC91A840E8");
+                            j.HasKey("DimOrganizationid", "DimCallProgrammeid").HasName("PK__br_organ__10F219BC602A8F57");
 
                             j.ToTable("br_organizations_fund_call_programmes");
 
@@ -2517,7 +2466,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimOrganization>().WithMany().HasForeignKey("DimOrganizationid").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_predece849307"),
                         j =>
                         {
-                            j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_prede__A7CAD2F4E5235561");
+                            j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_prede__A7CAD2F4E27E76D6");
 
                             j.ToTable("br_predecessor_organization");
 
@@ -2534,7 +2483,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimOrganization>().WithMany().HasForeignKey("DimOrganizationid").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_success452227"),
                         j =>
                         {
-                            j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_succe__A7CAD2F465CDCB5C");
+                            j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_succe__A7CAD2F4C892F51F");
 
                             j.ToTable("br_successor organization");
 
@@ -2551,7 +2500,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimOrganization>().WithMany().HasForeignKey("DimOrganizationid2").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_predece505451"),
                         j =>
                         {
-                            j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_prede__A7CAD2F4E5235561");
+                            j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_prede__A7CAD2F4E27E76D6");
 
                             j.ToTable("br_predecessor_organization");
 
@@ -2568,7 +2517,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimOrganization>().WithMany().HasForeignKey("DimOrganizationid2").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_success902531"),
                         j =>
                         {
-                            j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_succe__A7CAD2F465CDCB5C");
+                            j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_succe__A7CAD2F4C892F51F");
 
                             j.ToTable("br_successor organization");
 
@@ -2943,7 +2892,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimPublication>().WithMany().HasForeignKey("DimPublicationId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_artpubl464312"),
                         j =>
                         {
-                            j.HasKey("DimPublicationId", "DimReferencedataid").HasName("PK__br_artpu__879F18F3927A6EC6");
+                            j.HasKey("DimPublicationId", "DimReferencedataid").HasName("PK__br_artpu__879F18F30B75E11C");
 
                             j.ToTable("br_artpublication_typecategory");
 
@@ -3235,7 +3184,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<DimResearchActivityDimKeyword>(entity =>
             {
                 entity.HasKey(e => new { e.DimResearchActivityId, e.DimKeywordId })
-                    .HasName("PK__dim_rese__F7B536BCD123FC26");
+                    .HasName("PK__dim_rese__F7B536BCE39FD625");
 
                 entity.ToTable("dim_research_activity_dim_keyword");
 
@@ -3471,7 +3420,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimResearchDataset>().WithMany().HasForeignKey("DimResearchDatasetId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("dataset-keywords"),
                         j =>
                         {
-                            j.HasKey("DimResearchDatasetId", "DimKeywordId").HasName("PK__br_resea__4D226DF2A436A535");
+                            j.HasKey("DimResearchDatasetId", "DimKeywordId").HasName("PK__br_resea__4D226DF25851D3CD");
 
                             j.ToTable("br_research_dataset_dim_keyword");
 
@@ -3488,7 +3437,7 @@ namespace api.Models.Ttv
                         r => r.HasOne<DimResearchDataset>().WithMany().HasForeignKey("DimResearchDatasetId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FKbr_languag34243"),
                         j =>
                         {
-                            j.HasKey("DimResearchDatasetId", "DimReferencedataId").HasName("PK__br_langu__576647BF013C04BE");
+                            j.HasKey("DimResearchDatasetId", "DimReferencedataId").HasName("PK__br_langu__576647BF83C8131D");
 
                             j.ToTable("br_language_codes_for_datasets");
 
@@ -3883,7 +3832,7 @@ namespace api.Models.Ttv
             {
                 entity.ToTable("dim_type_of_funding");
 
-                entity.HasIndex(e => e.TypeId, "UQ__dim_type__2C0005990C7422F3")
+                entity.HasIndex(e => e.TypeId, "UQ__dim_type__2C00059913E5EF78")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -4162,7 +4111,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactContribution>(entity =>
             {
                 entity.HasKey(e => new { e.DimFundingDecisionId, e.DimOrganizationId, e.DimDateId, e.DimNameId, e.DimPublicationId, e.DimGeoId, e.DimInfrastructureId, e.DimNewsFeedId, e.DimResearchDatasetId, e.DimResearchDataCatalogId, e.DimIdentifierlessDataId, e.DimResearchActivityId, e.DimResearchCommunityId, e.DimReferencedataActorRoleId })
-                    .HasName("PK__fact_con__B7D7E1B5FA4ACA3D");
+                    .HasName("PK__fact_con__B7D7E1B50BA9F19E");
 
                 entity.ToTable("fact_contribution");
 
@@ -4304,7 +4253,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactDimReferencedataFieldOfScience>(entity =>
             {
                 entity.HasKey(e => new { e.DimReferencedataId, e.DimResearchDatasetId, e.DimKnownPersonId, e.DimPublicationId, e.DimResearchActivityId, e.DimFundingDecisionId, e.DimInfrastructureId })
-                    .HasName("PK__fact_dim__3CB15DD340C3FDE6");
+                    .HasName("PK__fact_dim__3CB15DD36CF1EA12");
 
                 entity.ToTable("fact_dim_referencedata_field_of_science");
 
@@ -4361,8 +4310,8 @@ namespace api.Models.Ttv
 
             modelBuilder.Entity<FactFieldValue>(entity =>
             {
-                entity.HasKey(e => new { e.DimUserProfileId, e.DimFieldDisplaySettingsId, e.DimNameId, e.DimWebLinkId, e.DimFundingDecisionId, e.DimPublicationId, e.DimPidId, e.DimPidIdOrcidPutCode, e.DimResearchActivityId, e.DimEventId, e.DimEducationId, e.DimCompetenceId, e.DimResearchCommunityId, e.DimTelephoneNumberId, e.DimEmailAddrressId, e.DimResearcherDescriptionId, e.DimIdentifierlessDataId, e.DimOrcidPublicationId, e.DimKeywordId, e.DimAffiliationId, e.DimResearcherToResearchCommunityId, e.DimFieldOfScienceId, e.DimResearchDatasetId, e.DimRegisteredDataSourceId })
-                    .HasName("PK__fact_fie__A1BF31AA8210FBE8");
+                entity.HasKey(e => new { e.DimUserProfileId, e.DimFieldDisplaySettingsId, e.DimNameId, e.DimWebLinkId, e.DimFundingDecisionId, e.DimPublicationId, e.DimPidId, e.DimPidIdOrcidPutCode, e.DimResearchActivityId, e.DimEventId, e.DimEducationId, e.DimCompetenceId, e.DimResearchCommunityId, e.DimTelephoneNumberId, e.DimEmailAddrressId, e.DimResearcherDescriptionId, e.DimIdentifierlessDataId, e.DimOrcidPublicationId, e.DimKeywordId, e.DimAffiliationId, e.DimResearcherToResearchCommunityId, e.DimResearchDatasetId, e.DimRegisteredDataSourceId, e.DimReferencedataFieldOfScienceId })
+                    .HasName("PK__fact_fie__93106223BBB1E928");
 
                 entity.ToTable("fact_field_values");
 
@@ -4408,11 +4357,11 @@ namespace api.Models.Ttv
 
                 entity.Property(e => e.DimResearcherToResearchCommunityId).HasColumnName("dim_researcher_to_research_community_id");
 
-                entity.Property(e => e.DimFieldOfScienceId).HasColumnName("dim_field_of_science_id");
-
                 entity.Property(e => e.DimResearchDatasetId).HasColumnName("dim_research_dataset_id");
 
                 entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
+
+                entity.Property(e => e.DimReferencedataFieldOfScienceId).HasColumnName("dim_referencedata_field_of_science_id");
 
                 entity.Property(e => e.Created)
                     .HasColumnType("datetime")
@@ -4471,12 +4420,6 @@ namespace api.Models.Ttv
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("field content settings");
 
-                entity.HasOne(d => d.DimFieldOfScience)
-                    .WithMany(p => p.FactFieldValues)
-                    .HasForeignKey(d => d.DimFieldOfScienceId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FKfact_field339072");
-
                 entity.HasOne(d => d.DimFundingDecision)
                     .WithMany(p => p.FactFieldValues)
                     .HasForeignKey(d => d.DimFundingDecisionId)
@@ -4524,6 +4467,12 @@ namespace api.Models.Ttv
                     .HasForeignKey(d => d.DimPublicationId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("displayed publications");
+
+                entity.HasOne(d => d.DimReferencedataFieldOfScience)
+                    .WithMany(p => p.FactFieldValues)
+                    .HasForeignKey(d => d.DimReferencedataFieldOfScienceId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKfact_field192234");
 
                 entity.HasOne(d => d.DimRegisteredDataSource)
                     .WithMany(p => p.FactFieldValues)
@@ -4583,7 +4532,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactInfraKeyword>(entity =>
             {
                 entity.HasKey(e => new { e.DimKeywordId, e.DimServiceId, e.DimServicePointId, e.DimInfrastructureId })
-                    .HasName("PK__fact_inf__3C29B680A72640B2");
+                    .HasName("PK__fact_inf__3C29B680677C35E2");
 
                 entity.ToTable("fact_infra_keywords");
 
@@ -4640,7 +4589,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactJufoClassCodesForPubChannel>(entity =>
             {
                 entity.HasKey(e => new { e.DimPublicationChannelId, e.DimReferencedataId, e.Year })
-                    .HasName("PK__fact_juf__0E099E4B32FAE6DE");
+                    .HasName("PK__fact_juf__0E099E4BB4E9B8B5");
 
                 entity.ToTable("fact_jufo_class_codes_for_pub_channels");
 
@@ -4666,7 +4615,7 @@ namespace api.Models.Ttv
             modelBuilder.Entity<FactUpkeep>(entity =>
             {
                 entity.HasKey(e => new { e.DimOrganizationId, e.DimGeoId, e.DimInfrastructureId, e.DimServiceId, e.DimServicePointId, e.DimDateIdStart, e.DimDateIdEnd })
-                    .HasName("PK__fact_upk__850A8E30B8C358CA");
+                    .HasName("PK__fact_upk__850A8E30B5A84163");
 
                 entity.ToTable("fact_upkeep");
 
@@ -4744,15 +4693,15 @@ namespace api.Models.Ttv
                     .HasConstraintName("FKfact_upkee415806");
             });
 
-            modelBuilder.Entity<TempBrFieldOfScienceDimFundingDecision>(entity =>
+            modelBuilder.Entity<TempBrInfrastructureDimFieldOfScience>(entity =>
             {
                 entity.HasNoKey();
 
-                entity.ToTable("temp_br_field_of_science_dim_funding_decision");
+                entity.ToTable("temp_br_infrastructure_dim_field_of_science");
 
                 entity.Property(e => e.DimFieldOfScienceId).HasColumnName("dim_field_of_science_id");
 
-                entity.Property(e => e.DimFundingDecisionId).HasColumnName("dim_funding_decision_id");
+                entity.Property(e => e.DimInfrastructureId).HasColumnName("dim_infrastructure_id");
             });
 
             modelBuilder.Entity<TempBrParticipatesInFundingGroup>(entity =>
@@ -4780,17 +4729,6 @@ namespace api.Models.Ttv
                 entity.Property(e => e.SourceId)
                     .HasMaxLength(30)
                     .HasColumnName("source_id");
-            });
-
-            modelBuilder.Entity<TempBrResearchDatasetDimFieldOfScience>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToTable("temp_br_research_dataset_dim_field_of_science");
-
-                entity.Property(e => e.DimFieldOfScienceid).HasColumnName("dim_field_of_scienceid");
-
-                entity.Property(e => e.DimResearchDatasetid).HasColumnName("dim_research_datasetid");
             });
 
             modelBuilder.Entity<TempDimRegisteredDataSource>(entity =>
@@ -4861,6 +4799,27 @@ namespace api.Models.Ttv
                     .IsRequired()
                     .HasMaxLength(255)
                     .HasColumnName("source_id");
+            });
+
+            modelBuilder.Entity<TempFactDimReferencedataFieldOfScience>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("temp_fact_dim_referencedata_field_of_science");
+
+                entity.Property(e => e.DimFundingDecisionId).HasColumnName("dim_funding_decision_id");
+
+                entity.Property(e => e.DimInfrastructureId).HasColumnName("dim_infrastructure_id");
+
+                entity.Property(e => e.DimKnownPersonId).HasColumnName("dim_known_person_id");
+
+                entity.Property(e => e.DimPublicationId).HasColumnName("dim_publication_id");
+
+                entity.Property(e => e.DimReferencedataId).HasColumnName("dim_referencedata_id");
+
+                entity.Property(e => e.DimResearchActivityId).HasColumnName("dim_research_activity_id");
+
+                entity.Property(e => e.DimResearchDatasetId).HasColumnName("dim_research_dataset_id");
             });
 
             OnModelCreatingPartial(modelBuilder);

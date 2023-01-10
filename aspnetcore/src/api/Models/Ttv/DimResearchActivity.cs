@@ -12,7 +12,6 @@ namespace api.Models.Ttv
             DimWebLinks = new HashSet<DimWebLink>();
             FactContributions = new HashSet<FactContribution>();
             FactFieldValues = new HashSet<FactFieldValue>();
-            DimFieldOfSciences = new HashSet<DimFieldOfScience>();
         }
 
         public int Id { get; set; }
@@ -50,7 +49,5 @@ namespace api.Models.Ttv
         public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
-
-        public virtual ICollection<DimFieldOfScience> DimFieldOfSciences { get; set; }
     }
 }

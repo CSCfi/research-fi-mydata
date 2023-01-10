@@ -14,7 +14,6 @@ namespace api.Models.Ttv
             FactUpkeeps = new HashSet<FactUpkeep>();
             InverseNextInfastructure = new HashSet<DimInfrastructure>();
             DimEsfris = new HashSet<DimEsfri>();
-            DimFieldOfSciences = new HashSet<DimFieldOfScience>();
             DimMerils = new HashSet<DimMeril>();
         }
 
@@ -48,7 +47,6 @@ namespace api.Models.Ttv
         public virtual ICollection<DimInfrastructure> InverseNextInfastructure { get; set; }
 
         public virtual ICollection<DimEsfri> DimEsfris { get; set; }
-        public virtual ICollection<DimFieldOfScience> DimFieldOfSciences { get; set; }
         public virtual ICollection<DimMeril> DimMerils { get; set; }
     }
 }

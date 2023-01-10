@@ -25,6 +25,7 @@ namespace api.Models.Ttv
             DimUserChoices = new HashSet<DimUserChoice>();
             FactContributions = new HashSet<FactContribution>();
             FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
+            FactFieldValues = new HashSet<FactFieldValue>();
             FactJufoClassCodesForPubChannels = new HashSet<FactJufoClassCodesForPubChannel>();
             InverseDimReferencedata = new HashSet<DimReferencedatum>();
             DimCallProgrammes = new HashSet<DimCallProgramme>();
@@ -64,6 +65,7 @@ namespace api.Models.Ttv
         public virtual ICollection<DimUserChoice> DimUserChoices { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
         public virtual ICollection<FactJufoClassCodesForPubChannel> FactJufoClassCodesForPubChannels { get; set; }
         public virtual ICollection<DimReferencedatum> InverseDimReferencedata { get; set; }
 
