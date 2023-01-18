@@ -68,12 +68,14 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
             // Check that ORCID webhook feature is enabled
             if (!_orcidApiService.IsOrcidWebhookEnabled())
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER,
                         state: LogContent.ActionState.FAILED,
@@ -87,7 +89,7 @@ namespace api.Controllers
             {
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER,
                         state: LogContent.ActionState.START,
@@ -102,7 +104,7 @@ namespace api.Controllers
                 
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER,
                         state: LogContent.ActionState.COMPLETE,
@@ -131,12 +133,14 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
             // Check that ORCID webhook feature is enabled
             if (!_orcidApiService.IsOrcidWebhookEnabled())
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER,
                         state: LogContent.ActionState.FAILED,
@@ -150,7 +154,7 @@ namespace api.Controllers
             {
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER,
                         state: LogContent.ActionState.START,
@@ -164,7 +168,7 @@ namespace api.Controllers
 
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER,
                         state: LogContent.ActionState.COMPLETE,
@@ -187,12 +191,14 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
             // Check that ORCID webhook feature is enabled
             if (!_orcidApiService.IsOrcidWebhookEnabled())
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER_ALL,
                         state: LogContent.ActionState.FAILED,
@@ -206,7 +212,7 @@ namespace api.Controllers
             {
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER_ALL,
                         state: LogContent.ActionState.START));
@@ -219,7 +225,7 @@ namespace api.Controllers
 
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER_ALL,
                         state: LogContent.ActionState.COMPLETE));
@@ -241,12 +247,14 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
             // Check that ORCID webhook feature is enabled
             if (!_orcidApiService.IsOrcidWebhookEnabled())
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER_ALL,
                         state: LogContent.ActionState.FAILED,
@@ -260,7 +268,7 @@ namespace api.Controllers
             {
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER_ALL,
                         state: LogContent.ActionState.START));
@@ -273,7 +281,7 @@ namespace api.Controllers
 
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER_ALL,
                         state: LogContent.ActionState.COMPLETE));
@@ -301,6 +309,8 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
             // Get DimUserProfile
             DimUserProfile dimUserProfile = await _userProfileService.GetUserprofileById(dimUserProfileId);
             // Check that user profile exists
@@ -308,7 +318,7 @@ namespace api.Controllers
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
                         state: LogContent.ActionState.FAILED,
@@ -335,7 +345,7 @@ namespace api.Controllers
                     {
                         _logger.LogInformation(
                             LogContent.MESSAGE_TEMPLATE,
-                            this.GetLogUserIdentification(),
+                            logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
                                 state: LogContent.ActionState.START));
@@ -345,13 +355,13 @@ namespace api.Controllers
                             await _backgroundProfiledata.GetProfiledataForElasticsearch(
                                 orcidId: orcidId,
                                 userprofileId: dimUserProfileId,
-                                logUserIdentification: this.GetLogUserIdentification());
+                                logUserIdentification: logUserIdentification);
                         // Update Elasticsearch person index.
-                        await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, this.GetLogUserIdentification());
+                        await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification);
 
                         _logger.LogInformation(
                             LogContent.MESSAGE_TEMPLATE,
-                            this.GetLogUserIdentification(),
+                            logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
                                 state: LogContent.ActionState.COMPLETE));
@@ -369,18 +379,18 @@ namespace api.Controllers
                     {
                         _logger.LogInformation(
                             LogContent.MESSAGE_TEMPLATE,
-                            this.GetLogUserIdentification(),
+                            logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
                                 state: LogContent.ActionState.START));
 
                         // Update Elasticsearch person index.
-                        bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, this.GetLogUserIdentification());
+                        bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
                         if (deleteSuccess)
                         {
                             _logger.LogInformation(
                                 LogContent.MESSAGE_TEMPLATE,
-                                this.GetLogUserIdentification(),
+                                logUserIdentification,
                                 new LogApiInfo(
                                     action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
                                     state: LogContent.ActionState.COMPLETE));
@@ -389,7 +399,7 @@ namespace api.Controllers
                         {
                             _logger.LogError(
                                 LogContent.MESSAGE_TEMPLATE,
-                                this.GetLogUserIdentification(),
+                                logUserIdentification,
                                 new LogApiInfo(
                                     action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
                                     state: LogContent.ActionState.FAILED,
