@@ -1,6 +1,7 @@
 ﻿using api.Services;
 using api.Models.Api;
 using api.Models.Common;
+using api.Models.Log;
 using api.Models.Ttv;
 using api.Models.ProfileEditor.Items;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ namespace api.Controllers
      * DebugController implements API for debugging.
      */
     [ApiController]
-    public class DebugController: TtvControllerBase
+    public class DebugController: TtvAdminControllerBase
     {
         private readonly TtvContext _ttvContext;
         private readonly IUserProfileService _userProfileService;
@@ -29,6 +30,7 @@ namespace api.Controllers
         private readonly IMemoryCache _cache;
         private readonly IBackgroundTaskQueue _taskQueue;
         public IConfiguration Configuration { get; }
+        public string logPrefix;
 
         public DebugController(
             IConfiguration configuration,
@@ -46,20 +48,22 @@ namespace api.Controllers
             _taskQueue = taskQueue;
             _elasticsearchService = elasticsearchService;
             Configuration = configuration;
+
+            logPrefix = "DebugController: ";
         }
 
 
         /// <summary>
-        /// Debug: Get number of user profiles. Requires correct "debugtoken" header value.
+        /// Debug: Get number of user profiles.
         /// </summary>
         [HttpGet]
         [Route("/[controller]/profilecount")]
         public async Task<IActionResult> GetNumberOfProfiles()
         {
-            _logger.LogInformation(this.GetLogPrefix() + " DEBUG get number of profiles");
+            _logger.LogInformation($"{logPrefix}get number of profiles");
 
-            // Check that "DEBUGTOKEN" is defined and has a value in configuration and that the request header "debugtoken" matches.
-            if (Configuration["DEBUGTOKEN"] == null || Configuration["DEBUGTOKEN"] == "" || Request.Headers["debugtoken"] != Configuration["DEBUGTOKEN"])
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
             {
                 return Unauthorized();
             }
@@ -70,16 +74,16 @@ namespace api.Controllers
 
 
         /// <summary>
-        /// Debug: Get list of ORCID ID which have a user profile. Requires correct "debugtoken" header value.
+        /// Debug: Get list of ORCID ID which have a user profile.
         /// </summary>
         [HttpGet]
         [Route("/[controller]/orcids")]
         public async Task<IActionResult> GetListOfORCIDs()
         {
-            _logger.LogInformation(this.GetLogPrefix() + " DEBUG get list of ORCID IDs which have a user profile");
+            _logger.LogInformation($"{logPrefix}get list of ORCID IDs which have a user profile");
 
-            // Check that "DEBUGTOKEN" is defined and has a value in configuration and that the request header "debugtoken" matches.
-            if (Configuration["DEBUGTOKEN"] == null || Configuration["DEBUGTOKEN"] == "" || Request.Headers["debugtoken"] != Configuration["DEBUGTOKEN"])
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
             {
                 return Unauthorized();
             }
@@ -95,17 +99,17 @@ namespace api.Controllers
             
 
         /// <summary>
-        /// Debug: Get any user profile data. Requires correct "debugtoken" header value.
+        /// Debug: Get any user profile data.
         /// </summary>
         [HttpGet]
         [Route("/[controller]/profiledata/{orcidId}")]
         [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get(string orcidId)
         {
-            _logger.LogInformation(this.GetLogPrefix() + " DEBUG get profile data for ORCID ID: " + orcidId);
+            _logger.LogInformation($"{logPrefix}get profile data for ORCID ID: " + orcidId);
 
-            // Check that "DEBUGTOKEN" is defined and has a value in configuration and that the request header "debugtoken" matches.
-            if (Configuration["DEBUGTOKEN"] == null || Configuration["DEBUGTOKEN"] == "" || Request.Headers["debugtoken"] != Configuration["DEBUGTOKEN"])
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
             {
                 return Unauthorized();
             }
@@ -123,8 +127,11 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+
             // Get profile data
-            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync2(userprofileId);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
@@ -133,17 +140,16 @@ namespace api.Controllers
         /// <summary>
         /// Debug: Create user profile for given ORCID ID.
         /// Preconditions: ORCID ID must must already exist in dim_pid and it must be linked to a row in dim_known_person.
-        /// Requires correct "debugtoken" header value.
         /// </summary>
         [HttpPost]
         [Route("/[controller]/userprofile/{orcidId}")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateProfile(string orcidId)
         {
-            _logger.LogInformation(this.GetLogPrefix() + " DEBUG create user profile, ORCID ID: " + orcidId);
+            _logger.LogInformation($"{logPrefix}create user profile, ORCID ID: " + orcidId);
 
-            // Check that "DEBUGTOKEN" is defined and has a value in configuration and that the request header "debugtoken" matches.
-            if (Configuration["DEBUGTOKEN"] == null || Configuration["DEBUGTOKEN"] == "" || Request.Headers["debugtoken"] != Configuration["DEBUGTOKEN"])
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
             {
                 return Unauthorized();
             }
@@ -170,35 +176,38 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: "DEBUG Either ORCID ID does not exist in dim_pid, or it is not linked to any dim_known_person."));
             }
 
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+
             // Create profile
             try
             {
-                await _userProfileService.CreateProfile(orcidId: orcidId);
+                await _userProfileService.CreateProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
             }
             catch
             {
-                string msg = " DEBUG profile creation failed";
-                _logger.LogError(this.GetLogPrefix() + msg);
+                string msg = "profile creation failed";
+                _logger.LogError($"{logPrefix}{msg}");
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
 
-            _logger.LogInformation(this.GetLogPrefix() + " DEBUG profile created");
+            _logger.LogInformation($"{logPrefix}profile created");
             return Ok(new ApiResponse(success: true));
         }
 
 
         /// <summary>
-        /// Debug: Delete user profile for given ORCID ID. Requires correct "debugtoken" header value.
+        /// Debug: Delete user profile for given ORCID ID.
         /// </summary>
         [HttpDelete]
         [Route("/[controller]/userprofile/{orcidId}")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteProfile(string orcidId)
         {
-            _logger.LogInformation(this.GetLogPrefix() + " DEBUG delete user profile, ORCID ID: " + orcidId);
+            _logger.LogInformation($"{logPrefix}delete user profile, ORCID ID: " + orcidId);
 
-            // Check that "DEBUGTOKEN" is defined and has a value in configuration and that the request header "debugtoken" matches.
-            if (Configuration["DEBUGTOKEN"] == null || Configuration["DEBUGTOKEN"] == "" || Request.Headers["debugtoken"] != Configuration["DEBUGTOKEN"])
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
             {
                 return Unauthorized();
             }
@@ -212,8 +221,8 @@ namespace api.Controllers
             // Return immediately, if profile does not exist.
             if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
             {
-                string msg = " DEBUG profile does not exist for ORCID ID: " + orcidId;
-                _logger.LogInformation(this.GetLogPrefix() + msg);
+                string msg = "profile does not exist for ORCID ID: " + orcidId;
+                _logger.LogInformation($"{logPrefix}{msg}");
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
 
@@ -223,14 +232,18 @@ namespace api.Controllers
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
 
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+
             // Remove entry from Elasticsearch index in a background task.
+            // ElasticsearchService is singleton, no need to create local scope.
             if (_elasticsearchService.IsElasticsearchSyncEnabled())
             {
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
                     _logger.LogInformation($"Elasticsearch removal of {orcidId} started {DateTime.UtcNow}");
                     // Update Elasticsearch person index.
-                    await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId);
+                    await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
                     _logger.LogInformation($"Elasticsearch removal of {orcidId} completed {DateTime.UtcNow}");
                 });
             }
@@ -238,18 +251,18 @@ namespace api.Controllers
             // Delete profile data from database
             try
             {
-                await _userProfileService.DeleteProfileDataAsync(userprofileId: userprofileId);
+                await _userProfileService.DeleteProfileDataAsync(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
             }
             catch
             {
                 // Log error
-                string msg = " DEBUG profile deletion failed";
-                _logger.LogError(this.GetLogPrefix() + msg);
+                string msg = "profile deletion failed";
+                _logger.LogError($"{logPrefix}{msg}");
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
 
             // Log deletion
-            _logger.LogInformation(this.GetLogPrefix() + " DEBUG profile deleted");
+            _logger.LogInformation($"{logPrefix}profile deleted");
 
             return Ok(new ApiResponse(success: true));
         }

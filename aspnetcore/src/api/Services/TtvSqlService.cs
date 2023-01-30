@@ -2,6 +2,7 @@
 using api.Models.Common;
 using api.Models.Ttv;
 using System.Collections.Generic;
+using Nest;
 
 namespace api.Services
 {
@@ -59,6 +60,9 @@ namespace api.Services
                 case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
                     fk_column_name = "dim_research_dataset_id";
                     break;
+                case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY:
+                    fk_column_name = "dim_research_activity_id";
+                    break;
                 default:
                     break;
             }
@@ -114,7 +118,7 @@ namespace api.Services
                     ffv.dim_researcher_description_id AS 'FactFieldValues_DimResearcherDescriptionId',
                     ffv.dim_email_addrress_id AS 'FactFieldValues_DimEmailAddrressId',
                     ffv.dim_telephone_number_id AS 'FactFieldValues_DimTelephoneNumberId',
-                    ffv.dim_field_of_science_id AS ' FactFieldValues_DimFieldOfScienceId',
+                    ffv.dim_referencedata_field_of_science_id AS ' FactFieldValues_DimReferencedataFieldOfScienceId',
                     ffv.dim_keyword_id AS 'FactFieldValues_DimKeywordId',
                     ffv.dim_pid_id AS 'FactFieldValues_DimPidId',
                     ffv.dim_affiliation_id AS 'FactFieldValues_DimAffiliationId',
@@ -135,16 +139,28 @@ namespace api.Services
                     dim_researcher_description.research_description_sv AS 'DimResearcherDescription_ResearchDescriptionSv',
                     dim_email_addrress.email AS 'DimEmailAddrress_Email',
                     dim_telephone_number.telephone_number AS 'DimTelephoneNumber_TelephoneNumber',
-                    dim_field_of_science.name_fi AS 'DimFieldOfScience_NameFi',
-                    dim_field_of_science.name_en AS 'DimFieldOfScience_NameEn',
-                    dim_field_of_science.name_sv AS 'DimFieldOfScience_NameSv',
                     dim_keyword.keyword AS 'DimKeyword_Keyword',
                     dim_pid.pid_type AS 'DimPid_PidType',
                     dim_pid.pid_content AS 'DimPid_PidContent',
+
                     affiliation_organization.id AS 'DimAffiliation_DimOrganization_Id',
+                    affiliation_organization.organization_id AS 'DimAffiliation_DimOrganization_OrganizationId',
                     affiliation_organization.name_fi AS 'DimAffiliation_DimOrganization_NameFi',
                     affiliation_organization.name_en AS 'DimAffiliation_DimOrganization_NameEn',
                     affiliation_organization.name_sv AS 'DimAffiliation_DimOrganization_NameSv',
+                    affiliation_organization_sector.sector_id AS 'DimAffiliation_DimOrganization_DimSector_SectorId',
+                    affiliation_organization_sector.name_fi AS 'DimAffiliation_DimOrganization_DimSector_NameFi',
+                    affiliation_organization_sector.name_en AS 'DimAffiliation_DimOrganization_DimSector_NameEn',
+                    affiliation_organization_sector.name_sv AS 'DimAffiliation_DimOrganization_DimSector_NameSv',
+                    affiliation_organization_broader.id AS 'DimAffiliation_DimOrganizationBroader_Id',
+                    affiliation_organization_broader.organization_id AS 'DimAffiliation_DimOrganizationBroader_OrganizationId',
+                    affiliation_organization_broader.name_fi AS 'DimAffiliation_DimOrganizationBroader_NameFi',
+                    affiliation_organization_broader.name_en AS 'DimAffiliation_DimOrganizationBroader_NameEn',
+                    affiliation_organization_broader.name_sv AS 'DimAffiliation_DimOrganizationBroader_NameSv',
+                    affiliation_organization_broader_sector.sector_id AS 'DimAffiliation_DimOrganizationBroader_DimSector_SectorId',
+                    affiliation_organization_broader_sector.name_fi AS 'DimAffiliation_DimOrganizationBroader_DimSector_NameFi',
+                    affiliation_organization_broader_sector.name_en AS 'DimAffiliation_DimOrganizationBroader_DimSector_NameEn',
+                    affiliation_organization_broader_sector.name_sv AS 'DimAffiliation_DimOrganizationBroader_DimSector_NameSv',
                     dim_affiliation.position_name_fi AS 'DimAffiliation_PositionNameFi',
                     dim_affiliation.position_name_en AS 'DimAffiliation_PositionNameEn',
                     dim_affiliation.position_name_sv AS 'DimAffiliation_PositionNameSv',
@@ -165,6 +181,7 @@ namespace api.Services
                     did_child.value_en AS 'DimIdentifierlessData_Child_ValueEn',
                     did_child.value_sv AS 'DimIdentifierlessData_Child_ValueSv',
                     did_child.unlinked_identifier AS 'DimIdentifierlessData_Child_UnlinkedIdentifier',
+
                     dim_education.name_fi AS 'DimEducation_NameFi',
                     dim_education.name_en AS 'DimEducation_NameEn',
                     dim_education.name_sv AS 'DimEducation_NameSv',
@@ -179,7 +196,11 @@ namespace api.Services
                     dim_publication.publication_name AS 'DimPublication_PublicationName',
                     dim_publication.publication_year AS 'DimPublication_PublicationYear',
                     dim_publication.doi AS 'DimPublication_Doi',
+                    dim_publication.authors_text AS 'DimPublication_AuthorsText',
                     dim_publication.publication_type_code AS 'DimPublication_PublicationTypeCode',
+                    dim_publication.journal_name AS 'DimPublication_JournalName',
+                    dim_publication.conference_name AS 'DimPublication_ConferenceName',
+                    dim_publication.parent_publication_name AS 'DimPublication_ParentPublicationName',
                     dim_orcid_publication.publication_id AS 'DimOrcidPublication_PublicationId',
                     dim_orcid_publication.publication_name AS 'DimOrcidPublication_PublicationName',
                     dim_orcid_publication.publication_year AS 'DimOrcidPublication_PublicationYear',
@@ -197,6 +218,14 @@ namespace api.Services
                     research_activity_end_date.year AS 'DimResearchActivity_EndDate_Year',
                     research_activity_end_date.month AS 'DimResearchActivity_EndDate_Month',
                     research_activity_end_date.day AS 'DimResearchActivity_EndDate_Day',
+				    research_activity_fact_contribution_activity_type_dim_referencedata.code_value AS 'DimResearchActivity_ActivityType_CodeValue',
+					research_activity_fact_contribution_activity_type_dim_referencedata.name_fi AS 'DimResearchActivity_ActivityType_NameFi',
+					research_activity_fact_contribution_activity_type_dim_referencedata.name_en AS 'DimResearchActivity_ActivityType_NameEn',
+					research_activity_fact_contribution_activity_type_dim_referencedata.name_sv AS 'DimResearchActivity_ActivityType_NameSv',
+					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.code_value AS 'DimResearchActivity_Role_CodeValue',
+					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.name_fi AS 'DimResearchActivity_Role_NameFi',
+					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.name_en AS 'DimResearchActivity_Role_NameEn',
+					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.name_sv AS 'DimResearchActivity_Role_NameSv',
                     dfd.acronym AS 'DimFundingDecision_Acronym',
                     dfd.funder_project_number AS 'DimFundingDecision_FunderProjectNumber',
                     dfd.name_fi AS 'DimFundingDecision_NameFi',
@@ -237,16 +266,20 @@ namespace api.Services
                 JOIN dim_researcher_description ON ffv.dim_researcher_description_id=dim_researcher_description.id
                 JOIN dim_email_addrress ON ffv.dim_email_addrress_id=dim_email_addrress.id
                 JOIN dim_telephone_number ON ffv.dim_telephone_number_id=dim_telephone_number.id
-                JOIN dim_field_of_science ON ffv.dim_field_of_science_id=dim_field_of_science.id
                 JOIN dim_keyword ON ffv.dim_keyword_id=dim_keyword.id
                 JOIN dim_pid ON ffv.dim_pid_id=dim_pid.id
+
                 JOIN dim_affiliation ON ffv.dim_affiliation_id=dim_affiliation.id
                 JOIN dim_organization AS affiliation_organization ON dim_affiliation.dim_organization_id=affiliation_organization.id
+                LEFT JOIN dim_organization AS affiliation_organization_broader ON affiliation_organization_broader.id=affiliation_organization.dim_organization_broader AND affiliation_organization.dim_organization_broader!=-1
+                JOIN dim_sector AS affiliation_organization_sector ON affiliation_organization.dim_sectorid=affiliation_organization_sector.id
+                LEFT JOIN dim_sector AS affiliation_organization_broader_sector ON affiliation_organization_broader.dim_sectorid=affiliation_organization_broader_sector.id
                 LEFT JOIN dim_date AS affiliation_start_date ON dim_affiliation.start_date=affiliation_start_date.id AND affiliation_start_date.id!=-1
                 LEFT JOIN dim_date AS affiliation_end_date ON dim_affiliation.end_date=affiliation_end_date.id AND affiliation_end_date.id!=-1
                 JOIN dim_referencedata AS affiliation_type ON dim_affiliation.affiliation_type=affiliation_type.id
                 JOIN dim_identifierless_data AS did ON ffv.dim_identifierless_data_id=did.id
                 LEFT JOIN dim_identifierless_data AS did_child ON did_child.dim_identifierless_data_id=did.id AND did_child.dim_identifierless_data_id!=-1
+
                 JOIN dim_education ON ffv.dim_education_id=dim_education.id
                 LEFT JOIN dim_date AS education_start_date ON dim_education.dim_start_date=education_start_date.id AND education_start_date.id!=-1
                 LEFT JOIN dim_date AS education_end_date ON dim_education.dim_end_date=education_end_date.id AND education_end_date.id!=-1
@@ -255,14 +288,28 @@ namespace api.Services
                 JOIN dim_research_activity ON ffv.dim_research_activity_id=dim_research_activity.id
                 LEFT JOIN dim_date AS research_activity_start_date ON dim_research_activity.dim_start_date=research_activity_start_date.id AND research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS research_activity_end_date ON dim_research_activity.dim_end_date=research_activity_end_date.id AND research_activity_end_date.id!=-1
-                JOIN dim_funding_decision AS dfd ON ffv.dim_funding_decision_id=dfd.id
+				
+				LEFT JOIN fact_contribution AS research_activity_fact_contribution_activity_type ON dim_research_activity.id=research_activity_fact_contribution_activity_type.dim_research_activity_id AND
+					dim_research_activity.id!=-1 AND
+					research_activity_fact_contribution_activity_type.contribution_type='activity_type'
+				LEFT JOIN dim_referencedata AS research_activity_fact_contribution_activity_type_dim_referencedata ON
+					research_activity_fact_contribution_activity_type.dim_referencedata_actor_role_id=research_activity_fact_contribution_activity_type_dim_referencedata.id AND
+					research_activity_fact_contribution_activity_type_dim_referencedata.id!=-1
+
+				LEFT JOIN fact_contribution AS research_activity_fact_contribution_researcher_name_activity ON dim_research_activity.id=research_activity_fact_contribution_researcher_name_activity.dim_research_activity_id AND
+					dim_research_activity.id!=-1 AND
+					research_activity_fact_contribution_researcher_name_activity.contribution_type='researcher_name_activity'
+				LEFT JOIN dim_referencedata AS research_activity_fact_contribution_researcher_name_activity_dim_referencedata ON
+					research_activity_fact_contribution_researcher_name_activity.dim_referencedata_actor_role_id=research_activity_fact_contribution_researcher_name_activity_dim_referencedata.id AND
+					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.id!=-1
+              
+				JOIN dim_funding_decision AS dfd ON ffv.dim_funding_decision_id=dfd.id
                 LEFT JOIN dim_date AS funding_decision_start_date ON dfd.dim_date_id_start=funding_decision_start_date.id AND funding_decision_start_date.id!=-1
                 LEFT JOIN dim_date AS funding_decision_end_date ON dfd.dim_date_id_end=funding_decision_end_date.id AND funding_decision_end_date.id!=-1
                 LEFT JOIN dim_call_programme ON dim_call_programme.id=dfd.dim_call_programme_id
                 LEFT JOIN dim_type_of_funding ON dim_type_of_funding.id=dfd.dim_type_of_funding_id
                 LEFT JOIN dim_organization AS dfd_organization ON dfd_organization.id=dfd.dim_organization_id_funder
                 JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
-
                 WHERE
                     ffv.dim_user_profile_id={userprofileId} AND {(forElasticsearch ? " ffv.show=1 AND " : "")}
                     (
@@ -271,7 +318,7 @@ namespace api.Services
                         ffv.dim_researcher_description_id != -1 OR
                         ffv.dim_email_addrress_id != -1 OR
                         ffv.dim_telephone_number_id != -1 OR
-                        ffv.dim_field_of_science_id != -1 OR
+                        ffv.dim_referencedata_field_of_science_id != -1 OR
                         ffv.dim_keyword_id != -1 OR
                         ffv.dim_pid_id != -1 OR
                         ffv.dim_affiliation_id != -1 OR
@@ -440,6 +487,83 @@ namespace api.Services
         public string GetSqlQuery_Delete_DimUserProfile(int userprofileId)
         {
             return $"DELETE FROM dim_user_profile WHERE id={userprofileId}";
+        }
+
+
+        // Return SQL SELECT statement for dim_email_addrress
+        public string GetSqlQuery_Select_DimEmailAddrress(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_email_addrress
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for dim_researcher_description
+        public string GetSqlQuery_Select_DimResearcherDescription(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_researcher_description
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for dim_web_link
+        // TODO: IS NOT NULL condition can be removed, when table dim_web_link.dim_registered_data_source_id is modified to disallow NULL.
+        public string GetSqlQuery_Select_DimWebLink(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_web_link
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL";
+        }
+
+        // Return SQL SELECT statement for dim_telephone_number
+        public string GetSqlQuery_Select_DimTelephoneNumber(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_telephone_number
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for dim_affiliation
+        public string GetSqlQuery_Select_DimAffiliation(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_affiliation
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for dim_education
+        public string GetSqlQuery_Select_DimEducation(int dimKnownPersonId)
+        {
+            return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_education
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1";
+        }
+
+        // Return SQL SELECT statement for fact_contribution
+        public string GetSqlQuery_Select_FactContribution(int dimNameId)
+        {
+            return $@"SELECT DISTINCT
+                        dim_research_activity_id AS 'DimResearchActivityId',
+                        dim_research_dataset_id AS 'DimResearchDatasetId',
+                        dim_publication_id AS 'DimPublicationId'
+                      FROM fact_contribution WHERE dim_name_id = {dimNameId} AND (dim_research_activity_id!=-1 OR dim_research_dataset_id!=-1 OR dim_publication_id!=-1)";
+        }
+
+        // Return SQL SELECT statement for br_participates_in_funding_group
+        public string GetSqlQuery_Select_BrParticipatesInFundingGroup(int dimNameId)
+        {
+            return $@"SELECT dim_funding_decisionid as 'DimFundingDecisionId'
+                        FROM br_participates_in_funding_group
+                        WHERE dim_name_id = {dimNameId}";
+        }
+
+        // Return SQL SELECT statement for counting number of published items in userprofile
+        public string GetSqlQuery_Select_CountPublishedItemsInUserprofile(int dimUserProfileId)
+        {
+            return $@"SELECT COUNT(ffv.show) AS 'PublishedCount'
+                        FROM fact_field_values AS ffv
+                        JOIN dim_user_profile AS dup ON ffv.dim_user_profile_id=dup.id
+                        WHERE dup.id={dimUserProfileId} AND ffv.show=1";
         }
     }
 }

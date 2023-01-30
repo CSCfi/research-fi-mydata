@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -34,15 +35,25 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Delete()
         {
-            // Log request.
-            _logger.LogInformation(this.GetLogPrefix() + " delete user from Keycloak.");
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.KEYCLOAK_ACCOUNT_DELETE,
+                    state: LogContent.ActionState.START));
 
             // Keycloak: logout user
-            await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest());
+            await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest(), this.GetLogUserIdentification());
 
             // Keycloak: remove user
-            await _keycloakAdminApiService.RemoveUser(this.GetBearerTokenFromHttpRequest());
+            await _keycloakAdminApiService.RemoveUser(this.GetBearerTokenFromHttpRequest(), this.GetLogUserIdentification());
 
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.KEYCLOAK_ACCOUNT_DELETE,
+                    state: LogContent.ActionState.COMPLETE));
             return Ok(new ApiResponse(success: true));
         }
     }

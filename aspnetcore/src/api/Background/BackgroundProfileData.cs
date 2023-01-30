@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using api.Models.Log;
 using api.Models.Ttv;
 using api.Models.Elasticsearch;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,14 +28,19 @@ namespace api.Services
         /*
          * Get userprofile data from TTV database and construct entry for Elasticsearch person index.
          */
-        public async Task<ElasticsearchPerson> GetProfiledataForElasticsearch(string orcidId, int userprofileId)
+        public async Task<ElasticsearchPerson> GetProfiledataForElasticsearch(string orcidId, int userprofileId, LogUserIdentification logUserIdentification)
         {
             // Create a scope and get TtvContext for data query.
             using IServiceScope scope = _serviceScopeFactory.CreateScope();
             IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
             IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
-            ProfileEditorDataResponse profileEditorDataResponse = await localUserProfileService.GetProfileDataAsync2(userprofileId: userprofileId, forElasticsearch: true);
+            // Get profile data
+            ProfileEditorDataResponse profileEditorDataResponse =
+                await localUserProfileService.GetProfileDataAsync(
+                    userprofileId: userprofileId,
+                    logUserIdentification: logUserIdentification,
+                    forElasticsearch: true);
 
             // Convert profile editor model into Elasticsearch model using Automapper.
             // Set id to ORCID ID

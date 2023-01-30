@@ -20,7 +20,7 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimResearcherDescriptionId { get; set; }
         public int FactFieldValues_DimEmailAddrressId { get; set; }
         public int FactFieldValues_DimTelephoneNumberId { get; set; }
-        public int FactFieldValues_DimFieldOfScienceId { get; set; }
+        public int FactFieldValues_DimReferencedataFieldOfScienceId { get; set; }
         public int FactFieldValues_DimKeywordId { get; set; }
         public int FactFieldValues_DimPidId { get; set; }
         public int FactFieldValues_DimAffiliationId { get; set; }
@@ -66,10 +66,6 @@ namespace api.Models.ProfileEditor
         public string DimEmailAddrress_Email { get; set; }
         // DimTelephoneNumber
         public string DimTelephoneNumber_TelephoneNumber { get; set; }
-        // DimFieldOfScience
-        public string DimFieldOfScience_NameFi { get; set; }
-        public string DimFieldOfScience_NameEn { get; set; }
-        public string DimFieldOfScience_NameSv { get; set; }
         // DimKeyword
         public string DimKeyword_Keyword { get; set; }
         // DimPid
@@ -77,9 +73,23 @@ namespace api.Models.ProfileEditor
         public string DimPid_PidType { get; set; }
         // DimAffiliation
         public int DimAffiliation_DimOrganization_Id { get; set; }
+        public string DimAffiliation_DimOrganization_OrganizationId { get; set; }
         public string DimAffiliation_DimOrganization_NameFi { get; set; }
         public string DimAffiliation_DimOrganization_NameEn { get; set; }
         public string DimAffiliation_DimOrganization_NameSv { get; set; }
+        public string DimAffiliation_DimOrganization_DimSector_SectorId { get; set; }
+        public string DimAffiliation_DimOrganization_DimSector_NameFi { get; set; }
+        public string DimAffiliation_DimOrganization_DimSector_NameEn { get; set; }
+        public string DimAffiliation_DimOrganization_DimSector_NameSv { get; set; }
+        public int DimAffiliation_DimOrganizationBroader_Id { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_OrganizationId { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_NameFi { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_NameEn { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_NameSv { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_DimSector_SectorId { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_DimSector_NameFi { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_DimSector_NameEn { get; set; }
+        public string DimAffiliation_DimOrganizationBroader_DimSector_NameSv { get; set; }
         public string DimAffiliation_PositionNameFi { get; set; }
         public string DimAffiliation_PositionNameEn { get; set; }
         public string DimAffiliation_PositionNameSv { get; set; }
@@ -118,7 +128,11 @@ namespace api.Models.ProfileEditor
         public string DimPublication_PublicationName { get; set; }
         public int DimPublication_PublicationYear { get; set; }
         public string DimPublication_Doi { get; set; }
+        public string DimPublication_AuthorsText { get; set; }
         public string DimPublication_PublicationTypeCode { get; set; }
+        public string DimPublication_JournalName { get; set; }
+        public string DimPublication_ConferenceName { get; set; }
+        public string DimPublication_ParentPublicationName { get; set; }
         // DimOrcidPublication
         public string DimOrcidPublication_PublicationId { get; set; }
         public string DimOrcidPublication_PublicationName { get; set; }
@@ -138,6 +152,14 @@ namespace api.Models.ProfileEditor
         public int DimResearchActivity_EndDate_Year { get; set; }
         public int DimResearchActivity_EndDate_Month { get; set; }
         public int DimResearchActivity_EndDate_Day { get; set; }
+        public string DimResearchActivity_ActivityType_CodeValue { get; set; }
+        public string DimResearchActivity_ActivityType_NameFi { get; set; }
+        public string DimResearchActivity_ActivityType_NameEn { get; set; }
+        public string DimResearchActivity_ActivityType_NameSv { get; set; }
+        public string DimResearchActivity_Role_CodeValue { get; set; }
+        public string DimResearchActivity_Role_NameFi { get; set; }
+        public string DimResearchActivity_Role_NameEn { get; set; }
+        public string DimResearchActivity_Role_NameSv { get; set; }
         // DimFundingDecision
         public string DimFundingDecision_Acronym { get; set; }
         public string DimFundingDecision_FunderProjectNumber { get; set; }

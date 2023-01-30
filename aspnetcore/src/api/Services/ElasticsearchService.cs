@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using api.Models.Elasticsearch;
+using api.Models.Log;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -15,6 +16,7 @@ namespace api.Services
         public ElasticClient ESclient;
         public IConfiguration Configuration { get; }
         private readonly ILogger<ElasticsearchService> _logger;
+        private readonly string elasticsearchProfileIndexName = "person";
 
         // Check if Elasticsearch synchronization is enabled and related configuration is valid.
         public bool IsElasticsearchSyncEnabled()
@@ -37,17 +39,40 @@ namespace api.Services
 
             if (IsElasticsearchSyncEnabled())
             {
+                // Elasticsearch client
                 ConnectionSettings settings = new ConnectionSettings(new Uri(Configuration["ELASTICSEARCH:URL"]))
-                    .DefaultIndex("person")
+                    .MaximumRetries(3)
+                    .DefaultIndex(elasticsearchProfileIndexName)
                     .BasicAuthentication(Configuration["ELASTICSEARCH:USERNAME"], Configuration["ELASTICSEARCH:PASSWORD"]);
                 ESclient = new ElasticClient(settings);
+
+                // Ensure required index exists.
+                // Use attribute mapping when creating index:
+                //     https://www.elastic.co/guide/en/elasticsearch/client/net-api/7.17/attribute-mapping.html
+                if (!ESclient.Indices.Exists(elasticsearchProfileIndexName).Exists)
+                {
+                    _logger.LogInformation("ElasticsearchService: required index not found, creating index: " + elasticsearchProfileIndexName);
+
+                    var createIndexResponse = ESclient.Indices.Create(elasticsearchProfileIndexName, c => c
+                        .Map<ElasticsearchPerson>(m => m.AutoMap())
+                    );
+
+                    if (!createIndexResponse.IsValid)
+                    {
+                        _logger.LogError("ElasticsearchService: failed creating index: " + elasticsearchProfileIndexName + " : " + createIndexResponse.ToString());
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation("ElasticsearchService: required index found: " + elasticsearchProfileIndexName);
+                }
             }
         }
 
 
         // Update entry in Elasticsearch person index
         // TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
-        public async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person)
+        public async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person, LogUserIdentification logUserIdentification)
         {
             if (!IsElasticsearchSyncEnabled())
             {
@@ -72,13 +97,21 @@ namespace api.Services
                 {
                     errormessage = asyncIndexResponse.ServerError.Error.Reason;
                 }
-                _logger.LogError("ElasticsearchService: ERROR updating: " + orcidId + ": " + errormessage);
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: errormessage));
+
                 return false;
             }
         }
 
         // Delete entry from Elasticsearch person index
-        public async Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId)
+        public async Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId, LogUserIdentification logUserIdentification)
         {
             if (!IsElasticsearchSyncEnabled())
             {
@@ -103,7 +136,16 @@ namespace api.Services
                 {
                     errormessage = asyncDeleteResponse.ServerError.Error.Reason;
                 }
-                _logger.LogError("ElasticsearchService: ERROR deleting: " + orcidId + ": " + errormessage);
+
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ELASTICSEARCH_DELETE,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: errormessage));
+
                 return false;
             }
         }

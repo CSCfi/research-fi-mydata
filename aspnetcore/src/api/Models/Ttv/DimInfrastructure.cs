@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimInfrastructure
     {
         public DimInfrastructure()
         {
-            BrEsfriDimInfrastructures = new HashSet<BrEsfriDimInfrastructure>();
-            BrInfrastructureDimFieldOfSciences = new HashSet<BrInfrastructureDimFieldOfScience>();
-            BrMerilDimInfrastructures = new HashSet<BrMerilDimInfrastructure>();
             DimPids = new HashSet<DimPid>();
             FactContributions = new HashSet<FactContribution>();
+            FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
             FactInfraKeywords = new HashSet<FactInfraKeyword>();
             FactUpkeeps = new HashSet<FactUpkeep>();
             InverseNextInfastructure = new HashSet<DimInfrastructure>();
+            DimEsfris = new HashSet<DimEsfri>();
+            DimMerils = new HashSet<DimMeril>();
         }
 
         public int Id { get; set; }
@@ -41,13 +39,14 @@ namespace api.Models.Ttv
         public string ScientificDescriptionEn { get; set; }
 
         public virtual DimInfrastructure NextInfastructure { get; set; }
-        public virtual ICollection<BrEsfriDimInfrastructure> BrEsfriDimInfrastructures { get; set; }
-        public virtual ICollection<BrInfrastructureDimFieldOfScience> BrInfrastructureDimFieldOfSciences { get; set; }
-        public virtual ICollection<BrMerilDimInfrastructure> BrMerilDimInfrastructures { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
+        public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
         public virtual ICollection<FactInfraKeyword> FactInfraKeywords { get; set; }
         public virtual ICollection<FactUpkeep> FactUpkeeps { get; set; }
         public virtual ICollection<DimInfrastructure> InverseNextInfastructure { get; set; }
+
+        public virtual ICollection<DimEsfri> DimEsfris { get; set; }
+        public virtual ICollection<DimMeril> DimMerils { get; set; }
     }
 }

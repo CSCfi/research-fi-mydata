@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimFieldOfArt
     {
         public DimFieldOfArt()
         {
-            BrFieldOfArtDimPublications = new HashSet<BrFieldOfArtDimPublication>();
-            BrFundingDecisionDimFieldOfArts = new HashSet<BrFundingDecisionDimFieldOfArt>();
+            DimFundingDecisions = new HashSet<DimFundingDecision>();
+            DimPublications = new HashSet<DimPublication>();
         }
 
         public int Id { get; set; }
@@ -23,7 +21,7 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
 
-        public virtual ICollection<BrFieldOfArtDimPublication> BrFieldOfArtDimPublications { get; set; }
-        public virtual ICollection<BrFundingDecisionDimFieldOfArt> BrFundingDecisionDimFieldOfArts { get; set; }
+        public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
+        public virtual ICollection<DimPublication> DimPublications { get; set; }
     }
 }

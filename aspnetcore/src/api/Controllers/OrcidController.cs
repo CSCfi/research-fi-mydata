@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using System;
+using Microsoft.AspNetCore.Hosting;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -23,15 +25,21 @@ namespace api.Controllers
         private readonly IOrcidImportService _orcidImportService;
         private readonly ITokenService _tokenService;
         private readonly ILogger<OrcidController> _logger;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public OrcidController(IUserProfileService userProfileService, IOrcidApiService orcidApiService,
-            IOrcidImportService orcidImportService, ILogger<OrcidController> logger, ITokenService tokenService)
+        public OrcidController(IUserProfileService userProfileService,
+            IOrcidApiService orcidApiService,
+            IOrcidImportService orcidImportService,
+            ILogger<OrcidController> logger,
+            ITokenService tokenService,
+            IWebHostEnvironment webHostEnvironment)
         {
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
             _orcidImportService = orcidImportService;
             _tokenService = tokenService;
             _logger = logger;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         /// <summary>
@@ -58,21 +66,43 @@ namespace api.Controllers
             int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Get ORCID record from ORCID member or public API.
-            // If user access token has claim "use_orcid_public_api", then the record is requested from public API.
+            // If environment is not "Production" and user access token has claim "use_orcid_public_api",
+            // then the record is requested from public API.
             // In all other cases the ORCID member API will be used.
             string orcidRecordJson = "";
 
-            if (this.GetOrcidPublicApiFlag() != null)
+            if (_webHostEnvironment.EnvironmentName!="Production" && this.GetOrcidPublicApiFlag() != null)
             {
                 // ORCID public API should be used
                 try
                 {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        this.GetLogUserIdentification(),
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_GET_PUBLIC_API,
+                            state: LogContent.ActionState.START));
+
                     orcidRecordJson = await _orcidApiService.GetRecordFromPublicApi(orcidId);
-                    _logger.LogInformation(this.GetLogPrefix() + " get ORCID record json from ORCID public API OK");
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        this.GetLogUserIdentification(),
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_GET_PUBLIC_API,
+                            state: LogContent.ActionState.COMPLETE));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(this.GetLogPrefix() + " get ORCID record json from ORCID public API failed: " + ex);
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        this.GetLogUserIdentification(),
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_GET_PUBLIC_API,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: ex.ToString()));
+
                     return Ok(new ApiResponse(success: false));
                 }
             }
@@ -84,29 +114,69 @@ namespace api.Controllers
                 OrcidTokens orcidTokens;
                 try
                 {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        this.GetLogUserIdentification(),
+                        new LogApiInfo(
+                            action: LogContent.Action.KEYCLOAK_GET_ORCID_TOKENS,
+                            state: LogContent.ActionState.START));
+
                     // Get ORCID access token from Keycloak
                     string orcidTokensJson = await _tokenService.GetOrcidTokensJsonFromKeycloak(this.GetBearerTokenFromHttpRequest());
                     // Parse json from Keycloak into EF model
                     orcidTokens = _tokenService.ParseOrcidTokensJson(orcidTokensJson);
                     // Update ORCID tokens in TTV database. 
                     await _userProfileService.UpdateOrcidTokensInDimUserProfile(userprofileId, orcidTokens);
-                    _logger.LogInformation(this.GetLogPrefix() + " get ORCID tokens from Keycloak OK");
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        this.GetLogUserIdentification(),
+                        new LogApiInfo(
+                            action: LogContent.Action.KEYCLOAK_GET_ORCID_TOKENS,
+                            state: LogContent.ActionState.COMPLETE));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(this.GetLogPrefix() + " get ORCID tokens from Keycloak failed: " + ex);
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        this.GetLogUserIdentification(),
+                        new LogApiInfo(
+                            action: LogContent.Action.KEYCLOAK_GET_ORCID_TOKENS,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: ex.ToString()));
                     return Ok(new ApiResponse(success: false));
                 }
 
                 // Get record json from ORCID member API
                 try
                 {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        this.GetLogUserIdentification(),
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
+                            state: LogContent.ActionState.START));
+
                     orcidRecordJson = await _orcidApiService.GetRecordFromMemberApi(orcidId, orcidTokens.AccessToken);
-                    _logger.LogInformation(this.GetLogPrefix() + " get ORCID record json from ORCID member API OK");
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        this.GetLogUserIdentification(),
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
+                            state: LogContent.ActionState.COMPLETE));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(this.GetLogPrefix() + " get ORCID record json from ORCID member API failed: " + ex);
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        this.GetLogUserIdentification(),
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: ex.ToString()));
                     return Ok(new ApiResponse(success: false));
                 }
             }
@@ -114,12 +184,33 @@ namespace api.Controllers
             // Import record json into userprofile
             try
             {
+                _logger.LogInformation(
+                                    LogContent.MESSAGE_TEMPLATE,
+                                    this.GetLogUserIdentification(),
+                                    new LogApiInfo(
+                                        action: LogContent.Action.ORCID_RECORD_IMPORT,
+                                        state: LogContent.ActionState.START));
+
                 await _orcidImportService.ImportOrcidRecordJsonIntoUserProfile(userprofileId, orcidRecordJson);
-                _logger.LogInformation(this.GetLogPrefix() + " import ORCID record to userprofile OK");
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_IMPORT,
+                        state: LogContent.ActionState.COMPLETE));
             }
             catch (Exception ex)
             {
-                _logger.LogError(this.GetLogPrefix() + " import ORCID record to userprofile failed: " + ex);
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_IMPORT,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: ex.ToString()));
+
                 return Ok(new ApiResponse(success: false));
             }
 

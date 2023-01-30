@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimResearchDataset
@@ -11,9 +9,13 @@ namespace api.Models.Ttv
         {
             BrDatasetDatasetRelationshipDimResearchDatasetId2Navigations = new HashSet<BrDatasetDatasetRelationship>();
             BrDatasetDatasetRelationshipDimResearchDatasets = new HashSet<BrDatasetDatasetRelationship>();
+            DimPids = new HashSet<DimPid>();
             DimWebLinks = new HashSet<DimWebLink>();
             FactContributions = new HashSet<FactContribution>();
+            FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
             FactFieldValues = new HashSet<FactFieldValue>();
+            DimKeywords = new HashSet<DimKeyword>();
+            DimReferencedata = new HashSet<DimReferencedatum>();
         }
 
         public int Id { get; set; }
@@ -48,8 +50,13 @@ namespace api.Models.Ttv
         public virtual DimResearchDataCatalog DimResearchDataCatalog { get; set; }
         public virtual ICollection<BrDatasetDatasetRelationship> BrDatasetDatasetRelationshipDimResearchDatasetId2Navigations { get; set; }
         public virtual ICollection<BrDatasetDatasetRelationship> BrDatasetDatasetRelationshipDimResearchDatasets { get; set; }
+        public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
+        public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
+
+        public virtual ICollection<DimKeyword> DimKeywords { get; set; }
+        public virtual ICollection<DimReferencedatum> DimReferencedata { get; set; }
     }
 }

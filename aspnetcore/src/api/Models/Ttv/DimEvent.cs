@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimEvent
@@ -19,8 +17,8 @@ namespace api.Models.Ttv
         public string NameSv { get; set; }
         public string NameEn { get; set; }
         public string NameUnd { get; set; }
-        public int? EventLocationText { get; set; }
-        public int DimDateIdStartDate { get; set; }
+        public string EventLocationText { get; set; }
+        public int? DimDateIdStartDate { get; set; }
         public int? DimDateIdEndDate { get; set; }
         public int? DimGeoIdEventCountry { get; set; }
         public string SourceId { get; set; }

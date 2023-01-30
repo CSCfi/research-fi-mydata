@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimReferencedatum
     {
         public DimReferencedatum()
         {
-            BrArtpublicationTypecategories = new HashSet<BrArtpublicationTypecategory>();
-            BrDimReferencedataDimCallProgrammes = new HashSet<BrDimReferencedataDimCallProgramme>();
             BrGrantedPermissions = new HashSet<BrGrantedPermission>();
             DimAffiliationAffiliationTypeNavigations = new HashSet<DimAffiliation>();
             DimAffiliationPositionCodeNavigations = new HashSet<DimAffiliation>();
@@ -28,8 +24,13 @@ namespace api.Models.Ttv
             DimResearchDatasetDimReferencedataLicenseNavigations = new HashSet<DimResearchDataset>();
             DimUserChoices = new HashSet<DimUserChoice>();
             FactContributions = new HashSet<FactContribution>();
+            FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
+            FactFieldValues = new HashSet<FactFieldValue>();
             FactJufoClassCodesForPubChannels = new HashSet<FactJufoClassCodesForPubChannel>();
             InverseDimReferencedata = new HashSet<DimReferencedatum>();
+            DimCallProgrammes = new HashSet<DimCallProgramme>();
+            DimPublications = new HashSet<DimPublication>();
+            DimResearchDatasets = new HashSet<DimResearchDataset>();
         }
 
         public int Id { get; set; }
@@ -46,8 +47,6 @@ namespace api.Models.Ttv
         public int DimReferencedataId { get; set; }
 
         public virtual DimReferencedatum DimReferencedata { get; set; }
-        public virtual ICollection<BrArtpublicationTypecategory> BrArtpublicationTypecategories { get; set; }
-        public virtual ICollection<BrDimReferencedataDimCallProgramme> BrDimReferencedataDimCallProgrammes { get; set; }
         public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliationAffiliationTypeNavigations { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliationPositionCodeNavigations { get; set; }
@@ -65,7 +64,13 @@ namespace api.Models.Ttv
         public virtual ICollection<DimResearchDataset> DimResearchDatasetDimReferencedataLicenseNavigations { get; set; }
         public virtual ICollection<DimUserChoice> DimUserChoices { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
+        public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
         public virtual ICollection<FactJufoClassCodesForPubChannel> FactJufoClassCodesForPubChannels { get; set; }
         public virtual ICollection<DimReferencedatum> InverseDimReferencedata { get; set; }
+
+        public virtual ICollection<DimCallProgramme> DimCallProgrammes { get; set; }
+        public virtual ICollection<DimPublication> DimPublications { get; set; }
+        public virtual ICollection<DimResearchDataset> DimResearchDatasets { get; set; }
     }
 }

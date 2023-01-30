@@ -1,5 +1,6 @@
 ﻿using api.Services;
 using api.Models.Api;
+using api.Models.Log;
 using api.Models.Ttv;
 using api.Models.ProfileEditor;
 using api.Models.ProfileEditor.Items;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using api.Models.Common;
+using System;
 
 namespace api.Controllers
 {
@@ -30,10 +32,18 @@ namespace api.Controllers
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly ILanguageService _languageService;
         private readonly IMemoryCache _cache;
+        private readonly ILogger<UserProfileController> _logger;
+        private readonly IElasticsearchService _elasticsearchService;
+        private readonly IBackgroundProfiledata _backgroundProfiledata;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
         public FundingDecisionController(TtvContext ttvContext, IUserProfileService userProfileService,
             IUtilityService utilityService, IDataSourceHelperService dataSourceHelperService,
-            IMemoryCache memoryCache, ILanguageService languageService)
+            IMemoryCache memoryCache, ILanguageService languageService,
+            IElasticsearchService elasticsearchService,
+            ILogger<UserProfileController> logger,
+            IBackgroundProfiledata backgroundProfiledata,
+            IBackgroundTaskQueue taskQueue)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -41,6 +51,10 @@ namespace api.Controllers
             _dataSourceHelperService = dataSourceHelperService;
             _languageService = languageService;
             _cache = memoryCache;
+            _elasticsearchService = elasticsearchService;
+            _backgroundProfiledata = backgroundProfiledata;
+            _logger = logger;
+            _taskQueue = taskQueue;
         }
 
         /// <summary>
@@ -84,7 +98,8 @@ namespace api.Controllers
             // TODO: Currently all added funding decisions get the same data source (Tiedejatutkimus.fi)
 
             // Get DimFieldDisplaySetting for funding decision
-            DimFieldDisplaySetting dimFieldDisplaySettingsFundingDecision = dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
+            DimFieldDisplaySetting dimFieldDisplaySettingsFundingDecision =
+                dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
 
             // Registered data source organization name translation
             NameTranslation nameTranslation_OrganizationName = _languageService.GetNameTranslation(
@@ -109,8 +124,8 @@ namespace api.Controllers
             };
 
 
-            // Loop funding decisions
-            foreach (ProfileEditorFundingDecisionToAdd fundingDecisionToAdd in profileEditorFundingDecisionsToAdd)
+            // Loop funding decisions, ignore possible duplicates
+            foreach (ProfileEditorFundingDecisionToAdd fundingDecisionToAdd in profileEditorFundingDecisionsToAdd.DistinctBy(f => f.ProjectId))
             {
                 bool fundingDecisionProcessed = false;
                 // Check if userprofile already includes given funding decision
@@ -128,7 +143,8 @@ namespace api.Controllers
                 if (!fundingDecisionProcessed)
                 {
                     // Get DimFundingDecision
-                    DimFundingDecision dimFundingDecision = await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.Id == fundingDecisionToAdd.ProjectId);
+                    DimFundingDecision dimFundingDecision =
+                        await _ttvContext.DimFundingDecisions.AsNoTracking().FirstOrDefaultAsync(dfd => dfd.Id == fundingDecisionToAdd.ProjectId);
                     // Check if exists
                     if (dimFundingDecision == null)
                     {
@@ -156,7 +172,39 @@ namespace api.Controllers
                 }
             }
 
-            // TODO: add Elasticsearch sync?
+            // Update Elasticsearch index in a background task.
+            // ElasticsearchService is singleton, no need to create local scope.
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            {
+                LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.START));
+
+                    // Get Elasticsearch person entry from profile data.
+                    Models.Elasticsearch.ElasticsearchPerson person =
+                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
+                            orcidId: orcidId,
+                            userprofileId: userprofileId,
+                            logUserIdentification: logUserIdentification);
+
+                    // Update Elasticsearch person index.
+                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification);
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.COMPLETE));
+                });
+            }
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
@@ -220,7 +268,39 @@ namespace api.Controllers
             }
             await _ttvContext.SaveChangesAsync();
 
-            // TODO: add Elasticsearch sync?
+            // Update Elasticsearch index in a background task.
+            // ElasticsearchService is singleton, no need to create local scope.
+            if (_elasticsearchService.IsElasticsearchSyncEnabled())
+            {
+                LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.START));
+
+                    // Get Elasticsearch person entry from profile data.
+                    Models.Elasticsearch.ElasticsearchPerson person =
+                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
+                            orcidId: orcidId,
+                            userprofileId: userprofileId,
+                            logUserIdentification: logUserIdentification);
+
+                    // Update Elasticsearch person index.
+                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification);
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.COMPLETE));
+                });
+            }
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimRegisteredDataSource
     {
         public DimRegisteredDataSource()
         {
-            BrFieldDisplaySettingsDimRegisteredDataSources = new HashSet<BrFieldDisplaySettingsDimRegisteredDataSource>();
             DimAffiliations = new HashSet<DimAffiliation>();
             DimCallProgrammes = new HashSet<DimCallProgramme>();
             DimCompetences = new HashSet<DimCompetence>();
@@ -18,6 +15,7 @@ namespace api.Models.Ttv
             DimEvents = new HashSet<DimEvent>();
             DimFundingDecisions = new HashSet<DimFundingDecision>();
             DimKeywords = new HashSet<DimKeyword>();
+            DimKnownPeople = new HashSet<DimKnownPerson>();
             DimNames = new HashSet<DimName>();
             DimOrcidPublications = new HashSet<DimOrcidPublication>();
             DimOrganizations = new HashSet<DimOrganization>();
@@ -28,7 +26,9 @@ namespace api.Models.Ttv
             DimResearcherDescriptions = new HashSet<DimResearcherDescription>();
             DimResearcherToResearchCommunities = new HashSet<DimResearcherToResearchCommunity>();
             DimTelephoneNumbers = new HashSet<DimTelephoneNumber>();
+            DimWebLinks = new HashSet<DimWebLink>();
             FactFieldValues = new HashSet<FactFieldValue>();
+            DimFieldDisplaySettings = new HashSet<DimFieldDisplaySetting>();
         }
 
         public int Id { get; set; }
@@ -40,7 +40,6 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
 
         public virtual DimOrganization DimOrganization { get; set; }
-        public virtual ICollection<BrFieldDisplaySettingsDimRegisteredDataSource> BrFieldDisplaySettingsDimRegisteredDataSources { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
         public virtual ICollection<DimCallProgramme> DimCallProgrammes { get; set; }
         public virtual ICollection<DimCompetence> DimCompetences { get; set; }
@@ -49,6 +48,7 @@ namespace api.Models.Ttv
         public virtual ICollection<DimEvent> DimEvents { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
         public virtual ICollection<DimKeyword> DimKeywords { get; set; }
+        public virtual ICollection<DimKnownPerson> DimKnownPeople { get; set; }
         public virtual ICollection<DimName> DimNames { get; set; }
         public virtual ICollection<DimOrcidPublication> DimOrcidPublications { get; set; }
         public virtual ICollection<DimOrganization> DimOrganizations { get; set; }
@@ -59,6 +59,9 @@ namespace api.Models.Ttv
         public virtual ICollection<DimResearcherDescription> DimResearcherDescriptions { get; set; }
         public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; }
         public virtual ICollection<DimTelephoneNumber> DimTelephoneNumbers { get; set; }
+        public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
+
+        public virtual ICollection<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; }
     }
 }

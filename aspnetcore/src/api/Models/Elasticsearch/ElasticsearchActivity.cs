@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using Nest;
 
 namespace api.Models.Elasticsearch
 {
+    [ElasticsearchType(RelationName = "activity")]
     public partial class ElasticsearchActivity
     {
         public ElasticsearchActivity()
@@ -14,6 +16,8 @@ namespace api.Models.Elasticsearch
             activitiesAndRewards = new List<ElasticsearchActivityAndReward>();
         }
 
+        [Nested]
+        [PropertyName("affiliations")]
         public List<ElasticsearchAffiliation> affiliations { get; set; }
         public List<ElasticsearchEducation> educations { get; set; }
         public List<ElasticsearchPublication> publications { get; set; }

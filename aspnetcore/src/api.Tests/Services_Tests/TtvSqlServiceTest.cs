@@ -22,7 +22,7 @@ namespace api.Tests
                 DimEmailAddrressId = -1,
                 DimEventId = -1,
                 DimFieldDisplaySettingsId = -1,
-                DimFieldOfScienceId = -1,
+                DimReferencedataFieldOfScienceId = -1,
                 DimFundingDecisionId = -1,
                 DimIdentifierlessDataId = -1,
                 DimKeywordId = -1,
@@ -164,6 +164,16 @@ namespace api.Tests
             // Research dataset
             Assert.Equal(
                 "dim_research_dataset_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET)
+            );
+        }
+
+        [Fact(DisplayName = "Get FactFieldValues FK column name - dim_research_activity_id")]
+        public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_research_activity_id()
+        {
+            TtvSqlService ttvSqlService = new();
+            // Research activity
+            Assert.Equal(
+                "dim_research_activity_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY)
             );
         }
 
@@ -495,6 +505,18 @@ namespace api.Tests
             TtvSqlService ttvSqlService = new();
             string expectedSqlString = "DELETE FROM dim_user_profile WHERE id=221199";
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimUserProfile(221199);
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for counting number of published items in userprofile")]
+        public void GetSqlQuery_Select_CountPublishedItemsInUserprofile()
+        {
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = $@"SELECT COUNT(ffv.show) AS 'PublishedCount'
+                        FROM fact_field_values AS ffv
+                        JOIN dim_user_profile AS dup ON ffv.dim_user_profile_id=dup.id
+                        WHERE dup.id=335577 AND ffv.show=1";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_CountPublishedItemsInUserprofile(335577);
             Assert.Equal(expectedSqlString, actualSqlString);
         }
     }

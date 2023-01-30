@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class DimCallProgramme
     {
         public DimCallProgramme()
         {
-            BrCallProgrammeDimCallProgrammeDimCallProgrammeId2Navigations = new HashSet<BrCallProgrammeDimCallProgramme>();
-            BrCallProgrammeDimCallProgrammeDimCallProgrammes = new HashSet<BrCallProgrammeDimCallProgramme>();
-            BrDimReferencedataDimCallProgrammes = new HashSet<BrDimReferencedataDimCallProgramme>();
-            BrOrganizationsFundCallProgrammes = new HashSet<BrOrganizationsFundCallProgramme>();
             DimFundingDecisions = new HashSet<DimFundingDecision>();
             DimWebLinks = new HashSet<DimWebLink>();
+            DimCallProgrammeId2s = new HashSet<DimCallProgramme>();
+            DimCallProgrammes = new HashSet<DimCallProgramme>();
+            DimOrganizations = new HashSet<DimOrganization>();
+            DimReferencedata = new HashSet<DimReferencedatum>();
         }
 
         public int Id { get; set; }
         public int DimDateIdDue { get; set; }
         public int DimDateIdOpen { get; set; }
+        public TimeSpan? DueDateDueTime { get; set; }
         public string Abbreviation { get; set; }
         public string EuCallId { get; set; }
         public string NameFi { get; set; }
@@ -42,16 +41,16 @@ namespace api.Models.Ttv
         public string ContactInformation { get; set; }
         public bool? ContinuousApplicationPeriod { get; set; }
         public bool IsOpenCall { get; set; }
-        public TimeSpan? DueDateDueTime { get; set; }
 
         public virtual DimDate DimDateIdDueNavigation { get; set; }
         public virtual DimDate DimDateIdOpenNavigation { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
-        public virtual ICollection<BrCallProgrammeDimCallProgramme> BrCallProgrammeDimCallProgrammeDimCallProgrammeId2Navigations { get; set; }
-        public virtual ICollection<BrCallProgrammeDimCallProgramme> BrCallProgrammeDimCallProgrammeDimCallProgrammes { get; set; }
-        public virtual ICollection<BrDimReferencedataDimCallProgramme> BrDimReferencedataDimCallProgrammes { get; set; }
-        public virtual ICollection<BrOrganizationsFundCallProgramme> BrOrganizationsFundCallProgrammes { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
         public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
+
+        public virtual ICollection<DimCallProgramme> DimCallProgrammeId2s { get; set; }
+        public virtual ICollection<DimCallProgramme> DimCallProgrammes { get; set; }
+        public virtual ICollection<DimOrganization> DimOrganizations { get; set; }
+        public virtual ICollection<DimReferencedatum> DimReferencedata { get; set; }
     }
 }

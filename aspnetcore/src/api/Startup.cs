@@ -153,8 +153,15 @@ namespace api
                 options.AddPolicy("production", builder =>
                 {
                     builder.WithOrigins(
-                        "https://*.csc.fi",
-                        "https://*.rahtiapp.fi"
+                        "https://tiedejatutkimus.fi",
+                        "https://forskning.fi",
+                        "https://research.fi",
+                        "https://www.tiedejatutkimus.fi",
+                        "https://www.forskning.fi",
+                        "https://www.research.fi",
+                        "https://researchfi-qa.rahtiapp.fi",
+                        "https://researchfi-qa-sv.rahtiapp.fi",
+                        "https://researchfi-qa-en.rahtiapp.fi"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()  // TODO: check if AllowAnyHeader() should be removed
@@ -163,7 +170,7 @@ namespace api
             });
 
             /*
-             * HTTP client: ORCID MEMBER API
+             * HTTP client: ORCID member API
              */
             services.AddHttpClient("ORCID_MEMBER_API", httpClient =>
             {
@@ -172,11 +179,20 @@ namespace api
             });
 
             /*
-             * HTTP client: ORCID PUBLIC API
+             * HTTP client: ORCID public API
              */
             services.AddHttpClient("ORCID_PUBLIC_API", httpClient =>
             {
                 httpClient.BaseAddress = new Uri(Configuration["ORCID:PUBLICAPI"]);
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            });
+
+            /*
+             * HTTP client: ORCID webhook API
+             */
+            services.AddHttpClient("ORCID_WEBHOOK_API", httpClient =>
+            {
+                httpClient.BaseAddress = new Uri(Configuration["ORCID:WEBHOOK:API"]);
                 httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
 
@@ -227,6 +243,8 @@ namespace api
 
 
             services.AddResponseCompression();
+
+            services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IOrcidApiService, OrcidApiService>();
             services.AddScoped<IOrcidImportService, OrcidImportService>();
             services.AddScoped<IOrcidJsonParserService, OrcidJsonParserService>();
@@ -285,7 +303,7 @@ namespace api
                 app.UseCors("production");
             }
 
-            app.UseSerilogRequestLogging();
+            //app.UseSerilogRequestLogging();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -309,7 +327,8 @@ namespace api
         {
             DimRegisteredDataSource dimRegisteredDataSource_ORCID = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_ORCID();
             DimRegisteredDataSource dimRegisteredDataSource_TTV = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_TTV();
-            DimPurpose dimPurpose_TTV = startupHelperService.GetDimPurposeId_OnStartup_TTV();
+            // TODO: Uncomment when sharing permissions feature is enabled.
+            // DimPurpose dimPurpose_TTV = startupHelperService.GetDimPurposeId_OnStartup_TTV();
 
             dataSourceHelperService.DimRegisteredDataSourceId_ORCID = dimRegisteredDataSource_ORCID.Id;
             dataSourceHelperService.DimRegisteredDataSourceName_ORCID = dimRegisteredDataSource_ORCID.Name;
@@ -325,7 +344,8 @@ namespace api
             dataSourceHelperService.DimOrganizationNameEn_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameEn;
             dataSourceHelperService.DimOrganizationNameSv_TTV = dimRegisteredDataSource_TTV.DimOrganization.NameSv;
 
-            dataSourceHelperService.DimPurposeId_TTV = dimPurpose_TTV.Id;
+            // TODO: Uncomment when sharing permissions feature is enabled.
+            // dataSourceHelperService.DimPurposeId_TTV = dimPurpose_TTV.Id;
         }
     }
 }

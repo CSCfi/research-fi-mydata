@@ -28,7 +28,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.10" />
     <PackageReference Include="Serilog" Version="2.12.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.4.0" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
@@ -36,6 +36,8 @@
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="AutoMapper" Version="12.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+    <PackageReference Include="Serilog.Sinks.OpenSearch" Version="1.0.0" />
+    <PackageReference Include="Serilog.Formatting.OpenSearch" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +52,7 @@
     <Folder Include="Models\ProfileEditor\ManageFundingDecisions\" />
     <Folder Include="Models\ProfileEditor\ManageResearchDatasets\" />
     <Folder Include="Models\ProfileEditor\ManageSharing\" />
+    <Folder Include="Models\StructuredLog\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="NEST" />
@@ -74,5 +77,8 @@
     <None Remove="Models\ProfileEditor\ManageFundingDecisions\" />
     <None Remove="Models\ProfileEditor\ManageResearchDatasets\" />
     <None Remove="Models\ProfileEditor\ManageSharing\" />
+    <None Remove="Serilog.Sinks.OpenSearch" />
+    <None Remove="Serilog.Formatting.OpenSearch" />
+    <None Remove="Models\Log\" />
   </ItemGroup>
 </Project>

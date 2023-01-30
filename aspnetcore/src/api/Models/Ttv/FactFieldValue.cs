@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace api.Models.Ttv
 {
     public partial class FactFieldValue
@@ -34,9 +32,9 @@ namespace api.Models.Ttv
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
-        public int DimFieldOfScienceId { get; set; }
         public int DimResearchDatasetId { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
+        public int DimReferencedataFieldOfScienceId { get; set; }
 
         public virtual DimAffiliation DimAffiliation { get; set; }
         public virtual DimCompetence DimCompetence { get; set; }
@@ -44,7 +42,6 @@ namespace api.Models.Ttv
         public virtual DimEmailAddrress DimEmailAddrress { get; set; }
         public virtual DimEvent DimEvent { get; set; }
         public virtual DimFieldDisplaySetting DimFieldDisplaySettings { get; set; }
-        public virtual DimFieldOfScience DimFieldOfScience { get; set; }
         public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimIdentifierlessDatum DimIdentifierlessData { get; set; }
         public virtual DimKeyword DimKeyword { get; set; }
@@ -53,6 +50,7 @@ namespace api.Models.Ttv
         public virtual DimPid DimPid { get; set; }
         public virtual DimPid DimPidIdOrcidPutCodeNavigation { get; set; }
         public virtual DimPublication DimPublication { get; set; }
+        public virtual DimReferencedatum DimReferencedataFieldOfScience { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimResearchActivity DimResearchActivity { get; set; }
         public virtual DimResearchCommunity DimResearchCommunity { get; set; }
