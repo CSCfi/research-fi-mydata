@@ -164,8 +164,8 @@ namespace api
                         "https://researchfi-qa-en.rahtiapp.fi"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowAnyHeader()  // TODO: check if AllowAnyHeader() should be removed
+                    .AllowAnyMethod(); // TODO: check if AllowAnyMethod() should be removed
                 });
             });
 

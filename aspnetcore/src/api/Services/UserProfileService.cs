@@ -385,6 +385,13 @@ namespace api.Services
             };
         }
 
+        /*
+         * Search DimAffiliation items from TTV database and link them to user profile.
+         */
+        public void AddDimAffiliationToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile)
+        {
+            DimFieldDisplaySetting dimFieldDisplaySetting_affiliation =
+                dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION).First();
 
 
 

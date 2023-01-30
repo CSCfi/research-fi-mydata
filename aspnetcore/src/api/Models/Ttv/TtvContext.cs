@@ -369,6 +369,88 @@ namespace api.Models.Ttv
                     .HasConstraintName("FKbr_words_d714819");
             });
 
+            modelBuilder.Entity<BrWordClusterDimFundingDecision>(entity =>
+            {
+                entity.HasKey(e => new { e.DimWordClusterId, e.DimFundingDecisionId })
+                    .HasName("PK__br_word___7D640B5A3F85B915");
+
+                entity.ToTable("br_word_cluster_dim_funding_decision");
+
+                entity.Property(e => e.DimWordClusterId).HasColumnName("dim_word_cluster_id");
+
+                entity.Property(e => e.DimFundingDecisionId).HasColumnName("dim_funding_decision_id");
+
+                entity.Property(e => e.Created)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
+
+                entity.Property(e => e.Modified)
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
+
+                entity.Property(e => e.SourceDescription)
+                    .HasMaxLength(255)
+                    .HasColumnName("source_description");
+
+                entity.Property(e => e.SourceId)
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnName("source_id");
+
+                entity.HasOne(d => d.DimFundingDecision)
+                    .WithMany(p => p.BrWordClusterDimFundingDecisions)
+                    .HasForeignKey(d => d.DimFundingDecisionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKbr_word_cl350721");
+
+                entity.HasOne(d => d.DimWordCluster)
+                    .WithMany(p => p.BrWordClusterDimFundingDecisions)
+                    .HasForeignKey(d => d.DimWordClusterId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKbr_word_cl424955");
+            });
+
+            modelBuilder.Entity<BrWordsDefineACluster>(entity =>
+            {
+                entity.HasKey(e => new { e.DimMinedWordsId, e.DimWordClusterId })
+                    .HasName("PK__br_words__0602FA370C173B6A");
+
+                entity.ToTable("br_words_define_a_cluster");
+
+                entity.Property(e => e.DimMinedWordsId).HasColumnName("dim_mined_words_id");
+
+                entity.Property(e => e.DimWordClusterId).HasColumnName("dim_word_cluster_id");
+
+                entity.Property(e => e.Created)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
+
+                entity.Property(e => e.Modified)
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
+
+                entity.Property(e => e.SourceDescription)
+                    .HasMaxLength(255)
+                    .HasColumnName("source_description");
+
+                entity.Property(e => e.SourceId)
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnName("source_id");
+
+                entity.HasOne(d => d.DimMinedWords)
+                    .WithMany(p => p.BrWordsDefineAClusters)
+                    .HasForeignKey(d => d.DimMinedWordsId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKbr_words_d537149");
+
+                entity.HasOne(d => d.DimWordCluster)
+                    .WithMany(p => p.BrWordsDefineAClusters)
+                    .HasForeignKey(d => d.DimWordClusterId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKbr_words_d714819");
+            });
+
             modelBuilder.Entity<DimAffiliation>(entity =>
             {
                 entity.ToTable("dim_affiliation");
@@ -1944,6 +2026,35 @@ namespace api.Models.Ttv
 
                             j.IndexerProperty<int>("DimInfrastructureId").HasColumnName("dim_infrastructure_id");
                         });
+            });
+
+            modelBuilder.Entity<DimMinedWord>(entity =>
+            {
+                entity.ToTable("dim_mined_words");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Created)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created");
+
+                entity.Property(e => e.Modified)
+                    .HasColumnType("datetime")
+                    .HasColumnName("modified");
+
+                entity.Property(e => e.SourceDescription)
+                    .HasMaxLength(255)
+                    .HasColumnName("source_description");
+
+                entity.Property(e => e.SourceId)
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnName("source_id");
+
+                entity.Property(e => e.Word)
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnName("word");
             });
 
             modelBuilder.Entity<DimMinedWord>(entity =>
