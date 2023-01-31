@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using api.Models.Common;
 using api.Models.Orcid;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Nest;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace api.Services
 {
@@ -35,7 +38,7 @@ namespace api.Services
 
 
         /*
-         *  Add DimDates
+         *  Add DimDates entities needed in ORCID record.
          */
         public async Task AddDimDates(string orcidRecordJson, DateTime currentDateTime)
         {
@@ -44,7 +47,11 @@ namespace api.Services
             foreach (OrcidEducation education in educations)
             {
                 // Start date
-                DimDate educationStartDate = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == education.StartDate.Year && dd.Month == education.StartDate.Month && dd.Day == education.StartDate.Day);
+                DimDate educationStartDate =
+                    await _ttvContext.DimDates.FirstOrDefaultAsync(
+                        dd => dd.Year == education.StartDate.Year &&
+                        dd.Month == education.StartDate.Month &&
+                        dd.Day == education.StartDate.Day);
                 if (educationStartDate == null)
                 {
                     educationStartDate = new DimDate()
@@ -62,7 +69,11 @@ namespace api.Services
                 }
 
                 // End date
-                DimDate educationEndDate = await _ttvContext.DimDates.FirstOrDefaultAsync(ed => ed.Year == education.EndDate.Year && ed.Month == education.EndDate.Month && ed.Day == education.EndDate.Day);
+                DimDate educationEndDate =
+                    await _ttvContext.DimDates.FirstOrDefaultAsync(
+                        ed => ed.Year == education.EndDate.Year &&
+                        ed.Month == education.EndDate.Month &&
+                        ed.Day == education.EndDate.Day);
                 if (educationEndDate == null)
                 {
                     educationEndDate = new DimDate()
@@ -85,7 +96,11 @@ namespace api.Services
             foreach (OrcidEmployment employment in employments)
             {
                 // Start date
-                DimDate employmentStartDate = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == employment.StartDate.Year && dd.Month == employment.StartDate.Month && dd.Day == employment.StartDate.Day);
+                DimDate employmentStartDate =
+                    await _ttvContext.DimDates.FirstOrDefaultAsync(
+                        dd => dd.Year == employment.StartDate.Year &&
+                        dd.Month == employment.StartDate.Month &&
+                        dd.Day == employment.StartDate.Day);
                 if (employmentStartDate == null)
                 {
                     employmentStartDate = new DimDate()
@@ -103,7 +118,10 @@ namespace api.Services
                 }
 
                 // End date
-                DimDate employmentEndDate = await _ttvContext.DimDates.FirstOrDefaultAsync(dd => dd.Year == employment.EndDate.Year && dd.Month == employment.EndDate.Month && dd.Day == employment.EndDate.Day);
+                DimDate employmentEndDate = await _ttvContext.DimDates.FirstOrDefaultAsync(
+                    dd => dd.Year == employment.EndDate.Year &&
+                    dd.Month == employment.EndDate.Month &&
+                    dd.Day == employment.EndDate.Day);
                 if (employmentEndDate == null)
                 {
                     employmentEndDate = new DimDate()
@@ -134,33 +152,39 @@ namespace api.Services
             // Get DimUserProfile and related entities
             DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.TagWith("Insert ORCID data").Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
+                // DimRegisteredDataSource
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
                         .ThenInclude(drds => drds.DimOrganization)
+                // DimName
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimName)
+                // DimWebLink
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimWebLink)
+                // DimFundingDecision
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimFundingDecision)
-                //.Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
-                //    .ThenInclude(ffv => ffv.DimPublication)
+                // DimOrcidPublication
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimOrcidPublication)
+                // DimPid
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimPid)
+                // DimPidIdOrcidPutCodeNavigation
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
+                // DimResearchActivity
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimResearchActivity)
-                //.Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
-                //    .ThenInclude(ffv => ffv.DimEvent)
+                // DimEducation
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimEducation)
                         .ThenInclude(de => de.DimStartDateNavigation)
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimEducation)
                         .ThenInclude(de => de.DimEndDateNavigation)
+                // DimAffiliation
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimAffiliation)
                         .ThenInclude(da => da.DimOrganization)
@@ -170,19 +194,20 @@ namespace api.Services
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimAffiliation)
                         .ThenInclude(da => da.EndDateNavigation)
-                //.Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
-                //    .ThenInclude(ffv => ffv.DimCompetence)
-                //.Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
-                //    .ThenInclude(ffv => ffv.DimResearchCommunity)
+                // DimTelephoneNumber
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimTelephoneNumber)
+                // DimEmailAddrress
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimEmailAddrress)
+                // DimResearcherDescription
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimResearcherDescription)
+                // DimIdentifierlessData
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimIdentifierlessData)
                         .ThenInclude(did => did.InverseDimIdentifierlessData) // DimIdentifierlessData can have a child entity.
+                // DimKeyword
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync();
 
@@ -192,22 +217,28 @@ namespace api.Services
             // Add DimDates.
             await AddDimDates(orcidRecordJson, currentDateTime);
 
+            // 
+            OrcidImportHelper orcidImportHelper = new();
+
             // Name
             DimFieldDisplaySetting dimFieldDisplaySettingsName =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dimFieldDisplaysettingsName => dimFieldDisplaysettingsName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME);
             // FactFieldValues
             FactFieldValue factFieldValuesName =
-                dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimFieldDisplaySettings.Id == dimFieldDisplaySettingsName.Id && ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId);
+                dimUserProfile.FactFieldValues.FirstOrDefault(
+                    ffv => ffv.DimFieldDisplaySettings.Id == dimFieldDisplaySettingsName.Id && ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId);
             if (factFieldValuesName != null)
             {
                 // Update existing DimName
                 DimName dimName = factFieldValuesName.DimName;
                 dimName.LastName = _orcidJsonParserService.GetFamilyName(orcidRecordJson).Value;
                 dimName.FirstNames = _orcidJsonParserService.GetGivenNames(orcidRecordJson).Value;
-                dimName.Modified = _utilityService.GetCurrentDateTime();
+                dimName.Modified = currentDateTime;
                 // Update existing FactFieldValue
                 factFieldValuesName.Show = true; // ORCID name is selected by default.
                 factFieldValuesName.Modified = currentDateTime;
+
+                orcidImportHelper.dimNameIds.Add(factFieldValuesName.DimName.Id);
             }
             else
             {
@@ -230,7 +261,7 @@ namespace api.Services
                 factFieldValuesName.DimFieldDisplaySettings = dimFieldDisplaySettingsName;
                 factFieldValuesName.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                 factFieldValuesName.DimName = dimName;
-                factFieldValuesName.Show = true;
+                factFieldValuesName.Show = true; // ORCID name is selected by default.
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
             }
 
@@ -251,6 +282,8 @@ namespace api.Services
                     dimName_otherName.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     factFieldValuesOtherName.Modified = currentDateTime;
+
+                    orcidImportHelper.dimNameIds.Add(factFieldValuesOtherName.DimName.Id);
                 }
                 else
                 {
@@ -309,6 +342,8 @@ namespace api.Services
 
                     // Update existing FactFieldValue
                     factFieldValuesWebLink.Modified = currentDateTime;
+
+                    orcidImportHelper.dimWebLinkIds.Add(factFieldValuesWebLink.DimWebLink.Id);
                 }
                 else
                 {
@@ -356,34 +391,50 @@ namespace api.Services
             OrcidBiography biography = _orcidJsonParserService.GetBiography(orcidRecordJson);
             if (biography != null)
             {
-                DimResearcherDescription dimResearcherDescription = await _userProfileService.AddOrUpdateDimResearcherDescription(
-                    "",
-                    _orcidJsonParserService.GetBiography(orcidRecordJson).Value,
-                    "",
-                    dimUserProfile.DimKnownPersonId,
-                    orcidRegisteredDataSourceId
-                );
+                // Check if FactFieldValues contains entry pointing to DimResearcherDescriptions, which has ORCID as data source
+                FactFieldValue factFieldValuesResearcherDescription =
+                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimResearcherDescriptionId > 0 && ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId);
 
-                // Researcher description: DimFieldDisplaySettings
-                DimFieldDisplaySetting dimFieldDisplaySettingsResearcherDescription =
-                    dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(
-                        dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION
-                    );
-
-                // Researcher description: FactFieldValues
-                FactFieldValue factFieldValuesResearcherDescription = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimResearcherDescriptionId == dimResearcherDescription.Id);
-                if (factFieldValuesResearcherDescription == null)
+                if (factFieldValuesResearcherDescription != null)
                 {
+                    // Update existing DimResearcherDescription
+                    factFieldValuesResearcherDescription.DimResearcherDescription.ResearchDescriptionEn = biography.Value;
+                    factFieldValuesResearcherDescription.DimResearcherDescription.Modified = currentDateTime;
+
+                    // Update existing FactFieldValue
+                    factFieldValuesResearcherDescription.Modified = currentDateTime;
+
+                    orcidImportHelper.dimResearcherDescriptionIds.Add(factFieldValuesResearcherDescription.DimResearcherDescription.Id);
+                }
+                else
+                {   // Create new DimResearcherDescription
+                    DimResearcherDescription dimResearcherDescription = new ()
+                    {
+                        ResearchDescriptionFi = "",
+                        ResearchDescriptionEn = biography.Value,
+                        ResearchDescriptionSv = "",
+                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        Created = currentDateTime,
+                        Modified = currentDateTime,
+                        DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                    };
+                    _ttvContext.DimResearcherDescriptions.Add(dimResearcherDescription);
+
+                    // Get DimFieldDisplaySettings for researcher description
+                    DimFieldDisplaySetting dimFieldDisplaySettingsResearcherDescription =
+                        dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(
+                            dimFieldDisplaySettingsResearcherDescription => dimFieldDisplaySettingsResearcherDescription.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION
+                        );
+
+                    // Create FactFieldValues for researcher description
                     factFieldValuesResearcherDescription = _userProfileService.GetEmptyFactFieldValue();
                     factFieldValuesResearcherDescription.DimUserProfile = dimUserProfile;
                     factFieldValuesResearcherDescription.DimFieldDisplaySettings = dimFieldDisplaySettingsResearcherDescription;
-                    factFieldValuesResearcherDescription.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesResearcherDescription.DimResearcherDescription = dimResearcherDescription;
+                    factFieldValuesResearcherDescription.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
-                }
-                else
-                {
-                    factFieldValuesResearcherDescription.Modified = currentDateTime;
                 }
             }
 
@@ -392,33 +443,46 @@ namespace api.Services
             List<OrcidEmail> emails = _orcidJsonParserService.GetEmails(orcidRecordJson);
             foreach (OrcidEmail email in emails)
             {
-                // Email: DimEmailAddrressess
-                DimEmailAddrress dimEmailAddress = await _userProfileService.AddOrUpdateDimEmailAddress(
-                    email.Value,
-                    dimUserProfile.DimKnownPersonId,
-                    orcidRegisteredDataSourceId
-                );
+                // Check if email already exists
+                FactFieldValue factFieldValuesEmail = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimEmailAddrress.Email == email.Value);
 
-                // Email: DimFieldDisplaySettings
-                DimFieldDisplaySetting dimFieldDisplaySettingsEmailAddress =
-                    dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(
-                        dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS
-                    );
-
-                // Email: FactFieldValues
-                FactFieldValue factFieldValuesEmailAddress = dimUserProfile.FactFieldValues.FirstOrDefault(ffv => ffv.DimEmailAddrressId == dimEmailAddress.Id);
-                if (factFieldValuesEmailAddress == null)
+                if (factFieldValuesEmail != null)
                 {
-                    factFieldValuesEmailAddress = _userProfileService.GetEmptyFactFieldValue();
-                    factFieldValuesEmailAddress.DimUserProfile = dimUserProfile;
-                    factFieldValuesEmailAddress.DimFieldDisplaySettings = dimFieldDisplaySettingsEmailAddress;
-                    factFieldValuesEmailAddress.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    factFieldValuesEmailAddress.DimEmailAddrress = dimEmailAddress;
-                    _ttvContext.FactFieldValues.Add(factFieldValuesEmailAddress);
+                    // Email address is matched by value.
+                    // mark as processed.
+
+                    // Update existing FactFieldValue
+                    factFieldValuesEmail.Modified = currentDateTime;
+                    orcidImportHelper.dimEmailAddressIds.Add(factFieldValuesEmail.DimEmailAddrressId);
                 }
                 else
                 {
-                    factFieldValuesEmailAddress.Modified = currentDateTime;
+                    // Create new DimEmailAddrress
+                    DimEmailAddrress dimEmailAddress = new()
+                    {
+                        Email = email.Value,
+                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        Created = currentDateTime,
+                        Modified = currentDateTime,
+                        DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                    };
+                    _ttvContext.DimEmailAddrresses.Add(dimEmailAddress);
+
+                    // Email: DimFieldDisplaySettings
+                    DimFieldDisplaySetting dimFieldDisplaySettingsEmailAddress =
+                        dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(
+                            dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS
+                        );
+
+                    // Email: FactFieldValues
+                    factFieldValuesEmail = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesEmail.DimUserProfile = dimUserProfile;
+                    factFieldValuesEmail.DimFieldDisplaySettings = dimFieldDisplaySettingsEmailAddress;
+                    factFieldValuesEmail.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    factFieldValuesEmail.DimEmailAddrress = dimEmailAddress;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesEmail);
                 }
             }
 
@@ -887,6 +951,58 @@ namespace api.Services
                     factFieldValuesPublication.DimOrcidPublication = dimOrcidPublication;
                     factFieldValuesPublication.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
                     _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
+                }
+            }
+
+            // Remove names, which user has deleted in ORCID
+            List<FactFieldValue> removableFfvDimNames =
+                dimUserProfile.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId && ffv.DimNameId > 0 && !orcidImportHelper.dimNameIds.Contains(ffv.DimNameId)).ToList();
+            foreach (FactFieldValue removableFfvDimName in removableFfvDimNames.Distinct())
+            {
+                _ttvContext.FactFieldValues.Remove(removableFfvDimName);
+                _ttvContext.DimNames.Remove(removableFfvDimName.DimName);
+                if (removableFfvDimName.DimPidIdOrcidPutCode > 0)
+                {
+                    _ttvContext.DimPids.Remove(removableFfvDimName.DimPidIdOrcidPutCodeNavigation);
+                }
+            }
+
+            // Remove web links, which user has deleted in ORCID
+            List<FactFieldValue> removableFfvWebLinks =
+                dimUserProfile.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId && ffv.DimWebLinkId > 0 && !orcidImportHelper.dimWebLinkIds.Contains(ffv.DimWebLinkId)).ToList();
+            foreach (FactFieldValue removableFfvWebLink in removableFfvWebLinks.Distinct())
+            {
+                _ttvContext.FactFieldValues.Remove(removableFfvWebLink);
+                _ttvContext.DimWebLinks.Remove(removableFfvWebLink.DimWebLink);
+                if (removableFfvWebLink.DimPidIdOrcidPutCode > 0)
+                {
+                    _ttvContext.DimPids.Remove(removableFfvWebLink.DimPidIdOrcidPutCodeNavigation);
+                }
+            }
+
+            // Remove researcher descriptions, which user has deleted in ORCID
+            List<FactFieldValue> removableFfvResearcherDescriptions =
+                dimUserProfile.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId && ffv.DimResearcherDescriptionId > 0 && !orcidImportHelper.dimResearcherDescriptionIds.Contains(ffv.DimResearcherDescriptionId)).ToList();
+            foreach (FactFieldValue removableFfvResearcherDescription in removableFfvResearcherDescriptions.Distinct())
+            {
+                _ttvContext.FactFieldValues.Remove(removableFfvResearcherDescription);
+                _ttvContext.DimResearcherDescriptions.Remove(removableFfvResearcherDescription.DimResearcherDescription);
+                if (removableFfvResearcherDescription.DimPidIdOrcidPutCode > 0)
+                {
+                    _ttvContext.DimPids.Remove(removableFfvResearcherDescription.DimPidIdOrcidPutCodeNavigation);
+                }
+            }
+
+            // Remove email addresses, which user has deleted in ORCID
+            List<FactFieldValue> removableFfvEmails =
+                dimUserProfile.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId && ffv.DimEmailAddrressId > 0 && !orcidImportHelper.dimEmailAddressIds.Contains(ffv.DimEmailAddrressId)).ToList();
+            foreach (FactFieldValue removableFfvEmail in removableFfvEmails.Distinct())
+            {
+                _ttvContext.FactFieldValues.Remove(removableFfvEmail);
+                _ttvContext.DimEmailAddrresses.Remove(removableFfvEmail.DimEmailAddrress);
+                if (removableFfvEmail.DimPidIdOrcidPutCode > 0)
+                {
+                    _ttvContext.DimPids.Remove(removableFfvEmail.DimPidIdOrcidPutCodeNavigation);
                 }
             }
 

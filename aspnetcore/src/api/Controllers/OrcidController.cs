@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using Microsoft.AspNetCore.Hosting;
 using api.Models.Log;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace api.Controllers
 {
@@ -26,13 +27,15 @@ namespace api.Controllers
         private readonly ITokenService _tokenService;
         private readonly ILogger<OrcidController> _logger;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IMemoryCache _cache;
 
         public OrcidController(IUserProfileService userProfileService,
             IOrcidApiService orcidApiService,
             IOrcidImportService orcidImportService,
             ILogger<OrcidController> logger,
             ITokenService tokenService,
-            IWebHostEnvironment webHostEnvironment)
+            IWebHostEnvironment webHostEnvironment,
+            IMemoryCache memoryCache)
         {
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
@@ -40,6 +43,7 @@ namespace api.Controllers
             _tokenService = tokenService;
             _logger = logger;
             _webHostEnvironment = webHostEnvironment;
+            _cache = memoryCache;
         }
 
         /// <summary>
@@ -213,6 +217,9 @@ namespace api.Controllers
 
                 return Ok(new ApiResponse(success: false));
             }
+
+            // Remove cached profile data response. Cache key is ORCID ID.
+            _cache.Remove(orcidId);
 
             return Ok(new ApiResponse(success: true));
         }

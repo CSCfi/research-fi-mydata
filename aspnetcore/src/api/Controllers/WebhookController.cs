@@ -7,6 +7,8 @@ using System;
 using api.Models.Api;
 using api.Models.Orcid;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Caching.Memory;
+using static api.Models.Common.Constants;
 
 namespace api.Controllers
 {
@@ -25,16 +27,19 @@ namespace api.Controllers
         private readonly ILogger<OrcidController> _logger;
         private readonly IBackgroundTaskQueue _taskQueue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IMemoryCache _cache;
 
         public WebhookController(IUserProfileService userProfileService,
             ILogger<OrcidController> logger,
             IBackgroundTaskQueue taskQueue,
-            IServiceScopeFactory serviceScopeFactory)
+            IServiceScopeFactory serviceScopeFactory,
+            IMemoryCache memoryCache)
         {
             _userProfileService = userProfileService;
             _logger = logger;
             _taskQueue = taskQueue;
             _serviceScopeFactory = serviceScopeFactory;
+            _cache = memoryCache;
         }
 
 
@@ -65,6 +70,9 @@ namespace api.Controllers
                 _logger.LogError($"{logPrefix}user profile not found: {webhookOrcidId}");
                 return NoContent();
             }
+
+            // Remove cached profile data response. Cache key is ORCID ID.
+            _cache.Remove(webhookOrcidId);
 
             // Store values to be used in background task.
             orcidAccessToken = dimUserProfile.OrcidAccessToken;
