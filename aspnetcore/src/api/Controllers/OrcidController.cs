@@ -51,23 +51,19 @@ namespace api.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-        // TODO: Currently adding and updating ORCID data works, but detecting deleted ORCID data and deleting them is TTV database is not implemented.
         public async Task<IActionResult> Get()
         {
             // Get ORCID id.
             string orcidId = this.GetOrcidId();
 
-            // Log request.
-            //_logger.LogInformation(this.GetLogPrefix() + " get ORCID data request");
+            // Get userprofile id
+            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: GetOrcidId()))
+            if (userprofileId < 1)
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
-
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Get ORCID record from ORCID member or public API.
             // If environment is not "Production" and user access token has claim "use_orcid_public_api",
@@ -87,6 +83,7 @@ namespace api.Controllers
                             action: LogContent.Action.ORCID_RECORD_GET_PUBLIC_API,
                             state: LogContent.ActionState.START));
 
+                    // Get ORCID record from ORCID public API
                     orcidRecordJson = await _orcidApiService.GetRecordFromPublicApi(orcidId);
 
                     _logger.LogInformation(
@@ -162,6 +159,7 @@ namespace api.Controllers
                             action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
                             state: LogContent.ActionState.START));
 
+                    // Get ORCID record from ORCID member API
                     orcidRecordJson = await _orcidApiService.GetRecordFromMemberApi(orcidId, orcidTokens.AccessToken);
 
                     _logger.LogInformation(

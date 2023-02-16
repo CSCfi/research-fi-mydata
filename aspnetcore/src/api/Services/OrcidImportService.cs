@@ -151,7 +151,8 @@ namespace api.Services
             int orcidRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_ORCID;
 
             // Get DimUserProfile and related entities
-            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.TagWith("Insert ORCID data").Where(dup => dup.Id == userprofileId)
+            string queryTag = $"Insert ORCID data, dim_user_profile.id={userprofileId}";
+            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.TagWith(queryTag).Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
                 // DimRegisteredDataSource
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
@@ -218,7 +219,7 @@ namespace api.Services
             // Add DimDates.
             await AddDimDates(orcidRecordJson, currentDateTime);
 
-            // 
+            // Helper object to store processed IDs, used when deciding what data needs to be removed.
             OrcidImportHelper orcidImportHelper = new();
 
             // Name
@@ -236,7 +237,6 @@ namespace api.Services
                 dimName.FirstNames = _orcidJsonParserService.GetGivenNames(orcidRecordJson).Value;
                 dimName.Modified = currentDateTime;
                 // Update existing FactFieldValue
-                factFieldValuesName.Show = true; // ORCID name is selected by default.
                 factFieldValuesName.Modified = currentDateTime;
                 // Mark as processed
                 orcidImportHelper.dimNameIds.Add(factFieldValuesName.DimName.Id);
@@ -1100,7 +1100,28 @@ namespace api.Services
                 }
             }
 
-            // TODO: Remove affiliations
+            // Remove affiliations, which user has deleted in ORCID
+            List<FactFieldValue> removableFfvAffiliations =
+                dimUserProfile.FactFieldValues.Where(ffv =>
+                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                    ffv.DimAffiliationId > 0 &&
+                    !orcidImportHelper.dimAffiliationIds.Contains(ffv.DimAffiliationId)).ToList();
+            foreach (FactFieldValue removableFfvAffiliation in removableFfvAffiliations.Distinct())
+            {
+                _ttvContext.FactFieldValues.Remove(removableFfvAffiliation);
+                _ttvContext.DimAffiliations.Remove(removableFfvAffiliation.DimAffiliation);
+                if (removableFfvAffiliation.DimPidIdOrcidPutCode > 0)
+                {
+                    _ttvContext.DimPids.Remove(removableFfvAffiliation.DimPidIdOrcidPutCodeNavigation);
+                }
+                // Affiliation organization can be stored in DimIdentifierlessData
+                if (removableFfvAffiliation.DimIdentifierlessDataId > 0)
+                {
+                    // DimIdentifierlessData can have child entity
+                    _ttvContext.DimIdentifierlessData.RemoveRange(removableFfvAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData);
+                    _ttvContext.DimIdentifierlessData.Remove(removableFfvAffiliation.DimIdentifierlessData);
+                }
+            }
 
             // Remove publications, which user has deleted in ORCID
             List<FactFieldValue> removableFfvPublications =
