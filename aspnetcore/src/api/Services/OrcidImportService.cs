@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using api.Controllers;
 using api.Models.Common;
 using api.Models.Orcid;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 using Nest;
+using Serilog.Core;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using Constants = api.Models.Common.Constants;
 
 namespace api.Services
 {
@@ -25,9 +29,11 @@ namespace api.Services
         private readonly IOrganizationHandlerService _organizationHandlerService;
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly IUtilityService _utilityService;
+        private readonly ILogger<OrcidImportService> _logger;
 
         public OrcidImportService(TtvContext ttvContext, IUserProfileService userProfileService, IOrcidJsonParserService orcidJsonParserService,
-            IOrganizationHandlerService organizationHandlerService, IUtilityService utilityService, IDataSourceHelperService dataSourceHelperService)
+            IOrganizationHandlerService organizationHandlerService, IUtilityService utilityService, IDataSourceHelperService dataSourceHelperService,
+            ILogger<OrcidImportService> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -35,6 +41,7 @@ namespace api.Services
             _organizationHandlerService = organizationHandlerService;
             _utilityService = utilityService;
             _dataSourceHelperService = dataSourceHelperService;
+            _logger = logger;
         }
 
 
@@ -1139,8 +1146,17 @@ namespace api.Services
                 }
             }
 
-            await _ttvContext.SaveChangesAsync();
-            return true;
+            try
+            {
+                await _ttvContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"ORCID import failed for dim_user_profile.id={userprofileId}: {ex}");
+            }
+
+            return false;
         }
     }
 }

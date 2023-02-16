@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System;
-using api.Models.Api;
-using api.Models.Orcid;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Memory;
-using static api.Models.Common.Constants;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -27,18 +25,24 @@ namespace api.Controllers
         private readonly ILogger<OrcidController> _logger;
         private readonly IBackgroundTaskQueue _taskQueue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IElasticsearchService _elasticsearchService;
+        private readonly IBackgroundProfiledata _backgroundProfiledata;
         private readonly IMemoryCache _cache;
 
         public WebhookController(IUserProfileService userProfileService,
             ILogger<OrcidController> logger,
             IBackgroundTaskQueue taskQueue,
             IServiceScopeFactory serviceScopeFactory,
+            IElasticsearchService elasticsearchService,
+            IBackgroundProfiledata backgroundProfiledata,
             IMemoryCache memoryCache)
         {
             _userProfileService = userProfileService;
             _logger = logger;
             _taskQueue = taskQueue;
             _serviceScopeFactory = serviceScopeFactory;
+            _elasticsearchService = elasticsearchService;
+            _backgroundProfiledata = backgroundProfiledata;
             _cache = memoryCache;
         }
 
@@ -78,10 +82,15 @@ namespace api.Controllers
             orcidAccessToken = dimUserProfile.OrcidAccessToken;
             dimUserprofileId = dimUserProfile.Id;
 
+            // Check if the profile is publihed. Published profile should be updated after ORCID import
+            bool isUserprofilePublished = await _userProfileService.IsUserprofilePublished(dimUserprofileId);
+
             // Get ORCID data in a background task.
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
             {
                 _logger.LogInformation($"{logPrefix}background update for {webhookOrcidId} started {DateTime.UtcNow}");
+
+                bool importSuccess = false;
 
                 // Create service scope and get required services.
                 // Do not use services from controller scope in a background task.
@@ -106,13 +115,41 @@ namespace api.Controllers
                 {
                     try
                     {
-                        await localOrcidImportService.ImportOrcidRecordJsonIntoUserProfile(dimUserprofileId, orcidRecordJson);
+                        importSuccess = await localOrcidImportService.ImportOrcidRecordJsonIntoUserProfile(dimUserprofileId, orcidRecordJson);
                         _logger.LogInformation($"{logPrefix}background import record for {webhookOrcidId} to userprofile OK");
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError($"{logPrefix}background import record for {webhookOrcidId} to userprofile failed: {ex}");
                     }
+                }
+
+                // If user profile is published, then after successful ORCID import update Elasticsearch index
+                if (importSuccess && isUserprofilePublished && _elasticsearchService.IsElasticsearchSyncEnabled())
+                {
+                    LogUserIdentification logUserIdentification = new(orcid: webhookOrcidId);
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.START));
+
+                    // Get Elasticsearch person entry from profile data.
+                    Models.Elasticsearch.ElasticsearchPerson person =
+                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
+                            orcidId: webhookOrcidId,
+                            userprofileId: dimUserprofileId,
+                            logUserIdentification: logUserIdentification);
+                    // Update Elasticsearch person index.
+                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(webhookOrcidId, person, logUserIdentification);
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                            state: LogContent.ActionState.COMPLETE));
                 }
 
                 _logger.LogInformation($"{logPrefix}background update for {webhookOrcidId} ended {DateTime.UtcNow}");
