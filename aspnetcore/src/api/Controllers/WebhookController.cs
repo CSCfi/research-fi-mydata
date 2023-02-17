@@ -55,9 +55,9 @@ namespace api.Controllers
         [Route("api/webhook/orcid/{webhookOrcidId}")]
         public async Task<IActionResult> HandleOrcidWebhook(string webhookOrcidId)
         {
-            string logPrefix = "ORCID webhook: ";
             string orcidAccessToken = "";
             int dimUserprofileId = -1;
+            LogUserIdentification logUserIdentification = new(orcid: webhookOrcidId);
 
             // Validate request data
             if (!ModelState.IsValid)
@@ -65,13 +65,26 @@ namespace api.Controllers
                 return BadRequest();
             }
 
-            _logger.LogInformation($"{logPrefix}received for {webhookOrcidId}");
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.ORCID_WEBHOOK_RECEIVED,
+                    state: LogContent.ActionState.START));
 
             // Check that userprofile exists.
             DimUserProfile dimUserProfile = await _userProfileService.GetUserprofile(orcidId: webhookOrcidId);
             if (dimUserProfile == null)
             {
-                _logger.LogError($"{logPrefix}user profile not found: {webhookOrcidId}");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_WEBHOOK_RECEIVED,
+                        error: true,
+                        message: LogContent.ErrorMessage.USER_PROFILE_NOT_FOUND,
+                        state: LogContent.ActionState.START));
+
                 return NoContent();
             }
 
@@ -88,7 +101,12 @@ namespace api.Controllers
             // Get ORCID data in a background task.
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
             {
-                _logger.LogInformation($"{logPrefix}background update for {webhookOrcidId} started {DateTime.UtcNow}");
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.BACKGROUND_UPDATE,
+                        state: LogContent.ActionState.START));
 
                 bool importSuccess = false;
 
@@ -102,12 +120,32 @@ namespace api.Controllers
                 string orcidRecordJson = "";
                 try
                 {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
+                            state: LogContent.ActionState.START));
+
                     orcidRecordJson = await localOrcidApiService.GetRecordFromMemberApi(webhookOrcidId, orcidAccessToken);
-                    _logger.LogInformation($"{logPrefix}background get record for {webhookOrcidId} OK");
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
+                            state: LogContent.ActionState.COMPLETE));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"{logPrefix}background get record for {webhookOrcidId} failed: {ex}");
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
+                            error: true,
+                            message: ex.ToString(),
+                            state: LogContent.ActionState.FAILED));
                 }
 
                 // Import record json into userprofile
@@ -115,19 +153,38 @@ namespace api.Controllers
                 {
                     try
                     {
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_IMPORT,
+                                state: LogContent.ActionState.START));
+
                         importSuccess = await localOrcidImportService.ImportOrcidRecordJsonIntoUserProfile(dimUserprofileId, orcidRecordJson);
-                        _logger.LogInformation($"{logPrefix}background import record for {webhookOrcidId} to userprofile OK");
+
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_IMPORT,
+                                state: LogContent.ActionState.COMPLETE));
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"{logPrefix}background import record for {webhookOrcidId} to userprofile failed: {ex}");
+                        _logger.LogError(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_IMPORT,
+                                error: true,
+                                message: ex.ToString(),
+                                state: LogContent.ActionState.FAILED));
                     }
                 }
 
                 // If user profile is published, then after successful ORCID import update Elasticsearch index
                 if (importSuccess && isUserprofilePublished && _elasticsearchService.IsElasticsearchSyncEnabled())
                 {
-                    LogUserIdentification logUserIdentification = new(orcid: webhookOrcidId);
                     _logger.LogInformation(
                         LogContent.MESSAGE_TEMPLATE,
                         logUserIdentification,
@@ -152,7 +209,12 @@ namespace api.Controllers
                             state: LogContent.ActionState.COMPLETE));
                 }
 
-                _logger.LogInformation($"{logPrefix}background update for {webhookOrcidId} ended {DateTime.UtcNow}");
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.BACKGROUND_UPDATE,
+                        state: LogContent.ActionState.COMPLETE));
             });
 
             return NoContent();
