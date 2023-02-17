@@ -117,9 +117,9 @@ namespace api.Controllers
         /// <summary>
         /// Admin: Unregister webhook for a single user profile.
         /// </summary>
-        ///         [HttpPost]
+        [HttpPost]
         [Route("/[controller]/orcidwebhook/unregister/single/{webhookOrcidId}")]
-        public async Task<IActionResult> UnegisterOrcidWebhookForSingleUserprofile(string webhookOrcidId)
+        public async Task<IActionResult> UnregisterOrcidWebhookForSingleUserprofile(string webhookOrcidId)
         {
             // Validate request data
             if (!ModelState.IsValid)
