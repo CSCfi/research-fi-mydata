@@ -26,7 +26,7 @@ namespace api.Tests
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_AFFILIATION, fieldIdentifiers);
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_EDUCATION, fieldIdentifiers);
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, fieldIdentifiers);
-            Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID, fieldIdentifiers);
+            Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY, fieldIdentifiers);
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION, fieldIdentifiers);
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET, fieldIdentifiers);
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY, fieldIdentifiers);

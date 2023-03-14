@@ -12,8 +12,8 @@ namespace api.Models.Ttv
             DimEducations = new HashSet<DimEducation>();
             DimEmailAddrresses = new HashSet<DimEmailAddrress>();
             DimNames = new HashSet<DimName>();
-            DimOrcidPublications = new HashSet<DimOrcidPublication>();
             DimPids = new HashSet<DimPid>();
+            DimProfileOnlyPublications = new HashSet<DimProfileOnlyPublication>();
             DimResearcherDescriptions = new HashSet<DimResearcherDescription>();
             DimResearcherToResearchCommunities = new HashSet<DimResearcherToResearchCommunity>();
             DimTelephoneNumbers = new HashSet<DimTelephoneNumber>();
@@ -36,8 +36,8 @@ namespace api.Models.Ttv
         public virtual ICollection<DimEducation> DimEducations { get; set; }
         public virtual ICollection<DimEmailAddrress> DimEmailAddrresses { get; set; }
         public virtual ICollection<DimName> DimNames { get; set; }
-        public virtual ICollection<DimOrcidPublication> DimOrcidPublications { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
+        public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublications { get; set; }
         public virtual ICollection<DimResearcherDescription> DimResearcherDescriptions { get; set; }
         public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; }
         public virtual ICollection<DimTelephoneNumber> DimTelephoneNumbers { get; set; }

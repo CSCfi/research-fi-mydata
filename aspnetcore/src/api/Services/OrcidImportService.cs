@@ -174,9 +174,9 @@ namespace api.Services
                 // DimFundingDecision
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimFundingDecision)
-                // DimOrcidPublication
+                // DimProfileOnlyPublication
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
-                    .ThenInclude(ffv => ffv.DimOrcidPublication)
+                    .ThenInclude(ffv => ffv.DimProfileOnlyPublication)
                 // DimPid
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimPid)
@@ -939,7 +939,7 @@ namespace api.Services
             List<OrcidPublication> orcidPublications = _orcidJsonParserService.GetPublications(orcidRecordJson);
             // Get DimFieldDisplaySettings for orcid publication
             DimFieldDisplaySetting dimFieldDisplaySettingsOrcidPublication =
-                dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID);
+                dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY);
             foreach (OrcidPublication orcidPublication in orcidPublications)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimOrcidPublication
@@ -951,30 +951,30 @@ namespace api.Services
 
                 if (factFieldValuesPublication != null)
                 {
-                    // Update existing DimOrcidPublication
-                    DimOrcidPublication dimOrcidPublication = factFieldValuesPublication.DimOrcidPublication;
-                    dimOrcidPublication.OrcidWorkType = orcidPublication.Type;
-                    dimOrcidPublication.PublicationName = orcidPublication.PublicationName;
-                    dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
-                    dimOrcidPublication.DoiHandle = orcidPublication.Doi;
-                    dimOrcidPublication.Modified = currentDateTime;
+                    // Update existing DimProfileOnlyPublication
+                    DimProfileOnlyPublication dimProfileOnlyPublication = factFieldValuesPublication.DimProfileOnlyPublication;
+                    dimProfileOnlyPublication.OrcidWorkType = orcidPublication.Type;
+                    dimProfileOnlyPublication.PublicationName = orcidPublication.PublicationName;
+                    dimProfileOnlyPublication.PublicationYear = orcidPublication.PublicationYear;
+                    dimProfileOnlyPublication.DoiHandle = orcidPublication.Doi;
+                    dimProfileOnlyPublication.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     factFieldValuesPublication.Modified = currentDateTime;
                     // Mark as processed
-                    orcidImportHelper.dimOrcidPublicationIds.Add(factFieldValuesPublication.DimOrcidPublicationId);
+                    orcidImportHelper.dimPublicationIds.Add(factFieldValuesPublication.DimProfileOnlyPublicationId);
                 }
                 else
                 {
-                    // Create new DimOrcidPublication
-                    DimOrcidPublication dimOrcidPublication = _userProfileService.GetEmptyDimOrcidPublication();
-                    dimOrcidPublication.OrcidWorkType = orcidPublication.Type;
-                    dimOrcidPublication.PublicationName = orcidPublication.PublicationName;
-                    dimOrcidPublication.PublicationYear = orcidPublication.PublicationYear;
-                    dimOrcidPublication.DoiHandle = orcidPublication.Doi;
-                    dimOrcidPublication.SourceId = Constants.SourceIdentifiers.PROFILE_API;
-                    dimOrcidPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    dimOrcidPublication.Created = currentDateTime;
-                    _ttvContext.DimOrcidPublications.Add(dimOrcidPublication);
+                    // Create new DimProfileOnlyPublication
+                    DimProfileOnlyPublication dimProfileOnlyPublication = _userProfileService.GetEmptyDimProfileOnlyPublication();
+                    dimProfileOnlyPublication.OrcidWorkType = orcidPublication.Type;
+                    dimProfileOnlyPublication.PublicationName = orcidPublication.PublicationName;
+                    dimProfileOnlyPublication.PublicationYear = orcidPublication.PublicationYear;
+                    dimProfileOnlyPublication.DoiHandle = orcidPublication.Doi;
+                    dimProfileOnlyPublication.SourceId = Constants.SourceIdentifiers.PROFILE_API;
+                    dimProfileOnlyPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    dimProfileOnlyPublication.Created = currentDateTime;
+                    _ttvContext.DimProfileOnlyPublications.Add(dimProfileOnlyPublication);
 
                     // Add publication's ORCID put code into DimPid
                     DimPid dimPidOrcidPutCodePublication = _userProfileService.GetEmptyDimPid();
@@ -989,7 +989,7 @@ namespace api.Services
                     factFieldValuesPublication.DimUserProfile = dimUserProfile;
                     factFieldValuesPublication.DimFieldDisplaySettings = dimFieldDisplaySettingsOrcidPublication;
                     factFieldValuesPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    factFieldValuesPublication.DimOrcidPublication = dimOrcidPublication;
+                    factFieldValuesPublication.DimProfileOnlyPublication = dimProfileOnlyPublication;
                     factFieldValuesPublication.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
                     _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
                 }
@@ -1134,12 +1134,12 @@ namespace api.Services
             List<FactFieldValue> removableFfvPublications =
                 dimUserProfile.FactFieldValues.Where(ffv =>
                     ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimOrcidPublicationId > 0 &&
-                    !orcidImportHelper.dimOrcidPublicationIds.Contains(ffv.DimOrcidPublicationId)).ToList();
+                    ffv.DimProfileOnlyPublicationId > 0 &&
+                    !orcidImportHelper.dimPublicationIds.Contains(ffv.DimProfileOnlyPublicationId)).ToList();
             foreach (FactFieldValue removableFfvPublication in removableFfvPublications.Distinct())
             {
                 _ttvContext.FactFieldValues.Remove(removableFfvPublication);
-                _ttvContext.DimOrcidPublications.Remove(removableFfvPublication.DimOrcidPublication);
+                _ttvContext.DimProfileOnlyPublications.Remove(removableFfvPublication.DimProfileOnlyPublication);
                 if (removableFfvPublication.DimPidIdOrcidPutCode > 0)
                 {
                     _ttvContext.DimPids.Remove(removableFfvPublication.DimPidIdOrcidPutCodeNavigation);

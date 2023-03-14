@@ -22,7 +22,7 @@ namespace api.Models.Ttv
         public int DimEmailAddrressId { get; set; }
         public int DimResearcherDescriptionId { get; set; }
         public int DimIdentifierlessDataId { get; set; }
-        public int DimOrcidPublicationId { get; set; }
+        public int DimProfileOnlyPublicationId { get; set; }
         public int DimKeywordId { get; set; }
         public int DimAffiliationId { get; set; }
         public int DimResearcherToResearchCommunityId { get; set; }
@@ -35,6 +35,8 @@ namespace api.Models.Ttv
         public int DimResearchDatasetId { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
         public int DimReferencedataFieldOfScienceId { get; set; }
+        public int DimProfileOnlyResearchActivityId { get; set; }
+        public int DimReferencedataActorRoleId { get; set; }
 
         public virtual DimAffiliation DimAffiliation { get; set; }
         public virtual DimCompetence DimCompetence { get; set; }
@@ -46,10 +48,12 @@ namespace api.Models.Ttv
         public virtual DimIdentifierlessDatum DimIdentifierlessData { get; set; }
         public virtual DimKeyword DimKeyword { get; set; }
         public virtual DimName DimName { get; set; }
-        public virtual DimOrcidPublication DimOrcidPublication { get; set; }
         public virtual DimPid DimPid { get; set; }
         public virtual DimPid DimPidIdOrcidPutCodeNavigation { get; set; }
+        public virtual DimProfileOnlyPublication DimProfileOnlyPublication { get; set; }
+        public virtual DimProfileOnlyResearchActivity DimProfileOnlyResearchActivity { get; set; }
         public virtual DimPublication DimPublication { get; set; }
+        public virtual DimReferencedatum DimReferencedataActorRole { get; set; }
         public virtual DimReferencedatum DimReferencedataFieldOfScience { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimResearchActivity DimResearchActivity { get; set; }
