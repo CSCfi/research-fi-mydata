@@ -283,6 +283,7 @@ namespace api.Services
                 DimResearcherDescriptionId = -1,
                 DimIdentifierlessDataId = -1,
                 DimProfileOnlyPublicationId = -1,
+                DimProfileOnlyResearchActivityId = -1,
                 DimKeywordId = -1,
                 DimAffiliationId = -1,
                 DimResearcherToResearchCommunityId = -1,
