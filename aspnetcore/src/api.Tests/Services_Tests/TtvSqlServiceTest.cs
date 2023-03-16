@@ -27,7 +27,7 @@ namespace api.Tests
                 DimIdentifierlessDataId = -1,
                 DimKeywordId = -1,
                 DimNameId = -1,
-                DimOrcidPublicationId = -1,
+                DimProfileOnlyPublicationId = -1,
                 DimPidId = -1,
                 DimPidIdOrcidPutCode = -1,
                 DimPublicationId = -1,
@@ -38,7 +38,8 @@ namespace api.Tests
                 DimResearcherToResearchCommunityId = -1,
                 DimTelephoneNumberId = -1,
                 DimUserProfileId = -1,
-                DimWebLinkId = -1
+                DimWebLinkId = -1,
+                DimReferencedataActorRoleId = -1
             };
         }
 
@@ -137,13 +138,13 @@ namespace api.Tests
             );
         }
 
-        [Fact(DisplayName = "Get FactFieldValues FK column name - dim_orcid_publication_id")]
-        public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_orcid_publication_id()
+        [Fact(DisplayName = "Get FactFieldValues FK column name - dim_profile_only_publication_id")]
+        public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_profile_only_publication_id()
         {
             TtvSqlService ttvSqlService = new();
             // Web link
             Assert.Equal(
-                "dim_orcid_publication_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID)
+                "dim_profile_only_publication_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY)
             );
         }
 
@@ -346,13 +347,13 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
-        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, ORCID publication")]
-        public void Test_getSqlQuery_Delete_FactFieldValues_related_ORCID_publication()
+        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, profile only publication")]
+        public void Test_getSqlQuery_Delete_FactFieldValues_related_profile_only_publication()
         {
             TtvSqlService ttvSqlService = new();
             List<int> ids = new() { 102, 103, 104 };
-            string expectedSqlString = "DELETE FROM dim_orcid_publication WHERE id IN (102,103,104)";
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimOrcidPublications(ids);
+            string expectedSqlString = "DELETE FROM dim_profile_only_publication WHERE id IN (102,103,104)";
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyPublications(ids);
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 

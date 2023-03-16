@@ -18,7 +18,7 @@ namespace api.Services
         Task CreateProfile(string orcidId, LogUserIdentification logUserIdentification);
         Task<bool> DeleteProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification);
         Task ExecuteRawSql(string sql);
-        DimOrcidPublication GetEmptyDimOrcidPublication();
+        DimProfileOnlyPublication GetEmptyDimProfileOnlyPublication();
         DimPid GetEmptyDimPid();
         FactFieldValue GetEmptyFactFieldValue();
         FactFieldValue GetEmptyFactFieldValueDemo();

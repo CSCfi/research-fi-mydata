@@ -25,7 +25,7 @@ namespace api.Models.Ttv
         public int DimResearchDataCatalogId { get; set; }
         public int DimResearchActivityId { get; set; }
         public int DimEventId { get; set; }
-        public int DimOrcidPublicationId { get; set; }
+        public int DimProfileOnlyPublicationId { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
@@ -35,8 +35,8 @@ namespace api.Models.Ttv
         public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimInfrastructure DimInfrastructure { get; set; }
         public virtual DimKnownPerson DimKnownPerson { get; set; }
-        public virtual DimOrcidPublication DimOrcidPublication { get; set; }
         public virtual DimOrganization DimOrganization { get; set; }
+        public virtual DimProfileOnlyPublication DimProfileOnlyPublication { get; set; }
         public virtual DimPublication DimPublication { get; set; }
         public virtual DimPublicationChannel DimPublicationChannel { get; set; }
         public virtual DimResearchActivity DimResearchActivity { get; set; }
