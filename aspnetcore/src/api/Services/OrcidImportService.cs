@@ -868,7 +868,7 @@ namespace api.Services
                 /*
                  * Affiliation department name handling
                  */
-                if (employment.DepartmentName != "")
+                if (!string.IsNullOrWhiteSpace(employment.DepartmentName))
                 {
                     // ORCID employment contains 'department-name'
 
