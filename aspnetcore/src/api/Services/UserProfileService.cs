@@ -56,8 +56,15 @@ namespace api.Services
             _logger = logger;
         }
 
-        // For unit test
+        // Constructors used in test cases
         public UserProfileService() { }
+        public UserProfileService(IUtilityService utilityService) {
+            _utilityService = utilityService;
+        }
+        public UserProfileService(IDataSourceHelperService dataSourceHelperService)
+        {
+            _dataSourceHelperService = dataSourceHelperService;
+        }
 
         /*
          * Get FieldIdentifiers.
