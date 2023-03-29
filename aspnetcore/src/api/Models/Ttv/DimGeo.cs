@@ -9,6 +9,7 @@ namespace api.Models.Ttv
         {
             DimEvents = new HashSet<DimEvent>();
             DimFundingDecisions = new HashSet<DimFundingDecision>();
+            DimProfileOnlyResearchActivities = new HashSet<DimProfileOnlyResearchActivity>();
             DimResearchActivities = new HashSet<DimResearchActivity>();
             FactContributions = new HashSet<FactContribution>();
             FactUpkeeps = new HashSet<FactUpkeep>();
@@ -33,6 +34,7 @@ namespace api.Models.Ttv
 
         public virtual ICollection<DimEvent> DimEvents { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
+        public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivities { get; set; }
         public virtual ICollection<DimResearchActivity> DimResearchActivities { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactUpkeep> FactUpkeeps { get; set; }

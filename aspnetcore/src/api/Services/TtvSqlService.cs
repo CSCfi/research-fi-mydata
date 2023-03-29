@@ -51,8 +51,8 @@ namespace api.Services
                 case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
                     fk_column_name = "dim_publication_id";
                     break;
-                case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
-                    fk_column_name = "dim_orcid_publication_id";
+                case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY:
+                    fk_column_name = "dim_profile_only_publication_id";
                     break;
                 case Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION:
                     fk_column_name = "dim_funding_decision_id";
@@ -125,7 +125,7 @@ namespace api.Services
                     ffv.dim_identifierless_data_id AS 'FactFieldValues_DimIdentifierlessDataId',
                     ffv.dim_education_id AS 'FactFieldValues_DimEducationId',
                     ffv.dim_publication_id AS 'FactFieldValues_DimPublicationId',
-                    ffv.dim_orcid_publication_id AS 'FactFieldValues_DimOrcidPublicationId',
+                    ffv.dim_profile_only_publication_id AS 'FactFieldValues_DimProfileOnlyPublicationId',
                     ffv.dim_research_activity_id AS 'FactFieldValues_DimResearchActivityId',
                     ffv.dim_funding_decision_id AS 'FactFieldValues_DimFundingDecisionId',
                     ffv.dim_research_dataset_id AS 'FactFieldValues_DimResearchDatasetId',
@@ -201,10 +201,10 @@ namespace api.Services
                     dim_publication.journal_name AS 'DimPublication_JournalName',
                     dim_publication.conference_name AS 'DimPublication_ConferenceName',
                     dim_publication.parent_publication_name AS 'DimPublication_ParentPublicationName',
-                    dim_orcid_publication.publication_id AS 'DimOrcidPublication_PublicationId',
-                    dim_orcid_publication.publication_name AS 'DimOrcidPublication_PublicationName',
-                    dim_orcid_publication.publication_year AS 'DimOrcidPublication_PublicationYear',
-                    dim_orcid_publication.doi_handle AS 'DimOrcidPublication_Doi',
+                    dim_profile_only_publication.publication_id AS 'DimProfileOnlyPublication_PublicationId',
+                    dim_profile_only_publication.publication_name AS 'DimProfileOnlyPublication_PublicationName',
+                    dim_profile_only_publication.publication_year AS 'DimProfileOnlyPublication_PublicationYear',
+                    dim_profile_only_publication.doi_handle AS 'DimProfileOnlyPublication_Doi',
                     dim_research_activity.name_fi AS 'DimResearchActivity_NameFi',
                     dim_research_activity.name_en AS 'DimResearchActivity_NameEn',
                     dim_research_activity.name_sv AS 'DimResearchActivity_NameSv',
@@ -284,7 +284,7 @@ namespace api.Services
                 LEFT JOIN dim_date AS education_start_date ON dim_education.dim_start_date=education_start_date.id AND education_start_date.id!=-1
                 LEFT JOIN dim_date AS education_end_date ON dim_education.dim_end_date=education_end_date.id AND education_end_date.id!=-1
                 JOIN dim_publication ON ffv.dim_publication_id=dim_publication.id
-                JOIN dim_orcid_publication ON ffv.dim_orcid_publication_id=dim_orcid_publication.id
+                JOIN dim_profile_only_publication ON ffv.dim_profile_only_publication_id=dim_profile_only_publication.id
                 JOIN dim_research_activity ON ffv.dim_research_activity_id=dim_research_activity.id
                 LEFT JOIN dim_date AS research_activity_start_date ON dim_research_activity.dim_start_date=research_activity_start_date.id AND research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS research_activity_end_date ON dim_research_activity.dim_end_date=research_activity_end_date.id AND research_activity_end_date.id!=-1
@@ -318,17 +318,18 @@ namespace api.Services
                         ffv.dim_researcher_description_id != -1 OR
                         ffv.dim_email_addrress_id != -1 OR
                         ffv.dim_telephone_number_id != -1 OR
-                        ffv.dim_referencedata_field_of_science_id != -1 OR
                         ffv.dim_keyword_id != -1 OR
                         ffv.dim_pid_id != -1 OR
                         ffv.dim_affiliation_id != -1 OR
                         ffv.dim_identifierless_data_id != -1 OR
                         ffv.dim_education_id != -1 OR
                         ffv.dim_publication_id != -1 OR
-                        ffv.dim_orcid_publication_id != -1 OR
+                        ffv.dim_profile_only_publication_id != -1 OR
                         ffv.dim_research_activity_id != -1 OR
                         ffv.dim_funding_decision_id != -1 OR
-                        ffv.dim_research_dataset_id != -1
+                        ffv.dim_research_dataset_id != -1 OR
+                        ffv.dim_referencedata_field_of_science_id != -1 OR
+                        ffv.dim_referencedata_actor_role_id != -1
                     )
                 ";
         }
@@ -411,10 +412,10 @@ namespace api.Services
             return $"DELETE FROM dim_name WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimNameIds)})";
         }
 
-        // Return SQL DELETE statement for dim_orcid_publication
-        public string GetSqlQuery_Delete_DimOrcidPublications(List<int> dimOrcidPublicationIds)
+        // Return SQL DELETE statement for dim_profile_only_publication
+        public string GetSqlQuery_Delete_DimProfileOnlyPublications(List<int> dimProfileOnlyPublicationIds)
         {
-            return $"DELETE FROM dim_orcid_publication WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimOrcidPublicationIds)})";
+            return $"DELETE FROM dim_profile_only_publication WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimProfileOnlyPublicationIds)})";
         }
 
         // Return SQL DELETE statement for dim_pid

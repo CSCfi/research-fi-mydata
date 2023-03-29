@@ -18,6 +18,8 @@ namespace api.Models.Ttv
             DimFundingDecisionDimDateIdApprovalNavigations = new HashSet<DimFundingDecision>();
             DimFundingDecisionDimDateIdEndNavigations = new HashSet<DimFundingDecision>();
             DimFundingDecisionDimDateIdStartNavigations = new HashSet<DimFundingDecision>();
+            DimProfileOnlyResearchActivityDimDateIdEndNavigations = new HashSet<DimProfileOnlyResearchActivity>();
+            DimProfileOnlyResearchActivityDimDateIdStartNavigations = new HashSet<DimProfileOnlyResearchActivity>();
             DimResearchActivityDimEndDateNavigations = new HashSet<DimResearchActivity>();
             DimResearchActivityDimStartDateNavigations = new HashSet<DimResearchActivity>();
             DimResearcherToResearchCommunityEndDateNavigations = new HashSet<DimResearcherToResearchCommunity>();
@@ -47,6 +49,8 @@ namespace api.Models.Ttv
         public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdApprovalNavigations { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdEndNavigations { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdStartNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivityDimDateIdEndNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivityDimDateIdStartNavigations { get; set; }
         public virtual ICollection<DimResearchActivity> DimResearchActivityDimEndDateNavigations { get; set; }
         public virtual ICollection<DimResearchActivity> DimResearchActivityDimStartDateNavigations { get; set; }
         public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityEndDateNavigations { get; set; }

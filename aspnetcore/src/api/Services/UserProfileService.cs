@@ -59,6 +59,16 @@ namespace api.Services
         // For unit test
         public UserProfileService() { }
 
+        // Constructors used in test cases
+        public UserProfileService() { }
+        public UserProfileService(IUtilityService utilityService) {
+            _utilityService = utilityService;
+        }
+        public UserProfileService(IDataSourceHelperService dataSourceHelperService)
+        {
+            _dataSourceHelperService = dataSourceHelperService;
+        }
+
         /*
          * Get FieldIdentifiers.
          */
@@ -78,7 +88,7 @@ namespace api.Services
                 Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
                 Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
                 Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
+                Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY,
                 Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
                 Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
                 Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY
@@ -282,12 +292,14 @@ namespace api.Services
                 DimEmailAddrressId = -1,
                 DimResearcherDescriptionId = -1,
                 DimIdentifierlessDataId = -1,
-                DimOrcidPublicationId = -1,
+                DimProfileOnlyPublicationId = -1,
+                DimProfileOnlyResearchActivityId = -1,
                 DimKeywordId = -1,
                 DimAffiliationId = -1,
                 DimResearcherToResearchCommunityId = -1,
                 DimResearchDatasetId = -1,
                 DimReferencedataFieldOfScienceId = -1,
+                DimReferencedataActorRoleId = -1,
                 Show = false,
                 PrimaryValue = false,
                 SourceId = Constants.SourceIdentifiers.PROFILE_API,
@@ -308,17 +320,17 @@ namespace api.Services
         }
 
         /*
-         * Get empty DimOrcidPublication.
+         * Get empty DimProfileOnlyPublication.
          * Must use -1 in required foreign keys.
          */
-        public DimOrcidPublication GetEmptyDimOrcidPublication()
+        public DimProfileOnlyPublication GetEmptyDimProfileOnlyPublication()
         {
-            return new DimOrcidPublication()
+            return new DimProfileOnlyPublication()
             {
-                DimParentOrcidPublicationId = null,
-                ParentPublicationTypeCode = -1,
-                PublicationTypeCode = -1,
-                PublicationTypeCode2 = -1,
+                DimProfileOnlyPublicationId = null,
+                ParentTypeClassificationCode = -1,
+                TypeClassificationCode = -1,
+                PublicationFormatCode = -1,
                 ArticleTypeCode = -1,
                 TargetAudienceCode = -1,
                 OrcidWorkType = null,
@@ -339,7 +351,7 @@ namespace api.Services
                 ParentPublicationName = null,
                 ParentPublicationEditors = null,
                 LicenseCode = null,
-                LanguageCode = null,
+                LanguageCode = -1,
                 OpenAccessCode = null,
                 OriginalPublicationId = null,
                 PeerReviewed = null,
@@ -350,7 +362,7 @@ namespace api.Services
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = null,
                 Modified = null,
-                OrcidPersonDataSource = -1,
+                DimKnownPersonId = -1,
                 DimRegisteredDataSourceId = -1
             };
         }
@@ -377,7 +389,7 @@ namespace api.Services
                 DimResearchDataCatalogId = -1,
                 DimResearchActivityId = -1,
                 DimEventId = -1,
-                DimOrcidPublicationId = -1,
+                DimProfileOnlyPublicationId = -1,
                 SourceId = Constants.SourceIdentifiers.PROFILE_API,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = _utilityService.GetCurrentDateTime(),
@@ -1260,7 +1272,7 @@ namespace api.Services
                         break;
 
                     // Publication (ORCID)
-                    case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID:
+                    case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY:
                         profileDataResponse.activity.publications =
                             _duplicateHandlerService.AddPublicationToProfileEditorData(
                                 dataSource: profileEditorSource,
@@ -1491,7 +1503,7 @@ namespace api.Services
                 List<int> dimFundingDecisionIds = new();
                 List<int> dimKeywordIds = new();
                 List<int> dimNameIds = new();
-                List<int> dimOrcidPublicationIds = new();
+                List<int> dimProfileOnlyPublicationIds = new();
                 List<int> dimPidIds = new();
                 List<int> dimResearchActivityIds = new();
                 List<int> dimResearchCommunityIds = new();
@@ -1541,7 +1553,7 @@ namespace api.Services
                             if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
-                            if (factFieldValue.DimOrcidPublicationId != -1) dimOrcidPublicationIds.Add(factFieldValue.DimOrcidPublicationId);
+                            if (factFieldValue.DimProfileOnlyPublicationId != -1) dimProfileOnlyPublicationIds.Add(factFieldValue.DimProfileOnlyPublicationId);
                             if (factFieldValue.DimPidId != -1) dimPidIds.Add(factFieldValue.DimPidId);
                             if (factFieldValue.DimPidIdOrcidPutCode != -1) dimPidIds.Add(factFieldValue.DimPidIdOrcidPutCode);
                             if (factFieldValue.DimResearchActivityId != -1) dimResearchActivityIds.Add(factFieldValue.DimResearchActivityId);
@@ -1626,11 +1638,11 @@ namespace api.Services
                             transaction: transaction
                         );
                     }
-                    // Delete ORCID publications
-                    if (dimOrcidPublicationIds.Count > 0)
+                    // Delete profile only publications
+                    if (dimProfileOnlyPublicationIds.Count > 0)
                     {
                         await connection.ExecuteAsync(
-                            sql: _ttvSqlService.GetSqlQuery_Delete_DimOrcidPublications(dimOrcidPublicationIds),
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyPublications(dimProfileOnlyPublicationIds),
                             transaction: transaction
                         );
                     }

@@ -11,11 +11,12 @@ namespace api.Models.Ttv
             DimAffiliationAffiliationTypeNavigations = new HashSet<DimAffiliation>();
             DimAffiliationPositionCodeNavigations = new HashSet<DimAffiliation>();
             DimEducations = new HashSet<DimEducation>();
-            DimOrcidPublicationArticleTypeCodeNavigations = new HashSet<DimOrcidPublication>();
-            DimOrcidPublicationParentPublicationTypeCodeNavigations = new HashSet<DimOrcidPublication>();
-            DimOrcidPublicationPublicationTypeCode2Navigations = new HashSet<DimOrcidPublication>();
-            DimOrcidPublicationPublicationTypeCodeNavigations = new HashSet<DimOrcidPublication>();
-            DimOrcidPublicationTargetAudienceCodeNavigations = new HashSet<DimOrcidPublication>();
+            DimProfileOnlyPublicationArticleTypeCodeNavigations = new HashSet<DimProfileOnlyPublication>();
+            DimProfileOnlyPublicationLanguageCodeNavigations = new HashSet<DimProfileOnlyPublication>();
+            DimProfileOnlyPublicationParentTypeClassificationCodeNavigations = new HashSet<DimProfileOnlyPublication>();
+            DimProfileOnlyPublicationPublicationFormatCodeNavigations = new HashSet<DimProfileOnlyPublication>();
+            DimProfileOnlyPublicationTargetAudienceCodeNavigations = new HashSet<DimProfileOnlyPublication>();
+            DimProfileOnlyPublicationTypeClassificationCodeNavigations = new HashSet<DimProfileOnlyPublication>();
             DimPublicationArticleTypeCodeNavigations = new HashSet<DimPublication>();
             DimPublicationParentPublicationTypeCodeNavigations = new HashSet<DimPublication>();
             DimPublicationPublicationTypeCode2Navigations = new HashSet<DimPublication>();
@@ -25,7 +26,8 @@ namespace api.Models.Ttv
             DimUserChoices = new HashSet<DimUserChoice>();
             FactContributions = new HashSet<FactContribution>();
             FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
-            FactFieldValues = new HashSet<FactFieldValue>();
+            FactFieldValueDimReferencedataActorRoles = new HashSet<FactFieldValue>();
+            FactFieldValueDimReferencedataFieldOfSciences = new HashSet<FactFieldValue>();
             FactJufoClassCodesForPubChannels = new HashSet<FactJufoClassCodesForPubChannel>();
             InverseDimReferencedata = new HashSet<DimReferencedatum>();
             DimCallProgrammes = new HashSet<DimCallProgramme>();
@@ -51,11 +53,12 @@ namespace api.Models.Ttv
         public virtual ICollection<DimAffiliation> DimAffiliationAffiliationTypeNavigations { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliationPositionCodeNavigations { get; set; }
         public virtual ICollection<DimEducation> DimEducations { get; set; }
-        public virtual ICollection<DimOrcidPublication> DimOrcidPublicationArticleTypeCodeNavigations { get; set; }
-        public virtual ICollection<DimOrcidPublication> DimOrcidPublicationParentPublicationTypeCodeNavigations { get; set; }
-        public virtual ICollection<DimOrcidPublication> DimOrcidPublicationPublicationTypeCode2Navigations { get; set; }
-        public virtual ICollection<DimOrcidPublication> DimOrcidPublicationPublicationTypeCodeNavigations { get; set; }
-        public virtual ICollection<DimOrcidPublication> DimOrcidPublicationTargetAudienceCodeNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationArticleTypeCodeNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationLanguageCodeNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationParentTypeClassificationCodeNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationPublicationFormatCodeNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationTargetAudienceCodeNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationTypeClassificationCodeNavigations { get; set; }
         public virtual ICollection<DimPublication> DimPublicationArticleTypeCodeNavigations { get; set; }
         public virtual ICollection<DimPublication> DimPublicationParentPublicationTypeCodeNavigations { get; set; }
         public virtual ICollection<DimPublication> DimPublicationPublicationTypeCode2Navigations { get; set; }
@@ -65,7 +68,8 @@ namespace api.Models.Ttv
         public virtual ICollection<DimUserChoice> DimUserChoices { get; set; }
         public virtual ICollection<FactContribution> FactContributions { get; set; }
         public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
-        public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValueDimReferencedataActorRoles { get; set; }
+        public virtual ICollection<FactFieldValue> FactFieldValueDimReferencedataFieldOfSciences { get; set; }
         public virtual ICollection<FactJufoClassCodesForPubChannel> FactJufoClassCodesForPubChannels { get; set; }
         public virtual ICollection<DimReferencedatum> InverseDimReferencedata { get; set; }
 
