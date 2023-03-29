@@ -56,9 +56,6 @@ namespace api.Services
             _logger = logger;
         }
 
-        // For unit test
-        public UserProfileService() { }
-
         // Constructors used in test cases
         public UserProfileService() { }
         public UserProfileService(IUtilityService utilityService) {
