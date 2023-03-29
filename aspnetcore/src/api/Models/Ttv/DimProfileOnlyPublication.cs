@@ -3,21 +3,33 @@ using System.Collections.Generic;
 
 namespace api.Models.Ttv
 {
-    public partial class DimOrcidPublication
+    public partial class DimProfileOnlyPublication
     {
-        public DimOrcidPublication()
+        public DimProfileOnlyPublication()
         {
             DimPids = new HashSet<DimPid>();
             FactFieldValues = new HashSet<FactFieldValue>();
-            InverseDimParentOrcidPublication = new HashSet<DimOrcidPublication>();
+            InverseDimProfileOnlyPublicationNavigation = new HashSet<DimProfileOnlyPublication>();
         }
 
         public int Id { get; set; }
-        public int? DimParentOrcidPublicationId { get; set; }
-        public int ParentPublicationTypeCode { get; set; }
-        public int PublicationTypeCode { get; set; }
-        public int PublicationTypeCode2 { get; set; }
+        public int? DimProfileOnlyPublicationId { get; set; }
+        public int ParentTypeClassificationCode { get; set; }
+        /// <summary>
+        /// code_schema = &apos;julkaisutyyppiluokitus&apos;
+        /// </summary>
+        public int TypeClassificationCode { get; set; }
+        /// <summary>
+        /// code_scheme = &apos;julkaisumuoto&apos;
+        /// </summary>
+        public int PublicationFormatCode { get; set; }
+        /// <summary>
+        /// code_scheme = &apos;Artikkelintyyppikoodi&apos;
+        /// </summary>
         public int ArticleTypeCode { get; set; }
+        /// <summary>
+        /// code_scheme = &apos;julkaisunyleiso&apos;
+        /// </summary>
         public int TargetAudienceCode { get; set; }
         public string OrcidWorkType { get; set; }
         public string PublicationName { get; set; }
@@ -37,7 +49,6 @@ namespace api.Models.Ttv
         public string ParentPublicationName { get; set; }
         public string ParentPublicationEditors { get; set; }
         public int? LicenseCode { get; set; }
-        public string LanguageCode { get; set; }
         public string OpenAccessCode { get; set; }
         public string OriginalPublicationId { get; set; }
         public bool? PeerReviewed { get; set; }
@@ -48,19 +59,21 @@ namespace api.Models.Ttv
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
-        public int OrcidPersonDataSource { get; set; }
+        public int DimKnownPersonId { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
+        public int LanguageCode { get; set; }
 
         public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
-        public virtual DimOrcidPublication DimParentOrcidPublication { get; set; }
+        public virtual DimKnownPerson DimKnownPerson { get; set; }
+        public virtual DimProfileOnlyPublication DimProfileOnlyPublicationNavigation { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
-        public virtual DimKnownPerson OrcidPersonDataSourceNavigation { get; set; }
-        public virtual DimReferencedatum ParentPublicationTypeCodeNavigation { get; set; }
-        public virtual DimReferencedatum PublicationTypeCode2Navigation { get; set; }
-        public virtual DimReferencedatum PublicationTypeCodeNavigation { get; set; }
+        public virtual DimReferencedatum LanguageCodeNavigation { get; set; }
+        public virtual DimReferencedatum ParentTypeClassificationCodeNavigation { get; set; }
+        public virtual DimReferencedatum PublicationFormatCodeNavigation { get; set; }
         public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
+        public virtual DimReferencedatum TypeClassificationCodeNavigation { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
-        public virtual ICollection<DimOrcidPublication> InverseDimParentOrcidPublication { get; set; }
+        public virtual ICollection<DimProfileOnlyPublication> InverseDimProfileOnlyPublicationNavigation { get; set; }
     }
 }

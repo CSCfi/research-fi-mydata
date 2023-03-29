@@ -25,6 +25,7 @@ namespace api.Models.Ttv
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
+        public string LocalIdentifier { get; set; }
 
         public virtual DimReferencedatum AffiliationTypeNavigation { get; set; }
         public virtual DimKnownPerson DimKnownPerson { get; set; }

@@ -23,7 +23,7 @@ namespace api.Services
          */
         public bool IsOrcidPublication(ProfileDataFromSql profileData)
         {
-            return profileData.FactFieldValues_DimOrcidPublicationId != -1 && profileData.DimFieldDisplaySettings_FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID;
+            return profileData.FactFieldValues_DimProfileOnlyPublicationId != -1 && profileData.DimFieldDisplaySettings_FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY;
         }
 
         /*
@@ -75,7 +75,7 @@ namespace api.Services
                 // Check duplicate publicationId.
                 if (
                     (!IsOrcidPublication(profileData) && profileData.DimPublication_PublicationId != "" && profileData.DimPublication_PublicationId == publication.PublicationId) ||
-                    (IsOrcidPublication(profileData) && profileData.DimOrcidPublication_PublicationId != "" && profileData.DimOrcidPublication_PublicationId == publication.PublicationId)
+                    (IsOrcidPublication(profileData) && profileData.DimProfileOnlyPublication_PublicationId != "" && profileData.DimProfileOnlyPublication_PublicationId == publication.PublicationId)
                 )
                 {
                     AddDataSource(publication, dataSource);
@@ -85,9 +85,9 @@ namespace api.Services
                 // Check duplicate DOI.
                 if (
                     IsOrcidPublication(profileData) &&
-                    profileData.DimOrcidPublication_Doi != "" &&
-                    profileData.DimOrcidPublication_Doi == publication.Doi &&
-                    !HasSameDoiButIsDifferentPublication(profileData.DimOrcidPublication_PublicationName, publication)
+                    profileData.DimProfileOnlyPublication_Doi != "" &&
+                    profileData.DimProfileOnlyPublication_Doi == publication.Doi &&
+                    !HasSameDoiButIsDifferentPublication(profileData.DimProfileOnlyPublication_PublicationName, publication)
                 )
                 {
                     AddDataSource(publication, dataSource);
@@ -128,10 +128,10 @@ namespace api.Services
                 publications.Add(
                     new ProfileEditorPublication()
                     {
-                        PublicationId = profileData.DimOrcidPublication_PublicationId,
-                        PublicationName = profileData.DimOrcidPublication_PublicationName,
-                        PublicationYear = HandlePublicationYear(profileData.DimOrcidPublication_PublicationYear),
-                        Doi = profileData.DimOrcidPublication_Doi,
+                        PublicationId = profileData.DimProfileOnlyPublication_PublicationId,
+                        PublicationName = profileData.DimProfileOnlyPublication_PublicationName,
+                        PublicationYear = HandlePublicationYear(profileData.DimProfileOnlyPublication_PublicationYear),
+                        Doi = profileData.DimProfileOnlyPublication_Doi,
                         AuthorsText = "",
                         TypeCode = "",
                         JournalName = "",
@@ -139,8 +139,8 @@ namespace api.Services
                         ParentPublicationName = "",
                         itemMeta = new ProfileEditorItemMeta()
                         {
-                            Id = profileData.FactFieldValues_DimOrcidPublicationId,
-                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_ORCID,
+                            Id = profileData.FactFieldValues_DimProfileOnlyPublicationId,
+                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY,
                             Show = profileData.FactFieldValues_Show,
                             PrimaryValue = profileData.FactFieldValues_PrimaryValue
                         },

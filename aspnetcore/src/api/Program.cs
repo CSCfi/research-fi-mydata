@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +11,9 @@ namespace api
     {
         public static void Main(string[] args)
         {
+            // Print Seriog error messages.
+            Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine($"{msg} (Serilog)"));
+
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .AddUserSecrets<Program>()

@@ -27,7 +27,7 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimIdentifierlessDataId { get; set; }
         public int FactFieldValues_DimEducationId { get; set; }
         public int FactFieldValues_DimPublicationId { get; set; }
-        public int FactFieldValues_DimOrcidPublicationId { get; set; }
+        public int FactFieldValues_DimProfileOnlyPublicationId { get; set; }
         public int FactFieldValues_DimResearchActivityId { get; set; }
         public int FactFieldValues_DimFundingDecisionId { get; set; }
         public int FactFieldValues_DimResearchDatasetId { get; set; }
@@ -133,11 +133,11 @@ namespace api.Models.ProfileEditor
         public string DimPublication_JournalName { get; set; }
         public string DimPublication_ConferenceName { get; set; }
         public string DimPublication_ParentPublicationName { get; set; }
-        // DimOrcidPublication
-        public string DimOrcidPublication_PublicationId { get; set; }
-        public string DimOrcidPublication_PublicationName { get; set; }
-        public int DimOrcidPublication_PublicationYear { get; set; }
-        public string DimOrcidPublication_Doi { get; set; }
+        // DimProfileOnlyPublication
+        public string DimProfileOnlyPublication_PublicationId { get; set; }
+        public string DimProfileOnlyPublication_PublicationName { get; set; }
+        public int DimProfileOnlyPublication_PublicationYear { get; set; }
+        public string DimProfileOnlyPublication_Doi { get; set; }
         // DimResearchActivity
         public string DimResearchActivity_NameFi { get; set; }
         public string DimResearchActivity_NameEn { get; set; }
