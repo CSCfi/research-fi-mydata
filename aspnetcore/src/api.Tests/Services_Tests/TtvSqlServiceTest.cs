@@ -263,12 +263,25 @@ namespace api.Tests
             );
         }
 
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, email.")]
+        public void Test_getSqlQuery_Select_DimEmailAddrress_01()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            int dimKnownPersonId = 9999;
+            List<int> existingIds = new() {};
+            string expectedSqlString =
+                    @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_email_addrress
+                        WHERE dim_known_person_id=9999 AND id!=-1 AND dim_registered_data_source_id!=-1";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_DimEmailAddrress(dimKnownPersonId, existingIds);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
 
-
-
-
-        [Fact(DisplayName = "Get SQL query for selecting adding TTV data, email")]
-        public void Test_getSqlQuery_Select_DimEmailAddrress()
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, email. Exclude IDs.")]
+        public void Test_getSqlQuery_Select_DimEmailAddrress_02()
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
@@ -284,8 +297,25 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
-        [Fact(DisplayName = "Get SQL query for selecting adding TTV data, researcher description")]
-        public void Test_getSqlQuery_Select_DimResearcherDescription()
+        [Fact(DisplayName = "Get SQL SELECT for adding TTV data, researcher description")]
+        public void Test_getSqlQuery_Select_DimResearcherDescription_01()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            int dimKnownPersonId = 9998;
+            List<int> existingIds = new() {};
+            string expectedSqlString =
+                    @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_researcher_description
+                        WHERE dim_known_person_id=9998 AND id!=-1 AND dim_registered_data_source_id!=-1";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_DimResearcherDescription(dimKnownPersonId, existingIds);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL SELECT for adding TTV data, researcher description. Exclude IDs.")]
+        public void Test_getSqlQuery_Select_DimResearcherDescription_02()
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
@@ -301,8 +331,25 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
-        [Fact(DisplayName = "Get SQL query for selecting adding TTV data, web link")]
-        public void Test_getSqlQuery_Select_DimWebLink()
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, web link")]
+        public void Test_getSqlQuery_Select_DimWebLink_01()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            int dimKnownPersonId = 9997;
+            List<int> existingIds = new() {};
+            string expectedSqlString =
+                    @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_web_link
+                        WHERE dim_known_person_id=9997 AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_DimWebLink(dimKnownPersonId, existingIds);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, web link. Exclude IDs.")]
+        public void Test_getSqlQuery_Select_DimWebLink_02()
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
@@ -318,8 +365,25 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
-        [Fact(DisplayName = "Get SQL query for selecting adding TTV data, telephone number")]
-        public void Test_getSqlQuery_Select_DimTelephoneNumber()
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, telephone number")]
+        public void Test_getSqlQuery_Select_DimTelephoneNumber_01()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            int dimKnownPersonId = 9996;
+            List<int> existingIds = new() {};
+            string expectedSqlString =
+                    @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_telephone_number
+                        WHERE dim_known_person_id=9996 AND id!=-1 AND dim_registered_data_source_id!=-1";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_DimTelephoneNumber(dimKnownPersonId, existingIds);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, telephone number. Exclude IDs.")]
+        public void Test_getSqlQuery_Select_DimTelephoneNumber_02()
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
@@ -335,8 +399,25 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
-        [Fact(DisplayName = "Get SQL query for selecting adding TTV data, affiliation")]
-        public void Test_getSqlQuery_Select_DimAffiliation()
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, affiliation")]
+        public void Test_getSqlQuery_Select_DimAffiliation_01()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            int dimKnownPersonId = 9995;
+            List<int> existingIds = new() {};
+            string expectedSqlString =
+                    @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_affiliation
+                        WHERE dim_known_person_id=9995 AND id!=-1 AND dim_registered_data_source_id!=-1";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_DimAffiliation(dimKnownPersonId, existingIds);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, affiliation. Exclude IDs.")]
+        public void Test_getSqlQuery_Select_DimAffiliation_02()
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
@@ -352,8 +433,25 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
-        [Fact(DisplayName = "Get SQL query for selecting adding TTV data, education")]
-        public void Test_getSqlQuery_Select_DimEducation()
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, education")]
+        public void Test_getSqlQuery_Select_DimEducation_01()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            int dimKnownPersonId = 9994;
+            List<int> existingIds = new() {};
+            string expectedSqlString =
+                    @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                        FROM dim_education
+                        WHERE dim_known_person_id=9994 AND id!=-1 AND dim_registered_data_source_id!=-1";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_DimEducation(dimKnownPersonId, existingIds);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data, education. Exclude IDs.")]
+        public void Test_getSqlQuery_Select_DimEducation_02()
         {
             // Arrange
             TtvSqlService ttvSqlService = new();

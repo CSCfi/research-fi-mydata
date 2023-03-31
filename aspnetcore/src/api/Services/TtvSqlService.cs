@@ -493,50 +493,56 @@ namespace api.Services
         // Return SQL SELECT statement for dim_email_addrress
         public string GetSqlQuery_Select_DimEmailAddrress(int dimKnownPersonId, List<int> existingIds)
         {
+            string excludeIdsSQL = existingIds.Count > 0 ? $" AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})" : "";
             return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_email_addrress
-                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})";
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1{excludeIdsSQL}";
         }
 
         // Return SQL SELECT statement for dim_researcher_description
         public string GetSqlQuery_Select_DimResearcherDescription(int dimKnownPersonId, List<int> existingIds)
         {
+            string excludeIdsSQL = existingIds.Count > 0 ? $" AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})" : "";
             return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_researcher_description
-                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})";
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1{excludeIdsSQL}";
         }
 
         // Return SQL SELECT statement for dim_web_link
         // TODO: IS NOT NULL condition can be removed, when table dim_web_link.dim_registered_data_source_id is modified to disallow NULL.
         public string GetSqlQuery_Select_DimWebLink(int dimKnownPersonId, List<int> existingIds)
         {
+            string excludeIdsSQL = existingIds.Count > 0 ? $" AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})" : "";
             return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_web_link
-                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})";
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL{excludeIdsSQL}";
         }
 
         // Return SQL SELECT statement for dim_telephone_number
         public string GetSqlQuery_Select_DimTelephoneNumber(int dimKnownPersonId, List<int> existingIds)
         {
+            string excludeIdsSQL = existingIds.Count > 0 ? $" AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})" : "";
             return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_telephone_number
-                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})";
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1{excludeIdsSQL}";
         }
 
         // Return SQL SELECT statement for dim_affiliation
         public string GetSqlQuery_Select_DimAffiliation(int dimKnownPersonId, List<int> existingIds)
         {
+            string excludeIdsSQL = existingIds.Count > 0 ? $" AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})" : "";
             return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_affiliation
-                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})";
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1{excludeIdsSQL}";
         }
 
         // Return SQL SELECT statement for dim_education
         public string GetSqlQuery_Select_DimEducation(int dimKnownPersonId, List<int> existingIds)
         {
+            string excludeIdsSQL = existingIds.Count > 0 ? $" AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})" : "";
             return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_education
-                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})";
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1{excludeIdsSQL}";
         }
 
         // Return SQL SELECT statement for fact_contribution

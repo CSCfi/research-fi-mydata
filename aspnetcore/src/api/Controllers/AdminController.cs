@@ -439,6 +439,7 @@ namespace api.Controllers
             }
 
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            logUserIdentification.Orcid = orcidId;
 
             await _adminService.AddNewTtvDataInUserProfileBackground(orcidId, logUserIdentification);
 

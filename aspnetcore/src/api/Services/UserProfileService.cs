@@ -406,14 +406,16 @@ namespace api.Services
 
         /*
          * Check if a DimName can be included in user profile.
+         * Exclude DimName, which are already included in profile.
          * Exclude DimNames, whose registered data source is any of the following:
          * - virta
          * - metax
          * - sftp_funding
          */
-        public bool CanIncludeDimNameInUserProfile(DimName dimName)
+        public bool CanIncludeDimNameInUserProfile(List<int> existingIDs, DimName dimName)
         {
             return
+                !existingIDs.Contains(dimName.Id) &&
                 !(
                     dimName.DimRegisteredDataSource.Name == "virta" ||
                     dimName.DimRegisteredDataSource.Name == "metax" ||
@@ -428,15 +430,20 @@ namespace api.Services
          */
         public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile, LogUserIdentification logUserIdentification)
         {
+            // Get FactFieldValues
+            List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(f => f.DimUserProfileId == dimUserProfile.Id).AsNoTracking().ToListAsync();
             // Collect lists of IDs, which are already included in the profile.
             // They are used in SQL where condition to filter out duplicates.
-            List<int> existingEmailIds = new();
-            List<int> existingWebLinkIds = new();
-            List<int> existingTelephoneNumberIds = new();
-            List<int> existingResearcherDescriptionIds = new();
-            List<int> existingAffiliationIds = new();
-            List<int> existingEducationIds = new();
-            List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(f => f.DimUserProfileId == dimUserProfile.Id).AsNoTracking().ToListAsync();
+            List<int> existingEmailIds = new() { -1 };
+            List<int> existingWebLinkIds = new() { -1 };
+            List<int> existingTelephoneNumberIds = new() { -1 };
+            List<int> existingResearcherDescriptionIds = new() { -1 };
+            List<int> existingAffiliationIds = new() { -1 };
+            List<int> existingEducationIds = new() { -1 };
+            List<int> existingNameIds = new() { -1 };
+            List<int> existingPublicationIds = new() { -1 };
+            List<int> existingResearchActivityIds = new() { -1 };
+            List<int> existingResearchDatasetIds = new() { -1 };
             if (ffvs != null)
             {
                 existingEmailIds = ffvs.Where(ffv => ffv.DimEmailAddrressId != -1).Select(ffv => ffv.DimEmailAddrressId).Distinct().ToList<int>();
@@ -445,6 +452,10 @@ namespace api.Services
                 existingResearcherDescriptionIds = ffvs.Where(ffv => ffv.DimResearcherDescriptionId != -1).Select(ffv => ffv.DimResearcherDescriptionId).Distinct().ToList<int>();
                 existingAffiliationIds = ffvs.Where(ffv => ffv.DimAffiliationId != -1).Select(ffv => ffv.DimAffiliationId).Distinct().ToList<int>();
                 existingEducationIds = ffvs.Where(ffv => ffv.DimEducationId != -1).Select(ffv => ffv.DimEducationId).Distinct().ToList<int>();
+                existingNameIds = ffvs.Where(ffv => ffv.DimNameId != -1).Select(ffv => ffv.DimNameId).Distinct().ToList<int>();
+                existingPublicationIds = ffvs.Where(ffv => ffv.DimPublicationId != -1).Select(ffv => ffv.DimPublicationId).Distinct().ToList<int>();
+                existingResearchActivityIds = ffvs.Where(ffv => ffv.DimResearchActivityId != -1).Select(ffv => ffv.DimResearchActivityId).Distinct().ToList<int>();
+                existingResearchDatasetIds = ffvs.Where(ffv => ffv.DimResearchDatasetId != -1).Select(ffv => ffv.DimResearchDatasetId).Distinct().ToList<int>();
             }
 
             using (var connection = _ttvContext.Database.GetDbConnection())
@@ -643,8 +654,8 @@ namespace api.Services
                 foreach (DimName dimName in dimKnownPerson.DimNames.Where(dimName => dimName.DimRegisteredDataSourceId != -1))
                 {
                     // Name
-                    // Exclude DimNames having specific registered data sources (see CanIncludeDimNameInUserProfile)
-                    if (CanIncludeDimNameInUserProfile(dimName))
+                    // Exclude DimNames which are already in user profile or have a specific registered data source (see CanIncludeDimNameInUserProfile)
+                    if (CanIncludeDimNameInUserProfile(existingNameIds, dimName))
                     {
                         if (!String.IsNullOrWhiteSpace(dimName.FirstNames) && !String.IsNullOrWhiteSpace(dimName.LastName))
                         {
@@ -674,11 +685,11 @@ namespace api.Services
                         string factContributionSql = _ttvSqlService.GetSqlQuery_Select_FactContribution(dimName.Id);
                         List<FactContributionTableMinimalDTO> factContributions = (await connection.QueryAsync<FactContributionTableMinimalDTO>(factContributionSql)).ToList();
 
-                        // Loop FactContributions related to a DimName
+                        // Loop FactContributions related to a DimName. Add entries to user profile. Exclude already existing IDs.
                         foreach (FactContributionTableMinimalDTO fc in factContributions)
                         {
                             // publication
-                            if (fc.DimPublicationId != -1)
+                            if (fc.DimPublicationId != -1 && !existingPublicationIds.Contains(fc.DimPublicationId))
                             {
                                 FactFieldValue factFieldValuePublication = this.GetEmptyFactFieldValue();
                                 factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
@@ -689,7 +700,7 @@ namespace api.Services
                             }
 
                             // research activity
-                            if (fc.DimResearchActivityId != -1)
+                            if (fc.DimResearchActivityId != -1 && !existingResearchActivityIds.Contains(fc.DimResearchActivityId))
                             {
                                 FactFieldValue factFieldValueResearchActivity = this.GetEmptyFactFieldValue();
                                 factFieldValueResearchActivity.DimUserProfileId = dimUserProfile.Id;
@@ -700,7 +711,7 @@ namespace api.Services
                             }
 
                             // research dataset
-                            if (fc.DimResearchDatasetId != -1)
+                            if (fc.DimResearchDatasetId != -1 && !existingResearchDatasetIds.Contains(fc.DimResearchDatasetId))
                             {
                                 FactFieldValue factFieldValueResearchDataset = this.GetEmptyFactFieldValue();
                                 factFieldValueResearchDataset.DimUserProfileId = dimUserProfile.Id;
