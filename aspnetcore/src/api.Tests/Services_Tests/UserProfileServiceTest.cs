@@ -200,5 +200,57 @@ namespace api.Tests
             Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimPid.SourceId);
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimPid.SourceDescription);
         }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when registered data source name is 'virta'")]
+        public void canIncludeDimNameInUserProfile_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new ();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "virta" };
+            DimName dimName = new () { DimRegisteredDataSource = dimRegisteredDataSourceVirta };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when registered data source name is 'metax'")]
+        public void canIncludeDimNameInUserProfile_02()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "metax" };
+            DimName dimName = new() { DimRegisteredDataSource = dimRegisteredDataSourceVirta };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when registered data source name is 'sftp_funding'")]
+        public void canIncludeDimNameInUserProfile_03()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "sftp_funding" };
+            DimName dimName = new() { DimRegisteredDataSource = dimRegisteredDataSourceVirta };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName can be included in user profile, when registered data source is not 'virta', 'metax' or 'sftp_funding'")]
+        public void canIncludeDimNameInUserProfile_04()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "yliopisto A" };
+            DimName dimName = new() { DimRegisteredDataSource = dimRegisteredDataSourceVirta };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(dimName);
+            // Assert
+            Assert.True(actualResult);
+        }
     }
 }

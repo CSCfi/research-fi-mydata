@@ -56,7 +56,16 @@ namespace api.Services
             _logger = logger;
         }
 
-        // Constructors used in test cases
+        public UserProfileService(
+            TtvContext ttvContext,
+            ITtvSqlService ttvSqlService,
+            ILogger<UserProfileService> logger)
+        {
+            _ttvContext = ttvContext;
+            _ttvSqlService = ttvSqlService;
+            _logger = logger;
+        }
+
         public UserProfileService() { }
         public UserProfileService(IUtilityService utilityService) {
             _utilityService = utilityService;
@@ -395,6 +404,22 @@ namespace api.Services
         }
 
 
+        /*
+         * Check if a DimName can be included in user profile.
+         * Exclude DimNames, whose registered data source is any of the following:
+         * - virta
+         * - metax
+         * - sftp_funding
+         */
+        public bool CanIncludeDimNameInUserProfile(DimName dimName)
+        {
+            return
+                !(
+                    dimName.DimRegisteredDataSource.Name == "virta" ||
+                    dimName.DimRegisteredDataSource.Name == "metax" ||
+                    dimName.DimRegisteredDataSource.Name == "sftp_funding"
+                );
+        }
 
 
         /*
@@ -403,12 +428,32 @@ namespace api.Services
          */
         public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile, LogUserIdentification logUserIdentification)
         {
-            using (var connection = _ttvContext.Database.GetDbConnection())
+            // Collect lists of IDs, which are already included in the profile.
+            // They are used in SQL where condition to filter out duplicates.
+            List<int> existingEmailIds = new();
+            List<int> existingWebLinkIds = new();
+            List<int> existingTelephoneNumberIds = new();
+            List<int> existingResearcherDescriptionIds = new();
+            List<int> existingAffiliationIds = new();
+            List<int> existingEducationIds = new();
+            List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(f => f.DimUserProfileId == dimUserProfile.Id).AsNoTracking().ToListAsync();
+            if (ffvs != null)
             {
+                existingEmailIds = ffvs.Where(ffv => ffv.DimEmailAddrressId != -1).Select(ffv => ffv.DimEmailAddrressId).Distinct().ToList<int>();
+                existingWebLinkIds = ffvs.Where(ffv => ffv.DimWebLinkId != -1).Select(ffv => ffv.DimWebLinkId).Distinct().ToList<int>();
+                existingTelephoneNumberIds = ffvs.Where(ffv => ffv.DimTelephoneNumberId != -1).Select(ffv => ffv.DimTelephoneNumberId).Distinct().ToList<int>();
+                existingResearcherDescriptionIds = ffvs.Where(ffv => ffv.DimResearcherDescriptionId != -1).Select(ffv => ffv.DimResearcherDescriptionId).Distinct().ToList<int>();
+                existingAffiliationIds = ffvs.Where(ffv => ffv.DimAffiliationId != -1).Select(ffv => ffv.DimAffiliationId).Distinct().ToList<int>();
+                existingEducationIds = ffvs.Where(ffv => ffv.DimEducationId != -1).Select(ffv => ffv.DimEducationId).Distinct().ToList<int>();
+            }
+
+            using (var connection = _ttvContext.Database.GetDbConnection())
+            {                
+
                 // email
                 try
                 {
-                    string emailSql = _ttvSqlService.GetSqlQuery_Select_DimEmailAddrress(dimKnownPerson.Id);
+                    string emailSql = _ttvSqlService.GetSqlQuery_Select_DimEmailAddrress(dimKnownPerson.Id, existingEmailIds);
                     List<DimTableMinimalDTO> emails = (await connection.QueryAsync<DimTableMinimalDTO>(emailSql)).ToList();
                     DimFieldDisplaySetting dimFieldDisplaySetting_emailAddress =
                         dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS).First();
@@ -437,7 +482,7 @@ namespace api.Services
                 // web link
                 try
                 {
-                    string webLinkSql = _ttvSqlService.GetSqlQuery_Select_DimWebLink(dimKnownPerson.Id);
+                    string webLinkSql = _ttvSqlService.GetSqlQuery_Select_DimWebLink(dimKnownPerson.Id, existingWebLinkIds);
                     List<DimTableMinimalDTO> webLinks = (await connection.QueryAsync<DimTableMinimalDTO>(webLinkSql)).ToList();
                     DimFieldDisplaySetting dimFieldDisplaySetting_webLink =
                         dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK).First();
@@ -466,7 +511,7 @@ namespace api.Services
                 // telephone number
                 try
                 {
-                    string telephoneNumberSql = _ttvSqlService.GetSqlQuery_Select_DimTelephoneNumber(dimKnownPerson.Id);
+                    string telephoneNumberSql = _ttvSqlService.GetSqlQuery_Select_DimTelephoneNumber(dimKnownPerson.Id, existingTelephoneNumberIds);
                     List<DimTableMinimalDTO> telephoneNumbers = (await connection.QueryAsync<DimTableMinimalDTO>(telephoneNumberSql)).ToList();
                     DimFieldDisplaySetting dimFieldDisplaySetting_telephoneNumber =
                         dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER).First();
@@ -495,7 +540,7 @@ namespace api.Services
                 // researcher description
                 try
                 {
-                    string researcherDescriptionSql = _ttvSqlService.GetSqlQuery_Select_DimResearcherDescription(dimKnownPerson.Id);
+                    string researcherDescriptionSql = _ttvSqlService.GetSqlQuery_Select_DimResearcherDescription(dimKnownPerson.Id, existingResearcherDescriptionIds);
                     List<DimTableMinimalDTO> researcherDescriptions = (await connection.QueryAsync<DimTableMinimalDTO>(researcherDescriptionSql)).ToList();
                     DimFieldDisplaySetting dimFieldDisplaySetting_researcherDescription =
                         dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION).First();
@@ -524,7 +569,7 @@ namespace api.Services
                 // affiliation
                 try
                 {
-                    string affiliationSql = _ttvSqlService.GetSqlQuery_Select_DimAffiliation(dimKnownPerson.Id);
+                    string affiliationSql = _ttvSqlService.GetSqlQuery_Select_DimAffiliation(dimKnownPerson.Id, existingAffiliationIds);
                     List<DimTableMinimalDTO> affiliations = (await connection.QueryAsync<DimTableMinimalDTO>(affiliationSql)).ToList();
                     DimFieldDisplaySetting dimFieldDisplaySetting_affiliation =
                         dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION).First();
@@ -553,7 +598,7 @@ namespace api.Services
                 // education
                 try
                 {
-                    string educationSql = _ttvSqlService.GetSqlQuery_Select_DimEducation(dimKnownPerson.Id);
+                    string educationSql = _ttvSqlService.GetSqlQuery_Select_DimEducation(dimKnownPerson.Id, existingEducationIds);
                     List<DimTableMinimalDTO> educations = (await connection.QueryAsync<DimTableMinimalDTO>(educationSql)).ToList();
                     DimFieldDisplaySetting dimFieldDisplaySetting_education =
                         dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION).First();
@@ -598,17 +643,8 @@ namespace api.Services
                 foreach (DimName dimName in dimKnownPerson.DimNames.Where(dimName => dimName.DimRegisteredDataSourceId != -1))
                 {
                     // Name
-                    // Exclude DimNames, whose registered data source is any of the following:
-                    // - virta
-                    // - metax
-                    // - sftp_funding
-                    if (
-                        !(
-                            dimName.DimRegisteredDataSource.Name == "virta" ||
-                            dimName.DimRegisteredDataSource.Name == "metax" ||
-                            dimName.DimRegisteredDataSource.Name == "sftp_funding"
-                        )
-                    )
+                    // Exclude DimNames having specific registered data sources (see CanIncludeDimNameInUserProfile)
+                    if (CanIncludeDimNameInUserProfile(dimName))
                     {
                         if (!String.IsNullOrWhiteSpace(dimName.FirstNames) && !String.IsNullOrWhiteSpace(dimName.LastName))
                         {
@@ -823,9 +859,7 @@ namespace api.Services
             // Save DimUserProfile, DimFieldDisplaySettings and BrGrantedPermissions changes.
             await _ttvContext.SaveChangesAsync();
 
-            // FactFieldValues - Search TTV database and add related entries into user profile.
-            //AddTtvDataToUserProfile(dimPid.DimKnownPerson, dimUserProfile);
-
+            // Search TTV database and add related entries into user profile.
             await AddTtvDataToUserProfile(
                 dimKnownPerson: dimPid.DimKnownPerson,
                 dimUserProfile: dimUserProfile,
