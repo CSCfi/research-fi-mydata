@@ -18,6 +18,7 @@ namespace api.Controllers
     [ApiController]
     public class AdminController : TtvAdminControllerBase
     {
+        private readonly IAdminService _adminService;
         private readonly IOrcidApiService _orcidApiService;
         private readonly IUserProfileService _userProfileService;
         private readonly IElasticsearchService _elasticsearchService;
@@ -28,6 +29,7 @@ namespace api.Controllers
         public IConfiguration Configuration { get; }
 
         public AdminController(
+            IAdminService adminService,
             IConfiguration configuration,
             IOrcidApiService orcidApiService,
             IUserProfileService userProfileService,
@@ -38,6 +40,7 @@ namespace api.Controllers
             IBackgroundProfiledata backgroundProfiledata,
             IServiceScopeFactory serviceScopeFactory)
         {
+            _adminService = adminService;
             _orcidApiService = orcidApiService;
             _userProfileService = userProfileService;
             _elasticsearchService = elasticsearchService;
@@ -101,7 +104,7 @@ namespace api.Controllers
                 IAdminService localAdminService = scope.ServiceProvider.GetRequiredService<IAdminService>();
                 await localAdminService.RegisterOrcidWebhookForSingleUserprofile(webhookOrcidId);
 
-                
+
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
@@ -230,7 +233,7 @@ namespace api.Controllers
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER_ALL,
                         state: LogContent.ActionState.COMPLETE));
             });
- 
+
             return Ok();
         }
 
@@ -408,6 +411,36 @@ namespace api.Controllers
                     });
                 }
             }
+
+            return Ok();
+        }
+
+
+
+
+
+        /// <summary>
+        /// Admin: Add new TTV data in user profile.
+        /// </summary>
+        [HttpPost]
+        [Route("/[controller]/userprofile/addttvdata/{dimUserProfileId}")]
+        public async Task<IActionResult> AddNewTtvDataInUserProfile(int dimUserProfileId)
+        {
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
+            {
+                return Unauthorized();
+            }
+
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
+            await _adminService.AddNewTtvDataInUserProfileBackground(dimUserProfileId, logUserIdentification);
 
             return Ok();
         }

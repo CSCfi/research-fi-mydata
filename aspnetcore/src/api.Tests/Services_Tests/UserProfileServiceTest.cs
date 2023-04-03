@@ -200,5 +200,110 @@ namespace api.Tests
             Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimPid.SourceId);
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimPid.SourceDescription);
         }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when registered data source name is 'virta'")]
+        public void canIncludeDimNameInUserProfile_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new ();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "virta" };
+            DimName dimName = new () {
+                Id = 1,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when registered data source name is 'metax'")]
+        public void canIncludeDimNameInUserProfile_02()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "metax" };
+            DimName dimName = new() {
+                Id = 2,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when registered data source name is 'sftp_funding'")]
+        public void canIncludeDimNameInUserProfile_03()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "sftp_funding" };
+            DimName dimName = new() {
+                Id = 3,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName can be included in user profile, when registered data source is not 'virta', 'metax' or 'sftp_funding'")]
+        public void canIncludeDimNameInUserProfile_04()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "yliopisto A" };
+            DimName dimName = new()
+            {
+                Id = 4,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.True(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when DimName.Id is in the list of already included IDs")]
+        public void canIncludeDimNameInUserProfile_05()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "yliopisto B" };
+            DimName dimName = new()
+            {
+                Id = 5,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { 2,3,4,5,6 };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName can be included in user profile, when DimName.Id is not in the list of already included IDs")]
+        public void canIncludeDimNameInUserProfile_06()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "yliopisto C" };
+            DimName dimName = new()
+            {
+                Id = 101010,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { 3, 4, 5, 6, 7 };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.True(actualResult);
+        }
     }
 }
