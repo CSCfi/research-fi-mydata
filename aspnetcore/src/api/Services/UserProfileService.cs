@@ -427,6 +427,7 @@ namespace api.Services
         /*
          * Search and add data from TTV database.
          * This is data that is already linked to the ORCID id in DimPid and it's related DimKnownPerson.
+         * ProfileOnly* items must be excluded in these queries.
          */
         public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile, LogUserIdentification logUserIdentification)
         {
@@ -434,16 +435,17 @@ namespace api.Services
             List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(f => f.DimUserProfileId == dimUserProfile.Id).AsNoTracking().ToListAsync();
             // Collect lists of IDs, which are already included in the profile.
             // They are used in SQL where condition to filter out duplicates.
-            List<int> existingEmailIds = new() { -1 };
-            List<int> existingWebLinkIds = new() { -1 };
-            List<int> existingTelephoneNumberIds = new() { -1 };
-            List<int> existingResearcherDescriptionIds = new() { -1 };
-            List<int> existingAffiliationIds = new() { -1 };
-            List<int> existingEducationIds = new() { -1 };
-            List<int> existingNameIds = new() { -1 };
-            List<int> existingPublicationIds = new() { -1 };
-            List<int> existingResearchActivityIds = new() { -1 };
-            List<int> existingResearchDatasetIds = new() { -1 };
+            List<int> existingEmailIds = new();
+            List<int> existingWebLinkIds = new();
+            List<int> existingTelephoneNumberIds = new();
+            List<int> existingResearcherDescriptionIds = new();
+            List<int> existingAffiliationIds = new();
+            List<int> existingEducationIds = new();
+            List<int> existingNameIds = new();
+            List<int> existingPublicationIds = new();
+            List<int> existingResearchActivityIds = new();
+            List<int> existingResearchDatasetIds = new();
+            List<int> existingFundingDecisionIds = new();
             if (ffvs != null)
             {
                 existingEmailIds = ffvs.Where(ffv => ffv.DimEmailAddrressId != -1).Select(ffv => ffv.DimEmailAddrressId).Distinct().ToList<int>();
@@ -456,6 +458,7 @@ namespace api.Services
                 existingPublicationIds = ffvs.Where(ffv => ffv.DimPublicationId != -1).Select(ffv => ffv.DimPublicationId).Distinct().ToList<int>();
                 existingResearchActivityIds = ffvs.Where(ffv => ffv.DimResearchActivityId != -1).Select(ffv => ffv.DimResearchActivityId).Distinct().ToList<int>();
                 existingResearchDatasetIds = ffvs.Where(ffv => ffv.DimResearchDatasetId != -1).Select(ffv => ffv.DimResearchDatasetId).Distinct().ToList<int>();
+                existingFundingDecisionIds = ffvs.Where(ffv => ffv.DimFundingDecisionId != -1).Select(ffv => ffv.DimFundingDecisionId).Distinct().ToList<int>();
             }
 
             using (var connection = _ttvContext.Database.GetDbConnection())
@@ -738,7 +741,7 @@ namespace api.Services
                     // fact_contribution
                     try
                     {
-                        string brParticipatesInFundingGroupSql = _ttvSqlService.GetSqlQuery_Select_BrParticipatesInFundingGroup(dimName.Id);
+                        string brParticipatesInFundingGroupSql = _ttvSqlService.GetSqlQuery_Select_BrParticipatesInFundingGroup(dimName.Id, existingFundingDecisionIds);
                         List<int> fundingDecisionIds = (await connection.QueryAsync<int>(brParticipatesInFundingGroupSql)).ToList();
                         foreach (int fundingDecisionId in fundingDecisionIds)
                         {

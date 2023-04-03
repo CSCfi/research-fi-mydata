@@ -467,6 +467,26 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
+        // FactFieldValue
+        [Fact(DisplayName = "Get SQL SELECT query for adding TTV data via fact_contribution.")]
+        public void Test_getSqlQuery_Select_FactContribution_01()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString =
+                $@"SELECT DISTINCT
+                        dim_research_activity_id AS 'DimResearchActivityId',
+                        dim_research_dataset_id AS 'DimResearchDatasetId',
+                        dim_publication_id AS 'DimPublicationId'
+                      FROM fact_contribution WHERE dim_name_id = 1234 AND (dim_research_activity_id!=-1 OR dim_research_dataset_id!=-1 OR dim_publication_id!=-1)";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_FactContribution(1234);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        // BrParticipatesInFundingGroup
+
 
 
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, affiliation")]

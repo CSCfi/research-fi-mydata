@@ -556,11 +556,13 @@ namespace api.Services
         }
 
         // Return SQL SELECT statement for br_participates_in_funding_group
-        public string GetSqlQuery_Select_BrParticipatesInFundingGroup(int dimNameId)
+        public string GetSqlQuery_Select_BrParticipatesInFundingGroup(int dimNameId, List<int> existingFundingDecisionIds)
         {
+            string excludeFundingDecisionIdsSQL =
+                existingFundingDecisionIds.Count > 0 ? $" AND dim_funding_decisionid NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingFundingDecisionIds)})" : "";
             return $@"SELECT dim_funding_decisionid as 'DimFundingDecisionId'
                         FROM br_participates_in_funding_group
-                        WHERE dim_name_id = {dimNameId}";
+                        WHERE dim_name_id = {dimNameId}{excludeFundingDecisionIdsSQL}";
         }
 
         // Return SQL SELECT statement for counting number of published items in userprofile
