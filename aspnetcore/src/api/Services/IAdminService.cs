@@ -5,7 +5,7 @@ namespace api.Services
 {
     public interface IAdminService
     {
-        Task<bool> AddNewTtvDataInUserProfileBackground(string orcidId, LogUserIdentification logUserIdentification);
+        Task<bool> AddNewTtvDataInUserProfileBackground(int dimUserProfileId, LogUserIdentification logUserIdentification);
         Task RegisterOrcidWebhookForAllUserprofiles();
         Task RegisterOrcidWebhookForSingleUserprofile(string webhookOrcidId);
         Task UnregisterOrcidWebhookForAllUserprofiles();

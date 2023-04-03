@@ -208,43 +208,60 @@ namespace api.Services
          * Add new TTV data in user profile.
          * This is a background task, therefore all service dependencies must be taken from local scope.
          */
-        public async Task<bool> AddNewTtvDataInUserProfileBackground(string orcidId, LogUserIdentification logUserIdentification)
+        public async Task<bool> AddNewTtvDataInUserProfileBackground(int dimUserProfileId, LogUserIdentification logUserIdentification)
         {
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
             {
-                _logger.LogInformation(
-                    LogContent.MESSAGE_TEMPLATE,
-                    logUserIdentification,
-                    new LogApiInfo(
-                        action: LogContent.Action.ADMIN_PROFILE_ADD_TTV_DATA,
-                        state: LogContent.ActionState.START));
-
                 // Create service scope and get required services.
                 // Do not use services from controller scope in a background task.
                 using IServiceScope scope = _serviceScopeFactory.CreateScope();
-
                 TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
                 ITtvSqlService localTtvSqlService = scope.ServiceProvider.GetRequiredService<ITtvSqlService>();
                 ILogger<UserProfileService> localUserProfileServiceLogger = scope.ServiceProvider.GetRequiredService<ILogger<UserProfileService>>();
                 IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
 
-                DimUserProfile dimUserProfile = await localTtvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId)
+                DimUserProfile dimUserProfile = await localTtvContext.DimUserProfiles.Where(dup => dup.Id == dimUserProfileId)
                     .Include(dup => dup.DimKnownPerson).AsNoTracking()
                     .Include(dup => dup.DimFieldDisplaySettings).AsNoTracking().FirstOrDefaultAsync();
 
-                // Add TTV data
-                await localUserProfileService.AddTtvDataToUserProfile(
-                    dimKnownPerson: dimUserProfile.DimKnownPerson,
-                    dimUserProfile: dimUserProfile,
-                    logUserIdentification: logUserIdentification
-                    );
-         
-                _logger.LogInformation(
-                    LogContent.MESSAGE_TEMPLATE,
-                    logUserIdentification,
-                    new LogApiInfo(
-                        action: LogContent.Action.ADMIN_PROFILE_ADD_TTV_DATA,
-                        state: LogContent.ActionState.COMPLETE));
+                if (dimUserProfile == null)
+                {
+                    // If matching user profile is not found, log error and exit.
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ADMIN_PROFILE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: LogContent.ErrorMessage.USER_PROFILE_NOT_FOUND + $" (id={dimUserProfileId})"));
+                }
+                else
+                {
+                    // Set ORCID ID in log message
+                    logUserIdentification.Orcid = dimUserProfile.OrcidId;
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ADMIN_PROFILE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.START));
+
+                    // Add TTV data
+                    await localUserProfileService.AddTtvDataToUserProfile(
+                        dimKnownPerson: dimUserProfile.DimKnownPerson,
+                        dimUserProfile: dimUserProfile,
+                        logUserIdentification: logUserIdentification
+                        );
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ADMIN_PROFILE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.COMPLETE));
+                }
             });
 
             return true;

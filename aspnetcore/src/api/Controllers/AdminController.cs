@@ -423,8 +423,8 @@ namespace api.Controllers
         /// Admin: Add new TTV data in user profile.
         /// </summary>
         [HttpPost]
-        [Route("/[controller]/userprofile/addttvdata/{orcidId}")]
-        public async Task<IActionResult> AddNewTtvDataInUserProfile(string orcidId)
+        [Route("/[controller]/userprofile/addttvdata/{dimUserProfileId}")]
+        public async Task<IActionResult> AddNewTtvDataInUserProfile(int dimUserProfileId)
         {
             // Validate request data
             if (!ModelState.IsValid)
@@ -439,9 +439,8 @@ namespace api.Controllers
             }
 
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
-            logUserIdentification.Orcid = orcidId;
 
-            await _adminService.AddNewTtvDataInUserProfileBackground(orcidId, logUserIdentification);
+            await _adminService.AddNewTtvDataInUserProfileBackground(dimUserProfileId, logUserIdentification);
 
             return Ok();
         }
