@@ -17,6 +17,7 @@ using api.Models.Elasticsearch;
 using Elasticsearch.Net;
 using api.Models.Api;
 using Serilog;
+using System.Text.Json;
 
 namespace api.Services
 {
@@ -431,6 +432,14 @@ namespace api.Services
          */
         public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile, LogUserIdentification logUserIdentification)
         {
+            _logger.LogError(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_ADD_TTV_DATA,
+                    state: LogContent.ActionState.START));
+
+
             // Get FactFieldValues
             List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(f => f.DimUserProfileId == dimUserProfile.Id).AsNoTracking().ToListAsync();
             // Collect lists of IDs, which are already included in the profile.
@@ -487,7 +496,7 @@ namespace api.Services
                         LogContent.MESSAGE_TEMPLATE,
                         logUserIdentification,
                         new LogApiInfo(
-                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
                             message: $"email: {ex.ToString()}"));
@@ -516,7 +525,7 @@ namespace api.Services
                       LogContent.MESSAGE_TEMPLATE,
                       logUserIdentification,
                       new LogApiInfo(
-                          action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                          action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                           state: LogContent.ActionState.FAILED,
                           error: true,
                           message: $"web link: {ex.ToString()}"));
@@ -545,7 +554,7 @@ namespace api.Services
                         LogContent.MESSAGE_TEMPLATE,
                         logUserIdentification,
                         new LogApiInfo(
-                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
                             message: $"telephone number: {ex.ToString()}"));
@@ -574,7 +583,7 @@ namespace api.Services
                         LogContent.MESSAGE_TEMPLATE,
                         logUserIdentification,
                         new LogApiInfo(
-                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
                             message: $"researcher description: {ex.ToString()}"));
@@ -603,7 +612,7 @@ namespace api.Services
                         LogContent.MESSAGE_TEMPLATE,
                         logUserIdentification,
                         new LogApiInfo(
-                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
                             message: $"affiliation: {ex.ToString()}"));
@@ -632,7 +641,7 @@ namespace api.Services
                         LogContent.MESSAGE_TEMPLATE,
                         logUserIdentification,
                         new LogApiInfo(
-                            action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
                             message: $"education: {ex.ToString()}"));
@@ -731,7 +740,7 @@ namespace api.Services
                             LogContent.MESSAGE_TEMPLATE,
                             logUserIdentification,
                             new LogApiInfo(
-                                action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                                action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                                 state: LogContent.ActionState.FAILED,
                                 error: true,
                                 message: $"fact_contribution: {ex.ToString()}"));
@@ -759,14 +768,35 @@ namespace api.Services
                             LogContent.MESSAGE_TEMPLATE,
                             logUserIdentification,
                             new LogApiInfo(
-                                action: LogContent.Action.PROFILE_CREATE_ADD_TTV_DATA,
+                                action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                                 state: LogContent.ActionState.FAILED,
                                 error: true,
                                 message: $"br_participates_in_funding_group: {ex.ToString()}"));
                     }
                 }
 
-                await _ttvContext.SaveChangesAsync();
+                try
+                {
+                    await _ttvContext.SaveChangesAsync();
+
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.COMPLETE));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.PROFILE_ADD_TTV_DATA,
+                                state: LogContent.ActionState.FAILED,
+                                error: true,
+                                message: $"Add TTV data save changes: {ex.ToString()}"));
+                }
 
             }
         }

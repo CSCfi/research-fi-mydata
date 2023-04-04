@@ -231,7 +231,7 @@ namespace api.Services
                         LogContent.MESSAGE_TEMPLATE,
                         logUserIdentification,
                         new LogApiInfo(
-                            action: LogContent.Action.ADMIN_PROFILE_ADD_TTV_DATA,
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
                             message: LogContent.ErrorMessage.USER_PROFILE_NOT_FOUND + $" (id={dimUserProfileId})"));
@@ -241,26 +241,11 @@ namespace api.Services
                     // Set ORCID ID in log message
                     logUserIdentification.Orcid = dimUserProfile.OrcidId;
 
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ADMIN_PROFILE_ADD_TTV_DATA,
-                            state: LogContent.ActionState.START));
-
                     // Add TTV data
                     await localUserProfileService.AddTtvDataToUserProfile(
                         dimKnownPerson: dimUserProfile.DimKnownPerson,
                         dimUserProfile: dimUserProfile,
-                        logUserIdentification: logUserIdentification
-                        );
-
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ADMIN_PROFILE_ADD_TTV_DATA,
-                            state: LogContent.ActionState.COMPLETE));
+                        logUserIdentification: logUserIdentification);
                 }
             });
 
