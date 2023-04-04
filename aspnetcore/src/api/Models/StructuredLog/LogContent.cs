@@ -12,7 +12,6 @@
             public const string ADMIN_WEBHOOK_ORCID_UNREGISTER_ALL = "Admin: ORCID webhook unregister all";
             public const string ADMIN_ELASTICSEARCH_PROFILE_DELETE = "Admin: Elasticsearch: profile: delete";
             public const string ADMIN_ELASTICSEARCH_PROFILE_UPDATE = "Admin: Elasticsearch: profile: update";
-            public const string ADMIN_PROFILE_ADD_TTV_DATA = "Admin: Userprofile: add TTV data";
             public const string BACKGROUND_UPDATE = "Background: update";
             public const string ELASTICSEARCH_DELETE = "Elasticsearch: profile: delete";
             public const string ELASTICSEARCH_UPDATE = "Elasticsearch: profile: update";
@@ -23,8 +22,8 @@
             public const string KEYCLOAK_USER_DELETE = "Keycloak: user delete";
             public const string KEYCLOAK_USER_LOGOUT = "Keycloak: user logout";
             public const string KEYCLOAK_SET_ORCID_ATTRIBUTE = "Keycloak: set ORCID attribute";
+            public const string PROFILE_ADD_TTV_DATA = "Profile: add TTV data";
             public const string PROFILE_CREATE = "Profile: create";
-            public const string PROFILE_CREATE_ADD_TTV_DATA = "Profile: create: add TTV data";
             public const string PROFILE_DELETE = "Profile: delete";
             public const string PROFILE_HIDE = "Profile: hide";
             public const string PROFILE_MODIFY = "Profile: modify";
