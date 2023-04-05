@@ -374,6 +374,36 @@ namespace api.Services
             };
         }
 
+        /*
+         * Get empty DimProfileOnlyResearchActivity.
+         * Must use -1 in required foreign keys.
+         */
+        public DimProfileOnlyResearchActivity GetEmptyDimProfileOnlyResearchActivity()
+        {
+            return new DimProfileOnlyResearchActivity()
+            {
+                DimDateIdStart = -1,
+                DimDateIdEnd = -1,
+                DimGeoIdCountry = null,
+                DimOrganizationId = -1,
+                DimEventId = -1,
+                LocalIdentifier = "",
+                OrcidWorkType = "",
+                NameFi = "",
+                NameSv = "",
+                NameEn = "",
+                NameUnd = "",
+                DescriptionFi = "",
+                DescriptionEn = "",
+                DescriptionSv = "",
+                IndentifierlessTargetOrg = "",
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                Created = null,
+                Modified = null,
+                DimRegisteredDataSourceId = -1
+            };
+        }
 
         /*
          * Get empty DimPid.
@@ -1579,6 +1609,7 @@ namespace api.Services
                 List<int> dimKeywordIds = new();
                 List<int> dimNameIds = new();
                 List<int> dimProfileOnlyPublicationIds = new();
+                List<int> dimProfileOnlyResearchActivityIds = new();
                 List<int> dimPidIds = new();
                 List<int> dimResearchActivityIds = new();
                 List<int> dimResearchCommunityIds = new();
@@ -1629,6 +1660,7 @@ namespace api.Services
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
                             if (factFieldValue.DimProfileOnlyPublicationId != -1) dimProfileOnlyPublicationIds.Add(factFieldValue.DimProfileOnlyPublicationId);
+                            if (factFieldValue.DimProfileOnlyResearchActivityId != -1) dimProfileOnlyResearchActivityIds.Add(factFieldValue.DimProfileOnlyResearchActivityId);
                             if (factFieldValue.DimPidId != -1) dimPidIds.Add(factFieldValue.DimPidId);
                             if (factFieldValue.DimPidIdOrcidPutCode != -1) dimPidIds.Add(factFieldValue.DimPidIdOrcidPutCode);
                             if (factFieldValue.DimResearchActivityId != -1) dimResearchActivityIds.Add(factFieldValue.DimResearchActivityId);
@@ -1718,6 +1750,14 @@ namespace api.Services
                     {
                         await connection.ExecuteAsync(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyPublications(dimProfileOnlyPublicationIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete profile only research activities
+                    if (dimProfileOnlyResearchActivityIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyResearchActivities(dimProfileOnlyResearchActivityIds),
                             transaction: transaction
                         );
                     }

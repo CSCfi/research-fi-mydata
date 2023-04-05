@@ -174,6 +174,9 @@ namespace api.Services
                 // DimFundingDecision
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimFundingDecision)
+                // DimProfileOnlyResearchActivity
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
+                    .ThenInclude(ffv => ffv.DimProfileOnlyResearchActivity)
                 // DimProfileOnlyPublication
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyPublication)
@@ -995,6 +998,83 @@ namespace api.Services
                 }
             }
 
+
+            // Distinction => Research activity
+            List<OrcidResearchActivity> orcidResearchActivity_distinctions = _orcidJsonParserService.GetDistinctions(orcidRecordJson);
+            // Get DimFieldDisplaySettings for research activity
+            DimFieldDisplaySetting dimFieldDisplaySettingsResearchActivity =
+                dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsResearchActivity => dfdsResearchActivity.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY);
+            foreach (OrcidResearchActivity orcidResearchActivity_distinction in orcidResearchActivity_distinctions)
+            {
+                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyResearchActivity
+                FactFieldValue factFieldValuesDimProfileOnlyResearchActivity_distinction =
+                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                        ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsResearchActivity &&
+                        ffv.DimPidIdOrcidPutCode > 0 &&
+                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == orcidResearchActivity_distinction.PutCode.Value.ToString());
+
+                // Start date
+                DimDate researchActivityStartDate = await _ttvContext.DimDates
+                    .FirstOrDefaultAsync(dd => dd.Year == orcidResearchActivity_distinction.StartDate.Year && dd.Month == orcidResearchActivity_distinction.StartDate.Month && dd.Day == orcidResearchActivity_distinction.StartDate.Day);
+
+                // End date
+                DimDate researchActivityEndDate = await _ttvContext.DimDates
+                    .FirstOrDefaultAsync(dd => dd.Year == orcidResearchActivity_distinction.EndDate.Year && dd.Month == orcidResearchActivity_distinction.EndDate.Month && dd.Day == orcidResearchActivity_distinction.EndDate.Day);
+
+                if (factFieldValuesDimProfileOnlyResearchActivity_distinction != null)
+                {
+                    // Update existing DimProfileOnlyResearchActivity
+                    DimProfileOnlyResearchActivity dimProfileOnlyResearchActivity = factFieldValuesDimProfileOnlyResearchActivity_distinction.DimProfileOnlyResearchActivity;
+                    dimProfileOnlyResearchActivity.DimDateIdStartNavigation = researchActivityStartDate;
+                    dimProfileOnlyResearchActivity.DimDateIdEndNavigation = researchActivityEndDate;
+                    dimProfileOnlyResearchActivity.NameEn = orcidResearchActivity_distinction.RoleTitle;
+
+                    //
+
+                    dimProfileOnlyResearchActivity.Modified = currentDateTime;
+                    // Update existing FactFieldValue
+                    factFieldValuesDimProfileOnlyResearchActivity_distinction.Modified = currentDateTime;
+                    // Mark as processed
+                    orcidImportHelper.dimResearchActivityIds.Add(factFieldValuesDimProfileOnlyResearchActivity_distinction.DimProfileOnlyResearchActivityId);
+                }
+                else
+                {
+                    // Create new DimProfileOnlyResearchActivity
+                    DimProfileOnlyResearchActivity dimProfileOnlyResearchActivity = _userProfileService.GetEmptyDimProfileOnlyResearchActivity();
+                    dimProfileOnlyResearchActivity.SourceId = Constants.SourceIdentifiers.PROFILE_API;
+                    dimProfileOnlyResearchActivity.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    dimProfileOnlyResearchActivity.NameEn = orcidResearchActivity_distinction.RoleTitle;
+                    dimProfileOnlyResearchActivity.DimDateIdStartNavigation = researchActivityStartDate;
+                    dimProfileOnlyResearchActivity.DimDateIdEndNavigation = researchActivityEndDate;
+                    dimProfileOnlyResearchActivity.Created = currentDateTime;
+                    _ttvContext.DimProfileOnlyResearchActivities.Add(dimProfileOnlyResearchActivity);
+
+                    // Add research activity's ORCID put code into DimPid
+                    DimPid dimPidOrcidPutCodeResearchActivity = _userProfileService.GetEmptyDimPid();
+                    dimPidOrcidPutCodeResearchActivity.PidContent = orcidResearchActivity_distinction.PutCode.GetDbValue();
+                    dimPidOrcidPutCodeResearchActivity.PidType = Constants.PidTypes.ORCID_PUT_CODE;
+                    dimPidOrcidPutCodeResearchActivity.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
+                    dimPidOrcidPutCodeResearchActivity.SourceId = Constants.SourceIdentifiers.PROFILE_API;
+                    _ttvContext.DimPids.Add(dimPidOrcidPutCodeResearchActivity);
+
+                    // Create FactFieldValues for research activity
+                    factFieldValuesDimProfileOnlyResearchActivity_distinction = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimUserProfile = dimUserProfile;
+                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimFieldDisplaySettings = dimFieldDisplaySettingsOrcidPublication;
+                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimProfileOnlyResearchActivity = dimProfileOnlyResearchActivity;
+                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeResearchActivity;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesDimProfileOnlyResearchActivity_distinction);
+                }
+            }
+
+
+
+
+
+
+
+
             // Remove names, which user has deleted in ORCID
             List<FactFieldValue> removableFfvDimNames =
                 dimUserProfile.FactFieldValues.Where(ffv =>
@@ -1143,6 +1223,22 @@ namespace api.Services
                 if (removableFfvPublication.DimPidIdOrcidPutCode > 0)
                 {
                     _ttvContext.DimPids.Remove(removableFfvPublication.DimPidIdOrcidPutCodeNavigation);
+                }
+            }
+
+            // Remove research activities, which user has deleted in ORCID
+            List<FactFieldValue> removableFfvResearchActivities =
+                dimUserProfile.FactFieldValues.Where(ffv =>
+                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                    ffv.DimProfileOnlyResearchActivityId > 0 &&
+                    !orcidImportHelper.dimResearchActivityIds.Contains(ffv.DimProfileOnlyResearchActivityId)).ToList();
+            foreach (FactFieldValue removableFfvResearchActivity in removableFfvResearchActivities.Distinct())
+            {
+                _ttvContext.FactFieldValues.Remove(removableFfvResearchActivity);
+                _ttvContext.DimProfileOnlyResearchActivities.Remove(removableFfvResearchActivity.DimProfileOnlyResearchActivity);
+                if (removableFfvResearchActivity.DimPidIdOrcidPutCode > 0)
+                {
+                    _ttvContext.DimPids.Remove(removableFfvResearchActivity.DimPidIdOrcidPutCodeNavigation);
                 }
             }
 
