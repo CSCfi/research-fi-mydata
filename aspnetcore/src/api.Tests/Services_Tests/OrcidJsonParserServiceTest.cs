@@ -407,6 +407,43 @@ namespace api.Tests
             Assert.Equal("journal-article C", actualPublications[2].Type);
         }
 
+        [Fact(DisplayName = "Get distinctions")]
+        public void TestGetDistinctions()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var jsonStr = getOrcidJsonRecord();
+            var actualDistinctions = orcidJsonParserService.GetDistinctions(jsonStr);
+            Assert.True(actualDistinctions.Count == 2, "Distinctions: should parse 2 distinctions");
+
+            Assert.Equal(new OrcidPutCode(29770).Value, actualDistinctions[0].PutCode.Value);
+            Assert.Equal("Test organization 1", actualDistinctions[0].OrganizationName);
+            Assert.Equal("http://dx.doi.org/10.13039/321321", actualDistinctions[0].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("FUNDREF", actualDistinctions[0].DisambiguationSource);
+            Assert.Equal("Test Department", actualDistinctions[0].DepartmentName);
+            Assert.Equal("Test Distinction", actualDistinctions[0].RoleTitle);
+            Assert.Equal(2012, actualDistinctions[0].StartDate.Year);
+            Assert.Equal(7, actualDistinctions[0].StartDate.Month);
+            Assert.Equal(1, actualDistinctions[0].StartDate.Day);
+            Assert.Equal(0, actualDistinctions[0].EndDate.Year);
+            Assert.Equal(0, actualDistinctions[0].EndDate.Month);
+            Assert.Equal(0, actualDistinctions[0].EndDate.Day);
+            Assert.Equal("", actualDistinctions[0].Url);
+
+            Assert.Equal(new OrcidPutCode(29771).Value, actualDistinctions[1].PutCode.Value);
+            Assert.Equal("Test organization 2", actualDistinctions[1].OrganizationName);
+            Assert.Equal("53455", actualDistinctions[1].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("RINGGOLD", actualDistinctions[1].DisambiguationSource);
+            Assert.Equal("Test Department 2", actualDistinctions[1].DepartmentName);
+            Assert.Equal("Test Distinction 2", actualDistinctions[1].RoleTitle);
+            Assert.Equal(2014, actualDistinctions[1].StartDate.Year);
+            Assert.Equal(10, actualDistinctions[1].StartDate.Month);
+            Assert.Equal(21, actualDistinctions[1].StartDate.Day);
+            Assert.Equal(0, actualDistinctions[1].EndDate.Year);
+            Assert.Equal(0, actualDistinctions[1].EndDate.Month);
+            Assert.Equal(0, actualDistinctions[1].EndDate.Day);
+            Assert.Equal("https://www.testdomain.test", actualDistinctions[1].Url);
+        }
+
         //[Fact(DisplayName = "Template")]
         //public void TestTemplate()
         //{

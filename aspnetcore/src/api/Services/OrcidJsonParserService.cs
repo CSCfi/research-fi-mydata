@@ -524,5 +524,66 @@ namespace api.Services
             }
             return publications;
         }
+
+        /*
+         * Distinctions
+         * Maps to research activity in TTV database
+         */
+        public List<OrcidResearchActivity> GetDistinctions(String json)
+        {
+            List<OrcidResearchActivity> distinctions = new() { };
+
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                JsonElement distinctionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("distinctions");
+
+                if (distinctionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement))
+                {
+
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("distinction-summary", out JsonElement distinctionSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (distinctionSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (distinctionSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : distinctionSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    distinctions.Add(
+                                      new OrcidResearchActivity(
+                                          organizationName: distinctionSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: distinctionSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: distinctionSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(distinctionSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(distinctionSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(distinctionSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return distinctions;
+        }
     }
 }

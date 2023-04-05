@@ -503,8 +503,8 @@
                   "assertion-origin-name": null
                 },
                 "put-code": 29770,
-                "department-name": "Department",
-                "role-title": "Role",
+                "department-name": "Test Department",
+                "role-title": "Test Distinction",
                 "start-date": {
                   "year": {
                     "value": "2012"
@@ -518,14 +518,14 @@
                 },
                 "end-date": null,
                 "organization": {
-                  "name": "Andrew W. Mellon Foundation",
+                  "name": "Test organization 1",
                   "address": {
                     "city": "New York",
                     "region": null,
                     "country": "US"
                   },
                   "disambiguated-organization": {
-                    "disambiguated-organization-identifier": "http://dx.doi.org/10.13039/100000873",
+                    "disambiguated-organization-identifier": "http://dx.doi.org/10.13039/321321",
                     "disambiguation-source": "FUNDREF"
                   }
                 },
@@ -550,6 +550,80 @@
                 "display-index": "0",
                 "visibility": "public",
                 "path": "/0000-0002-9227-8514/distinction/29770"
+              }
+            },
+            {
+              "distinction-summary": {
+                "created-date": {
+                  "value": 1518040998212
+                },
+                "last-modified-date": {
+                  "value": 1518040998212
+                },
+                "source": {
+                  "source-orcid": null,
+                  "source-client-id": {
+                    "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                    "path": "APP-674MCQQR985VZZQ2",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-name": {
+                    "value": "Regional University"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 29771,
+                "department-name": "Test Department 2",
+                "role-title": "Test Distinction 2",
+                "start-date": {
+                  "year": {
+                    "value": "2014"
+                  },
+                  "month": {
+                    "value": "10"
+                  },
+                  "day": {
+                    "value": "21"
+                  }
+                },
+                "end-date": null,
+                "organization": {
+                  "name": "Test organization 2",
+                  "address": {
+                    "city": "New York",
+                    "region": null,
+                    "country": "US"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "53455",
+                    "disambiguation-source": "RINGGOLD"
+                  }
+                },
+                "url": {
+                  "value": "https://www.testdomain.test"
+                },
+                "external-ids": {
+                  "external-id": [
+                    {
+                      "external-id-type": "grant_number",
+                      "external-id-value": "ext-id-ABC",
+                      "external-id-normalized": {
+                        "value": "ext-id-abc",
+                        "transient": true
+                      },
+                      "external-id-normalized-error": null,
+                      "external-id-url": {
+                        "value": "http://tempuri.orgABC"
+                      },
+                      "external-id-relationship": "self"
+                    }
+                  ]
+                },
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0002-9227-8514/distinction/29771"
               }
             }
           ]

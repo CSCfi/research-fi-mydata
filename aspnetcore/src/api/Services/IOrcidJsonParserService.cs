@@ -7,6 +7,7 @@ namespace api.Services
     {
         OrcidBiography GetBiography(string json);
         OrcidCreditName GetCreditName(string json);
+        List<OrcidResearchActivity> GetDistinctions(string json);
         List<OrcidEducation> GetEducations(string json);
         List<OrcidEmail> GetEmails(string json);
         List<OrcidEmployment> GetEmployments(string json);
