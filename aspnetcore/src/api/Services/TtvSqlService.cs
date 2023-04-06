@@ -15,53 +15,56 @@ namespace api.Services
         {
         }
 
-        // Based on field identifier, return FactFieldValues foreign key column name.
-        public string GetFactFieldValuesFKColumnNameFromFieldIdentifier(int fieldIdentifier)
+        // Based on item meta type, return FactFieldValues foreign key column name.
+        public string GetFactFieldValuesFKColumnNameFromItemMetaType(int itemMetaType)
         {
             string fk_column_name = "";
-            switch (fieldIdentifier)
+            switch (itemMetaType)
             {
-                case Constants.FieldIdentifiers.PERSON_NAME:
+                case Constants.ItemMetaTypes.PERSON_NAME:
                     fk_column_name = "dim_name_id";
                     break;
-                case Constants.FieldIdentifiers.PERSON_OTHER_NAMES:
+                case Constants.ItemMetaTypes.PERSON_OTHER_NAMES:
                     fk_column_name = "dim_name_id";
                     break;
-                case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
+                case Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION:
                     fk_column_name = "dim_researcher_description_id";
                     break;
-                case Constants.FieldIdentifiers.PERSON_WEB_LINK:
+                case Constants.ItemMetaTypes.PERSON_WEB_LINK:
                     fk_column_name = "dim_web_link_id";
                     break;
-                case Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS:
+                case Constants.ItemMetaTypes.PERSON_EMAIL_ADDRESS:
                     fk_column_name = "dim_email_addrress_id";
                     break;
-                case Constants.FieldIdentifiers.PERSON_KEYWORD:
+                case Constants.ItemMetaTypes.PERSON_KEYWORD:
                     fk_column_name = "dim_keyword_id";
                     break;
-                case Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER:
+                case Constants.ItemMetaTypes.PERSON_TELEPHONE_NUMBER:
                     fk_column_name = "dim_telephone_number_id";
                     break;
-                case Constants.FieldIdentifiers.ACTIVITY_AFFILIATION:
+                case Constants.ItemMetaTypes.ACTIVITY_AFFILIATION:
                     fk_column_name = "dim_affiliation_id";
                     break;
-                case Constants.FieldIdentifiers.ACTIVITY_EDUCATION:
+                case Constants.ItemMetaTypes.ACTIVITY_EDUCATION:
                     fk_column_name = "dim_education_id";
                     break;
-                case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
+                case Constants.ItemMetaTypes.ACTIVITY_PUBLICATION:
                     fk_column_name = "dim_publication_id";
                     break;
-                case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY:
+                case Constants.ItemMetaTypes.ACTIVITY_PUBLICATION_PROFILE_ONLY:
                     fk_column_name = "dim_profile_only_publication_id";
                     break;
-                case Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION:
+                case Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION:
                     fk_column_name = "dim_funding_decision_id";
                     break;
-                case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
+                case Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET:
                     fk_column_name = "dim_research_dataset_id";
                     break;
-                case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY:
+                case Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY:
                     fk_column_name = "dim_research_activity_id";
+                    break;
+                case Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY_PROFILE_ONLY:
+                    fk_column_name = "dim_profile_only_research_activity_id";
                     break;
                 default:
                     break;
@@ -72,7 +75,7 @@ namespace api.Services
         // Return SQL update statement for updating FactFieldValues.
         public string GetSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta)
         {
-            string fk_column_name = GetFactFieldValuesFKColumnNameFromFieldIdentifier(profileEditorItemMeta.Type);
+            string fk_column_name = GetFactFieldValuesFKColumnNameFromItemMetaType(profileEditorItemMeta.Type);
             string showToSql = profileEditorItemMeta.Show == true ? "1" : "0";
             string primaryValueToSql = profileEditorItemMeta.PrimaryValue == true ? "1" : "0";
 
@@ -126,6 +129,7 @@ namespace api.Services
                     ffv.dim_education_id AS 'FactFieldValues_DimEducationId',
                     ffv.dim_publication_id AS 'FactFieldValues_DimPublicationId',
                     ffv.dim_profile_only_publication_id AS 'FactFieldValues_DimProfileOnlyPublicationId',
+                    ffv.dim_profile_only_research_activity_id AS 'FactFieldValues_DimProfileOnlyResearchActivityId',
                     ffv.dim_research_activity_id AS 'FactFieldValues_DimResearchActivityId',
                     ffv.dim_funding_decision_id AS 'FactFieldValues_DimFundingDecisionId',
                     ffv.dim_research_dataset_id AS 'FactFieldValues_DimResearchDatasetId',
@@ -205,6 +209,24 @@ namespace api.Services
                     dim_profile_only_publication.publication_name AS 'DimProfileOnlyPublication_PublicationName',
                     dim_profile_only_publication.publication_year AS 'DimProfileOnlyPublication_PublicationYear',
                     dim_profile_only_publication.doi_handle AS 'DimProfileOnlyPublication_Doi',
+
+                    dim_profile_only_research_activity.name_fi AS 'DimProfileOnlyResearchActivity_NameFi',
+                    dim_profile_only_research_activity.name_en AS 'DimProfileOnlyResearchActivity_NameEn',
+                    dim_profile_only_research_activity.name_sv AS 'DimProfileOnlyResearchActivity_NameSv',
+                    dim_profile_only_research_activity.description_fi AS 'DimProfileOnlyResearchActivity_DescriptionFi',
+                    dim_profile_only_research_activity.description_en AS 'DimProfileOnlyResearchActivity_DescriptionEn',
+                    dim_profile_only_research_activity.description_sv AS 'DimProfileOnlyResearchActivity_DescriptionSv',
+                    dim_profile_only_research_activity_start_date.year AS 'DimProfileOnlyResearchActivity_StartDate_Year',
+                    dim_profile_only_research_activity_start_date.month AS 'DimProfileOnlyResearchActivity_StartDate_Month',
+                    dim_profile_only_research_activity_start_date.day AS 'DimProfileOnlyResearchActivity_StartDate_Day',
+                    dim_profile_only_research_activity_end_date.year AS 'DimProfileOnlyResearchActivity_EndDate_Year',
+                    dim_profile_only_research_activity_end_date.month AS 'DimProfileOnlyResearchActivity_EndDate_Month',
+                    dim_profile_only_research_activity_end_date.day AS 'DimProfileOnlyResearchActivity_EndDate_Day',
+                    profile_only_research_activity_actor_role.code_value AS 'DimProfileOnlyResearchActivity_Role_CodeValue',
+                    profile_only_research_activity_actor_role.name_fi AS 'DimProfileOnlyResearchActivity_Role_NameFi',
+                    profile_only_research_activity_actor_role.name_en AS 'DimProfileOnlyResearchActivity_Role_NameEn',
+                    profile_only_research_activity_actor_role.name_sv AS 'DimProfileOnlyResearchActivity_Role_NameSv',
+
                     dim_research_activity.name_fi AS 'DimResearchActivity_NameFi',
                     dim_research_activity.name_en AS 'DimResearchActivity_NameEn',
                     dim_research_activity.name_sv AS 'DimResearchActivity_NameSv',
@@ -285,6 +307,12 @@ namespace api.Services
                 LEFT JOIN dim_date AS education_end_date ON dim_education.dim_end_date=education_end_date.id AND education_end_date.id!=-1
                 JOIN dim_publication ON ffv.dim_publication_id=dim_publication.id
                 JOIN dim_profile_only_publication ON ffv.dim_profile_only_publication_id=dim_profile_only_publication.id
+
+                JOIN dim_profile_only_research_activity ON ffv.dim_profile_only_research_activity_id=dim_profile_only_research_activity.id
+                LEFT JOIN dim_referencedata AS profile_only_research_activity_actor_role ON ffv.dim_referencedata_actor_role_id=profile_only_research_activity_actor_role.id
+                LEFT JOIN dim_date AS dim_profile_only_research_activity_start_date ON dim_profile_only_research_activity.dim_date_id_start=dim_profile_only_research_activity_start_date.id AND dim_profile_only_research_activity_start_date.id!=-1
+                LEFT JOIN dim_date AS dim_profile_only_research_activity_end_date ON dim_profile_only_research_activity.dim_date_id_end=dim_profile_only_research_activity_end_date.id AND dim_profile_only_research_activity_end_date.id!=-1
+
                 JOIN dim_research_activity ON ffv.dim_research_activity_id=dim_research_activity.id
                 LEFT JOIN dim_date AS research_activity_start_date ON dim_research_activity.dim_start_date=research_activity_start_date.id AND research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS research_activity_end_date ON dim_research_activity.dim_end_date=research_activity_end_date.id AND research_activity_end_date.id!=-1
@@ -325,6 +353,7 @@ namespace api.Services
                         ffv.dim_education_id != -1 OR
                         ffv.dim_publication_id != -1 OR
                         ffv.dim_profile_only_publication_id != -1 OR
+                        ffv.dim_profile_only_research_activity_id != -1 OR
                         ffv.dim_research_activity_id != -1 OR
                         ffv.dim_funding_decision_id != -1 OR
                         ffv.dim_research_dataset_id != -1 OR

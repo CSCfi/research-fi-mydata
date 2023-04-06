@@ -27,6 +27,7 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimIdentifierlessDataId { get; set; }
         public int FactFieldValues_DimEducationId { get; set; }
         public int FactFieldValues_DimPublicationId { get; set; }
+        public int FactFieldValues_DimProfileOnlyResearchActivityId { get; set; }
         public int FactFieldValues_DimProfileOnlyPublicationId { get; set; }
         public int FactFieldValues_DimResearchActivityId { get; set; }
         public int FactFieldValues_DimFundingDecisionId { get; set; }
@@ -138,6 +139,23 @@ namespace api.Models.ProfileEditor
         public string DimProfileOnlyPublication_PublicationName { get; set; }
         public int DimProfileOnlyPublication_PublicationYear { get; set; }
         public string DimProfileOnlyPublication_Doi { get; set; }
+        // DimProfileOnlyResearchActivity
+        public string DimProfileOnlyResearchActivity_NameFi { get; set; }
+        public string DimProfileOnlyResearchActivity_NameEn { get; set; }
+        public string DimProfileOnlyResearchActivity_NameSv { get; set; }
+        public string DimProfileOnlyResearchActivity_DescriptionFi { get; set; }
+        public string DimProfileOnlyResearchActivity_DescriptionEn { get; set; }
+        public string DimProfileOnlyResearchActivity_DescriptionSv { get; set; }
+        public int DimProfileOnlyResearchActivity_StartDate_Year { get; set; }
+        public int DimProfileOnlyResearchActivity_StartDate_Month { get; set; }
+        public int DimProfileOnlyResearchActivity_StartDate_Day { get; set; }
+        public int DimProfileOnlyResearchActivity_EndDate_Year { get; set; }
+        public int DimProfileOnlyResearchActivity_EndDate_Month { get; set; }
+        public int DimProfileOnlyResearchActivity_EndDate_Day { get; set; }
+        public string DimProfileOnlyResearchActivity_Role_CodeValue { get; set; }
+        public string DimProfileOnlyResearchActivity_Role_NameFi { get; set; }
+        public string DimProfileOnlyResearchActivity_Role_NameEn { get; set; }
+        public string DimProfileOnlyResearchActivity_Role_NameSv { get; set; }
         // DimResearchActivity
         public string DimResearchActivity_NameFi { get; set; }
         public string DimResearchActivity_NameEn { get; set; }

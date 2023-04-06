@@ -51,11 +51,11 @@ namespace api.Tests
             TtvSqlService ttvSqlService = new();
             // Names
             Assert.Equal(
-                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_NAME)
+                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.PERSON_NAME)
             );
             // Other names
             Assert.Equal(
-                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_OTHER_NAMES)
+                "dim_name_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.PERSON_OTHER_NAMES)
             );
         }
 
@@ -64,7 +64,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_researcher_description_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION)
+                "dim_researcher_description_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION)
             );
         }
 
@@ -73,7 +73,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_web_link_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_WEB_LINK)
+                "dim_web_link_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.PERSON_WEB_LINK)
             );
         }
 
@@ -82,7 +82,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_email_addrress_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS)
+                "dim_email_addrress_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.PERSON_EMAIL_ADDRESS)
             );
         }
 
@@ -91,7 +91,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_keyword_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_KEYWORD)
+                "dim_keyword_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.PERSON_KEYWORD)
             );
         }
 
@@ -100,7 +100,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_telephone_number_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER)
+                "dim_telephone_number_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.PERSON_TELEPHONE_NUMBER)
             );
         }
 
@@ -109,7 +109,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_affiliation_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_AFFILIATION)
+                "dim_affiliation_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_AFFILIATION)
             );
         }
 
@@ -118,7 +118,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_education_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_EDUCATION)
+                "dim_education_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_EDUCATION)
             );
         }
 
@@ -127,7 +127,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_publication_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION)
+                "dim_publication_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION)
             );
         }
 
@@ -136,25 +136,25 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_profile_only_publication_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY)
+                "dim_profile_only_publication_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION_PROFILE_ONLY)
             );
         }
-        /*
+
         [Fact(DisplayName = "Get FactFieldValues FK column name - dim_profile_only_research_activity_id")]
         public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_profile_only_research_activity_id()
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_profile_only_research_activity_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY_PROFILE_ONLY)
+                "dim_profile_only_research_activity_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY_PROFILE_ONLY)
             );
         }
-        */
+
         [Fact(DisplayName = "Get FactFieldValues FK column name - dim_funding_decision_id")]
         public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_funding_decision_id()
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_funding_decision_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION)
+                "dim_funding_decision_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION)
             );
         }
 
@@ -163,7 +163,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_research_dataset_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET)
+                "dim_research_dataset_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET)
             );
         }
 
@@ -172,7 +172,7 @@ namespace api.Tests
         {
             TtvSqlService ttvSqlService = new();
             Assert.Equal(
-                "dim_research_activity_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromFieldIdentifier(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY)
+                "dim_research_activity_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY)
             );
         }
 
@@ -210,7 +210,7 @@ namespace api.Tests
             ProfileEditorItemMeta profileEditorItemMeta = new()
             {
                 Id = 321,
-                Type = Constants.FieldIdentifiers.PERSON_NAME,
+                Type = Constants.ItemMetaTypes.PERSON_NAME,
                 PrimaryValue = false,
                 Show = true
             };
@@ -240,7 +240,7 @@ namespace api.Tests
             ProfileEditorItemMeta profileEditorItemMeta = new()
             {
                 Id = 254,
-                Type = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                Type = Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION,
                 PrimaryValue = true,
                 Show = false
             };
