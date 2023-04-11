@@ -32,7 +32,6 @@ namespace api.Services
         private readonly IUtilityService _utilityService;
         private readonly ILanguageService _languageService;
         private readonly IDuplicateHandlerService _duplicateHandlerService;
-        private readonly IOrganizationHandlerService _organizationHandlerService;
         private readonly ISharingService _sharingService;
         private readonly ITtvSqlService _ttvSqlService;
         private readonly ILogger<UserProfileService> _logger;
@@ -42,7 +41,6 @@ namespace api.Services
             IUtilityService utilityService,
             ILanguageService languageService,
             IDuplicateHandlerService duplicateHandlerService,
-            IOrganizationHandlerService organizationHandlerService,
             ISharingService sharingService,
             ITtvSqlService ttvSqlService,
             ILogger<UserProfileService> logger)
@@ -52,7 +50,6 @@ namespace api.Services
             _utilityService = utilityService;
             _languageService = languageService;
             _duplicateHandlerService = duplicateHandlerService;
-            _organizationHandlerService = organizationHandlerService;
             _sharingService = sharingService;
             _ttvSqlService = ttvSqlService;
             _logger = logger;
