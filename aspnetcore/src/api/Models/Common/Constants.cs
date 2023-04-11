@@ -122,6 +122,7 @@
         public static class ReferenceDataCodeValues
         {
             public const string ORCID_RESEARCH_ACTIVITY_DISTINCTION = "9.2";
+            public const string ORCID_RESEARCH_ACTIVITY_INVITED_POSITION = "6.1";
 
             public const string PROFILE_SHARING_PROFILE_INFORMATION = "01";
             public const string PROFILE_SHARING_EMAIL_ADDRESS = "02";
@@ -131,6 +132,12 @@
             public const string PROFILE_SHARING_DATASETS = "06";
             public const string PROFILE_SHARING_GRANTS = "07";
             public const string PROFILE_SHARING_ACTIVITIES_AND_DISTINCTIONS = "08";
+        }
+
+        public static class OrcidResearchActivityTypes
+        {
+            public const string DISTINCTION = "discinction";
+            public const string INVITED_POSITION = "invited_position";
         }
     }
 }

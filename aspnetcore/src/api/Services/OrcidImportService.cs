@@ -147,9 +147,9 @@ namespace api.Services
                 }
             }
 
-            // Research activity DimDates - distinction
-            List<OrcidResearchActivity> orcidResearchActivity_distinctions = _orcidJsonParserService.GetDistinctions(orcidRecordJson);
-            foreach (OrcidResearchActivity researchActivity in orcidResearchActivity_distinctions)
+            // Research activity DimDates - invited position & distinction
+            List<OrcidResearchActivity> orcidResearchActivity_invitedPositionsAndDistinctions = _orcidJsonParserService.GetInvitedPositionsAndDistinctions(orcidRecordJson);
+            foreach (OrcidResearchActivity researchActivity in orcidResearchActivity_invitedPositionsAndDistinctions)
             {
                 // Start date
                 DimDate researchActivityStartDate =
@@ -994,44 +994,45 @@ namespace api.Services
             }
 
 
-            // Distinction => Research activity
-            List<OrcidResearchActivity> orcidResearchActivity_distinctions = _orcidJsonParserService.GetDistinctions(orcidRecordJson);
+            // Intiverd positiong & distinction => Research activity
+            List<OrcidResearchActivity> orcidResearchActivity_invitedPositionsAndDistinctions = _orcidJsonParserService.GetInvitedPositionsAndDistinctions(orcidRecordJson);
             // Get DimFieldDisplaySettings for research activity
             DimFieldDisplaySetting dimFieldDisplaySettingsResearchActivity =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsResearchActivity => dfdsResearchActivity.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY);
             // Reference data
+            DimReferencedatum dimReferencedata_invitedPosition = await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.ReferenceDataCodeValues.ORCID_RESEARCH_ACTIVITY_INVITED_POSITION).AsNoTracking().FirstOrDefaultAsync();
             DimReferencedatum dimReferencedata_distinction = await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.ReferenceDataCodeValues.ORCID_RESEARCH_ACTIVITY_DISTINCTION).AsNoTracking().FirstOrDefaultAsync();
 
-            foreach (OrcidResearchActivity orcidResearchActivity_distinction in orcidResearchActivity_distinctions)
+            foreach (OrcidResearchActivity orcidResearchActivity in orcidResearchActivity_invitedPositionsAndDistinctions)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyResearchActivity
-                FactFieldValue factFieldValuesDimProfileOnlyResearchActivity_distinction =
+                FactFieldValue factFieldValuesDimProfileOnlyResearchActivity =
                     dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
                         ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsResearchActivity &&
                         ffv.DimPidIdOrcidPutCode > 0 &&
-                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == orcidResearchActivity_distinction.PutCode.Value.ToString());
+                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == orcidResearchActivity.PutCode.Value.ToString());
 
                 // Search organization identifier from DimPid based on ORCID's disambiguated-organization-identifier data.
                 int? dimOrganization_id_research_activity = await _organizationHandlerService.FindOrganizationIdByOrcidDisambiguationIdentifier(
-                        orcidDisambiguatedOrganizationIdentifier: orcidResearchActivity_distinction.DisambiguatedOrganizationIdentifier,
-                        orcidDisambiguationSource: orcidResearchActivity_distinction.DisambiguationSource
+                        orcidDisambiguatedOrganizationIdentifier: orcidResearchActivity.DisambiguatedOrganizationIdentifier,
+                        orcidDisambiguationSource: orcidResearchActivity.DisambiguationSource
                     );
 
                 // Start date
                 DimDate researchActivityStartDate = await _ttvContext.DimDates
-                    .FirstOrDefaultAsync(dd => dd.Year == orcidResearchActivity_distinction.StartDate.Year && dd.Month == orcidResearchActivity_distinction.StartDate.Month && dd.Day == orcidResearchActivity_distinction.StartDate.Day);
+                    .FirstOrDefaultAsync(dd => dd.Year == orcidResearchActivity.StartDate.Year && dd.Month == orcidResearchActivity.StartDate.Month && dd.Day == orcidResearchActivity.StartDate.Day);
 
                 // End date
                 DimDate researchActivityEndDate = await _ttvContext.DimDates
-                    .FirstOrDefaultAsync(dd => dd.Year == orcidResearchActivity_distinction.EndDate.Year && dd.Month == orcidResearchActivity_distinction.EndDate.Month && dd.Day == orcidResearchActivity_distinction.EndDate.Day);
+                    .FirstOrDefaultAsync(dd => dd.Year == orcidResearchActivity.EndDate.Year && dd.Month == orcidResearchActivity.EndDate.Month && dd.Day == orcidResearchActivity.EndDate.Day);
 
-                if (factFieldValuesDimProfileOnlyResearchActivity_distinction != null)
+                if (factFieldValuesDimProfileOnlyResearchActivity != null)
                 {
                     // Update existing DimProfileOnlyResearchActivity
-                    DimProfileOnlyResearchActivity dimProfileOnlyResearchActivity_existing = factFieldValuesDimProfileOnlyResearchActivity_distinction.DimProfileOnlyResearchActivity;
+                    DimProfileOnlyResearchActivity dimProfileOnlyResearchActivity_existing = factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity;
                     dimProfileOnlyResearchActivity_existing.DimDateIdStartNavigation = researchActivityStartDate;
                     dimProfileOnlyResearchActivity_existing.DimDateIdEndNavigation = researchActivityEndDate;
-                    dimProfileOnlyResearchActivity_existing.NameEn = orcidResearchActivity_distinction.RoleTitle;
+                    dimProfileOnlyResearchActivity_existing.NameEn = orcidResearchActivity.RoleTitle;
 
                     /*
                      * Update organization relation or identifierless data for existing affiliation.
@@ -1046,9 +1047,9 @@ namespace api.Services
                         /*
                          * When affiliation has related DimOrganization, possibly existing DimIdentifierlessData of type organization_name must be removed.
                          */
-                        if (factFieldValuesDimProfileOnlyResearchActivity_distinction.DimIdentifierlessDataId != -1 && factFieldValuesDimProfileOnlyResearchActivity_distinction.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                        if (factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessDataId != -1 && factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
                         {
-                            _ttvContext.DimIdentifierlessData.Remove(factFieldValuesDimProfileOnlyResearchActivity_distinction.DimIdentifierlessData);
+                            _ttvContext.DimIdentifierlessData.Remove(factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData);
                         }
                     }
                     else
@@ -1057,12 +1058,12 @@ namespace api.Services
                          * Affiliation does to relate directly to any DimOrganization.
                          * Update or create relation to DimIdentifierlessData via FactFieldValues.
                          */
-                        if (factFieldValuesDimProfileOnlyResearchActivity_distinction.DimIdentifierlessDataId != -1 && factFieldValuesDimProfileOnlyResearchActivity_distinction.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                        if (factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessDataId != -1 && factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
                         {
                             /*
                              * Update organization name in existing DimIdentifierlessData.
                              */
-                            factFieldValuesDimProfileOnlyResearchActivity_distinction.DimIdentifierlessData.ValueEn = orcidResearchActivity_distinction.OrganizationName;
+                            factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData.ValueEn = orcidResearchActivity.OrganizationName;
                         }
                         else
                         {
@@ -1070,17 +1071,17 @@ namespace api.Services
                              * Create new DimIdentifierlessData for organization name.
                              */
                             DimIdentifierlessDatum dimIdentifierlessDatum_organization_name =
-                                _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: orcidResearchActivity_distinction.OrganizationName, nameSv: "");
+                                _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: orcidResearchActivity.OrganizationName, nameSv: "");
                             _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessDatum_organization_name);
-                            factFieldValuesDimProfileOnlyResearchActivity_distinction.DimIdentifierlessData = dimIdentifierlessDatum_organization_name;
+                            factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData = dimIdentifierlessDatum_organization_name;
                         }
                     }
 
                     dimProfileOnlyResearchActivity_existing.Modified = currentDateTime;
                     // Update existing FactFieldValue
-                    factFieldValuesDimProfileOnlyResearchActivity_distinction.Modified = currentDateTime;
+                    factFieldValuesDimProfileOnlyResearchActivity.Modified = currentDateTime;
                     // Mark as processed
-                    orcidImportHelper.dimResearchActivityIds.Add(factFieldValuesDimProfileOnlyResearchActivity_distinction.DimProfileOnlyResearchActivityId);
+                    orcidImportHelper.dimResearchActivityIds.Add(factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivityId);
                 }
                 else
                 {
@@ -1088,7 +1089,7 @@ namespace api.Services
                     DimProfileOnlyResearchActivity dimProfileOnlyResearchActivity_new = _userProfileService.GetEmptyDimProfileOnlyResearchActivity();
                     dimProfileOnlyResearchActivity_new.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                     dimProfileOnlyResearchActivity_new.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    dimProfileOnlyResearchActivity_new.NameEn = orcidResearchActivity_distinction.RoleTitle;
+                    dimProfileOnlyResearchActivity_new.NameEn = orcidResearchActivity.RoleTitle;
                     dimProfileOnlyResearchActivity_new.DimDateIdStartNavigation = researchActivityStartDate;
                     dimProfileOnlyResearchActivity_new.DimDateIdEndNavigation = researchActivityEndDate;
                     dimProfileOnlyResearchActivity_new.Created = currentDateTime;
@@ -1101,41 +1102,51 @@ namespace api.Services
 
                     // Add research activity's ORCID put code into DimPid
                     DimPid dimPidOrcidPutCodeResearchActivity = _userProfileService.GetEmptyDimPid();
-                    dimPidOrcidPutCodeResearchActivity.PidContent = orcidResearchActivity_distinction.PutCode.GetDbValue();
+                    dimPidOrcidPutCodeResearchActivity.PidContent = orcidResearchActivity.PutCode.GetDbValue();
                     dimPidOrcidPutCodeResearchActivity.PidType = Constants.PidTypes.ORCID_PUT_CODE;
                     dimPidOrcidPutCodeResearchActivity.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPidOrcidPutCodeResearchActivity.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodeResearchActivity);
 
                     // Create FactFieldValues for research activity
-                    factFieldValuesDimProfileOnlyResearchActivity_distinction = _userProfileService.GetEmptyFactFieldValue();
-                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimUserProfile = dimUserProfile;
-                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimFieldDisplaySettings = dimFieldDisplaySettingsResearchActivity;
-                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimProfileOnlyResearchActivity = dimProfileOnlyResearchActivity_new;
-                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeResearchActivity;
-                    factFieldValuesDimProfileOnlyResearchActivity_distinction.DimReferencedataActorRoleId = dimReferencedata_distinction.Id;
-                    _ttvContext.FactFieldValues.Add(factFieldValuesDimProfileOnlyResearchActivity_distinction);
+                    factFieldValuesDimProfileOnlyResearchActivity = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesDimProfileOnlyResearchActivity.DimUserProfile = dimUserProfile;
+                    factFieldValuesDimProfileOnlyResearchActivity.DimFieldDisplaySettings = dimFieldDisplaySettingsResearchActivity;
+                    factFieldValuesDimProfileOnlyResearchActivity.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity = dimProfileOnlyResearchActivity_new;
+                    factFieldValuesDimProfileOnlyResearchActivity.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeResearchActivity;
+
+                    // Set correct DimReferenceDatum based on ORCID activity type
+                    if (orcidResearchActivity.OrcidActivityType == Constants.OrcidResearchActivityTypes.INVITED_POSITION)
+                    {
+                        factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_invitedPosition.Id;
+                    }
+                    if (orcidResearchActivity.OrcidActivityType == Constants.OrcidResearchActivityTypes.DISTINCTION)
+                    {
+                        factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_distinction.Id;
+                    }
+
+                    _ttvContext.FactFieldValues.Add(factFieldValuesDimProfileOnlyResearchActivity);
 
                     // If organization was not found, add organization_name into DimIdentifierlessData
                     if (dimOrganization_id_research_activity == null || dimOrganization_id_research_activity == -1)
                     {
                         DimIdentifierlessDatum dimIdentifierlessData_oganizationName =
-                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: orcidResearchActivity_distinction.OrganizationName, nameSv: "");
+                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: orcidResearchActivity.OrganizationName, nameSv: "");
                         _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_oganizationName);
-                        factFieldValuesDimProfileOnlyResearchActivity_distinction.DimIdentifierlessData = dimIdentifierlessData_oganizationName;
+                        factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData = dimIdentifierlessData_oganizationName;
                     }
                 }
 
                 /*
                  * Research activity department name handling
                  */
-                if (!string.IsNullOrWhiteSpace(orcidResearchActivity_distinction.DepartmentName))
+                if (!string.IsNullOrWhiteSpace(orcidResearchActivity.DepartmentName))
                 {
                     _organizationHandlerService.DepartmentNameHandling(
-                        ffv: factFieldValuesDimProfileOnlyResearchActivity_distinction,
+                        ffv: factFieldValuesDimProfileOnlyResearchActivity,
                         departmentNameFi: "",
-                        departmentNameEn: orcidResearchActivity_distinction.DepartmentName,
+                        departmentNameEn: orcidResearchActivity.DepartmentName,
                         departmentNameSv: "");
                 }
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using api.Models.Common;
 using api.Models.Orcid;
 
 namespace api.Services
@@ -526,13 +527,66 @@ namespace api.Services
         }
 
         /*
-         * Distinctions
+         * Invited positions and distinctions
          * Maps to research activity in TTV database
          */
-        public List<OrcidResearchActivity> GetDistinctions(String json)
+        public List<OrcidResearchActivity> GetInvitedPositionsAndDistinctions(String json)
         {
-            List<OrcidResearchActivity> distinctions = new() { };
+            List<OrcidResearchActivity> invitedPositionsAndDistinctions = new() { };
 
+            // Invited positions
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                JsonElement distinctionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("invited-positions");
+
+                if (distinctionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement))
+                {
+
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("invited-position-summary", out JsonElement invitedPositionsSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (invitedPositionsSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (invitedPositionsSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : invitedPositionsSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    invitedPositionsAndDistinctions.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.INVITED_POSITION,
+                                          organizationName: invitedPositionsSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: invitedPositionsSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: invitedPositionsSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(invitedPositionsSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Distinctions
             using (JsonDocument document = JsonDocument.Parse(json))
             {
                 JsonElement distinctionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("distinctions");
@@ -563,8 +617,9 @@ namespace api.Services
                                     string url = (distinctionSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : distinctionSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    distinctions.Add(
+                                    invitedPositionsAndDistinctions.Add(
                                       new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.DISTINCTION,
                                           organizationName: distinctionSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
@@ -582,8 +637,7 @@ namespace api.Services
                     }
                 }
             }
-
-            return distinctions;
+            return invitedPositionsAndDistinctions;
         }
     }
 }

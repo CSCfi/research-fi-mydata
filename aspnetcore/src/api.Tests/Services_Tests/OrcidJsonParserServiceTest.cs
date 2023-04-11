@@ -407,61 +407,55 @@ namespace api.Tests
             Assert.Equal("journal-article C", actualPublications[2].Type);
         }
 
-        [Fact(DisplayName = "Get distinctions")]
-        public void TestGetDistinctions()
+        [Fact(DisplayName = "Get invited positions and distinctions")]
+        public void TestGetInvitedPositionsAndDistinctions()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
-            var actualDistinctions = orcidJsonParserService.GetDistinctions(jsonStr);
-            Assert.True(actualDistinctions.Count == 2, "Distinctions: should parse 2 distinctions");
+            var actual = orcidJsonParserService.GetInvitedPositionsAndDistinctions(jsonStr);
+            Assert.True(actual.Count == 3, "Distinctions: should parse 3 invited positions and distinctions");
 
-            Assert.Equal(new OrcidPutCode(29770).Value, actualDistinctions[0].PutCode.Value);
-            Assert.Equal("Test organization 1", actualDistinctions[0].OrganizationName);
-            Assert.Equal("http://dx.doi.org/10.13039/321321", actualDistinctions[0].DisambiguatedOrganizationIdentifier);
-            Assert.Equal("FUNDREF", actualDistinctions[0].DisambiguationSource);
-            Assert.Equal("Test Department", actualDistinctions[0].DepartmentName);
-            Assert.Equal("Test Distinction", actualDistinctions[0].RoleTitle);
-            Assert.Equal(2012, actualDistinctions[0].StartDate.Year);
-            Assert.Equal(7, actualDistinctions[0].StartDate.Month);
-            Assert.Equal(1, actualDistinctions[0].StartDate.Day);
-            Assert.Equal(0, actualDistinctions[0].EndDate.Year);
-            Assert.Equal(0, actualDistinctions[0].EndDate.Month);
-            Assert.Equal(0, actualDistinctions[0].EndDate.Day);
-            Assert.Equal("", actualDistinctions[0].Url);
+            Assert.Equal(new OrcidPutCode(29778).Value, actual[0].PutCode.Value);
+            Assert.Equal("University of Michigan", actual[0].OrganizationName);
+            Assert.Equal("1259", actual[0].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("RINGGOLD", actual[0].DisambiguationSource);
+            Assert.Equal("Dept Name", actual[0].DepartmentName);
+            Assert.Equal("Invited Position Title", actual[0].RoleTitle);
+            Assert.Equal(2018, actual[0].StartDate.Year);
+            Assert.Equal(2, actual[0].StartDate.Month);
+            Assert.Equal(2, actual[0].StartDate.Day);
+            Assert.Equal(0, actual[0].EndDate.Year);
+            Assert.Equal(0, actual[0].EndDate.Month);
+            Assert.Equal(0, actual[0].EndDate.Day);
+            Assert.Equal("http://orcid.org/umich", actual[0].Url);
 
-            Assert.Equal(new OrcidPutCode(29771).Value, actualDistinctions[1].PutCode.Value);
-            Assert.Equal("Test organization 2", actualDistinctions[1].OrganizationName);
-            Assert.Equal("53455", actualDistinctions[1].DisambiguatedOrganizationIdentifier);
-            Assert.Equal("RINGGOLD", actualDistinctions[1].DisambiguationSource);
-            Assert.Equal("Test Department 2", actualDistinctions[1].DepartmentName);
-            Assert.Equal("Test Distinction 2", actualDistinctions[1].RoleTitle);
-            Assert.Equal(2014, actualDistinctions[1].StartDate.Year);
-            Assert.Equal(10, actualDistinctions[1].StartDate.Month);
-            Assert.Equal(21, actualDistinctions[1].StartDate.Day);
-            Assert.Equal(0, actualDistinctions[1].EndDate.Year);
-            Assert.Equal(0, actualDistinctions[1].EndDate.Month);
-            Assert.Equal(0, actualDistinctions[1].EndDate.Day);
-            Assert.Equal("https://www.testdomain.test", actualDistinctions[1].Url);
+            Assert.Equal(new OrcidPutCode(29770).Value, actual[1].PutCode.Value);
+            Assert.Equal("Test organization 1", actual[1].OrganizationName);
+            Assert.Equal("http://dx.doi.org/10.13039/321321", actual[1].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("FUNDREF", actual[1].DisambiguationSource);
+            Assert.Equal("Test Department", actual[1].DepartmentName);
+            Assert.Equal("Test Distinction", actual[1].RoleTitle);
+            Assert.Equal(2012, actual[1].StartDate.Year);
+            Assert.Equal(7, actual[1].StartDate.Month);
+            Assert.Equal(1, actual[1].StartDate.Day);
+            Assert.Equal(0, actual[1].EndDate.Year);
+            Assert.Equal(0, actual[1].EndDate.Month);
+            Assert.Equal(0, actual[1].EndDate.Day);
+            Assert.Equal("", actual[1].Url);
+
+            Assert.Equal(new OrcidPutCode(29771).Value, actual[2].PutCode.Value);
+            Assert.Equal("Test organization 2", actual[2].OrganizationName);
+            Assert.Equal("53455", actual[2].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("RINGGOLD", actual[2].DisambiguationSource);
+            Assert.Equal("Test Department 2", actual[2].DepartmentName);
+            Assert.Equal("Test Distinction 2", actual[2].RoleTitle);
+            Assert.Equal(2014, actual[2].StartDate.Year);
+            Assert.Equal(10, actual[2].StartDate.Month);
+            Assert.Equal(21, actual[2].StartDate.Day);
+            Assert.Equal(0, actual[2].EndDate.Year);
+            Assert.Equal(0, actual[2].EndDate.Month);
+            Assert.Equal(0, actual[2].EndDate.Day);
+            Assert.Equal("https://www.testdomain.test", actual[2].Url);
         }
-
-        //[Fact(DisplayName = "Template")]
-        //public void TestTemplate()
-        //{
-        //    var orcidJsonParserService = new OrcidJsonParserService();
-        //    var jsonStr = getOrcidJsonRecord();
-
-        //    var biography = orcidJsonParserService.GetBiography(jsonStr);
-        //    var givenNames = orcidJsonParserService.GetGivenNames(jsonStr);
-        //    var familyName = orcidJsonParserService.GetFamilyName(jsonStr);
-        //    var creditName = orcidJsonParserService.GetCreditName(jsonStr);
-        //    var otherNames = orcidJsonParserService.GetOtherNames(jsonStr);
-        //    var researcherUrls = orcidJsonParserService.GetResearcherUrls(jsonStr);
-        //    var emails = orcidJsonParserService.GetEmails(jsonStr);
-        //    var keywords = orcidJsonParserService.GetKeywords(jsonStr);
-        //    var externalIdentifiers = orcidJsonParserService.GetExternalIdentifiers(jsonStr);
-        //    var educations = orcidJsonParserService.GetEducations(jsonStr);
-        //    var employments = orcidJsonParserService.GetEmployments(jsonStr);
-        //    Assert.True(employments.Count == 0, "Educations: parsed correct number of employments");
-        //}
     }
 }
