@@ -13,7 +13,7 @@ namespace api.Services
         List<OrcidExternalIdentifier> GetExternalIdentifiers(string json);
         OrcidFamilyName GetFamilyName(string json);
         OrcidGivenNames GetGivenNames(string json);
-        List<OrcidResearchActivity> GetInvitedPositionsAndDistinctions(string json);
+        List<OrcidResearchActivity> GetInvitedPositionsDistinctionsMembershipsAndServices(string json);
         List<OrcidKeyword> GetKeywords(string json);
         List<OrcidOtherName> GetOtherNames(string json);
         List<OrcidPublication> GetPublications(string json);

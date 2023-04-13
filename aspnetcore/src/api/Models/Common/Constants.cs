@@ -138,6 +138,8 @@
         {
             public const string DISTINCTION = "discinction";
             public const string INVITED_POSITION = "invited_position";
+            public const string MEMBERSHIP = "membership";
+            public const string SERVICE = "service";
         }
     }
 }

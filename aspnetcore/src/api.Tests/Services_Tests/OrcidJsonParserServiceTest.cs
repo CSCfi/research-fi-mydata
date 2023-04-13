@@ -1,6 +1,7 @@
 using System;
 using Xunit;
 using api.Services;
+using api.Models.Common;
 using api.Models.Orcid;
 using System.IO;
 using System.Collections.Generic;
@@ -407,14 +408,15 @@ namespace api.Tests
             Assert.Equal("journal-article C", actualPublications[2].Type);
         }
 
-        [Fact(DisplayName = "Get invited positions and distinctions")]
-        public void TestGetInvitedPositionsAndDistinctions()
+        [Fact(DisplayName = "Get invited positions, distinctions, memberships and services")]
+        public void TestGetInvitedPositionsDistinctionsMembershipsAndServices()
         {
             var orcidJsonParserService = new OrcidJsonParserService();
             var jsonStr = getOrcidJsonRecord();
-            var actual = orcidJsonParserService.GetInvitedPositionsAndDistinctions(jsonStr);
-            Assert.True(actual.Count == 3, "Distinctions: should parse 3 invited positions and distinctions");
+            var actual = orcidJsonParserService.GetInvitedPositionsDistinctionsMembershipsAndServices(jsonStr);
+            Assert.True(actual.Count == 7, "Should parse 7 items");
 
+            Assert.Equal(Constants.OrcidResearchActivityTypes.INVITED_POSITION, actual[0].OrcidActivityType);
             Assert.Equal(new OrcidPutCode(29778).Value, actual[0].PutCode.Value);
             Assert.Equal("University of Michigan", actual[0].OrganizationName);
             Assert.Equal("1259", actual[0].DisambiguatedOrganizationIdentifier);
@@ -429,6 +431,7 @@ namespace api.Tests
             Assert.Equal(0, actual[0].EndDate.Day);
             Assert.Equal("http://orcid.org/umich", actual[0].Url);
 
+            Assert.Equal(Constants.OrcidResearchActivityTypes.DISTINCTION, actual[1].OrcidActivityType);
             Assert.Equal(new OrcidPutCode(29770).Value, actual[1].PutCode.Value);
             Assert.Equal("Test organization 1", actual[1].OrganizationName);
             Assert.Equal("http://dx.doi.org/10.13039/321321", actual[1].DisambiguatedOrganizationIdentifier);
@@ -443,6 +446,7 @@ namespace api.Tests
             Assert.Equal(0, actual[1].EndDate.Day);
             Assert.Equal("", actual[1].Url);
 
+            Assert.Equal(Constants.OrcidResearchActivityTypes.DISTINCTION, actual[2].OrcidActivityType);
             Assert.Equal(new OrcidPutCode(29771).Value, actual[2].PutCode.Value);
             Assert.Equal("Test organization 2", actual[2].OrganizationName);
             Assert.Equal("53455", actual[2].DisambiguatedOrganizationIdentifier);
@@ -456,6 +460,66 @@ namespace api.Tests
             Assert.Equal(0, actual[2].EndDate.Month);
             Assert.Equal(0, actual[2].EndDate.Day);
             Assert.Equal("https://www.testdomain.test", actual[2].Url);
+
+            Assert.Equal(Constants.OrcidResearchActivityTypes.MEMBERSHIP, actual[3].OrcidActivityType);
+            Assert.Equal(new OrcidPutCode(54008).Value, actual[3].PutCode.Value);
+            Assert.Equal("Joensuun lyseon lukio", actual[3].OrganizationName);
+            Assert.Equal("101236", actual[3].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("RINGGOLD", actual[3].DisambiguationSource);
+            Assert.Equal("Test Membership Department 2", actual[3].DepartmentName);
+            Assert.Equal("Test Membership Type 2", actual[3].RoleTitle);
+            Assert.Equal(2016, actual[3].StartDate.Year);
+            Assert.Equal(1, actual[3].StartDate.Month);
+            Assert.Equal(13, actual[3].StartDate.Day);
+            Assert.Equal(2019, actual[3].EndDate.Year);
+            Assert.Equal(2, actual[3].EndDate.Month);
+            Assert.Equal(20, actual[3].EndDate.Day);
+            Assert.Equal("https://www.joensuu.fi/", actual[3].Url);
+
+            Assert.Equal(Constants.OrcidResearchActivityTypes.MEMBERSHIP, actual[4].OrcidActivityType);
+            Assert.Equal(new OrcidPutCode(54007).Value, actual[4].PutCode.Value);
+            Assert.Equal("University of Oulu", actual[4].OrganizationName);
+            Assert.Equal("https://ror.org/03yj89h83", actual[4].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("ROR", actual[4].DisambiguationSource);
+            Assert.Equal("Test Membership Department", actual[4].DepartmentName);
+            Assert.Equal("Test Membership Type", actual[4].RoleTitle);
+            Assert.Equal(1989, actual[4].StartDate.Year);
+            Assert.Equal(1, actual[4].StartDate.Month);
+            Assert.Equal(24, actual[4].StartDate.Day);
+            Assert.Equal(2010, actual[4].EndDate.Year);
+            Assert.Equal(2, actual[4].EndDate.Month);
+            Assert.Equal(26, actual[4].EndDate.Day);
+            Assert.Equal("https://www.oulu.fi/en", actual[4].Url);
+
+            Assert.Equal(Constants.OrcidResearchActivityTypes.SERVICE, actual[5].OrcidActivityType);
+            Assert.Equal(new OrcidPutCode(54009).Value, actual[5].PutCode.Value);
+            Assert.Equal("Lahden kaupunki", actual[5].OrganizationName);
+            Assert.Equal("86631", actual[5].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("RINGGOLD", actual[5].DisambiguationSource);
+            Assert.Equal("Test Service Department", actual[5].DepartmentName);
+            Assert.Equal("Test Service Role", actual[5].RoleTitle);
+            Assert.Equal(2015, actual[5].StartDate.Year);
+            Assert.Equal(2, actual[5].StartDate.Month);
+            Assert.Equal(27, actual[5].StartDate.Day);
+            Assert.Equal(2018, actual[5].EndDate.Year);
+            Assert.Equal(3, actual[5].EndDate.Month);
+            Assert.Equal(14, actual[5].EndDate.Day);
+            Assert.Equal("https://www.google.fi", actual[5].Url);
+
+            Assert.Equal(Constants.OrcidResearchActivityTypes.SERVICE, actual[6].OrcidActivityType);
+            Assert.Equal(new OrcidPutCode(54010).Value, actual[6].PutCode.Value);
+            Assert.Equal("Rovaniemen kaupunki", actual[6].OrganizationName);
+            Assert.Equal("86672", actual[6].DisambiguatedOrganizationIdentifier);
+            Assert.Equal("RINGGOLD", actual[6].DisambiguationSource);
+            Assert.Equal("Test Service Department 2", actual[6].DepartmentName);
+            Assert.Equal("Test Service Role 2", actual[6].RoleTitle);
+            Assert.Equal(2011, actual[6].StartDate.Year);
+            Assert.Equal(1, actual[6].StartDate.Month);
+            Assert.Equal(15, actual[6].StartDate.Day);
+            Assert.Equal(2016, actual[6].EndDate.Year);
+            Assert.Equal(2, actual[6].EndDate.Month);
+            Assert.Equal(17, actual[6].EndDate.Day);
+            Assert.Equal("https://www.rovaniemi.fi", actual[6].Url);
         }
     }
 }

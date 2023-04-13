@@ -527,26 +527,23 @@ namespace api.Services
         }
 
         /*
-         * Invited positions and distinctions
-         * Maps to research activity in TTV database
+         * Invited positions, distinctions, memberships and services.
+         * Map to research activity in TTV database.
          */
-        public List<OrcidResearchActivity> GetInvitedPositionsAndDistinctions(String json)
+        public List<OrcidResearchActivity> GetInvitedPositionsDistinctionsMembershipsAndServices(String json)
         {
-            List<OrcidResearchActivity> invitedPositionsAndDistinctions = new() { };
-
-            // Invited positions
+            List<OrcidResearchActivity> invitedPositionsDistinctionsMembershipsServices = new() { };
+           
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                JsonElement distinctionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("invited-positions");
-
-                if (distinctionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement))
+                // Invited positions
+                JsonElement invitedPositionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("invited-positions");
+                if (invitedPositionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_invitedPositions))
                 {
-
-                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement.EnumerateArray())
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_invitedPositions.EnumerateArray())
                     {
                         if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
                         {
-
                             foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
                             {
                                 if (summaryElement.TryGetProperty("invited-position-summary", out JsonElement invitedPositionsSummaryElement))
@@ -565,7 +562,7 @@ namespace api.Services
                                     string url = (invitedPositionsSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : invitedPositionsSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsAndDistinctions.Add(
+                                    invitedPositionsDistinctionsMembershipsServices.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.INVITED_POSITION,
                                           organizationName: invitedPositionsSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -584,21 +581,15 @@ namespace api.Services
                         }
                     }
                 }
-            }
-
-            // Distinctions
-            using (JsonDocument document = JsonDocument.Parse(json))
-            {
+       
+                // Distinctions
                 JsonElement distinctionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("distinctions");
-
-                if (distinctionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement))
+                if (distinctionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_distinctions))
                 {
-
-                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement.EnumerateArray())
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_distinctions.EnumerateArray())
                     {
                         if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
                         {
-
                             foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
                             {
                                 if (summaryElement.TryGetProperty("distinction-summary", out JsonElement distinctionSummaryElement))
@@ -617,7 +608,7 @@ namespace api.Services
                                     string url = (distinctionSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : distinctionSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsAndDistinctions.Add(
+                                    invitedPositionsDistinctionsMembershipsServices.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.DISTINCTION,
                                           organizationName: distinctionSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -636,8 +627,100 @@ namespace api.Services
                         }
                     }
                 }
+
+                // Memberships
+                JsonElement membershipsElement = document.RootElement.GetProperty("activities-summary").GetProperty("memberships");
+                if (membershipsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_memberships))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_memberships.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("membership-summary", out JsonElement membershipSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (membershipSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (membershipSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : membershipSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    invitedPositionsDistinctionsMembershipsServices.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.MEMBERSHIP,
+                                          organizationName: membershipSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: membershipSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: membershipSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(membershipSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(membershipSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(membershipSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Services
+                JsonElement servicesElement = document.RootElement.GetProperty("activities-summary").GetProperty("services");
+                if (servicesElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_services))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_services.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("service-summary", out JsonElement serviceSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (serviceSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (serviceSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : serviceSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    invitedPositionsDistinctionsMembershipsServices.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.SERVICE,
+                                          organizationName: serviceSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: serviceSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: serviceSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(serviceSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(serviceSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(serviceSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            return invitedPositionsAndDistinctions;
+            return invitedPositionsDistinctionsMembershipsServices;
         }
     }
 }
