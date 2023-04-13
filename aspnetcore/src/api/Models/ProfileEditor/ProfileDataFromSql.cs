@@ -140,6 +140,24 @@ namespace api.Models.ProfileEditor
         public int DimProfileOnlyPublication_PublicationYear { get; set; }
         public string DimProfileOnlyPublication_Doi { get; set; }
         // DimProfileOnlyResearchActivity
+        public int DimProfileOnlyResearchActivity_DimOrganization_Id { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganization_OrganizationId { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganization_NameFi { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganization_NameEn { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganization_NameSv { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganization_DimSector_SectorId { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganization_DimSector_NameFi { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganization_DimSector_NameEn { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganization_DimSector_NameSv { get; set; }
+        public int DimProfileOnlyResearchActivity_DimOrganizationBroader_Id { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganizationBroader_OrganizationId { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganizationBroader_NameFi { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganizationBroader_NameEn { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganizationBroader_NameSv { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_SectorId { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_NameFi { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_NameEn { get; set; }
+        public string DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_NameSv { get; set; }
         public string DimProfileOnlyResearchActivity_NameFi { get; set; }
         public string DimProfileOnlyResearchActivity_NameEn { get; set; }
         public string DimProfileOnlyResearchActivity_NameSv { get; set; }
@@ -157,6 +175,24 @@ namespace api.Models.ProfileEditor
         public string DimProfileOnlyResearchActivity_Role_NameEn { get; set; }
         public string DimProfileOnlyResearchActivity_Role_NameSv { get; set; }
         // DimResearchActivity
+        public int DimResearchActivity_DimOrganization_Id { get; set; }
+        public string DimResearchActivity_DimOrganization_OrganizationId { get; set; }
+        public string DimResearchActivity_DimOrganization_NameFi { get; set; }
+        public string DimResearchActivity_DimOrganization_NameEn { get; set; }
+        public string DimResearchActivity_DimOrganization_NameSv { get; set; }
+        public string DimResearchActivity_DimOrganization_DimSector_SectorId { get; set; }
+        public string DimResearchActivity_DimOrganization_DimSector_NameFi { get; set; }
+        public string DimResearchActivity_DimOrganization_DimSector_NameEn { get; set; }
+        public string DimResearchActivity_DimOrganization_DimSector_NameSv { get; set; }
+        public int DimResearchActivity_DimOrganizationBroader_Id { get; set; }
+        public string DimResearchActivity_DimOrganizationBroader_OrganizationId { get; set; }
+        public string DimResearchActivity_DimOrganizationBroader_NameFi { get; set; }
+        public string DimResearchActivity_DimOrganizationBroader_NameEn { get; set; }
+        public string DimResearchActivity_DimOrganizationBroader_NameSv { get; set; }
+        public string DimResearchActivity_DimOrganizationBroader_DimSector_SectorId { get; set; }
+        public string DimResearchActivity_DimOrganizationBroader_DimSector_NameFi { get; set; }
+        public string DimResearchActivity_DimOrganizationBroader_DimSector_NameEn { get; set; }
+        public string DimResearchActivity_DimOrganizationBroader_DimSector_NameSv { get; set; }
         public string DimResearchActivity_NameFi { get; set; }
         public string DimResearchActivity_NameEn { get; set; }
         public string DimResearchActivity_NameSv { get; set; }

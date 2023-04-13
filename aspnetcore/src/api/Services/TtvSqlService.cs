@@ -210,6 +210,24 @@ namespace api.Services
                     dim_profile_only_publication.publication_year AS 'DimProfileOnlyPublication_PublicationYear',
                     dim_profile_only_publication.doi_handle AS 'DimProfileOnlyPublication_Doi',
 
+                    profile_only_research_activity_organization.id AS 'DimProfileOnlyResearchActivity_DimOrganization_Id',
+                    profile_only_research_activity_organization.organization_id AS 'DimProfileOnlyResearchActivity_DimOrganization_OrganizationId',
+                    profile_only_research_activity_organization.name_fi AS 'DimProfileOnlyResearchActivity_DimOrganization_NameFi',
+                    profile_only_research_activity_organization.name_en AS 'DimProfileOnlyResearchActivity_DimOrganization_NameEn',
+                    profile_only_research_activity_organization.name_sv AS 'DimProfileOnlyResearchActivity_DimOrganization_NameSv',
+                    profile_only_research_activity_organization_sector.sector_id AS 'DimProfileOnlyResearchActivity_DimOrganization_DimSector_SectorId',
+                    profile_only_research_activity_organization_sector.name_fi AS 'DimProfileOnlyResearchActivity_DimOrganization_DimSector_NameFi',
+                    profile_only_research_activity_organization_sector.name_en AS 'DimProfileOnlyResearchActivity_DimOrganization_DimSector_NameEn',
+                    profile_only_research_activity_organization_sector.name_sv AS 'DimProfileOnlyResearchActivity_DimOrganization_DimSector_NameSv',
+                    profile_only_research_activity_organization_broader.id AS 'DimProfileOnlyResearchActivity_DimOrganizationBroader_Id',
+                    profile_only_research_activity_organization_broader.organization_id AS 'DimProfileOnlyResearchActivity_DimOrganizationBroader_OrganizationId',
+                    profile_only_research_activity_organization_broader.name_fi AS 'DimProfileOnlyResearchActivity_DimOrganizationBroader_NameFi',
+                    profile_only_research_activity_organization_broader.name_en AS 'DimProfileOnlyResearchActivity_DimOrganizationBroader_NameEn',
+                    profile_only_research_activity_organization_broader.name_sv AS 'DimProfileOnlyResearchActivity_DimOrganizationBroader_NameSv',
+                    profile_only_research_activity_organization_broader_sector.sector_id AS 'DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_SectorId',
+                    profile_only_research_activity_organization_broader_sector.name_fi AS 'DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_NameFi',
+                    profile_only_research_activity_organization_broader_sector.name_en AS 'DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_NameEn',
+                    profile_only_research_activity_organization_broader_sector.name_sv AS 'DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_NameSv',
                     dim_profile_only_research_activity.name_fi AS 'DimProfileOnlyResearchActivity_NameFi',
                     dim_profile_only_research_activity.name_en AS 'DimProfileOnlyResearchActivity_NameEn',
                     dim_profile_only_research_activity.name_sv AS 'DimProfileOnlyResearchActivity_NameSv',
@@ -227,6 +245,24 @@ namespace api.Services
                     profile_only_research_activity_actor_role.name_en AS 'DimProfileOnlyResearchActivity_Role_NameEn',
                     profile_only_research_activity_actor_role.name_sv AS 'DimProfileOnlyResearchActivity_Role_NameSv',
 
+                    research_activity_organization.id AS 'DimResearchActivity_DimOrganization_Id',
+                    research_activity_organization.organization_id AS 'DimResearchActivity_DimOrganization_OrganizationId',
+                    research_activity_organization.name_fi AS 'DimResearchActivity_DimOrganization_NameFi',
+                    research_activity_organization.name_en AS 'DimResearchActivity_DimOrganization_NameEn',
+                    research_activity_organization.name_sv AS 'DimResearchActivity_DimOrganization_NameSv',
+                    research_activity_organization_sector.sector_id AS 'DimResearchActivity_DimOrganization_DimSector_SectorId',
+                    research_activity_organization_sector.name_fi AS 'DimResearchActivity_DimOrganization_DimSector_NameFi',
+                    research_activity_organization_sector.name_en AS 'DimResearchActivity_DimOrganization_DimSector_NameEn',
+                    research_activity_organization_sector.name_sv AS 'DimResearchActivity_DimOrganization_DimSector_NameSv',
+                    research_activity_organization_broader.id AS 'DimResearchActivity_DimOrganizationBroader_Id',
+                    research_activity_organization_broader.organization_id AS 'DimResearchActivity_DimOrganizationBroader_OrganizationId',
+                    research_activity_organization_broader.name_fi AS 'DimResearchActivity_DimOrganizationBroader_NameFi',
+                    research_activity_organization_broader.name_en AS 'DimResearchActivity_DimOrganizationBroader_NameEn',
+                    research_activity_organization_broader.name_sv AS 'DimResearchActivity_DimOrganizationBroader_NameSv',
+                    research_activity_organization_broader_sector.sector_id AS 'DimResearchActivity_DimOrganizationBroader_DimSector_SectorId',
+                    research_activity_organization_broader_sector.name_fi AS 'DimResearchActivity_DimOrganizationBroader_DimSector_NameFi',
+                    research_activity_organization_broader_sector.name_en AS 'DimResearchActivity_DimOrganizationBroader_DimSector_NameEn',
+                    research_activity_organization_broader_sector.name_sv AS 'DimResearchActivity_DimOrganizationBroader_DimSector_NameSv',
                     dim_research_activity.name_fi AS 'DimResearchActivity_NameFi',
                     dim_research_activity.name_en AS 'DimResearchActivity_NameEn',
                     dim_research_activity.name_sv AS 'DimResearchActivity_NameSv',
@@ -309,11 +345,19 @@ namespace api.Services
                 JOIN dim_profile_only_publication ON ffv.dim_profile_only_publication_id=dim_profile_only_publication.id
 
                 JOIN dim_profile_only_research_activity ON ffv.dim_profile_only_research_activity_id=dim_profile_only_research_activity.id
+                JOIN dim_organization AS profile_only_research_activity_organization ON dim_profile_only_research_activity.dim_organization_id=profile_only_research_activity_organization.id
+                LEFT JOIN dim_organization AS profile_only_research_activity_organization_broader ON profile_only_research_activity_organization_broader.id=profile_only_research_activity_organization.dim_organization_broader AND profile_only_research_activity_organization.dim_organization_broader!=-1
+                JOIN dim_sector AS profile_only_research_activity_organization_sector ON profile_only_research_activity_organization.dim_sectorid=profile_only_research_activity_organization_sector.id
+                LEFT JOIN dim_sector AS profile_only_research_activity_organization_broader_sector ON profile_only_research_activity_organization_broader.dim_sectorid=profile_only_research_activity_organization_broader_sector.id
                 LEFT JOIN dim_referencedata AS profile_only_research_activity_actor_role ON ffv.dim_referencedata_actor_role_id=profile_only_research_activity_actor_role.id
                 LEFT JOIN dim_date AS dim_profile_only_research_activity_start_date ON dim_profile_only_research_activity.dim_date_id_start=dim_profile_only_research_activity_start_date.id AND dim_profile_only_research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS dim_profile_only_research_activity_end_date ON dim_profile_only_research_activity.dim_date_id_end=dim_profile_only_research_activity_end_date.id AND dim_profile_only_research_activity_end_date.id!=-1
 
                 JOIN dim_research_activity ON ffv.dim_research_activity_id=dim_research_activity.id
+                JOIN dim_organization AS research_activity_organization ON dim_research_activity.dim_organization_id=research_activity_organization.id
+                LEFT JOIN dim_organization AS research_activity_organization_broader ON research_activity_organization_broader.id=research_activity_organization.dim_organization_broader AND research_activity_organization.dim_organization_broader!=-1
+                JOIN dim_sector AS research_activity_organization_sector ON research_activity_organization.dim_sectorid=research_activity_organization_sector.id
+                LEFT JOIN dim_sector AS research_activity_organization_broader_sector ON research_activity_organization_broader.dim_sectorid=research_activity_organization_broader_sector.id
                 LEFT JOIN dim_date AS research_activity_start_date ON dim_research_activity.dim_start_date=research_activity_start_date.id AND research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS research_activity_end_date ON dim_research_activity.dim_end_date=research_activity_end_date.id AND research_activity_end_date.id!=-1
 				
