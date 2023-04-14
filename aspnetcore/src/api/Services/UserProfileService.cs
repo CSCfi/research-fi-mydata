@@ -1683,10 +1683,6 @@ namespace api.Services
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
-                                //ActivityTypeCode = p.DimProfileOnlyResearchActivity_ActivityType_CodeValue,
-                                //ActivityTypeNameFi = nameTraslationProfileOnlyResearchActivityTypeName.NameFi,
-                                //ActivityTypeNameEn = nameTraslationProfileOnlyResearchActivityTypeName.NameEn,
-                                //ActivityTypeNameSv = nameTraslationProfileOnlyResearchActivityTypeName.NameSv,
                                 RoleCode = p.DimProfileOnlyResearchActivity_Role_CodeValue,
                                 RoleNameFi = nameTraslationProfileOnlyResearchActivityRoleName.NameFi,
                                 RoleNameEn = nameTraslationProfileOnlyResearchActivityRoleName.NameEn,

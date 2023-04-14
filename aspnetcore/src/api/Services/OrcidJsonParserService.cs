@@ -527,61 +527,15 @@ namespace api.Services
         }
 
         /*
-         * Invited positions, distinctions, memberships and services.
-         * Map to research activity in TTV database.
+         * Distinctions, invited positions, memberships, qualifications and services.
+         * Map to profile only research activity in TTV database.
          */
-        public List<OrcidResearchActivity> GetInvitedPositionsDistinctionsMembershipsAndServices(String json)
+        public List<OrcidResearchActivity> GetInvitedPositionsDistinctionsMembershipsQualificationsServices(String json)
         {
-            List<OrcidResearchActivity> invitedPositionsDistinctionsMembershipsServices = new() { };
+            List<OrcidResearchActivity> invitedPositionsDistinctionsMembershipsQualificationsServices = new() { };
            
             using (JsonDocument document = JsonDocument.Parse(json))
-            {
-                // Invited positions
-                JsonElement invitedPositionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("invited-positions");
-                if (invitedPositionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_invitedPositions))
-                {
-                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_invitedPositions.EnumerateArray())
-                    {
-                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
-                        {
-                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
-                            {
-                                if (summaryElement.TryGetProperty("invited-position-summary", out JsonElement invitedPositionsSummaryElement))
-                                {
-                                    string disambiguatedOrganizationIdentifier = "";
-                                    string disambiguationSource = "";
-                                    if (invitedPositionsSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
-                                    {
-                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
-                                        {
-                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
-                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
-                                        }
-                                    }
-
-                                    string url = (invitedPositionsSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
-                                        "" : invitedPositionsSummaryElement.GetProperty("url").GetProperty("value").GetString();
-
-                                    invitedPositionsDistinctionsMembershipsServices.Add(
-                                      new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.INVITED_POSITION,
-                                          organizationName: invitedPositionsSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
-                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
-                                          disambiguationSource: disambiguationSource,
-                                          departmentName: invitedPositionsSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: invitedPositionsSummaryElement.GetProperty("role-title").GetString(),
-                                          startDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("start-date")),
-                                          endDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("end-date")),
-                                          putCode: this.GetOrcidPutCode(invitedPositionsSummaryElement),
-                                          url: url
-                                      )
-                                  );
-                                }
-                            }
-                        }
-                    }
-                }
-       
+            {       
                 // Distinctions
                 JsonElement distinctionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("distinctions");
                 if (distinctionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_distinctions))
@@ -608,7 +562,7 @@ namespace api.Services
                                     string url = (distinctionSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : distinctionSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsDistinctionsMembershipsServices.Add(
+                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.DISTINCTION,
                                           organizationName: distinctionSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -619,6 +573,52 @@ namespace api.Services
                                           startDate: GetOrcidDate(distinctionSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(distinctionSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(distinctionSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Invited positions
+                JsonElement invitedPositionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("invited-positions");
+                if (invitedPositionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_invitedPositions))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_invitedPositions.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("invited-position-summary", out JsonElement invitedPositionsSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (invitedPositionsSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (invitedPositionsSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : invitedPositionsSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.INVITED_POSITION,
+                                          organizationName: invitedPositionsSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: invitedPositionsSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: invitedPositionsSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(invitedPositionsSummaryElement),
                                           url: url
                                       )
                                   );
@@ -654,7 +654,7 @@ namespace api.Services
                                     string url = (membershipSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : membershipSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsDistinctionsMembershipsServices.Add(
+                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.MEMBERSHIP,
                                           organizationName: membershipSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -665,6 +665,52 @@ namespace api.Services
                                           startDate: GetOrcidDate(membershipSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(membershipSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(membershipSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Qualifications
+                JsonElement qualificationsElement = document.RootElement.GetProperty("activities-summary").GetProperty("qualifications");
+                if (qualificationsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_qualifications))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_qualifications.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("qualification-summary", out JsonElement qualificationSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (qualificationSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (qualificationSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : qualificationSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.QUALIFICATION,
+                                          organizationName: qualificationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: qualificationSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: qualificationSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(qualificationSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(qualificationSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(qualificationSummaryElement),
                                           url: url
                                       )
                                   );
@@ -700,7 +746,7 @@ namespace api.Services
                                     string url = (serviceSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : serviceSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsDistinctionsMembershipsServices.Add(
+                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.SERVICE,
                                           organizationName: serviceSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -720,7 +766,7 @@ namespace api.Services
                     }
                 }
             }
-            return invitedPositionsDistinctionsMembershipsServices;
+            return invitedPositionsDistinctionsMembershipsQualificationsServices;
         }
     }
 }

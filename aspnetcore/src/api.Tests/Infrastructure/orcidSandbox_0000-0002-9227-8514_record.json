@@ -2186,7 +2186,7 @@
                 },
                 "put-code": 29769,
                 "department-name": "Dept Name",
-                "role-title": "Title",
+                "role-title": "Test Title",
                 "start-date": {
                   "year": {
                     "value": "2017"
@@ -2195,7 +2195,7 @@
                     "value": "02"
                   },
                   "day": {
-                    "value": "02"
+                    "value": "22"
                   }
                 },
                 "end-date": {
@@ -2203,10 +2203,10 @@
                     "value": "2018"
                   },
                   "month": {
-                    "value": "02"
+                    "value": "03"
                   },
                   "day": {
-                    "value": "02"
+                    "value": "23"
                   }
                 },
                 "organization": {

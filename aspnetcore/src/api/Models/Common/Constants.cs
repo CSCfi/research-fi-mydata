@@ -79,11 +79,6 @@
             public const string ORCID_PUT_CODE = "ORCID put code";
         }
 
-        public static class CodeSchemes
-        {
-            public const string USER_CHOICES = "user choices";
-        }
-
         public static class Cache
         {
             public const int MEMORY_CACHE_EXPIRATION_SECONDS = 60;
@@ -117,13 +112,29 @@
         {
             public const string ORCID_RESEARCH_ACTIVITY = "aktiviteetitjaroolit";
             public const string PROFILE_SHARING = "tutkijaprofiilin_luvitus";
+            public const string USER_CHOICES = "user choices";
+        }
+
+        public static class OrcidResearchActivityTypes
+        {
+            public const string DISTINCTION = "discinction";
+            public const string INVITED_POSITION = "invited_position";
+            public const string MEMBERSHIP = "membership";
+            public const string QUALIFICATION = "qualification";
+            public const string SERVICE = "service";
+        }
+
+        public static class OrcidResearchActivityType_To_ReferenceDataCodeValue
+        {
+            public const string DISTINCTION = "9.2";
+            public const string INVITED_POSITION = "6.1";
+            public const string MEMBERSHIP = "5";
+            public const string QUALIFICATION = "16";
+            public const string SERVICE = "5";
         }
 
         public static class ReferenceDataCodeValues
         {
-            public const string ORCID_RESEARCH_ACTIVITY_DISTINCTION = "9.2";
-            public const string ORCID_RESEARCH_ACTIVITY_INVITED_POSITION = "6.1";
-
             public const string PROFILE_SHARING_PROFILE_INFORMATION = "01";
             public const string PROFILE_SHARING_EMAIL_ADDRESS = "02";
             public const string PROFILE_SHARING_PHONE_NUMBER = "03";
@@ -132,14 +143,6 @@
             public const string PROFILE_SHARING_DATASETS = "06";
             public const string PROFILE_SHARING_GRANTS = "07";
             public const string PROFILE_SHARING_ACTIVITIES_AND_DISTINCTIONS = "08";
-        }
-
-        public static class OrcidResearchActivityTypes
-        {
-            public const string DISTINCTION = "discinction";
-            public const string INVITED_POSITION = "invited_position";
-            public const string MEMBERSHIP = "membership";
-            public const string SERVICE = "service";
         }
     }
 }
