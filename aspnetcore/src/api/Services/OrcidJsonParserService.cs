@@ -527,12 +527,12 @@ namespace api.Services
         }
 
         /*
-         * Distinctions, invited positions, memberships, qualifications and services.
+         * Distinctions, invited positions, peer reviews, memberships, qualifications and services.
          * Map to profile only research activity in TTV database.
          */
-        public List<OrcidResearchActivity> GetInvitedPositionsDistinctionsMembershipsQualificationsServices(String json)
+        public List<OrcidResearchActivity> GetProfileOnlyResearchActivityItems(String json)
         {
-            List<OrcidResearchActivity> invitedPositionsDistinctionsMembershipsQualificationsServices = new() { };
+            List<OrcidResearchActivity> profileOnlyResearchActivityItems = new() { };
            
             using (JsonDocument document = JsonDocument.Parse(json))
             {       
@@ -562,7 +562,7 @@ namespace api.Services
                                     string url = (distinctionSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : distinctionSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
+                                    profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.DISTINCTION,
                                           organizationName: distinctionSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -608,7 +608,7 @@ namespace api.Services
                                     string url = (invitedPositionsSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : invitedPositionsSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
+                                    profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.INVITED_POSITION,
                                           organizationName: invitedPositionsSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -654,7 +654,7 @@ namespace api.Services
                                     string url = (membershipSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : membershipSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
+                                    profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.MEMBERSHIP,
                                           organizationName: membershipSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -668,6 +668,54 @@ namespace api.Services
                                           url: url
                                       )
                                   );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Peer reviews
+                JsonElement peerReviewsElement = document.RootElement.GetProperty("activities-summary").GetProperty("peer-reviews");
+                if (peerReviewsElement.TryGetProperty("group", out JsonElement groupsElement)) {
+                    foreach (JsonElement groupElement in groupsElement.EnumerateArray())
+                    {
+                        if (groupElement.TryGetProperty("peer-review-group", out JsonElement peerReviewGroupsElement))
+                        {
+                            foreach (JsonElement peerReviewGroupElement in peerReviewGroupsElement.EnumerateArray())
+                            {
+                                if (peerReviewGroupElement.TryGetProperty("peer-review-summary", out JsonElement peerReviewSummariesElement))
+                                {
+                                    foreach (JsonElement peerReviewSummaryElement in peerReviewSummariesElement.EnumerateArray())
+                                    {
+                                            string disambiguatedOrganizationIdentifier = "";
+                                            string disambiguationSource = "";
+                                            if (peerReviewSummaryElement.GetProperty("convening-organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                            {
+                                                if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                                {
+                                                    disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                                    disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                                }
+                                            }
+
+                                            string url = (peerReviewSummaryElement.GetProperty("review-url").ValueKind == JsonValueKind.Null) ?
+                                                "" : peerReviewSummaryElement.GetProperty("review-url").GetProperty("value").GetString();
+
+                                        profileOnlyResearchActivityItems.Add(
+                                              new OrcidResearchActivity(
+                                                  orcidActivityType: Constants.OrcidResearchActivityTypes.PEER_REVIEW,
+                                                  organizationName: peerReviewSummaryElement.GetProperty("convening-organization").GetProperty("name").GetString(),
+                                                  disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                                  disambiguationSource: disambiguationSource,
+                                                  departmentName: "",
+                                                  roleTitle: peerReviewSummaryElement.GetProperty("reviewer-role").GetString(),
+                                                  startDate: GetOrcidDate(peerReviewSummaryElement.GetProperty("completion-date")),
+                                                  endDate: new OrcidDate(), // TODO: Convert to nullable
+                                                  putCode: this.GetOrcidPutCode(peerReviewSummaryElement),
+                                                  url: url
+                                              )
+                                          );
+                                    }
                                 }
                             }
                         }
@@ -700,7 +748,7 @@ namespace api.Services
                                     string url = (qualificationSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : qualificationSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
+                                    profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.QUALIFICATION,
                                           organizationName: qualificationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -746,7 +794,7 @@ namespace api.Services
                                     string url = (serviceSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : serviceSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    invitedPositionsDistinctionsMembershipsQualificationsServices.Add(
+                                    profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.SERVICE,
                                           organizationName: serviceSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
@@ -766,7 +814,7 @@ namespace api.Services
                     }
                 }
             }
-            return invitedPositionsDistinctionsMembershipsQualificationsServices;
+            return profileOnlyResearchActivityItems;
         }
     }
 }

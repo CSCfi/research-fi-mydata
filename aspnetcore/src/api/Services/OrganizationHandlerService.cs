@@ -178,16 +178,20 @@ namespace api.Services
             }
             else
             {
-                // DimIdentifierlessData does not exist. Create new. Do not set parent DimIdentifierlessData, instead link to FactFieldValue
-                DimIdentifierlessDatum dimIdentifierlessData_organizationUnit =
-                    CreateIdentifierlessData_OrganizationUnit(
-                        parentDimIdentifierlessData: null,
-                        nameFi: departmentNameFi,
-                        nameEn: departmentNameEn,
-                        nameSv: departmentNameSv
-                    );
-                _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_organizationUnit);
-                ffv.DimIdentifierlessData = dimIdentifierlessData_organizationUnit;
+                // DimIdentifierlessData does not exist. Create new if any of the language strings contains a value.
+                // Do not set parent DimIdentifierlessData, instead link to FactFieldValue
+                if (!(String.IsNullOrWhiteSpace(departmentNameFi) && String.IsNullOrWhiteSpace(departmentNameEn) && String.IsNullOrWhiteSpace(departmentNameSv)))
+                {
+                    DimIdentifierlessDatum dimIdentifierlessData_organizationUnit =
+                        CreateIdentifierlessData_OrganizationUnit(
+                            parentDimIdentifierlessData: null,
+                            nameFi: departmentNameFi,
+                            nameEn: departmentNameEn,
+                            nameSv: departmentNameSv
+                        );
+                    _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_organizationUnit);
+                    ffv.DimIdentifierlessData = dimIdentifierlessData_organizationUnit;
+                }
             }
         }
 

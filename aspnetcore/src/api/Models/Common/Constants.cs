@@ -120,6 +120,7 @@
             public const string DISTINCTION = "discinction";
             public const string INVITED_POSITION = "invited_position";
             public const string MEMBERSHIP = "membership";
+            public const string PEER_REVIEW = "peer review";
             public const string QUALIFICATION = "qualification";
             public const string SERVICE = "service";
         }
@@ -129,6 +130,7 @@
             public const string DISTINCTION = "9.2";
             public const string INVITED_POSITION = "6.1";
             public const string MEMBERSHIP = "5";
+            public const string PEER_REVIEW = "2.3";
             public const string QUALIFICATION = "16";
             public const string SERVICE = "5";
         }

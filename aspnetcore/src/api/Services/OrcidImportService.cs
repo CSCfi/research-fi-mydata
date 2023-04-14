@@ -149,7 +149,7 @@ namespace api.Services
 
             // Research activity DimDates - invited position & distinction
             List<OrcidResearchActivity> orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices =
-                _orcidJsonParserService.GetInvitedPositionsDistinctionsMembershipsQualificationsServices(orcidRecordJson);
+                _orcidJsonParserService.GetProfileOnlyResearchActivityItems(orcidRecordJson);
             foreach (OrcidResearchActivity researchActivity in orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices)
             {
                 // Start date
@@ -996,7 +996,7 @@ namespace api.Services
 
 
             // Invited positions, distinctions, memberships and services => Research activity
-            List<OrcidResearchActivity> orcidResearchActivity_invitedPositionsAndDistinctions = _orcidJsonParserService.GetInvitedPositionsDistinctionsMembershipsQualificationsServices(orcidRecordJson);
+            List<OrcidResearchActivity> orcidResearchActivity_invitedPositionsAndDistinctions = _orcidJsonParserService.GetProfileOnlyResearchActivityItems(orcidRecordJson);
             // Get DimFieldDisplaySettings for research activity
             DimFieldDisplaySetting dimFieldDisplaySettingsResearchActivity =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsResearchActivity => dfdsResearchActivity.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY);
