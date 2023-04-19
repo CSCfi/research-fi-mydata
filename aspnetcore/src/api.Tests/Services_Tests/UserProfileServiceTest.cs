@@ -174,6 +174,34 @@ namespace api.Tests
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimProfileOnlyPublication.SourceDescription);
         }
 
+        [Fact(DisplayName = "Get empty DimProfileOnlyResearchActivity")]
+        public void getEmptyDimProfileOnlyResearchActivity_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new UserProfileService();
+            // Act
+            DimProfileOnlyResearchActivity actualDimProfileOnlyResearchActivity = userProfileService.GetEmptyDimProfileOnlyResearchActivity();
+            // Assert
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimDateIdStart);
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimDateIdEnd);
+            Assert.Null(actualDimProfileOnlyResearchActivity.DimGeoIdCountry);
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimOrganizationId);
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimEventId);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.LocalIdentifier);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.OrcidWorkType);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.NameFi);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.NameSv);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.NameEn);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.NameUnd);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.DescriptionFi);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.DescriptionEn);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.DescriptionSv);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.IndentifierlessTargetOrg);
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimRegisteredDataSourceId);
+            Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimProfileOnlyResearchActivity.SourceId);
+            Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimProfileOnlyResearchActivity.SourceDescription);
+        }
+
         [Fact(DisplayName = "Get empty DimPid")]
         public void getEmptyDimPid_01()
         {

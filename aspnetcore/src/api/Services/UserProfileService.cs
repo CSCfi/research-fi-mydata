@@ -18,6 +18,7 @@ using Elasticsearch.Net;
 using api.Models.Api;
 using Serilog;
 using System.Text.Json;
+using static api.Models.Common.Constants;
 
 namespace api.Services
 {
@@ -31,7 +32,6 @@ namespace api.Services
         private readonly IUtilityService _utilityService;
         private readonly ILanguageService _languageService;
         private readonly IDuplicateHandlerService _duplicateHandlerService;
-        private readonly IOrganizationHandlerService _organizationHandlerService;
         private readonly ISharingService _sharingService;
         private readonly ITtvSqlService _ttvSqlService;
         private readonly ILogger<UserProfileService> _logger;
@@ -41,7 +41,6 @@ namespace api.Services
             IUtilityService utilityService,
             ILanguageService languageService,
             IDuplicateHandlerService duplicateHandlerService,
-            IOrganizationHandlerService organizationHandlerService,
             ISharingService sharingService,
             ITtvSqlService ttvSqlService,
             ILogger<UserProfileService> logger)
@@ -51,7 +50,6 @@ namespace api.Services
             _utilityService = utilityService;
             _languageService = languageService;
             _duplicateHandlerService = duplicateHandlerService;
-            _organizationHandlerService = organizationHandlerService;
             _sharingService = sharingService;
             _ttvSqlService = ttvSqlService;
             _logger = logger;
@@ -374,6 +372,36 @@ namespace api.Services
             };
         }
 
+        /*
+         * Get empty DimProfileOnlyResearchActivity.
+         * Must use -1 in required foreign keys.
+         */
+        public DimProfileOnlyResearchActivity GetEmptyDimProfileOnlyResearchActivity()
+        {
+            return new DimProfileOnlyResearchActivity()
+            {
+                DimDateIdStart = -1,
+                DimDateIdEnd = -1,
+                DimGeoIdCountry = null,
+                DimOrganizationId = -1,
+                DimEventId = -1,
+                LocalIdentifier = "",
+                OrcidWorkType = "",
+                NameFi = "",
+                NameSv = "",
+                NameEn = "",
+                NameUnd = "",
+                DescriptionFi = "",
+                DescriptionEn = "",
+                DescriptionSv = "",
+                IndentifierlessTargetOrg = "",
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                Created = null,
+                Modified = null,
+                DimRegisteredDataSourceId = -1
+            };
+        }
 
         /*
          * Get empty DimPid.
@@ -976,7 +1004,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimNameId,
-                                    Type = Constants.FieldIdentifiers.PERSON_NAME,
+                                    Type = Constants.ItemMetaTypes.PERSON_NAME,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -994,7 +1022,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimNameId,
-                                    Type = Constants.FieldIdentifiers.PERSON_OTHER_NAMES,
+                                    Type = Constants.ItemMetaTypes.PERSON_OTHER_NAMES,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1013,7 +1041,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimWebLinkId,
-                                    Type = Constants.FieldIdentifiers.PERSON_WEB_LINK,
+                                    Type = Constants.ItemMetaTypes.PERSON_WEB_LINK,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1039,7 +1067,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimResearcherDescriptionId,
-                                    Type = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                                    Type = Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1057,7 +1085,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimEmailAddrressId,
-                                    Type = Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS,
+                                    Type = Constants.ItemMetaTypes.PERSON_EMAIL_ADDRESS,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1075,7 +1103,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimTelephoneNumberId,
-                                    Type = Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER,
+                                    Type = Constants.ItemMetaTypes.PERSON_TELEPHONE_NUMBER,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1103,7 +1131,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimFieldOfScienceId,
-                                    Type = Constants.FieldIdentifiers.PERSON_FIELD_OF_SCIENCE,
+                                    Type = Constants.ItemMetaTypes.PERSON_FIELD_OF_SCIENCE,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1122,7 +1150,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimKeywordId,
-                                    Type = Constants.FieldIdentifiers.PERSON_KEYWORD,
+                                    Type = Constants.ItemMetaTypes.PERSON_KEYWORD,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1141,7 +1169,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimPidId,
-                                    Type = Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER,
+                                    Type = Constants.ItemMetaTypes.PERSON_EXTERNAL_IDENTIFIER,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1263,7 +1291,7 @@ namespace api.Services
                             itemMeta = new ProfileEditorItemMeta()
                             {
                                 Id = p.FactFieldValues_DimAffiliationId,
-                                Type = Constants.FieldIdentifiers.ACTIVITY_AFFILIATION,
+                                Type = Constants.ItemMetaTypes.ACTIVITY_AFFILIATION,
                                 Show = p.FactFieldValues_Show,
                                 PrimaryValue = p.FactFieldValues_PrimaryValue
                             },
@@ -1327,7 +1355,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimEducationId,
-                                    Type = Constants.FieldIdentifiers.ACTIVITY_EDUCATION,
+                                    Type = Constants.ItemMetaTypes.ACTIVITY_EDUCATION,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1358,28 +1386,111 @@ namespace api.Services
 
                     // Research activity
                     case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY:
-                        NameTranslation nameTraslationResearchActivityName = _languageService.GetNameTranslation(
-                            nameFi: p.DimResearchActivity_NameFi,
-                            nameEn: p.DimResearchActivity_NameEn,
-                            nameSv: p.DimResearchActivity_NameSv
-                        );
-                        NameTranslation nameTraslationResearchActivityDescription = _languageService.GetNameTranslation(
-                            nameFi: p.DimResearchActivity_DescriptionFi,
-                            nameEn: p.DimResearchActivity_DescriptionEn,
-                            nameSv: p.DimResearchActivity_DescriptionSv
-                        );
-                        NameTranslation nameTraslationResearchActivityTypeName = _languageService.GetNameTranslation(
-                            nameFi: p.DimResearchActivity_ActivityType_NameFi,
-                            nameEn: p.DimResearchActivity_ActivityType_NameEn,
-                            nameSv: p.DimResearchActivity_ActivityType_NameSv
-                        );
-                        NameTranslation nameTraslationResearchActivityRoleName = _languageService.GetNameTranslation(
-                            nameFi: p.DimResearchActivity_Role_NameFi,
-                            nameEn: p.DimResearchActivity_Role_NameEn,
-                            nameSv: p.DimResearchActivity_Role_NameSv
-                        );
-                        profileDataResponse.activity.activitiesAndRewards.Add(
-                            new ProfileEditorActivityAndReward()
+                        // Research activity can be stored in either DimResearchActivity or DimProfileOnlyResearchActivity
+
+                        // DimResearchActivity
+                        if (p.FactFieldValues_DimResearchActivityId != -1)
+                        {
+                            // Research activity organization search order:
+                            // 1. DimResearchActivity_DimOrganizationBroader_Id
+                            // 2. DimResearchActivity_DimOrganization_Id
+                            // 3. DimIdentifierlessData
+
+                            // Name translation service ensures that none of the language fields is empty.
+                            NameTranslation nameTranslationResearchActivityOrganization = new();
+                            NameTranslation nameTranslationResearchActivityOrganizationSector = new();
+                            NameTranslation nameTranslationResearchActivityDepartment = new();
+
+                            // Organization name
+                            if (p.DimResearchActivity_DimOrganizationBroader_Id > 0)
+                            {
+                                nameTranslationResearchActivityOrganization = _languageService.GetNameTranslation(
+                                    nameFi: p.DimResearchActivity_DimOrganizationBroader_NameFi,
+                                    nameEn: p.DimResearchActivity_DimOrganizationBroader_NameEn,
+                                    nameSv: p.DimResearchActivity_DimOrganizationBroader_NameSv
+                                );
+
+                                nameTranslationResearchActivityOrganizationSector = _languageService.GetNameTranslation(
+                                    nameFi: p.DimResearchActivity_DimOrganizationBroader_DimSector_NameFi,
+                                    nameEn: p.DimResearchActivity_DimOrganizationBroader_DimSector_NameEn,
+                                    nameSv: p.DimResearchActivity_DimOrganizationBroader_DimSector_NameSv
+                                );
+                            }
+                            else if (p.DimResearchActivity_DimOrganization_Id > 0)
+                            {
+                                nameTranslationResearchActivityOrganization = _languageService.GetNameTranslation(
+                                    nameFi: p.DimResearchActivity_DimOrganization_NameFi,
+                                    nameEn: p.DimResearchActivity_DimOrganization_NameEn,
+                                    nameSv: p.DimResearchActivity_DimOrganization_NameSv
+                                );
+
+                                nameTranslationResearchActivityOrganizationSector = _languageService.GetNameTranslation(
+                                    nameFi: p.DimResearchActivity_DimOrganization_DimSector_NameFi,
+                                    nameEn: p.DimResearchActivity_DimOrganization_DimSector_NameEn,
+                                    nameSv: p.DimResearchActivity_DimOrganization_DimSector_NameSv
+                                );
+                            }
+                            else if (p.FactFieldValues_DimIdentifierlessDataId > -1 &&
+                                p.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                            {
+                                nameTranslationResearchActivityOrganization = _languageService.GetNameTranslation(
+                                    nameFi: p.DimIdentifierlessData_ValueFi,
+                                    nameEn: p.DimIdentifierlessData_ValueEn,
+                                    nameSv: p.DimIdentifierlessData_ValueSv
+                                );
+                            }
+
+                            // Department name
+                            if (p.DimResearchActivity_DimOrganizationBroader_Id > 0)
+                            {
+                                // When DimOrganizationBroader is available, it contains the organization name and DimOrganization contains department name.
+                                nameTranslationResearchActivityDepartment = _languageService.GetNameTranslation(
+                                    nameFi: p.DimResearchActivity_DimOrganization_NameFi,
+                                    nameEn: p.DimResearchActivity_DimOrganization_NameEn,
+                                    nameSv: p.DimResearchActivity_DimOrganization_NameSv
+                                );
+                            }
+                            else if (p.DimIdentifierlessData_Type != null && p.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                            {
+                                nameTranslationResearchActivityDepartment = _languageService.GetNameTranslation(
+                                    nameFi: p.DimIdentifierlessData_ValueFi,
+                                    nameEn: p.DimIdentifierlessData_ValueEn,
+                                    nameSv: p.DimIdentifierlessData_ValueSv
+                                );
+                            }
+                            else if (p.DimIdentifierlessData_Child_Type != null && p.DimIdentifierlessData_Child_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                            {
+                                nameTranslationResearchActivityDepartment = _languageService.GetNameTranslation(
+                                    nameFi: p.DimIdentifierlessData_Child_ValueFi,
+                                    nameEn: p.DimIdentifierlessData_Child_ValueEn,
+                                    nameSv: p.DimIdentifierlessData_Child_ValueSv
+                                );
+                            }
+
+
+
+                            NameTranslation nameTraslationResearchActivityName = _languageService.GetNameTranslation(
+                                nameFi: p.DimResearchActivity_NameFi,
+                                nameEn: p.DimResearchActivity_NameEn,
+                                nameSv: p.DimResearchActivity_NameSv
+                            );
+                            NameTranslation nameTraslationResearchActivityDescription = _languageService.GetNameTranslation(
+                                nameFi: p.DimResearchActivity_DescriptionFi,
+                                nameEn: p.DimResearchActivity_DescriptionEn,
+                                nameSv: p.DimResearchActivity_DescriptionSv
+                            );
+                            NameTranslation nameTraslationResearchActivityTypeName = _languageService.GetNameTranslation(
+                                nameFi: p.DimResearchActivity_ActivityType_NameFi,
+                                nameEn: p.DimResearchActivity_ActivityType_NameEn,
+                                nameSv: p.DimResearchActivity_ActivityType_NameSv
+                            );
+                            NameTranslation nameTraslationResearchActivityRoleName = _languageService.GetNameTranslation(
+                                nameFi: p.DimResearchActivity_Role_NameFi,
+                                nameEn: p.DimResearchActivity_Role_NameEn,
+                                nameSv: p.DimResearchActivity_Role_NameSv
+                            );
+
+                            ProfileEditorActivityAndReward activityAndReward = new()
                             {
                                 NameFi = nameTraslationResearchActivityName.NameFi,
                                 NameEn = nameTraslationResearchActivityName.NameEn,
@@ -1400,10 +1511,10 @@ namespace api.Services
                                     Month = p.DimResearchActivity_EndDate_Month,
                                     Day = p.DimResearchActivity_EndDate_Day
                                 },
-                                itemMeta = new ProfileEditorItemMeta()
+                                itemMeta = new()
                                 {
                                     Id = p.FactFieldValues_DimResearchActivityId,
-                                    Type = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY,
+                                    Type = Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1415,9 +1526,202 @@ namespace api.Services
                                 RoleNameFi = nameTraslationResearchActivityRoleName.NameFi,
                                 RoleNameEn = nameTraslationResearchActivityRoleName.NameEn,
                                 RoleNameSv = nameTraslationResearchActivityRoleName.NameSv,
+                                OrganizationNameFi = nameTranslationResearchActivityOrganization.NameFi,
+                                OrganizationNameEn = nameTranslationResearchActivityOrganization.NameEn,
+                                OrganizationNameSv = nameTranslationResearchActivityOrganization.NameSv,
+                                DepartmentNameFi = nameTranslationResearchActivityDepartment.NameFi,
+                                DepartmentNameEn = nameTranslationResearchActivityDepartment.NameEn,
+                                DepartmentNameSv = nameTranslationResearchActivityDepartment.NameSv,
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            };
+
+                            // Add Elasticsearch person index related data.
+                            if (forElasticsearch && !String.IsNullOrWhiteSpace(p.DimResearchActivity_DimOrganization_DimSector_SectorId))
+                            {
+                                activityAndReward.sector = new List<ProfileEditorSector>
+                                {
+                                    new ProfileEditorSector()
+                                    {
+                                        sectorId = p.DimResearchActivity_DimOrganization_DimSector_SectorId,
+                                        nameFiSector = nameTranslationResearchActivityOrganizationSector.NameFi,
+                                        nameEnSector = nameTranslationResearchActivityOrganizationSector.NameEn,
+                                        nameSvSector = nameTranslationResearchActivityOrganizationSector.NameSv,
+                                        organization = new List<ProfileEditorSectorOrganization>() {
+                                            new ProfileEditorSectorOrganization()
+                                            {
+                                                organizationId = p.DimResearchActivity_DimOrganization_OrganizationId,
+                                                OrganizationNameFi = nameTranslationResearchActivityOrganization.NameFi,
+                                                OrganizationNameEn = nameTranslationResearchActivityOrganization.NameEn,
+                                                OrganizationNameSv = nameTranslationResearchActivityOrganization.NameSv
+                                            }
+                                        }
+                                    }
+                                };
                             }
-                        );
+                            profileDataResponse.activity.activitiesAndRewards.Add(activityAndReward);
+                        }
+
+                        // DimProfileOnlyResearchActivity
+                        if (p.FactFieldValues_DimProfileOnlyResearchActivityId != -1)
+                        {
+                            // Research activity organization search order:
+                            // 1. DimProfileOnlyResearchActivity_DimOrganizationBroader_Id
+                            // 2. DimProfileOnlyResearchActivity_DimOrganization_Id
+                            // 3. DimIdentifierlessData
+
+                            // Name translation service ensures that none of the language fields is empty.
+                            NameTranslation nameTranslationProfileOnlyResearchActivityOrganization = new();
+                            NameTranslation nameTranslationProfileOnlyResearchActivityOrganizationSector = new();
+                            NameTranslation nameTranslationProfileOnlyResearchActivityDepartment = new();
+
+                            // Organization name
+                            if (p.DimProfileOnlyResearchActivity_DimOrganizationBroader_Id > 0)
+                            {
+                                nameTranslationProfileOnlyResearchActivityOrganization = _languageService.GetNameTranslation(
+                                    nameFi: p.DimProfileOnlyResearchActivity_DimOrganizationBroader_NameFi,
+                                    nameEn: p.DimProfileOnlyResearchActivity_DimOrganizationBroader_NameEn,
+                                    nameSv: p.DimProfileOnlyResearchActivity_DimOrganizationBroader_NameSv
+                                );
+
+                                nameTranslationProfileOnlyResearchActivityOrganization = _languageService.GetNameTranslation(
+                                    nameFi: p.DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_NameFi,
+                                    nameEn: p.DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_NameEn,
+                                    nameSv: p.DimProfileOnlyResearchActivity_DimOrganizationBroader_DimSector_NameSv
+                                );
+                            }
+                            else if (p.DimProfileOnlyResearchActivity_DimOrganization_Id > 0)
+                            {
+                                nameTranslationProfileOnlyResearchActivityOrganization = _languageService.GetNameTranslation(
+                                    nameFi: p.DimProfileOnlyResearchActivity_DimOrganization_NameFi,
+                                    nameEn: p.DimProfileOnlyResearchActivity_DimOrganization_NameEn,
+                                    nameSv: p.DimProfileOnlyResearchActivity_DimOrganization_NameSv
+                                );
+
+                                nameTranslationProfileOnlyResearchActivityOrganizationSector = _languageService.GetNameTranslation(
+                                    nameFi: p.DimProfileOnlyResearchActivity_DimOrganization_DimSector_NameFi,
+                                    nameEn: p.DimProfileOnlyResearchActivity_DimOrganization_DimSector_NameEn,
+                                    nameSv: p.DimProfileOnlyResearchActivity_DimOrganization_DimSector_NameSv
+                                );
+                            }
+                            else if (p.FactFieldValues_DimIdentifierlessDataId > -1 &&
+                                p.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                            {
+                                nameTranslationProfileOnlyResearchActivityOrganization = _languageService.GetNameTranslation(
+                                    nameFi: p.DimIdentifierlessData_ValueFi,
+                                    nameEn: p.DimIdentifierlessData_ValueEn,
+                                    nameSv: p.DimIdentifierlessData_ValueSv
+                                );
+                            }
+
+                            // Department name
+                            if (p.DimProfileOnlyResearchActivity_DimOrganizationBroader_Id > 0)
+                            {
+                                // When DimOrganizationBroader is available, it contains the organization name and DimOrganization contains department name.
+                                nameTranslationProfileOnlyResearchActivityDepartment = _languageService.GetNameTranslation(
+                                    nameFi: p.DimProfileOnlyResearchActivity_DimOrganization_NameFi,
+                                    nameEn: p.DimProfileOnlyResearchActivity_DimOrganization_NameEn,
+                                    nameSv: p.DimProfileOnlyResearchActivity_DimOrganization_NameSv
+                                );
+                            }
+                            else if (p.DimIdentifierlessData_Type != null && p.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                            {
+                                nameTranslationProfileOnlyResearchActivityDepartment = _languageService.GetNameTranslation(
+                                    nameFi: p.DimIdentifierlessData_ValueFi,
+                                    nameEn: p.DimIdentifierlessData_ValueEn,
+                                    nameSv: p.DimIdentifierlessData_ValueSv
+                                );
+                            }
+                            else if (p.DimIdentifierlessData_Child_Type != null && p.DimIdentifierlessData_Child_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                            {
+                                nameTranslationProfileOnlyResearchActivityDepartment = _languageService.GetNameTranslation(
+                                    nameFi: p.DimIdentifierlessData_Child_ValueFi,
+                                    nameEn: p.DimIdentifierlessData_Child_ValueEn,
+                                    nameSv: p.DimIdentifierlessData_Child_ValueSv
+                                );
+                            }
+
+                            NameTranslation nameTraslationProfileOnlyResearchActivityName = _languageService.GetNameTranslation(
+                                nameFi: p.DimProfileOnlyResearchActivity_NameFi,
+                                nameEn: p.DimProfileOnlyResearchActivity_NameEn,
+                                nameSv: p.DimProfileOnlyResearchActivity_NameSv
+                            );
+                            NameTranslation nameTraslationProfileOnlyResearchActivityDescription = _languageService.GetNameTranslation(
+                                nameFi: p.DimProfileOnlyResearchActivity_DescriptionFi,
+                                nameEn: p.DimProfileOnlyResearchActivity_DescriptionEn,
+                                nameSv: p.DimProfileOnlyResearchActivity_DescriptionSv
+                            );
+                            NameTranslation nameTraslationProfileOnlyResearchActivityRoleName = _languageService.GetNameTranslation(
+                                nameFi: p.DimProfileOnlyResearchActivity_Role_NameFi,
+                                nameEn: p.DimProfileOnlyResearchActivity_Role_NameEn,
+                                nameSv: p.DimProfileOnlyResearchActivity_Role_NameSv
+                            );
+
+                            ProfileEditorActivityAndReward activityAndRewardProfileOnly = new()
+                            {
+                                NameFi = nameTraslationProfileOnlyResearchActivityName.NameFi,
+                                NameEn = nameTraslationProfileOnlyResearchActivityName.NameEn,
+                                NameSv = nameTraslationProfileOnlyResearchActivityName.NameSv,
+                                DescriptionFi = nameTraslationProfileOnlyResearchActivityDescription.NameFi,
+                                DescriptionEn = nameTraslationProfileOnlyResearchActivityDescription.NameEn,
+                                DescriptionSv = nameTraslationProfileOnlyResearchActivityDescription.NameSv,
+                                StartDate = new ProfileEditorDate()
+                                {
+                                    Year = p.DimProfileOnlyResearchActivity_StartDate_Year,
+                                    Month = p.DimProfileOnlyResearchActivity_StartDate_Month,
+                                    Day = p.DimProfileOnlyResearchActivity_StartDate_Day
+                                },
+                                EndDate = new ProfileEditorDate()
+                                {
+                                    Year = p.DimProfileOnlyResearchActivity_EndDate_Year,
+                                    Month = p.DimProfileOnlyResearchActivity_EndDate_Month,
+                                    Day = p.DimProfileOnlyResearchActivity_EndDate_Day
+                                },
+                                itemMeta = new()
+                                {
+                                    Id = p.FactFieldValues_DimProfileOnlyResearchActivityId,
+                                    Type = Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY_PROFILE_ONLY,
+                                    Show = p.FactFieldValues_Show,
+                                    PrimaryValue = p.FactFieldValues_PrimaryValue
+                                },
+                                RoleCode = p.DimProfileOnlyResearchActivity_Role_CodeValue,
+                                RoleNameFi = nameTraslationProfileOnlyResearchActivityRoleName.NameFi,
+                                RoleNameEn = nameTraslationProfileOnlyResearchActivityRoleName.NameEn,
+                                RoleNameSv = nameTraslationProfileOnlyResearchActivityRoleName.NameSv,
+                                OrganizationNameFi = nameTranslationProfileOnlyResearchActivityOrganization.NameFi,
+                                OrganizationNameEn = nameTranslationProfileOnlyResearchActivityOrganization.NameEn,
+                                OrganizationNameSv = nameTranslationProfileOnlyResearchActivityOrganization.NameSv,
+                                DepartmentNameFi = nameTranslationProfileOnlyResearchActivityDepartment.NameFi,
+                                DepartmentNameEn = nameTranslationProfileOnlyResearchActivityDepartment.NameEn,
+                                DepartmentNameSv = nameTranslationProfileOnlyResearchActivityDepartment.NameSv,
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                            };
+
+                            // Add Elasticsearch person index related data.
+                            if (forElasticsearch && !String.IsNullOrWhiteSpace(p.DimProfileOnlyResearchActivity_DimOrganization_DimSector_SectorId))
+                            {
+                                activityAndRewardProfileOnly.sector = new List<ProfileEditorSector>
+                                {
+                                    new ProfileEditorSector()
+                                    {
+                                        sectorId = p.DimProfileOnlyResearchActivity_DimOrganization_DimSector_SectorId,
+                                        nameFiSector = nameTranslationProfileOnlyResearchActivityOrganizationSector.NameFi,
+                                        nameEnSector = nameTranslationProfileOnlyResearchActivityOrganizationSector.NameEn,
+                                        nameSvSector = nameTranslationProfileOnlyResearchActivityOrganizationSector.NameSv,
+                                        organization = new List<ProfileEditorSectorOrganization>() {
+                                            new ProfileEditorSectorOrganization()
+                                            {
+                                                organizationId = p.DimProfileOnlyResearchActivity_DimOrganization_OrganizationId,
+                                                OrganizationNameFi = nameTranslationProfileOnlyResearchActivityOrganization.NameFi,
+                                                OrganizationNameEn = nameTranslationProfileOnlyResearchActivityOrganization.NameEn,
+                                                OrganizationNameSv = nameTranslationProfileOnlyResearchActivityOrganization.NameSv
+                                            }
+                                        }
+                                    }
+                                };
+                            }
+                            profileDataResponse.activity.activitiesAndRewards.Add(activityAndRewardProfileOnly);
+                        }
+
                         break;
 
                     // Funding decision
@@ -1479,7 +1783,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimFundingDecisionId,
-                                    Type = Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION,
+                                    Type = Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1523,7 +1827,7 @@ namespace api.Services
                                 itemMeta = new ProfileEditorItemMeta()
                                 {
                                     Id = p.FactFieldValues_DimResearchDatasetId,
-                                    Type = Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET,
+                                    Type = Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET,
                                     Show = p.FactFieldValues_Show,
                                     PrimaryValue = p.FactFieldValues_PrimaryValue
                                 },
@@ -1579,6 +1883,7 @@ namespace api.Services
                 List<int> dimKeywordIds = new();
                 List<int> dimNameIds = new();
                 List<int> dimProfileOnlyPublicationIds = new();
+                List<int> dimProfileOnlyResearchActivityIds = new();
                 List<int> dimPidIds = new();
                 List<int> dimResearchActivityIds = new();
                 List<int> dimResearchCommunityIds = new();
@@ -1629,6 +1934,7 @@ namespace api.Services
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
                             if (factFieldValue.DimProfileOnlyPublicationId != -1) dimProfileOnlyPublicationIds.Add(factFieldValue.DimProfileOnlyPublicationId);
+                            if (factFieldValue.DimProfileOnlyResearchActivityId != -1) dimProfileOnlyResearchActivityIds.Add(factFieldValue.DimProfileOnlyResearchActivityId);
                             if (factFieldValue.DimPidId != -1) dimPidIds.Add(factFieldValue.DimPidId);
                             if (factFieldValue.DimPidIdOrcidPutCode != -1) dimPidIds.Add(factFieldValue.DimPidIdOrcidPutCode);
                             if (factFieldValue.DimResearchActivityId != -1) dimResearchActivityIds.Add(factFieldValue.DimResearchActivityId);
@@ -1718,6 +2024,14 @@ namespace api.Services
                     {
                         await connection.ExecuteAsync(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyPublications(dimProfileOnlyPublicationIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete profile only research activities
+                    if (dimProfileOnlyResearchActivityIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyResearchActivities(dimProfileOnlyResearchActivityIds),
                             transaction: transaction
                         );
                     }

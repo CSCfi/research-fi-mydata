@@ -6,7 +6,7 @@ namespace api.Services
     public interface ITtvSqlService
     {
         string ConvertListOfIntsToCommaSeparatedString(List<int> listOfInts);
-        string GetFactFieldValuesFKColumnNameFromFieldIdentifier(int fieldIdentifier);
+        string GetFactFieldValuesFKColumnNameFromItemMetaType(int itemMetaType);
         string GetSqlQuery_Delete_BrGrantedPermissions(int userprofileId);
         string GetSqlQuery_Delete_DimAffiliations(List<int> dimAffiliationIds);
         string GetSqlQuery_Delete_DimCompetences(List<int> dimCompetenceIds);
@@ -21,6 +21,7 @@ namespace api.Services
         string GetSqlQuery_Delete_DimKeyword(List<int> dimKeywordIds);
         string GetSqlQuery_Delete_DimNames(List<int> dimNameIds);
         string GetSqlQuery_Delete_DimProfileOnlyPublications(List<int> dimProfileOnlyPublicationIds);
+        string GetSqlQuery_Delete_DimProfileOnlyResearchActivities(List<int> dimProfileOnlyResearchActivityIds);
         string GetSqlQuery_Delete_DimPids(List<int> dimPidIds);
         string GetSqlQuery_Delete_DimResearchActivities(List<int> dimResearchActivityIds);
         string GetSqlQuery_Delete_DimResearchCommunities(List<int> dimResearchCommunityIds);

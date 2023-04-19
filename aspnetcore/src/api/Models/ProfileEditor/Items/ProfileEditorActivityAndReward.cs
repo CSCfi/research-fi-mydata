@@ -1,4 +1,6 @@
-﻿namespace api.Models.ProfileEditor.Items
+﻿using System.Collections.Generic;
+
+namespace api.Models.ProfileEditor.Items
 {
     public partial class ProfileEditorActivityAndReward : ProfileEditorItem
     {
@@ -21,6 +23,13 @@
             RoleNameFi = "";
             RoleNameEn = "";
             RoleNameSv = "";
+            OrganizationNameFi = "";
+            OrganizationNameSv = "";
+            OrganizationNameEn = "";
+            DepartmentNameFi = "";
+            DepartmentNameSv = "";
+            DepartmentNameEn = "";
+            sector = new List<ProfileEditorSector> { };
         }
 
         public string NameFi { get; set; }
@@ -40,5 +49,14 @@
         public string RoleNameFi { get; set; }
         public string RoleNameEn { get; set; }
         public string RoleNameSv { get; set; }
+        public string OrganizationNameFi { get; set; }
+        public string OrganizationNameSv { get; set; }
+        public string OrganizationNameEn { get; set; }
+        public string DepartmentNameFi { get; set; }
+        public string DepartmentNameSv { get; set; }
+        public string DepartmentNameEn { get; set; }
+
+        // Fields required in Elasticsearch person index. Elasticsearch model is mapped from ProfileEditor model.
+        public List<ProfileEditorSector> sector { get; set; }
     }
 }

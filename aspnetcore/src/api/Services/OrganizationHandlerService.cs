@@ -9,7 +9,16 @@ using Microsoft.EntityFrameworkCore;
 namespace api.Services
 {
     /*
-     * OrganizationHandlerService implements logic related to DimOrganization.
+     * OrganizationHandlerService implements logic related to organizations.
+     * They can be known entities, which are stored in table dim_organization,
+     * or they can be unknown, which are stored in table dim_identifierless_data.
+     * 
+     * For example, when importing data from ORCID, the organization is searched by
+     * disambiguation source and in a good case it will be mapped to a row in dim_organization.
+     * If match is not found, then organization info is added to dim_identifierless_data.
+     * 
+     * In table dim_identifierless_data organization name is stored to one row, and
+     * organization unit to another row. The "unit row" is a child to "name row".
      */
     public class OrganizationHandlerService : IOrganizationHandlerService
     {
@@ -24,6 +33,7 @@ namespace api.Services
 
         // For unit test
         public OrganizationHandlerService() { }
+        public OrganizationHandlerService(IUtilityService utilityService) { _utilityService = utilityService; }
 
         /*
          * Map ORCID field disambiguation-source to pid_type in DimPid
@@ -81,7 +91,7 @@ namespace api.Services
             DateTime currentDateTime = _utilityService.GetCurrentDateTime();
             return new DimIdentifierlessDatum()
             {
-                Type = "organization_name",
+                Type = Constants.IdentifierlessDataTypes.ORGANIZATION_NAME,
                 DimIdentifierlessDataId = -1,
                 ValueFi = nameFi,
                 ValueEn = nameEn,
@@ -102,7 +112,7 @@ namespace api.Services
             DateTime currentDateTime = _utilityService.GetCurrentDateTime();
             return new DimIdentifierlessDatum()
             {
-                Type = "organization_unit",
+                Type = Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT,
                 DimIdentifierlessData = parentDimIdentifierlessData,
                 ValueFi = nameFi,
                 ValueEn = nameEn,
@@ -115,26 +125,75 @@ namespace api.Services
             };
         }
 
-        /*
-         * Get affiliation department name from FactFieldValue related DimIdentifierlessData.
-         */
 
-        // TODO: Remove this version?
-        public string GetAffiliationDepartmentNameFromFactFieldValue(FactFieldValue factFieldValue)
+        public void DepartmentNameHandling(FactFieldValue ffv, string departmentNameFi, string departmentNameEn, string departmentNameSv)
         {
-            if (factFieldValue.DimIdentifierlessDataId > 0 && factFieldValue.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
-            {
-                return factFieldValue.DimIdentifierlessData.ValueEn;
-            }
-            else if (
-                factFieldValue.DimIdentifierlessDataId > 0 && factFieldValue.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME &&
-                factFieldValue.DimIdentifierlessData.InverseDimIdentifierlessData.Count > 0 && factFieldValue.DimIdentifierlessData.InverseDimIdentifierlessData.First().Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT
-            )
-            {
-                return factFieldValue.DimIdentifierlessData.InverseDimIdentifierlessData.First().ValueEn;
-            }
+            // ORCID employment contains 'department-name'
 
-            return "";
+            // Check if FactFieldValue has related DimIdentifierlessData.
+            //     If exists, check if type is 'organization_name' or 'organization_unit'
+            //         If type is 'organization_name', check if it has related DimIdentifierlessData of type 'organization_unit'. If exists, update value. If does not exist, create new.
+            //         If type is 'organization_unit, update value.
+            //     If does not exist, create new using type 'organization_unit'.
+            DateTime currentDateTime = _utilityService.GetCurrentDateTime();
+            if (ffv.DimIdentifierlessData != null)
+            {
+                // DimIdentifierlessData exists
+                // Check type.
+                if (ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                {
+                    // Type is 'organization_name'. Check if it has related DimIdentifierlessData of type 'organization_unit'
+                    if (
+                        ffv.DimIdentifierlessData.InverseDimIdentifierlessData.Count > 0 &&
+                        ffv.DimIdentifierlessData.InverseDimIdentifierlessData.First().Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT
+                    )
+                    {
+                        // Has related DimIdentifierlessData of type 'organization_unit'. Update.
+                        ffv.DimIdentifierlessData.InverseDimIdentifierlessData.First().ValueFi = departmentNameFi;
+                        ffv.DimIdentifierlessData.InverseDimIdentifierlessData.First().ValueEn = departmentNameEn;
+                        ffv.DimIdentifierlessData.InverseDimIdentifierlessData.First().ValueSv = departmentNameSv;
+                        ffv.DimIdentifierlessData.InverseDimIdentifierlessData.First().Modified = currentDateTime;
+                    }
+                    else
+                    {
+                        // Does not have related DimIdentifierlessData of type 'organization_unit'. Add new. Set as child of DimIdentifierlessData of type 'organization_name'
+                        DimIdentifierlessDatum dimIdentifierlessData_organizationUnit =
+                            CreateIdentifierlessData_OrganizationUnit(
+                                parentDimIdentifierlessData: ffv.DimIdentifierlessData,
+                                nameFi: departmentNameFi,
+                                nameEn: departmentNameEn,
+                                nameSv: departmentNameSv
+                            );
+                        _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_organizationUnit);
+                    }
+                }
+                else if (ffv.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                {
+                    // Type is 'organization_unit'. Update
+                    ffv.DimIdentifierlessData.ValueFi = departmentNameFi;
+                    ffv.DimIdentifierlessData.ValueEn = departmentNameEn;
+                    ffv.DimIdentifierlessData.ValueSv = departmentNameSv;
+                    ffv.DimIdentifierlessData.Modified = currentDateTime;
+                }
+            }
+            else
+            {
+                // DimIdentifierlessData does not exist. Create new if any of the language strings contains a value.
+                // Do not set parent DimIdentifierlessData, instead link to FactFieldValue
+                if (!(String.IsNullOrWhiteSpace(departmentNameFi) && String.IsNullOrWhiteSpace(departmentNameEn) && String.IsNullOrWhiteSpace(departmentNameSv)))
+                {
+                    DimIdentifierlessDatum dimIdentifierlessData_organizationUnit =
+                        CreateIdentifierlessData_OrganizationUnit(
+                            parentDimIdentifierlessData: null,
+                            nameFi: departmentNameFi,
+                            nameEn: departmentNameEn,
+                            nameSv: departmentNameSv
+                        );
+                    _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_organizationUnit);
+                    ffv.DimIdentifierlessData = dimIdentifierlessData_organizationUnit;
+                }
+            }
         }
+
     }
 }

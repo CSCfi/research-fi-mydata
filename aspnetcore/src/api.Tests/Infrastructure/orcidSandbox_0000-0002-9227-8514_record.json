@@ -503,8 +503,8 @@
                   "assertion-origin-name": null
                 },
                 "put-code": 29770,
-                "department-name": "Department",
-                "role-title": "Role",
+                "department-name": "Test Department",
+                "role-title": "Test Distinction",
                 "start-date": {
                   "year": {
                     "value": "2012"
@@ -518,14 +518,14 @@
                 },
                 "end-date": null,
                 "organization": {
-                  "name": "Andrew W. Mellon Foundation",
+                  "name": "Test organization 1",
                   "address": {
                     "city": "New York",
                     "region": null,
                     "country": "US"
                   },
                   "disambiguated-organization": {
-                    "disambiguated-organization-identifier": "http://dx.doi.org/10.13039/100000873",
+                    "disambiguated-organization-identifier": "http://dx.doi.org/10.13039/321321",
                     "disambiguation-source": "FUNDREF"
                   }
                 },
@@ -550,6 +550,80 @@
                 "display-index": "0",
                 "visibility": "public",
                 "path": "/0000-0002-9227-8514/distinction/29770"
+              }
+            },
+            {
+              "distinction-summary": {
+                "created-date": {
+                  "value": 1518040998212
+                },
+                "last-modified-date": {
+                  "value": 1518040998212
+                },
+                "source": {
+                  "source-orcid": null,
+                  "source-client-id": {
+                    "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
+                    "path": "APP-674MCQQR985VZZQ2",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-name": {
+                    "value": "Regional University"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 29771,
+                "department-name": "Test Department 2",
+                "role-title": "Test Distinction 2",
+                "start-date": {
+                  "year": {
+                    "value": "2014"
+                  },
+                  "month": {
+                    "value": "10"
+                  },
+                  "day": {
+                    "value": "21"
+                  }
+                },
+                "end-date": null,
+                "organization": {
+                  "name": "Test organization 2",
+                  "address": {
+                    "city": "New York",
+                    "region": null,
+                    "country": "US"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "53455",
+                    "disambiguation-source": "RINGGOLD"
+                  }
+                },
+                "url": {
+                  "value": "https://www.testdomain.test"
+                },
+                "external-ids": {
+                  "external-id": [
+                    {
+                      "external-id-type": "grant_number",
+                      "external-id-value": "ext-id-ABC",
+                      "external-id-normalized": {
+                        "value": "ext-id-abc",
+                        "transient": true
+                      },
+                      "external-id-normalized-error": null,
+                      "external-id-url": {
+                        "value": "http://tempuri.orgABC"
+                      },
+                      "external-id-relationship": "self"
+                    }
+                  ]
+                },
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0002-9227-8514/distinction/29771"
               }
             }
           ]
@@ -1125,12 +1199,12 @@
     },
     "memberships": {
       "last-modified-date": {
-        "value": 1518121061309
+        "value": 1681300469868
       },
       "affiliation-group": [
         {
           "last-modified-date": {
-            "value": 1518121061309
+            "value": 1681300469868
           },
           "external-ids": {
             "external-id": []
@@ -1139,59 +1213,153 @@
             {
               "membership-summary": {
                 "created-date": {
-                  "value": 1518121061309
+                  "value": 1681300469868
                 },
                 "last-modified-date": {
-                  "value": 1518121061309
+                  "value": 1681300469868
                 },
                 "source": {
-                  "source-orcid": null,
-                  "source-client-id": {
-                    "uri": "https://sandbox.orcid.org/client/APP-674MCQQR985VZZQ2",
-                    "path": "APP-674MCQQR985VZZQ2",
+                  "source-orcid": {
+                    "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                    "path": "0000-0001-6790-8767",
                     "host": "sandbox.orcid.org"
                   },
+                  "source-client-id": null,
                   "source-name": {
-                    "value": "Regional University"
+                    "value": "Timo J S"
                   },
                   "assertion-origin-orcid": null,
                   "assertion-origin-client-id": null,
                   "assertion-origin-name": null
                 },
-                "put-code": 29779,
-                "department-name": null,
-                "role-title": null,
+                "put-code": 54008,
+                "department-name": "Test Membership Department 2",
+                "role-title": "Test Membership Type 2",
                 "start-date": {
                   "year": {
-                    "value": "2017"
+                    "value": "2016"
                   },
-                  "month": null,
-                  "day": null
-                },
-                "end-date": null,
-                "organization": {
-                  "name": "Research Data Alliance",
-                  "address": {
-                    "city": "Dublin",
-                    "region": null,
-                    "country": "IE"
+                  "month": {
+                    "value": "01"
                   },
-                  "disambiguated-organization": {
-                    "disambiguated-organization-identifier": "grid.484715.b",
-                    "disambiguation-source": "GRID"
+                  "day": {
+                    "value": "13"
                   }
                 },
-                "url": null,
+                "end-date": {
+                  "year": {
+                    "value": "2019"
+                  },
+                  "month": {
+                    "value": "02"
+                  },
+                  "day": {
+                    "value": "20"
+                  }
+                },
+                "organization": {
+                  "name": "Joensuun lyseon lukio",
+                  "address": {
+                    "city": "Joensuu",
+                    "region": null,
+                    "country": "FI"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "101236",
+                    "disambiguation-source": "RINGGOLD"
+                  }
+                },
+                "url": {
+                  "value": "https://www.joensuu.fi/"
+                },
                 "external-ids": null,
-                "display-index": "0",
+                "display-index": "1",
                 "visibility": "public",
-                "path": "/0000-0002-9227-8514/membership/29779"
+                "path": "/0000-0001-6790-8767/membership/54008"
+              }
+            }
+          ]
+        },
+        {
+          "last-modified-date": {
+            "value": 1681300387843
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "summaries": [
+            {
+              "membership-summary": {
+                "created-date": {
+                  "value": 1681300387843
+                },
+                "last-modified-date": {
+                  "value": 1681300387843
+                },
+                "source": {
+                  "source-orcid": {
+                    "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                    "path": "0000-0001-6790-8767",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-client-id": null,
+                  "source-name": {
+                    "value": "Timo J S"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 54007,
+                "department-name": "Test Membership Department",
+                "role-title": "Test Membership Type",
+                "start-date": {
+                  "year": {
+                    "value": "1989"
+                  },
+                  "month": {
+                    "value": "01"
+                  },
+                  "day": {
+                    "value": "24"
+                  }
+                },
+                "end-date": {
+                  "year": {
+                    "value": "2010"
+                  },
+                  "month": {
+                    "value": "02"
+                  },
+                  "day": {
+                    "value": "26"
+                  }
+                },
+                "organization": {
+                  "name": "University of Oulu",
+                  "address": {
+                    "city": "Oulu",
+                    "region": null,
+                    "country": "FI"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "https://ror.org/03yj89h83",
+                    "disambiguation-source": "ROR"
+                  }
+                },
+                "url": {
+                  "value": "https://www.oulu.fi/en"
+                },
+                "external-ids": null,
+                "display-index": "1",
+                "visibility": "public",
+                "path": "/0000-0001-6790-8767/membership/54007"
               }
             }
           ]
         }
       ],
-      "path": "/0000-0002-9227-8514/memberships"
+      "path": "/0000-0001-6790-8767/memberships"
     },
     "peer-reviews": {
       "last-modified-date": {
@@ -1282,7 +1450,7 @@
                       "value": "02"
                     },
                     "day": {
-                      "value": "02"
+                      "value": "17"
                     }
                   },
                   "review-group-id": "issn:12345678",
@@ -2018,7 +2186,7 @@
                 },
                 "put-code": 29769,
                 "department-name": "Dept Name",
-                "role-title": "Title",
+                "role-title": "Test Title",
                 "start-date": {
                   "year": {
                     "value": "2017"
@@ -2027,7 +2195,7 @@
                     "value": "02"
                   },
                   "day": {
-                    "value": "02"
+                    "value": "22"
                   }
                 },
                 "end-date": {
@@ -2035,10 +2203,10 @@
                     "value": "2018"
                   },
                   "month": {
-                    "value": "02"
+                    "value": "03"
                   },
                   "day": {
-                    "value": "02"
+                    "value": "23"
                   }
                 },
                 "organization": {
@@ -2207,9 +2375,168 @@
       "path": "/0000-0002-9227-8514/research-resources"
     },
     "services": {
-      "last-modified-date": null,
-      "affiliation-group": [],
-      "path": "/0000-0002-9227-8514/services"
+      "last-modified-date": {
+        "value": 1681300596558
+      },
+      "affiliation-group": [
+        {
+          "last-modified-date": {
+            "value": 1681300535638
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "summaries": [
+            {
+              "service-summary": {
+                "created-date": {
+                  "value": 1681300535638
+                },
+                "last-modified-date": {
+                  "value": 1681300535638
+                },
+                "source": {
+                  "source-orcid": {
+                    "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                    "path": "0000-0001-6790-8767",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-client-id": null,
+                  "source-name": {
+                    "value": "Timo J S"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 54009,
+                "department-name": "Test Service Department",
+                "role-title": "Test Service Role",
+                "start-date": {
+                  "year": {
+                    "value": "2015"
+                  },
+                  "month": {
+                    "value": "02"
+                  },
+                  "day": {
+                    "value": "27"
+                  }
+                },
+                "end-date": {
+                  "year": {
+                    "value": "2018"
+                  },
+                  "month": {
+                    "value": "03"
+                  },
+                  "day": {
+                    "value": "14"
+                  }
+                },
+                "organization": {
+                  "name": "Lahden kaupunki",
+                  "address": {
+                    "city": "Lahti",
+                    "region": null,
+                    "country": "FI"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "86631",
+                    "disambiguation-source": "RINGGOLD"
+                  }
+                },
+                "url": {
+                  "value": "https://www.google.fi"
+                },
+                "external-ids": null,
+                "display-index": "1",
+                "visibility": "public",
+                "path": "/0000-0001-6790-8767/service/54009"
+              }
+            }
+          ]
+        },
+        {
+          "last-modified-date": {
+            "value": 1681300596558
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "summaries": [
+            {
+              "service-summary": {
+                "created-date": {
+                  "value": 1681300596558
+                },
+                "last-modified-date": {
+                  "value": 1681300596558
+                },
+                "source": {
+                  "source-orcid": {
+                    "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                    "path": "0000-0001-6790-8767",
+                    "host": "sandbox.orcid.org"
+                  },
+                  "source-client-id": null,
+                  "source-name": {
+                    "value": "Timo J S"
+                  },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 54010,
+                "department-name": "Test Service Department 2",
+                "role-title": "Test Service Role 2",
+                "start-date": {
+                  "year": {
+                    "value": "2011"
+                  },
+                  "month": {
+                    "value": "01"
+                  },
+                  "day": {
+                    "value": "15"
+                  }
+                },
+                "end-date": {
+                  "year": {
+                    "value": "2016"
+                  },
+                  "month": {
+                    "value": "02"
+                  },
+                  "day": {
+                    "value": "17"
+                  }
+                },
+                "organization": {
+                  "name": "Rovaniemen kaupunki",
+                  "address": {
+                    "city": "Rovaniemi",
+                    "region": "Lappi",
+                    "country": "FI"
+                  },
+                  "disambiguated-organization": {
+                    "disambiguated-organization-identifier": "86672",
+                    "disambiguation-source": "RINGGOLD"
+                  }
+                },
+                "url": {
+                  "value": "https://www.rovaniemi.fi"
+                },
+                "external-ids": null,
+                "display-index": "1",
+                "visibility": "public",
+                "path": "/0000-0001-6790-8767/service/54010"
+              }
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0001-6790-8767/services"
     },
     "works": {
       "last-modified-date": {

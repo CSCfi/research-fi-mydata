@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using api.Models.Common;
 using api.Models.Orcid;
 
 namespace api.Services
@@ -523,6 +524,297 @@ namespace api.Services
                 }
             }
             return publications;
+        }
+
+        /*
+         * Distinctions, invited positions, peer reviews, memberships, qualifications and services.
+         * Map to profile only research activity in TTV database.
+         */
+        public List<OrcidResearchActivity> GetProfileOnlyResearchActivityItems(String json)
+        {
+            List<OrcidResearchActivity> profileOnlyResearchActivityItems = new() { };
+           
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {       
+                // Distinctions
+                JsonElement distinctionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("distinctions");
+                if (distinctionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_distinctions))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_distinctions.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("distinction-summary", out JsonElement distinctionSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (distinctionSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (distinctionSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : distinctionSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    profileOnlyResearchActivityItems.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.DISTINCTION,
+                                          organizationName: distinctionSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: distinctionSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: distinctionSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(distinctionSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(distinctionSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(distinctionSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Invited positions
+                JsonElement invitedPositionsElement = document.RootElement.GetProperty("activities-summary").GetProperty("invited-positions");
+                if (invitedPositionsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_invitedPositions))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_invitedPositions.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("invited-position-summary", out JsonElement invitedPositionsSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (invitedPositionsSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (invitedPositionsSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : invitedPositionsSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    profileOnlyResearchActivityItems.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.INVITED_POSITION,
+                                          organizationName: invitedPositionsSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: invitedPositionsSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: invitedPositionsSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(invitedPositionsSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Memberships
+                JsonElement membershipsElement = document.RootElement.GetProperty("activities-summary").GetProperty("memberships");
+                if (membershipsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_memberships))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_memberships.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("membership-summary", out JsonElement membershipSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (membershipSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (membershipSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : membershipSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    profileOnlyResearchActivityItems.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.MEMBERSHIP,
+                                          organizationName: membershipSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: membershipSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: membershipSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(membershipSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(membershipSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(membershipSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Peer reviews
+                JsonElement peerReviewsElement = document.RootElement.GetProperty("activities-summary").GetProperty("peer-reviews");
+                if (peerReviewsElement.TryGetProperty("group", out JsonElement groupsElement)) {
+                    foreach (JsonElement groupElement in groupsElement.EnumerateArray())
+                    {
+                        if (groupElement.TryGetProperty("peer-review-group", out JsonElement peerReviewGroupsElement))
+                        {
+                            foreach (JsonElement peerReviewGroupElement in peerReviewGroupsElement.EnumerateArray())
+                            {
+                                if (peerReviewGroupElement.TryGetProperty("peer-review-summary", out JsonElement peerReviewSummariesElement))
+                                {
+                                    foreach (JsonElement peerReviewSummaryElement in peerReviewSummariesElement.EnumerateArray())
+                                    {
+                                            string disambiguatedOrganizationIdentifier = "";
+                                            string disambiguationSource = "";
+                                            if (peerReviewSummaryElement.GetProperty("convening-organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                            {
+                                                if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                                {
+                                                    disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                                    disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                                }
+                                            }
+
+                                            string url = (peerReviewSummaryElement.GetProperty("review-url").ValueKind == JsonValueKind.Null) ?
+                                                "" : peerReviewSummaryElement.GetProperty("review-url").GetProperty("value").GetString();
+
+                                        profileOnlyResearchActivityItems.Add(
+                                              new OrcidResearchActivity(
+                                                  orcidActivityType: Constants.OrcidResearchActivityTypes.PEER_REVIEW,
+                                                  organizationName: peerReviewSummaryElement.GetProperty("convening-organization").GetProperty("name").GetString(),
+                                                  disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                                  disambiguationSource: disambiguationSource,
+                                                  departmentName: "",
+                                                  roleTitle: peerReviewSummaryElement.GetProperty("reviewer-role").GetString(),
+                                                  startDate: GetOrcidDate(peerReviewSummaryElement.GetProperty("completion-date")),
+                                                  endDate: new OrcidDate(), // TODO: Convert to nullable
+                                                  putCode: this.GetOrcidPutCode(peerReviewSummaryElement),
+                                                  url: url
+                                              )
+                                          );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Qualifications
+                JsonElement qualificationsElement = document.RootElement.GetProperty("activities-summary").GetProperty("qualifications");
+                if (qualificationsElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_qualifications))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_qualifications.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("qualification-summary", out JsonElement qualificationSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (qualificationSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (qualificationSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : qualificationSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    profileOnlyResearchActivityItems.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.QUALIFICATION,
+                                          organizationName: qualificationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: qualificationSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: qualificationSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(qualificationSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(qualificationSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(qualificationSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Services
+                JsonElement servicesElement = document.RootElement.GetProperty("activities-summary").GetProperty("services");
+                if (servicesElement.TryGetProperty("affiliation-group", out JsonElement affiliationGroupsElement_services))
+                {
+                    foreach (JsonElement affiliationGroupElement in affiliationGroupsElement_services.EnumerateArray())
+                    {
+                        if (affiliationGroupElement.TryGetProperty("summaries", out JsonElement summariesElement))
+                        {
+                            foreach (JsonElement summaryElement in summariesElement.EnumerateArray())
+                            {
+                                if (summaryElement.TryGetProperty("service-summary", out JsonElement serviceSummaryElement))
+                                {
+                                    string disambiguatedOrganizationIdentifier = "";
+                                    string disambiguationSource = "";
+                                    if (serviceSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                    {
+                                        if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                        {
+                                            disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                            disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                        }
+                                    }
+
+                                    string url = (serviceSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : serviceSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    profileOnlyResearchActivityItems.Add(
+                                      new OrcidResearchActivity(
+                                          orcidActivityType: Constants.OrcidResearchActivityTypes.SERVICE,
+                                          organizationName: serviceSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                          disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                          disambiguationSource: disambiguationSource,
+                                          departmentName: serviceSummaryElement.GetProperty("department-name").GetString(),
+                                          roleTitle: serviceSummaryElement.GetProperty("role-title").GetString(),
+                                          startDate: GetOrcidDate(serviceSummaryElement.GetProperty("start-date")),
+                                          endDate: GetOrcidDate(serviceSummaryElement.GetProperty("end-date")),
+                                          putCode: this.GetOrcidPutCode(serviceSummaryElement),
+                                          url: url
+                                      )
+                                  );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return profileOnlyResearchActivityItems;
         }
     }
 }

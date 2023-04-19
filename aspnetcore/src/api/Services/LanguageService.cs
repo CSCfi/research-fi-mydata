@@ -14,6 +14,7 @@ namespace api.Services
         /*
          * Fill empty name properties.
          * Logic: If only one language field contains value, copy it to all other fields.
+         * Order: 1. FI, 2. SV, 3. EN
          */
 
         public NameTranslation GetNameTranslation(string nameFi, string nameEn, string nameSv)
@@ -55,19 +56,19 @@ namespace api.Services
                 nameEn = nameSv;
             }
 
-            // FI and EN contain values => copy to FI to SV
+            // FI and EN contain values => copy FI to SV
             if (nameFi != "" && nameEn != "" && nameSv == "")
             {
                 nameSv = nameFi;
             }
 
-            // FI and SV contain values => copy to FI to EN
+            // FI and SV contain values => copy FI to EN
             if (nameFi != "" && nameSv != "" && nameEn == "")
             {
                 nameEn = nameFi;
             }
 
-            // EN and SV contain values => copy to SV to FI
+            // EN and SV contain values => copy SV to FI
             if (nameFi == "" && nameSv != "" && nameEn != "")
             {
                 nameFi = nameSv;
