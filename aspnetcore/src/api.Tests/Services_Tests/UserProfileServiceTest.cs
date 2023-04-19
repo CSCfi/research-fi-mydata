@@ -116,6 +116,8 @@ namespace api.Tests
             Assert.Equal<int>(-1, actualFfv.DimEmailAddrressId);
             Assert.Equal<int>(-1, actualFfv.DimResearcherDescriptionId);
             Assert.Equal<int>(-1, actualFfv.DimIdentifierlessDataId);
+            Assert.Equal<int>(-1, actualFfv.DimProfileOnlyDatasetId);
+            Assert.Equal<int>(-1, actualFfv.DimProfileOnlyFundingDecisionId);
             Assert.Equal<int>(-1, actualFfv.DimProfileOnlyPublicationId);
             Assert.Equal<int>(-1, actualFfv.DimProfileOnlyResearchActivityId);
             Assert.Equal<int>(-1, actualFfv.DimKeywordId);
@@ -224,6 +226,8 @@ namespace api.Tests
             Assert.Equal<int>(-1, actualDimPid.DimResearchDataCatalogId);
             Assert.Equal<int>(-1, actualDimPid.DimResearchActivityId);
             Assert.Equal<int>(-1, actualDimPid.DimEventId);
+            Assert.Equal(-1, actualDimPid.DimProfileOnlyDatasetId);
+            Assert.Equal(-1, actualDimPid.DimProfileOnlyFundingDecisionId);
             Assert.Equal<int>(-1, actualDimPid.DimProfileOnlyPublicationId);
             Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimPid.SourceId);
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimPid.SourceDescription);

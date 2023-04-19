@@ -37,6 +37,8 @@ namespace api.Models.Ttv
         public int DimReferencedataFieldOfScienceId { get; set; }
         public int DimProfileOnlyResearchActivityId { get; set; }
         public int DimReferencedataActorRoleId { get; set; }
+        public int DimProfileOnlyDatasetId { get; set; }
+        public int DimProfileOnlyFundingDecisionId { get; set; }
 
         public virtual DimAffiliation DimAffiliation { get; set; }
         public virtual DimCompetence DimCompetence { get; set; }
@@ -50,6 +52,8 @@ namespace api.Models.Ttv
         public virtual DimName DimName { get; set; }
         public virtual DimPid DimPid { get; set; }
         public virtual DimPid DimPidIdOrcidPutCodeNavigation { get; set; }
+        public virtual DimProfileOnlyDataset DimProfileOnlyDataset { get; set; }
+        public virtual DimProfileOnlyFundingDecision DimProfileOnlyFundingDecision { get; set; }
         public virtual DimProfileOnlyPublication DimProfileOnlyPublication { get; set; }
         public virtual DimProfileOnlyResearchActivity DimProfileOnlyResearchActivity { get; set; }
         public virtual DimPublication DimPublication { get; set; }

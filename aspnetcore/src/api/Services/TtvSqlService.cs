@@ -57,8 +57,14 @@ namespace api.Services
                 case Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION:
                     fk_column_name = "dim_funding_decision_id";
                     break;
+                case Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION_PROFILE_ONLY:
+                    fk_column_name = "dim_profile_only_funding_decision_id";
+                    break;
                 case Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET:
                     fk_column_name = "dim_research_dataset_id";
+                    break;
+                case Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET_PROFILE_ONLY:
+                    fk_column_name = "dim_profile_only_dataset_id";
                     break;
                 case Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY:
                     fk_column_name = "dim_research_activity_id";

@@ -131,6 +131,24 @@ namespace api.Tests
             );
         }
 
+        [Fact(DisplayName = "Get FactFieldValues FK column name - dim_profile_only_dataset_id")]
+        public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_profile_only_dataset_id()
+        {
+            TtvSqlService ttvSqlService = new();
+            Assert.Equal(
+                "dim_profile_only_dataset_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET_PROFILE_ONLY)
+            );
+        }
+
+        [Fact(DisplayName = "Get FactFieldValues FK column name - dim_profile_only_funding_decision_id")]
+        public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_profile_only_funding_decision_id()
+        {
+            TtvSqlService ttvSqlService = new();
+            Assert.Equal(
+                "dim_profile_only_funding_decision_id", ttvSqlService.GetFactFieldValuesFKColumnNameFromItemMetaType(Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION_PROFILE_ONLY)
+            );
+        }
+
         [Fact(DisplayName = "Get FactFieldValues FK column name - dim_profile_only_publication_id")]
         public void getFactFieldValuesFKColumnNameFromFieldIdentifier_dim_profile_only_publication_id()
         {
