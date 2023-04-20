@@ -12,7 +12,7 @@ namespace api.Models.ProfileEditor.Items
             DescriptionFi = "";
             DescriptionEn = "";
             DescriptionSv = "";
-            InternationalCollaboration = false;
+            InternationalCollaboration = null;
             StartDate = new ProfileEditorDate();
             EndDate = new ProfileEditorDate();
             ActivityTypeCode = "";
@@ -38,7 +38,7 @@ namespace api.Models.ProfileEditor.Items
         public string DescriptionFi { get; set; }
         public string DescriptionEn { get; set; }
         public string DescriptionSv { get; set; }
-        public bool InternationalCollaboration { get; set; }
+        public bool? InternationalCollaboration { get; set; }
         public ProfileEditorDate StartDate { get; set; }
         public ProfileEditorDate EndDate { get; set; }
         public string ActivityTypeCode { get; set; }
