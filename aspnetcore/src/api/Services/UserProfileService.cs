@@ -1664,6 +1664,7 @@ namespace api.Services
                                 DescriptionFi = nameTraslationProfileOnlyResearchActivityDescription.NameFi,
                                 DescriptionEn = nameTraslationProfileOnlyResearchActivityDescription.NameEn,
                                 DescriptionSv = nameTraslationProfileOnlyResearchActivityDescription.NameSv,
+                                InternationalCollaboration = null, // not available in DimProfileOnlyResearchActivity
                                 StartDate = new ProfileEditorDate()
                                 {
                                     Year = p.DimProfileOnlyResearchActivity_StartDate_Year,
