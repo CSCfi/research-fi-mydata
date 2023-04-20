@@ -30,12 +30,16 @@ namespace api.Models.Ttv
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }
+        public int? DimProfileOnlyDatasetId { get; set; }
+        public int? DimProfileOnlyFundingDecisionId { get; set; }
 
         public virtual DimEvent DimEvent { get; set; }
         public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimInfrastructure DimInfrastructure { get; set; }
         public virtual DimKnownPerson DimKnownPerson { get; set; }
         public virtual DimOrganization DimOrganization { get; set; }
+        public virtual DimProfileOnlyDataset DimProfileOnlyDataset { get; set; }
+        public virtual DimProfileOnlyFundingDecision DimProfileOnlyFundingDecision { get; set; }
         public virtual DimProfileOnlyPublication DimProfileOnlyPublication { get; set; }
         public virtual DimPublication DimPublication { get; set; }
         public virtual DimPublicationChannel DimPublicationChannel { get; set; }
