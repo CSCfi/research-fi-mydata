@@ -867,7 +867,6 @@ namespace api.Services
                 {
                     /*
                      * Affiliation does not yet exist in profile. Create new.
-                     * TODO: AffiliationType handling
                      */
                     DimAffiliation dimAffiliation_new = new()
                     {
@@ -875,7 +874,9 @@ namespace api.Services
                         StartDateNavigation = employmentStartDate,
                         EndDateNavigation = employmentEndDate,
                         PositionNameEn = employment.RoleTitle,
-                        AffiliationType = -1,
+                        AffiliationTypeFi = "",
+                        AffiliationTypeEn = "",
+                        AffiliationTypeSv = "",
                         SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimKnownPersonId = dimUserProfile.DimKnownPersonId,
