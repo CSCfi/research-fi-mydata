@@ -1268,6 +1268,13 @@ namespace api.Services
                             nameSv: p.DimAffiliation_PositionNameSv
                         );
 
+                        // Name translation for affiliation type
+                        NameTranslation nameTranslationAffiliationType = _languageService.GetNameTranslation(
+                            nameFi: p.DimAffiliation_AffiliationTypeFi,
+                            nameEn: p.DimAffiliation_AffiliationTypeEn,
+                            nameSv: p.DimAffiliation_AffiliationTypeSv
+                        );
+
                         ProfileEditorAffiliation affiliation = new()
                         {
                             OrganizationNameFi = nameTranslationAffiliationOrganization.NameFi,
@@ -1279,7 +1286,9 @@ namespace api.Services
                             PositionNameFi = nameTranslationPositionName.NameFi,
                             PositionNameEn = nameTranslationPositionName.NameEn,
                             PositionNameSv = nameTranslationPositionName.NameSv,
-                            Type = p.DimAffiliation_DimReferenceData_NameFi,
+                            AffiliationTypeFi = nameTranslationAffiliationType.NameFi,
+                            AffiliationTypeEn = nameTranslationAffiliationType.NameEn,
+                            AffiliationTypeSv = nameTranslationAffiliationType.NameSv,
                             StartDate = new ProfileEditorDate()
                             {
                                 Year = p.DimAffiliation_StartDate_Year,

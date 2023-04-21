@@ -174,13 +174,15 @@ namespace api.Services
                     dim_affiliation.position_name_fi AS 'DimAffiliation_PositionNameFi',
                     dim_affiliation.position_name_en AS 'DimAffiliation_PositionNameEn',
                     dim_affiliation.position_name_sv AS 'DimAffiliation_PositionNameSv',
+                    dim_affiliation.affiliation_type_fi AS 'DimAffiliation_AffiliationTypeFi',
+                    dim_affiliation.affiliation_type_en AS 'DimAffiliation_AffiliationTypeEn',
+                    dim_affiliation.affiliation_type_sv AS 'DimAffiliation_AffiliationTypeSv',
                     affiliation_start_date.year AS 'DimAffiliation_StartDate_Year',
                     affiliation_start_date.month AS 'DimAffiliation_StartDate_Month',
                     affiliation_start_date.day AS 'DimAffiliation_StartDate_Day',
                     affiliation_end_date.year AS 'DimAffiliation_EndDate_Year',
                     affiliation_end_date.month AS 'DimAffiliation_EndDate_Month',
                     affiliation_end_date.day AS 'DimAffiliation_EndDate_Day',
-                    affiliation_type.name_fi AS 'DimAffiliation_DimReferenceData_NameFi',
                     did.type AS 'DimIdentifierlessData_Type',
                     did.value_fi AS 'DimIdentifierlessData_ValueFi',
                     did.value_en AS 'DimIdentifierlessData_ValueEn',
@@ -340,7 +342,7 @@ namespace api.Services
                 LEFT JOIN dim_sector AS affiliation_organization_broader_sector ON affiliation_organization_broader.dim_sectorid=affiliation_organization_broader_sector.id
                 LEFT JOIN dim_date AS affiliation_start_date ON dim_affiliation.start_date=affiliation_start_date.id AND affiliation_start_date.id!=-1
                 LEFT JOIN dim_date AS affiliation_end_date ON dim_affiliation.end_date=affiliation_end_date.id AND affiliation_end_date.id!=-1
-                JOIN dim_referencedata AS affiliation_type ON dim_affiliation.affiliation_type=affiliation_type.id
+               
                 JOIN dim_identifierless_data AS did ON ffv.dim_identifierless_data_id=did.id
                 LEFT JOIN dim_identifierless_data AS did_child ON did_child.dim_identifierless_data_id=did.id AND did_child.dim_identifierless_data_id!=-1
 

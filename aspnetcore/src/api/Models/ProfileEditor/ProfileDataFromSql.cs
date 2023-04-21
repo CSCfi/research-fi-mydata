@@ -94,6 +94,9 @@ namespace api.Models.ProfileEditor
         public string DimAffiliation_PositionNameFi { get; set; }
         public string DimAffiliation_PositionNameEn { get; set; }
         public string DimAffiliation_PositionNameSv { get; set; }
+        public string DimAffiliation_AffiliationTypeFi { get; set; }
+        public string DimAffiliation_AffiliationTypeEn { get; set; }
+        public string DimAffiliation_AffiliationTypeSv { get; set; }
         public int DimAffiliation_StartDate_Year { get; set; }
         public int DimAffiliation_StartDate_Month { get; set; }
         public int DimAffiliation_StartDate_Day { get; set; }

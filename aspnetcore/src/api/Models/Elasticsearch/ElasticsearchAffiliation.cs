@@ -17,7 +17,9 @@ namespace api.Models.Elasticsearch
             PositionNameFi = "";
             PositionNameSv = "";
             PositionNameEn = "";
-            Type = "";
+            AffiliationTypeFi = "";
+            AffiliationTypeEn = "";
+            AffiliationTypeSv = "";
             StartDate = new ElasticsearchDate();
             EndDate = new ElasticsearchDate();
             sector = new List<ElasticsearchSector> {};
@@ -32,7 +34,9 @@ namespace api.Models.Elasticsearch
         public string PositionNameFi { get; set; }
         public string PositionNameSv { get; set; }
         public string PositionNameEn { get; set; }
-        public string Type { get; set; } 
+        public string AffiliationTypeFi { get; set; }
+        public string AffiliationTypeEn { get; set; }
+        public string AffiliationTypeSv { get; set; }
         public ElasticsearchDate StartDate { get; set; }
         public ElasticsearchDate EndDate { get; set; }
 

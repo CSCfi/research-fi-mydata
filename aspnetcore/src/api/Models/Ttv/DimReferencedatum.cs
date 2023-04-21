@@ -8,8 +8,7 @@ namespace api.Models.Ttv
         public DimReferencedatum()
         {
             BrGrantedPermissions = new HashSet<BrGrantedPermission>();
-            DimAffiliationAffiliationTypeNavigations = new HashSet<DimAffiliation>();
-            DimAffiliationPositionCodeNavigations = new HashSet<DimAffiliation>();
+            DimAffiliations = new HashSet<DimAffiliation>();
             DimEducations = new HashSet<DimEducation>();
             DimProfileOnlyPublicationArticleTypeCodeNavigations = new HashSet<DimProfileOnlyPublication>();
             DimProfileOnlyPublicationLanguageCodeNavigations = new HashSet<DimProfileOnlyPublication>();
@@ -50,8 +49,7 @@ namespace api.Models.Ttv
 
         public virtual DimReferencedatum DimReferencedata { get; set; }
         public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; }
-        public virtual ICollection<DimAffiliation> DimAffiliationAffiliationTypeNavigations { get; set; }
-        public virtual ICollection<DimAffiliation> DimAffiliationPositionCodeNavigations { get; set; }
+        public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
         public virtual ICollection<DimEducation> DimEducations { get; set; }
         public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationArticleTypeCodeNavigations { get; set; }
         public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationLanguageCodeNavigations { get; set; }
