@@ -221,7 +221,9 @@ namespace api.Services
                 IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
 
                 DimUserProfile dimUserProfile = await localTtvContext.DimUserProfiles.Where(dup => dup.Id == dimUserProfileId)
-                    .Include(dup => dup.DimKnownPerson).AsNoTracking()
+                    .Include(dup => dup.DimKnownPerson)
+                        .ThenInclude(dkp => dkp.DimNames)
+                            .ThenInclude(dn => dn.DimRegisteredDataSource).AsNoTracking()
                     .Include(dup => dup.DimFieldDisplaySettings).AsNoTracking().FirstOrDefaultAsync();
 
                 if (dimUserProfile == null)
