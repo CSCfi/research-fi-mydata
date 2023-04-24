@@ -19,6 +19,7 @@ using api.Models.Api;
 using Serilog;
 using System.Text.Json;
 using static api.Models.Common.Constants;
+using System.Security.Cryptography;
 
 namespace api.Services
 {
@@ -1005,13 +1006,13 @@ namespace api.Services
                             {
                                 FirstNames = p.DimName_FirstNames,
                                 LastName = p.DimName_LastName,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimNameId,
-                                    Type = Constants.ItemMetaTypes.PERSON_NAME,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                
+                                    id: p.FactFieldValues_DimNameId,
+                                    type: Constants.ItemMetaTypes.PERSON_NAME,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1023,13 +1024,12 @@ namespace api.Services
                             new ProfileEditorName()
                             {
                                 FullName = p.DimName_FullName,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimNameId,
-                                    Type = Constants.ItemMetaTypes.PERSON_OTHER_NAMES,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimNameId,
+                                    type: Constants.ItemMetaTypes.PERSON_OTHER_NAMES,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1042,13 +1042,12 @@ namespace api.Services
                             {
                                 Url = p.DimWebLink_Url,
                                 LinkLabel = p.DimWebLink_LinkLabel,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimWebLinkId,
-                                    Type = Constants.ItemMetaTypes.PERSON_WEB_LINK,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimWebLinkId,
+                                    type: Constants.ItemMetaTypes.PERSON_WEB_LINK,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1068,13 +1067,12 @@ namespace api.Services
                                 ResearchDescriptionFi = nameTranslationResearcherDescription.NameFi,
                                 ResearchDescriptionEn = nameTranslationResearcherDescription.NameEn,
                                 ResearchDescriptionSv = nameTranslationResearcherDescription.NameSv,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimResearcherDescriptionId,
-                                    Type = Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimResearcherDescriptionId,
+                                    type: Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1086,13 +1084,12 @@ namespace api.Services
                             new ProfileEditorEmail()
                             {
                                 Value = p.DimEmailAddrress_Email,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimEmailAddrressId,
-                                    Type = Constants.ItemMetaTypes.PERSON_EMAIL_ADDRESS,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimEmailAddrressId,
+                                    type: Constants.ItemMetaTypes.PERSON_EMAIL_ADDRESS,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1104,13 +1101,12 @@ namespace api.Services
                             new ProfileEditorTelephoneNumber()
                             {
                                 Value = p.DimTelephoneNumber_TelephoneNumber,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimTelephoneNumberId,
-                                    Type = Constants.ItemMetaTypes.PERSON_TELEPHONE_NUMBER,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimTelephoneNumberId,
+                                    type: Constants.ItemMetaTypes.PERSON_TELEPHONE_NUMBER,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1132,13 +1128,12 @@ namespace api.Services
                                 NameFi = nameTranslationFieldOfScience.NameFi,
                                 NameEn = nameTranslationFieldOfScience.NameEn,
                                 NameSv = nameTranslationFieldOfScience.NameSv,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimFieldOfScienceId,
-                                    Type = Constants.ItemMetaTypes.PERSON_FIELD_OF_SCIENCE,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimFieldOfScienceId,
+                                    type: Constants.ItemMetaTypes.PERSON_FIELD_OF_SCIENCE,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1151,13 +1146,12 @@ namespace api.Services
                             new ProfileEditorKeyword()
                             {
                                 Value = p.DimKeyword_Keyword,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimKeywordId,
-                                    Type = Constants.ItemMetaTypes.PERSON_KEYWORD,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimKeywordId,
+                                    type: Constants.ItemMetaTypes.PERSON_KEYWORD,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1170,13 +1164,12 @@ namespace api.Services
                             {
                                 PidContent = p.DimPid_PidContent,
                                 PidType = p.DimPid_PidType,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimPidId,
-                                    Type = Constants.ItemMetaTypes.PERSON_EXTERNAL_IDENTIFIER,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimPidId,
+                                    type: Constants.ItemMetaTypes.PERSON_EXTERNAL_IDENTIFIER,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1301,13 +1294,12 @@ namespace api.Services
                                 Month = p.DimAffiliation_EndDate_Month,
                                 Day = p.DimAffiliation_EndDate_Day
                             },
-                            itemMeta = new ProfileEditorItemMeta()
-                            {
-                                Id = p.FactFieldValues_DimAffiliationId,
-                                Type = Constants.ItemMetaTypes.ACTIVITY_AFFILIATION,
-                                Show = p.FactFieldValues_Show,
-                                PrimaryValue = p.FactFieldValues_PrimaryValue
-                            },
+                            itemMeta = new ProfileEditorItemMeta(
+                                id: p.FactFieldValues_DimAffiliationId,
+                                type: Constants.ItemMetaTypes.ACTIVITY_AFFILIATION,
+                                show: p.FactFieldValues_Show,
+                                primaryValue: p.FactFieldValues_PrimaryValue
+                            ),
                             DataSources = new List<ProfileEditorSource> { profileEditorSource }
                         };
 
@@ -1365,13 +1357,12 @@ namespace api.Services
                                     Month = p.DimEducation_EndDate_Month,
                                     Day = p.DimEducation_EndDate_Day
                                 },
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimEducationId,
-                                    Type = Constants.ItemMetaTypes.ACTIVITY_EDUCATION,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimEducationId,
+                                    type: Constants.ItemMetaTypes.ACTIVITY_EDUCATION,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1524,13 +1515,12 @@ namespace api.Services
                                     Month = p.DimResearchActivity_EndDate_Month,
                                     Day = p.DimResearchActivity_EndDate_Day
                                 },
-                                itemMeta = new()
-                                {
-                                    Id = p.FactFieldValues_DimResearchActivityId,
-                                    Type = Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimResearchActivityId,
+                                    type: Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 ActivityTypeCode = p.DimResearchActivity_ActivityType_CodeValue,
                                 ActivityTypeNameFi = nameTraslationResearchActivityTypeName.NameFi,
                                 ActivityTypeNameEn = nameTraslationResearchActivityTypeName.NameEn,
@@ -1690,13 +1680,12 @@ namespace api.Services
                                     Month = p.DimProfileOnlyResearchActivity_EndDate_Month,
                                     Day = p.DimProfileOnlyResearchActivity_EndDate_Day
                                 },
-                                itemMeta = new()
-                                {
-                                    Id = p.FactFieldValues_DimProfileOnlyResearchActivityId,
-                                    Type = Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY_PROFILE_ONLY,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimProfileOnlyResearchActivityId,
+                                    type: Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY_PROFILE_ONLY,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 RoleCode = p.DimProfileOnlyResearchActivity_Role_CodeValue,
                                 RoleNameFi = nameTraslationProfileOnlyResearchActivityRoleName.NameFi,
                                 RoleNameEn = nameTraslationProfileOnlyResearchActivityRoleName.NameEn,
@@ -1794,13 +1783,12 @@ namespace api.Services
                                 FundingStartYear = p.DimFundingDecision_StartDate_Year,
                                 FundingEndYear = p.DimFundingDecision_EndDate_Year,
                                 AmountInEur = p.DimFundingDecision_amount_in_EUR,
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimFundingDecisionId,
-                                    Type = Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimFundingDecisionId,
+                                    type: Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
@@ -1838,13 +1826,12 @@ namespace api.Services
                                     (await connection.QueryAsync<ProfileEditorPreferredIdentifier>(
                                         $"SELECT pid_type AS 'PidType', pid_content AS 'PidContent' FROM dim_pid WHERE dim_research_dataset_id={p.FactFieldValues_DimResearchDatasetId}"
                                     )).ToList(),
-                                itemMeta = new ProfileEditorItemMeta()
-                                {
-                                    Id = p.FactFieldValues_DimResearchDatasetId,
-                                    Type = Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET,
-                                    Show = p.FactFieldValues_Show,
-                                    PrimaryValue = p.FactFieldValues_PrimaryValue
-                                },
+                                itemMeta = new ProfileEditorItemMeta(
+                                    id: p.FactFieldValues_DimResearchDatasetId,
+                                    type: Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET,
+                                    show: p.FactFieldValues_Show,
+                                    primaryValue: p.FactFieldValues_PrimaryValue
+                                ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
