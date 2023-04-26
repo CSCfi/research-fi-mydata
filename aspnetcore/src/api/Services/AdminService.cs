@@ -229,14 +229,14 @@ namespace api.Services
                 if (dimUserProfile == null)
                 {
                     // If matching user profile is not found, log error and exit.
-                    _logger.LogInformation(
+                    _logger.LogError(
                         LogContent.MESSAGE_TEMPLATE,
                         logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: LogContent.ErrorMessage.USER_PROFILE_NOT_FOUND + $" (id={dimUserProfileId})"));
+                            message: $"{LogContent.ErrorMessage.USER_PROFILE_NOT_FOUND} (dim_user_profile.id={dimUserProfileId})"));
                 }
                 else
                 {

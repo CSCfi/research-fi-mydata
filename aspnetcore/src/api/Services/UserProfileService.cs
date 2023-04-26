@@ -465,12 +465,14 @@ namespace api.Services
          */
         public async Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile, LogUserIdentification logUserIdentification)
         {
-            _logger.LogError(
+            _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
                 logUserIdentification,
                 new LogApiInfo(
                     action: LogContent.Action.PROFILE_ADD_TTV_DATA,
-                    state: LogContent.ActionState.START));
+                    state: LogContent.ActionState.START,
+                    message: $"dim_user_profile.id={dimUserProfile.Id}"
+                    ));
 
 
             // Get FactFieldValues
@@ -532,7 +534,7 @@ namespace api.Services
                             action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: $"email: {ex.ToString()}"));
+                            message: $"dim_user_profile.id={dimUserProfile.Id}, email: {ex.ToString()}"));
                 }
 
                 // web link
@@ -561,7 +563,7 @@ namespace api.Services
                           action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                           state: LogContent.ActionState.FAILED,
                           error: true,
-                          message: $"web link: {ex.ToString()}"));
+                          message: $"dim_user_profile.id={dimUserProfile.Id}, web link: {ex.ToString()}"));
                 }
 
                 // telephone number
@@ -590,7 +592,7 @@ namespace api.Services
                             action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: $"telephone number: {ex.ToString()}"));
+                            message: $"dim_user_profile.id={dimUserProfile.Id}, telephone number: {ex.ToString()}"));
                 }
 
                 // researcher description
@@ -619,7 +621,7 @@ namespace api.Services
                             action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: $"researcher description: {ex.ToString()}"));
+                            message: $"dim_user_profile.id={dimUserProfile.Id}, researcher description: {ex.ToString()}"));
                 }
 
                 // affiliation
@@ -648,7 +650,7 @@ namespace api.Services
                             action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: $"affiliation: {ex.ToString()}"));
+                            message: $"dim_user_profile.id={dimUserProfile.Id}, affiliation: {ex.ToString()}"));
                 }
 
                 // education
@@ -677,7 +679,7 @@ namespace api.Services
                             action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: $"education: {ex.ToString()}"));
+                            message: $"dim_user_profile.id={dimUserProfile.Id}, education: {ex.ToString()}"));
                 }
 
 
@@ -776,7 +778,7 @@ namespace api.Services
                                 action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                                 state: LogContent.ActionState.FAILED,
                                 error: true,
-                                message: $"fact_contribution: {ex.ToString()}"));
+                                message: $"dim_user_profile.id={dimUserProfile.Id}, fact_contribution: {ex.ToString()}"));
                     }
 
                     // Funding decisions via br_participates_in_funding_group
@@ -804,7 +806,7 @@ namespace api.Services
                                 action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                                 state: LogContent.ActionState.FAILED,
                                 error: true,
-                                message: $"br_participates_in_funding_group: {ex.ToString()}"));
+                                message: $"dim_user_profile.id={dimUserProfile.Id}, br_participates_in_funding_group: {ex.ToString()}"));
                     }
                 }
 
@@ -812,12 +814,13 @@ namespace api.Services
                 {
                     await _ttvContext.SaveChangesAsync();
 
-                    _logger.LogError(
+                    _logger.LogInformation(
                         LogContent.MESSAGE_TEMPLATE,
                         logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.PROFILE_ADD_TTV_DATA,
-                            state: LogContent.ActionState.COMPLETE));
+                            state: LogContent.ActionState.COMPLETE,
+                            message: $"dim_user_profile.id={dimUserProfile.Id}"));
                 }
                 catch (Exception ex)
                 {
@@ -828,9 +831,8 @@ namespace api.Services
                                 action: LogContent.Action.PROFILE_ADD_TTV_DATA,
                                 state: LogContent.ActionState.FAILED,
                                 error: true,
-                                message: $"Add TTV data save changes: {ex.ToString()}"));
+                                message: $"Add TTV data save changes (dim_user_profile.id={dimUserProfile.Id}): {ex.ToString()}"));
                 }
-
             }
         }
 
