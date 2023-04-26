@@ -225,13 +225,12 @@ namespace api.Tests
             // Arrange
             TtvSqlService ttvSqlService = new();
             int userProfileId = 80;
-            ProfileEditorItemMeta profileEditorItemMeta = new()
-            {
-                Id = 321,
-                Type = Constants.ItemMetaTypes.PERSON_NAME,
-                PrimaryValue = false,
-                Show = true
-            };
+            ProfileEditorItemMeta profileEditorItemMeta = new(
+                id: 321,
+                type: Constants.ItemMetaTypes.PERSON_NAME,
+                primaryValue: false,
+                show: true
+            );
             string expectedSqlString = @"UPDATE fact_field_values
                                 SET
                                     show=1,
@@ -255,13 +254,12 @@ namespace api.Tests
             // Arrange
             TtvSqlService ttvSqlService = new();
             int userProfileId = 5678;
-            ProfileEditorItemMeta profileEditorItemMeta = new()
-            {
-                Id = 254,
-                Type = Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION,
-                PrimaryValue = true,
-                Show = false
-            };
+            ProfileEditorItemMeta profileEditorItemMeta = new(
+                id: 254,
+                type: Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION,
+                primaryValue: true,
+                show: false
+            );
             string expectedSqlString = @"UPDATE fact_field_values
                                 SET
                                     show=0,
