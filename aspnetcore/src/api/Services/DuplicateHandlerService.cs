@@ -111,13 +111,12 @@ namespace api.Services
                         JournalName = profileData.DimPublication_JournalName,
                         ConferenceName = profileData.DimPublication_ConferenceName,
                         ParentPublicationName = profileData.DimPublication_ParentPublicationName,
-                        itemMeta = new ProfileEditorItemMeta()
-                        {
-                            Id = profileData.FactFieldValues_DimPublicationId,
-                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                            Show = profileData.FactFieldValues_Show,
-                            PrimaryValue = profileData.FactFieldValues_PrimaryValue
-                        },
+                        itemMeta = new ProfileEditorItemMeta(
+                            id: profileData.FactFieldValues_DimPublicationId,
+                            type: Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                            show: profileData.FactFieldValues_Show,
+                            primaryValue: profileData.FactFieldValues_PrimaryValue
+                        ),
                         DataSources = new List<ProfileEditorSource> { dataSource }
                     }
                 );
@@ -137,13 +136,12 @@ namespace api.Services
                         JournalName = "",
                         ConferenceName = "",
                         ParentPublicationName = "",
-                        itemMeta = new ProfileEditorItemMeta()
-                        {
-                            Id = profileData.FactFieldValues_DimProfileOnlyPublicationId,
-                            Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY,
-                            Show = profileData.FactFieldValues_Show,
-                            PrimaryValue = profileData.FactFieldValues_PrimaryValue
-                        },
+                        itemMeta = new ProfileEditorItemMeta(
+                            id: profileData.FactFieldValues_DimProfileOnlyPublicationId,
+                            type: Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY,
+                            show: profileData.FactFieldValues_Show,
+                            primaryValue: profileData.FactFieldValues_PrimaryValue
+                        ),
                         DataSources = new List<ProfileEditorSource> { dataSource }
                     }
                 );

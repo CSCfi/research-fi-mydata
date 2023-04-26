@@ -2,6 +2,7 @@ using Xunit;
 using api.Services;
 using api.Models.Common;
 using api.Models.Ttv;
+using api.Models.ProfileEditor.Items;
 using System.Collections.Generic;
 using System;
 
@@ -336,6 +337,20 @@ namespace api.Tests
             bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
             // Assert
             Assert.True(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that property TemporaryUniqueId is correctly set in ProfileEditorItemMeta constructor")]
+        public void ProfileEditorItemMeta_01()
+        {
+            // Act
+            ProfileEditorItemMeta actualResult = new ProfileEditorItemMeta(
+                id: 123456789,
+                type: 9999,
+                show: false,
+                primaryValue: true
+            );
+            // Assert
+            Assert.Equal<ulong>(9999123456789, actualResult.TemporaryUniqueId);
         }
     }
 }
