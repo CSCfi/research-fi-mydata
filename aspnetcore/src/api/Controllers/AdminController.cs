@@ -330,9 +330,9 @@ namespace api.Controllers
                 return NotFound();
             }
 
-
             // Store ORCID ID for background process
             string orcidId = dimUserProfile.OrcidId;
+            logUserIdentification.Orcid = orcidId;
 
             // Check if the profile should be updated or deleted in Elasticsearch index
             bool isUserprofilePublished = await _userProfileService.IsUserprofilePublished(dimUserProfileId);
@@ -351,7 +351,8 @@ namespace api.Controllers
                             logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
-                                state: LogContent.ActionState.START));
+                                state: LogContent.ActionState.START,
+                                message: $"dim_user_profile.id={dimUserProfileId}"));
 
                         // Get Elasticsearch person entry from profile data.
                         Models.Elasticsearch.ElasticsearchPerson person =
@@ -367,7 +368,8 @@ namespace api.Controllers
                             logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
-                                state: LogContent.ActionState.COMPLETE));
+                                state: LogContent.ActionState.COMPLETE,
+                                message: $"dim_user_profile.id={dimUserProfileId}"));
                     });
                 }
             }
@@ -385,7 +387,8 @@ namespace api.Controllers
                             logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
-                                state: LogContent.ActionState.START));
+                                state: LogContent.ActionState.START,
+                                message: $"dim_user_profile.id={dimUserProfileId}"));
 
                         // Update Elasticsearch person index.
                         bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
@@ -396,7 +399,8 @@ namespace api.Controllers
                                 logUserIdentification,
                                 new LogApiInfo(
                                     action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
-                                    state: LogContent.ActionState.COMPLETE));
+                                    state: LogContent.ActionState.COMPLETE,
+                                    message: $"dim_user_profile.id={dimUserProfileId}"));
                         }
                         else
                         {
@@ -406,7 +410,8 @@ namespace api.Controllers
                                 new LogApiInfo(
                                     action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
                                     state: LogContent.ActionState.FAILED,
-                                    error: true));
+                                    error: true,
+                                    message: $"dim_user_profile.id={dimUserProfileId}"));
                         }
                     });
                 }
