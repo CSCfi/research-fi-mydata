@@ -16,7 +16,9 @@ namespace api.Models.ProfileEditor.Items
             PositionNameFi = "";
             PositionNameSv = "";
             PositionNameEn = "";
-            Type = "";
+            AffiliationTypeFi = "";
+            AffiliationTypeEn = "";
+            AffiliationTypeSv = "";
             StartDate = new ProfileEditorDate();
             EndDate = new ProfileEditorDate();
             sector = new List<ProfileEditorSector> { };
@@ -31,7 +33,9 @@ namespace api.Models.ProfileEditor.Items
         public string PositionNameFi { get; set; }
         public string PositionNameSv { get; set; }
         public string PositionNameEn { get; set; }
-        public string Type { get; set; } 
+        public string AffiliationTypeFi { get; set; }
+        public string AffiliationTypeEn { get; set; }
+        public string AffiliationTypeSv { get; set; }
         public ProfileEditorDate StartDate { get; set; }
         public ProfileEditorDate EndDate { get; set; }
 

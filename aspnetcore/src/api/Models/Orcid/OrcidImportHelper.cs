@@ -14,6 +14,7 @@ namespace api.Models.Orcid
             dimAffiliationIds = new();
             dimEducationIds = new();
             dimPublicationIds = new();
+            dimResearchActivityIds = new();
         }
 
         public List<int> dimNameIds { get; set; }
@@ -25,5 +26,6 @@ namespace api.Models.Orcid
         public List<int> dimAffiliationIds { get; set; }
         public List<int> dimEducationIds { get; set; }
         public List<int> dimPublicationIds { get; set; }
+        public List<int> dimResearchActivityIds { get; set; }
     }
 }

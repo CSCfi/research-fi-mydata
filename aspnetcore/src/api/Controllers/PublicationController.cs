@@ -177,13 +177,12 @@ namespace api.Controllers
                             PublicationYear = dimPublication.PublicationYear,
                             Doi = dimPublication.Doi,
                             TypeCode = dimPublication.PublicationTypeCode,
-                            itemMeta = new ProfileEditorItemMeta()
-                            {
-                                Id = dimPublication.Id,
-                                Type = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                                Show = factFieldValuePublication.Show,
-                                PrimaryValue = factFieldValuePublication.PrimaryValue
-                            },
+                            itemMeta = new ProfileEditorItemMeta(
+                                id: dimPublication.Id,
+                                type: Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                                show: factFieldValuePublication.Show,
+                                primaryValue: factFieldValuePublication.PrimaryValue
+                            ),
                             DataSources = new List<ProfileEditorSource>
                             {
                                 dataSource

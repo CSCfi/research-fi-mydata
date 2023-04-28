@@ -2,6 +2,7 @@ using Xunit;
 using api.Services;
 using api.Models.Common;
 using api.Models.Ttv;
+using api.Models.ProfileEditor.Items;
 using System.Collections.Generic;
 using System;
 
@@ -116,6 +117,8 @@ namespace api.Tests
             Assert.Equal<int>(-1, actualFfv.DimEmailAddrressId);
             Assert.Equal<int>(-1, actualFfv.DimResearcherDescriptionId);
             Assert.Equal<int>(-1, actualFfv.DimIdentifierlessDataId);
+            Assert.Equal<int>(-1, actualFfv.DimProfileOnlyDatasetId);
+            Assert.Equal<int>(-1, actualFfv.DimProfileOnlyFundingDecisionId);
             Assert.Equal<int>(-1, actualFfv.DimProfileOnlyPublicationId);
             Assert.Equal<int>(-1, actualFfv.DimProfileOnlyResearchActivityId);
             Assert.Equal<int>(-1, actualFfv.DimKeywordId);
@@ -174,6 +177,34 @@ namespace api.Tests
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimProfileOnlyPublication.SourceDescription);
         }
 
+        [Fact(DisplayName = "Get empty DimProfileOnlyResearchActivity")]
+        public void getEmptyDimProfileOnlyResearchActivity_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new UserProfileService();
+            // Act
+            DimProfileOnlyResearchActivity actualDimProfileOnlyResearchActivity = userProfileService.GetEmptyDimProfileOnlyResearchActivity();
+            // Assert
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimDateIdStart);
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimDateIdEnd);
+            Assert.Null(actualDimProfileOnlyResearchActivity.DimGeoIdCountry);
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimOrganizationId);
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimEventId);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.LocalIdentifier);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.OrcidWorkType);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.NameFi);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.NameSv);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.NameEn);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.NameUnd);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.DescriptionFi);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.DescriptionEn);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.DescriptionSv);
+            Assert.Equal("", actualDimProfileOnlyResearchActivity.IndentifierlessTargetOrg);
+            Assert.Equal<int>(-1, actualDimProfileOnlyResearchActivity.DimRegisteredDataSourceId);
+            Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimProfileOnlyResearchActivity.SourceId);
+            Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimProfileOnlyResearchActivity.SourceDescription);
+        }
+
         [Fact(DisplayName = "Get empty DimPid")]
         public void getEmptyDimPid_01()
         {
@@ -196,9 +227,130 @@ namespace api.Tests
             Assert.Equal<int>(-1, actualDimPid.DimResearchDataCatalogId);
             Assert.Equal<int>(-1, actualDimPid.DimResearchActivityId);
             Assert.Equal<int>(-1, actualDimPid.DimEventId);
+            Assert.Equal(-1, actualDimPid.DimProfileOnlyDatasetId);
+            Assert.Equal(-1, actualDimPid.DimProfileOnlyFundingDecisionId);
             Assert.Equal<int>(-1, actualDimPid.DimProfileOnlyPublicationId);
             Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimPid.SourceId);
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimPid.SourceDescription);
+        }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when registered data source name is 'virta'")]
+        public void canIncludeDimNameInUserProfile_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new ();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "virta" };
+            DimName dimName = new () {
+                Id = 1,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when registered data source name is 'metax'")]
+        public void canIncludeDimNameInUserProfile_02()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "metax" };
+            DimName dimName = new() {
+                Id = 2,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when registered data source name is 'sftp_funding'")]
+        public void canIncludeDimNameInUserProfile_03()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "sftp_funding" };
+            DimName dimName = new() {
+                Id = 3,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName can be included in user profile, when registered data source is not 'virta', 'metax' or 'sftp_funding'")]
+        public void canIncludeDimNameInUserProfile_04()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "yliopisto A" };
+            DimName dimName = new()
+            {
+                Id = 4,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.True(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName cannot be included in user profile, when DimName.Id is in the list of already included IDs")]
+        public void canIncludeDimNameInUserProfile_05()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "yliopisto B" };
+            DimName dimName = new()
+            {
+                Id = 5,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { 2,3,4,5,6 };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.False(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that DimName can be included in user profile, when DimName.Id is not in the list of already included IDs")]
+        public void canIncludeDimNameInUserProfile_06()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimRegisteredDataSource dimRegisteredDataSourceVirta = new() { Name = "yliopisto C" };
+            DimName dimName = new()
+            {
+                Id = 101010,
+                DimRegisteredDataSource = dimRegisteredDataSourceVirta
+            };
+            List<int> existingIds = new() { 3, 4, 5, 6, 7 };
+            // Act
+            bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
+            // Assert
+            Assert.True(actualResult);
+        }
+
+        [Fact(DisplayName = "Check that property TemporaryUniqueId is correctly set in ProfileEditorItemMeta constructor")]
+        public void ProfileEditorItemMeta_01()
+        {
+            // Act
+            ProfileEditorItemMeta actualResult = new ProfileEditorItemMeta(
+                id: 123456789,
+                type: 9999,
+                show: false,
+                primaryValue: true
+            );
+            // Assert
+            Assert.Equal<ulong>(9999123456789, actualResult.TemporaryUniqueId);
         }
     }
 }

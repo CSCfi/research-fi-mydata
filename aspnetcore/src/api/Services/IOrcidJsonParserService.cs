@@ -15,6 +15,7 @@ namespace api.Services
         OrcidGivenNames GetGivenNames(string json);
         List<OrcidKeyword> GetKeywords(string json);
         List<OrcidOtherName> GetOtherNames(string json);
+        List<OrcidResearchActivity> GetProfileOnlyResearchActivityItems(string json);
         List<OrcidPublication> GetPublications(string json);
         List<OrcidResearcherUrl> GetResearcherUrls(string json);
     }

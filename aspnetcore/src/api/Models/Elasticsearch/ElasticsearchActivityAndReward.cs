@@ -1,4 +1,8 @@
-﻿using api.Models.ProfileEditor;
+﻿using System.Collections.Generic;
+using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
+using Nest;
+using static api.Models.Common.Constants;
 
 namespace api.Models.Elasticsearch
 {
@@ -12,7 +16,7 @@ namespace api.Models.Elasticsearch
             DescriptionFi = "";
             DescriptionEn = "";
             DescriptionSv = "";
-            InternationalCollaboration = false;
+            InternationalCollaboration = null;
             StartDate = new ElasticsearchDate();
             EndDate = new ElasticsearchDate();
             ActivityTypeCode = "";
@@ -23,6 +27,13 @@ namespace api.Models.Elasticsearch
             RoleNameFi = "";
             RoleNameEn = "";
             RoleNameSv = "";
+            OrganizationNameFi = "";
+            OrganizationNameSv = "";
+            OrganizationNameEn = "";
+            DepartmentNameFi = "";
+            DepartmentNameSv = "";
+            DepartmentNameEn = "";
+            sector = new List<ElasticsearchSector> { };
         }
 
         public string NameFi { get; set; }
@@ -31,7 +42,7 @@ namespace api.Models.Elasticsearch
         public string DescriptionFi { get; set; }
         public string DescriptionEn { get; set; }
         public string DescriptionSv { get; set; }
-        public bool InternationalCollaboration { get; set; }
+        public bool? InternationalCollaboration { get; set; }
         public ElasticsearchDate StartDate { get; set; }
         public ElasticsearchDate EndDate { get; set; }
         public string ActivityTypeCode { get; set; }
@@ -42,5 +53,15 @@ namespace api.Models.Elasticsearch
         public string RoleNameFi { get; set; }
         public string RoleNameEn { get; set; }
         public string RoleNameSv { get; set; }
+        public string OrganizationNameFi { get; set; }
+        public string OrganizationNameSv { get; set; }
+        public string OrganizationNameEn { get; set; }
+        public string DepartmentNameFi { get; set; }
+        public string DepartmentNameSv { get; set; }
+        public string DepartmentNameEn { get; set; }
+
+        [Nested]
+        [PropertyName("sector")]
+        public List<ElasticsearchSector> sector { get; set; }
     }
 }

@@ -22,8 +22,8 @@
             public const string KEYCLOAK_USER_DELETE = "Keycloak: user delete";
             public const string KEYCLOAK_USER_LOGOUT = "Keycloak: user logout";
             public const string KEYCLOAK_SET_ORCID_ATTRIBUTE = "Keycloak: set ORCID attribute";
+            public const string PROFILE_ADD_TTV_DATA = "Profile: add TTV data";
             public const string PROFILE_CREATE = "Profile: create";
-            public const string PROFILE_CREATE_ADD_TTV_DATA = "Profile: create: add TTV data";
             public const string PROFILE_DELETE = "Profile: delete";
             public const string PROFILE_HIDE = "Profile: hide";
             public const string PROFILE_MODIFY = "Profile: modify";

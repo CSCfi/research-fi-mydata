@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 using api.Models.Common;
 using api.Models.ProfileEditor;
 using api.Models.Ttv;
+using api.Models.Log;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nest;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Http;
+using Serilog.Core;
 
 namespace api.Services
 {
@@ -20,20 +24,26 @@ namespace api.Services
         private readonly TtvContext _ttvContext;
         private readonly IOrcidApiService _orcidApiService;
         private readonly IUserProfileService _userProfileService;
-        private readonly ILogger<ElasticsearchService> _logger;
+        private readonly ILogger<AdminService> _logger;
+        private readonly IBackgroundTaskQueue _taskQueue;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private string logPrefix = "AdminService: ";
         private const int delayMillisecondsBetweenOrcidApiRequests = 1000;
 
         public AdminService(
             TtvContext ttvContext,
-            ILogger<ElasticsearchService> logger,
+            ILogger<AdminService> logger,
             IOrcidApiService orcidApiService,
-            IUserProfileService userProfileService)
+            IUserProfileService userProfileService,
+            IBackgroundTaskQueue taskQueue,
+            IServiceScopeFactory serviceScopeFactory)
         {
             _ttvContext = ttvContext;
             _logger = logger;
             _orcidApiService = orcidApiService;
             _userProfileService = userProfileService;
+            _taskQueue = taskQueue;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         /*
@@ -192,6 +202,56 @@ namespace api.Services
                 // Prevent flooding ORCID API
                 await Task.Delay(delayMillisecondsBetweenOrcidApiRequests);
             }
+        }
+
+        /*
+         * Add new TTV data in user profile.
+         * This is a background task, therefore all service dependencies must be taken from local scope.
+         */
+        public async Task<bool> AddNewTtvDataInUserProfileBackground(int dimUserProfileId, LogUserIdentification logUserIdentification)
+        {
+            await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+            {
+                // Create service scope and get required services.
+                // Do not use services from controller scope in a background task.
+                using IServiceScope scope = _serviceScopeFactory.CreateScope();
+                TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
+                ITtvSqlService localTtvSqlService = scope.ServiceProvider.GetRequiredService<ITtvSqlService>();
+                ILogger<UserProfileService> localUserProfileServiceLogger = scope.ServiceProvider.GetRequiredService<ILogger<UserProfileService>>();
+                IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
+
+                DimUserProfile dimUserProfile = await localTtvContext.DimUserProfiles.Where(dup => dup.Id == dimUserProfileId)
+                    .Include(dup => dup.DimKnownPerson)
+                        .ThenInclude(dkp => dkp.DimNames)
+                            .ThenInclude(dn => dn.DimRegisteredDataSource).AsNoTracking()
+                    .Include(dup => dup.DimFieldDisplaySettings).AsNoTracking().FirstOrDefaultAsync();
+
+                if (dimUserProfile == null)
+                {
+                    // If matching user profile is not found, log error and exit.
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: $"{LogContent.ErrorMessage.USER_PROFILE_NOT_FOUND} (dim_user_profile.id={dimUserProfileId})"));
+                }
+                else
+                {
+                    // Set ORCID ID in log message
+                    logUserIdentification.Orcid = dimUserProfile.OrcidId;
+
+                    // Add TTV data
+                    await localUserProfileService.AddTtvDataToUserProfile(
+                        dimKnownPerson: dimUserProfile.DimKnownPerson,
+                        dimUserProfile: dimUserProfile,
+                        logUserIdentification: logUserIdentification);
+                }
+            });
+
+            return true;
         }
     }
 }

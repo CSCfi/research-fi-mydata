@@ -6,7 +6,7 @@ namespace api.Services
     public interface ITtvSqlService
     {
         string ConvertListOfIntsToCommaSeparatedString(List<int> listOfInts);
-        string GetFactFieldValuesFKColumnNameFromFieldIdentifier(int fieldIdentifier);
+        string GetFactFieldValuesFKColumnNameFromItemMetaType(int itemMetaType);
         string GetSqlQuery_Delete_BrGrantedPermissions(int userprofileId);
         string GetSqlQuery_Delete_DimAffiliations(List<int> dimAffiliationIds);
         string GetSqlQuery_Delete_DimCompetences(List<int> dimCompetenceIds);
@@ -21,6 +21,7 @@ namespace api.Services
         string GetSqlQuery_Delete_DimKeyword(List<int> dimKeywordIds);
         string GetSqlQuery_Delete_DimNames(List<int> dimNameIds);
         string GetSqlQuery_Delete_DimProfileOnlyPublications(List<int> dimProfileOnlyPublicationIds);
+        string GetSqlQuery_Delete_DimProfileOnlyResearchActivities(List<int> dimProfileOnlyResearchActivityIds);
         string GetSqlQuery_Delete_DimPids(List<int> dimPidIds);
         string GetSqlQuery_Delete_DimResearchActivities(List<int> dimResearchActivityIds);
         string GetSqlQuery_Delete_DimResearchCommunities(List<int> dimResearchCommunityIds);
@@ -33,14 +34,14 @@ namespace api.Services
         string GetSqlQuery_Delete_DimWebLinks(List<int> dimWebLinkIds);
         string GetSqlQuery_Delete_FactFieldValues(int userprofileId);
         string GetSqlQuery_ProfileData(int userprofileId, bool forElasticsearch = false);
-        string GetSqlQuery_Select_BrParticipatesInFundingGroup(int dimNameId);
+        string GetSqlQuery_Select_BrParticipatesInFundingGroup(int dimNameId, List<int> existingFundingDecisionIds);
         string GetSqlQuery_Select_CountPublishedItemsInUserprofile(int dimUserProfileId);
-        string GetSqlQuery_Select_DimAffiliation(int dimKnownPersonId);
-        string GetSqlQuery_Select_DimEducation(int dimKnownPersonId);
-        string GetSqlQuery_Select_DimEmailAddrress(int dimKnownPersonId);
-        string GetSqlQuery_Select_DimResearcherDescription(int dimKnownPersonId);
-        string GetSqlQuery_Select_DimTelephoneNumber(int dimKnownPersonId);
-        string GetSqlQuery_Select_DimWebLink(int dimKnownPersonId);
+        string GetSqlQuery_Select_DimAffiliation(int dimKnownPersonId, List<int> existingIds);
+        string GetSqlQuery_Select_DimEducation(int dimKnownPersonId, List<int> existingIds);
+        string GetSqlQuery_Select_DimEmailAddrress(int dimKnownPersonId, List<int> existingIds);
+        string GetSqlQuery_Select_DimResearcherDescription(int dimKnownPersonId, List<int> existingIds);
+        string GetSqlQuery_Select_DimTelephoneNumber(int dimKnownPersonId, List<int> existingIds);
+        string GetSqlQuery_Select_DimWebLink(int dimKnownPersonId, List<int> existingIds);
         string GetSqlQuery_Select_FactContribution(int dimNameId);
         string GetSqlQuery_Select_FactFieldValues(int userprofileId);
         string GetSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta);

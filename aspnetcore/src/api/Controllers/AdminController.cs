@@ -18,6 +18,7 @@ namespace api.Controllers
     [ApiController]
     public class AdminController : TtvAdminControllerBase
     {
+        private readonly IAdminService _adminService;
         private readonly IOrcidApiService _orcidApiService;
         private readonly IUserProfileService _userProfileService;
         private readonly IElasticsearchService _elasticsearchService;
@@ -28,6 +29,7 @@ namespace api.Controllers
         public IConfiguration Configuration { get; }
 
         public AdminController(
+            IAdminService adminService,
             IConfiguration configuration,
             IOrcidApiService orcidApiService,
             IUserProfileService userProfileService,
@@ -38,6 +40,7 @@ namespace api.Controllers
             IBackgroundProfiledata backgroundProfiledata,
             IServiceScopeFactory serviceScopeFactory)
         {
+            _adminService = adminService;
             _orcidApiService = orcidApiService;
             _userProfileService = userProfileService;
             _elasticsearchService = elasticsearchService;
@@ -101,7 +104,7 @@ namespace api.Controllers
                 IAdminService localAdminService = scope.ServiceProvider.GetRequiredService<IAdminService>();
                 await localAdminService.RegisterOrcidWebhookForSingleUserprofile(webhookOrcidId);
 
-                
+
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
@@ -230,7 +233,7 @@ namespace api.Controllers
                         action: LogContent.Action.ADMIN_WEBHOOK_ORCID_REGISTER_ALL,
                         state: LogContent.ActionState.COMPLETE));
             });
- 
+
             return Ok();
         }
 
@@ -327,9 +330,9 @@ namespace api.Controllers
                 return NotFound();
             }
 
-
             // Store ORCID ID for background process
             string orcidId = dimUserProfile.OrcidId;
+            logUserIdentification.Orcid = orcidId;
 
             // Check if the profile should be updated or deleted in Elasticsearch index
             bool isUserprofilePublished = await _userProfileService.IsUserprofilePublished(dimUserProfileId);
@@ -348,7 +351,8 @@ namespace api.Controllers
                             logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
-                                state: LogContent.ActionState.START));
+                                state: LogContent.ActionState.START,
+                                message: $"dim_user_profile.id={dimUserProfileId}"));
 
                         // Get Elasticsearch person entry from profile data.
                         Models.Elasticsearch.ElasticsearchPerson person =
@@ -364,7 +368,8 @@ namespace api.Controllers
                             logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
-                                state: LogContent.ActionState.COMPLETE));
+                                state: LogContent.ActionState.COMPLETE,
+                                message: $"dim_user_profile.id={dimUserProfileId}"));
                     });
                 }
             }
@@ -382,7 +387,8 @@ namespace api.Controllers
                             logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
-                                state: LogContent.ActionState.START));
+                                state: LogContent.ActionState.START,
+                                message: $"dim_user_profile.id={dimUserProfileId}"));
 
                         // Update Elasticsearch person index.
                         bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
@@ -393,7 +399,8 @@ namespace api.Controllers
                                 logUserIdentification,
                                 new LogApiInfo(
                                     action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
-                                    state: LogContent.ActionState.COMPLETE));
+                                    state: LogContent.ActionState.COMPLETE,
+                                    message: $"dim_user_profile.id={dimUserProfileId}"));
                         }
                         else
                         {
@@ -403,11 +410,42 @@ namespace api.Controllers
                                 new LogApiInfo(
                                     action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE,
                                     state: LogContent.ActionState.FAILED,
-                                    error: true));
+                                    error: true,
+                                    message: $"dim_user_profile.id={dimUserProfileId}"));
                         }
                     });
                 }
             }
+
+            return Ok();
+        }
+
+
+
+
+
+        /// <summary>
+        /// Admin: Add new TTV data in user profile.
+        /// </summary>
+        [HttpPost]
+        [Route("/[controller]/userprofile/addttvdata/{dimUserProfileId}")]
+        public async Task<IActionResult> AddNewTtvDataInUserProfile(int dimUserProfileId)
+        {
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
+            {
+                return Unauthorized();
+            }
+
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
+            await _adminService.AddNewTtvDataInUserProfileBackground(dimUserProfileId, logUserIdentification);
 
             return Ok();
         }

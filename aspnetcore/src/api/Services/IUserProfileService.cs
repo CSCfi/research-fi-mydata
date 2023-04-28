@@ -19,6 +19,7 @@ namespace api.Services
         Task<bool> DeleteProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification);
         Task ExecuteRawSql(string sql);
         DimProfileOnlyPublication GetEmptyDimProfileOnlyPublication();
+        DimProfileOnlyResearchActivity GetEmptyDimProfileOnlyResearchActivity();
         DimPid GetEmptyDimPid();
         FactFieldValue GetEmptyFactFieldValue();
         FactFieldValue GetEmptyFactFieldValueDemo();
