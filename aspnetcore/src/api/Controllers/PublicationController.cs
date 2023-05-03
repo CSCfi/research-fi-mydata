@@ -33,17 +33,11 @@ namespace api.Controllers
         private readonly ILanguageService _languageService;
         private readonly IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
-        private readonly IElasticsearchService _elasticsearchService;
-        private readonly IBackgroundProfiledata _backgroundProfiledata;
-        private readonly IBackgroundTaskQueue _taskQueue;
 
         public PublicationController(TtvContext ttvContext, IUserProfileService userProfileService,
             IUtilityService utilityService, IDataSourceHelperService dataSourceHelperService,
             IMemoryCache memoryCache, ILanguageService languageService,
-            IElasticsearchService elasticsearchService,
-            ILogger<UserProfileController> logger,
-            IBackgroundProfiledata backgroundProfiledata,
-            IBackgroundTaskQueue taskQueue)
+            ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -51,10 +45,7 @@ namespace api.Controllers
             _dataSourceHelperService = dataSourceHelperService;
             _languageService = languageService;
             _cache = memoryCache;
-            _elasticsearchService = elasticsearchService;
-            _backgroundProfiledata = backgroundProfiledata;
             _logger = logger;
-            _taskQueue = taskQueue;
         }
 
         /// <summary>
@@ -194,39 +185,12 @@ namespace api.Controllers
                 }
             }
 
-            // Update Elasticsearch index in a background task.
-            // ElasticsearchService is singleton, no need to create local scope.
-            if (_elasticsearchService.IsElasticsearchSyncEnabled())
-            {
-                LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
-
-                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
-                {
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
-                            state: LogContent.ActionState.START));
-
-                    // Get Elasticsearch person entry from profile data.
-                    Models.Elasticsearch.ElasticsearchPerson person =
-                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
-                            orcidId: orcidId,
-                            userprofileId: userprofileId,
-                            logUserIdentification: logUserIdentification);
-
-                    // Update Elasticsearch person index.
-                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification);
-
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
-                            state: LogContent.ActionState.COMPLETE));
-                });
-            }
+            // Update Elasticsearch index.
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            await _userProfileService.UpdateProfileInElasticsearch(
+                orcidId: orcidId,
+                userprofileId: dimUserProfile.Id,
+                logUserIdentification: logUserIdentification);
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
@@ -286,39 +250,13 @@ namespace api.Controllers
             }
             await _ttvContext.SaveChangesAsync();
 
-            // Update Elasticsearch index in a background task.
-            // ElasticsearchService is singleton, no need to create local scope.
-            if (_elasticsearchService.IsElasticsearchSyncEnabled())
-            {
-                LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
 
-                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
-                {
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
-                            state: LogContent.ActionState.START));
-
-                    // Get Elasticsearch person entry from profile data.
-                    Models.Elasticsearch.ElasticsearchPerson person =
-                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
-                            orcidId: orcidId,
-                            userprofileId: userprofileId,
-                            logUserIdentification: logUserIdentification);
-
-                    // Update Elasticsearch person index.
-                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification);
-
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
-                            state: LogContent.ActionState.COMPLETE));
-                });
-            }
+            // Update Elasticsearch index.
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            await _userProfileService.UpdateProfileInElasticsearch(
+                orcidId: orcidId,
+                userprofileId: userprofileId,
+                logUserIdentification: logUserIdentification);
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);

@@ -652,6 +652,12 @@ namespace api.Services
                         WHERE dim_name_id = {dimNameId}{excludeFundingDecisionIdsSQL}";
         }
 
+        // Return SQL SELECT statement for getting property "hidden" in userprofile
+        public string GetSqlQuery_Select_GetHiddenInUserprofile(int dimUserProfileId)
+        {
+            return $"SELECT hidden as 'Hidden' FROM dim_user_profile WHERE id={dimUserProfileId}";
+        }
+
         // Return SQL SELECT statement for counting number of published items in userprofile
         public string GetSqlQuery_Select_CountPublishedItemsInUserprofile(int dimUserProfileId)
         {

@@ -36,6 +36,7 @@ namespace api.Services
         private readonly ISharingService _sharingService;
         private readonly ITtvSqlService _ttvSqlService;
         private readonly ILogger<UserProfileService> _logger;
+        private readonly IElasticsearchService _elasticsearchService;
 
         public UserProfileService(TtvContext ttvContext,
             IDataSourceHelperService dataSourceHelperService,
@@ -44,7 +45,8 @@ namespace api.Services
             IDuplicateHandlerService duplicateHandlerService,
             ISharingService sharingService,
             ITtvSqlService ttvSqlService,
-            ILogger<UserProfileService> logger)
+            ILogger<UserProfileService> logger,
+            IElasticsearchService elasticsearchService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
@@ -54,6 +56,7 @@ namespace api.Services
             _sharingService = sharingService;
             _ttvSqlService = ttvSqlService;
             _logger = logger;
+            _elasticsearchService = elasticsearchService;
         }
 
         public UserProfileService(
@@ -129,6 +132,15 @@ namespace api.Services
         public async Task<DimUserProfile> GetUserprofile(string orcidId)
         {
             return await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking().FirstOrDefaultAsync();
+        }
+
+        /*
+         * Get DimUserProfile based on ORCID Id.
+         * Returns tracking entity to allow modifications.
+         */
+        public async Task<DimUserProfile> GetUserprofileTracking(string orcidId)
+        {
+            return await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).FirstOrDefaultAsync();
         }
 
         /*
@@ -905,7 +917,8 @@ namespace api.Services
                     SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = currentDateTime,
-                    AllowAllSubscriptions = false
+                    AllowAllSubscriptions = false,
+                    Hidden = false
                 };
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
             }
@@ -2155,20 +2168,103 @@ namespace api.Services
 
         /*
          * Check by dim_user_profile.id if user profile is published.
-         * Logic: User profile is considered as published, if more than 1 item has property show=true.
-         *        Property 'show' is checked from table fact_field_values
-         *        
-         *        In user profile, the name from ORCID has always show=1, hence the requirement "more than 1 item".
+         * Logic: User profile is considered as published if
+         *  1. it is not hidden
+         *  2. more than 1 item has property show=true.
+         * 
+         * Property 'show' is checked from table fact_field_values       
+         * In user profile, the name from ORCID has always show=1, hence the requirement "more than 1 item".
          */
         public async Task<bool> IsUserprofilePublished(int dimUserProfileId)
         {
+            bool hidden = false;
             int publishedCount = 0;
+
             using (var connection = _ttvContext.Database.GetDbConnection())
             {
-                string publishedCountSql = _ttvSqlService.GetSqlQuery_Select_CountPublishedItemsInUserprofile(dimUserProfileId);
-                publishedCount = (await connection.QueryAsync<int>(publishedCountSql)).First();
+                string hiddenSql = _ttvSqlService.GetSqlQuery_Select_GetHiddenInUserprofile(dimUserProfileId);
+                hidden = (await connection.QueryAsync<bool>(hiddenSql)).First();
+
+                if (hidden)
+                {
+                    return false;
+                }
+                else
+                {
+                    string publishedCountSql = _ttvSqlService.GetSqlQuery_Select_CountPublishedItemsInUserprofile(dimUserProfileId);
+                    publishedCount = (await connection.QueryAsync<int>(publishedCountSql)).First();
+                }
             }
             return publishedCount > 1;
+        }
+
+        /*
+         * Update profile in Elasticsearch
+         */
+        public async Task<bool> UpdateProfileInElasticsearch(string orcidId, int userprofileId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_UPDATE)
+        {
+            bool isUserprofilePublished = await IsUserprofilePublished(userprofileId);
+            if (!isUserprofilePublished)
+            {
+                // Profile is not published or is hidden, cancel.
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: logAction,
+                        state: LogContent.ActionState.CANCELLED,
+                        message: $"User profile is not published or is hidden (dim_user_profile.id={userprofileId})"));
+                return false;
+            }
+
+            bool startBackgroudTaskResult = await _elasticsearchService.BackgroundUpdate(
+                orcidId: orcidId,
+                userprofileId: userprofileId,
+                logUserIdentification: logUserIdentification,
+                logAction: logAction);
+
+            return startBackgroudTaskResult;
+        }
+
+        /*
+         * Delete profile from Elasticsearch
+         */
+        public async Task<bool> DeleteProfileFromElasticsearch(string orcidId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_DELETE)
+        {
+            bool startBackgroudTaskResult = await _elasticsearchService.BackgroundDelete(
+                orcidId: orcidId,
+                logUserIdentification: logUserIdentification,
+                logAction: logAction);
+
+            return startBackgroudTaskResult;
+        }
+
+        /*
+         * Set profile state to "hidden".
+         */
+        public async Task HideProfile(string orcidId, LogUserIdentification logUserIdentification)
+        {
+            // Set properdy "hidden" in user profile
+            DimUserProfile dimUserProfile = await GetUserprofileTracking(orcidId);
+            dimUserProfile.Hidden = true;
+            await _ttvContext.SaveChangesAsync();
+
+            // Delete profile from Elasticsearch
+            await DeleteProfileFromElasticsearch(orcidId, logUserIdentification);
+        }
+
+        /*
+         * Reveal profile from state "hidden.
+         */
+        public async Task RevealProfile(string orcidId, LogUserIdentification logUserIdentification)
+        {
+            // Set properdy "hidden" in user profile
+            DimUserProfile dimUserProfile = await GetUserprofileTracking(orcidId);
+            dimUserProfile.Hidden = false;
+            await _ttvContext.SaveChangesAsync();
+
+            // Update profile in Elasticsearch
+            await UpdateProfileInElasticsearch(orcidId: orcidId, userprofileId: dimUserProfile.Id, logUserIdentification: logUserIdentification);
         }
 
         /*

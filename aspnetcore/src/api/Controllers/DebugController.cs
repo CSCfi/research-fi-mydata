@@ -235,18 +235,10 @@ namespace api.Controllers
             // User identification object for logging
             LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
 
-            // Remove entry from Elasticsearch index in a background task.
-            // ElasticsearchService is singleton, no need to create local scope.
-            if (_elasticsearchService.IsElasticsearchSyncEnabled())
-            {
-                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
-                {
-                    _logger.LogInformation($"Elasticsearch removal of {orcidId} started {DateTime.UtcNow}");
-                    // Update Elasticsearch person index.
-                    await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
-                    _logger.LogInformation($"Elasticsearch removal of {orcidId} completed {DateTime.UtcNow}");
-                });
-            }
+            // Remove entry from Elasticsearch index.
+            await _userProfileService.DeleteProfileFromElasticsearch(
+                orcidId: orcidId,
+                logUserIdentification: logUserIdentification);
 
             // Delete profile data from database
             try

@@ -25,21 +25,20 @@ namespace api.Controllers
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class ProfileSettingsController : TtvControllerBase
     {
-        private readonly IElasticsearchService _elasticsearchService;
+        private readonly IUserProfileService _userProfileService;
         private readonly IBackgroundTaskQueue _taskQueue;
         private readonly ILogger<UserProfileController> _logger;
 
-        public ProfileSettingsController(IElasticsearchService elasticsearchService, ILogger<UserProfileController> logger, IBackgroundTaskQueue taskQueue)
+        public ProfileSettingsController(IUserProfileService userProfileService, ILogger<UserProfileController> logger, IBackgroundTaskQueue taskQueue)
         {
-            _elasticsearchService = elasticsearchService;
+            _userProfileService = userProfileService;
             _taskQueue = taskQueue;
             _logger = logger;
         }
 
         /// <summary>
-        /// Hide user profile from portal by removing the profile from Elasticsearch index.
-        /// User profile is not deleted from database.
-        /// To restore the profile in portal, the user has to publish the profile again.
+        /// Set profile state to "hidden".
+        /// Profile is removed from Elasticsearch index.
         /// </summary>
         [HttpGet]
         [Route("hideprofile")]
@@ -48,44 +47,43 @@ namespace api.Controllers
         {
             // Get ORCID id
             string orcidId = GetOrcidId();
-
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
 
             _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ELASTICSEARCH_DELETE,
-                            state: LogContent.ActionState.START));
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_HIDE,
+                    state: LogContent.ActionState.START));
 
-            // Remove entry from Elasticsearch index in a background task.
-            // ElasticsearchService is singleton, no need to create local scope.
-            if (_elasticsearchService.IsElasticsearchSyncEnabled())
-            {
-                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
-                {
-                    // Update Elasticsearch person index.
-                    bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
-                    if (!deleteSuccess)
-                    {
-                        _logger.LogError(
-                            LogContent.MESSAGE_TEMPLATE,
-                            logUserIdentification,
-                            new LogApiInfo(
-                                action: LogContent.Action.ELASTICSEARCH_DELETE,
-                                state: LogContent.ActionState.FAILED,
-                                error: true));
-                    } else
-                    {
-                        _logger.LogInformation(
-                            LogContent.MESSAGE_TEMPLATE,
-                            logUserIdentification,
-                            new LogApiInfo(
-                                action: LogContent.Action.ELASTICSEARCH_DELETE,
-                                state: LogContent.ActionState.COMPLETE));
-                    }
-                });
-            }
+            // Set profile state to "hidden"
+            await _userProfileService.HideProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
+
+            return Ok(new ApiResponse());
+        }
+
+        /// <summary>
+        /// Reveal profile from state "hidden".
+        /// Profile is updated in Elasticsearch index.
+        /// </summary>
+        [HttpGet]
+        [Route("revealprofile")]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> RevealProfileInPortal()
+        {
+            // Get ORCID id
+            string orcidId = GetOrcidId();
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_REVEAL,
+                    state: LogContent.ActionState.START));
+
+            // Reveal profile from state "hidden"
+            await _userProfileService.RevealProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
 
             return Ok(new ApiResponse());
         }

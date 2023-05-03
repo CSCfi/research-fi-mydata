@@ -26,6 +26,7 @@ namespace api.Models.Ttv
         public DateTime? OrcidTokenExpires { get; set; }
         public string OrcidId { get; set; }
         public int? Statuscode { get; set; }
+        public bool Hidden { get; set; }
 
         public virtual DimKnownPerson DimKnownPerson { get; set; }
         public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; }

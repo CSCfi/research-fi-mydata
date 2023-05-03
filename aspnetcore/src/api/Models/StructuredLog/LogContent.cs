@@ -26,6 +26,7 @@
             public const string PROFILE_CREATE = "Profile: create";
             public const string PROFILE_DELETE = "Profile: delete";
             public const string PROFILE_HIDE = "Profile: hide";
+            public const string PROFILE_REVEAL = "Profile: reveal";
             public const string PROFILE_MODIFY = "Profile: modify";
             public const string ORCID_RECORD_GET_MEMBER_API = "ORCID: record: get from member API";
             public const string ORCID_RECORD_GET_PUBLIC_API = "ORCID: record: get from public API";
@@ -40,6 +41,7 @@
             public const string START = "start";
             public const string COMPLETE = "complete";
             public const string FAILED = "failed";
+            public const string CANCELLED = "cancelled";
         }
 
         public static class ErrorMessage
