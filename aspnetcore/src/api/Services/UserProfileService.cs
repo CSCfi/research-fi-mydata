@@ -1021,6 +1021,7 @@ namespace api.Services
                             {
                                 FirstNames = p.DimName_FirstNames,
                                 LastName = p.DimName_LastName,
+                                FullName = $"{p.DimName_LastName} {p.DimName_FirstNames}", // Populate for Elasticsearch queries
                                 itemMeta = new ProfileEditorItemMeta(
                                 
                                     id: p.FactFieldValues_DimNameId,
