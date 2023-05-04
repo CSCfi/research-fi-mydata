@@ -108,6 +108,7 @@ namespace api.Controllers
                 using IServiceScope scope = _serviceScopeFactory.CreateScope();
                 IOrcidApiService localOrcidApiService = scope.ServiceProvider.GetRequiredService<IOrcidApiService>();
                 IOrcidImportService localOrcidImportService = scope.ServiceProvider.GetRequiredService<IOrcidImportService>();
+                IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
 
                 // Get record json from ORCID member API
                 string orcidRecordJson = "";
@@ -178,7 +179,7 @@ namespace api.Controllers
                 // After successful ORCID import update Elasticsearch index
                 if (importSuccess)
                 {
-                    await _userProfileService.UpdateProfileInElasticsearch(
+                    await localUserProfileService.UpdateProfileInElasticsearch(
                         orcidId: webhookOrcidId,
                         userprofileId: dimUserProfile.Id,
                         logUserIdentification: logUserIdentification);
