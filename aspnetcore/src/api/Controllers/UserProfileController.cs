@@ -21,29 +21,23 @@ namespace api.Controllers
     public class UserProfileController : TtvControllerBase
     {
         private readonly IUserProfileService _userProfileService;
-        private readonly IElasticsearchService _elasticsearchService;
         private readonly IKeycloakAdminApiService _keycloakAdminApiService;
         private readonly IOrcidApiService _orcidApiService;
         private readonly ILogger<UserProfileController> _logger;
         private readonly IMemoryCache _cache;
-        private readonly IBackgroundTaskQueue _taskQueue;
 
         public UserProfileController(
-            IElasticsearchService elasticsearchService,
             IUserProfileService userProfileService,
             IKeycloakAdminApiService keycloakAdminApiService,
             IOrcidApiService orcidApiService,
             ILogger<UserProfileController> logger,
-            IMemoryCache memoryCache,
-            IBackgroundTaskQueue taskQueue)
+            IMemoryCache memoryCache)
         {
             _userProfileService = userProfileService;
-            _elasticsearchService = elasticsearchService;
             _keycloakAdminApiService = keycloakAdminApiService;
             _orcidApiService = orcidApiService;
             _logger = logger;
             _cache = memoryCache;
-            _taskQueue = taskQueue;
         }
 
         /// <summary>
@@ -236,42 +230,10 @@ namespace api.Controllers
                 // Remove cached profile data response. Cache key is ORCID ID.
                 _cache.Remove(orcidId);
 
-                // Remove entry from Elasticsearch index in a background task.
-                // ElasticsearchService is singleton, no need to create local scope.
-                if (_elasticsearchService.IsElasticsearchSyncEnabled())
-                {
-                    await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
-                    {
-                        _logger.LogInformation(
-                            LogContent.MESSAGE_TEMPLATE,
-                            logUserIdentification,
-                            new LogApiInfo(
-                                action: LogContent.Action.ELASTICSEARCH_DELETE,
-                                state: LogContent.ActionState.START));
-
-                        // Update Elasticsearch person index.
-                        bool deleteSuccess = await _elasticsearchService.DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification);
-                        if (deleteSuccess)
-                        {
-                            _logger.LogInformation(
-                                LogContent.MESSAGE_TEMPLATE,
-                                logUserIdentification,
-                                new LogApiInfo(
-                                    action: LogContent.Action.ELASTICSEARCH_DELETE,
-                                    state: LogContent.ActionState.COMPLETE));
-                        }
-                        else
-                        {
-                            _logger.LogError(
-                                LogContent.MESSAGE_TEMPLATE,
-                                logUserIdentification,
-                                new LogApiInfo(
-                                    action: LogContent.Action.ELASTICSEARCH_DELETE,
-                                    state: LogContent.ActionState.FAILED,
-                                    error: true));
-                        }
-                    });
-                }
+                // Remove entry from Elasticsearch index.
+                await _userProfileService.DeleteProfileFromElasticsearch(
+                    orcidId: orcidId,
+                    logUserIdentification: logUserIdentification);
 
                 // Keycloak: logout user
                 await _keycloakAdminApiService.LogoutUser(this.GetBearerTokenFromHttpRequest(), logUserIdentification);

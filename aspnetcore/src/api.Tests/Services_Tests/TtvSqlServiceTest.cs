@@ -860,5 +860,17 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
+
+        [Fact(DisplayName = "Get SQL query for property 'hidden' in userprofile")]
+        public void GetSqlQuery_Select_GetHiddenInUserprofile()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = $"SELECT hidden as 'Hidden' FROM dim_user_profile WHERE id={53445623}";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_GetHiddenInUserprofile(53445623);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
     }
 }

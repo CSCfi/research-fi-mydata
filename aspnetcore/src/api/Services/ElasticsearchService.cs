@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using api.Models.Elasticsearch;
 using api.Models.Log;
+using api.Models.Ttv;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nest;
@@ -17,8 +18,12 @@ namespace api.Services
         public IConfiguration Configuration { get; }
         private readonly ILogger<ElasticsearchService> _logger;
         private readonly string elasticsearchProfileIndexName = "person";
+        private readonly IBackgroundProfiledata _backgroundProfiledata;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
-        // Check if Elasticsearch synchronization is enabled and related configuration is valid.
+        /*
+         * Check if Elasticsearch synchronization is enabled and related configuration is valid.
+         */
         public bool IsElasticsearchSyncEnabled()
         {
             return Configuration["ELASTICSEARCH:ENABLED"] != null
@@ -30,12 +35,20 @@ namespace api.Services
                 );
         }
 
-        // Constructor.
-        // Do not setup Elasticsearch client unless configuration values are ok.
-        public ElasticsearchService(IConfiguration configuration, ILogger<ElasticsearchService> logger)
+        /*
+         * Constructor.
+         * Do not setup Elasticsearch client unless configuration values are ok.
+         */
+        public ElasticsearchService(
+            IConfiguration configuration,
+            ILogger<ElasticsearchService> logger,
+            IBackgroundProfiledata backgroundProfiledata,
+            IBackgroundTaskQueue taskQueue)
         {
             Configuration = configuration;
             _logger = logger;
+            _backgroundProfiledata = backgroundProfiledata;
+            _taskQueue = taskQueue;
 
             if (IsElasticsearchSyncEnabled())
             {
@@ -69,24 +82,70 @@ namespace api.Services
             }
         }
 
-
-        // Update entry in Elasticsearch person index
-        // TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
-        public async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person, LogUserIdentification logUserIdentification)
+        /*
+         *  Background task for updating profile.
+         */
+        public async Task<bool> BackgroundUpdate(string orcidId, int userprofileId, LogUserIdentification logUserIdentification, string logAction=LogContent.Action.ELASTICSEARCH_UPDATE)
         {
-            if (!IsElasticsearchSyncEnabled())
+            if (IsElasticsearchSyncEnabled())
             {
-                return false;
+                // Elasticsearch sync is enabled, update index.
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: logAction,
+                            state: LogContent.ActionState.START));
+
+                    // Get Elasticsearch person entry from profile data.
+                    Models.Elasticsearch.ElasticsearchPerson person =
+                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
+                            orcidId: orcidId,
+                            userprofileId: userprofileId,
+                            logUserIdentification: logUserIdentification);
+
+                    // Update Elasticsearch person index.
+                    await UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification, logAction);
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: logAction,
+                            state: LogContent.ActionState.COMPLETE));
+                });
+                return true;
             }
+            else
+            {
+                // Elasticsearch sync is disabled, cancel.
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: logAction,
+                        state: LogContent.ActionState.CANCELLED,
+                        message: "Elasticsearch sync disabled in configuration"));
+            }
+            return false;
+        }
 
-            //_logger.LogInformation("ElasticsearchService: updating entry: " + orcidId);
 
+        /*
+         * Update entry in Elasticsearch person index
+         * TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
+         */
+        private async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person, LogUserIdentification logUserIdentification, string logAction)
+        {
             IndexResponse asyncIndexResponse = await ESclient.IndexDocumentAsync(person);
 
             if (asyncIndexResponse.IsValid)
             {
                 return true;
             }
+            else
             {
                 string errormessage = "";
                 if (asyncIndexResponse.OriginalException != null && asyncIndexResponse.OriginalException.Message != null)
@@ -101,7 +160,7 @@ namespace api.Services
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
                     new LogApiInfo(
-                        action: LogContent.Action.ELASTICSEARCH_UPDATE,
+                        action: logAction,
                         state: LogContent.ActionState.FAILED,
                         error: true,
                         message: errormessage));
@@ -110,22 +169,61 @@ namespace api.Services
             }
         }
 
-        // Delete entry from Elasticsearch person index
-        public async Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId, LogUserIdentification logUserIdentification)
+        /*
+         *  Background task for deleting profile.
+         */
+        public async Task<bool> BackgroundDelete(string orcidId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_DELETE)
         {
-            if (!IsElasticsearchSyncEnabled())
+            if (IsElasticsearchSyncEnabled())
             {
-                return false;
+                // Elasticsearch sync is enabled, delete from index.
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: logAction,
+                            state: LogContent.ActionState.START));
+
+                    // Delete entry from Elasticsearch person index.
+                    await DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification, logAction);
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: logAction,
+                            state: LogContent.ActionState.COMPLETE));
+                });
+                return true;
             }
+            else
+            {
+                // Elasticsearch sync is disabled, cancel.
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: logAction,
+                        state: LogContent.ActionState.CANCELLED,
+                        message: "Elasticsearch sync disabled in configuration"));
+            }
+            return false;
+        }
 
-            //_logger.LogInformation("ElasticsearchService: deleting entry: " + orcidId);
-
+        /*
+         * Delete entry from Elasticsearch person index.
+         */
+        public async Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId, LogUserIdentification logUserIdentification, string logAction)
+        {
             DeleteResponse asyncDeleteResponse = await ESclient.DeleteAsync<ElasticsearchPerson>(orcidId);
 
             if (asyncDeleteResponse.IsValid)
             {
                 return true;
             }
+            else
             {
                 string errormessage = "";
                 if (asyncDeleteResponse.OriginalException != null && asyncDeleteResponse.OriginalException.Message != null)
@@ -141,7 +239,7 @@ namespace api.Services
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
                     new LogApiInfo(
-                        action: LogContent.Action.ELASTICSEARCH_DELETE,
+                        action: logAction,
                         state: LogContent.ActionState.FAILED,
                         error: true,
                         message: errormessage));
