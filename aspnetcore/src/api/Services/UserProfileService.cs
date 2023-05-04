@@ -2244,7 +2244,14 @@ namespace api.Services
          */
         public async Task HideProfile(string orcidId, LogUserIdentification logUserIdentification)
         {
-            // Set properdy "hidden" in user profile
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_HIDE,
+                    state: LogContent.ActionState.START));
+
+            // Set property "hidden" in user profile
             DimUserProfile dimUserProfile = await GetUserprofileTracking(orcidId);
             dimUserProfile.Hidden = true;
             await _ttvContext.SaveChangesAsync();
@@ -2258,13 +2265,28 @@ namespace api.Services
          */
         public async Task RevealProfile(string orcidId, LogUserIdentification logUserIdentification)
         {
-            // Set properdy "hidden" in user profile
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_REVEAL,
+                    state: LogContent.ActionState.START));
+
+            // Set property "hidden" in user profile
             DimUserProfile dimUserProfile = await GetUserprofileTracking(orcidId);
             dimUserProfile.Hidden = false;
             await _ttvContext.SaveChangesAsync();
 
             // Update profile in Elasticsearch
             await UpdateProfileInElasticsearch(orcidId: orcidId, userprofileId: dimUserProfile.Id, logUserIdentification: logUserIdentification);
+        }
+
+        /*
+         * Returns memory cache key for profile settings
+         */
+        public string GetCMemoryCacheKey_ProfileSettings(string orcidId)
+        {
+            return $"profilesettings-{orcidId}";
         }
 
         /*

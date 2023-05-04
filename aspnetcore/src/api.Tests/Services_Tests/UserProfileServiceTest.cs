@@ -5,6 +5,7 @@ using api.Models.Ttv;
 using api.Models.ProfileEditor.Items;
 using System.Collections.Generic;
 using System;
+using api.Models.ProfileEditor;
 
 namespace api.Tests
 {
@@ -351,6 +352,19 @@ namespace api.Tests
             );
             // Assert
             Assert.Equal<ulong>(9999123456789, actualResult.TemporaryUniqueId);
+        }
+
+        [Fact(DisplayName = "Memory cache key - profile settings")]
+        public void MemoryCacheKey_ProfileSettings()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            string orcidId = "1234-5678-9098-7654";
+            string expectedMemoryCacheKey = $"profilesettings-{orcidId}";
+            // Act
+            string actualMemoryCacheKey = userProfileService.GetCMemoryCacheKey_ProfileSettings(orcidId: orcidId);
+            // Assert
+            Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
         }
     }
 }

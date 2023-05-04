@@ -36,5 +36,6 @@ namespace api.Services
         Task<bool> UserprofileExistsForOrcidId(string orcidId);
         Task HideProfile(string orcidId, LogUserIdentification logUserIdentification);
         Task RevealProfile(string orcidId, LogUserIdentification logUserIdentification);
+        string GetCMemoryCacheKey_ProfileSettings(string orcidId);
     }
 }
