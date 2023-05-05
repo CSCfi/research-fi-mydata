@@ -253,5 +253,71 @@ namespace api.Services
 
             return true;
         }
+
+
+
+        /*
+         * Update user profile in Elasticsearch
+         */
+        public async Task<bool> UpdateUserprofileInElasticsearch(int dimUserProfileId, LogUserIdentification logUserIdentification)
+        {
+            // Get DimUserProfile
+            DimUserProfile dimUserProfile = await _userProfileService.GetUserprofileById(dimUserProfileId);
+
+            // Check that user profile exists
+            if (dimUserProfile == null)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: $"profile not found (dim_user_profile.id={dimUserProfileId})"));
+                return false;
+            }
+
+            // Store ORCID ID for background process
+            string orcidId = dimUserProfile.OrcidId;
+            logUserIdentification.Orcid = orcidId;
+
+            await _userProfileService.UpdateProfileInElasticsearch(
+                orcidId: orcidId,
+                userprofileId: dimUserProfileId,
+                logUserIdentification: logUserIdentification,
+                logAction: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE);
+
+            return true;
+        }
+
+
+        /*
+         * Update all user profiles in Elasticsearch
+         */
+        public async Task UpdateAllUserprofilesInElasticsearch(LogUserIdentification logUserIdentification)
+        {
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE_ALL,
+                    state: LogContent.ActionState.START));
+
+            // Get all user profiles and update Elasticsearch one by one.
+            List<DimUserProfile> dimUserProfiles = await _ttvContext.DimUserProfiles.Where(dup => dup.Id > 0).AsNoTracking().ToListAsync();
+            foreach (DimUserProfile dimUserProfile in dimUserProfiles)
+            {
+                await UpdateUserprofileInElasticsearch(dimUserProfileId: dimUserProfile.Id, logUserIdentification: logUserIdentification);
+                await Task.Delay(1000);
+            }
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE_ALL,
+                    state: LogContent.ActionState.COMPLETE));
+        }
     }
 }

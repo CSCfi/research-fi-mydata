@@ -12,6 +12,7 @@
             public const string ADMIN_WEBHOOK_ORCID_UNREGISTER_ALL = "Admin: ORCID webhook unregister all";
             public const string ADMIN_ELASTICSEARCH_PROFILE_DELETE = "Admin: Elasticsearch: profile: delete";
             public const string ADMIN_ELASTICSEARCH_PROFILE_UPDATE = "Admin: Elasticsearch: profile: update";
+            public const string ADMIN_ELASTICSEARCH_PROFILE_UPDATE_ALL = "Admin: Elasticsearch: profile: update all";
             public const string BACKGROUND_UPDATE = "Background: update";
             public const string ELASTICSEARCH_DELETE = "Elasticsearch: profile: delete";
             public const string ELASTICSEARCH_UPDATE = "Elasticsearch: profile: update";

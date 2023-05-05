@@ -10,5 +10,7 @@ namespace api.Services
         Task RegisterOrcidWebhookForSingleUserprofile(string webhookOrcidId);
         Task UnregisterOrcidWebhookForAllUserprofiles();
         Task UnregisterOrcidWebhookForSingleUserprofile(string webhookOrcidId);
+        Task UpdateAllUserprofilesInElasticsearch(LogUserIdentification logUserIdentification);
+        Task<bool> UpdateUserprofileInElasticsearch(int dimUserProfileId, LogUserIdentification logUserIdentification);
     }
 }
