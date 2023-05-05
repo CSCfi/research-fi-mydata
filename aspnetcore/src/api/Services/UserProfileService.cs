@@ -38,7 +38,8 @@ namespace api.Services
         private readonly ILogger<UserProfileService> _logger;
         private readonly IElasticsearchService _elasticsearchService;
 
-        public UserProfileService(TtvContext ttvContext,
+        public UserProfileService(
+            TtvContext ttvContext,
             IDataSourceHelperService dataSourceHelperService,
             IUtilityService utilityService,
             ILanguageService languageService,
@@ -2181,20 +2182,27 @@ namespace api.Services
             bool hidden = false;
             int publishedCount = 0;
 
-            using (var connection = _ttvContext.Database.GetDbConnection())
+            try
             {
-                string hiddenSql = _ttvSqlService.GetSqlQuery_Select_GetHiddenInUserprofile(dimUserProfileId);
-                hidden = (await connection.QueryAsync<bool>(hiddenSql)).First();
+                using (var connection = _ttvContext.Database.GetDbConnection())
+                {
+                    string hiddenSql = _ttvSqlService.GetSqlQuery_Select_GetHiddenInUserprofile(dimUserProfileId);
+                    hidden = (await connection.QueryAsync<bool>(hiddenSql)).First();
 
-                if (hidden)
-                {
-                    return false;
+                    if (hidden)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        string publishedCountSql = _ttvSqlService.GetSqlQuery_Select_CountPublishedItemsInUserprofile(dimUserProfileId);
+                        publishedCount = (await connection.QueryAsync<int>(publishedCountSql)).First();
+                    }
                 }
-                else
-                {
-                    string publishedCountSql = _ttvSqlService.GetSqlQuery_Select_CountPublishedItemsInUserprofile(dimUserProfileId);
-                    publishedCount = (await connection.QueryAsync<int>(publishedCountSql)).First();
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
             return publishedCount > 1;
         }

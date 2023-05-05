@@ -307,51 +307,35 @@ namespace api.Controllers
             }
 
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
-
-            // Get DimUserProfile
-            DimUserProfile dimUserProfile = await _userProfileService.GetUserprofileById(dimUserProfileId);
-            // Check that user profile exists
-            if (dimUserProfile == null)
-            {
-                _logger.LogError(
-                    LogContent.MESSAGE_TEMPLATE,
-                    logUserIdentification,
-                    new LogApiInfo(
-                        action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE,
-                        state: LogContent.ActionState.FAILED,
-                        error: true,
-                        message: $"profile not found (dim_user_profile.id={dimUserProfileId})"));
-                return NotFound();
-            }
-
-            // Store ORCID ID for background process
-            string orcidId = dimUserProfile.OrcidId;
-            logUserIdentification.Orcid = orcidId;
-
-            // Check if the profile should be updated or deleted in Elasticsearch index
-            bool isUserprofilePublished = await _userProfileService.IsUserprofilePublished(dimUserProfileId);
-
-            if (isUserprofilePublished)
-            {
-                // User profile is published. Update Elasticsearch index.
-                await _userProfileService.UpdateProfileInElasticsearch(
-                    orcidId: orcidId,
-                    userprofileId: dimUserProfile.Id,
-                    logUserIdentification: logUserIdentification,
-                    logAction: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE);
-            }
-            else
-            {
-                // User profile is not published. Delete from Elasticsearch index.
-                await _userProfileService.DeleteProfileFromElasticsearch(
-                    orcidId: orcidId,
-                    logUserIdentification: logUserIdentification,
-                    logAction: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_DELETE);
-            }
-
+            await _adminService.UpdateUserprofileInElasticsearch(dimUserProfileId: dimUserProfileId, logUserIdentification: logUserIdentification);
             return Ok();
         }
 
+
+
+        /// <summary>
+        /// Admin: Update all user profiles in Elasticsearch.
+        /// </summary>
+        [HttpPost]
+        [Route("/[controller]/elasticsearch/updateprofile/all")]
+        public async Task<IActionResult> UpdateAllUserprofilesInElasticsearch()
+        {
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
+            {
+                return Unauthorized();
+            }
+
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            await _adminService.UpdateAllUserprofilesInElasticsearch(logUserIdentification);
+            return Ok();
+        }
 
 
 
