@@ -189,5 +189,30 @@ namespace api.Services
             }
             return true;
         }
+
+        /*
+         * 
+         */
+        public async Task<string> GetDataFromMemberApi(String path, String orcidAccessToken)
+        {
+            // Get ORCID member API specific http client.
+            HttpClient orcidMemberApiHttpClient = _httpClientFactory.CreateClient("ORCID_MEMBER_API");
+            // GET request. Make sure "path" does not start with '/'
+            HttpRequestMessage request = new(method: HttpMethod.Get, requestUri: path.TrimStart('/'));
+            // Insert ORCID access token into authorization header for each request.
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", orcidAccessToken);
+            // Send request
+            try
+            {
+                HttpResponseMessage response = await orcidMemberApiHttpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"OrcidApiService: {ex.ToString()}");
+                return "";
+            }
+        }
     }
 }

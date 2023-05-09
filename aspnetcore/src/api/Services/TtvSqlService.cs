@@ -493,6 +493,12 @@ namespace api.Services
             return $"DELETE FROM dim_name WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimNameIds)})";
         }
 
+        // Return SQL DELETE statement for dim_profile_funding_decision
+        public string GetSqlQuery_Delete_DimProfileOnlyFundingDecisions(List<int> dimProfileOnlyFundingDecisionIds)
+        {
+            return $"DELETE FROM dim_profile_only_funding_decision WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimProfileOnlyFundingDecisionIds)})";
+        }
+
         // Return SQL DELETE statement for dim_profile_only_publication
         public string GetSqlQuery_Delete_DimProfileOnlyPublications(List<int> dimProfileOnlyPublicationIds)
         {

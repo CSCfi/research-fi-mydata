@@ -10,6 +10,11 @@ using System;
 using Microsoft.AspNetCore.Hosting;
 using api.Models.Log;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using api.Models.Ttv;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers
 {
@@ -28,6 +33,8 @@ namespace api.Controllers
         private readonly ILogger<OrcidController> _logger;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMemoryCache _cache;
+        private readonly IBackgroundTaskQueue _taskQueue;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public OrcidController(IUserProfileService userProfileService,
             IOrcidApiService orcidApiService,
@@ -35,7 +42,9 @@ namespace api.Controllers
             ILogger<OrcidController> logger,
             ITokenService tokenService,
             IWebHostEnvironment webHostEnvironment,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IBackgroundTaskQueue taskQueue,
+            IServiceScopeFactory serviceScopeFactory)
         {
             _userProfileService = userProfileService;
             _orcidApiService = orcidApiService;
@@ -44,6 +53,8 @@ namespace api.Controllers
             _logger = logger;
             _webHostEnvironment = webHostEnvironment;
             _cache = memoryCache;
+            _taskQueue = taskQueue;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         /// <summary>
@@ -70,6 +81,9 @@ namespace api.Controllers
             // then the record is requested from public API.
             // In all other cases the ORCID member API will be used.
             string orcidRecordJson = "";
+            OrcidTokens orcidTokens = new();
+
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
 
             if (_webHostEnvironment.EnvironmentName!="Production" && this.GetOrcidPublicApiFlag() != null)
             {
@@ -78,7 +92,7 @@ namespace api.Controllers
                 {
                     _logger.LogInformation(
                         LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
+                        logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.ORCID_RECORD_GET_PUBLIC_API,
                             state: LogContent.ActionState.START));
@@ -88,7 +102,7 @@ namespace api.Controllers
 
                     _logger.LogInformation(
                         LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
+                        logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.ORCID_RECORD_GET_PUBLIC_API,
                             state: LogContent.ActionState.COMPLETE));
@@ -97,7 +111,7 @@ namespace api.Controllers
                 {
                     _logger.LogError(
                         LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
+                        logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.ORCID_RECORD_GET_PUBLIC_API,
                             state: LogContent.ActionState.FAILED,
@@ -112,12 +126,12 @@ namespace api.Controllers
                 // ORCID member API should be used
 
                 // User's ORCID access token handling
-                OrcidTokens orcidTokens;
+                //OrcidTokens orcidTokens;
                 try
                 {
                     _logger.LogInformation(
                         LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
+                        logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.KEYCLOAK_GET_ORCID_TOKENS,
                             state: LogContent.ActionState.START));
@@ -131,7 +145,7 @@ namespace api.Controllers
 
                     _logger.LogInformation(
                         LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
+                        logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.KEYCLOAK_GET_ORCID_TOKENS,
                             state: LogContent.ActionState.COMPLETE));
@@ -140,7 +154,7 @@ namespace api.Controllers
                 {
                     _logger.LogError(
                         LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
+                        logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.KEYCLOAK_GET_ORCID_TOKENS,
                             state: LogContent.ActionState.FAILED,
@@ -154,7 +168,7 @@ namespace api.Controllers
                 {
                     _logger.LogInformation(
                         LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
+                        logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
                             state: LogContent.ActionState.START));
@@ -164,7 +178,7 @@ namespace api.Controllers
 
                     _logger.LogInformation(
                         LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
+                        logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
                             state: LogContent.ActionState.COMPLETE));
@@ -173,7 +187,7 @@ namespace api.Controllers
                 {
                     _logger.LogError(
                         LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
+                        logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
                             state: LogContent.ActionState.FAILED,
@@ -188,7 +202,7 @@ namespace api.Controllers
             {
                 _logger.LogInformation(
                                     LogContent.MESSAGE_TEMPLATE,
-                                    this.GetLogUserIdentification(),
+                                    logUserIdentification,
                                     new LogApiInfo(
                                         action: LogContent.Action.ORCID_RECORD_IMPORT,
                                         state: LogContent.ActionState.START));
@@ -197,7 +211,7 @@ namespace api.Controllers
 
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ORCID_RECORD_IMPORT,
                         state: LogContent.ActionState.COMPLETE));
@@ -206,7 +220,7 @@ namespace api.Controllers
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.ORCID_RECORD_IMPORT,
                         state: LogContent.ActionState.FAILED,
@@ -215,6 +229,57 @@ namespace api.Controllers
 
                 return Ok(new ApiResponse(success: false));
             }
+
+            // Import additional data in a background task
+            // Get ORCID data in a background task.
+            await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+            {
+                // Create service scope and get required services.
+                // Do not use services from controller scope in a background task.
+                using IServiceScope scope = _serviceScopeFactory.CreateScope();
+                IOrcidImportService localOrcidImportService = scope.ServiceProvider.GetRequiredService<IOrcidImportService>();
+                TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
+
+                try
+                {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
+                            state: LogContent.ActionState.START));
+
+                    List<FactFieldValue> ffvs = await localTtvContext.FactFieldValues.Where(
+                            ffv =>
+                                ffv.DimUserProfileId == userprofileId &&
+                                ffv.DimPidIdOrcidPutCode > 0 &&
+                                ffv.DimProfileOnlyFundingDecisionId > 0
+                            )
+                        .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                        .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation).ToListAsync();
+
+                    await _orcidImportService.ImportAdditionalData(ffvs, orcidTokens.AccessToken);
+                    await localTtvContext.SaveChangesAsync();
+
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
+                            state: LogContent.ActionState.COMPLETE));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
+                            error: true,
+                            message: ex.ToString(),
+                            state: LogContent.ActionState.FAILED));
+                }
+            });
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);

@@ -10,6 +10,7 @@ namespace api.Models.Ttv
             BrGrantedPermissions = new HashSet<BrGrantedPermission>();
             DimAffiliations = new HashSet<DimAffiliation>();
             DimEducations = new HashSet<DimEducation>();
+            DimProfileOnlyDatasets = new HashSet<DimProfileOnlyDataset>();
             DimProfileOnlyPublicationArticleTypeCodeNavigations = new HashSet<DimProfileOnlyPublication>();
             DimProfileOnlyPublicationLanguageCodeNavigations = new HashSet<DimProfileOnlyPublication>();
             DimProfileOnlyPublicationParentTypeClassificationCodeNavigations = new HashSet<DimProfileOnlyPublication>();
@@ -51,6 +52,7 @@ namespace api.Models.Ttv
         public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; }
         public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
         public virtual ICollection<DimEducation> DimEducations { get; set; }
+        public virtual ICollection<DimProfileOnlyDataset> DimProfileOnlyDatasets { get; set; }
         public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationArticleTypeCodeNavigations { get; set; }
         public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationLanguageCodeNavigations { get; set; }
         public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationParentTypeClassificationCodeNavigations { get; set; }

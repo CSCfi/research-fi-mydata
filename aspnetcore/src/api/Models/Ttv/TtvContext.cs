@@ -2537,6 +2537,17 @@ namespace api.Models.Ttv
                 entity.Property(e => e.VersionInfo)
                     .HasMaxLength(255)
                     .HasColumnName("version_info");
+
+                entity.HasOne(d => d.DimReferencedataIdAvailabilityNavigation)
+                    .WithMany(p => p.DimProfileOnlyDatasets)
+                    .HasForeignKey(d => d.DimReferencedataIdAvailability)
+                    .HasConstraintName("availability codes");
+
+                entity.HasOne(d => d.DimRegisteredDataSource)
+                    .WithMany(p => p.DimProfileOnlyDatasets)
+                    .HasForeignKey(d => d.DimRegisteredDataSourceId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKdim_profil660906");
             });
 
             modelBuilder.Entity<DimProfileOnlyFundingDecision>(entity =>
@@ -2622,6 +2633,47 @@ namespace api.Models.Ttv
                     .IsRequired()
                     .HasMaxLength(255)
                     .HasColumnName("source_id");
+
+                entity.HasOne(d => d.DimCallProgramme)
+                    .WithMany(p => p.DimProfileOnlyFundingDecisions)
+                    .HasForeignKey(d => d.DimCallProgrammeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKdim_profil901315");
+
+                entity.HasOne(d => d.DimDateIdApprovalNavigation)
+                    .WithMany(p => p.DimProfileOnlyFundingDecisionDimDateIdApprovalNavigations)
+                    .HasForeignKey(d => d.DimDateIdApproval)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKdim_profil305481");
+
+                entity.HasOne(d => d.DimDateIdEndNavigation)
+                    .WithMany(p => p.DimProfileOnlyFundingDecisionDimDateIdEndNavigations)
+                    .HasForeignKey(d => d.DimDateIdEnd)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKdim_profil258491");
+
+                entity.HasOne(d => d.DimDateIdStartNavigation)
+                    .WithMany(p => p.DimProfileOnlyFundingDecisionDimDateIdStartNavigations)
+                    .HasForeignKey(d => d.DimDateIdStart)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKdim_profil96828");
+
+                entity.HasOne(d => d.DimOrganizationIdFunderNavigation)
+                    .WithMany(p => p.DimProfileOnlyFundingDecisions)
+                    .HasForeignKey(d => d.DimOrganizationIdFunder)
+                    .HasConstraintName("FKdim_profil261429");
+
+                entity.HasOne(d => d.DimRegisteredDataSource)
+                    .WithMany(p => p.DimProfileOnlyFundingDecisions)
+                    .HasForeignKey(d => d.DimRegisteredDataSourceId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKdim_profil430683");
+
+                entity.HasOne(d => d.DimTypeOfFunding)
+                    .WithMany(p => p.DimProfileOnlyFundingDecisions)
+                    .HasForeignKey(d => d.DimTypeOfFundingId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FKdim_profil82680450");
             });
 
             modelBuilder.Entity<DimProfileOnlyPublication>(entity =>

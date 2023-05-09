@@ -134,7 +134,38 @@ namespace api.Tests
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualFfv.SourceDescription);
         }
 
-        [Fact(DisplayName = "Get empty DimProfileOnlyPublication")]
+        [Fact(DisplayName = "Get empty DimProfileOnlyFundingDecision")]
+        public void getEmptyDimProfileOnlyFundingDecision_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new UserProfileService();
+            // Act
+            DimProfileOnlyFundingDecision actualDimProfileOnlyFundingDecision = userProfileService.GetEmptyDimProfileOnlyFundingDecision();
+            // Assert
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimDateIdApproval);
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimDateIdStart);
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimDateIdEnd);
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimCallProgrammeId);
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimTypeOfFundingId);
+            Assert.Null(actualDimProfileOnlyFundingDecision.DimOrganizationIdFunder);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.OrcidWorkType);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.FunderProjectNumber);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.Acronym);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.NameFi);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.NameSv);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.NameEn);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.NameUnd);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.DescriptionFi);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.DescriptionEn);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.DescriptionSv);
+            Assert.Equal<decimal>(-1, actualDimProfileOnlyFundingDecision.AmountInEur);
+            Assert.Null(actualDimProfileOnlyFundingDecision.AmountInFundingDecisionCurrency);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.FundingDecisionCurrencyAbbreviation);
+            Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimProfileOnlyFundingDecision.SourceId);
+            Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimProfileOnlyFundingDecision.SourceDescription);
+    }
+
+            [Fact(DisplayName = "Get empty DimProfileOnlyPublication")]
         public void getEmptyDimProfileOnlyPublication_01()
         {
             // Arrange

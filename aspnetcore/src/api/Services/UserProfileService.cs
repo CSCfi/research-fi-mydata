@@ -341,6 +341,41 @@ namespace api.Services
         }
 
         /*
+         * Get empty DimProfileOnlyFundingSecision.
+         * Must use -1 in required foreign keys.
+         */
+        public DimProfileOnlyFundingDecision GetEmptyDimProfileOnlyFundingDecision()
+        {
+            return new DimProfileOnlyFundingDecision()
+            {
+                DimDateIdApproval = -1,
+                DimDateIdStart = -1,
+                DimDateIdEnd = -1,
+                DimCallProgrammeId = -1,
+                DimTypeOfFundingId = -1,
+                DimOrganizationIdFunder = null,
+                OrcidWorkType = "",
+                FunderProjectNumber = "",
+                Acronym = "",
+                NameFi = "",
+                NameSv = "",
+                NameEn = "",
+                NameUnd = "",
+                DescriptionFi = "",
+                DescriptionEn = "",
+                DescriptionSv = "",
+                AmountInEur = -1,
+                AmountInFundingDecisionCurrency = null,
+                FundingDecisionCurrencyAbbreviation = "",
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                Created = null,
+                Modified = null,
+                DimRegisteredDataSourceId = -1
+            };
+        }
+
+        /*
          * Get empty DimProfileOnlyPublication.
          * Must use -1 in required foreign keys.
          */
@@ -1900,6 +1935,7 @@ namespace api.Services
                 List<int> dimFundingDecisionIds = new();
                 List<int> dimKeywordIds = new();
                 List<int> dimNameIds = new();
+                List<int> dimProfileOnlyFundingDecisionIds = new();
                 List<int> dimProfileOnlyPublicationIds = new();
                 List<int> dimProfileOnlyResearchActivityIds = new();
                 List<int> dimPidIds = new();
@@ -1951,6 +1987,7 @@ namespace api.Services
                             if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
+                            if (factFieldValue.DimProfileOnlyFundingDecisionId != -1) dimProfileOnlyFundingDecisionIds.Add(factFieldValue.DimProfileOnlyFundingDecisionId);
                             if (factFieldValue.DimProfileOnlyPublicationId != -1) dimProfileOnlyPublicationIds.Add(factFieldValue.DimProfileOnlyPublicationId);
                             if (factFieldValue.DimProfileOnlyResearchActivityId != -1) dimProfileOnlyResearchActivityIds.Add(factFieldValue.DimProfileOnlyResearchActivityId);
                             if (factFieldValue.DimPidId != -1) dimPidIds.Add(factFieldValue.DimPidId);
@@ -2034,6 +2071,14 @@ namespace api.Services
                     {
                         await connection.ExecuteAsync(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimNames(dimNameIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete profile only funding decisions
+                    if (dimProfileOnlyFundingDecisionIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyFundingDecisions(dimProfileOnlyFundingDecisionIds),
                             transaction: transaction
                         );
                     }
