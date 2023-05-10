@@ -1,6 +1,4 @@
-﻿using static api.Models.Common.Constants;
-
-namespace api.Models.Orcid
+﻿namespace api.Models.Orcid
 {
     public partial class OrcidFunding {
         public OrcidFunding(

@@ -134,6 +134,7 @@ namespace api.Services
                     ffv.dim_identifierless_data_id AS 'FactFieldValues_DimIdentifierlessDataId',
                     ffv.dim_education_id AS 'FactFieldValues_DimEducationId',
                     ffv.dim_publication_id AS 'FactFieldValues_DimPublicationId',
+                    ffv.dim_profile_only_funding_decision_id AS 'FactFieldValues_DimProfileOnlyFundingDecisionId',
                     ffv.dim_profile_only_publication_id AS 'FactFieldValues_DimProfileOnlyPublicationId',
                     ffv.dim_profile_only_research_activity_id AS 'FactFieldValues_DimProfileOnlyResearchActivityId',
                     ffv.dim_research_activity_id AS 'FactFieldValues_DimResearchActivityId',
@@ -292,6 +293,7 @@ namespace api.Services
 					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.name_fi AS 'DimResearchActivity_Role_NameFi',
 					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.name_en AS 'DimResearchActivity_Role_NameEn',
 					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.name_sv AS 'DimResearchActivity_Role_NameSv',
+
                     dfd.acronym AS 'DimFundingDecision_Acronym',
                     dfd.funder_project_number AS 'DimFundingDecision_FunderProjectNumber',
                     dfd.name_fi AS 'DimFundingDecision_NameFi',
@@ -312,6 +314,28 @@ namespace api.Services
                     dfd_organization.name_fi AS 'DimFundingDecision_Funder_NameFi',
                     dfd_organization.name_en AS 'DimFundingDecision_Funder_NameEn',
                     dfd_organization.name_sv AS 'DimFundingDecision_Funder_NameSv',
+
+                    dpofd.acronym AS 'DimProfileOnlyFundingDecision_Acronym',
+                    dpofd.funder_project_number AS 'DimProfileOnlFundingDecision_FunderProjectNumber',
+                    dpofd.name_fi AS 'DimProfileOnlyFundingDecision_NameFi',
+                    dpofd.name_en AS 'DimProfileOnlyFundingDecision_NameEn',
+                    dpofd.name_sv AS 'DimProfileOnlyFundingDecision_NameSv',
+                    dpofd.description_fi AS 'DimProfileOnlyFundingDecision_DescriptionFi',
+                    dpofd.description_en AS 'DimProfileOnlyFundingDecision_DescriptionEn',
+                    dpofd.description_sv AS 'DimProfileOnlyFundingDecision_DescriptionSv',
+                    dpofd.amount_in_EUR AS 'DimProfileOnlyFundingDecision_AmountInEur',
+                    dpofd.amount_in_funding_decision_currency AS 'DimProfileOnlyFundingDecision_AmountInFundingDecisionCurrency',
+                    dpofd.funding_decision_currency_abbreviation AS 'DimProfileOnlyFundingDecision_FundingDecisionCurrencyAbbreviation',
+                    profile_only_funding_decision_start_date.year AS 'DimProfileOnlyFundingDecision_StartDate_Year',
+                    profile_only_funding_decision_end_date.year AS 'DimProfileOnlyFundingDecision_EndDate_Year',
+                    dpofd_organization.name_fi AS 'DimProfileOnlyFundingDecision_Funder_NameFi',
+                    dpofd_organization.name_en AS 'DimProfileOnlyFundingDecision_Funder_NameEn',
+                    dpofd_organization.name_sv AS 'DimProfileOnlyFundingDecision_Funder_NameSv',
+                    profile_only_funding_decision_actor_role.code_value AS 'DimProfileOnlyFundingDecision_Role_CodeValue',
+                    profile_only_funding_decision_actor_role.name_fi AS 'DimProfileOnlyFundingDecision_DimTypeOfFunding_NameFi',
+                    profile_only_funding_decision_actor_role.name_en AS 'DimProfileOnlyFundingDecision_DimTypeOfFunding_NameEn',
+                    profile_only_funding_decision_actor_role.name_sv AS 'DimProfileOnlyFundingDecision_DimTypeOfFunding_NameSv',
+
                     dim_research_dataset.local_identifier AS 'DimResearchDataset_LocalIdentifier',
                     dim_research_dataset.name_fi AS 'DimResearchDataset_NameFi',
                     dim_research_dataset.name_en AS 'DimResearchDataset_NameEn',
@@ -389,6 +413,13 @@ namespace api.Services
                 LEFT JOIN dim_call_programme ON dim_call_programme.id=dfd.dim_call_programme_id
                 LEFT JOIN dim_type_of_funding ON dim_type_of_funding.id=dfd.dim_type_of_funding_id
                 LEFT JOIN dim_organization AS dfd_organization ON dfd_organization.id=dfd.dim_organization_id_funder
+                
+                JOIN dim_profile_only_funding_decision AS dpofd ON ffv.dim_profile_only_funding_decision_id=dpofd.id
+                LEFT JOIN dim_date AS profile_only_funding_decision_start_date ON dpofd.dim_date_id_start=profile_only_funding_decision_start_date.id AND profile_only_funding_decision_start_date.id!=-1
+                LEFT JOIN dim_date AS profile_only_funding_decision_end_date ON dpofd.dim_date_id_end=profile_only_funding_decision_end_date.id AND profile_only_funding_decision_end_date.id!=-1
+                LEFT JOIN dim_organization AS dpofd_organization ON dpofd_organization.id=dpofd.dim_organization_id_funder
+                LEFT JOIN dim_referencedata AS profile_only_funding_decision_actor_role ON ffv.dim_referencedata_actor_role_id=profile_only_funding_decision_actor_role.id
+
                 JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
                 WHERE
                     ffv.dim_user_profile_id={userprofileId} AND {(forElasticsearch ? " ffv.show=1 AND " : "")}
@@ -404,6 +435,7 @@ namespace api.Services
                         ffv.dim_identifierless_data_id != -1 OR
                         ffv.dim_education_id != -1 OR
                         ffv.dim_publication_id != -1 OR
+                        ffv.dim_profile_only_funding_decision_id != -1 OR
                         ffv.dim_profile_only_publication_id != -1 OR
                         ffv.dim_profile_only_research_activity_id != -1 OR
                         ffv.dim_research_activity_id != -1 OR

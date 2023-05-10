@@ -198,6 +198,7 @@ namespace api.Controllers
             }
 
             // Import record json into userprofile
+            bool importSuccess = false;
             try
             {
                 _logger.LogInformation(
@@ -208,6 +209,7 @@ namespace api.Controllers
                                         state: LogContent.ActionState.START));
 
                 await _orcidImportService.ImportOrcidRecordJsonIntoUserProfile(userprofileId, orcidRecordJson);
+                importSuccess = true;
 
                 _logger.LogInformation(
                     LogContent.MESSAGE_TEMPLATE,
@@ -218,6 +220,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
+                importSuccess = false;
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
@@ -232,54 +235,57 @@ namespace api.Controllers
 
             // Import additional data in a background task
             // Get ORCID data in a background task.
-            await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+            if (importSuccess)
             {
-                // Create service scope and get required services.
-                // Do not use services from controller scope in a background task.
-                using IServiceScope scope = _serviceScopeFactory.CreateScope();
-                IOrcidImportService localOrcidImportService = scope.ServiceProvider.GetRequiredService<IOrcidImportService>();
-                TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
-
-                try
+                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
-                            state: LogContent.ActionState.START));
+                    // Create service scope and get required services.
+                    // Do not use services from controller scope in a background task.
+                    using IServiceScope scope = _serviceScopeFactory.CreateScope();
+                    IOrcidImportService localOrcidImportService = scope.ServiceProvider.GetRequiredService<IOrcidImportService>();
+                    TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
 
-                    List<FactFieldValue> ffvs = await localTtvContext.FactFieldValues.Where(
-                            ffv =>
-                                ffv.DimUserProfileId == userprofileId &&
-                                ffv.DimPidIdOrcidPutCode > 0 &&
-                                ffv.DimProfileOnlyFundingDecisionId > 0
-                            )
-                        .Include(ffv => ffv.DimProfileOnlyFundingDecision)
-                        .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation).ToListAsync();
+                    try
+                    {
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
+                                state: LogContent.ActionState.START));
 
-                    await _orcidImportService.ImportAdditionalData(ffvs, orcidTokens.AccessToken);
-                    await localTtvContext.SaveChangesAsync();
+                        List<FactFieldValue> ffvs = await localTtvContext.FactFieldValues.Where(
+                                ffv =>
+                                    ffv.DimUserProfileId == userprofileId &&
+                                    ffv.DimPidIdOrcidPutCode > 0 &&
+                                    ffv.DimProfileOnlyFundingDecisionId > 0
+                                )
+                            .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                            .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation).ToListAsync();
 
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
-                            state: LogContent.ActionState.COMPLETE));
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
-                            error: true,
-                            message: ex.ToString(),
-                            state: LogContent.ActionState.FAILED));
-                }
-            });
+                        await _orcidImportService.ImportAdditionalData(ffvs, orcidTokens.AccessToken);
+                        await localTtvContext.SaveChangesAsync();
+
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
+                                state: LogContent.ActionState.COMPLETE));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
+                                error: true,
+                                message: ex.ToString(),
+                                state: LogContent.ActionState.FAILED));
+                    }
+                });
+            }
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
