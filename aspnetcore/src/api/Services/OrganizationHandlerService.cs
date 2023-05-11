@@ -56,6 +56,18 @@ namespace api.Services
         }
 
         /*
+         * Normalize RORID from URL form "https://ror.org/<rorid>" to "<rorid>"
+         */
+        public string NormalizeRorId(string rorId)
+        {
+            if (rorId.StartsWith("https://ror.org") || rorId.StartsWith("http://ror.org"))
+            {
+                return rorId.Split("/").Last();
+            }
+            return rorId;
+        }
+
+        /*
          * Find organization by ORCID disambiguation identifier.
          */
         public async Task<int?> FindOrganizationIdByOrcidDisambiguationIdentifier(string orcidDisambiguationSource, string orcidDisambiguatedOrganizationIdentifier)
@@ -67,6 +79,12 @@ namespace api.Services
             if (pidType == "" || orcidDisambiguatedOrganizationIdentifier == "")
             {
                 return null;
+            }
+
+            // Normalize ROR
+            if (pidType == "RORID")
+            {
+                orcidDisambiguatedOrganizationIdentifier = NormalizeRorId(orcidDisambiguatedOrganizationIdentifier);
             }
 
             // Find matching DimPid.

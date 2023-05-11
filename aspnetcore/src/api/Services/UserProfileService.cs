@@ -1865,53 +1865,69 @@ namespace api.Services
                                 nameEn: p.DimProfileOnlyFundingDecision_DescriptionEn,
                                 nameSv: p.DimProfileOnlyFundingDecision_DescriptionSv
                             );
-                            // Name translation: funder name
-                            NameTranslation nameTranslationFunderName = _languageService.GetNameTranslation(
-                                nameFi: p.DimProfileOnlyFundingDecision_Funder_NameFi,
-                                nameEn: p.DimProfileOnlyFundingDecision_Funder_NameEn,
-                                nameSv: p.DimProfileOnlyFundingDecision_Funder_NameSv
-                            );
                             // Name translation: type of funding name
                             NameTranslation nameTranslationTypeOfFundingName = _languageService.GetNameTranslation(
                                 nameFi: p.DimProfileOnlyFundingDecision_DimTypeOfFunding_NameFi,
                                 nameEn: p.DimProfileOnlyFundingDecision_DimTypeOfFunding_NameEn,
                                 nameSv: p.DimProfileOnlyFundingDecision_DimTypeOfFunding_NameSv
                             );
-                            profileDataResponse.activity.fundingDecisions.Add(
-                            new ProfileEditorFundingDecision()
+
+                            // Name translation: funder name
+                            NameTranslation nameTranslationFunderName = new();
+                            // Taken from either related dim_organization or dim_identifierless_data
+                            if (p.DimProfileOnlyFundingDecision_DimOrganization_Id != null && p.DimProfileOnlyFundingDecision_DimOrganization_Id > 0)
                             {
-                                ProjectId = -1, // Not populated for DimProfileOnlyFundingDecision 
-                                ProjectAcronym = p.DimProfileOnlyFundingDecision_Acronym,
-                                ProjectNameFi = nameTranslationFundingDecisionName.NameFi,
-                                ProjectNameEn = nameTranslationFundingDecisionName.NameEn,
-                                ProjectNameSv = nameTranslationFundingDecisionName.NameSv,
-                                ProjectDescriptionFi = nameTranslationFundingDecisionDescription.NameFi,
-                                ProjectDescriptionEn = nameTranslationFundingDecisionDescription.NameEn,
-                                ProjectDescriptionSv = nameTranslationFundingDecisionDescription.NameSv,
-                                FunderNameFi = nameTranslationFunderName.NameFi,
-                                FunderNameEn = nameTranslationFunderName.NameEn,
-                                FunderNameSv = nameTranslationFunderName.NameSv,
-                                FunderProjectNumber = p.DimProfileOnlFundingDecision_FunderProjectNumber,
-                                TypeOfFundingNameFi = nameTranslationTypeOfFundingName.NameFi,
-                                TypeOfFundingNameEn = nameTranslationTypeOfFundingName.NameEn,
-                                TypeOfFundingNameSv = nameTranslationTypeOfFundingName.NameSv,
-                                CallProgrammeNameFi = "", // Not populated for DimProfileOnlyFundingDecision 
-                                CallProgrammeNameEn = "", // Not populated for DimProfileOnlyFundingDecision 
-                                CallProgrammeNameSv = "", // Not populated for DimProfileOnlyFundingDecision 
-                                FundingStartYear = p.DimProfileOnlyFundingDecision_StartDate_Year,
-                                FundingEndYear = p.DimProfileOnlyFundingDecision_EndDate_Year,
-                                AmountInEur = p.DimProfileOnlyFundingDecision_AmountInEur,
-                                AmountInFundingDecisionCurrency = p.DimProfileOnlyFundingDecision_AmountInFundingDecisionCurrency,
-                                FundingDecisionCurrencyAbbreviation = p.DimProfileOnlyFundingDecision_FundingDecisionCurrencyAbbreviation,
-                                itemMeta = new ProfileEditorItemMeta(
-                                    id: p.FactFieldValues_DimProfileOnlyFundingDecisionId,
-                                    type: Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION_PROFILE_ONLY,
-                                    show: p.FactFieldValues_Show,
-                                    primaryValue: p.FactFieldValues_PrimaryValue
-                                ),
-                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                                nameTranslationFunderName = _languageService.GetNameTranslation(
+                                    nameFi: p.DimProfileOnlyFundingDecision_DimOrganization_NameFi,
+                                    nameEn: p.DimProfileOnlyFundingDecision_DimOrganization_NameEn,
+                                    nameSv: p.DimProfileOnlyFundingDecision_DimOrganization_NameSv
+                                );
                             }
-                        );
+                            else if (p.FactFieldValues_DimIdentifierlessDataId > -1 &&
+                                p.DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                            {
+                                nameTranslationFunderName = _languageService.GetNameTranslation(
+                                    nameFi: p.DimIdentifierlessData_ValueFi,
+                                    nameEn: p.DimIdentifierlessData_ValueEn,
+                                    nameSv: p.DimIdentifierlessData_ValueSv
+                                );
+                            }
+
+                            profileDataResponse.activity.fundingDecisions.Add(
+                                new ProfileEditorFundingDecision()
+                                {
+                                    ProjectId = -1, // Not populated for DimProfileOnlyFundingDecision 
+                                    ProjectAcronym = p.DimProfileOnlyFundingDecision_Acronym,
+                                    ProjectNameFi = nameTranslationFundingDecisionName.NameFi,
+                                    ProjectNameEn = nameTranslationFundingDecisionName.NameEn,
+                                    ProjectNameSv = nameTranslationFundingDecisionName.NameSv,
+                                    ProjectDescriptionFi = nameTranslationFundingDecisionDescription.NameFi,
+                                    ProjectDescriptionEn = nameTranslationFundingDecisionDescription.NameEn,
+                                    ProjectDescriptionSv = nameTranslationFundingDecisionDescription.NameSv,
+                                    FunderNameFi = nameTranslationFunderName.NameFi,
+                                    FunderNameEn = nameTranslationFunderName.NameEn,
+                                    FunderNameSv = nameTranslationFunderName.NameSv,
+                                    FunderProjectNumber = p.DimProfileOnlFundingDecision_FunderProjectNumber,
+                                    TypeOfFundingNameFi = nameTranslationTypeOfFundingName.NameFi,
+                                    TypeOfFundingNameEn = nameTranslationTypeOfFundingName.NameEn,
+                                    TypeOfFundingNameSv = nameTranslationTypeOfFundingName.NameSv,
+                                    CallProgrammeNameFi = "", // Not populated for DimProfileOnlyFundingDecision 
+                                    CallProgrammeNameEn = "", // Not populated for DimProfileOnlyFundingDecision 
+                                    CallProgrammeNameSv = "", // Not populated for DimProfileOnlyFundingDecision 
+                                    FundingStartYear = p.DimProfileOnlyFundingDecision_StartDate_Year,
+                                    FundingEndYear = p.DimProfileOnlyFundingDecision_EndDate_Year,
+                                    AmountInEur = p.DimProfileOnlyFundingDecision_AmountInEur,
+                                    AmountInFundingDecisionCurrency = p.DimProfileOnlyFundingDecision_AmountInFundingDecisionCurrency,
+                                    FundingDecisionCurrencyAbbreviation = p.DimProfileOnlyFundingDecision_FundingDecisionCurrencyAbbreviation,
+                                    itemMeta = new ProfileEditorItemMeta(
+                                        id: p.FactFieldValues_DimProfileOnlyFundingDecisionId,
+                                        type: Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION_PROFILE_ONLY,
+                                        show: p.FactFieldValues_Show,
+                                        primaryValue: p.FactFieldValues_PrimaryValue
+                                    ),
+                                    DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                                }
+                            );
                         }
                         break;
 

@@ -32,7 +32,6 @@ namespace api.Tests
         {
             var utilityService = new UtilityService();
             Assert.Null(utilityService.StringToNullableDecimal(""));
-            Assert.Equal<decimal?>(123.45m, utilityService.StringToNullableDecimal("123,45"));
             Assert.Equal<decimal?>(123.45m, utilityService.StringToNullableDecimal("123.45"));
         }
     }

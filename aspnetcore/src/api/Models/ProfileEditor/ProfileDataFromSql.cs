@@ -253,9 +253,10 @@ namespace api.Models.ProfileEditor
         public string DimProfileOnlyFundingDecision_FundingDecisionCurrencyAbbreviation { get; set; }
         public int DimProfileOnlyFundingDecision_StartDate_Year { get; set; }
         public int DimProfileOnlyFundingDecision_EndDate_Year { get; set; }
-        public string DimProfileOnlyFundingDecision_Funder_NameFi { get; set; }
-        public string DimProfileOnlyFundingDecision_Funder_NameEn { get; set; }
-        public string DimProfileOnlyFundingDecision_Funder_NameSv { get; set; }
+        public int? DimProfileOnlyFundingDecision_DimOrganization_Id { get; set; }
+        public string DimProfileOnlyFundingDecision_DimOrganization_NameFi { get; set; }
+        public string DimProfileOnlyFundingDecision_DimOrganization_NameEn { get; set; }
+        public string DimProfileOnlyFundingDecision_DimOrganization_NameSv { get; set; }
         public string DimProfileOnlyFundingDecision_Role_CodeValue { get; set; }
         public string DimProfileOnlyFundingDecision_DimTypeOfFunding_NameFi { get; set; }
         public string DimProfileOnlyFundingDecision_DimTypeOfFunding_NameEn { get; set; }

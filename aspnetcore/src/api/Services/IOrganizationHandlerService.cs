@@ -10,5 +10,6 @@ namespace api.Services
         void DepartmentNameHandling(FactFieldValue ffv, string departmentNameFi, string departmentNameEn, string departmentNameSv);
         Task<int?> FindOrganizationIdByOrcidDisambiguationIdentifier(string orcidDisambiguationSource, string orcidDisambiguatedOrganizationIdentifier);
         string MapOrcidDisambiguationSourceToPidType(string orcidDisambiguationSource);
+        string NormalizeRorId(string rorId);
     }
 }

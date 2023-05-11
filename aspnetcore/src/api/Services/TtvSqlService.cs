@@ -328,9 +328,10 @@ namespace api.Services
                     dpofd.funding_decision_currency_abbreviation AS 'DimProfileOnlyFundingDecision_FundingDecisionCurrencyAbbreviation',
                     profile_only_funding_decision_start_date.year AS 'DimProfileOnlyFundingDecision_StartDate_Year',
                     profile_only_funding_decision_end_date.year AS 'DimProfileOnlyFundingDecision_EndDate_Year',
-                    dpofd_organization.name_fi AS 'DimProfileOnlyFundingDecision_Funder_NameFi',
-                    dpofd_organization.name_en AS 'DimProfileOnlyFundingDecision_Funder_NameEn',
-                    dpofd_organization.name_sv AS 'DimProfileOnlyFundingDecision_Funder_NameSv',
+                    dpofd_organization.id AS 'DimProfileOnlyFundingDecision_DimOrganization_Id',
+                    dpofd_organization.name_fi AS 'DimProfileOnlyFundingDecision_DimOrganization_NameFi',
+                    dpofd_organization.name_en AS 'DimProfileOnlyFundingDecision_DimOrganization_NameEn',
+                    dpofd_organization.name_sv AS 'DimProfileOnlyFundingDecision_DimOrganization_NameSv',
                     profile_only_funding_decision_actor_role.code_value AS 'DimProfileOnlyFundingDecision_Role_CodeValue',
                     profile_only_funding_decision_actor_role.name_fi AS 'DimProfileOnlyFundingDecision_DimTypeOfFunding_NameFi',
                     profile_only_funding_decision_actor_role.name_en AS 'DimProfileOnlyFundingDecision_DimTypeOfFunding_NameEn',
@@ -415,9 +416,9 @@ namespace api.Services
                 LEFT JOIN dim_organization AS dfd_organization ON dfd_organization.id=dfd.dim_organization_id_funder
                 
                 JOIN dim_profile_only_funding_decision AS dpofd ON ffv.dim_profile_only_funding_decision_id=dpofd.id
+                LEFT JOIN dim_organization AS dpofd_organization ON dpofd_organization.id=dpofd.dim_organization_id_funder
                 LEFT JOIN dim_date AS profile_only_funding_decision_start_date ON dpofd.dim_date_id_start=profile_only_funding_decision_start_date.id AND profile_only_funding_decision_start_date.id!=-1
                 LEFT JOIN dim_date AS profile_only_funding_decision_end_date ON dpofd.dim_date_id_end=profile_only_funding_decision_end_date.id AND profile_only_funding_decision_end_date.id!=-1
-                LEFT JOIN dim_organization AS dpofd_organization ON dpofd_organization.id=dpofd.dim_organization_id_funder
                 LEFT JOIN dim_referencedata AS profile_only_funding_decision_actor_role ON ffv.dim_referencedata_actor_role_id=profile_only_funding_decision_actor_role.id
 
                 JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
