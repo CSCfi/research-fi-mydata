@@ -620,6 +620,19 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
+        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, profile only dataset")]
+        public void Test_getSqlQuery_Delete_FactFieldValues_related_profile_only_dataset()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            List<int> ids = new() { 10111, 10222, 10333 };
+            string expectedSqlString = "DELETE FROM dim_profile_only_dataset WHERE id IN (10111,10222,10333)";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyDatasets(ids);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, profile only funding decision")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_profile_only_funding_decision()
         {

@@ -9,6 +9,7 @@ using api.Models.Orcid;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Nest;
 using Serilog.Core;
@@ -147,9 +148,35 @@ namespace api.Services
                 }
             }
 
+            // Dataset DimDates
+            List<OrcidDataset> datasets = _orcidJsonParserService.GetDatasets(orcidRecordJson);
+            foreach (OrcidDataset dataset in datasets)
+            {
+                DimDate datasetDate =
+                    await _ttvContext.DimDates.FirstOrDefaultAsync(
+                        dd => dd.Year == dataset.DatasetDate.Year &&
+                        dd.Month == dataset.DatasetDate.Month &&
+                        dd.Day == dataset.DatasetDate.Day);
+                if (datasetDate == null)
+                {
+                    datasetDate = new DimDate()
+                    {
+                        Year = dataset.DatasetDate.Year,
+                        Month = dataset.DatasetDate.Month,
+                        Day = dataset.DatasetDate.Day,
+                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        Created = currentDateTime,
+                        Modified = currentDateTime
+                    };
+                    _ttvContext.DimDates.Add(datasetDate);
+                    await _ttvContext.SaveChangesAsync();
+                }
+            }
+
             // Funding DimDates
             List<OrcidFunding> fundings = _orcidJsonParserService.GetFundings(orcidRecordJson);
-            foreach ( OrcidFunding funding in fundings)
+            foreach (OrcidFunding funding in fundings)
             {
                 // Start data
                 DimDate fundingStartDate =
@@ -277,6 +304,9 @@ namespace api.Services
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyFundingDecision)
                         .ThenInclude(fd => fd.DimOrganizationIdFunderNavigation)
+                // DimProfileOnlyDataset
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
+                    .ThenInclude(ffv => ffv.DimProfileOnlyDataset)
                 // DimProfileOnlyResearchActivity
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyResearchActivity)
@@ -1014,7 +1044,7 @@ namespace api.Services
                     // Update existing FactFieldValue
                     factFieldValuesPublication.Modified = currentDateTime;
                     // Mark as processed
-                    orcidImportHelper.dimPublicationIds.Add(factFieldValuesPublication.DimProfileOnlyPublicationId);
+                    orcidImportHelper.dimProfileOnlyPublicationIds.Add(factFieldValuesPublication.DimProfileOnlyPublicationId);
                 }
                 else
                 {
@@ -1045,6 +1075,71 @@ namespace api.Services
                     factFieldValuesPublication.DimProfileOnlyPublication = dimProfileOnlyPublication;
                     factFieldValuesPublication.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
                     _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
+                }
+            }
+
+
+
+
+            // Dataset
+            List<OrcidDataset> orcidDatasets = _orcidJsonParserService.GetDatasets(orcidRecordJson);
+            // Get DimFieldDisplaySettings for orcid dataset
+            DimFieldDisplaySetting dimFieldDisplaySettingsProfileOnlyDataset =
+                dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
+            foreach (OrcidDataset orcidDataset in orcidDatasets)
+            {
+                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyDataset
+                FactFieldValue factFieldValuesProfileOnlyDataset =
+                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                        ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsProfileOnlyDataset &&
+                        ffv.DimPidIdOrcidPutCode > 0 &&
+                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == orcidDataset.PutCode.Value.ToString());
+
+                // Dataset date
+                DimDate datasetDate = await _ttvContext.DimDates
+                    .FirstOrDefaultAsync(dd => dd.Year == orcidDataset.DatasetDate.Year && dd.Month == orcidDataset.DatasetDate.Month && dd.Day == orcidDataset.DatasetDate.Day);
+
+                if (factFieldValuesProfileOnlyDataset != null)
+                {
+                    // Update existing DimProfileOnlyDataset
+                    DimProfileOnlyDataset dimProfileOnlyDataset = factFieldValuesProfileOnlyDataset.DimProfileOnlyDataset;
+                    dimProfileOnlyDataset.OrcidWorkType = orcidDataset.Type;
+                    dimProfileOnlyDataset.NameEn = orcidDataset.DatasetName;
+                    // dimProfileOnlyDataset.DatasetCreated =   TODO: Add when database model is fixed (datetime => FK to dim_date)
+                    dimProfileOnlyDataset.Modified = currentDateTime;
+                    // Update existing FactFieldValue
+                    dimProfileOnlyDataset.Modified = currentDateTime;
+                    // Mark as processed
+                    orcidImportHelper.dimProfileOnlyDatasetIds.Add(factFieldValuesProfileOnlyDataset.DimProfileOnlyDatasetId);
+                }
+                else
+                {
+                    // Create new DimProfileOnlyDataset
+                    DimProfileOnlyDataset dimProfileOnlyDataset = _userProfileService.GetEmptyDimProfileOnlyDataset();
+                    dimProfileOnlyDataset.OrcidWorkType = orcidDataset.Type;
+                    dimProfileOnlyDataset.NameEn = orcidDataset.DatasetName;
+                    //dimProfileOnlyDataset.DatasetCreated =   TODO: Add when database model is fixed (datetime => FK to dim_date)
+                    dimProfileOnlyDataset.SourceId = Constants.SourceIdentifiers.PROFILE_API;
+                    dimProfileOnlyDataset.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    dimProfileOnlyDataset.Created = currentDateTime;
+                    _ttvContext.DimProfileOnlyDatasets.Add(dimProfileOnlyDataset);
+
+                    // Add dataset's ORCID put code into DimPid
+                    DimPid dimPidOrcidPutCodeDataset = _userProfileService.GetEmptyDimPid();
+                    dimPidOrcidPutCodeDataset.PidContent = orcidDataset.PutCode.GetDbValue();
+                    dimPidOrcidPutCodeDataset.PidType = Constants.PidTypes.ORCID_PUT_CODE;
+                    dimPidOrcidPutCodeDataset.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
+                    dimPidOrcidPutCodeDataset.SourceId = Constants.SourceIdentifiers.PROFILE_API;
+                    _ttvContext.DimPids.Add(dimPidOrcidPutCodeDataset);
+
+                    // Create FactFieldValues for ORCID dataset
+                    factFieldValuesProfileOnlyDataset = _userProfileService.GetEmptyFactFieldValue();
+                    factFieldValuesProfileOnlyDataset.DimUserProfile = dimUserProfile;
+                    factFieldValuesProfileOnlyDataset.DimFieldDisplaySettings = dimFieldDisplaySettingsOrcidPublication;
+                    factFieldValuesProfileOnlyDataset.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    factFieldValuesProfileOnlyDataset.DimProfileOnlyDataset = dimProfileOnlyDataset;
+                    factFieldValuesProfileOnlyDataset.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeDataset;
+                    _ttvContext.FactFieldValues.Add(factFieldValuesProfileOnlyDataset);
                 }
             }
 
@@ -1142,7 +1237,7 @@ namespace api.Services
                     // Update existing FactFieldValue
                     factFieldValuesProfileOnlyFundingDecision.Modified = currentDateTime;
                     // Mark as processed
-                    orcidImportHelper.dimFundingIds.Add(factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecisionId);
+                    orcidImportHelper.dimProfileOnlyFundingDecisionIds.Add(factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecisionId);
                 }
                 else
                 {
@@ -1306,7 +1401,7 @@ namespace api.Services
                     // Update existing FactFieldValue
                     factFieldValuesDimProfileOnlyResearchActivity.Modified = currentDateTime;
                     // Mark as processed
-                    orcidImportHelper.dimResearchActivityIds.Add(factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivityId);
+                    orcidImportHelper.dimProfileOnlyResearchActivityIds.Add(factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivityId);
                 }
                 else
                 {
@@ -1525,7 +1620,7 @@ namespace api.Services
                 dimUserProfile.FactFieldValues.Where(ffv =>
                     ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
                     ffv.DimProfileOnlyPublicationId > 0 &&
-                    !orcidImportHelper.dimPublicationIds.Contains(ffv.DimProfileOnlyPublicationId)).ToList();
+                    !orcidImportHelper.dimProfileOnlyPublicationIds.Contains(ffv.DimProfileOnlyPublicationId)).ToList();
             foreach (FactFieldValue removableFfvPublication in removableFfvPublications.Distinct())
             {
                 _ttvContext.FactFieldValues.Remove(removableFfvPublication);
@@ -1536,12 +1631,28 @@ namespace api.Services
                 }
             }
 
+            // Remove datasets, which user has deleted in ORCID
+            List<FactFieldValue> removableFfvDatasets =
+                dimUserProfile.FactFieldValues.Where(ffv =>
+                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                    ffv.DimProfileOnlyDatasetId > 0 &&
+                    !orcidImportHelper.dimProfileOnlyDatasetIds.Contains(ffv.DimProfileOnlyDatasetId)).ToList();
+            foreach (FactFieldValue removableFfvDataset in removableFfvDatasets.Distinct())
+            {
+                _ttvContext.FactFieldValues.Remove(removableFfvDataset);
+                _ttvContext.DimProfileOnlyDatasets.Remove(removableFfvDataset.DimProfileOnlyDataset);
+                if (removableFfvDataset.DimPidIdOrcidPutCode > 0)
+                {
+                    _ttvContext.DimPids.Remove(removableFfvDataset.DimPidIdOrcidPutCodeNavigation);
+                }
+            }
+
             // Remove research activities, which user has deleted in ORCID
             List<FactFieldValue> removableFfvResearchActivities =
                 dimUserProfile.FactFieldValues.Where(ffv =>
                     ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
                     ffv.DimProfileOnlyResearchActivityId > 0 &&
-                    !orcidImportHelper.dimResearchActivityIds.Contains(ffv.DimProfileOnlyResearchActivityId)).ToList();
+                    !orcidImportHelper.dimProfileOnlyResearchActivityIds.Contains(ffv.DimProfileOnlyResearchActivityId)).ToList();
             foreach (FactFieldValue removableFfvResearchActivity in removableFfvResearchActivities.Distinct())
             {
                 _ttvContext.FactFieldValues.Remove(removableFfvResearchActivity);
@@ -1557,7 +1668,7 @@ namespace api.Services
                 dimUserProfile.FactFieldValues.Where(ffv =>
                     ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
                     ffv.DimProfileOnlyFundingDecisionId > 0 &&
-                    !orcidImportHelper.dimFundingIds.Contains(ffv.DimProfileOnlyFundingDecisionId)).ToList();
+                    !orcidImportHelper.dimProfileOnlyFundingDecisionIds.Contains(ffv.DimProfileOnlyFundingDecisionId)).ToList();
             foreach (FactFieldValue removableFfvFunding in removableFfvFundings.Distinct())
             {
                 _ttvContext.FactFieldValues.Remove(removableFfvFunding);

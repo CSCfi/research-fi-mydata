@@ -341,7 +341,36 @@ namespace api.Services
         }
 
         /*
-         * Get empty DimProfileOnlyFundingSecision.
+         * Get empty DimProfileOnlyDataset.
+         * Must use -1 in required foreign keys.
+         */
+        public DimProfileOnlyDataset GetEmptyDimProfileOnlyDataset()
+        {
+            return new DimProfileOnlyDataset()
+            {
+                DimReferencedataIdAvailability = null,
+                OrcidWorkType = "",
+                LocalIdentifier = "",
+                NameFi = "",
+                NameEn = "",
+                NameSv = "",
+                NameUnd = "",
+                DescriptionFi = "",
+                DescriptionSv = "",
+                DescriptionEn = "",
+                DescriptionUnd = "",
+                VersionInfo = "",
+                DatasetCreated = null,
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                Created = null,
+                Modified = null,
+                DimRegisteredDataSourceId = -1
+            };
+        }
+
+        /*
+         * Get empty DimProfileOnlyFundingDecision.
          * Must use -1 in required foreign keys.
          */
         public DimProfileOnlyFundingDecision GetEmptyDimProfileOnlyFundingDecision()
@@ -2021,6 +2050,7 @@ namespace api.Services
                 List<int> dimFundingDecisionIds = new();
                 List<int> dimKeywordIds = new();
                 List<int> dimNameIds = new();
+                List<int> dimProfileOnlyDatasetIds = new();
                 List<int> dimProfileOnlyFundingDecisionIds = new();
                 List<int> dimProfileOnlyPublicationIds = new();
                 List<int> dimProfileOnlyResearchActivityIds = new();
@@ -2073,6 +2103,7 @@ namespace api.Services
                             if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
+                            if (factFieldValue.DimProfileOnlyDatasetId != -1) dimProfileOnlyDatasetIds.Add(factFieldValue.DimProfileOnlyDatasetId);
                             if (factFieldValue.DimProfileOnlyFundingDecisionId != -1) dimProfileOnlyFundingDecisionIds.Add(factFieldValue.DimProfileOnlyFundingDecisionId);
                             if (factFieldValue.DimProfileOnlyPublicationId != -1) dimProfileOnlyPublicationIds.Add(factFieldValue.DimProfileOnlyPublicationId);
                             if (factFieldValue.DimProfileOnlyResearchActivityId != -1) dimProfileOnlyResearchActivityIds.Add(factFieldValue.DimProfileOnlyResearchActivityId);
@@ -2157,6 +2188,14 @@ namespace api.Services
                     {
                         await connection.ExecuteAsync(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimNames(dimNameIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete profile only datasets
+                    if (dimProfileOnlyDatasetIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyDatasets(dimProfileOnlyDatasetIds),
                             transaction: transaction
                         );
                     }
