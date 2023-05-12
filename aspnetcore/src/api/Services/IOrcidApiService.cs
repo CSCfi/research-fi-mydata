@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
 namespace api.Services
@@ -7,6 +8,7 @@ namespace api.Services
     {
         IConfiguration Configuration { get; }
 
+        Task<string> GetDataFromMemberApi(String path, String orcidAccessToken);
         string GetOrcidRecordPath(string orcidId);
         string GetOrcidWebhookAccessToken();
         string GetOrcidWebhookCallbackUri(string orcidId);

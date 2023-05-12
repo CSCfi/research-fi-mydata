@@ -570,5 +570,36 @@ namespace api.Tests
             Assert.Equal(17, actual.EndDate.Day);
             Assert.Equal("https://www.rovaniemi.fi", actual.Url);
         }
+
+        [Fact(DisplayName = "Get fundings")]
+        public void TestGetFundings()
+        {
+            var orcidJsonParserService = new OrcidJsonParserService();
+            var jsonStr = getOrcidJsonRecord();
+            var actualFundings = orcidJsonParserService.GetFundings(jsonStr);
+            Assert.True(actualFundings.Count == 2, "Fundings: should parse 2 fundings");
+
+            Assert.Equal("Excellence Grant", actualFundings[0].Name);
+            Assert.Equal(2017, actualFundings[0].StartDate.Year);
+            Assert.Equal(3, actualFundings[0].StartDate.Month);
+            Assert.Equal(0, actualFundings[0].StartDate.Day);
+            Assert.Equal(2019, actualFundings[0].EndDate.Year);
+            Assert.Equal(4, actualFundings[0].EndDate.Month);
+            Assert.Equal(0, actualFundings[0].EndDate.Day);
+            Assert.Equal(new OrcidPutCode(6388).Value, actualFundings[0].PutCode.Value);
+            Assert.Equal("", actualFundings[0].Url);
+            Assert.Equal("grant", actualFundings[0].Type);
+
+            Assert.Equal("Grant title", actualFundings[1].Name);
+            Assert.Equal(1999, actualFundings[1].StartDate.Year);
+            Assert.Equal(2, actualFundings[1].StartDate.Month);
+            Assert.Equal(13, actualFundings[1].StartDate.Day);
+            Assert.Equal(2001, actualFundings[1].EndDate.Year);
+            Assert.Equal(3, actualFundings[1].EndDate.Month);
+            Assert.Equal(14, actualFundings[1].EndDate.Day);
+            Assert.Equal(new OrcidPutCode(4413).Value, actualFundings[1].PutCode.Value);
+            Assert.Equal("http://tempuri.org", actualFundings[1].Url);
+            Assert.Equal("grant", actualFundings[1].Type);
+        }
     }
 }

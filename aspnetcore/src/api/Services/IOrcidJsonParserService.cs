@@ -18,5 +18,7 @@ namespace api.Services
         List<OrcidResearchActivity> GetProfileOnlyResearchActivityItems(string json);
         List<OrcidPublication> GetPublications(string json);
         List<OrcidResearcherUrl> GetResearcherUrls(string json);
+        List<OrcidFunding> GetFundings(string json);
+        OrcidFunding GetFundingDetail(string fundingDetailJson);
     }
 }

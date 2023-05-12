@@ -21,7 +21,7 @@
             public const int ACTIVITY_AFFILIATION = 300;
             public const int ACTIVITY_EDUCATION = 400;
             public const int ACTIVITY_PUBLICATION = 500;
-            public const int ACTIVITY_PUBLICATION_PROFILE_ONLY = 550;
+            public const int ACTIVITY_PUBLICATION_PROFILE_ONLY = 550; // TODO: check value
             public const int ACTIVITY_RESEARCH_DATASET = 600;
             public const int ACTIVITY_INFRASTRUCTURE = 700;
             public const int ACTIVITY_FUNDING_DECISION = 800;
@@ -111,6 +111,7 @@
         public static class ReferenceDataCodeSchemes
         {
             public const string ORCID_RESEARCH_ACTIVITY = "aktiviteetitjaroolit";
+            public const string ORCID_FUNDING = "aktiviteetitjaroolit";
             public const string PROFILE_SHARING = "tutkijaprofiilin_luvitus";
             public const string USER_CHOICES = "user choices";
         }
@@ -133,6 +134,22 @@
             public const string PEER_REVIEW = "2.3";
             public const string QUALIFICATION = "16";
             public const string SERVICE = "5";
+        }
+
+        public static class OrcidFundingTypes
+        {
+            public const string AWARD = "award";
+            public const string CONTRACT = "contract";
+            public const string GRANT = "grant";
+            public const string SALARY_AWARD = "salary-award";
+        }
+
+        public static class OrcidFundingType_To_ReferenceDataCodeValue
+        {
+            public const string AWARD = "13.1";
+            public const string CONTRACT = "13";
+            public const string GRANT = "13";
+            public const string SALARY_AWARD = "13";
         }
 
         public static class ReferenceDataCodeValues

@@ -66,5 +66,30 @@ namespace api.Tests
             Assert.Equal(Constants.SourceDescriptions.ORCID, dimIdentifierlessDatum.SourceDescription);
             Assert.Null(dimIdentifierlessDatum.UnlinkedIdentifier);
         }
+
+        [Fact(DisplayName = "Normalize RORID, ID only")]
+        public void normalizeRorId_01()
+        {
+            // Arrange
+            OrganizationHandlerService organizationHandlerService = new OrganizationHandlerService();
+            string rorId = "abcd1234";
+            // Act
+            string actualNormalizedRorId = organizationHandlerService.NormalizeRorId(rorId);
+            // Assert
+            Assert.Equal(rorId, actualNormalizedRorId);
+        }
+
+        [Fact(DisplayName = "Normalize RORID, URL version")]
+        public void normalizeRorId_02()
+        {
+            // Arrange
+            OrganizationHandlerService organizationHandlerService = new OrganizationHandlerService();
+            string rorIdUrl = "https://ror.org/abcde12345";
+            string expectedRorId = "abcde12345";
+            // Act
+            string actualNormalizedRorId = organizationHandlerService.NormalizeRorId(rorIdUrl);
+            // Assert
+            Assert.Equal(expectedRorId, actualNormalizedRorId);
+        }
     }
 }

@@ -528,7 +528,7 @@ namespace api.Services
 
         /*
          * Distinctions, invited positions, peer reviews, memberships, qualifications and services.
-         * Map to profile only research activity in TTV database.
+         * These map to profile only research activity in TTV database (dim_profile_only_research_activity).
          */
         public List<OrcidResearchActivity> GetProfileOnlyResearchActivityItems(String json)
         {
@@ -815,6 +815,132 @@ namespace api.Services
                 }
             }
             return profileOnlyResearchActivityItems;
+        }
+
+        /*
+         * Funding.
+         * Maps to profile only funding decision in TTV database (dim_profile_only_funding_decision).
+         */
+        public List<OrcidFunding> GetFundings(String json)
+        {
+            List<OrcidFunding> orcidFundings = new() { };
+
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                JsonElement fundingsElement = document.RootElement.GetProperty("activities-summary").GetProperty("fundings");
+                if (fundingsElement.TryGetProperty("group", out JsonElement fundingGroupsElement))
+                {
+                    foreach (JsonElement fundingElement in fundingGroupsElement.EnumerateArray())
+                    {
+                        if (fundingElement.TryGetProperty("funding-summary", out JsonElement fundingSummariesElement))
+                        {
+                            foreach (JsonElement fundingSummaryElement in fundingSummariesElement.EnumerateArray())
+                            {
+                                orcidFundings.Add(GetFundingDetailFromJsonElement(fundingElement: fundingSummaryElement));
+
+                                /*
+                                string disambiguatedOrganizationIdentifier = "";
+                                string disambiguationSource = "";
+                                if (fundingSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                {
+                                    if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                                    {
+                                        disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                        disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                                    }
+                                }
+
+                                string url = (fundingSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                    "" : fundingSummaryElement.GetProperty("url").GetProperty("value").GetString();
+
+                                orcidFundings.Add(
+                                    new OrcidFunding(
+                                        type: fundingSummaryElement.GetProperty("type").GetString(),
+                                        name: fundingSummaryElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                                        description: "",
+                                        amount: "",
+                                        currencyCode: "",
+                                        organizationName: fundingSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
+                                        disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                                        disambiguationSource: disambiguationSource,
+                                        startDate: GetOrcidDate(fundingSummaryElement.GetProperty("start-date")),
+                                        endDate: GetOrcidDate(fundingSummaryElement.GetProperty("end-date")),
+                                        putCode: this.GetOrcidPutCode(fundingSummaryElement),
+                                        url: url,
+                                        path: fundingSummaryElement.GetProperty("path").GetString()
+                                    )
+                                );
+                                */
+                            }
+                        }
+                    }
+                }
+            }
+            return orcidFundings;
+        }
+
+        /*
+         * Funding detail.
+         */
+        private OrcidFunding GetFundingDetailFromJsonElement(JsonElement fundingElement)
+        {
+            string amount = "";
+            string currencyCode = "";
+            string description = "";
+            string disambiguatedOrganizationIdentifier = "";
+            string disambiguationSource = "";
+            string url = "";
+
+            // Parse amount
+            if (fundingElement.TryGetProperty("amount", out JsonElement amountElement))
+            {
+                amount = amountElement.GetProperty("value").ToString();
+                currencyCode = amountElement.GetProperty("currency-code").ToString();
+            }
+
+            // Parse description
+            if (fundingElement.TryGetProperty("short-description", out JsonElement descriptionElement))
+            {
+                description = descriptionElement.GetString();
+            }
+
+            // Parse disambiguated organization
+            if (fundingElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+            {
+                if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
+                {
+                    disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                    disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
+                }
+            }
+
+            // Parse URL
+            url = (fundingElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                "" : fundingElement.GetProperty("url").GetProperty("value").GetString();
+
+            return new(
+                type: fundingElement.GetProperty("type").GetString(),
+                name: fundingElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                description: description,
+                amount: amount,
+                currencyCode: currencyCode,
+                organizationName: fundingElement.GetProperty("organization").GetProperty("name").GetString(),
+                disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
+                disambiguationSource: disambiguationSource,
+                startDate: GetOrcidDate(fundingElement.GetProperty("start-date")),
+                endDate: GetOrcidDate(fundingElement.GetProperty("end-date")),
+                putCode: this.GetOrcidPutCode(fundingElement),
+                url: url,
+                path: fundingElement.GetProperty("path").GetString()
+            );
+        }
+
+        public OrcidFunding GetFundingDetail(string fundingDetailJson)
+        {
+            using (JsonDocument document = JsonDocument.Parse(fundingDetailJson))
+            {
+                return GetFundingDetailFromJsonElement(fundingElement: document.RootElement);
+            }
         }
     }
 }

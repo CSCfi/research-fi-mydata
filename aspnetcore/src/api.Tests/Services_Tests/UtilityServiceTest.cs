@@ -26,5 +26,13 @@ namespace api.Tests
             var utilityService = new UtilityService();
             Assert.Equal("02w52zt87", utilityService.GetOrganizationId_OKM());
         }
+
+        [Fact(DisplayName = "Convert string to nullable decimal")]
+        public void convertStringToNullableDecimal_01()
+        {
+            var utilityService = new UtilityService();
+            Assert.Null(utilityService.StringToNullableDecimal(""));
+            Assert.Equal<decimal?>(123.45m, utilityService.StringToNullableDecimal("123.45"));
+        }
     }
 }

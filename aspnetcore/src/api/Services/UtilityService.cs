@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using api.Models.Common;
+using Nest;
 
 namespace api.Services
 {
@@ -40,6 +42,18 @@ namespace api.Services
         public string GetOrganizationId_OKM()
         {
             return Constants.OrganizationIds.OKM;
+        }
+
+        /*
+         * Convert string to decimal?
+         */
+        public decimal? StringToNullableDecimal(string s)
+        {
+            if (Decimal.TryParse(s, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.GetCultureInfo("en-US"), out decimal result))
+            {
+                return result;
+            }
+            return null;
         }
     }
 }

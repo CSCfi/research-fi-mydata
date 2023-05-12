@@ -37,6 +37,13 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
 
+        public virtual DimCallProgramme DimCallProgramme { get; set; }
+        public virtual DimDate DimDateIdApprovalNavigation { get; set; }
+        public virtual DimDate DimDateIdEndNavigation { get; set; }
+        public virtual DimDate DimDateIdStartNavigation { get; set; }
+        public virtual DimOrganization DimOrganizationIdFunderNavigation { get; set; }
+        public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
+        public virtual DimTypeOfFunding DimTypeOfFunding { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
     }
