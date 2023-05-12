@@ -27,6 +27,7 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimIdentifierlessDataId { get; set; }
         public int FactFieldValues_DimEducationId { get; set; }
         public int FactFieldValues_DimPublicationId { get; set; }
+        public int FactFieldValues_DimProfileOnlyDatasetId { get; set; }
         public int FactFieldValues_DimProfileOnlyFundingDecisionId { get; set; }
         public int FactFieldValues_DimProfileOnlyResearchActivityId { get; set; }
         public int FactFieldValues_DimProfileOnlyPublicationId { get; set; }
@@ -270,5 +271,14 @@ namespace api.Models.ProfileEditor
         public string DimResearchDataset_DescriptionEn { get; set; }
         public string DimResearchDataset_DescriptionSv { get; set; }
         public DateTime? DimResearchDataset_DatasetCreated {get; set; }
+        // DimProfileOnlyDataset
+        public string DimProfileOnlyDataset_LocalIdentifier { get; set; }
+        public string DimProfileOnlyDataset_NameFi { get; set; }
+        public string DimProfileOnlyDataset_NameEn { get; set; }
+        public string DimProfileOnlyDataset_NameSv { get; set; }
+        public string DimProfileOnlyDataset_DescriptionFi { get; set; }
+        public string DimProfileOnlyDataset_DescriptionEn { get; set; }
+        public string DimProfileOnlyDataset_DescriptionSv { get; set; }
+        public DateTime? DimProfileOnlyDataset_DatasetCreated { get; set; }
     }
 }

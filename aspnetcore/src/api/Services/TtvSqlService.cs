@@ -134,6 +134,7 @@ namespace api.Services
                     ffv.dim_identifierless_data_id AS 'FactFieldValues_DimIdentifierlessDataId',
                     ffv.dim_education_id AS 'FactFieldValues_DimEducationId',
                     ffv.dim_publication_id AS 'FactFieldValues_DimPublicationId',
+                    ffv.dim_profile_only_dataset_id AS 'FactFieldValues_DimProfileOnlyDatasetId',
                     ffv.dim_profile_only_funding_decision_id AS 'FactFieldValues_DimProfileOnlyFundingDecisionId',
                     ffv.dim_profile_only_publication_id AS 'FactFieldValues_DimProfileOnlyPublicationId',
                     ffv.dim_profile_only_research_activity_id AS 'FactFieldValues_DimProfileOnlyResearchActivityId',
@@ -344,7 +345,16 @@ namespace api.Services
                     dim_research_dataset.description_fi AS 'DimResearchDataset_DescriptionFi',
                     dim_research_dataset.description_en AS 'DimResearchDataset_DescriptionEn',
                     dim_research_dataset.description_sv AS 'DimResearchDataset_DescriptionSv',
-                    dim_research_dataset.dataset_created AS 'DimResearchDataset_DatasetCreated'
+                    dim_research_dataset.dataset_created AS 'DimResearchDataset_DatasetCreated',
+
+                    dim_profile_only_dataset.local_identifier AS 'DimProfileOnlyDataset_LocalIdentifier',
+                    dim_profile_only_dataset.name_fi AS 'DimProfileOnlyDataset_NameFi',
+                    dim_profile_only_dataset.name_en AS 'DimProfileOnlyDataset_NameEn',
+                    dim_profile_only_dataset.name_sv AS 'DimProfileOnlyDataset_NameSv',
+                    dim_profile_only_dataset.description_fi AS 'DimProfileOnlyDataset_DescriptionFi',
+                    dim_profile_only_dataset.description_en AS 'DimProfileOnlyDataset_DescriptionEn',
+                    dim_profile_only_dataset.description_sv AS 'DimProfileOnlyDataset_DescriptionSv',
+                    dim_profile_only_dataset.dataset_created AS 'DimProfileOnlyDataset_DatasetCreated'
 
                 FROM fact_field_values AS ffv
 
@@ -422,6 +432,8 @@ namespace api.Services
                 LEFT JOIN dim_referencedata AS profile_only_funding_decision_actor_role ON ffv.dim_referencedata_actor_role_id=profile_only_funding_decision_actor_role.id
 
                 JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
+                JOIN dim_profile_only_dataset ON ffv.dim_profile_only_dataset_id=dim_profile_only_dataset.id
+
                 WHERE
                     ffv.dim_user_profile_id={userprofileId} AND {(forElasticsearch ? " ffv.show=1 AND " : "")}
                     (
@@ -436,6 +448,7 @@ namespace api.Services
                         ffv.dim_identifierless_data_id != -1 OR
                         ffv.dim_education_id != -1 OR
                         ffv.dim_publication_id != -1 OR
+                        ffv.dim_profile_only_dataset_id != -1 OR
                         ffv.dim_profile_only_funding_decision_id != -1 OR
                         ffv.dim_profile_only_publication_id != -1 OR
                         ffv.dim_profile_only_research_activity_id != -1 OR

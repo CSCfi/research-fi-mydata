@@ -148,32 +148,6 @@ namespace api.Services
                 }
             }
 
-            // Dataset DimDates
-            List<OrcidDataset> datasets = _orcidJsonParserService.GetDatasets(orcidRecordJson);
-            foreach (OrcidDataset dataset in datasets)
-            {
-                DimDate datasetDate =
-                    await _ttvContext.DimDates.FirstOrDefaultAsync(
-                        dd => dd.Year == dataset.DatasetDate.Year &&
-                        dd.Month == dataset.DatasetDate.Month &&
-                        dd.Day == dataset.DatasetDate.Day);
-                if (datasetDate == null)
-                {
-                    datasetDate = new DimDate()
-                    {
-                        Year = dataset.DatasetDate.Year,
-                        Month = dataset.DatasetDate.Month,
-                        Day = dataset.DatasetDate.Day,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    _ttvContext.DimDates.Add(datasetDate);
-                    await _ttvContext.SaveChangesAsync();
-                }
-            }
-
             // Funding DimDates
             List<OrcidFunding> fundings = _orcidJsonParserService.GetFundings(orcidRecordJson);
             foreach (OrcidFunding funding in fundings)
@@ -1095,9 +1069,19 @@ namespace api.Services
                         ffv.DimPidIdOrcidPutCode > 0 &&
                         ffv.DimPidIdOrcidPutCodeNavigation.PidContent == orcidDataset.PutCode.Value.ToString());
 
-                // Dataset date
-                DimDate datasetDate = await _ttvContext.DimDates
-                    .FirstOrDefaultAsync(dd => dd.Year == orcidDataset.DatasetDate.Year && dd.Month == orcidDataset.DatasetDate.Month && dd.Day == orcidDataset.DatasetDate.Day);
+                DateTime? datasetCreated;
+                // Data set created
+                if (orcidDataset.DatasetDate.Year == 0)
+                {
+                    datasetCreated = null;
+                }
+                else
+                {
+                    int datasetYear = orcidDataset.DatasetDate.Year;
+                    int datasetMonth = (orcidDataset.DatasetDate.Month > 0 ? orcidDataset.DatasetDate.Month : 1);
+                    int datasetDay = (orcidDataset.DatasetDate.Day > 0 ? orcidDataset.DatasetDate.Day : 1);
+                    datasetCreated = new DateTime(year: datasetYear, month: datasetMonth, day: datasetDay);
+                }
 
                 if (factFieldValuesProfileOnlyDataset != null)
                 {
@@ -1105,7 +1089,7 @@ namespace api.Services
                     DimProfileOnlyDataset dimProfileOnlyDataset = factFieldValuesProfileOnlyDataset.DimProfileOnlyDataset;
                     dimProfileOnlyDataset.OrcidWorkType = orcidDataset.Type;
                     dimProfileOnlyDataset.NameEn = orcidDataset.DatasetName;
-                    // dimProfileOnlyDataset.DatasetCreated =   TODO: Add when database model is fixed (datetime => FK to dim_date)
+                    dimProfileOnlyDataset.DatasetCreated = datasetCreated;
                     dimProfileOnlyDataset.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     dimProfileOnlyDataset.Modified = currentDateTime;
@@ -1118,7 +1102,7 @@ namespace api.Services
                     DimProfileOnlyDataset dimProfileOnlyDataset = _userProfileService.GetEmptyDimProfileOnlyDataset();
                     dimProfileOnlyDataset.OrcidWorkType = orcidDataset.Type;
                     dimProfileOnlyDataset.NameEn = orcidDataset.DatasetName;
-                    //dimProfileOnlyDataset.DatasetCreated =   TODO: Add when database model is fixed (datetime => FK to dim_date)
+                    dimProfileOnlyDataset.DatasetCreated = datasetCreated;
                     dimProfileOnlyDataset.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                     dimProfileOnlyDataset.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     dimProfileOnlyDataset.Created = currentDateTime;
@@ -1135,7 +1119,7 @@ namespace api.Services
                     // Create FactFieldValues for ORCID dataset
                     factFieldValuesProfileOnlyDataset = _userProfileService.GetEmptyFactFieldValue();
                     factFieldValuesProfileOnlyDataset.DimUserProfile = dimUserProfile;
-                    factFieldValuesProfileOnlyDataset.DimFieldDisplaySettings = dimFieldDisplaySettingsOrcidPublication;
+                    factFieldValuesProfileOnlyDataset.DimFieldDisplaySettings = dimFieldDisplaySettingsProfileOnlyDataset;
                     factFieldValuesProfileOnlyDataset.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesProfileOnlyDataset.DimProfileOnlyDataset = dimProfileOnlyDataset;
                     factFieldValuesProfileOnlyDataset.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeDataset;
