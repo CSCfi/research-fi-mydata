@@ -42,7 +42,7 @@ namespace api.Controllers
         /// Get profile settings
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponseProfileSettingsGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetSettings()
         {
             // Get ORCID id
