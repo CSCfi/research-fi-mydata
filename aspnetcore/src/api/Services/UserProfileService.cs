@@ -341,7 +341,36 @@ namespace api.Services
         }
 
         /*
-         * Get empty DimProfileOnlyFundingSecision.
+         * Get empty DimProfileOnlyDataset.
+         * Must use -1 in required foreign keys.
+         */
+        public DimProfileOnlyDataset GetEmptyDimProfileOnlyDataset()
+        {
+            return new DimProfileOnlyDataset()
+            {
+                DimReferencedataIdAvailability = null,
+                OrcidWorkType = "",
+                LocalIdentifier = "",
+                NameFi = "",
+                NameEn = "",
+                NameSv = "",
+                NameUnd = "",
+                DescriptionFi = "",
+                DescriptionSv = "",
+                DescriptionEn = "",
+                DescriptionUnd = "",
+                VersionInfo = "",
+                DatasetCreated = null,
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                Created = null,
+                Modified = null,
+                DimRegisteredDataSourceId = -1
+            };
+        }
+
+        /*
+         * Get empty DimProfileOnlyFundingDecision.
          * Must use -1 in required foreign keys.
          */
         public DimProfileOnlyFundingDecision GetEmptyDimProfileOnlyFundingDecision()
@@ -1934,45 +1963,89 @@ namespace api.Services
 
                     // Research dataset
                     case Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET:
-                        // Name translation: research dataset name
-                        NameTranslation nameTranslationResearchDatasetName = _languageService.GetNameTranslation(
-                            nameFi: p.DimResearchDataset_NameFi,
-                            nameEn: p.DimResearchDataset_NameEn,
-                            nameSv: p.DimResearchDataset_NameSv
-                        );
-                        // Name translation: research dataset description
-                        NameTranslation nameTranslationResearchDatasetDescription = _languageService.GetNameTranslation(
-                            nameFi: p.DimResearchDataset_DescriptionFi,
-                            nameEn: p.DimResearchDataset_DescriptionEn,
-                            nameSv: p.DimResearchDataset_DescriptionSv
-                        );
-                        profileDataResponse.activity.researchDatasets.Add(
+                        // DimResearchDataset
+                        if (p.FactFieldValues_DimResearchDatasetId != -1)
+                        {
+                            // Name translation: research dataset name
+                            NameTranslation nameTranslationResearchDatasetName = _languageService.GetNameTranslation(
+                                nameFi: p.DimResearchDataset_NameFi,
+                                nameEn: p.DimResearchDataset_NameEn,
+                                nameSv: p.DimResearchDataset_NameSv
+                            );
+                            // Name translation: research dataset description
+                            NameTranslation nameTranslationResearchDatasetDescription = _languageService.GetNameTranslation(
+                                nameFi: p.DimResearchDataset_DescriptionFi,
+                                nameEn: p.DimResearchDataset_DescriptionEn,
+                                nameSv: p.DimResearchDataset_DescriptionSv
+                            );
+                            profileDataResponse.activity.researchDatasets.Add(
+                                new ProfileEditorResearchDataset()
+                                {
+                                    // List<ProfileEditorActor> Actor
+                                    Identifier = p.DimResearchDataset_LocalIdentifier,
+                                    NameFi = nameTranslationResearchDatasetName.NameFi,
+                                    NameEn = nameTranslationResearchDatasetName.NameEn,
+                                    NameSv = nameTranslationResearchDatasetName.NameSv,
+                                    DescriptionFi = nameTranslationResearchDatasetDescription.NameFi,
+                                    DescriptionSv = nameTranslationResearchDatasetDescription.NameFi,
+                                    DescriptionEn = nameTranslationResearchDatasetDescription.NameFi,
+                                    // Only year part of datetime is set in DatasetCreated 
+                                    DatasetCreated =
+                                        (p.DimResearchDataset_DatasetCreated != null) ? p.DimResearchDataset_DatasetCreated.Value.Year : null,
+                                    PreferredIdentifiers =
+                                        (await connection.QueryAsync<ProfileEditorPreferredIdentifier>(
+                                            $"SELECT pid_type AS 'PidType', pid_content AS 'PidContent' FROM dim_pid WHERE dim_research_dataset_id={p.FactFieldValues_DimResearchDatasetId}"
+                                        )).ToList(),
+                                    itemMeta = new ProfileEditorItemMeta(
+                                        id: p.FactFieldValues_DimResearchDatasetId,
+                                        type: Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET,
+                                        show: p.FactFieldValues_Show,
+                                        primaryValue: p.FactFieldValues_PrimaryValue
+                                    ),
+                                    DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                                }
+                            );
+                        }
+
+                        // DimProfileOnlyDataset
+                        if (p.FactFieldValues_DimProfileOnlyDatasetId != -1)
+                        {
+                            // Name translation: research dataset name
+                            NameTranslation nameTranslationResearchDatasetName = _languageService.GetNameTranslation(
+                                nameFi: p.DimProfileOnlyDataset_NameFi,
+                                nameEn: p.DimProfileOnlyDataset_NameEn,
+                                nameSv: p.DimProfileOnlyDataset_NameSv
+                            );
+                            // Name translation: research dataset description
+                            NameTranslation nameTranslationResearchDatasetDescription = _languageService.GetNameTranslation(
+                                nameFi: p.DimProfileOnlyDataset_DescriptionFi,
+                                nameEn: p.DimProfileOnlyDataset_DescriptionEn,
+                                nameSv: p.DimProfileOnlyDataset_DescriptionSv
+                            );
+                            profileDataResponse.activity.researchDatasets.Add(
                             new ProfileEditorResearchDataset()
                             {
                                 // List<ProfileEditorActor> Actor
-                                Identifier = p.DimResearchDataset_LocalIdentifier,
+                                Identifier = p.DimProfileOnlyDataset_LocalIdentifier,
                                 NameFi = nameTranslationResearchDatasetName.NameFi,
                                 NameEn = nameTranslationResearchDatasetName.NameEn,
                                 NameSv = nameTranslationResearchDatasetName.NameSv,
                                 DescriptionFi = nameTranslationResearchDatasetDescription.NameFi,
                                 DescriptionSv = nameTranslationResearchDatasetDescription.NameFi,
                                 DescriptionEn = nameTranslationResearchDatasetDescription.NameFi,
-                                // Only year part of datetime is set in DatasetCreated 
+                                // Only year part of datetime is set in DatasetCreated
                                 DatasetCreated =
-                                    (p.DimResearchDataset_DatasetCreated != null) ? p.DimResearchDataset_DatasetCreated.Value.Year : null,
-                                PreferredIdentifiers =
-                                    (await connection.QueryAsync<ProfileEditorPreferredIdentifier>(
-                                        $"SELECT pid_type AS 'PidType', pid_content AS 'PidContent' FROM dim_pid WHERE dim_research_dataset_id={p.FactFieldValues_DimResearchDatasetId}"
-                                    )).ToList(),
+                                    (p.DimProfileOnlyDataset_DatasetCreated != null) ? p.DimProfileOnlyDataset_DatasetCreated.Value.Year : null,
                                 itemMeta = new ProfileEditorItemMeta(
-                                    id: p.FactFieldValues_DimResearchDatasetId,
-                                    type: Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET,
+                                    id: p.FactFieldValues_DimProfileOnlyDatasetId,
+                                    type: Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET_PROFILE_ONLY,
                                     show: p.FactFieldValues_Show,
                                     primaryValue: p.FactFieldValues_PrimaryValue
                                 ),
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             }
                         );
+                        }
                         break;
 
                     default:
@@ -2021,6 +2094,7 @@ namespace api.Services
                 List<int> dimFundingDecisionIds = new();
                 List<int> dimKeywordIds = new();
                 List<int> dimNameIds = new();
+                List<int> dimProfileOnlyDatasetIds = new();
                 List<int> dimProfileOnlyFundingDecisionIds = new();
                 List<int> dimProfileOnlyPublicationIds = new();
                 List<int> dimProfileOnlyResearchActivityIds = new();
@@ -2073,6 +2147,7 @@ namespace api.Services
                             if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
+                            if (factFieldValue.DimProfileOnlyDatasetId != -1) dimProfileOnlyDatasetIds.Add(factFieldValue.DimProfileOnlyDatasetId);
                             if (factFieldValue.DimProfileOnlyFundingDecisionId != -1) dimProfileOnlyFundingDecisionIds.Add(factFieldValue.DimProfileOnlyFundingDecisionId);
                             if (factFieldValue.DimProfileOnlyPublicationId != -1) dimProfileOnlyPublicationIds.Add(factFieldValue.DimProfileOnlyPublicationId);
                             if (factFieldValue.DimProfileOnlyResearchActivityId != -1) dimProfileOnlyResearchActivityIds.Add(factFieldValue.DimProfileOnlyResearchActivityId);
@@ -2157,6 +2232,14 @@ namespace api.Services
                     {
                         await connection.ExecuteAsync(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimNames(dimNameIds),
+                            transaction: transaction
+                        );
+                    }
+                    // Delete profile only datasets
+                    if (dimProfileOnlyDatasetIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyDatasets(dimProfileOnlyDatasetIds),
                             transaction: transaction
                         );
                     }

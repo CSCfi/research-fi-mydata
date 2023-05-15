@@ -134,6 +134,32 @@ namespace api.Tests
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualFfv.SourceDescription);
         }
 
+        [Fact(DisplayName = "Get empty DimProfileOnlyDataset")]
+        public void getEmptyDimProfileOnlyDataset_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new UserProfileService();
+            // Act
+            DimProfileOnlyDataset actualDimProfileOnlyDataset = userProfileService.GetEmptyDimProfileOnlyDataset();
+            // Assert
+            Assert.Null(actualDimProfileOnlyDataset.DimReferencedataIdAvailability);
+            Assert.Equal("", actualDimProfileOnlyDataset.OrcidWorkType);
+            Assert.Equal("", actualDimProfileOnlyDataset.LocalIdentifier);
+            Assert.Equal("", actualDimProfileOnlyDataset.NameFi);
+            Assert.Equal("", actualDimProfileOnlyDataset.NameSv);
+            Assert.Equal("", actualDimProfileOnlyDataset.NameEn);
+            Assert.Equal("", actualDimProfileOnlyDataset.NameUnd);
+            Assert.Equal("", actualDimProfileOnlyDataset.DescriptionFi);
+            Assert.Equal("", actualDimProfileOnlyDataset.DescriptionSv);
+            Assert.Equal("", actualDimProfileOnlyDataset.DescriptionEn);
+            Assert.Equal("", actualDimProfileOnlyDataset.DescriptionUnd);
+            Assert.Equal("", actualDimProfileOnlyDataset.VersionInfo);
+            Assert.Null(actualDimProfileOnlyDataset.DatasetCreated);
+            Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimProfileOnlyDataset.SourceId);
+            Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimProfileOnlyDataset.SourceDescription);
+        }
+
+
         [Fact(DisplayName = "Get empty DimProfileOnlyFundingDecision")]
         public void getEmptyDimProfileOnlyFundingDecision_01()
         {

@@ -15,7 +15,46 @@ namespace api.Services
     public class OrcidJsonParserService : IOrcidJsonParserService
     {
         /*
-         * Put code
+         * List of ORCID publication work types
+         * https://info.orcid.org/ufaqs/what-work-types-does-orcid-support/
+         */
+        List<string> orcidWorkType_publications = new List<string>
+        {
+            "book",
+            "book-chapter",
+            "book-review",
+            "dictionary-entry",
+            "dissertation",
+            "dissertation-thesis",
+            "encyclopaedia-entry",
+            "edited-book",
+            "journal-article",
+            "journal-issue",
+            "magazine-article",
+            "manual",
+            "online-resource",
+            "newsletter-article",
+            "newspaper-article",
+            "preprint",
+            "report",
+            "review",
+            "research-tool",
+            "supervised-student-publication",
+            "test",
+            "translation",
+            "website",
+            "working-paper"
+        };
+
+        /*
+         * ORCID dataset work types
+         * https://info.orcid.org/ufaqs/what-work-types-does-orcid-support/
+         */
+        string orcidWorkType_dataset = "data-set";
+
+
+        /*
+         * Get ORCID putcode
          */
         private OrcidPutCode GetOrcidPutCode(JsonElement orcidJsonElement)
         {
@@ -32,6 +71,22 @@ namespace api.Services
             }
 
             return putCode;
+        }
+
+        /*
+         * Check that ORCID work type is publication
+         */
+        private bool IsPublication(string orcidWorkType)
+        {
+            return orcidWorkType_publications.Contains(orcidWorkType);
+        }
+
+        /*
+         * Check that ORCID work type is dataset
+         */
+        private bool IsDataset(string orcidWorkType)
+        {
+            return orcidWorkType == orcidWorkType_dataset;
         }
 
         /*
@@ -505,25 +560,82 @@ namespace api.Services
                         {
                             foreach (JsonElement workElement in workSummariesElement.EnumerateArray())
                             {
-                                publications.Add(
-                                    new OrcidPublication()
-                                    {
-                                        PublicationName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
-                                        Doi = DOI,
-                                        PublicationYear = this.GetPublicationYear(workElement),
-                                        Type = workElement.GetProperty("type").GetString(),
-                                        PutCode = this.GetOrcidPutCode(workElement)
-                                    }
-                                );
+                                string orcidWorkType = workElement.GetProperty("type").GetString();
+                                if (IsPublication(orcidWorkType))
+                                {
+                                    publications.Add(
+                                        new OrcidPublication()
+                                        {
+                                            PublicationName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                                            Doi = DOI,
+                                            PublicationYear = this.GetPublicationYear(workElement),
+                                            Type = orcidWorkType,
+                                            PutCode = this.GetOrcidPutCode(workElement)
+                                        }
+                                    );
 
-                                // Import only one element from "work-summary" array.
-                                break;
+                                    // Import only one element from "work-summary" array.
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
             return publications;
+        }
+
+        /*
+         * Datasets
+         */
+        public List<OrcidDataset> GetDatasets(String json)
+        {
+            List<OrcidDataset> datasets = new() { };
+            using (JsonDocument document = JsonDocument.Parse(json))
+            {
+                JsonElement datasetsElement = document.RootElement.GetProperty("activities-summary").GetProperty("works");
+
+                if (datasetsElement.TryGetProperty("group", out JsonElement groupsElement))
+                {
+                    foreach (JsonElement groupElement in groupsElement.EnumerateArray())
+                    {
+                        /*
+                         *  Elements in "group" can contain "external-ids" and "work-summary".
+                         *  "work-summary" can contain multiple entries of the same publication.
+                         *  Get DOI from "external-ids" and the other properties from the first element in "work-summary".
+                         */
+
+                        // Get dataset properties from "work-summary" array.
+                        if (groupElement.TryGetProperty("work-summary", out JsonElement workSummariesElement))
+                        {
+                            foreach (JsonElement workElement in workSummariesElement.EnumerateArray())
+                            {
+                                string orcidWorkType = workElement.GetProperty("type").GetString();
+                                if (IsDataset(orcidWorkType))
+                                {
+                                    string url = (workElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                        "" : workElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    datasets.Add(
+                                        new OrcidDataset()
+                                        {
+                                            DatasetName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                                            DatasetDate = GetOrcidDate(workElement.GetProperty("publication-date")),
+                                            Type = orcidWorkType,
+                                            PutCode = this.GetOrcidPutCode(workElement),
+                                            Url = url
+                                        }
+                                    );
+
+                                    // Import only one element from "work-summary" array.
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return datasets;
         }
 
         /*
@@ -837,40 +949,6 @@ namespace api.Services
                             foreach (JsonElement fundingSummaryElement in fundingSummariesElement.EnumerateArray())
                             {
                                 orcidFundings.Add(GetFundingDetailFromJsonElement(fundingElement: fundingSummaryElement));
-
-                                /*
-                                string disambiguatedOrganizationIdentifier = "";
-                                string disambiguationSource = "";
-                                if (fundingSummaryElement.GetProperty("organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
-                                {
-                                    if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
-                                    {
-                                        disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
-                                        disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
-                                    }
-                                }
-
-                                string url = (fundingSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
-                                    "" : fundingSummaryElement.GetProperty("url").GetProperty("value").GetString();
-
-                                orcidFundings.Add(
-                                    new OrcidFunding(
-                                        type: fundingSummaryElement.GetProperty("type").GetString(),
-                                        name: fundingSummaryElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
-                                        description: "",
-                                        amount: "",
-                                        currencyCode: "",
-                                        organizationName: fundingSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
-                                        disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
-                                        disambiguationSource: disambiguationSource,
-                                        startDate: GetOrcidDate(fundingSummaryElement.GetProperty("start-date")),
-                                        endDate: GetOrcidDate(fundingSummaryElement.GetProperty("end-date")),
-                                        putCode: this.GetOrcidPutCode(fundingSummaryElement),
-                                        url: url,
-                                        path: fundingSummaryElement.GetProperty("path").GetString()
-                                    )
-                                );
-                                */
                             }
                         }
                     }
