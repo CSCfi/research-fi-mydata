@@ -113,7 +113,7 @@
             public const string ORCID_RESEARCH_ACTIVITY = "aktiviteetitjaroolit";
             public const string ORCID_FUNDING = "aktiviteetitjaroolit";
             public const string PROFILE_SHARING = "tutkijaprofiilin_luvitus";
-            public const string USER_CHOICES = "user choices";
+            public const string USER_CHOICES = "Kiinnostuksen_ilmaiseminen";
         }
 
         public static class OrcidResearchActivityTypes
