@@ -1,0 +1,41 @@
+﻿{
+  "created-date": { "value": 1684156470906 },
+  "last-modified-date": { "value": 1684156470906 },
+  "source": {
+    "source-orcid": {
+      "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+      "path": "0000-0001-6790-8767",
+      "host": "sandbox.orcid.org"
+    },
+    "source-client-id": null,
+    "source-name": { "value": "Timo J S" },
+    "assertion-origin-orcid": null,
+    "assertion-origin-client-id": null,
+    "assertion-origin-name": null
+  },
+  "put-code": 15862,
+  "path": "/0000-0001-6790-8767/funding/15862",
+  "type": "grant",
+  "organization-defined-type": null,
+  "title": {
+    "title": { "value": "Funding without amount" },
+    "translated-title": null
+  },
+  "short-description": null,
+  "amount": null,
+  "url": null,
+  "start-date": null,
+  "end-date": null,
+  "external-ids": null,
+  "contributors": null,
+  "organization": {
+    "name": "Test agency name",
+    "address": {
+      "city": "Helsinki",
+      "region": null,
+      "country": "GR"
+    },
+    "disambiguated-organization": null
+  },
+  "visibility": "public"
+}

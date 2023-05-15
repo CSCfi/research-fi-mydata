@@ -37,6 +37,22 @@ namespace api.Tests
             return reader.ReadToEnd();
         }
 
+        // Get ORCID funding detail
+        private string getOrcidJsonFundingDetails()
+        {
+            string filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/funding-detail.json";
+            StreamReader reader = new StreamReader(filePath);
+            return reader.ReadToEnd();
+        }
+
+        // Get ORCID funding detail - version without amount.
+        private string getOrcidJsonFundingDetailsWithoutAmount()
+        {
+            string filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/funding-detail-without-amount.json";
+            StreamReader reader = new StreamReader(filePath);
+            return reader.ReadToEnd();
+        }
+
         [Fact(DisplayName = "Get given names from full ORCID record")]
         public void TestGetGivenNamesFromRecord()
         {
@@ -623,6 +639,52 @@ namespace api.Tests
             Assert.Equal(new OrcidPutCode(4413).Value, actualFundings[1].PutCode.Value);
             Assert.Equal("http://tempuri.org", actualFundings[1].Url);
             Assert.Equal("grant", actualFundings[1].Type);
+        }
+
+        [Fact(DisplayName = "Get funding detail")]
+        public void TestGetFundingDetail()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonFundingDetails();
+            OrcidFunding actualFunding = orcidJsonParserService.GetFundingDetail(jsonStr);
+
+            Assert.Equal("Test title of funded project", actualFunding.Name);
+            Assert.Equal("This is a test description of test funding.", actualFunding.Description);
+            Assert.Equal("1999.5", actualFunding.Amount);
+            Assert.Equal("EUR", actualFunding.CurrencyCode);
+            Assert.Equal(2010, actualFunding.StartDate.Year);
+            Assert.Equal(0, actualFunding.StartDate.Month);
+            Assert.Equal(0, actualFunding.StartDate.Day);
+            Assert.Equal(2013, actualFunding.EndDate.Year);
+            Assert.Equal(2, actualFunding.EndDate.Month);
+            Assert.Equal(0, actualFunding.EndDate.Day);
+            Assert.Equal(new OrcidPutCode(15531).Value, actualFunding.PutCode.Value);
+            Assert.Equal("https://www.google.fi", actualFunding.Url);
+            Assert.Equal("grant", actualFunding.Type);
+
+        }
+
+        [Fact(DisplayName = "Get funding detail - no amount specified")]
+        public void TestGetFundingDetailWithoutAmount()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonFundingDetailsWithoutAmount();
+            OrcidFunding actualFunding = orcidJsonParserService.GetFundingDetail(jsonStr);
+
+            Assert.Equal("Funding without amount", actualFunding.Name);
+            Assert.Equal("", actualFunding.Description);
+            Assert.Equal("", actualFunding.Amount);
+            Assert.Equal("", actualFunding.CurrencyCode);
+            Assert.Equal(0, actualFunding.StartDate.Year);
+            Assert.Equal(0, actualFunding.StartDate.Month);
+            Assert.Equal(0, actualFunding.StartDate.Day);
+            Assert.Equal(0, actualFunding.EndDate.Year);
+            Assert.Equal(0, actualFunding.EndDate.Month);
+            Assert.Equal(0, actualFunding.EndDate.Day);
+            Assert.Equal(new OrcidPutCode(15862).Value, actualFunding.PutCode.Value);
+            Assert.Equal("", actualFunding.Url);
+            Assert.Equal("grant", actualFunding.Type);
+
         }
     }
 }

@@ -972,14 +972,20 @@ namespace api.Services
             // Parse amount
             if (fundingElement.TryGetProperty("amount", out JsonElement amountElement))
             {
-                amount = amountElement.GetProperty("value").ToString();
-                currencyCode = amountElement.GetProperty("currency-code").ToString();
+                if (amountElement.ValueKind != JsonValueKind.Null)
+                {
+                    amount = amountElement.GetProperty("value").ToString();
+                    currencyCode = amountElement.GetProperty("currency-code").ToString();
+                }
             }
 
             // Parse description
             if (fundingElement.TryGetProperty("short-description", out JsonElement descriptionElement))
             {
-                description = descriptionElement.GetString();
+                if (descriptionElement.ValueKind != JsonValueKind.Null)
+                {
+                    description = descriptionElement.GetString();
+                }
             }
 
             // Parse disambiguated organization
