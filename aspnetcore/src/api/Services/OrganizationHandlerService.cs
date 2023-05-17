@@ -104,9 +104,14 @@ namespace api.Services
         /*
          * Create entity DimIdentifierlessData for organization name.
          */
-        public DimIdentifierlessDatum CreateIdentifierlessData_OrganizationName(string nameFi, string nameEn, string nameSv)
+        public DimIdentifierlessDatum CreateIdentifierlessData_OrganizationName(string nameFi, string nameEn, string nameSv, string orcidDisambiguationSource, string orcidDisambiguatedOrganizationIdentifier)
         {
             DateTime currentDateTime = _utilityService.GetCurrentDateTime();
+
+            string unlinkedIdentifier = GetUnlinkedIdentifierFromOrcidDisambiguation(
+                orcidDisambiguationSource: orcidDisambiguationSource,
+                orcidDisambiguatedOrganizationIdentifier: orcidDisambiguatedOrganizationIdentifier);
+
             return new DimIdentifierlessDatum()
             {
                 Type = Constants.IdentifierlessDataTypes.ORGANIZATION_NAME,
@@ -118,7 +123,7 @@ namespace api.Services
                 SourceDescription = Constants.SourceDescriptions.ORCID,
                 Created = currentDateTime,
                 Modified = currentDateTime,
-                UnlinkedIdentifier = null
+                UnlinkedIdentifier = (string.IsNullOrWhiteSpace(unlinkedIdentifier) ? null : unlinkedIdentifier)
             };
         }
 
@@ -213,5 +218,17 @@ namespace api.Services
             }
         }
 
+        /*
+         * Create a string from ORCID disambiguation values.
+         * Resulting string can be stored in dim_identifierless_data.unlinked_identifier
+         */
+        public string GetUnlinkedIdentifierFromOrcidDisambiguation(string orcidDisambiguationSource, string orcidDisambiguatedOrganizationIdentifier)
+        {
+            if (string.IsNullOrWhiteSpace(orcidDisambiguationSource) && string.IsNullOrWhiteSpace(orcidDisambiguatedOrganizationIdentifier))
+            {
+                return "";
+            }
+            return $"{orcidDisambiguationSource}={orcidDisambiguatedOrganizationIdentifier}";
+        }
     }
 }

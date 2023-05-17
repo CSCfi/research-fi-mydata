@@ -883,9 +883,24 @@ namespace api.Services
 
                         /*
                          * When affiliation has related DimOrganization, possibly existing DimIdentifierlessData of type organization_name must be removed.
+                         * That will change the primary key of FactFieldValue, which must be recreated.
                          */
                         if (factFieldValuesAffiliation.DimIdentifierlessDataId != -1 && factFieldValuesAffiliation.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
                         {
+                            // Create new FactFieldValues for affiliation and delete old
+                            FactFieldValue factFieldValuesAffiliationNew = _userProfileService.GetEmptyFactFieldValue();
+                            factFieldValuesAffiliationNew.DimIdentifierlessDataId = -1;
+                            factFieldValuesAffiliationNew.DimUserProfile = factFieldValuesAffiliation.DimUserProfile;
+                            factFieldValuesAffiliationNew.DimFieldDisplaySettings = factFieldValuesAffiliation.DimFieldDisplaySettings;
+                            factFieldValuesAffiliationNew.DimRegisteredDataSourceId = factFieldValuesAffiliation.DimRegisteredDataSourceId;
+                            factFieldValuesAffiliationNew.DimAffiliation = factFieldValuesAffiliation.DimAffiliation;
+                            factFieldValuesAffiliationNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation;
+                            factFieldValuesAffiliationNew.Show = factFieldValuesAffiliation.Show;
+                            factFieldValuesAffiliationNew.PrimaryValue = factFieldValuesAffiliation.PrimaryValue;
+                            factFieldValuesAffiliationNew.SourceId = factFieldValuesAffiliation.SourceId;
+                            factFieldValuesAffiliationNew.SourceDescription = factFieldValuesAffiliation.SourceDescription;
+                            _ttvContext.Add(factFieldValuesAffiliationNew);
+                            _ttvContext.FactFieldValues.Remove(factFieldValuesAffiliation);
                             _ttvContext.DimIdentifierlessData.Remove(factFieldValuesAffiliation.DimIdentifierlessData);
                         }
                     }
@@ -901,16 +916,46 @@ namespace api.Services
                              * Update organization name in existing DimIdentifierlessData.
                              */
                             factFieldValuesAffiliation.DimIdentifierlessData.ValueEn = employment.OrganizationName;
+                            factFieldValuesAffiliation.DimIdentifierlessData.UnlinkedIdentifier =
+                                _organizationHandlerService.GetUnlinkedIdentifierFromOrcidDisambiguation(
+                                    orcidDisambiguationSource: employment.DisambiguationSource,
+                                    orcidDisambiguatedOrganizationIdentifier: employment.DisambiguatedOrganizationIdentifier);
                         }
                         else
                         {
                             /*
                              * Create new DimIdentifierlessData for organization name.
+                             * That will change the primary key of FactFieldValue, which must be recreated.
                              */
+
+                            // Make sure DimAffiliation does not reference DimOrganization
+                            factFieldValuesAffiliation.DimAffiliation.DimOrganizationId = -1;
+
                             DimIdentifierlessDatum dimIdentifierlessDatum_affiliation_organization_name =
-                                _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: employment.OrganizationName, nameSv: "");
+                                _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
+                                    nameFi: "",
+                                    nameEn: employment.OrganizationName,
+                                    nameSv: "",
+                                    orcidDisambiguationSource: employment.DisambiguationSource,
+                                    orcidDisambiguatedOrganizationIdentifier: employment.DisambiguatedOrganizationIdentifier);
                             _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessDatum_affiliation_organization_name);
-                            factFieldValuesAffiliation.DimIdentifierlessData = dimIdentifierlessDatum_affiliation_organization_name;
+
+
+                            // Create new FactFieldValues for affiliation and delete old
+                            FactFieldValue factFieldValuesAffiliationNew = _userProfileService.GetEmptyFactFieldValue();
+                            factFieldValuesAffiliationNew.DimIdentifierlessData = dimIdentifierlessDatum_affiliation_organization_name;
+                            factFieldValuesAffiliationNew.DimUserProfile = factFieldValuesAffiliation.DimUserProfile;
+                            factFieldValuesAffiliationNew.DimFieldDisplaySettings = factFieldValuesAffiliation.DimFieldDisplaySettings;
+                            factFieldValuesAffiliationNew.DimRegisteredDataSourceId = factFieldValuesAffiliation.DimRegisteredDataSourceId;
+                            factFieldValuesAffiliationNew.DimAffiliation = factFieldValuesAffiliation.DimAffiliation;
+                            factFieldValuesAffiliationNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation;
+                            factFieldValuesAffiliationNew.Show = factFieldValuesAffiliation.Show;
+                            factFieldValuesAffiliationNew.PrimaryValue = factFieldValuesAffiliation.PrimaryValue;
+                            factFieldValuesAffiliationNew.SourceId = factFieldValuesAffiliation.SourceId;
+                            factFieldValuesAffiliationNew.SourceDescription = factFieldValuesAffiliation.SourceDescription;
+
+                            _ttvContext.Add(factFieldValuesAffiliationNew);
+                            _ttvContext.FactFieldValues.Remove(factFieldValuesAffiliation);
                         }
                     }
 
@@ -969,7 +1014,12 @@ namespace api.Services
                     if (dimOrganization_id_affiliation == null || dimOrganization_id_affiliation == -1)
                     {
                         DimIdentifierlessDatum dimIdentifierlessData_oganizationName =
-                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: employment.OrganizationName, nameSv: "");
+                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
+                                nameFi: "",
+                                nameEn: employment.OrganizationName,
+                                nameSv: "",
+                                orcidDisambiguationSource: employment.DisambiguationSource,
+                                orcidDisambiguatedOrganizationIdentifier: employment.DisambiguatedOrganizationIdentifier);
                         _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_oganizationName);
                         factFieldValuesAffiliation.DimIdentifierlessData = dimIdentifierlessData_oganizationName;
                     }
@@ -1212,7 +1262,12 @@ namespace api.Services
                              * Create new DimIdentifierlessData for organization name.
                              */
                             DimIdentifierlessDatum dimIdentifierlessDatum_funding_organization_name =
-                                _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: orcidFunding.OrganizationName, nameSv: "");
+                                _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
+                                    nameFi: "",
+                                    nameEn: orcidFunding.OrganizationName,
+                                    nameSv: "",
+                                    orcidDisambiguationSource: orcidFunding.DisambiguationSource,
+                                    orcidDisambiguatedOrganizationIdentifier: orcidFunding.DisambiguatedOrganizationIdentifier);
                             _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessDatum_funding_organization_name);
                             factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData = dimIdentifierlessDatum_funding_organization_name;
                         }
@@ -1261,7 +1316,12 @@ namespace api.Services
                     if (dimOrganization_id_funding == null || dimOrganization_id_funding == -1)
                     {
                         DimIdentifierlessDatum dimIdentifierlessData_oganizationName =
-                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: orcidFunding.OrganizationName, nameSv: "");
+                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
+                                nameFi: "",
+                                nameEn: orcidFunding.OrganizationName,
+                                nameSv: "",
+                                orcidDisambiguationSource: orcidFunding.DisambiguationSource,
+                                orcidDisambiguatedOrganizationIdentifier: orcidFunding.DisambiguatedOrganizationIdentifier);
                         _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_oganizationName);
                         factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData = dimIdentifierlessData_oganizationName;
                     }
@@ -1375,7 +1435,12 @@ namespace api.Services
                              * Create new DimIdentifierlessData for organization name.
                              */
                             DimIdentifierlessDatum dimIdentifierlessDatum_research_activity_organization_name =
-                                _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: orcidResearchActivity.OrganizationName, nameSv: "");
+                                _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
+                                    nameFi: "",
+                                    nameEn: orcidResearchActivity.OrganizationName,
+                                    nameSv: "",
+                                    orcidDisambiguationSource: orcidResearchActivity.DisambiguationSource,
+                                    orcidDisambiguatedOrganizationIdentifier: orcidResearchActivity.DisambiguatedOrganizationIdentifier);
                             _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessDatum_research_activity_organization_name);
                             factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData = dimIdentifierlessDatum_research_activity_organization_name;
                         }
@@ -1445,7 +1510,12 @@ namespace api.Services
                     if (dimOrganization_id_research_activity == null || dimOrganization_id_research_activity == -1)
                     {
                         DimIdentifierlessDatum dimIdentifierlessData_oganizationName =
-                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: orcidResearchActivity.OrganizationName, nameSv: "");
+                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
+                                nameFi: "",
+                                nameEn: orcidResearchActivity.OrganizationName,
+                                nameSv: "",
+                                orcidDisambiguationSource: orcidResearchActivity.DisambiguationSource,
+                                orcidDisambiguatedOrganizationIdentifier: orcidResearchActivity.DisambiguatedOrganizationIdentifier);
                         _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_oganizationName);
                         factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData = dimIdentifierlessData_oganizationName;
                     }
