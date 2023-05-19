@@ -58,11 +58,25 @@ namespace api.Controllers
             }
 
             // Cached response was not found, get data
-            DimUserProfile dimUserProfile = await _userProfileService.GetUserprofile(orcidId);
-            ProfileSettings profileSettings = new()
+            DimUserProfile dimUserProfile;
+            ProfileSettings profileSettings = new();
+            try
             {
-                Hidden = dimUserProfile.Hidden
-            };
+                dimUserProfile = await _userProfileService.GetUserprofile(orcidId);
+                profileSettings.Hidden = dimUserProfile.Hidden;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.SETTINGS_GET,
+                        error: true,
+                        state: LogContent.ActionState.FAILED,
+                        message: $"{ex.ToString()}"));
+                return Ok(new ApiResponse(success: false, reason: "profile not found", fromCache: false));
+            }
 
             // Store data into cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
