@@ -29,7 +29,7 @@ namespace api.Tests
             OrganizationHandlerService organizationHandlerService = new OrganizationHandlerService(utilityService);
             // Act
             DimIdentifierlessDatum dimIdentifierlessDatum =
-                organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "abc123", nameEn: "bcd234", nameSv:"cde345");
+                organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "abc123", nameEn: "bcd234", nameSv:"cde345", orcidDisambiguationSource: "foo", orcidDisambiguatedOrganizationIdentifier: "bar");
             // Assert
             Assert.Equal(Constants.IdentifierlessDataTypes.ORGANIZATION_NAME, dimIdentifierlessDatum.Type);
             Assert.Equal(-1, dimIdentifierlessDatum.DimIdentifierlessDataId);
@@ -38,7 +38,7 @@ namespace api.Tests
             Assert.Equal("cde345", dimIdentifierlessDatum.ValueSv);
             Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, dimIdentifierlessDatum.SourceId);
             Assert.Equal(Constants.SourceDescriptions.ORCID, dimIdentifierlessDatum.SourceDescription);
-            Assert.Null(dimIdentifierlessDatum.UnlinkedIdentifier);
+            Assert.Equal("foo=bar", dimIdentifierlessDatum.UnlinkedIdentifier);
         }
 
         [Fact(DisplayName = "Get new DimIdentifierlessDatum for organization unit")]
@@ -48,7 +48,7 @@ namespace api.Tests
             UtilityService utilityService = new UtilityService();
             OrganizationHandlerService organizationHandlerService = new OrganizationHandlerService(utilityService);
             DimIdentifierlessDatum dimIdentifierlessDatumParent =
-                organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: "", nameSv: "");
+                organizationHandlerService.CreateIdentifierlessData_OrganizationName(nameFi: "", nameEn: "", nameSv: "", orcidDisambiguationSource: "", orcidDisambiguatedOrganizationIdentifier: "");
             // Act
             DimIdentifierlessDatum dimIdentifierlessDatum =
                 organizationHandlerService.CreateIdentifierlessData_OrganizationUnit(
@@ -90,6 +90,32 @@ namespace api.Tests
             string actualNormalizedRorId = organizationHandlerService.NormalizeRorId(rorIdUrl);
             // Assert
             Assert.Equal(expectedRorId, actualNormalizedRorId);
+        }
+
+        [Fact(DisplayName = "Get UnlinkedIdentifier from ORCID disambiguation")]
+        public void getUnlinkedIdentifierFromOrcidDisambiguation_01()
+        {
+            // Arrange
+            OrganizationHandlerService organizationHandlerService = new OrganizationHandlerService();
+            string identifier = "https://ror.org/abcde12345";
+            string source = "ROR";
+            // Act
+            string actual = organizationHandlerService.GetUnlinkedIdentifierFromOrcidDisambiguation(orcidDisambiguationSource: source, orcidDisambiguatedOrganizationIdentifier: identifier);
+            // Assert
+            Assert.Equal("ROR=https://ror.org/abcde12345", actual);
+        }
+
+        [Fact(DisplayName = "Get UnlinkedIdentifier from ORCID disambiguation - handle empty parameters")]
+        public void getUnlinkedIdentifierFromOrcidDisambiguation_02()
+        {
+            // Arrange
+            OrganizationHandlerService organizationHandlerService = new OrganizationHandlerService();
+            string identifier = "";
+            string source = "";
+            // Act
+            string actual = organizationHandlerService.GetUnlinkedIdentifierFromOrcidDisambiguation(orcidDisambiguationSource: source, orcidDisambiguatedOrganizationIdentifier: identifier);
+            // Assert
+            Assert.Equal("", actual);
         }
     }
 }
