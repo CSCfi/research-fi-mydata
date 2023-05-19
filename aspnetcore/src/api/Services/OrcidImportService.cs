@@ -1396,7 +1396,7 @@ namespace api.Services
                     DimProfileOnlyResearchActivity dimProfileOnlyResearchActivity_existing = factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity;
                     dimProfileOnlyResearchActivity_existing.DimDateIdStartNavigation = researchActivityStartDate;
                     dimProfileOnlyResearchActivity_existing.DimDateIdEndNavigation = researchActivityEndDate;
-                    dimProfileOnlyResearchActivity_existing.NameEn = orcidResearchActivity.RoleTitle;
+                    dimProfileOnlyResearchActivity_existing.NameEn = orcidResearchActivity.RoleTitle.Length > 255 ? orcidResearchActivity.RoleTitle.Substring(0, 255) : orcidResearchActivity.RoleTitle; // Database size 255
 
                     /*
                      * Update organization relation or identifierless data for existing affiliation.
@@ -1458,7 +1458,7 @@ namespace api.Services
                     DimProfileOnlyResearchActivity dimProfileOnlyResearchActivity_new = _userProfileService.GetEmptyDimProfileOnlyResearchActivity();
                     dimProfileOnlyResearchActivity_new.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                     dimProfileOnlyResearchActivity_new.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    dimProfileOnlyResearchActivity_new.NameEn = orcidResearchActivity.RoleTitle;
+                    dimProfileOnlyResearchActivity_new.NameEn = orcidResearchActivity.RoleTitle.Length > 255 ? orcidResearchActivity.RoleTitle.Substring(0,255) : orcidResearchActivity.RoleTitle; // Database size 255
                     dimProfileOnlyResearchActivity_new.DimDateIdStartNavigation = researchActivityStartDate;
                     dimProfileOnlyResearchActivity_new.DimDateIdEndNavigation = researchActivityEndDate;
                     dimProfileOnlyResearchActivity_new.Created = currentDateTime;
