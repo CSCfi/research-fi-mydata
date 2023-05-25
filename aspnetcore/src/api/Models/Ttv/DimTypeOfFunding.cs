@@ -8,6 +8,7 @@ namespace api.Models.Ttv
         public DimTypeOfFunding()
         {
             DimFundingDecisions = new HashSet<DimFundingDecision>();
+            DimProfileOnlyFundingDecisions = new HashSet<DimProfileOnlyFundingDecision>();
             InverseDimTypeOfFundingNavigation = new HashSet<DimTypeOfFunding>();
         }
 
@@ -24,6 +25,7 @@ namespace api.Models.Ttv
 
         public virtual DimTypeOfFunding DimTypeOfFundingNavigation { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; }
+        public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisions { get; set; }
         public virtual ICollection<DimTypeOfFunding> InverseDimTypeOfFundingNavigation { get; set; }
     }
 }

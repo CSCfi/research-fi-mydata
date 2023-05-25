@@ -18,6 +18,9 @@ namespace api.Models.Ttv
             DimFundingDecisionDimDateIdApprovalNavigations = new HashSet<DimFundingDecision>();
             DimFundingDecisionDimDateIdEndNavigations = new HashSet<DimFundingDecision>();
             DimFundingDecisionDimDateIdStartNavigations = new HashSet<DimFundingDecision>();
+            DimProfileOnlyFundingDecisionDimDateIdApprovalNavigations = new HashSet<DimProfileOnlyFundingDecision>();
+            DimProfileOnlyFundingDecisionDimDateIdEndNavigations = new HashSet<DimProfileOnlyFundingDecision>();
+            DimProfileOnlyFundingDecisionDimDateIdStartNavigations = new HashSet<DimProfileOnlyFundingDecision>();
             DimProfileOnlyResearchActivityDimDateIdEndNavigations = new HashSet<DimProfileOnlyResearchActivity>();
             DimProfileOnlyResearchActivityDimDateIdStartNavigations = new HashSet<DimProfileOnlyResearchActivity>();
             DimResearchActivityDimEndDateNavigations = new HashSet<DimResearchActivity>();
@@ -49,6 +52,9 @@ namespace api.Models.Ttv
         public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdApprovalNavigations { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdEndNavigations { get; set; }
         public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdStartNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdApprovalNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdEndNavigations { get; set; }
+        public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdStartNavigations { get; set; }
         public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivityDimDateIdEndNavigations { get; set; }
         public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivityDimDateIdStartNavigations { get; set; }
         public virtual ICollection<DimResearchActivity> DimResearchActivityDimEndDateNavigations { get; set; }

@@ -27,6 +27,8 @@ namespace api.Models.ProfileEditor
         public int FactFieldValues_DimIdentifierlessDataId { get; set; }
         public int FactFieldValues_DimEducationId { get; set; }
         public int FactFieldValues_DimPublicationId { get; set; }
+        public int FactFieldValues_DimProfileOnlyDatasetId { get; set; }
+        public int FactFieldValues_DimProfileOnlyFundingDecisionId { get; set; }
         public int FactFieldValues_DimProfileOnlyResearchActivityId { get; set; }
         public int FactFieldValues_DimProfileOnlyPublicationId { get; set; }
         public int FactFieldValues_DimResearchActivityId { get; set; }
@@ -238,6 +240,28 @@ namespace api.Models.ProfileEditor
         public string DimFundingDecision_Funder_NameFi { get; set; }
         public string DimFundingDecision_Funder_NameEn { get; set; }
         public string DimFundingDecision_Funder_NameSv { get; set; }
+        // DimProfileOnlyFundingDecision
+        public string DimProfileOnlyFundingDecision_Acronym { get; set; }
+        public string DimProfileOnlFundingDecision_FunderProjectNumber { get; set; }
+        public string DimProfileOnlyFundingDecision_NameFi { get; set; }
+        public string DimProfileOnlyFundingDecision_NameEn { get; set; }
+        public string DimProfileOnlyFundingDecision_NameSv { get; set; }
+        public string DimProfileOnlyFundingDecision_DescriptionFi { get; set; }
+        public string DimProfileOnlyFundingDecision_DescriptionEn { get; set; }
+        public string DimProfileOnlyFundingDecision_DescriptionSv { get; set; }
+        public decimal DimProfileOnlyFundingDecision_AmountInEur { get; set; }
+        public decimal? DimProfileOnlyFundingDecision_AmountInFundingDecisionCurrency { get; set; }
+        public string DimProfileOnlyFundingDecision_FundingDecisionCurrencyAbbreviation { get; set; }
+        public int DimProfileOnlyFundingDecision_StartDate_Year { get; set; }
+        public int DimProfileOnlyFundingDecision_EndDate_Year { get; set; }
+        public int? DimProfileOnlyFundingDecision_DimOrganization_Id { get; set; }
+        public string DimProfileOnlyFundingDecision_DimOrganization_NameFi { get; set; }
+        public string DimProfileOnlyFundingDecision_DimOrganization_NameEn { get; set; }
+        public string DimProfileOnlyFundingDecision_DimOrganization_NameSv { get; set; }
+        public string DimProfileOnlyFundingDecision_Role_CodeValue { get; set; }
+        public string DimProfileOnlyFundingDecision_DimTypeOfFunding_NameFi { get; set; }
+        public string DimProfileOnlyFundingDecision_DimTypeOfFunding_NameEn { get; set; }
+        public string DimProfileOnlyFundingDecision_DimTypeOfFunding_NameSv { get; set; }
         // DimResearchDataset
         public string DimResearchDataset_LocalIdentifier { get; set; }
         public string DimResearchDataset_NameFi { get; set; }
@@ -247,5 +271,14 @@ namespace api.Models.ProfileEditor
         public string DimResearchDataset_DescriptionEn { get; set; }
         public string DimResearchDataset_DescriptionSv { get; set; }
         public DateTime? DimResearchDataset_DatasetCreated {get; set; }
+        // DimProfileOnlyDataset
+        public string DimProfileOnlyDataset_LocalIdentifier { get; set; }
+        public string DimProfileOnlyDataset_NameFi { get; set; }
+        public string DimProfileOnlyDataset_NameEn { get; set; }
+        public string DimProfileOnlyDataset_NameSv { get; set; }
+        public string DimProfileOnlyDataset_DescriptionFi { get; set; }
+        public string DimProfileOnlyDataset_DescriptionEn { get; set; }
+        public string DimProfileOnlyDataset_DescriptionSv { get; set; }
+        public DateTime? DimProfileOnlyDataset_DatasetCreated { get; set; }
     }
 }

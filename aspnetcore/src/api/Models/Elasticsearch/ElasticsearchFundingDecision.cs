@@ -24,6 +24,8 @@
             FundingStartYear = null;
             FundingEndYear = null;
             AmountInEur = -1;
+            AmountInFundingDecisionCurrency = null;
+            FundingDecisionCurrencyAbbreviation = null;
         }
 
         public int ProjectId { get; set; }
@@ -47,5 +49,7 @@
         public int? FundingStartYear { get; set; }
         public int? FundingEndYear { get; set; }
         public decimal AmountInEur { get; set; }
+        public decimal? AmountInFundingDecisionCurrency { get; set; }
+        public string? FundingDecisionCurrencyAbbreviation { get; set; }
     }
 }

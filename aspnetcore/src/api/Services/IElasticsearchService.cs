@@ -9,8 +9,8 @@ namespace api.Services
     {
         IConfiguration Configuration { get; }
 
-        Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId, LogUserIdentification logUserIdentification);
+        Task<bool> BackgroundDelete(string orcidId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_DELETE);
+        Task<bool> BackgroundUpdate(string orcidId, int userprofileId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_UPDATE);
         bool IsElasticsearchSyncEnabled();
-        Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person, LogUserIdentification logUserIdentification);
     }
 }

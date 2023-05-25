@@ -25,28 +25,19 @@ namespace api.Controllers
     public class ProfileDataController : TtvControllerBase
     {
         private readonly IUserProfileService _userProfileService;
-        private readonly IElasticsearchService _elasticsearchService;
         private readonly ITtvSqlService _ttvSqlService;
         private readonly IMemoryCache _cache;
         private readonly ILogger<UserProfileController> _logger;
-        private readonly IBackgroundProfiledata _backgroundProfiledata;
-        private readonly IBackgroundTaskQueue _taskQueue;
 
         public ProfileDataController(IUserProfileService userProfileService,
-            IElasticsearchService elasticsearchService,
             ITtvSqlService ttvSqlService,
             IMemoryCache memoryCache,
-            ILogger<UserProfileController> logger,
-            IBackgroundProfiledata backgroundProfiledata,
-            IBackgroundTaskQueue taskQueue)
+            ILogger<UserProfileController> logger)
         {
             _userProfileService = userProfileService;
             _cache = memoryCache;
-            _elasticsearchService = elasticsearchService;
             _ttvSqlService = ttvSqlService;
-            _backgroundProfiledata = backgroundProfiledata;
             _logger = logger;
-            _taskQueue = taskQueue;
         }
 
         /// <summary>
@@ -109,18 +100,17 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
+            // Get user profile
+            DimUserProfile dimUserProfile = await _userProfileService.GetUserprofile(orcidId);
+
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            if (dimUserProfile == null || dimUserProfile.Id < 0)
             {
                 return Ok(new ApiResponse(success: false, reason: "profile not found"));
             }
 
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
-
 
             // Collect information about updated items to a response object, which will be sent in response.
             ProfileEditorDataModificationResponse profileEditorDataModificationResponse = new();
@@ -128,44 +118,17 @@ namespace api.Controllers
             // Set 'Show' and 'PrimaryValue' in FactFieldValues
             foreach (ProfileEditorItemMeta profileEditorItemMeta in profileEditorDataModificationRequest.items.ToList())
             {
-                string updateSql = _ttvSqlService.GetSqlQuery_Update_FactFieldValues(userprofileId, profileEditorItemMeta);
+                string updateSql = _ttvSqlService.GetSqlQuery_Update_FactFieldValues(dimUserProfile.Id, profileEditorItemMeta);
                 await _userProfileService.ExecuteRawSql(updateSql);
                 profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
             }
-            
-            // Update Elasticsearch index in a background task.
-            // ElasticsearchService is singleton, no need to create local scope.
-            if (_elasticsearchService.IsElasticsearchSyncEnabled())
-            {
-                LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
 
-                await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
-                {
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
-                            state: LogContent.ActionState.START));
-
-                    // Get Elasticsearch person entry from profile data.
-                    Models.Elasticsearch.ElasticsearchPerson person =
-                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
-                            orcidId: orcidId,
-                            userprofileId: userprofileId,
-                            logUserIdentification: logUserIdentification);
-
-                    // Update Elasticsearch person index.
-                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification);
-
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
-                            state: LogContent.ActionState.COMPLETE));
-                });
-            }
+            // Update Elasticsearch index.
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            await _userProfileService.UpdateProfileInElasticsearch(
+                orcidId: orcidId,
+                userprofileId: dimUserProfile.Id,
+                logUserIdentification: logUserIdentification);
 
             return Ok(new ApiResponseProfileDataPatch(success: true, reason: "", data: profileEditorDataModificationResponse, fromCache: false));
         }

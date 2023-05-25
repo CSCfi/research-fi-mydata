@@ -1,0 +1,66 @@
+﻿{
+  "created-date": { "value": 1683523680278 },
+  "last-modified-date": { "value": 1683523680278 },
+  "source": {
+    "source-orcid": {
+      "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+      "path": "0000-0001-6790-8767",
+      "host": "sandbox.orcid.org"
+    },
+    "source-client-id": null,
+    "source-name": { "value": "Timo J S" },
+    "assertion-origin-orcid": null,
+    "assertion-origin-client-id": null,
+    "assertion-origin-name": null
+  },
+  "put-code": 15531,
+  "path": "/0000-0001-6790-8767/funding/15531",
+  "type": "grant",
+  "organization-defined-type": { "value": "Test funding subtype" },
+  "title": {
+    "title": { "value": "Test title of funded project" },
+    "translated-title": null
+  },
+  "short-description": "This is a test description of test funding.",
+  "amount": {
+    "value": "1999.5",
+    "currency-code": "EUR"
+  },
+  "url": { "value": "https://www.google.fi" },
+  "start-date": {
+    "year": { "value": "2010" },
+    "month": null,
+    "day": null
+  },
+  "end-date": {
+    "year": { "value": "2013" },
+    "month": { "value": "02" },
+    "day": null
+  },
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "grant_number",
+        "external-id-value": "123456789",
+        "external-id-normalized": null,
+        "external-id-normalized-error": null,
+        "external-id-url": { "value": "https://mytestgrantlink.com" },
+        "external-id-relationship": "self"
+      }
+    ]
+  },
+  "contributors": null,
+  "organization": {
+    "name": "Aalto University",
+    "address": {
+      "city": "Espoo",
+      "region": "Uusimaa",
+      "country": "FI"
+    },
+    "disambiguated-organization": {
+      "disambiguated-organization-identifier": "https://ror.org/020hwjq30",
+      "disambiguation-source": "ROR"
+    }
+  },
+  "visibility": "public"
+}

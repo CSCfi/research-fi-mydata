@@ -6,10 +6,7 @@ name: .NET
 on:  
   pull_request:
     branches: 
-      - "devel"
-      - "qa"
-      - "master"
-      - "main" 
+      - "**"
 
 jobs:
   build:

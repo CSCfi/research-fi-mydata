@@ -18,6 +18,8 @@ namespace api.Services
         Task CreateProfile(string orcidId, LogUserIdentification logUserIdentification);
         Task<bool> DeleteProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification);
         Task ExecuteRawSql(string sql);
+        DimProfileOnlyDataset GetEmptyDimProfileOnlyDataset();
+        DimProfileOnlyFundingDecision GetEmptyDimProfileOnlyFundingDecision();
         DimProfileOnlyPublication GetEmptyDimProfileOnlyPublication();
         DimProfileOnlyResearchActivity GetEmptyDimProfileOnlyResearchActivity();
         DimPid GetEmptyDimPid();
@@ -31,6 +33,11 @@ namespace api.Services
         Task<int> GetUserprofileId(string orcidId);
         Task<bool> IsUserprofilePublished(int dimUserProfileId);
         Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens);
+        Task<bool> DeleteProfileFromElasticsearch(string orcidId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_UPDATE);
+        Task<bool> UpdateProfileInElasticsearch(string orcidId, int userprofileId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_UPDATE);
         Task<bool> UserprofileExistsForOrcidId(string orcidId);
+        Task HideProfile(string orcidId, LogUserIdentification logUserIdentification);
+        Task RevealProfile(string orcidId, LogUserIdentification logUserIdentification);
+        string GetCMemoryCacheKey_ProfileSettings(string orcidId);
     }
 }

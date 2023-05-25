@@ -13,8 +13,10 @@ namespace api.Models.Orcid
             dimPidIds = new();
             dimAffiliationIds = new();
             dimEducationIds = new();
-            dimPublicationIds = new();
-            dimResearchActivityIds = new();
+            dimProfileOnlyDatasetIds = new();
+            dimProfileOnlyPublicationIds = new();
+            dimProfileOnlyResearchActivityIds = new();
+            dimProfileOnlyFundingDecisionIds = new();
         }
 
         public List<int> dimNameIds { get; set; }
@@ -25,7 +27,9 @@ namespace api.Models.Orcid
         public List<int> dimPidIds { get; set; }
         public List<int> dimAffiliationIds { get; set; }
         public List<int> dimEducationIds { get; set; }
-        public List<int> dimPublicationIds { get; set; }
-        public List<int> dimResearchActivityIds { get; set; }
+        public List<int> dimProfileOnlyDatasetIds { get; set; }
+        public List<int> dimProfileOnlyPublicationIds { get; set; }
+        public List<int> dimProfileOnlyResearchActivityIds { get; set; }
+        public List<int> dimProfileOnlyFundingDecisionIds { get; set; }
     }
 }

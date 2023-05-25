@@ -970,7 +970,7 @@
                   "value": "2019"
                 },
                 "month": {
-                  "value": "03"
+                  "value": "04"
                 },
                 "day": null
               },
@@ -1058,7 +1058,7 @@
                   "value": "02"
                 },
                 "day": {
-                  "value": "02"
+                  "value": "13"
                 }
               },
               "end-date": {
@@ -1066,10 +1066,10 @@
                   "value": "2001"
                 },
                 "month": {
-                  "value": "02"
+                  "value": "03"
                 },
                 "day": {
-                  "value": "02"
+                  "value": "14"
                 }
               },
               "organization": {
@@ -2692,7 +2692,7 @@
                 ]
               },
               "url": null,
-              "type": "journal-article B",
+              "type": "website",
               "publication-date": {
                 "year": {
                   "value": "2019"
@@ -2787,7 +2787,7 @@
                 ]
               },
               "url": null,
-              "type": "journal-article C",
+              "type": "book",
               "publication-date": null,
               "journal-title": {
                 "value": "Learned Publishing"
@@ -2841,7 +2841,7 @@
                 ]
               },
               "url": null,
-              "type": "journal-article C",
+              "type": "book",
               "publication-date": {
                 "year": {
                   "value": "2012"
@@ -2859,7 +2859,162 @@
               "display-index": "6"
             }
           ]
+        },
+
+
+        {
+          "last-modified-date": {
+            "value": 1683871926444
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "agr",
+                "external-id-value": "testWorkIdentifierValue",
+                "external-id-normalized": {
+                  "value": "testworkidentifiervalue",
+                  "transient": true
+                },
+                "external-id-normalized-error": null,
+                "external-id-url": {
+                  "value": "https://testIdentifierUrl.com"
+                },
+                "external-id-relationship": "self"
+              }
+            ]
+          },
+          "work-summary": [
+            {
+              "put-code": 1715011,
+              "created-date": {
+                "value": 1683871926444
+              },
+              "last-modified-date": {
+                "value": 1683871926444
+              },
+              "source": {
+                "source-orcid": {
+                  "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                  "path": "0000-0001-6790-8767",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-client-id": null,
+                "source-name": {
+                  "value": "Timo J S"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": {
+                  "value": "Test dataset 1"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "agr",
+                    "external-id-value": "testWorkIdentifierValue",
+                    "external-id-normalized": {
+                      "value": "testworkidentifiervalue",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
+                    "external-id-url": {
+                      "value": "https://testIdentifierUrl.com"
+                    },
+                    "external-id-relationship": "self"
+                  }
+                ]
+              },
+              "url": {
+                "value": "https://mytestdataset1.url.com"
+              },
+              "type": "data-set",
+              "publication-date": {
+                "year": {
+                  "value": "2020"
+                },
+                "month": {
+                  "value": "03"
+                },
+                "day": {
+                  "value": "15"
+                }
+              },
+              "journal-title": {
+                "value": "Test publisher 1"
+              },
+              "visibility": "public",
+              "path": "/0000-0001-6790-8767/work/1715011",
+              "display-index": "1"
+            }
+          ]
+        },
+
+
+
+
+
+        {
+          "last-modified-date": {
+            "value": 1683875942547
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "work-summary": [
+            {
+              "put-code": 1716260,
+              "created-date": {
+                "value": 1683875926474
+              },
+              "last-modified-date": {
+                "value": 1683875942547
+              },
+              "source": {
+                "source-orcid": {
+                  "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                  "path": "0000-0001-6790-8767",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-client-id": null,
+                "source-name": {
+                  "value": "Timo J S"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": {
+                  "value": "test dataset 2"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": []
+              },
+              "url": null,
+              "type": "data-set",
+              "publication-date": null,
+              "journal-title": null,
+              "visibility": "public",
+              "path": "/0000-0001-6790-8767/work/1716260",
+              "display-index": "1"
+            }
+          ]
         }
+
+
+
+
+
+
       ],
       "path": "/0000-0002-9227-8514/works"
     },

@@ -15,16 +15,16 @@ namespace api.Tests
         // Test file is based on ORCID's sandbox record https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/record
         private string getOrcidJsonRecord()
         {
-            var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_record.json";
-            var reader = new StreamReader(filePath);
+            string filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_record.json";
+            StreamReader reader = new StreamReader(filePath);
             return reader.ReadToEnd();
         }
 
         // Get ORCID record which does not contain name or other name.
         private string getOrcidJsonRecord_NoNames()
         {
-            var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_record_no_names.json";
-            var reader = new StreamReader(filePath);
+            string filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_record_no_names.json";
+            StreamReader reader = new StreamReader(filePath);
             return reader.ReadToEnd();
         }
 
@@ -32,108 +32,124 @@ namespace api.Tests
         // Test file is based on ORCID's sandbox record https://pub.sandbox.orcid.org/v3.0/0000-0002-9227-8514/personal-details
         private string getOrcidJsonPersonalDetails()
         {
-            var filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_personal-details.json";
-            var reader = new StreamReader(filePath);
+            string filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/orcidSandbox_0000-0002-9227-8514_personal-details.json";
+            StreamReader reader = new StreamReader(filePath);
+            return reader.ReadToEnd();
+        }
+
+        // Get ORCID funding detail
+        private string getOrcidJsonFundingDetails()
+        {
+            string filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/funding-detail.json";
+            StreamReader reader = new StreamReader(filePath);
+            return reader.ReadToEnd();
+        }
+
+        // Get ORCID funding detail - version without amount.
+        private string getOrcidJsonFundingDetailsWithoutAmount()
+        {
+            string filePath = $@"{Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName}/Infrastructure/funding-detail-without-amount.json";
+            StreamReader reader = new StreamReader(filePath);
             return reader.ReadToEnd();
         }
 
         [Fact(DisplayName = "Get given names from full ORCID record")]
         public void TestGetGivenNamesFromRecord()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var expectedGivenNames = new OrcidGivenNames("Sofia");
-            var actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            OrcidGivenNames expectedGivenNames = new OrcidGivenNames("Sofia");
+            OrcidGivenNames actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
             Assert.Equal(expectedGivenNames.Value, actualGivenNames.Value);
         }
 
         [Fact(DisplayName = "Get given names from full ORCID record - handle missing name")]
         public void TestGetGivenNames_NameIsNull()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord_NoNames();
-            var expectedGivenNames = new OrcidGivenNames("");
-            var actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord_NoNames();
+            OrcidGivenNames expectedGivenNames = new OrcidGivenNames("");
+            OrcidGivenNames actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
             Assert.Equal(expectedGivenNames.Value, actualGivenNames.Value);
         }
 
         [Fact(DisplayName = "Get given names from personal details")]
         public void TestGetGivenNamesFromPersonalDetails()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonPersonalDetails();
-            var expectedGivenNames = new OrcidGivenNames("Sofia");
-            var actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonPersonalDetails();
+            OrcidGivenNames expectedGivenNames = new OrcidGivenNames("Sofia");
+            OrcidGivenNames actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
             Assert.Equal(expectedGivenNames.Value, actualGivenNames.Value);
         }
 
         [Fact(DisplayName = "Get family name from full ORCID record")]
         public void TestGetFamilyNameFromRecord()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var expectedFamilyName = new OrcidFamilyName("Garcia");
-            var actualFamilyName = orcidJsonParserService.GetFamilyName(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            OrcidFamilyName expectedFamilyName = new OrcidFamilyName("Garcia");
+            OrcidFamilyName actualFamilyName = orcidJsonParserService.GetFamilyName(jsonStr);
             Assert.Equal(expectedFamilyName.Value, actualFamilyName.Value);
         }
 
         [Fact(DisplayName = "Get family name from full ORCID record - handle missing name")]
         public void TestGetFamilyName_NameIsNull()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord_NoNames();
-            var expectedFamilyName = new OrcidFamilyName("");
-            var actualFamilyName = orcidJsonParserService.GetFamilyName(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord_NoNames();
+            OrcidFamilyName expectedFamilyName = new OrcidFamilyName("");
+            OrcidFamilyName actualFamilyName = orcidJsonParserService.GetFamilyName(jsonStr);
             Assert.Equal(expectedFamilyName.Value, actualFamilyName.Value);
         }
 
         [Fact(DisplayName = "Get family name from personal details")]
         public void TestGetFamilyNameFromPersonalDetails()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonPersonalDetails();
-            var expectedFamilyName = new OrcidFamilyName("Garcia");
-            var actualFamilyName = orcidJsonParserService.GetFamilyName(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonPersonalDetails();
+            OrcidFamilyName expectedFamilyName = new OrcidFamilyName("Garcia");
+            OrcidFamilyName actualFamilyName = orcidJsonParserService.GetFamilyName(jsonStr);
             Assert.Equal(expectedFamilyName.Value, actualFamilyName.Value);
         }
 
         [Fact(DisplayName = "Get credit name from full ORCID record")]
         public void TestGetCreditNameFromRecord()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var expectedCreditName = new OrcidCreditName("Sofia Maria Hernandez Garcia");
-            var actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            OrcidCreditName expectedCreditName = new OrcidCreditName("Sofia Maria Hernandez Garcia");
+            OrcidCreditName actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
             Assert.Equal(expectedCreditName.Value, actualCreditName.Value);
         }
 
         [Fact(DisplayName = "Get credit name from full ORCID record - handle missing name")]
         public void TestGetCreditName_NameIsNull()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord_NoNames();
-            var expectedCreditName = new OrcidCreditName("");
-            var actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord_NoNames();
+            OrcidCreditName expectedCreditName = new OrcidCreditName("");
+            OrcidCreditName actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
             Assert.Equal(expectedCreditName.Value, actualCreditName.Value);
         }
 
         [Fact(DisplayName = "Get credit name from personal details")]
         public void TestGetCreditNameFromPersonalDetails()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonPersonalDetails();
-            var expectedCreditName = new OrcidCreditName("Sofia Maria Hernandez Garcia");
-            var actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonPersonalDetails();
+            OrcidCreditName expectedCreditName = new OrcidCreditName("Sofia Maria Hernandez Garcia");
+            OrcidCreditName actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
             Assert.Equal(expectedCreditName.Value, actualCreditName.Value);
         }
 
         [Fact(DisplayName = "Get other names from full ORCID record")]
         public void TestGetOtherNamesFromRecord()
         {
-            var jsonStr = getOrcidJsonRecord();
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var actualOtherNames = orcidJsonParserService.GetOtherNames(jsonStr);
-            var expectedOtherNames = new List<OrcidOtherName> { };
+            string jsonStr = getOrcidJsonRecord();
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            List<OrcidOtherName> actualOtherNames = orcidJsonParserService.GetOtherNames(jsonStr);
+            List<OrcidOtherName> expectedOtherNames = new();
             expectedOtherNames.Add(
                 new OrcidOtherName(
                     "Sofia Maria Garcia",
@@ -163,10 +179,10 @@ namespace api.Tests
         [Fact(DisplayName = "Get other names from personal details")]
         public void TestGetOtherNamesFromPersonalDetails()
         {
-            var jsonStr = getOrcidJsonPersonalDetails();
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var actualOtherNames = orcidJsonParserService.GetOtherNames(jsonStr);
-            var expectedOtherNames = new List<OrcidOtherName> { };
+            string jsonStr = getOrcidJsonPersonalDetails();
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            List<OrcidOtherName> actualOtherNames = orcidJsonParserService.GetOtherNames(jsonStr);
+            List<OrcidOtherName> expectedOtherNames = new();
             expectedOtherNames.Add(
                 new OrcidOtherName(
                     "Sofia Maria Garcia",
@@ -196,40 +212,40 @@ namespace api.Tests
         [Fact(DisplayName = "Get biography from full ORCID record")]
         public void TestGetBiography()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var expectedBiography = new OrcidBiography(
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            OrcidBiography expectedBiography = new OrcidBiography(
                 "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder."
             );
-            var actualBiography = orcidJsonParserService.GetBiography(jsonStr);
+            OrcidBiography actualBiography = orcidJsonParserService.GetBiography(jsonStr);
             Assert.Equal(expectedBiography.Value, actualBiography.Value);
         }
 
         [Fact(DisplayName = "Get biography from personal details")]
         public void TestGetBiographyFromPersonalDetails()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonPersonalDetails();
-            var expectedBiography = new OrcidBiography(
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonPersonalDetails();
+            OrcidBiography expectedBiography = new OrcidBiography(
                 "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder."
             );
-            var actualBiography = orcidJsonParserService.GetBiography(jsonStr);
+            OrcidBiography actualBiography = orcidJsonParserService.GetBiography(jsonStr);
             Assert.Equal(expectedBiography.Value, actualBiography.Value);
         }
 
         [Fact(DisplayName = "Get researcher urls")]
         public void TestGetResearcherUrls()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var expectedResearcherUrls = new List<OrcidResearcherUrl> {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidResearcherUrl> expectedResearcherUrls = new() {
                 new OrcidResearcherUrl(
                     "Twitter",
                     "https://twitter.com/ORCIDsofia",
                     new OrcidPutCode(41387)
                 )
             };
-            var actualResearcherUrls = orcidJsonParserService.GetResearcherUrls(jsonStr);
+            List<OrcidResearcherUrl> actualResearcherUrls = orcidJsonParserService.GetResearcherUrls(jsonStr);
 
             Assert.Equal(expectedResearcherUrls[0].UrlName, actualResearcherUrls[0].UrlName);
             Assert.Equal(expectedResearcherUrls[0].Url, actualResearcherUrls[0].Url);
@@ -239,15 +255,15 @@ namespace api.Tests
         [Fact(DisplayName = "Get emails")]
         public void TestGetEmails()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var expectedEmails = new List<OrcidEmail> {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidEmail> expectedEmails = new() {
                 new OrcidEmail(
                     "s.garcia@orcid.org",
                     new OrcidPutCode(null)
                 )
             };
-            var actualEmails = orcidJsonParserService.GetEmails(jsonStr);
+            List<OrcidEmail> actualEmails = orcidJsonParserService.GetEmails(jsonStr);
 
             Assert.Equal(expectedEmails[0].Value, actualEmails[0].Value);
             Assert.Equal(expectedEmails[0].PutCode.Value, actualEmails[0].PutCode.Value);
@@ -256,9 +272,9 @@ namespace api.Tests
         [Fact(DisplayName = "Get keywords")]
         public void TestGetKeywords()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var expectedKeywords = new List<OrcidKeyword> {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidKeyword> expectedKeywords = new() {
                 new OrcidKeyword(
                     "QA and testing",
                     new OrcidPutCode(4504)
@@ -273,7 +289,7 @@ namespace api.Tests
                     new OrcidPutCode(4604)
                 )
             };
-            var actualKeywords = orcidJsonParserService.GetKeywords(jsonStr);
+            List<OrcidKeyword> actualKeywords = orcidJsonParserService.GetKeywords(jsonStr);
 
             Assert.Equal(expectedKeywords[0].Value, actualKeywords[0].Value);
             Assert.Equal(expectedKeywords[1].Value, actualKeywords[1].Value);
@@ -286,9 +302,9 @@ namespace api.Tests
         [Fact(DisplayName = "Get external identifiers")]
         public void TestGetExternalIdentifiers()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var expectedExternalIdentifiers = new List<OrcidExternalIdentifier> {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidExternalIdentifier> expectedExternalIdentifiers = new() {
                 new OrcidExternalIdentifier(
                     "Loop profile",
                     "558",
@@ -303,7 +319,7 @@ namespace api.Tests
                     new OrcidPutCode(3294)
                 )
             };
-            var actualExternalIdentifiers = orcidJsonParserService.GetExternalIdentifiers(jsonStr);
+            List<OrcidExternalIdentifier> actualExternalIdentifiers = orcidJsonParserService.GetExternalIdentifiers(jsonStr);
 
             Assert.Equal(expectedExternalIdentifiers[0].ExternalIdType, actualExternalIdentifiers[0].ExternalIdType);
             Assert.Equal(expectedExternalIdentifiers[0].ExternalIdValue, actualExternalIdentifiers[0].ExternalIdValue);
@@ -318,9 +334,9 @@ namespace api.Tests
         [Fact(DisplayName = "Get educations")]
         public void TestGetEducations()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var actualEducations = orcidJsonParserService.GetEducations(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidEducation> actualEducations = orcidJsonParserService.GetEducations(jsonStr);
             Assert.True(actualEducations.Count == 2, "Educations: should parse 2 education");
 
             Assert.Equal("Massachusetts Institute of Technology", actualEducations[0].OrganizationName);
@@ -349,9 +365,9 @@ namespace api.Tests
         [Fact(DisplayName = "Get employments")]
         public void TestGetEmployments()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var actualEmployments = orcidJsonParserService.GetEmployments(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidEmployment> actualEmployments = orcidJsonParserService.GetEmployments(jsonStr);
 
             Assert.True(actualEmployments.Count == 2, "Educations: should parse 2 employments");
 
@@ -384,9 +400,9 @@ namespace api.Tests
         [Fact(DisplayName = "Get publications")]
         public void TestGetPublications()
         {
-            var orcidJsonParserService = new OrcidJsonParserService();
-            var jsonStr = getOrcidJsonRecord();
-            var actualPublications = orcidJsonParserService.GetPublications(jsonStr);
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidPublication> actualPublications = orcidJsonParserService.GetPublications(jsonStr);
             Assert.True(actualPublications.Count == 3, "Publications: should parse 3 publications");
 
             Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[0].PublicationName);
@@ -399,13 +415,36 @@ namespace api.Tests
             Assert.Equal(new OrcidPutCode(1045646).Value, actualPublications[1].PutCode.Value);
             Assert.Equal(2019, actualPublications[1].PublicationYear);
             Assert.Equal("10.1111/test.12241", actualPublications[1].Doi);
-            Assert.Equal("journal-article B", actualPublications[1].Type);
+            Assert.Equal("website", actualPublications[1].Type);
 
             Assert.Equal("Another publication", actualPublications[2].PublicationName);
             Assert.Equal(new OrcidPutCode(733536).Value, actualPublications[2].PutCode.Value);
             Assert.Null(actualPublications[2].PublicationYear);
             Assert.Equal("10.1087/20120404", actualPublications[2].Doi);
-            Assert.Equal("journal-article C", actualPublications[2].Type);
+            Assert.Equal("book", actualPublications[2].Type);
+        }
+
+        [Fact(DisplayName = "Get datasets")]
+        public void TestGetDatasets()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidDataset> actualDatasets = orcidJsonParserService.GetDatasets(jsonStr);
+            Assert.True(actualDatasets.Count == 2, "Publications: should parse 2 datasets");
+
+            Assert.Equal("Test dataset 1", actualDatasets[0].DatasetName);
+            Assert.Equal(new OrcidPutCode(1715011).Value, actualDatasets[0].PutCode.Value);
+            Assert.Equal(2020, actualDatasets[0].DatasetDate.Year);
+            Assert.Equal(3, actualDatasets[0].DatasetDate.Month);
+            Assert.Equal(15, actualDatasets[0].DatasetDate.Day);
+            Assert.Equal("https://mytestdataset1.url.com", actualDatasets[0].Url);
+
+            Assert.Equal("test dataset 2", actualDatasets[1].DatasetName);
+            Assert.Equal(new OrcidPutCode(1716260).Value, actualDatasets[1].PutCode.Value);
+            Assert.Equal(0, actualDatasets[1].DatasetDate.Year);
+            Assert.Equal(0, actualDatasets[1].DatasetDate.Month);
+            Assert.Equal(0, actualDatasets[1].DatasetDate.Day);
+            Assert.Equal("", actualDatasets[1].Url);
         }
 
         [Fact(DisplayName = "Get invited positions, distinctions, memberships, peer reviews, qualifications and services")]
@@ -569,6 +608,83 @@ namespace api.Tests
             Assert.Equal(2, actual.EndDate.Month);
             Assert.Equal(17, actual.EndDate.Day);
             Assert.Equal("https://www.rovaniemi.fi", actual.Url);
+        }
+
+        [Fact(DisplayName = "Get fundings")]
+        public void TestGetFundings()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidFunding> actualFundings = orcidJsonParserService.GetFundings(jsonStr);
+            Assert.True(actualFundings.Count == 2, "Fundings: should parse 2 fundings");
+
+            Assert.Equal("Excellence Grant", actualFundings[0].Name);
+            Assert.Equal(2017, actualFundings[0].StartDate.Year);
+            Assert.Equal(3, actualFundings[0].StartDate.Month);
+            Assert.Equal(0, actualFundings[0].StartDate.Day);
+            Assert.Equal(2019, actualFundings[0].EndDate.Year);
+            Assert.Equal(4, actualFundings[0].EndDate.Month);
+            Assert.Equal(0, actualFundings[0].EndDate.Day);
+            Assert.Equal(new OrcidPutCode(6388).Value, actualFundings[0].PutCode.Value);
+            Assert.Equal("", actualFundings[0].Url);
+            Assert.Equal("grant", actualFundings[0].Type);
+
+            Assert.Equal("Grant title", actualFundings[1].Name);
+            Assert.Equal(1999, actualFundings[1].StartDate.Year);
+            Assert.Equal(2, actualFundings[1].StartDate.Month);
+            Assert.Equal(13, actualFundings[1].StartDate.Day);
+            Assert.Equal(2001, actualFundings[1].EndDate.Year);
+            Assert.Equal(3, actualFundings[1].EndDate.Month);
+            Assert.Equal(14, actualFundings[1].EndDate.Day);
+            Assert.Equal(new OrcidPutCode(4413).Value, actualFundings[1].PutCode.Value);
+            Assert.Equal("http://tempuri.org", actualFundings[1].Url);
+            Assert.Equal("grant", actualFundings[1].Type);
+        }
+
+        [Fact(DisplayName = "Get funding detail")]
+        public void TestGetFundingDetail()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonFundingDetails();
+            OrcidFunding actualFunding = orcidJsonParserService.GetFundingDetail(jsonStr);
+
+            Assert.Equal("Test title of funded project", actualFunding.Name);
+            Assert.Equal("This is a test description of test funding.", actualFunding.Description);
+            Assert.Equal("1999.5", actualFunding.Amount);
+            Assert.Equal("EUR", actualFunding.CurrencyCode);
+            Assert.Equal(2010, actualFunding.StartDate.Year);
+            Assert.Equal(0, actualFunding.StartDate.Month);
+            Assert.Equal(0, actualFunding.StartDate.Day);
+            Assert.Equal(2013, actualFunding.EndDate.Year);
+            Assert.Equal(2, actualFunding.EndDate.Month);
+            Assert.Equal(0, actualFunding.EndDate.Day);
+            Assert.Equal(new OrcidPutCode(15531).Value, actualFunding.PutCode.Value);
+            Assert.Equal("https://www.google.fi", actualFunding.Url);
+            Assert.Equal("grant", actualFunding.Type);
+
+        }
+
+        [Fact(DisplayName = "Get funding detail - no amount specified")]
+        public void TestGetFundingDetailWithoutAmount()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonFundingDetailsWithoutAmount();
+            OrcidFunding actualFunding = orcidJsonParserService.GetFundingDetail(jsonStr);
+
+            Assert.Equal("Funding without amount", actualFunding.Name);
+            Assert.Equal("", actualFunding.Description);
+            Assert.Equal("", actualFunding.Amount);
+            Assert.Equal("", actualFunding.CurrencyCode);
+            Assert.Equal(0, actualFunding.StartDate.Year);
+            Assert.Equal(0, actualFunding.StartDate.Month);
+            Assert.Equal(0, actualFunding.StartDate.Day);
+            Assert.Equal(0, actualFunding.EndDate.Year);
+            Assert.Equal(0, actualFunding.EndDate.Month);
+            Assert.Equal(0, actualFunding.EndDate.Day);
+            Assert.Equal(new OrcidPutCode(15862).Value, actualFunding.PutCode.Value);
+            Assert.Equal("", actualFunding.Url);
+            Assert.Equal("grant", actualFunding.Type);
+
         }
     }
 }

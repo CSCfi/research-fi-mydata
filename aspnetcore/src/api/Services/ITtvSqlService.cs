@@ -20,6 +20,8 @@ namespace api.Services
         string GetSqlQuery_Delete_DimIdentifierlessData_Parent(int id);
         string GetSqlQuery_Delete_DimKeyword(List<int> dimKeywordIds);
         string GetSqlQuery_Delete_DimNames(List<int> dimNameIds);
+        string GetSqlQuery_Delete_DimProfileOnlyDatasets(List<int> dimProfileOnlyDatasetIds);
+        string GetSqlQuery_Delete_DimProfileOnlyFundingDecisions(List<int> dimProfileOnlyFundingDecisionIds);
         string GetSqlQuery_Delete_DimProfileOnlyPublications(List<int> dimProfileOnlyPublicationIds);
         string GetSqlQuery_Delete_DimProfileOnlyResearchActivities(List<int> dimProfileOnlyResearchActivityIds);
         string GetSqlQuery_Delete_DimPids(List<int> dimPidIds);
@@ -44,6 +46,7 @@ namespace api.Services
         string GetSqlQuery_Select_DimWebLink(int dimKnownPersonId, List<int> existingIds);
         string GetSqlQuery_Select_FactContribution(int dimNameId);
         string GetSqlQuery_Select_FactFieldValues(int userprofileId);
+        string GetSqlQuery_Select_GetHiddenInUserprofile(int dimUserProfileId);
         string GetSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta);
     }
 }

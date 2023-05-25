@@ -5,6 +5,7 @@ using api.Models.Ttv;
 using api.Models.ProfileEditor.Items;
 using System.Collections.Generic;
 using System;
+using api.Models.ProfileEditor;
 
 namespace api.Tests
 {
@@ -133,7 +134,64 @@ namespace api.Tests
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualFfv.SourceDescription);
         }
 
-        [Fact(DisplayName = "Get empty DimProfileOnlyPublication")]
+        [Fact(DisplayName = "Get empty DimProfileOnlyDataset")]
+        public void getEmptyDimProfileOnlyDataset_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new UserProfileService();
+            // Act
+            DimProfileOnlyDataset actualDimProfileOnlyDataset = userProfileService.GetEmptyDimProfileOnlyDataset();
+            // Assert
+            Assert.Null(actualDimProfileOnlyDataset.DimReferencedataIdAvailability);
+            Assert.Equal("", actualDimProfileOnlyDataset.OrcidWorkType);
+            Assert.Equal("", actualDimProfileOnlyDataset.LocalIdentifier);
+            Assert.Equal("", actualDimProfileOnlyDataset.NameFi);
+            Assert.Equal("", actualDimProfileOnlyDataset.NameSv);
+            Assert.Equal("", actualDimProfileOnlyDataset.NameEn);
+            Assert.Equal("", actualDimProfileOnlyDataset.NameUnd);
+            Assert.Equal("", actualDimProfileOnlyDataset.DescriptionFi);
+            Assert.Equal("", actualDimProfileOnlyDataset.DescriptionSv);
+            Assert.Equal("", actualDimProfileOnlyDataset.DescriptionEn);
+            Assert.Equal("", actualDimProfileOnlyDataset.DescriptionUnd);
+            Assert.Equal("", actualDimProfileOnlyDataset.VersionInfo);
+            Assert.Null(actualDimProfileOnlyDataset.DatasetCreated);
+            Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimProfileOnlyDataset.SourceId);
+            Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimProfileOnlyDataset.SourceDescription);
+        }
+
+
+        [Fact(DisplayName = "Get empty DimProfileOnlyFundingDecision")]
+        public void getEmptyDimProfileOnlyFundingDecision_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new UserProfileService();
+            // Act
+            DimProfileOnlyFundingDecision actualDimProfileOnlyFundingDecision = userProfileService.GetEmptyDimProfileOnlyFundingDecision();
+            // Assert
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimDateIdApproval);
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimDateIdStart);
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimDateIdEnd);
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimCallProgrammeId);
+            Assert.Equal<int>(-1, actualDimProfileOnlyFundingDecision.DimTypeOfFundingId);
+            Assert.Null(actualDimProfileOnlyFundingDecision.DimOrganizationIdFunder);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.OrcidWorkType);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.FunderProjectNumber);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.Acronym);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.NameFi);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.NameSv);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.NameEn);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.NameUnd);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.DescriptionFi);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.DescriptionEn);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.DescriptionSv);
+            Assert.Equal<decimal>(-1, actualDimProfileOnlyFundingDecision.AmountInEur);
+            Assert.Null(actualDimProfileOnlyFundingDecision.AmountInFundingDecisionCurrency);
+            Assert.Equal("", actualDimProfileOnlyFundingDecision.FundingDecisionCurrencyAbbreviation);
+            Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimProfileOnlyFundingDecision.SourceId);
+            Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimProfileOnlyFundingDecision.SourceDescription);
+    }
+
+            [Fact(DisplayName = "Get empty DimProfileOnlyPublication")]
         public void getEmptyDimProfileOnlyPublication_01()
         {
             // Arrange
@@ -351,6 +409,19 @@ namespace api.Tests
             );
             // Assert
             Assert.Equal<ulong>(9999123456789, actualResult.TemporaryUniqueId);
+        }
+
+        [Fact(DisplayName = "Memory cache key - profile settings")]
+        public void MemoryCacheKey_ProfileSettings()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            string orcidId = "1234-5678-9098-7654";
+            string expectedMemoryCacheKey = $"profilesettings-{orcidId}";
+            // Act
+            string actualMemoryCacheKey = userProfileService.GetCMemoryCacheKey_ProfileSettings(orcidId: orcidId);
+            // Assert
+            Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
         }
     }
 }

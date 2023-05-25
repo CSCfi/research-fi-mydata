@@ -12,6 +12,7 @@
             public const string ADMIN_WEBHOOK_ORCID_UNREGISTER_ALL = "Admin: ORCID webhook unregister all";
             public const string ADMIN_ELASTICSEARCH_PROFILE_DELETE = "Admin: Elasticsearch: profile: delete";
             public const string ADMIN_ELASTICSEARCH_PROFILE_UPDATE = "Admin: Elasticsearch: profile: update";
+            public const string ADMIN_ELASTICSEARCH_PROFILE_UPDATE_ALL = "Admin: Elasticsearch: profile: update all";
             public const string BACKGROUND_UPDATE = "Background: update";
             public const string ELASTICSEARCH_DELETE = "Elasticsearch: profile: delete";
             public const string ELASTICSEARCH_UPDATE = "Elasticsearch: profile: update";
@@ -26,13 +27,16 @@
             public const string PROFILE_CREATE = "Profile: create";
             public const string PROFILE_DELETE = "Profile: delete";
             public const string PROFILE_HIDE = "Profile: hide";
+            public const string PROFILE_REVEAL = "Profile: reveal";
             public const string PROFILE_MODIFY = "Profile: modify";
             public const string ORCID_RECORD_GET_MEMBER_API = "ORCID: record: get from member API";
             public const string ORCID_RECORD_GET_PUBLIC_API = "ORCID: record: get from public API";
             public const string ORCID_RECORD_IMPORT = "ORCID: record: import";
+            public const string ORCID_RECORD_IMPORT_ADDITIONAL = "ORCID: record: import additional";
             public const string ORCID_WEBHOOK_REGISTER = "ORCID: webhook: register";
             public const string ORCID_WEBHOOK_UNREGISTER = "ORCID: webhook: unregister";
             public const string ORCID_WEBHOOK_RECEIVED = "ORCID: webhook: received";
+            public const string SETTINGS_GET = "Settings: get";
         }
 
         public static class ActionState
@@ -40,6 +44,7 @@
             public const string START = "start";
             public const string COMPLETE = "complete";
             public const string FAILED = "failed";
+            public const string CANCELLED = "cancelled";
         }
 
         public static class ErrorMessage

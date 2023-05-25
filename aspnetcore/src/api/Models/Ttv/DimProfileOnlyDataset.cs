@@ -31,6 +31,8 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
         public int DimRegisteredDataSourceId { get; set; }
 
+        public virtual DimReferencedatum DimReferencedataIdAvailabilityNavigation { get; set; }
+        public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
     }

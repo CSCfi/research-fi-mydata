@@ -56,6 +56,18 @@ namespace api.Services
         }
 
         /*
+         * Normalize RORID from URL form "https://ror.org/<rorid>" to "<rorid>"
+         */
+        public string NormalizeRorId(string rorId)
+        {
+            if (rorId.StartsWith("https://ror.org") || rorId.StartsWith("http://ror.org"))
+            {
+                return rorId.Split("/").Last();
+            }
+            return rorId;
+        }
+
+        /*
          * Find organization by ORCID disambiguation identifier.
          */
         public async Task<int?> FindOrganizationIdByOrcidDisambiguationIdentifier(string orcidDisambiguationSource, string orcidDisambiguatedOrganizationIdentifier)
@@ -67,6 +79,12 @@ namespace api.Services
             if (pidType == "" || orcidDisambiguatedOrganizationIdentifier == "")
             {
                 return null;
+            }
+
+            // Normalize ROR
+            if (pidType == "RORID")
+            {
+                orcidDisambiguatedOrganizationIdentifier = NormalizeRorId(orcidDisambiguatedOrganizationIdentifier);
             }
 
             // Find matching DimPid.
@@ -86,9 +104,14 @@ namespace api.Services
         /*
          * Create entity DimIdentifierlessData for organization name.
          */
-        public DimIdentifierlessDatum CreateIdentifierlessData_OrganizationName(string nameFi, string nameEn, string nameSv)
+        public DimIdentifierlessDatum CreateIdentifierlessData_OrganizationName(string nameFi, string nameEn, string nameSv, string orcidDisambiguationSource, string orcidDisambiguatedOrganizationIdentifier)
         {
             DateTime currentDateTime = _utilityService.GetCurrentDateTime();
+
+            string unlinkedIdentifier = GetUnlinkedIdentifierFromOrcidDisambiguation(
+                orcidDisambiguationSource: orcidDisambiguationSource,
+                orcidDisambiguatedOrganizationIdentifier: orcidDisambiguatedOrganizationIdentifier);
+
             return new DimIdentifierlessDatum()
             {
                 Type = Constants.IdentifierlessDataTypes.ORGANIZATION_NAME,
@@ -100,7 +123,7 @@ namespace api.Services
                 SourceDescription = Constants.SourceDescriptions.ORCID,
                 Created = currentDateTime,
                 Modified = currentDateTime,
-                UnlinkedIdentifier = null
+                UnlinkedIdentifier = (string.IsNullOrWhiteSpace(unlinkedIdentifier) ? null : unlinkedIdentifier)
             };
         }
 
@@ -195,5 +218,17 @@ namespace api.Services
             }
         }
 
+        /*
+         * Create a string from ORCID disambiguation values.
+         * Resulting string can be stored in dim_identifierless_data.unlinked_identifier
+         */
+        public string GetUnlinkedIdentifierFromOrcidDisambiguation(string orcidDisambiguationSource, string orcidDisambiguatedOrganizationIdentifier)
+        {
+            if (string.IsNullOrWhiteSpace(orcidDisambiguationSource) && string.IsNullOrWhiteSpace(orcidDisambiguatedOrganizationIdentifier))
+            {
+                return "";
+            }
+            return $"{orcidDisambiguationSource}={orcidDisambiguatedOrganizationIdentifier}";
+        }
     }
 }

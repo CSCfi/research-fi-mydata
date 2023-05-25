@@ -18,6 +18,8 @@ namespace api.Models.Ttv
             DimKnownPeople = new HashSet<DimKnownPerson>();
             DimNames = new HashSet<DimName>();
             DimOrganizations = new HashSet<DimOrganization>();
+            DimProfileOnlyDatasets = new HashSet<DimProfileOnlyDataset>();
+            DimProfileOnlyFundingDecisions = new HashSet<DimProfileOnlyFundingDecision>();
             DimProfileOnlyPublications = new HashSet<DimProfileOnlyPublication>();
             DimProfileOnlyResearchActivities = new HashSet<DimProfileOnlyResearchActivity>();
             DimPublications = new HashSet<DimPublication>();
@@ -52,6 +54,8 @@ namespace api.Models.Ttv
         public virtual ICollection<DimKnownPerson> DimKnownPeople { get; set; }
         public virtual ICollection<DimName> DimNames { get; set; }
         public virtual ICollection<DimOrganization> DimOrganizations { get; set; }
+        public virtual ICollection<DimProfileOnlyDataset> DimProfileOnlyDatasets { get; set; }
+        public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisions { get; set; }
         public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublications { get; set; }
         public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivities { get; set; }
         public virtual ICollection<DimPublication> DimPublications { get; set; }

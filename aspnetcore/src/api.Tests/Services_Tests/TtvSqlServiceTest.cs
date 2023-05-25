@@ -620,6 +620,32 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
+        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, profile only dataset")]
+        public void Test_getSqlQuery_Delete_FactFieldValues_related_profile_only_dataset()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            List<int> ids = new() { 10111, 10222, 10333 };
+            string expectedSqlString = "DELETE FROM dim_profile_only_dataset WHERE id IN (10111,10222,10333)";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyDatasets(ids);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, profile only funding decision")]
+        public void Test_getSqlQuery_Delete_FactFieldValues_related_profile_only_funding_decision()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            List<int> ids = new() { 1011, 1022, 1033 };
+            string expectedSqlString = "DELETE FROM dim_profile_only_funding_decision WHERE id IN (1011,1022,1033)";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyFundingDecisions(ids);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, profile only publication")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_profile_only_publication()
         {
@@ -857,6 +883,18 @@ namespace api.Tests
                         WHERE dup.id=335577 AND ffv.show=1";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Select_CountPublishedItemsInUserprofile(335577);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for property 'hidden' in userprofile")]
+        public void GetSqlQuery_Select_GetHiddenInUserprofile()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = $"SELECT hidden as 'Hidden' FROM dim_user_profile WHERE id={53445623}";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Select_GetHiddenInUserprofile(53445623);
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }

@@ -25,8 +25,6 @@ namespace api.Controllers
         private readonly ILogger<OrcidController> _logger;
         private readonly IBackgroundTaskQueue _taskQueue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly IElasticsearchService _elasticsearchService;
-        private readonly IBackgroundProfiledata _backgroundProfiledata;
         private readonly IMemoryCache _cache;
 
         public WebhookController(IUserProfileService userProfileService,
@@ -41,8 +39,6 @@ namespace api.Controllers
             _logger = logger;
             _taskQueue = taskQueue;
             _serviceScopeFactory = serviceScopeFactory;
-            _elasticsearchService = elasticsearchService;
-            _backgroundProfiledata = backgroundProfiledata;
             _cache = memoryCache;
         }
 
@@ -95,9 +91,6 @@ namespace api.Controllers
             orcidAccessToken = dimUserProfile.OrcidAccessToken;
             dimUserprofileId = dimUserProfile.Id;
 
-            // Check if the profile is publihed. Published profile should be updated after ORCID import
-            bool isUserprofilePublished = await _userProfileService.IsUserprofilePublished(dimUserprofileId);
-
             // Get ORCID data in a background task.
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
             {
@@ -115,6 +108,7 @@ namespace api.Controllers
                 using IServiceScope scope = _serviceScopeFactory.CreateScope();
                 IOrcidApiService localOrcidApiService = scope.ServiceProvider.GetRequiredService<IOrcidApiService>();
                 IOrcidImportService localOrcidImportService = scope.ServiceProvider.GetRequiredService<IOrcidImportService>();
+                IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
 
                 // Get record json from ORCID member API
                 string orcidRecordJson = "";
@@ -182,31 +176,13 @@ namespace api.Controllers
                     }
                 }
 
-                // If user profile is published, then after successful ORCID import update Elasticsearch index
-                if (importSuccess && isUserprofilePublished && _elasticsearchService.IsElasticsearchSyncEnabled())
+                // After successful ORCID import update Elasticsearch index
+                if (importSuccess)
                 {
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
-                            state: LogContent.ActionState.START));
-
-                    // Get Elasticsearch person entry from profile data.
-                    Models.Elasticsearch.ElasticsearchPerson person =
-                        await _backgroundProfiledata.GetProfiledataForElasticsearch(
-                            orcidId: webhookOrcidId,
-                            userprofileId: dimUserprofileId,
-                            logUserIdentification: logUserIdentification);
-                    // Update Elasticsearch person index.
-                    await _elasticsearchService.UpdateEntryInElasticsearchPersonIndex(webhookOrcidId, person, logUserIdentification);
-
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ELASTICSEARCH_UPDATE,
-                            state: LogContent.ActionState.COMPLETE));
+                    await localUserProfileService.UpdateProfileInElasticsearch(
+                        orcidId: webhookOrcidId,
+                        userprofileId: dimUserProfile.Id,
+                        logUserIdentification: logUserIdentification);
                 }
 
                 _logger.LogInformation(

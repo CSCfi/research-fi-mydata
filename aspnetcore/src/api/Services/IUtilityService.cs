@@ -8,5 +8,6 @@ namespace api.Services
         string GetDatasourceOrganizationName_ORCID();
         string GetDatasourceOrganizationName_TTV();
         string GetOrganizationId_OKM();
+        decimal? StringToNullableDecimal(string s);
     }
 }
