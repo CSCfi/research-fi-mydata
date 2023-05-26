@@ -9,6 +9,7 @@ namespace api.Services
         IConfiguration Configuration { get; }
 
         Task<string> GetDataFromMemberApi(String path, String orcidAccessToken);
+        Task<string> GetDataFromPublicApi(String path, String orcidAccessToken = "");
         string GetOrcidRecordPath(string orcidId);
         string GetOrcidWebhookAccessToken();
         string GetOrcidWebhookCallbackUri(string orcidId);

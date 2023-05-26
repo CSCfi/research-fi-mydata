@@ -1756,13 +1756,21 @@ namespace api.Services
          * Implemented for:
          *   - fundings
          */
-        public async Task<bool> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken)
+        public async Task<bool> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken, bool useOrcidPublicApi=false)
         {
             foreach (FactFieldValue ffv in factFieldValues)
             {
                 if (ffv.DimProfileOnlyFundingDecisionId > 0)
                 {
-                    string result = await _orcidApiService.GetDataFromMemberApi(path: ffv.DimProfileOnlyFundingDecision.SourceDescription, orcidAccessToken: orcidAccessToken);
+                    string result = "";
+                    if (useOrcidPublicApi)
+                    {
+                        result = await _orcidApiService.GetDataFromPublicApi(path: ffv.DimProfileOnlyFundingDecision.SourceDescription, orcidAccessToken: orcidAccessToken);
+                    }
+                    else
+                    {
+                        result = await _orcidApiService.GetDataFromMemberApi(path: ffv.DimProfileOnlyFundingDecision.SourceDescription, orcidAccessToken: orcidAccessToken);
+                    }
                     OrcidFunding orcidFunding = _orcidJsonParserService.GetFundingDetail(fundingDetailJson: result);
 
                     ffv.DimProfileOnlyFundingDecision.OrcidWorkType = orcidFunding.Type;
