@@ -85,7 +85,8 @@ namespace api.Controllers
 
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
 
-            if (_webHostEnvironment.EnvironmentName!="Production" && this.GetOrcidPublicApiFlag() != null)
+            bool useOrcidPublicApi = _webHostEnvironment.EnvironmentName != "Production" && this.GetOrcidPublicApiFlag() != null;
+            if (useOrcidPublicApi)
             {
                 // ORCID public API should be used
                 try
@@ -263,7 +264,7 @@ namespace api.Controllers
                             .Include(ffv => ffv.DimProfileOnlyFundingDecision)
                             .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation).ToListAsync();
 
-                        await _orcidImportService.ImportAdditionalData(ffvs, orcidTokens.AccessToken);
+                        await _orcidImportService.ImportAdditionalData(factFieldValues: ffvs, orcidAccessToken: orcidTokens.AccessToken, useOrcidPublicApi: useOrcidPublicApi);
                         await localTtvContext.SaveChangesAsync();
 
                         _logger.LogInformation(

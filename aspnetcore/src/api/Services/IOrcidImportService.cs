@@ -8,6 +8,6 @@ namespace api.Services
     public interface IOrcidImportService
     {
         Task<bool> ImportOrcidRecordJsonIntoUserProfile(int userprofileId, string json);
-        Task<bool> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken);
+        Task<bool> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken, bool useOrcidPublicApi = false);
     }
 }
