@@ -7,6 +7,10 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Memory;
 using api.Models.Log;
+using api.Models.Orcid;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers
 {
@@ -109,6 +113,7 @@ namespace api.Controllers
                 IOrcidApiService localOrcidApiService = scope.ServiceProvider.GetRequiredService<IOrcidApiService>();
                 IOrcidImportService localOrcidImportService = scope.ServiceProvider.GetRequiredService<IOrcidImportService>();
                 IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
+                TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
 
                 // Get record json from ORCID member API
                 string orcidRecordJson = "";
@@ -170,6 +175,50 @@ namespace api.Controllers
                             logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ORCID_RECORD_IMPORT,
+                                error: true,
+                                message: ex.ToString(),
+                                state: LogContent.ActionState.FAILED));
+                    }
+                }
+
+                // Import additional data
+                if (importSuccess)
+                {
+                    try
+                    {
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
+                                state: LogContent.ActionState.START));
+
+                        List<FactFieldValue> ffvs = await localTtvContext.FactFieldValues.Where(
+                                ffv =>
+                                    ffv.DimUserProfileId == dimUserprofileId &&
+                                    ffv.DimPidIdOrcidPutCode > 0 &&
+                                    ffv.DimProfileOnlyFundingDecisionId > 0
+                                )
+                            .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                            .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation).ToListAsync();
+
+                        await localOrcidImportService.ImportAdditionalData(factFieldValues: ffvs, orcidAccessToken: orcidAccessToken);
+                        await localTtvContext.SaveChangesAsync();
+
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
+                                state: LogContent.ActionState.COMPLETE));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
                                 error: true,
                                 message: ex.ToString(),
                                 state: LogContent.ActionState.FAILED));
