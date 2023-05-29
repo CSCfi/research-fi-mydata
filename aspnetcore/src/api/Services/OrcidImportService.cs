@@ -1399,27 +1399,42 @@ namespace api.Services
                     dimProfileOnlyResearchActivity_existing.NameEn = orcidResearchActivity.RoleTitle;
 
                     /*
-                     * Update organization relation or identifierless data for existing affiliation.
+                     * Update organization relation or identifierless data for existing activity.
                      */
                     if (dimOrganization_id_research_activity != null && dimOrganization_id_research_activity > 0)
                     {
                         /*
-                         * Affiliation relates directly to DimOrganization.
+                         * Activity relates directly to DimOrganization.
                          */
                         dimProfileOnlyResearchActivity_existing.DimOrganizationId = (int)dimOrganization_id_research_activity;
 
                         /*
-                         * When affiliation has related DimOrganization, possibly existing DimIdentifierlessData of type organization_name must be removed.
+                         * When activity has related DimOrganization, possibly existing DimIdentifierlessData of type organization_name must be removed.
+                         * That will change the primary key of FactFieldValue, which must be recreated.
                          */
                         if (factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessDataId != -1 && factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
                         {
+                            // Create new FactFieldValues for activity and delete old
+                            FactFieldValue factFieldValuesDimProfileOnlyResearchActivityNew = _userProfileService.GetEmptyFactFieldValue();
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimIdentifierlessDataId = -1;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimUserProfile = factFieldValuesDimProfileOnlyResearchActivity.DimUserProfile;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimFieldDisplaySettings = factFieldValuesDimProfileOnlyResearchActivity.DimFieldDisplaySettings;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimRegisteredDataSourceId = factFieldValuesDimProfileOnlyResearchActivity.DimRegisteredDataSourceId;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimProfileOnlyResearchActivity = factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesDimProfileOnlyResearchActivity.DimPidIdOrcidPutCodeNavigation;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.Show = factFieldValuesDimProfileOnlyResearchActivity.Show;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.PrimaryValue = factFieldValuesDimProfileOnlyResearchActivity.PrimaryValue;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.SourceId = factFieldValuesDimProfileOnlyResearchActivity.SourceId;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.SourceDescription = factFieldValuesDimProfileOnlyResearchActivity.SourceDescription;
+                            _ttvContext.Add(factFieldValuesDimProfileOnlyResearchActivityNew);
+                            _ttvContext.FactFieldValues.Remove(factFieldValuesDimProfileOnlyResearchActivity);
                             _ttvContext.DimIdentifierlessData.Remove(factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData);
                         }
                     }
                     else
                     {
                         /*
-                         * Affiliation does to relate directly to any DimOrganization.
+                         * Activity does to relate directly to any DimOrganization.
                          * Update or create relation to DimIdentifierlessData via FactFieldValues.
                          */
                         if (factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessDataId != -1 && factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
@@ -1428,12 +1443,21 @@ namespace api.Services
                              * Update organization name in existing DimIdentifierlessData.
                              */
                             factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData.ValueEn = orcidResearchActivity.OrganizationName;
+                            factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData.UnlinkedIdentifier =
+                                _organizationHandlerService.GetUnlinkedIdentifierFromOrcidDisambiguation(
+                                    orcidDisambiguationSource: orcidResearchActivity.DisambiguationSource,
+                                    orcidDisambiguatedOrganizationIdentifier: orcidResearchActivity.DisambiguatedOrganizationIdentifier);
                         }
                         else
                         {
                             /*
-                             * Create new DimIdentifierlessData for organization name.
-                             */
+                              * Create new DimIdentifierlessData for organization name.
+                              * That will change the primary key of FactFieldValue, which must be recreated.
+                              */
+
+                            // Make sure DimProfileOnlyResearchActivity does not reference DimOrganization
+                            factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity.DimOrganizationId = -1;
+
                             DimIdentifierlessDatum dimIdentifierlessDatum_research_activity_organization_name =
                                 _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
                                     nameFi: "",
@@ -1442,7 +1466,22 @@ namespace api.Services
                                     orcidDisambiguationSource: orcidResearchActivity.DisambiguationSource,
                                     orcidDisambiguatedOrganizationIdentifier: orcidResearchActivity.DisambiguatedOrganizationIdentifier);
                             _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessDatum_research_activity_organization_name);
-                            factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData = dimIdentifierlessDatum_research_activity_organization_name;
+
+                            // Create new FactFieldValues for activity and delete old
+                            FactFieldValue factFieldValuesDimProfileOnlyResearchActivityNew = _userProfileService.GetEmptyFactFieldValue();
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimIdentifierlessData = dimIdentifierlessDatum_research_activity_organization_name;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimUserProfile = factFieldValuesDimProfileOnlyResearchActivity.DimUserProfile;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimFieldDisplaySettings = factFieldValuesDimProfileOnlyResearchActivity.DimFieldDisplaySettings;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimRegisteredDataSourceId = factFieldValuesDimProfileOnlyResearchActivity.DimRegisteredDataSourceId;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimProfileOnlyResearchActivity = factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesDimProfileOnlyResearchActivity.DimPidIdOrcidPutCodeNavigation;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.Show = factFieldValuesDimProfileOnlyResearchActivity.Show;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.PrimaryValue = factFieldValuesDimProfileOnlyResearchActivity.PrimaryValue;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.SourceId = factFieldValuesDimProfileOnlyResearchActivity.SourceId;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.SourceDescription = factFieldValuesDimProfileOnlyResearchActivity.SourceDescription;
+
+                            _ttvContext.Add(factFieldValuesDimProfileOnlyResearchActivityNew);
+                            _ttvContext.FactFieldValues.Remove(factFieldValuesDimProfileOnlyResearchActivity);
                         }
                     }
 
