@@ -674,6 +674,10 @@ namespace api.Services
                                     string url = (distinctionSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : distinctionSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
+                                    string roleTitle = (distinctionSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                        "" : distinctionSummaryElement.GetProperty("role-title").GetString();
+                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.DISTINCTION,
@@ -681,13 +685,13 @@ namespace api.Services
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: distinctionSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: distinctionSummaryElement.GetProperty("role-title").GetString(),
+                                          roleTitle: roleTitle,
                                           startDate: GetOrcidDate(distinctionSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(distinctionSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(distinctionSummaryElement),
                                           url: url
                                       )
-                                  );
+                                  ) ;
                                 }
                             }
                         }
@@ -720,6 +724,10 @@ namespace api.Services
                                     string url = (invitedPositionsSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : invitedPositionsSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
+                                    string roleTitle = (invitedPositionsSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                        "" : invitedPositionsSummaryElement.GetProperty("role-title").GetString();
+                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.INVITED_POSITION,
@@ -727,7 +735,7 @@ namespace api.Services
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: invitedPositionsSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: invitedPositionsSummaryElement.GetProperty("role-title").GetString(),
+                                          roleTitle: roleTitle,
                                           startDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(invitedPositionsSummaryElement),
@@ -766,6 +774,10 @@ namespace api.Services
                                     string url = (membershipSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : membershipSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
+                                    string roleTitle = (membershipSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                        "" : membershipSummaryElement.GetProperty("role-title").GetString();
+                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.MEMBERSHIP,
@@ -773,7 +785,7 @@ namespace api.Services
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: membershipSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: membershipSummaryElement.GetProperty("role-title").GetString(),
+                                          roleTitle: roleTitle,
                                           startDate: GetOrcidDate(membershipSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(membershipSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(membershipSummaryElement),
@@ -799,19 +811,23 @@ namespace api.Services
                                 {
                                     foreach (JsonElement peerReviewSummaryElement in peerReviewSummariesElement.EnumerateArray())
                                     {
-                                            string disambiguatedOrganizationIdentifier = "";
-                                            string disambiguationSource = "";
-                                            if (peerReviewSummaryElement.GetProperty("convening-organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                        string disambiguatedOrganizationIdentifier = "";
+                                        string disambiguationSource = "";
+                                        if (peerReviewSummaryElement.GetProperty("convening-organization").TryGetProperty("disambiguated-organization", out JsonElement disambiguatedOrganizationElement))
+                                        {
+                                            if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
                                             {
-                                                if (disambiguatedOrganizationElement.ValueKind != JsonValueKind.Null)
-                                                {
-                                                    disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
-                                                    disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
-                                                }
+                                                disambiguatedOrganizationIdentifier = disambiguatedOrganizationElement.GetProperty("disambiguated-organization-identifier").GetString();
+                                                disambiguationSource = disambiguatedOrganizationElement.GetProperty("disambiguation-source").GetString();
                                             }
+                                        }
 
-                                            string url = (peerReviewSummaryElement.GetProperty("review-url").ValueKind == JsonValueKind.Null) ?
-                                                "" : peerReviewSummaryElement.GetProperty("review-url").GetProperty("value").GetString();
+                                        string url = (peerReviewSummaryElement.GetProperty("review-url").ValueKind == JsonValueKind.Null) ?
+                                            "" : peerReviewSummaryElement.GetProperty("review-url").GetProperty("value").GetString();
+
+                                        string roleTitle = (peerReviewSummaryElement.GetProperty("reviewer-role").ValueKind == JsonValueKind.Null) ?
+                                            "" : peerReviewSummaryElement.GetProperty("reviewer-role").GetString();
+                                        roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
 
                                         profileOnlyResearchActivityItems.Add(
                                               new OrcidResearchActivity(
@@ -820,7 +836,7 @@ namespace api.Services
                                                   disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                                   disambiguationSource: disambiguationSource,
                                                   departmentName: "",
-                                                  roleTitle: peerReviewSummaryElement.GetProperty("reviewer-role").GetString(),
+                                                  roleTitle: roleTitle,
                                                   startDate: GetOrcidDate(peerReviewSummaryElement.GetProperty("completion-date")),
                                                   endDate: new OrcidDate(), // TODO: Convert to nullable
                                                   putCode: this.GetOrcidPutCode(peerReviewSummaryElement),
@@ -860,6 +876,10 @@ namespace api.Services
                                     string url = (qualificationSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : qualificationSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
+                                    string roleTitle = (qualificationSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                        "" : qualificationSummaryElement.GetProperty("role-title").GetString();
+                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.QUALIFICATION,
@@ -867,7 +887,7 @@ namespace api.Services
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: qualificationSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: qualificationSummaryElement.GetProperty("role-title").GetString(),
+                                          roleTitle: roleTitle,
                                           startDate: GetOrcidDate(qualificationSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(qualificationSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(qualificationSummaryElement),
@@ -906,6 +926,10 @@ namespace api.Services
                                     string url = (serviceSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : serviceSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
+                                    string roleTitle = (serviceSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                        "" : serviceSummaryElement.GetProperty("role-title").GetString();
+                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
                                           orcidActivityType: Constants.OrcidResearchActivityTypes.SERVICE,
@@ -913,7 +937,7 @@ namespace api.Services
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: serviceSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: serviceSummaryElement.GetProperty("role-title").GetString(),
+                                          roleTitle: roleTitle,
                                           startDate: GetOrcidDate(serviceSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(serviceSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(serviceSummaryElement),

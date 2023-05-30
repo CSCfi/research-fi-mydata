@@ -191,7 +191,7 @@ namespace api.Services
         }
 
         /*
-         * 
+         * Get data from member API
          */
         public async Task<string> GetDataFromMemberApi(String path, String orcidAccessToken)
         {
@@ -205,6 +205,34 @@ namespace api.Services
             try
             {
                 HttpResponseMessage response = await orcidMemberApiHttpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"OrcidApiService: {ex.ToString()}");
+                return "";
+            }
+        }
+
+        /*
+         * Get data from public API
+         */
+        public async Task<string> GetDataFromPublicApi(String path, String orcidAccessToken="")
+        {
+            // Get ORCID public API specific http client.
+            HttpClient orcidPublicApiHttpClient = _httpClientFactory.CreateClient("ORCID_PUBLIC_API");
+            // GET request. Make sure "path" does not start with '/'
+            HttpRequestMessage request = new(method: HttpMethod.Get, requestUri: path.TrimStart('/'));
+            // Insert ORCID access token into authorization header for each request.
+            if (!string.IsNullOrWhiteSpace(orcidAccessToken))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", orcidAccessToken);
+            }
+            // Send request
+            try
+            {
+                HttpResponseMessage response = await orcidPublicApiHttpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsStringAsync();
             }
