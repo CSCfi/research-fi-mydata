@@ -1022,13 +1022,16 @@ namespace api.Services
                 }
             }
 
+            // Parse name
+            string name = fundingElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString();
+
             // Parse URL
             url = (fundingElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                 "" : fundingElement.GetProperty("url").GetProperty("value").GetString();
 
             return new(
                 type: fundingElement.GetProperty("type").GetString(),
-                name: fundingElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                name: name.Length > 255 ? $"{name.Substring(0, 252)}..." : name, // Database size 255
                 description: description,
                 amount: amount,
                 currencyCode: currencyCode,
