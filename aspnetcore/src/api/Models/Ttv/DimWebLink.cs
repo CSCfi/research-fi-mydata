@@ -28,11 +28,17 @@ namespace api.Models.Ttv
         public DateTime? Modified { get; set; }
         public int? DimResearchActivityId { get; set; }
         public int? DimRegisteredDataSourceId { get; set; }
+        public int? DimProfileOnlyResearchActivityId { get; set; }
+        public int? DimProfileOnlyDatasetId { get; set; }
+        public int? DimProfileOnlyFundingDecisionId { get; set; }
 
         public virtual DimCallProgramme DimCallProgramme { get; set; }
         public virtual DimFundingDecision DimFundingDecision { get; set; }
         public virtual DimKnownPerson DimKnownPerson { get; set; }
         public virtual DimOrganization DimOrganization { get; set; }
+        public virtual DimProfileOnlyDataset DimProfileOnlyDataset { get; set; }
+        public virtual DimProfileOnlyFundingDecision DimProfileOnlyFundingDecision { get; set; }
+        public virtual DimProfileOnlyResearchActivity DimProfileOnlyResearchActivity { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual DimResearchActivity DimResearchActivity { get; set; }
         public virtual DimResearchCommunity DimResearchCommunity { get; set; }

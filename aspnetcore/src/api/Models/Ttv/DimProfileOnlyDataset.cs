@@ -8,6 +8,7 @@ namespace api.Models.Ttv
         public DimProfileOnlyDataset()
         {
             DimPids = new HashSet<DimPid>();
+            DimWebLinks = new HashSet<DimWebLink>();
             FactFieldValues = new HashSet<FactFieldValue>();
         }
 
@@ -34,6 +35,7 @@ namespace api.Models.Ttv
         public virtual DimReferencedatum DimReferencedataIdAvailabilityNavigation { get; set; }
         public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
         public virtual ICollection<DimPid> DimPids { get; set; }
+        public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
         public virtual ICollection<FactFieldValue> FactFieldValues { get; set; }
     }
 }
