@@ -14,6 +14,7 @@ namespace api.Models.ProfileEditor.Items
             DescriptionFi = "";
             DescriptionSv = "";
             DescriptionEn = "";
+            Url = "";
             DatasetCreated = null;
             PreferredIdentifiers = new List<ProfileEditorPreferredIdentifier>();
         }
@@ -27,6 +28,7 @@ namespace api.Models.ProfileEditor.Items
         public string DescriptionFi { get; set; }
         public string DescriptionSv { get; set; }
         public string DescriptionEn { get; set; }
+        public string Url { get; set; }
         public int? DatasetCreated { get; set; }
         public List<ProfileEditorPreferredIdentifier> PreferredIdentifiers { get; set; }
     }

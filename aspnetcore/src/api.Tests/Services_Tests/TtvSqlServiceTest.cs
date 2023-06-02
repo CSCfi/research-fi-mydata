@@ -353,9 +353,9 @@ namespace api.Tests
             int dimKnownPersonId = 9997;
             List<int> existingIds = new() {};
             string expectedSqlString =
-                    @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                    @$"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_web_link
-                        WHERE dim_known_person_id=9997 AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL";
+                        WHERE dim_known_person_id=9997 AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL AND source_id!='{Constants.SourceIdentifiers.PROFILE_API}'";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Select_DimWebLink(dimKnownPersonId, existingIds);
             // Assert
@@ -370,9 +370,9 @@ namespace api.Tests
             int dimKnownPersonId = 9997;
             List<int> existingIds = new() { 333, 444, 555 };
             string expectedSqlString =
-                    @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
+                    @$"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_web_link
-                        WHERE dim_known_person_id=9997 AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL AND id NOT IN (333,444,555)";
+                        WHERE dim_known_person_id=9997 AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL AND id NOT IN (333,444,555) AND source_id!='{Constants.SourceIdentifiers.PROFILE_API}'";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Select_DimWebLink(dimKnownPersonId, existingIds);
             // Assert
