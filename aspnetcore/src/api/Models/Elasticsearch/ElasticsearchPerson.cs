@@ -10,6 +10,7 @@ namespace api.Models.Elasticsearch
             id = "";
             personal = new();
             activity = new();
+            cooperation = new();
             uniqueDataSources = new();
         }
 
@@ -18,6 +19,7 @@ namespace api.Models.Elasticsearch
             id = orcidId;
             personal = new();
             activity = new();
+            cooperation = new();
             uniqueDataSources = new();
         }
 
@@ -26,6 +28,7 @@ namespace api.Models.Elasticsearch
         [Nested]
         [PropertyName("activity")]
         public ElasticsearchActivity activity { get; set; }
+        public List<ElasticsearchCooperation> cooperation { get; set; }
         public List<ElasticsearchSource> uniqueDataSources { get; set; }
     }
 }
