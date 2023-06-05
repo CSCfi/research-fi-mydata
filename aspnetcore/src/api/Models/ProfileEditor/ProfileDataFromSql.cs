@@ -179,6 +179,7 @@ namespace api.Models.ProfileEditor
         public string DimProfileOnlyResearchActivity_Role_NameFi { get; set; }
         public string DimProfileOnlyResearchActivity_Role_NameEn { get; set; }
         public string DimProfileOnlyResearchActivity_Role_NameSv { get; set; }
+        public string DimProfileOnlyResearchActivity_DimWebLink_Url { get; set; }
         // DimResearchActivity
         public int DimResearchActivity_DimOrganization_Id { get; set; }
         public string DimResearchActivity_DimOrganization_OrganizationId { get; set; }
@@ -262,6 +263,7 @@ namespace api.Models.ProfileEditor
         public string DimProfileOnlyFundingDecision_DimTypeOfFunding_NameFi { get; set; }
         public string DimProfileOnlyFundingDecision_DimTypeOfFunding_NameEn { get; set; }
         public string DimProfileOnlyFundingDecision_DimTypeOfFunding_NameSv { get; set; }
+        public string DimProfileOnlyFundingDecision_DimWebLink_Url { get; set; }
         // DimResearchDataset
         public string DimResearchDataset_LocalIdentifier { get; set; }
         public string DimResearchDataset_NameFi { get; set; }
@@ -280,5 +282,6 @@ namespace api.Models.ProfileEditor
         public string DimProfileOnlyDataset_DescriptionEn { get; set; }
         public string DimProfileOnlyDataset_DescriptionSv { get; set; }
         public DateTime? DimProfileOnlyDataset_DatasetCreated { get; set; }
+        public string DimProfileOnlyDataset_DimWebLink_Url { get; set; }
     }
 }

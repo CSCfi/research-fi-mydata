@@ -248,6 +248,33 @@ namespace api.Services
             }
         }
 
+        /*
+         * Helper method, add DimWebLink
+         */
+        private DimWebLink GetDimWebLink(
+            string url,
+            DateTime currentDateTime,
+            string label=null,
+            DimKnownPerson dimKnownPerson=null,
+            DimProfileOnlyDataset dimProfileOnlyDataset=null,
+            DimProfileOnlyFundingDecision dimProfileOnlyFundingDecision=null,
+            DimProfileOnlyResearchActivity dimProfileOnlyResearchActivity=null
+        )
+        {
+            return new DimWebLink()
+            {
+                Url = url,
+                LinkLabel = label,
+                DimKnownPerson = dimKnownPerson,
+                DimProfileOnlyDataset = dimProfileOnlyDataset,
+                DimProfileOnlyFundingDecision = dimProfileOnlyFundingDecision,
+                DimProfileOnlyResearchActivity = dimProfileOnlyResearchActivity,
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                Created = currentDateTime,
+                Modified = currentDateTime
+            };
+        }
 
         /*
          * Import ORCID record json into user profile.
@@ -261,6 +288,8 @@ namespace api.Services
             string queryTag = $"Insert ORCID data, dim_user_profile.id={userprofileId}";
             DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.TagWith(queryTag).Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
+                // DimKnownPerson
+                .Include(dup => dup.DimKnownPerson)
                 // DimRegisteredDataSource
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
@@ -278,13 +307,20 @@ namespace api.Services
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyFundingDecision)
                         .ThenInclude(fd => fd.DimOrganizationIdFunderNavigation)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
+                    .ThenInclude(ffv => ffv.DimProfileOnlyFundingDecision)
+                        .ThenInclude(fd => fd.DimWebLinks)
                 // DimProfileOnlyDataset
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyDataset)
+                        .ThenInclude(ds => ds.DimWebLinks)
                 // DimProfileOnlyResearchActivity
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyResearchActivity)
                         .ThenInclude(ra => ra.DimOrganization)
+                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
+                    .ThenInclude(ffv => ffv.DimProfileOnlyResearchActivity)
+                        .ThenInclude(ra => ra.DimWebLinks)
                 // DimProfileOnlyPublication
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyPublication)
@@ -444,7 +480,6 @@ namespace api.Services
                 }
             }
 
-
             // Researcher urls
             List<OrcidResearcherUrl> researcherUrls = _orcidJsonParserService.GetResearcherUrls(orcidRecordJson);
             // Get DimFieldDisplaySettings for weblink
@@ -474,19 +509,11 @@ namespace api.Services
                 else
                 {
                     // Create new DimWebLink
-                    DimWebLink dimWebLink = new()
-                    {
-                        Url = researchUrl.Url,
-                        LinkLabel = researchUrl.UrlName,
-                        DimOrganizationId = -1,
-                        DimKnownPersonId = dimUserProfile.DimKnownPersonId,
-                        DimCallProgrammeId = -1,
-                        DimFundingDecisionId = -1,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
+                    DimWebLink dimWebLink = GetDimWebLink(
+                        url: researchUrl.Url,
+                        label: researchUrl.UrlName,
+                        currentDateTime: currentDateTime,
+                        dimKnownPerson: dimUserProfile.DimKnownPerson);
                     _ttvContext.DimWebLinks.Add(dimWebLink);
 
                     // Add web link ORCID put code into DimPid
@@ -1143,6 +1170,38 @@ namespace api.Services
                     dimProfileOnlyDataset.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     dimProfileOnlyDataset.Modified = currentDateTime;
+                    // Related DimWebLink
+                    if (!string.IsNullOrWhiteSpace(orcidDataset.Url))
+                    {
+                        // URL exists, add or update DimWebLink
+                        if (dimProfileOnlyDataset.DimWebLinks.Count() == 0)
+                        {
+                            // Add DimWebLink
+                            DimWebLink datasetWebLink = GetDimWebLink(
+                                url: orcidDataset.Url,
+                                currentDateTime: currentDateTime,
+                                dimKnownPerson: dimUserProfile.DimKnownPerson,
+                                dimProfileOnlyDataset: dimProfileOnlyDataset
+                            );
+                            _ttvContext.DimWebLinks.Add(datasetWebLink);
+                            dimProfileOnlyDataset.DimWebLinks.Add(datasetWebLink);
+                        }
+                        else
+                        {
+                            // Update DimWebLink
+                            DimWebLink datasetWebLink = dimProfileOnlyDataset.DimWebLinks.First();
+                            datasetWebLink.Url = orcidDataset.Url;
+                            datasetWebLink.Modified = currentDateTime;
+                        }
+                    }
+                    else
+                    {
+                        // URL does not exist, delete DimWebLink
+                        if (dimProfileOnlyDataset.DimWebLinks.Count() > 0)
+                        {
+                            _ttvContext.DimWebLinks.Remove(dimProfileOnlyDataset.DimWebLinks.First());
+                        }
+                    }
                     // Mark as processed
                     orcidImportHelper.dimProfileOnlyDatasetIds.Add(factFieldValuesProfileOnlyDataset.DimProfileOnlyDatasetId);
                 }
@@ -1156,6 +1215,18 @@ namespace api.Services
                     dimProfileOnlyDataset.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                     dimProfileOnlyDataset.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     dimProfileOnlyDataset.Created = currentDateTime;
+                    // Add related DimWebLink
+                    if (!string.IsNullOrWhiteSpace(orcidDataset.Url))
+                    {
+                        DimWebLink datasetWebLink = GetDimWebLink(
+                            url: orcidDataset.Url,
+                            currentDateTime: currentDateTime,
+                            dimKnownPerson: dimUserProfile.DimKnownPerson,
+                            dimProfileOnlyDataset: dimProfileOnlyDataset
+                        );
+                        _ttvContext.DimWebLinks.Add(datasetWebLink);
+                        dimProfileOnlyDataset.DimWebLinks.Add(datasetWebLink);
+                    }
                     _ttvContext.DimProfileOnlyDatasets.Add(dimProfileOnlyDataset);
 
                     // Add dataset's ORCID put code into DimPid
@@ -1224,7 +1295,39 @@ namespace api.Services
                     dimProfileOnlyFundingDecision.DimDateIdStartNavigation = fundingStartDate;
                     dimProfileOnlyFundingDecision.DimDateIdStartNavigation = fundingEndDate;
                     dimProfileOnlyFundingDecision.SourceDescription = orcidFunding.Path;
-               
+                    // Related DimWebLink
+                    if (!string.IsNullOrWhiteSpace(orcidFunding.Url))
+                    {
+                        // URL exists, add or update DimWebLink
+                        if (dimProfileOnlyFundingDecision.DimWebLinks.Count() == 0)
+                        {
+                            // Add DimWebLink
+                            DimWebLink datasetWebLink = GetDimWebLink(
+                                url: orcidFunding.Url,
+                                currentDateTime: currentDateTime,
+                                dimKnownPerson: dimUserProfile.DimKnownPerson,
+                                dimProfileOnlyFundingDecision: dimProfileOnlyFundingDecision
+                            );
+                            _ttvContext.DimWebLinks.Add(datasetWebLink);
+                            dimProfileOnlyFundingDecision.DimWebLinks.Add(datasetWebLink);
+                        }
+                        else
+                        {
+                            // Update DimWebLink
+                            DimWebLink datasetWebLink = dimProfileOnlyFundingDecision.DimWebLinks.First();
+                            datasetWebLink.Url = orcidFunding.Url;
+                            datasetWebLink.Modified = currentDateTime;
+                        }
+                    }
+                    else
+                    {
+                        // URL does not exist, delete DimWebLink
+                        if (dimProfileOnlyFundingDecision.DimWebLinks.Count() > 0)
+                        {
+                            _ttvContext.DimWebLinks.Remove(dimProfileOnlyFundingDecision.DimWebLinks.First());
+                        }
+                    }
+
                     /*
                      * Update organization relation or identifierless data for existing funding.
                      */
@@ -1293,6 +1396,18 @@ namespace api.Services
                     if (dimOrganization_id_funding != null && dimOrganization_id_funding > 0)
                     {
                         dimProfileOnlyFundingDecision.DimOrganizationIdFunder = (int)dimOrganization_id_funding;
+                    }
+                    // Add related DimWebLink
+                    if (!string.IsNullOrWhiteSpace(orcidFunding.Url))
+                    {
+                        DimWebLink datasetWebLink = GetDimWebLink(
+                            url: orcidFunding.Url,
+                            currentDateTime: currentDateTime,
+                            dimKnownPerson: dimUserProfile.DimKnownPerson,
+                            dimProfileOnlyFundingDecision: dimProfileOnlyFundingDecision
+                        );
+                        _ttvContext.DimWebLinks.Add(datasetWebLink);
+                        dimProfileOnlyFundingDecision.DimWebLinks.Add(datasetWebLink);
                     }
                     _ttvContext.DimProfileOnlyFundingDecisions.Add(dimProfileOnlyFundingDecision);
 
@@ -1397,6 +1512,38 @@ namespace api.Services
                     dimProfileOnlyResearchActivity_existing.DimDateIdStartNavigation = researchActivityStartDate;
                     dimProfileOnlyResearchActivity_existing.DimDateIdEndNavigation = researchActivityEndDate;
                     dimProfileOnlyResearchActivity_existing.NameEn = orcidResearchActivity.RoleTitle;
+                    // Related DimWebLink
+                    if (!string.IsNullOrWhiteSpace(orcidResearchActivity.Url))
+                    {
+                        // URL exists, add or update DimWebLink
+                        if (dimProfileOnlyResearchActivity_existing.DimWebLinks.Count() == 0)
+                        {
+                            // Add DimWebLink
+                            DimWebLink researchActivityWebLink = GetDimWebLink(
+                                url: orcidResearchActivity.Url,
+                                currentDateTime: currentDateTime,
+                                dimKnownPerson: dimUserProfile.DimKnownPerson,
+                                dimProfileOnlyResearchActivity: dimProfileOnlyResearchActivity_existing
+                            );
+                            _ttvContext.DimWebLinks.Add(researchActivityWebLink);
+                            dimProfileOnlyResearchActivity_existing.DimWebLinks.Add(researchActivityWebLink);
+                        }
+                        else
+                        {
+                            // Update DimWebLink
+                            DimWebLink researchActivityWebLink = dimProfileOnlyResearchActivity_existing.DimWebLinks.First();
+                            researchActivityWebLink.Url = orcidResearchActivity.Url;
+                            researchActivityWebLink.Modified = currentDateTime;
+                        }
+                    }
+                    else
+                    {
+                        // URL does not exist, delete DimWebLink
+                        if (dimProfileOnlyResearchActivity_existing.DimWebLinks.Count() > 0)
+                        {
+                            _ttvContext.DimWebLinks.Remove(dimProfileOnlyResearchActivity_existing.DimWebLinks.First());
+                        }
+                    }
 
                     /*
                      * Update organization relation or identifierless data for existing activity.
@@ -1505,6 +1652,18 @@ namespace api.Services
                     if (dimOrganization_id_research_activity != null && dimOrganization_id_research_activity > 0)
                     {
                         dimProfileOnlyResearchActivity_new.DimOrganizationId = (int)dimOrganization_id_research_activity;
+                    }
+                    // Add related DimWebLink
+                    if (!string.IsNullOrWhiteSpace(orcidResearchActivity.Url))
+                    {
+                        DimWebLink researchActivityWebLink = GetDimWebLink(
+                            url: orcidResearchActivity.Url,
+                            currentDateTime: currentDateTime,
+                            dimKnownPerson: dimUserProfile.DimKnownPerson,
+                            dimProfileOnlyResearchActivity: dimProfileOnlyResearchActivity_new
+                        );
+                        _ttvContext.DimWebLinks.Add(researchActivityWebLink);
+                        dimProfileOnlyResearchActivity_new.DimWebLinks.Add(researchActivityWebLink);
                     }
                     _ttvContext.DimProfileOnlyResearchActivities.Add(dimProfileOnlyResearchActivity_new);
 
@@ -1734,10 +1893,12 @@ namespace api.Services
             {
                 _ttvContext.FactFieldValues.Remove(removableFfvDataset);
                 _ttvContext.DimProfileOnlyDatasets.Remove(removableFfvDataset.DimProfileOnlyDataset);
+                _ttvContext.DimWebLinks.RemoveRange(removableFfvDataset.DimProfileOnlyDataset.DimWebLinks);
                 if (removableFfvDataset.DimPidIdOrcidPutCode > 0)
                 {
                     _ttvContext.DimPids.Remove(removableFfvDataset.DimPidIdOrcidPutCodeNavigation);
                 }
+                
             }
 
             // Remove research activities, which user has deleted in ORCID
@@ -1750,6 +1911,7 @@ namespace api.Services
             {
                 _ttvContext.FactFieldValues.Remove(removableFfvResearchActivity);
                 _ttvContext.DimProfileOnlyResearchActivities.Remove(removableFfvResearchActivity.DimProfileOnlyResearchActivity);
+                _ttvContext.DimWebLinks.RemoveRange(removableFfvResearchActivity.DimProfileOnlyResearchActivity.DimWebLinks);
                 if (removableFfvResearchActivity.DimPidIdOrcidPutCode > 0)
                 {
                     _ttvContext.DimPids.Remove(removableFfvResearchActivity.DimPidIdOrcidPutCodeNavigation);
@@ -1766,6 +1928,7 @@ namespace api.Services
             {
                 _ttvContext.FactFieldValues.Remove(removableFfvFunding);
                 _ttvContext.DimProfileOnlyFundingDecisions.Remove(removableFfvFunding.DimProfileOnlyFundingDecision);
+                _ttvContext.DimWebLinks.RemoveRange(removableFfvFunding.DimProfileOnlyFundingDecision.DimWebLinks);
                 if (removableFfvFunding.DimPidIdOrcidPutCode > 0)
                 {
                     _ttvContext.DimPids.Remove(removableFfvFunding.DimPidIdOrcidPutCodeNavigation);

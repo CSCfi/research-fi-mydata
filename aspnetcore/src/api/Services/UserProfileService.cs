@@ -1777,6 +1777,7 @@ namespace api.Services
                                 DepartmentNameFi = nameTranslationProfileOnlyResearchActivityDepartment.NameFi,
                                 DepartmentNameEn = nameTranslationProfileOnlyResearchActivityDepartment.NameEn,
                                 DepartmentNameSv = nameTranslationProfileOnlyResearchActivityDepartment.NameSv,
+                                Url = p.DimProfileOnlyResearchActivity_DimWebLink_Url,
                                 DataSources = new List<ProfileEditorSource> { profileEditorSource }
                             };
 
@@ -1948,6 +1949,7 @@ namespace api.Services
                                     AmountInEur = p.DimProfileOnlyFundingDecision_AmountInEur,
                                     AmountInFundingDecisionCurrency = p.DimProfileOnlyFundingDecision_AmountInFundingDecisionCurrency,
                                     FundingDecisionCurrencyAbbreviation = p.DimProfileOnlyFundingDecision_FundingDecisionCurrencyAbbreviation,
+                                    Url = p.DimProfileOnlyFundingDecision_DimWebLink_Url,
                                     itemMeta = new ProfileEditorItemMeta(
                                         id: p.FactFieldValues_DimProfileOnlyFundingDecisionId,
                                         type: Constants.ItemMetaTypes.ACTIVITY_FUNDING_DECISION_PROFILE_ONLY,
@@ -2033,6 +2035,7 @@ namespace api.Services
                                 DescriptionFi = nameTranslationResearchDatasetDescription.NameFi,
                                 DescriptionSv = nameTranslationResearchDatasetDescription.NameFi,
                                 DescriptionEn = nameTranslationResearchDatasetDescription.NameFi,
+                                Url = p.DimProfileOnlyDataset_DimWebLink_Url,
                                 // Only year part of datetime is set in DatasetCreated
                                 DatasetCreated =
                                     (p.DimProfileOnlyDataset_DatasetCreated != null) ? p.DimProfileOnlyDataset_DatasetCreated.Value.Year : null,
@@ -2073,9 +2076,16 @@ namespace api.Services
             using (var connection = _ttvContext.Database.GetDbConnection())
             {
                 // Get list of FactFieldValues using Entity Framework, which ensures that model FactFieldValue populates correctly.
+                // Get certain related items, which are used to collect list of removable items.
                 // After that delete database items using Dapper.
                 List<FactFieldValue> factFieldValues =
                     await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId)
+                        .Include(ffv => ffv.DimProfileOnlyDataset)
+                            .ThenInclude(ds => ds.DimWebLinks)
+                        .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                            .ThenInclude(fd => fd.DimWebLinks)
+                        .Include(ffv => ffv.DimProfileOnlyResearchActivity)
+                            .ThenInclude(ra => ra.DimWebLinks)
                     .AsNoTracking().ToListAsync();
 
                 // Open database connection
@@ -2147,10 +2157,34 @@ namespace api.Services
                             if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
-                            if (factFieldValue.DimProfileOnlyDatasetId != -1) dimProfileOnlyDatasetIds.Add(factFieldValue.DimProfileOnlyDatasetId);
-                            if (factFieldValue.DimProfileOnlyFundingDecisionId != -1) dimProfileOnlyFundingDecisionIds.Add(factFieldValue.DimProfileOnlyFundingDecisionId);
+                            if (factFieldValue.DimProfileOnlyDatasetId != -1)
+                            {
+                                dimProfileOnlyDatasetIds.Add(factFieldValue.DimProfileOnlyDatasetId);
+                                // Collect related DimWebLink IDs
+                                foreach (DimWebLink dimWebLink in factFieldValue.DimProfileOnlyDataset.DimWebLinks)
+                                {
+                                    dimWebLinkIds.Add(dimWebLink.Id);
+                                }
+                            }
+                            if (factFieldValue.DimProfileOnlyFundingDecisionId != -1)
+                            {
+                                dimProfileOnlyFundingDecisionIds.Add(factFieldValue.DimProfileOnlyFundingDecisionId);
+                                // Collect related DimWebLink IDs
+                                foreach (DimWebLink dimWebLink in factFieldValue.DimProfileOnlyFundingDecision.DimWebLinks)
+                                {
+                                    dimWebLinkIds.Add(dimWebLink.Id);
+                                }
+                            }
                             if (factFieldValue.DimProfileOnlyPublicationId != -1) dimProfileOnlyPublicationIds.Add(factFieldValue.DimProfileOnlyPublicationId);
-                            if (factFieldValue.DimProfileOnlyResearchActivityId != -1) dimProfileOnlyResearchActivityIds.Add(factFieldValue.DimProfileOnlyResearchActivityId);
+                            if (factFieldValue.DimProfileOnlyResearchActivityId != -1)
+                            {
+                                dimProfileOnlyResearchActivityIds.Add(factFieldValue.DimProfileOnlyResearchActivityId);
+                                // Collect related DimWebLink IDs
+                                foreach (DimWebLink dimWebLink in factFieldValue.DimProfileOnlyResearchActivity.DimWebLinks)
+                                {
+                                    dimWebLinkIds.Add(dimWebLink.Id);
+                                }
+                            }
                             if (factFieldValue.DimPidId != -1) dimPidIds.Add(factFieldValue.DimPidId);
                             if (factFieldValue.DimPidIdOrcidPutCode != -1) dimPidIds.Add(factFieldValue.DimPidIdOrcidPutCode);
                             if (factFieldValue.DimResearchActivityId != -1) dimResearchActivityIds.Add(factFieldValue.DimResearchActivityId);
@@ -2163,6 +2197,14 @@ namespace api.Services
                         }
                     }
 
+                    // Delete web links
+                    if (dimWebLinkIds.Count > 0)
+                    {
+                        await connection.ExecuteAsync(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimWebLinks(dimWebLinkIds),
+                            transaction: transaction
+                        );
+                    }
                     // Delete affiliations
                     if (dimAffiliationIds.Count > 0)
                     {
@@ -2323,15 +2365,6 @@ namespace api.Services
                             transaction: transaction
                         );
                     }
-                    // Delete web links
-                    if (dimWebLinkIds.Count > 0)
-                    {
-                        await connection.ExecuteAsync(
-                            sql: _ttvSqlService.GetSqlQuery_Delete_DimWebLinks(dimWebLinkIds),
-                            transaction: transaction
-                        );
-                    }
-
                     // Delete dim_field_display_settings
                     await connection.ExecuteAsync(
                         sql: _ttvSqlService.GetSqlQuery_Delete_DimFieldDisplaySettings(userprofileId),

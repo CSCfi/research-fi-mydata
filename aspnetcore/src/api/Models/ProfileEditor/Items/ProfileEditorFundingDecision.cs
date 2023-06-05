@@ -26,6 +26,7 @@
             AmountInEur = -1;
             AmountInFundingDecisionCurrency = null;
             FundingDecisionCurrencyAbbreviation = null;
+            Url = "";
         }
 
         public int ProjectId { get; set; }
@@ -51,5 +52,6 @@
         public decimal AmountInEur { get; set; }
         public decimal? AmountInFundingDecisionCurrency { get; set; }
         public string? FundingDecisionCurrencyAbbreviation { get; set; }
+        public string Url { get; set; }
     }
 }

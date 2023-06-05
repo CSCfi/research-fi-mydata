@@ -4308,6 +4308,12 @@ namespace api.Models.Ttv
 
                 entity.Property(e => e.DimOrganizationId).HasColumnName("dim_organization_id");
 
+                entity.Property(e => e.DimProfileOnlyDatasetId).HasColumnName("dim_profile_only_dataset_id");
+
+                entity.Property(e => e.DimProfileOnlyFundingDecisionId).HasColumnName("dim_profile_only_funding_decision_id");
+
+                entity.Property(e => e.DimProfileOnlyResearchActivityId).HasColumnName("dim_profile_only_research_activity_id");
+
                 entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
 
                 entity.Property(e => e.DimResearchActivityId).HasColumnName("dim_research_activity_id");
@@ -4366,6 +4372,21 @@ namespace api.Models.Ttv
                     .WithMany(p => p.DimWebLinks)
                     .HasForeignKey(d => d.DimOrganizationId)
                     .HasConstraintName("language specific homepage");
+
+                entity.HasOne(d => d.DimProfileOnlyDataset)
+                    .WithMany(p => p.DimWebLinks)
+                    .HasForeignKey(d => d.DimProfileOnlyDatasetId)
+                    .HasConstraintName("FKdim_web_li121209");
+
+                entity.HasOne(d => d.DimProfileOnlyFundingDecision)
+                    .WithMany(p => p.DimWebLinks)
+                    .HasForeignKey(d => d.DimProfileOnlyFundingDecisionId)
+                    .HasConstraintName("FKdim_web_li251700");
+
+                entity.HasOne(d => d.DimProfileOnlyResearchActivity)
+                    .WithMany(p => p.DimWebLinks)
+                    .HasForeignKey(d => d.DimProfileOnlyResearchActivityId)
+                    .HasConstraintName("weblink");
 
                 entity.HasOne(d => d.DimRegisteredDataSource)
                     .WithMany(p => p.DimWebLinks)
