@@ -1,4 +1,6 @@
 ﻿using api.Models.Log;
+using Microsoft.AspNetCore.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace api.Services
@@ -10,7 +12,7 @@ namespace api.Services
         Task RegisterOrcidWebhookForSingleUserprofile(string webhookOrcidId);
         Task UnregisterOrcidWebhookForAllUserprofiles();
         Task UnregisterOrcidWebhookForSingleUserprofile(string webhookOrcidId);
-        Task UpdateAllUserprofilesInElasticsearch(LogUserIdentification logUserIdentification);
+        Task UpdateAllUserprofilesInElasticsearch(LogUserIdentification logUserIdentification, string requestScheme, HostString requestHost);
         Task<bool> UpdateUserprofileInElasticsearch(int dimUserProfileId, LogUserIdentification logUserIdentification);
     }
 }

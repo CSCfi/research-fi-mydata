@@ -42,6 +42,7 @@
         public static class ActionState
         {
             public const string START = "start";
+            public const string IN_PROGRESS = "in progress";
             public const string COMPLETE = "complete";
             public const string FAILED = "failed";
             public const string CANCELLED = "cancelled";
