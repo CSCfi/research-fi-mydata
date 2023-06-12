@@ -87,7 +87,8 @@
 
         public static class Delays
         {
-            public const int ADMIN_UPDATE_ALL_PROFILES_IN_ELASTICSEARCH_DELAY_BETWEEN_API_CALLS_MS = 15000; 
+            public const int ADMIN_UPDATE_ALL_PROFILES_IN_ELASTICSEARCH_DELAY_BETWEEN_API_CALLS_MS = 15000;
+            public const int ADMIN_UPDATE_ALL_PROFILES_ORCID_DATA_DELAY_BETWEEN_API_CALLS_MS = 20000;
         }
 
         public static class OrganizationIds

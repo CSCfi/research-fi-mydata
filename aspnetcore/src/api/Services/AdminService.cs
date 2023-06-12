@@ -369,5 +369,80 @@ namespace api.Services
                         state: LogContent.ActionState.COMPLETE));
             });
         }
+
+
+        /*
+         * Update ORCID data for all user profiles.
+         * 
+         * Get all user profiles and for each of them make an API call to ORCID webhook API endpoint, which updates ORCID data for a single user.
+         * Implemented using separate HTTP requests because calling methods directly in a loop in a background task causes problems
+         * in database context handling.
+         */
+        public async Task UpdateOrcidDataForAllUserprofiles(LogUserIdentification logUserIdentification, string requestScheme, HostString requestHost)
+        {
+            await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+            {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_ORCID_UPDATE_ALL,
+                        state: LogContent.ActionState.START));
+
+                HttpClient adminApiHttpClient = _httpClientFactory.CreateClient("ADMIN_API");
+                adminApiHttpClient.BaseAddress = new Uri($"{requestScheme}://{requestHost}");
+
+                // Create local database context
+                using IServiceScope scope = _serviceScopeFactory.CreateScope();
+                TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
+
+                // Get all user profiles which are not hidden.
+                // Update Elasticsearch by calling admin API for each profile.
+                List<DimUserProfile> dimUserProfiles = await localTtvContext.DimUserProfiles.Where(dup => dup.Id > 0).AsNoTracking().ToListAsync();
+                int progressCount = 1;
+                foreach (DimUserProfile dimUserProfile in dimUserProfiles)
+                {
+                    logUserIdentification.Orcid = dimUserProfile.OrcidId;
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ADMIN_ORCID_UPDATE_ALL,
+                            state: LogContent.ActionState.IN_PROGRESS,
+                            message: $"progress {progressCount}/{dimUserProfiles.Count()}, dim_user_profile.id={dimUserProfile.Id}"));
+
+                    try
+                    {
+                        HttpRequestMessage request = new(
+                            method: HttpMethod.Post,
+                            requestUri: $"api/webhook/orcid/{dimUserProfile.OrcidId}"
+                        );
+                        HttpResponseMessage response = await adminApiHttpClient.SendAsync(request);
+                        response.EnsureSuccessStatusCode();
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        _logger.LogError(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ADMIN_ORCID_UPDATE_ALL,
+                                state: LogContent.ActionState.IN_PROGRESS,
+                                message: $"{ex.ToString()}"));
+                    }
+
+                    progressCount += 1;
+                    // Delay between individual API calls.
+                    await Task.Delay(api.Models.Common.Constants.Delays.ADMIN_UPDATE_ALL_PROFILES_ORCID_DATA_DELAY_BETWEEN_API_CALLS_MS);
+                }
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ADMIN_ORCID_UPDATE_ALL,
+                        state: LogContent.ActionState.COMPLETE));
+            });
+        }
     }
 }

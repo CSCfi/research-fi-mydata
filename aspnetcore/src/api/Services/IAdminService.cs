@@ -14,5 +14,6 @@ namespace api.Services
         Task UnregisterOrcidWebhookForSingleUserprofile(string webhookOrcidId);
         Task UpdateAllUserprofilesInElasticsearch(LogUserIdentification logUserIdentification, string requestScheme, HostString requestHost);
         Task<bool> UpdateUserprofileInElasticsearch(int dimUserProfileId, LogUserIdentification logUserIdentification);
+        Task UpdateOrcidDataForAllUserprofiles(LogUserIdentification logUserIdentification, string requestScheme, HostString requestHost);
     }
 }
