@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using api.Models.Ttv;
 using api.Models.Log;
+using System.Threading;
 
 namespace api.Controllers
 {
@@ -333,7 +334,7 @@ namespace api.Controllers
             }
 
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
-            await _adminService.UpdateAllUserprofilesInElasticsearch(logUserIdentification);
+            await _adminService.UpdateAllUserprofilesInElasticsearch(logUserIdentification, Request.Scheme, Request.Host);
             return Ok();
         }
 

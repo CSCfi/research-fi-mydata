@@ -231,6 +231,15 @@ namespace api
                 httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
 
+            /*
+             * HTTP client: Admin API
+             */
+            services.AddHttpClient("ADMIN_API", httpClient =>
+            {
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+                httpClient.DefaultRequestHeaders.Add("ADMINTOKEN", Configuration["ADMINTOKEN"]);
+            });
+
             // Automapper
             // Auto Mapper Configurations
             var mapperConfig = new MapperConfiguration(mc =>
