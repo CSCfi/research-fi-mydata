@@ -366,5 +366,30 @@ namespace api.Controllers
 
             return Ok();
         }
+
+
+        /// <summary>
+        /// Admin: Update ORCID data for all user profiles
+        /// </summary>
+        [HttpPost]
+        [Route("/[controller]/userprofile/orcidupdate/all")]
+        public async Task<IActionResult> UpdateOrcidDataForAllUserprofiles()
+        {
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
+            {
+                return Unauthorized();
+            }
+
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            await _adminService.UpdateOrcidDataForAllUserprofiles(logUserIdentification, Request.Scheme, Request.Host);
+            return Ok();
+        }
     }
 }
