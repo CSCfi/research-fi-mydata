@@ -445,41 +445,5 @@ namespace api.Services
                         state: LogContent.ActionState.COMPLETE));
             });
         }
-
-
-        /*
-         * Application health check.
-         * Makes a light weight database query to check connectivity.
-         */
-        public async Task<bool> IsHealthy(LogUserIdentification logUserIdentification, CancellationToken cancellationToken)
-        {
-            try
-            {
-                DimUserProfile dp = await _ttvContext.DimUserProfiles.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
-                if (dp == null)
-                {
-                    _logger.LogError(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: LogContent.Action.ADMIN_HEALTH_CHECK,
-                            state: LogContent.ActionState.FAILED,
-                            message: $"SQL query returned empty result from table dim_user_profile"));
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    LogContent.MESSAGE_TEMPLATE,
-                    logUserIdentification,
-                    new LogApiInfo(
-                        action: LogContent.Action.ADMIN_HEALTH_CHECK,
-                        state: LogContent.ActionState.FAILED,
-                        message: $"{ex.ToString()}"));
-                return false;
-            }
-            return true;
-        }
     }
 }
