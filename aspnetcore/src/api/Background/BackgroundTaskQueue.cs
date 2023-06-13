@@ -27,9 +27,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
         // BoundedChannelFullMode.Wait will cause calls to WriteAsync() to return a task,
         // which completes only when space became available. This leads to backpressure,
         // in case too many publishers/calls start accumulating.
-
-        // TODO: Hard coded capacity for now. Add to configuration?
-        var options = new BoundedChannelOptions(capacity: 100)
+        var options = new BoundedChannelOptions(capacity: 1000)
         {
             FullMode = BoundedChannelFullMode.Wait
         };
