@@ -3146,7 +3146,9 @@ namespace api.Models.Ttv
 
                 entity.Property(e => e.ReportingYear).HasColumnName("reporting_year");
 
-                entity.Property(e => e.SelfArchivedCode).HasColumnName("self_archived_code");
+                entity.Property(e => e.SelfArchivedCode)
+                    .HasMaxLength(255)
+                    .HasColumnName("self_archived_code");
 
                 entity.Property(e => e.SourceDescription)
                     .HasMaxLength(255)

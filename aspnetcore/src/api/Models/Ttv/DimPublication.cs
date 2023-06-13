@@ -68,7 +68,7 @@ namespace api.Models.Ttv
         public bool? PeerReviewed { get; set; }
         public bool? Report { get; set; }
         public int? ThesisTypeCode { get; set; }
-        public bool? SelfArchivedCode { get; set; }
+        public string SelfArchivedCode { get; set; }
         public string SourceId { get; set; }
         public string SourceDescription { get; set; }
         public DateTime? Created { get; set; }
