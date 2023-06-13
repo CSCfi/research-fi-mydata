@@ -398,24 +398,9 @@ namespace api.Controllers
         /// </summary>
         [HttpGet]
         [Route("/[controller]/health")]
-        public async Task<IActionResult> Health(CancellationToken cancellationToken)
-        {
-            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
-            _logger.LogInformation(
-                LogContent.MESSAGE_TEMPLATE,
-                logUserIdentification,
-                new LogApiInfo(
-                    action: LogContent.Action.ADMIN_HEALTH_CHECK,
-                    state: LogContent.ActionState.START));
-            bool isHealty = await _adminService.IsHealthy(logUserIdentification, cancellationToken);
-            if (isHealty)
-            {
-                return Ok();
-            }
-            else
-            {
-                return StatusCode(StatusCodes.Status503ServiceUnavailable);
-            }
+        public ActionResult Health(CancellationToken cancellationToken)
+        { 
+            return Ok();
         }
     }
 }
