@@ -14,6 +14,7 @@
             public const string ADMIN_ELASTICSEARCH_PROFILE_UPDATE = "Admin: Elasticsearch: profile: update";
             public const string ADMIN_ELASTICSEARCH_PROFILE_UPDATE_ALL = "Admin: Elasticsearch: profile: update all";
             public const string ADMIN_ORCID_UPDATE_ALL = "Admin: ORCID: profile: update all";
+            public const string ADMIN_HEALTH_CHECK = "Admin: Health check";
             public const string BACKGROUND_UPDATE = "Background: update";
             public const string ELASTICSEARCH_DELETE = "Elasticsearch: profile: delete";
             public const string ELASTICSEARCH_UPDATE = "Elasticsearch: profile: update";
