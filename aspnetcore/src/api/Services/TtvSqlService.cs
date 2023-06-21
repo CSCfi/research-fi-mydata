@@ -254,6 +254,7 @@ namespace api.Services
                     profile_only_research_activity_actor_role.name_fi AS 'DimProfileOnlyResearchActivity_Role_NameFi',
                     profile_only_research_activity_actor_role.name_en AS 'DimProfileOnlyResearchActivity_Role_NameEn',
                     profile_only_research_activity_actor_role.name_sv AS 'DimProfileOnlyResearchActivity_Role_NameSv',
+                    dim_profile_only_research_activity_web_link.url AS 'DimProfileOnlyResearchActivity_DimWebLink_Url',
 
                     research_activity_organization.id AS 'DimResearchActivity_DimOrganization_Id',
                     research_activity_organization.organization_id AS 'DimResearchActivity_DimOrganization_OrganizationId',
@@ -337,6 +338,7 @@ namespace api.Services
                     profile_only_funding_decision_actor_role.name_fi AS 'DimProfileOnlyFundingDecision_DimTypeOfFunding_NameFi',
                     profile_only_funding_decision_actor_role.name_en AS 'DimProfileOnlyFundingDecision_DimTypeOfFunding_NameEn',
                     profile_only_funding_decision_actor_role.name_sv AS 'DimProfileOnlyFundingDecision_DimTypeOfFunding_NameSv',
+                    dim_profile_only_funding_decision_web_link.url AS 'DimProfileOnlyFundingDecision_DimWebLink_Url',
 
                     dim_research_dataset.local_identifier AS 'DimResearchDataset_LocalIdentifier',
                     dim_research_dataset.name_fi AS 'DimResearchDataset_NameFi',
@@ -354,7 +356,8 @@ namespace api.Services
                     dim_profile_only_dataset.description_fi AS 'DimProfileOnlyDataset_DescriptionFi',
                     dim_profile_only_dataset.description_en AS 'DimProfileOnlyDataset_DescriptionEn',
                     dim_profile_only_dataset.description_sv AS 'DimProfileOnlyDataset_DescriptionSv',
-                    dim_profile_only_dataset.dataset_created AS 'DimProfileOnlyDataset_DatasetCreated'
+                    dim_profile_only_dataset.dataset_created AS 'DimProfileOnlyDataset_DatasetCreated',
+                    dim_profile_only_dataset_web_link.url AS 'DimProfileOnlyDataset_DimWebLink_Url'
 
                 FROM fact_field_values AS ffv
 
@@ -395,6 +398,7 @@ namespace api.Services
                 LEFT JOIN dim_referencedata AS profile_only_research_activity_actor_role ON ffv.dim_referencedata_actor_role_id=profile_only_research_activity_actor_role.id
                 LEFT JOIN dim_date AS dim_profile_only_research_activity_start_date ON dim_profile_only_research_activity.dim_date_id_start=dim_profile_only_research_activity_start_date.id AND dim_profile_only_research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS dim_profile_only_research_activity_end_date ON dim_profile_only_research_activity.dim_date_id_end=dim_profile_only_research_activity_end_date.id AND dim_profile_only_research_activity_end_date.id!=-1
+                LEFT JOIN dim_web_link AS dim_profile_only_research_activity_web_link ON dim_profile_only_research_activity_web_link.dim_profile_only_research_activity_id=dim_profile_only_research_activity.id AND dim_profile_only_research_activity_web_link.dim_profile_only_research_activity_id!=-1
 
                 JOIN dim_research_activity ON ffv.dim_research_activity_id=dim_research_activity.id
                 JOIN dim_organization AS research_activity_organization ON dim_research_activity.dim_organization_id=research_activity_organization.id
@@ -430,9 +434,12 @@ namespace api.Services
                 LEFT JOIN dim_date AS profile_only_funding_decision_start_date ON dpofd.dim_date_id_start=profile_only_funding_decision_start_date.id AND profile_only_funding_decision_start_date.id!=-1
                 LEFT JOIN dim_date AS profile_only_funding_decision_end_date ON dpofd.dim_date_id_end=profile_only_funding_decision_end_date.id AND profile_only_funding_decision_end_date.id!=-1
                 LEFT JOIN dim_referencedata AS profile_only_funding_decision_actor_role ON ffv.dim_referencedata_actor_role_id=profile_only_funding_decision_actor_role.id
+                LEFT JOIN dim_web_link AS dim_profile_only_funding_decision_web_link ON dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id=dpofd.id AND dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id!=-1
 
                 JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
+
                 JOIN dim_profile_only_dataset ON ffv.dim_profile_only_dataset_id=dim_profile_only_dataset.id
+                LEFT JOIN dim_web_link AS dim_profile_only_dataset_web_link ON dim_profile_only_dataset_web_link.dim_profile_only_dataset_id=dim_profile_only_dataset.id AND dim_profile_only_dataset_web_link.dim_profile_only_dataset_id!=-1
 
                 WHERE
                     ffv.dim_user_profile_id={userprofileId} AND {(forElasticsearch ? " ffv.show=1 AND " : "")}
@@ -660,7 +667,7 @@ namespace api.Services
             string excludeIdsSQL = existingIds.Count > 0 ? $" AND id NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingIds)})" : "";
             return $@"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_web_link
-                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL{excludeIdsSQL}";
+                        WHERE dim_known_person_id={dimKnownPersonId} AND id!=-1 AND dim_registered_data_source_id!=-1 AND dim_registered_data_source_id IS NOT NULL{excludeIdsSQL} AND source_id!='{Constants.SourceIdentifiers.PROFILE_API}'";
         }
 
         // Return SQL SELECT statement for dim_telephone_number

@@ -33,6 +33,7 @@ namespace api.Models.Elasticsearch
             DepartmentNameFi = "";
             DepartmentNameSv = "";
             DepartmentNameEn = "";
+            Url = "";
             sector = new List<ElasticsearchSector> { };
         }
 
@@ -59,6 +60,7 @@ namespace api.Models.Elasticsearch
         public string DepartmentNameFi { get; set; }
         public string DepartmentNameSv { get; set; }
         public string DepartmentNameEn { get; set; }
+        public string Url { get; set; }
 
         [Nested]
         [PropertyName("sector")]

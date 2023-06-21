@@ -44,7 +44,7 @@ namespace api.Models.Ttv
         public string ParentPublicationName { get; set; }
         public string ParentPublicationPublisher { get; set; }
         public string PublicationTypeCode { get; set; }
-        public bool InternationalCollaboration { get; set; }
+        public bool? InternationalCollaboration { get; set; }
         public bool HospitalDistrictCollaboration { get; set; }
         public int InternationalPublication { get; set; }
         public bool GovermentCollaboration { get; set; }
@@ -52,7 +52,7 @@ namespace api.Models.Ttv
         public string LanguageCode { get; set; }
         public string OpenAccessCode { get; set; }
         public bool SpecialStateSubsidy { get; set; }
-        public bool BusinessCollaboration { get; set; }
+        public bool? BusinessCollaboration { get; set; }
         public string DoiHandle { get; set; }
         public string JuuliAddress { get; set; }
         public string OriginalPublicationId { get; set; }

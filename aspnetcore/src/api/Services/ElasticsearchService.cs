@@ -107,7 +107,7 @@ namespace api.Services
                             logUserIdentification: logUserIdentification);
 
                     // Update Elasticsearch person index.
-                    await UpdateEntryInElasticsearchPersonIndex(orcidId, person, logUserIdentification, logAction);
+                    await UpdateEntryInElasticsearchPersonIndex(person, logUserIdentification, logAction);
 
                     _logger.LogInformation(
                         LogContent.MESSAGE_TEMPLATE,
@@ -137,7 +137,7 @@ namespace api.Services
          * Update entry in Elasticsearch person index
          * TODO: When 3rd party sharing feature is implemented, check that TTV share is enabled in user profile.
          */
-        private async Task<bool> UpdateEntryInElasticsearchPersonIndex(string orcidId, ElasticsearchPerson person, LogUserIdentification logUserIdentification, string logAction)
+        private async Task<bool> UpdateEntryInElasticsearchPersonIndex(ElasticsearchPerson person, LogUserIdentification logUserIdentification, string logAction)
         {
             IndexResponse asyncIndexResponse = await ESclient.IndexDocumentAsync(person);
 

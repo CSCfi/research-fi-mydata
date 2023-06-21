@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace api.Models.Elasticsearch
 {
@@ -14,6 +15,7 @@ namespace api.Models.Elasticsearch
             DescriptionFi = "";
             DescriptionSv = "";
             DescriptionEn = "";
+            Url = "";
             DatasetCreated = null;
             PreferredIdentifiers = new List<ElasticsearchPreferredIdentifier>();
         }
@@ -27,6 +29,7 @@ namespace api.Models.Elasticsearch
         public string DescriptionFi { get; set; }
         public string DescriptionSv { get; set; }
         public string DescriptionEn { get; set; }
+        public string Url { get; set; }
         public int? DatasetCreated { get; set; }
         public List<ElasticsearchPreferredIdentifier> PreferredIdentifiers { get; set; }
     }

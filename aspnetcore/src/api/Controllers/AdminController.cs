@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using api.Models.Ttv;
 using api.Models.Log;
+using System.Threading;
 
 namespace api.Controllers
 {
@@ -333,7 +334,7 @@ namespace api.Controllers
             }
 
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
-            await _adminService.UpdateAllUserprofilesInElasticsearch(logUserIdentification);
+            await _adminService.UpdateAllUserprofilesInElasticsearch(logUserIdentification, Request.Scheme, Request.Host);
             return Ok();
         }
 
@@ -363,6 +364,42 @@ namespace api.Controllers
 
             await _adminService.AddNewTtvDataInUserProfileBackground(dimUserProfileId, logUserIdentification);
 
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// Admin: Update ORCID data for all user profiles
+        /// </summary>
+        [HttpPost]
+        [Route("/[controller]/userprofile/orcidupdate/all")]
+        public async Task<IActionResult> UpdateOrcidDataForAllUserprofiles()
+        {
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
+            {
+                return Unauthorized();
+            }
+
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            await _adminService.UpdateOrcidDataForAllUserprofiles(logUserIdentification, Request.Scheme, Request.Host);
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// Admin: Enpoint for checking application health
+        /// </summary>
+        [HttpGet]
+        [Route("/[controller]/health")]
+        public ActionResult Health(CancellationToken cancellationToken)
+        { 
             return Ok();
         }
     }
