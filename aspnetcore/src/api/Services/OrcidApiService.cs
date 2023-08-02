@@ -242,5 +242,17 @@ namespace api.Services
                 return "";
             }
         }
+
+        /*
+         * Revoke token
+         * https://info.orcid.org/ufaqs/how-can-i-revoke-tokens/
+         */
+        /*
+        public async Task<bool> RevokeToken(String orcidAccessToken="")
+        {
+            // Get ORCID public API specific http client.
+            HttpClient orcidTokenRevokeHttpClient = _httpClientFactory.CreateClient("ORCID_TOKEN_REVOKE_API");
+        }
+        */
     }
 }

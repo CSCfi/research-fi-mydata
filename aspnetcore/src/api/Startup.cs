@@ -197,6 +197,25 @@ namespace api
             });
 
             /*
+             * HTTP client: ORCID token revoke
+             * https://info.orcid.org/ufaqs/how-can-i-revoke-tokens/
+             */
+            if (Environment.IsProduction())
+            {
+                services.AddHttpClient("ORCID_TOKEN_REVOKE_API", httpClient =>
+                {
+                    httpClient.BaseAddress = new Uri("https://orcid.org/oauth/revoke");
+                });
+            }
+            else
+            {
+                services.AddHttpClient("ORCID_TOKEN_REVOKE_API", httpClient =>
+                {
+                    httpClient.BaseAddress = new Uri("https://sandbox.orcid.org/oauth/revoke");
+                });
+            }
+
+            /*
              * HTTP client: Keycloak Admin user token management (client credentials flow).
              * https://identitymodel.readthedocs.io/en/latest/aspnetcore/worker.html
              */
