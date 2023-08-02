@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace api.Models.Ttv
-{
-    public partial class FactJufoClassCodesForPubChannel
-    {
-        public int DimPublicationChannelId { get; set; }
-        public int DimReferencedataId { get; set; }
-        public int Year { get; set; }
+namespace api.Models.Ttv;
 
-        public virtual DimPublicationChannel DimPublicationChannel { get; set; }
-        public virtual DimReferencedatum DimReferencedata { get; set; }
-    }
+public partial class FactJufoClassCodesForPubChannel
+{
+    public int DimPublicationChannelId { get; set; }
+
+    public int DimReferencedataId { get; set; }
+
+    public int Year { get; set; }
+
+    public virtual DimPublicationChannel DimPublicationChannel { get; set; }
+
+    public virtual DimReferencedatum DimReferencedata { get; set; }
 }

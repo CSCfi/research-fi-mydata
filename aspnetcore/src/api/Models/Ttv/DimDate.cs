@@ -1,68 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace api.Models.Ttv
+namespace api.Models.Ttv;
+
+public partial class DimDate
 {
-    public partial class DimDate
-    {
-        public DimDate()
-        {
-            DimAffiliationEndDateNavigations = new HashSet<DimAffiliation>();
-            DimAffiliationStartDateNavigations = new HashSet<DimAffiliation>();
-            DimCallProgrammeDimDateIdDueNavigations = new HashSet<DimCallProgramme>();
-            DimCallProgrammeDimDateIdOpenNavigations = new HashSet<DimCallProgramme>();
-            DimEducationDimEndDateNavigations = new HashSet<DimEducation>();
-            DimEducationDimStartDateNavigations = new HashSet<DimEducation>();
-            DimEventDimDateIdEndDateNavigations = new HashSet<DimEvent>();
-            DimEventDimDateIdStartDateNavigations = new HashSet<DimEvent>();
-            DimFundingDecisionDimDateIdApprovalNavigations = new HashSet<DimFundingDecision>();
-            DimFundingDecisionDimDateIdEndNavigations = new HashSet<DimFundingDecision>();
-            DimFundingDecisionDimDateIdStartNavigations = new HashSet<DimFundingDecision>();
-            DimProfileOnlyFundingDecisionDimDateIdApprovalNavigations = new HashSet<DimProfileOnlyFundingDecision>();
-            DimProfileOnlyFundingDecisionDimDateIdEndNavigations = new HashSet<DimProfileOnlyFundingDecision>();
-            DimProfileOnlyFundingDecisionDimDateIdStartNavigations = new HashSet<DimProfileOnlyFundingDecision>();
-            DimProfileOnlyResearchActivityDimDateIdEndNavigations = new HashSet<DimProfileOnlyResearchActivity>();
-            DimProfileOnlyResearchActivityDimDateIdStartNavigations = new HashSet<DimProfileOnlyResearchActivity>();
-            DimResearchActivityDimEndDateNavigations = new HashSet<DimResearchActivity>();
-            DimResearchActivityDimStartDateNavigations = new HashSet<DimResearchActivity>();
-            DimResearcherToResearchCommunityEndDateNavigations = new HashSet<DimResearcherToResearchCommunity>();
-            DimResearcherToResearchCommunityStartDateNavigations = new HashSet<DimResearcherToResearchCommunity>();
-            FactContributions = new HashSet<FactContribution>();
-            FactUpkeepDimDateIdEndNavigations = new HashSet<FactUpkeep>();
-            FactUpkeepDimDateIdStartNavigations = new HashSet<FactUpkeep>();
-        }
+    public int Id { get; set; }
 
-        public int Id { get; set; }
-        public int Year { get; set; }
-        public int Month { get; set; }
-        public int Day { get; set; }
-        public string SourceId { get; set; }
-        public string SourceDescription { get; set; }
-        public DateTime? Created { get; set; }
-        public DateTime? Modified { get; set; }
+    public int Year { get; set; }
 
-        public virtual ICollection<DimAffiliation> DimAffiliationEndDateNavigations { get; set; }
-        public virtual ICollection<DimAffiliation> DimAffiliationStartDateNavigations { get; set; }
-        public virtual ICollection<DimCallProgramme> DimCallProgrammeDimDateIdDueNavigations { get; set; }
-        public virtual ICollection<DimCallProgramme> DimCallProgrammeDimDateIdOpenNavigations { get; set; }
-        public virtual ICollection<DimEducation> DimEducationDimEndDateNavigations { get; set; }
-        public virtual ICollection<DimEducation> DimEducationDimStartDateNavigations { get; set; }
-        public virtual ICollection<DimEvent> DimEventDimDateIdEndDateNavigations { get; set; }
-        public virtual ICollection<DimEvent> DimEventDimDateIdStartDateNavigations { get; set; }
-        public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdApprovalNavigations { get; set; }
-        public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdEndNavigations { get; set; }
-        public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdStartNavigations { get; set; }
-        public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdApprovalNavigations { get; set; }
-        public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdEndNavigations { get; set; }
-        public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdStartNavigations { get; set; }
-        public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivityDimDateIdEndNavigations { get; set; }
-        public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivityDimDateIdStartNavigations { get; set; }
-        public virtual ICollection<DimResearchActivity> DimResearchActivityDimEndDateNavigations { get; set; }
-        public virtual ICollection<DimResearchActivity> DimResearchActivityDimStartDateNavigations { get; set; }
-        public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityEndDateNavigations { get; set; }
-        public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityStartDateNavigations { get; set; }
-        public virtual ICollection<FactContribution> FactContributions { get; set; }
-        public virtual ICollection<FactUpkeep> FactUpkeepDimDateIdEndNavigations { get; set; }
-        public virtual ICollection<FactUpkeep> FactUpkeepDimDateIdStartNavigations { get; set; }
-    }
+    public int Month { get; set; }
+
+    public int Day { get; set; }
+
+    public string SourceId { get; set; }
+
+    public string SourceDescription { get; set; }
+
+    public DateTime? Created { get; set; }
+
+    public DateTime? Modified { get; set; }
+
+    public virtual ICollection<DimAffiliation> DimAffiliationEndDateNavigations { get; set; } = new List<DimAffiliation>();
+
+    public virtual ICollection<DimAffiliation> DimAffiliationStartDateNavigations { get; set; } = new List<DimAffiliation>();
+
+    public virtual ICollection<DimCallProgramme> DimCallProgrammeDimDateIdDueNavigations { get; set; } = new List<DimCallProgramme>();
+
+    public virtual ICollection<DimCallProgramme> DimCallProgrammeDimDateIdOpenNavigations { get; set; } = new List<DimCallProgramme>();
+
+    public virtual ICollection<DimEducation> DimEducationDimEndDateNavigations { get; set; } = new List<DimEducation>();
+
+    public virtual ICollection<DimEducation> DimEducationDimStartDateNavigations { get; set; } = new List<DimEducation>();
+
+    public virtual ICollection<DimEvent> DimEventDimDateIdEndDateNavigations { get; set; } = new List<DimEvent>();
+
+    public virtual ICollection<DimEvent> DimEventDimDateIdStartDateNavigations { get; set; } = new List<DimEvent>();
+
+    public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdApprovalNavigations { get; set; } = new List<DimFundingDecision>();
+
+    public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdEndNavigations { get; set; } = new List<DimFundingDecision>();
+
+    public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdStartNavigations { get; set; } = new List<DimFundingDecision>();
+
+    public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdApprovalNavigations { get; set; } = new List<DimProfileOnlyFundingDecision>();
+
+    public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdEndNavigations { get; set; } = new List<DimProfileOnlyFundingDecision>();
+
+    public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdStartNavigations { get; set; } = new List<DimProfileOnlyFundingDecision>();
+
+    public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivityDimDateIdEndNavigations { get; set; } = new List<DimProfileOnlyResearchActivity>();
+
+    public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivityDimDateIdStartNavigations { get; set; } = new List<DimProfileOnlyResearchActivity>();
+
+    public virtual ICollection<DimResearchActivity> DimResearchActivityDimEndDateNavigations { get; set; } = new List<DimResearchActivity>();
+
+    public virtual ICollection<DimResearchActivity> DimResearchActivityDimStartDateNavigations { get; set; } = new List<DimResearchActivity>();
+
+    public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityEndDateNavigations { get; set; } = new List<DimResearcherToResearchCommunity>();
+
+    public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityStartDateNavigations { get; set; } = new List<DimResearcherToResearchCommunity>();
+
+    public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
+
+    public virtual ICollection<FactUpkeep> FactUpkeepDimDateIdEndNavigations { get; set; } = new List<FactUpkeep>();
+
+    public virtual ICollection<FactUpkeep> FactUpkeepDimDateIdStartNavigations { get; set; } = new List<FactUpkeep>();
 }
