@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
+using api.Models.Log;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Nest;
-using Serilog.Core;
+
 
 namespace api.Services
 {
@@ -144,6 +145,8 @@ namespace api.Services
          */
         public async Task<bool> RegisterOrcidWebhook(string orcidId)
         {
+            LogUserIdentification logUserIdentification = new(orcid: orcidId);
+
             // Get ORCID webhook API specific http client.
             HttpClient orcidWebhookApiHttpClient = _httpClientFactory.CreateClient("ORCID_WEBHOOK_API");
             // PUT request
@@ -153,12 +156,33 @@ namespace api.Services
             // Send request
             try
             {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_WEBHOOK_REGISTER,
+                        state: LogContent.ActionState.START));
+
                 HttpResponseMessage response = await orcidWebhookApiHttpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_WEBHOOK_REGISTER,
+                        state: LogContent.ActionState.COMPLETE));
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError($"OrcidApiService: {ex.ToString()}");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_WEBHOOK_REGISTER,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: ex.ToString()));
                 return false;
             }
             return true;
@@ -170,6 +194,8 @@ namespace api.Services
          */
         public async Task<bool> UnregisterOrcidWebhook(string orcidId)
         {
+            LogUserIdentification logUserIdentification = new(orcid: orcidId);
+
             // Get ORCID webhook API specific http client.
             HttpClient orcidWebhookApiHttpClient = _httpClientFactory.CreateClient("ORCID_WEBHOOK_API");
             // DELETE request
@@ -179,12 +205,33 @@ namespace api.Services
             // Send request
             try
             {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER,
+                        state: LogContent.ActionState.START));
+
                 HttpResponseMessage response = await orcidWebhookApiHttpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER,
+                        state: LogContent.ActionState.COMPLETE));
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError($"OrcidApiService: {ex.ToString()}");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: ex.ToString()));
                 return false;
             }
             return true;
@@ -247,12 +294,73 @@ namespace api.Services
          * Revoke token
          * https://info.orcid.org/ufaqs/how-can-i-revoke-tokens/
          */
-        /*
-        public async Task<bool> RevokeToken(String orcidAccessToken="")
+        public async Task<bool> RevokeToken(LogUserIdentification logUserIdentification, String orcidToken)
         {
-            // Get ORCID public API specific http client.
+            // Get ORCID credentials
+            string clientId = Configuration["ORCID:CLIENTID"];
+            string clientSecret = Configuration["ORCID:CLIENTSECRET"];
+
+            // Validate parameters
+            if (string.IsNullOrWhiteSpace(orcidToken) || string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_REVOKE_TOKEN,
+                        state: LogContent.ActionState.CANCELLED,
+                        error: true,
+                        message: "One or more empty parameters (token, client_id or client_secret)"));
+                return false;
+            }
+
+            // Get ORCID token revoke specific http client.
             HttpClient orcidTokenRevokeHttpClient = _httpClientFactory.CreateClient("ORCID_TOKEN_REVOKE_API");
+
+            // Form data, according to https://info.orcid.org/ufaqs/how-can-i-revoke-tokens/
+            List<KeyValuePair<string, string>> formData = new();
+            formData.Add(new KeyValuePair<string, string>("client_id", clientId));
+            formData.Add(new KeyValuePair<string, string>("client_secret", clientSecret));
+            formData.Add(new KeyValuePair<string, string>("token", orcidToken));
+
+            // Create POST request
+            HttpRequestMessage request = new(method: HttpMethod.Post, requestUri: "");
+            request.Content = new FormUrlEncodedContent(formData);
+
+            // Send request
+            try
+            {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_REVOKE_TOKEN,
+                        state: LogContent.ActionState.START));
+
+                HttpResponseMessage response = await orcidTokenRevokeHttpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_REVOKE_TOKEN,
+                        state: LogContent.ActionState.COMPLETE));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_REVOKE_TOKEN,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: ex.ToString()));
+            }
+            return false;
         }
-        */
     }
 }
