@@ -1,6 +1,7 @@
 ﻿using api.Services;
 using api.Models.Api;
 using api.Models.Log;
+using api.Models.Ttv;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -112,21 +113,7 @@ namespace api.Controllers
             {
                 try
                 {
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
-                        new LogApiInfo(
-                            action: LogContent.Action.ORCID_WEBHOOK_REGISTER,
-                            state: LogContent.ActionState.START));
-
                     await _orcidApiService.RegisterOrcidWebhook(orcidId: orcidId);
-
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        this.GetLogUserIdentification(),
-                        new LogApiInfo(
-                            action: LogContent.Action.ORCID_WEBHOOK_REGISTER,
-                            state: LogContent.ActionState.COMPLETE));
                 }
                 catch (Exception ex)
                 {
@@ -147,8 +134,8 @@ namespace api.Controllers
                     this.GetLogUserIdentification(),
                     new LogApiInfo(
                         action: LogContent.Action.ORCID_WEBHOOK_REGISTER,
-                        state: LogContent.ActionState.FAILED,
-                        error: true,
+                        state: LogContent.ActionState.CANCELLED,
+                        error: false,
                         message: "disabled in configuration"));
             }
 
@@ -196,14 +183,14 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: true));
             }
 
-            // Get userprofile id.
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
+            // Get userprofile
+            DimUserProfile userProfile = await _userProfileService.GetUserprofile(orcidId);
 
             // Delete profile data from database
             bool deleteSuccess = false;
             try
             {
-                deleteSuccess = await _userProfileService.DeleteProfileDataAsync(userprofileId: userprofileId, logUserIdentification: this.GetLogUserIdentification());
+                deleteSuccess = await _userProfileService.DeleteProfileDataAsync(userprofileId: userProfile.Id, logUserIdentification: this.GetLogUserIdentification());
             }
             catch (Exception ex)
             {
@@ -219,14 +206,6 @@ namespace api.Controllers
 
             if (deleteSuccess)
             {
-                // Log deletion
-                _logger.LogInformation(
-                    LogContent.MESSAGE_TEMPLATE,
-                    logUserIdentification,
-                    new LogApiInfo(
-                        action: LogContent.Action.PROFILE_DELETE,
-                        state: LogContent.ActionState.START));
-
                 // Remove cached profile data response. Cache key is ORCID ID.
                 _cache.Remove(orcidId);
 
@@ -246,21 +225,7 @@ namespace api.Controllers
                 {
                     try
                     {
-                        _logger.LogInformation(
-                            LogContent.MESSAGE_TEMPLATE,
-                            logUserIdentification,
-                            new LogApiInfo(
-                                action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER,
-                                state: LogContent.ActionState.START));
-
-                        await _orcidApiService.UnregisterOrcidWebhook(orcidId: orcidId);
-
-                        _logger.LogInformation(
-                            LogContent.MESSAGE_TEMPLATE,
-                            logUserIdentification,
-                            new LogApiInfo(
-                                action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER,
-                                state: LogContent.ActionState.COMPLETE));
+                        await _orcidApiService.UnregisterOrcidWebhook(orcidId);
                     }
                     catch (Exception ex)
                     {
@@ -268,10 +233,10 @@ namespace api.Controllers
                             LogContent.MESSAGE_TEMPLATE,
                             logUserIdentification,
                             new LogApiInfo(
-                                action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER,
+                                action: LogContent.Action.ADMIN_WEBHOOK_ORCID_UNREGISTER,
                                 state: LogContent.ActionState.FAILED,
                                 error: true,
-                                message: ex.ToString()));    
+                                message: ex.ToString()));
                     }
                 }
                 else
@@ -281,10 +246,34 @@ namespace api.Controllers
                         logUserIdentification,
                         new LogApiInfo(
                             action: LogContent.Action.ORCID_WEBHOOK_UNREGISTER,
-                            state: LogContent.ActionState.FAILED,
-                            error: true,
+                            state: LogContent.ActionState.CANCELLED,
+                            error: false,
                             message: "disabled in configuration"));
                 }
+
+                // Revoke ORCID access token
+                try
+                {
+                    await _orcidApiService.RevokeToken(logUserIdentification, userProfile.OrcidRefreshToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.ORCID_REVOKE_TOKEN,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: ex.ToString()));
+                }
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_DELETE,
+                        state: LogContent.ActionState.COMPLETE));
 
                 return Ok(new ApiResponse(success: true));
             }
