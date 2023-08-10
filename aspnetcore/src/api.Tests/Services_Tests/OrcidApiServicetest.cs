@@ -1,10 +1,7 @@
 using Xunit;
-using Moq;
 using api.Services;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using static System.Net.WebRequestMethods;
-using System.Security.Cryptography;
 using System.Collections;
 
 namespace api.Tests
