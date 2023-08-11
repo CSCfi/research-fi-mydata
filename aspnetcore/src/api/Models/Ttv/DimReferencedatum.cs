@@ -29,6 +29,8 @@ public partial class DimReferencedatum
 
     public int DimReferencedataId { get; set; }
 
+    public int? Order { get; set; }
+
     public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; } = new List<BrGrantedPermission>();
 
     public virtual ICollection<DimAffiliation> DimAffiliations { get; set; } = new List<DimAffiliation>();
