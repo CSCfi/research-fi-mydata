@@ -2827,6 +2827,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.NameSv)
                 .HasMaxLength(255)
                 .HasColumnName("name_sv");
+            entity.Property(e => e.Order).HasColumnName("order");
             entity.Property(e => e.SourceDescription)
                 .IsRequired()
                 .HasMaxLength(255)
