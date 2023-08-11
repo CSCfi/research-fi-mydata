@@ -70,7 +70,7 @@ namespace api.Controllers
             List<DimReferencedatum> dimReferenceDataUserChoices = await _ttvContext.DimReferencedata.TagWith("Get user choices").Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.USER_CHOICES)
                 .Include(dr => dr.DimUserChoices.Where(duc => duc.DimUserProfileId == userprofileId)).ToListAsync();
 
-            // Chech that all available choices have DimUserChoice for this user profile.
+            // Check that all available choices have DimUserChoice for this user profile.
             foreach (DimReferencedatum dimReferenceDataUserChoice in dimReferenceDataUserChoices)
             {
                 DimUserChoice dimUserChoice = dimReferenceDataUserChoice.DimUserChoices.FirstOrDefault();
@@ -105,7 +105,8 @@ namespace api.Controllers
                         NameFi = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.NameFi,
                         NameEn = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.NameEn,
                         NameSv = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.NameSv,
-                        Selected = dimUserChoice.UserChoiceValue
+                        Selected = dimUserChoice.UserChoiceValue,
+                        Order = dimReferenceDataUserChoice.Order
                     }
                 );
             }
