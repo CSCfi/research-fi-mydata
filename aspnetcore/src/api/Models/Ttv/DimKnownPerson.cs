@@ -1,48 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace api.Models.Ttv
+namespace api.Models.Ttv;
+
+public partial class DimKnownPerson
 {
-    public partial class DimKnownPerson
-    {
-        public DimKnownPerson()
-        {
-            DimAffiliations = new HashSet<DimAffiliation>();
-            DimCompetences = new HashSet<DimCompetence>();
-            DimEducations = new HashSet<DimEducation>();
-            DimEmailAddrresses = new HashSet<DimEmailAddrress>();
-            DimNames = new HashSet<DimName>();
-            DimPids = new HashSet<DimPid>();
-            DimProfileOnlyPublications = new HashSet<DimProfileOnlyPublication>();
-            DimResearcherDescriptions = new HashSet<DimResearcherDescription>();
-            DimResearcherToResearchCommunities = new HashSet<DimResearcherToResearchCommunity>();
-            DimTelephoneNumbers = new HashSet<DimTelephoneNumber>();
-            DimUserProfiles = new HashSet<DimUserProfile>();
-            DimWebLinks = new HashSet<DimWebLink>();
-            FactDimReferencedataFieldOfSciences = new HashSet<FactDimReferencedataFieldOfScience>();
-        }
+    public int Id { get; set; }
 
-        public int Id { get; set; }
-        public string SourceId { get; set; }
-        public string SourceDescription { get; set; }
-        public DateTime? Created { get; set; }
-        public DateTime? Modified { get; set; }
-        public string SourceProjectId { get; set; }
-        public int? DimRegisteredDataSourceId { get; set; }
+    public string SourceId { get; set; }
 
-        public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
-        public virtual ICollection<DimAffiliation> DimAffiliations { get; set; }
-        public virtual ICollection<DimCompetence> DimCompetences { get; set; }
-        public virtual ICollection<DimEducation> DimEducations { get; set; }
-        public virtual ICollection<DimEmailAddrress> DimEmailAddrresses { get; set; }
-        public virtual ICollection<DimName> DimNames { get; set; }
-        public virtual ICollection<DimPid> DimPids { get; set; }
-        public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublications { get; set; }
-        public virtual ICollection<DimResearcherDescription> DimResearcherDescriptions { get; set; }
-        public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; }
-        public virtual ICollection<DimTelephoneNumber> DimTelephoneNumbers { get; set; }
-        public virtual ICollection<DimUserProfile> DimUserProfiles { get; set; }
-        public virtual ICollection<DimWebLink> DimWebLinks { get; set; }
-        public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
-    }
+    public string SourceDescription { get; set; }
+
+    public DateTime? Created { get; set; }
+
+    public DateTime? Modified { get; set; }
+
+    public string SourceProjectId { get; set; }
+
+    public int? DimRegisteredDataSourceId { get; set; }
+
+    public virtual ICollection<DimAffiliation> DimAffiliations { get; set; } = new List<DimAffiliation>();
+
+    public virtual ICollection<DimCompetence> DimCompetences { get; set; } = new List<DimCompetence>();
+
+    public virtual ICollection<DimEducation> DimEducations { get; set; } = new List<DimEducation>();
+
+    public virtual ICollection<DimEmailAddrress> DimEmailAddrresses { get; set; } = new List<DimEmailAddrress>();
+
+    public virtual ICollection<DimName> DimNames { get; set; } = new List<DimName>();
+
+    public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
+
+    public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublications { get; set; } = new List<DimProfileOnlyPublication>();
+
+    public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
+
+    public virtual ICollection<DimResearcherDescription> DimResearcherDescriptions { get; set; } = new List<DimResearcherDescription>();
+
+    public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; } = new List<DimResearcherToResearchCommunity>();
+
+    public virtual ICollection<DimTelephoneNumber> DimTelephoneNumbers { get; set; } = new List<DimTelephoneNumber>();
+
+    public virtual ICollection<DimUserProfile> DimUserProfiles { get; set; } = new List<DimUserProfile>();
+
+    public virtual ICollection<DimWebLink> DimWebLinks { get; set; } = new List<DimWebLink>();
+
+    public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; } = new List<FactDimReferencedataFieldOfScience>();
 }

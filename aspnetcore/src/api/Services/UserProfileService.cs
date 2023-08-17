@@ -2064,7 +2064,7 @@ namespace api.Services
          * - get FactFieldValues
          * - delete FactFieldValues
          * - delete DimIdentifierlessData (children and parent)
-         * - deöete ORCID put codes from DimPid
+         * - delete ORCID put codes from DimPid
          * - delete FactFieldValues related items
          * - delete DimFieldDisplaySettings
          * - delete BrGrantedPermissions (sharing permission)

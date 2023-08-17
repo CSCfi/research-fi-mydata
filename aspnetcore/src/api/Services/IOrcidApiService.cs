@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using api.Models.Log;
 using Microsoft.Extensions.Configuration;
 
 namespace api.Services
@@ -20,5 +21,6 @@ namespace api.Services
         bool IsOrcidWebhookEnabled();
         Task<bool> RegisterOrcidWebhook(string orcidId);
         Task<bool> UnregisterOrcidWebhook(string orcidId);
+        Task<bool> RevokeToken(LogUserIdentification logUserIdentification, string orcidAccessToken);
     }
 }

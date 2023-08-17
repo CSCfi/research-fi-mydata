@@ -73,19 +73,11 @@ namespace api.Services
             // Register ORCID webhook.
             try
             {
-                bool success = await _orcidApiService.RegisterOrcidWebhook(orcidId: webhookOrcidId);
-                if (success)
-                {
-                    _logger.LogInformation($"{logPrefix}ORCID webhook registered for {webhookOrcidId}");
-                }
-                else
-                {
-                    _logger.LogError($"{logPrefix}ORCID webhook registration failed for {webhookOrcidId}");
-                }
+                await _orcidApiService.RegisterOrcidWebhook(orcidId: webhookOrcidId);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"{logPrefix}ORCID webhook registration failed for {webhookOrcidId}: {ex}");
+                _logger.LogError($"{ex.ToString()}");
             }
         }
 
@@ -111,19 +103,11 @@ namespace api.Services
             // UnRegister ORCID webhook
             try
             {
-                bool success = await _orcidApiService.UnregisterOrcidWebhook(orcidId: webhookOrcidId);
-                if (success)
-                {
-                    _logger.LogInformation($"{logPrefix}ORCID webhook unregistered for {webhookOrcidId}");
-                }
-                else
-                {
-                    _logger.LogError($"{logPrefix}ORCID webhook unregistration failed for {webhookOrcidId}");
-                }
+                await _orcidApiService.UnregisterOrcidWebhook(orcidId: webhookOrcidId);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"{logPrefix}ORCID webhook unregistration failed for {webhookOrcidId}: {ex}");
+                _logger.LogError($"{ex.ToString()}");
             }
         }
 
@@ -148,19 +132,11 @@ namespace api.Services
                 // Register ORCID webhook
                 try
                 {
-                    bool success = await _orcidApiService.RegisterOrcidWebhook(orcidId: dimUserProfile.OrcidId);
-                    if (success)
-                    {
-                        _logger.LogInformation($"{logPrefix}ORCID webhook registered for {dimUserProfile.OrcidId}");
-                    }
-                    else
-                    {
-                        _logger.LogError($"{logPrefix}ORCID webhook registration failed for {dimUserProfile.OrcidId}");
-                    }
+                    await _orcidApiService.RegisterOrcidWebhook(orcidId: dimUserProfile.OrcidId);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"{logPrefix}ORCID webhook registration failed for {dimUserProfile.OrcidId}: {ex}");
+                    _logger.LogError($"{ex.ToString()}");
                 }
 
                 // Prevent flooding ORCID API
@@ -189,19 +165,11 @@ namespace api.Services
                 // Unregister ORCID webhook
                 try
                 {
-                    bool success = await _orcidApiService.UnregisterOrcidWebhook(orcidId: dimUserProfile.OrcidId);
-                    if (success)
-                    {
-                        _logger.LogInformation($"{logPrefix}ORCID webhook unregistered for {dimUserProfile.OrcidId}");
-                    }
-                    else
-                    {
-                        _logger.LogError($"{logPrefix}ORCID webhook unregistration failed for {dimUserProfile.OrcidId}");
-                    }
+                    await _orcidApiService.UnregisterOrcidWebhook(orcidId: dimUserProfile.OrcidId);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"{logPrefix}ORCID webhook unregistration failed for {dimUserProfile.OrcidId}: {ex}");
+                    _logger.LogError($"{ex.ToString()}");
                 }
 
                 // Prevent flooding ORCID API
