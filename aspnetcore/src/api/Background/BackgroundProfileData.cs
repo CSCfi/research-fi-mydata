@@ -65,7 +65,8 @@ namespace api.Services
                         Id = uc.DimReferencedataIdAsUserChoiceLabelNavigation.Id,
                         NameFi = uc.DimReferencedataIdAsUserChoiceLabelNavigation.NameFi,
                         NameEn = uc.DimReferencedataIdAsUserChoiceLabelNavigation.NameEn,
-                        NameSv = uc.DimReferencedataIdAsUserChoiceLabelNavigation.NameSv
+                        NameSv = uc.DimReferencedataIdAsUserChoiceLabelNavigation.NameSv,
+                        Order = uc.DimReferencedataIdAsUserChoiceLabelNavigation.Order
                     }
                 );
             }
