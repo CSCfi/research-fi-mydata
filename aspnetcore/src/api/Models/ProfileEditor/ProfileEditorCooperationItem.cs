@@ -11,5 +11,6 @@
         public string NameEn { get; set; }
         public string NameSv { get; set; }
         public bool Selected { get; set; }
+        public int? Order { get; set; }
     }
 }
