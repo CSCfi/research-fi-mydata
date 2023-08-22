@@ -1473,32 +1473,9 @@ namespace api.Services
             // Get DimFieldDisplaySettings for research activity
             DimFieldDisplaySetting dimFieldDisplaySettingsResearchActivity =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsResearchActivity => dfdsResearchActivity.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY);
-                
-
 
             // Invited positions, distinctions, memberships and services => Research activity
             List<OrcidResearchActivity> orcidResearchActivities = _orcidJsonParserService.GetProfileOnlyResearchActivityItems(orcidRecordJson);
-            // Reference data
-            DimReferencedatum dimReferencedata_invitedPosition =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.INVITED_POSITION).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_distinction =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.DISTINCTION).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_membership =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.MEMBERSHIP).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_qualification =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.QUALIFICATION).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_service =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.SERVICE).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_work_conference =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.WORK_CONFERENCE).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_work_lecture_speech =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.WORK_LECTURE_SPEECH).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_work_other =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.WORK_OTHER).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_work_supervised_student_publication =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.WORK_SUPERVISED_STUDENT_PUBLICATION).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_work_translation =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY && dr.CodeValue == Constants.OrcidResearchActivityType_To_ReferenceDataCodeValue.WORK_TRANSLATION).AsNoTracking().FirstOrDefaultAsync();
 
             foreach (OrcidResearchActivity orcidResearchActivity in orcidResearchActivities.Concat(orcidWorks.ResearchActivities))
             {
@@ -1663,6 +1640,7 @@ namespace api.Services
                     dimProfileOnlyResearchActivity_new.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                     dimProfileOnlyResearchActivity_new.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     dimProfileOnlyResearchActivity_new.NameEn = orcidResearchActivity.Name;
+                    dimProfileOnlyResearchActivity_new.OrcidWorkType = orcidResearchActivity.WorkType;
                     dimProfileOnlyResearchActivity_new.DimDateIdStartNavigation = researchActivityStartDate;
                     dimProfileOnlyResearchActivity_new.DimDateIdEndNavigation = researchActivityEndDate;
                     dimProfileOnlyResearchActivity_new.Created = currentDateTime;
@@ -1700,41 +1678,11 @@ namespace api.Services
                     factFieldValuesDimProfileOnlyResearchActivity.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity = dimProfileOnlyResearchActivity_new;
                     factFieldValuesDimProfileOnlyResearchActivity.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeResearchActivity;
-
                     // Set correct DimReferenceDatum based on ORCID activity type
-                    switch (orcidResearchActivity.OrcidActivityType)
-                    {
-                        case Constants.OrcidResearchActivityTypes.INVITED_POSITION:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_invitedPosition.Id;
-                            break;
-                        case Constants.OrcidResearchActivityTypes.DISTINCTION:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_distinction.Id;
-                            break;
-                        case Constants.OrcidResearchActivityTypes.MEMBERSHIP:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_membership.Id;
-                            break;
-                        case Constants.OrcidResearchActivityTypes.QUALIFICATION:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_qualification.Id;
-                            break;
-                        case Constants.OrcidResearchActivityTypes.SERVICE:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_service.Id;
-                            break;
-                        case Constants.OrcidResearchActivityTypes.WORK_CONFERENCE:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_work_conference.Id;
-                            break;
-                        case Constants.OrcidResearchActivityTypes.WORK_LECTURE_SPEECH:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_work_lecture_speech.Id;
-                            break;
-                        case Constants.OrcidResearchActivityTypes.WORK_OTHER:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_work_other.Id;
-                            break;
-                        case Constants.OrcidResearchActivityTypes.WORK_SUPERVISED_STUDENT_PUBLICATION:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_work_supervised_student_publication.Id;
-                            break;
-                        case Constants.OrcidResearchActivityTypes.WORK_TRANSLATION:
-                            factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata_work_translation.Id;
-                            break;
-                    }
+                    DimReferencedatum dimReferencedata = await _ttvContext.DimReferencedata.Where(
+                            dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY &&
+                            dr.CodeValue == orcidResearchActivity.DimReferencedataCodeValue).AsNoTracking().FirstOrDefaultAsync();
+                    factFieldValuesDimProfileOnlyResearchActivity.DimReferencedataActorRoleId = dimReferencedata.Id;
                     _ttvContext.FactFieldValues.Add(factFieldValuesDimProfileOnlyResearchActivity);
 
                     // If organization was not found, add organization_name into DimIdentifierlessData

@@ -113,26 +113,26 @@ namespace api.Services
         }
 
         /*
-         * Get ORCID work type
+         * Map ORCID work type to DimReferencedata.CodeValue
          */
-        public string GetResearchActivityTypeFromOrcidWorkType(string orcidWorkType)
+        public string MapOrcidWorkTypeToDimReferencedataCodeValue(string workType)
         {
-            switch (orcidWorkType)
+            switch (workType)
             {
                 case "conference-abstract":
-                    return Constants.OrcidResearchActivityTypes.WORK_CONFERENCE;
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_CONFERENCE;
                 case "conference-paper":
-                    return Constants.OrcidResearchActivityTypes.WORK_CONFERENCE;
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_CONFERENCE;
                 case "conference-poster":
-                    return Constants.OrcidResearchActivityTypes.WORK_CONFERENCE;
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_CONFERENCE;
                 case "lecture-speech":
-                    return Constants.OrcidResearchActivityTypes.WORK_LECTURE_SPEECH;
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_LECTURE_SPEECH;
                 case "other":
-                    return Constants.OrcidResearchActivityTypes.WORK_OTHER;
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_OTHER;
                 case "supervised-student-publication":
-                    return Constants.OrcidResearchActivityTypes.WORK_SUPERVISED_STUDENT_PUBLICATION;
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_SUPERVISED_STUDENT_PUBLICATION;
                 case "translation":
-                    return Constants.OrcidResearchActivityTypes.WORK_TRANSLATION;
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_TRANSLATION;
             }
             return "";
         }
@@ -661,12 +661,13 @@ namespace api.Services
                                     string url = (workElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                             "" : workElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    
+                                    string workType = workElement.GetProperty("type").GetString();
 
                                     // Import only one element from "work-summary" array.
                                     orcidWorks.ResearchActivities.Add(
                                         new OrcidResearchActivity(
-                                          orcidActivityType: GetResearchActivityTypeFromOrcidWorkType(workElement.GetProperty("type").GetString()),
+                                          dimReferencedataCodeValue: MapOrcidWorkTypeToDimReferencedataCodeValue(workType),
+                                          workType: workType,
                                           organizationName: "",
                                           disambiguatedOrganizationIdentifier: "",
                                           disambiguationSource: "",
@@ -731,7 +732,8 @@ namespace api.Services
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.DISTINCTION,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.DISTINCTION,
+                                          workType: "",
                                           organizationName: distinctionSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
@@ -781,7 +783,8 @@ namespace api.Services
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.INVITED_POSITION,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.INVITED_POSITION,
+                                          workType: "",
                                           organizationName: invitedPositionsSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
@@ -831,7 +834,8 @@ namespace api.Services
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.MEMBERSHIP,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.MEMBERSHIP,
+                                          workType: "",
                                           organizationName: membershipSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
@@ -882,7 +886,8 @@ namespace api.Services
 
                                         profileOnlyResearchActivityItems.Add(
                                               new OrcidResearchActivity(
-                                                  orcidActivityType: Constants.OrcidResearchActivityTypes.PEER_REVIEW,
+                                                  dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.PEER_REVIEW,
+                                                  workType: "",
                                                   organizationName: peerReviewSummaryElement.GetProperty("convening-organization").GetProperty("name").GetString(),
                                                   disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                                   disambiguationSource: disambiguationSource,
@@ -933,7 +938,8 @@ namespace api.Services
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.QUALIFICATION,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.QUALIFICATION,
+                                          workType: "",
                                           organizationName: qualificationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
@@ -983,7 +989,8 @@ namespace api.Services
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.SERVICE,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.SERVICE,
+                                          workType: "",
                                           organizationName: serviceSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,

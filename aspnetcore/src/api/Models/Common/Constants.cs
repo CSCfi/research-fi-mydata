@@ -122,23 +122,8 @@
             public const string USER_CHOICES = "Kiinnostuksen_ilmaiseminen";
         }
 
-        public static class OrcidResearchActivityTypes
-        {
-            public const string DISTINCTION = "discinction";
-            public const string INVITED_POSITION = "invited_position";
-            public const string MEMBERSHIP = "membership";
-            public const string PEER_REVIEW = "peer review";
-            public const string QUALIFICATION = "qualification";
-            public const string SERVICE = "service";
-            public const string WORK_CONFERENCE = "work_conference";
-            public const string WORK_LECTURE_SPEECH = "work_lecture_speech";
-            public const string WORK_OTHER = "work_other";
-            public const string WORK_SUPERVISED_STUDENT_PUBLICATION = "work_supervised_student_publication";
-            public const string WORK_TRANSLATION = "work_translation";
-        }
-
         // https://koodistot.suomi.fi/codescheme;registryCode=research;schemeCode=aktiviteetitjaroolit
-        public static class OrcidResearchActivityType_To_ReferenceDataCodeValue
+        public static class OrcidResearchActivity_To_ReferenceDataCodeValue
         {
             public const string DISTINCTION = "9.2";
             public const string INVITED_POSITION = "6.1";
