@@ -397,13 +397,13 @@ namespace api.Tests
             Assert.Equal(new OrcidPutCode(47431).Value, actualEmployments[1].PutCode.Value);
         }
 
-        [Fact(DisplayName = "Get publications")]
-        public void TestGetPublications()
+        [Fact(DisplayName = "Get works - publications")]
+        public void TestGetWorks_Publications()
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonRecord();
-            List<OrcidPublication> actualPublications = orcidJsonParserService.GetPublications(jsonStr);
-            Assert.True(actualPublications.Count == 3, "Publications: should parse 3 publications");
+            List<OrcidPublication> actualPublications = orcidJsonParserService.GetWorks(jsonStr).Publications;
+            Assert.True(actualPublications.Count == 3, "Publications: should parse 3 publications from works");
 
             Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[0].PublicationName);
             Assert.Equal(new OrcidPutCode(1022665).Value, actualPublications[0].PutCode.Value);
@@ -424,13 +424,13 @@ namespace api.Tests
             Assert.Equal("book", actualPublications[2].Type);
         }
 
-        [Fact(DisplayName = "Get datasets")]
-        public void TestGetDatasets()
+        [Fact(DisplayName = "Get works - datasets")]
+        public void TestGetWorks_Datasets()
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonRecord();
-            List<OrcidDataset> actualDatasets = orcidJsonParserService.GetDatasets(jsonStr);
-            Assert.True(actualDatasets.Count == 2, "Publications: should parse 2 datasets");
+            List<OrcidDataset> actualDatasets = orcidJsonParserService.GetWorks(jsonStr).Datasets;
+            Assert.True(actualDatasets.Count == 2, "Publications: should parse 2 datasets from works");
 
             Assert.Equal("Test dataset 1", actualDatasets[0].DatasetName);
             Assert.Equal(new OrcidPutCode(1715011).Value, actualDatasets[0].PutCode.Value);
@@ -445,6 +445,15 @@ namespace api.Tests
             Assert.Equal(0, actualDatasets[1].DatasetDate.Month);
             Assert.Equal(0, actualDatasets[1].DatasetDate.Day);
             Assert.Equal("", actualDatasets[1].Url);
+        }
+
+        [Fact(DisplayName = "Get works - research activities")]
+        public void TestGetWorks_ResearchActivities()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+            List<OrcidResearchActivity> actualWorksResearchActivities = orcidJsonParserService.GetWorks(jsonStr).ResearchActivities;
+            Assert.True(actualWorksResearchActivities.Count == 1, "Should parse 1 research activity from works");
         }
 
         [Fact(DisplayName = "Get invited positions, distinctions, memberships, peer reviews, qualifications and services")]
@@ -553,9 +562,7 @@ namespace api.Tests
             Assert.Equal(2016, actual.StartDate.Year);
             Assert.Equal(2, actual.StartDate.Month);
             Assert.Equal(17, actual.StartDate.Day);
-            Assert.Equal(0, actual.EndDate.Year);
-            Assert.Equal(0, actual.EndDate.Month);
-            Assert.Equal(0, actual.EndDate.Day);
+            Assert.Null(actual.EndDate);
             Assert.Equal("", actual.Url);
 
             // Qualification
@@ -661,7 +668,6 @@ namespace api.Tests
             Assert.Equal(new OrcidPutCode(15531).Value, actualFunding.PutCode.Value);
             Assert.Equal("https://www.google.fi", actualFunding.Url);
             Assert.Equal("grant", actualFunding.Type);
-
         }
 
         [Fact(DisplayName = "Get funding detail - no amount specified")]
@@ -684,7 +690,55 @@ namespace api.Tests
             Assert.Equal(new OrcidPutCode(15862).Value, actualFunding.PutCode.Value);
             Assert.Equal("", actualFunding.Url);
             Assert.Equal("grant", actualFunding.Type);
+        }
 
+        [Fact(DisplayName = "Identify ORCID work types - dataset")]
+        public void TestOrcidWorkTypes_dataset()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            Assert.True(orcidJsonParserService.IsDataset("data-set"));
+            Assert.False(orcidJsonParserService.IsDataset("asdf123"));
+        }
+
+        [Fact(DisplayName = "Identify ORCID work types - publications")]
+        public void TestOrcidWorkTypes_publications()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            Assert.True(orcidJsonParserService.IsPublication("book"));
+            Assert.True(orcidJsonParserService.IsPublication("book-chapter"));
+            Assert.True(orcidJsonParserService.IsPublication("dictionary-entry"));
+            Assert.True(orcidJsonParserService.IsPublication("dissertation"));
+            Assert.True(orcidJsonParserService.IsPublication("dissertation-thesis"));
+            Assert.True(orcidJsonParserService.IsPublication("encyclopaedia-entry"));
+            Assert.True(orcidJsonParserService.IsPublication("edited-book"));
+            Assert.True(orcidJsonParserService.IsPublication("journal-article"));
+            Assert.True(orcidJsonParserService.IsPublication("journal-issue"));
+            Assert.True(orcidJsonParserService.IsPublication("magazine-article"));
+            Assert.True(orcidJsonParserService.IsPublication("manual"));
+            Assert.True(orcidJsonParserService.IsPublication("online-resource"));
+            Assert.True(orcidJsonParserService.IsPublication("newsletter-article"));
+            Assert.True(orcidJsonParserService.IsPublication("newspaper-article"));
+            Assert.True(orcidJsonParserService.IsPublication("preprint"));
+            Assert.True(orcidJsonParserService.IsPublication("report"));
+            Assert.True(orcidJsonParserService.IsPublication("review"));
+            Assert.True(orcidJsonParserService.IsPublication("research-tool"));
+            Assert.True(orcidJsonParserService.IsPublication("test"));
+            Assert.True(orcidJsonParserService.IsPublication("website"));
+            Assert.True(orcidJsonParserService.IsPublication("working-paper"));
+            Assert.False(orcidJsonParserService.IsPublication("sdfg2345"));
+        }
+
+        [Fact(DisplayName = "Identify ORCID work types - research activities")]
+        public void TestOrcidWorkTypes_researchActivities()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            Assert.True(orcidJsonParserService.IsResearchActivity("conference-abstract"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("conference-paper"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("conference-poster"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("lecture-speech"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("other"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("supervised-student-publication"));
+            Assert.False(orcidJsonParserService.IsResearchActivity("dfgh3456"));
         }
     }
 }

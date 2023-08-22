@@ -5,7 +5,7 @@ namespace api.Models.Orcid
     public partial class OrcidResearchActivity {
         public OrcidResearchActivity(
             string orcidActivityType,
-            string roleTitle,
+            string name,
             string disambiguatedOrganizationIdentifier,
             string disambiguationSource,
             string organizationName,
@@ -16,7 +16,7 @@ namespace api.Models.Orcid
             string url)
         {
             OrcidActivityType = orcidActivityType;
-            RoleTitle = roleTitle;
+            Name = name;
             DisambiguatedOrganizationIdentifier = disambiguatedOrganizationIdentifier;
             DisambiguationSource = disambiguationSource;
             OrganizationName = organizationName;
@@ -28,7 +28,7 @@ namespace api.Models.Orcid
         }
 
         public string OrcidActivityType { get; set; }
-        public string RoleTitle { get; set; }
+        public string Name { get; set; }
         public string DisambiguatedOrganizationIdentifier { get; set; }
         public string DisambiguationSource { get; set; }
         public string OrganizationName { get; set; }
