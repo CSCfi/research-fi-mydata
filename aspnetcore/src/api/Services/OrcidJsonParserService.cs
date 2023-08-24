@@ -674,7 +674,7 @@ namespace api.Services
                                           departmentName: "",
                                           name: workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
                                           startDate: GetOrcidDate(workElement.GetProperty("publication-date")),
-                                          endDate: GetOrcidDate(workElement.GetProperty("publication-date")),
+                                          endDate: new OrcidDate(),
                                           putCode: this.GetOrcidPutCode(workElement),
                                           url: url
                                         )

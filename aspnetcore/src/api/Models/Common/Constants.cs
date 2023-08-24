@@ -135,7 +135,7 @@
             public const string WORK_LECTURE_SPEECH = "3.3";
             public const string WORK_OTHER = "14";
             public const string WORK_SUPERVISED_STUDENT_PUBLICATION = "11.1";
-            public const string WORK_TRANSLATION = "2.2.1";
+            public const string WORK_TRANSLATION = "2.2"; // TODO: change to "2.2.1" when dim_referencedata includes parent-child relations
         }
 
         public static class OrcidFundingTypes

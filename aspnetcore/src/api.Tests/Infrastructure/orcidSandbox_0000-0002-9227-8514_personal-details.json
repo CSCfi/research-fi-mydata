@@ -10,13 +10,13 @@
       "value": 1486594670761
     },
     "given-names": {
-      "value": "Sofia"
+      "value": "Susan"
     },
     "family-name": {
-      "value": "Garcia"
+      "value": "Lopez"
     },
     "credit-name": {
-      "value": "Sofia Maria Hernandez Garcia"
+      "value": "Susan Maria Hernandez Lopez"
     },
     "source": null,
     "visibility": "public",
@@ -42,13 +42,13 @@
           },
           "source-client-id": null,
           "source-name": {
-            "value": "Sofia Maria Hernandez Garcia"
+            "value": "Susan Maria Hernandez Lopez"
           },
           "assertion-origin-orcid": null,
           "assertion-origin-client-id": null,
           "assertion-origin-name": null
         },
-        "content": "Sofia Maria Garcia",
+        "content": "Susan Maria Lopez",
         "visibility": "public",
         "path": "/0000-0002-9227-8514/other-names/15812",
         "put-code": 15812,
@@ -69,7 +69,7 @@
           },
           "source-client-id": null,
           "source-name": {
-            "value": "Sofia Maria Hernandez Garcia"
+            "value": "Susan Maria Hernandez Lopez"
           },
           "assertion-origin-orcid": null,
           "assertion-origin-client-id": null,
@@ -96,7 +96,7 @@
           },
           "source-client-id": null,
           "source-name": {
-            "value": "Sofia Maria Hernandez Garcia"
+            "value": "Susan Maria Hernandez Lopez"
           },
           "assertion-origin-orcid": null,
           "assertion-origin-client-id": null,
@@ -118,7 +118,7 @@
     "last-modified-date": {
       "value": 1460669280211
     },
-    "content": "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder.",
+    "content": "Susan Maria Hernandez Lopez is the researcher that is used as an example ORCID record holder.",
     "visibility": "public",
     "path": "/0000-0002-9227-8514/biography"
   },
