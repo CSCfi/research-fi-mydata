@@ -34,13 +34,13 @@
         "value": 1486594670761
       },
       "given-names": {
-        "value": "Sofia"
+        "value": "Susan"
       },
       "family-name": {
-        "value": "Garcia"
+        "value": "Lopez"
       },
       "credit-name": {
-        "value": "Sofia Maria Hernandez Garcia"
+        "value": "Susan Maria Hernandez Lopez"
       },
       "source": null,
       "visibility": "public",
@@ -66,13 +66,13 @@
             },
             "source-client-id": null,
             "source-name": {
-              "value": "Sofia Maria Hernandez Garcia"
+              "value": "Susan Maria Hernandez Lopez"
             },
             "assertion-origin-orcid": null,
             "assertion-origin-client-id": null,
             "assertion-origin-name": null
           },
-          "content": "Sofia Maria Garcia",
+          "content": "Susan Maria Lopez",
           "visibility": "public",
           "path": "/0000-0002-9227-8514/other-names/15812",
           "put-code": 15812,
@@ -93,7 +93,7 @@
             },
             "source-client-id": null,
             "source-name": {
-              "value": "Sofia Maria Hernandez Garcia"
+              "value": "Susan Maria Hernandez Lopez"
             },
             "assertion-origin-orcid": null,
             "assertion-origin-client-id": null,
@@ -120,7 +120,7 @@
             },
             "source-client-id": null,
             "source-name": {
-              "value": "Sofia Maria Hernandez Garcia"
+              "value": "Susan Maria Hernandez Lopez"
             },
             "assertion-origin-orcid": null,
             "assertion-origin-client-id": null,
@@ -142,7 +142,7 @@
       "last-modified-date": {
         "value": 1460669280211
       },
-      "content": "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder.",
+      "content": "Susan Maria Hernandez Lopez is the researcher that is used as an example ORCID record holder.",
       "visibility": "public",
       "path": "/0000-0002-9227-8514/biography"
     },
@@ -166,7 +166,7 @@
             },
             "source-client-id": null,
             "source-name": {
-              "value": "Sofia Maria Hernandez Garcia"
+              "value": "Susan Maria Hernandez Lopez"
             },
             "assertion-origin-orcid": null,
             "assertion-origin-client-id": null,
@@ -174,7 +174,7 @@
           },
           "url-name": "Twitter",
           "url": {
-            "value": "https://twitter.com/ORCIDsofia"
+            "value": "https://twitter.com/ORCIDSusan"
           },
           "visibility": "public",
           "path": "/0000-0002-9227-8514/researcher-urls/41387",
@@ -204,13 +204,13 @@
             },
             "source-client-id": null,
             "source-name": {
-              "value": "Sofia Maria Hernandez Garcia"
+              "value": "Susan Maria Hernandez Lopez"
             },
             "assertion-origin-orcid": null,
             "assertion-origin-client-id": null,
             "assertion-origin-name": null
           },
-          "email": "s.garcia@orcid.org",
+          "email": "s.Lopez@orcid.org",
           "path": null,
           "visibility": "public",
           "verified": true,
@@ -240,7 +240,7 @@
             },
             "source-client-id": null,
             "source-name": {
-              "value": "Sofia Maria Hernandez Garcia"
+              "value": "Susan Maria Hernandez Lopez"
             },
             "assertion-origin-orcid": null,
             "assertion-origin-client-id": null,
@@ -333,7 +333,7 @@
             },
             "source-client-id": null,
             "source-name": {
-              "value": "Sofia Maria Hernandez Garcia"
+              "value": "Susan Maria Hernandez Lopez"
             },
             "assertion-origin-orcid": null,
             "assertion-origin-client-id": null,
@@ -360,7 +360,7 @@
             },
             "source-client-id": null,
             "source-name": {
-              "value": "Sofia Maria Hernandez Garcia"
+              "value": "Susan Maria Hernandez Lopez"
             },
             "assertion-origin-orcid": null,
             "assertion-origin-client-id": null,
@@ -807,7 +807,7 @@
                   },
                   "source-client-id": null,
                   "source-name": {
-                    "value": "Sofia Maria Hernandez Garcia"
+                    "value": "Susan Maria Hernandez Lopez"
                   },
                   "assertion-origin-orcid": null,
                   "assertion-origin-client-id": null,
@@ -861,7 +861,7 @@
                   },
                   "source-client-id": null,
                   "source-name": {
-                    "value": "Timo J S"
+                    "value": "TJS"
                   },
                   "assertion-origin-orcid": null,
                   "assertion-origin-client-id": null,
@@ -941,7 +941,7 @@
                 },
                 "source-client-id": null,
                 "source-name": {
-                  "value": "Sofia Maria Hernandez Garcia"
+                  "value": "Susan Maria Hernandez Lopez"
                 },
                 "assertion-origin-orcid": null,
                 "assertion-origin-client-id": null,
@@ -1226,7 +1226,7 @@
                   },
                   "source-client-id": null,
                   "source-name": {
-                    "value": "Timo J S"
+                    "value": "TJS"
                   },
                   "assertion-origin-orcid": null,
                   "assertion-origin-client-id": null,
@@ -1304,7 +1304,7 @@
                   },
                   "source-client-id": null,
                   "source-name": {
-                    "value": "Timo J S"
+                    "value": "TJS"
                   },
                   "assertion-origin-orcid": null,
                   "assertion-origin-client-id": null,
@@ -2403,7 +2403,7 @@
                   },
                   "source-client-id": null,
                   "source-name": {
-                    "value": "Timo J S"
+                    "value": "TJS"
                   },
                   "assertion-origin-orcid": null,
                   "assertion-origin-client-id": null,
@@ -2481,7 +2481,7 @@
                   },
                   "source-client-id": null,
                   "source-name": {
-                    "value": "Timo J S"
+                    "value": "TJS"
                   },
                   "assertion-origin-orcid": null,
                   "assertion-origin-client-id": null,
@@ -2579,7 +2579,7 @@
                 },
                 "source-client-id": null,
                 "source-name": {
-                  "value": "Sofia Maria Hernandez Garcia"
+                  "value": "Susan Maria Hernandez Lopez"
                 },
                 "assertion-origin-orcid": null,
                 "assertion-origin-client-id": null,
@@ -2627,6 +2627,7 @@
             }
           ]
         },
+
         {
           "last-modified-date": {
             "value": 1561445646673
@@ -2663,7 +2664,7 @@
                 },
                 "source-client-id": null,
                 "source-name": {
-                  "value": "Sofia Maria Hernandez Garcia"
+                  "value": "Susan Maria Hernandez Lopez"
                 },
                 "assertion-origin-orcid": null,
                 "assertion-origin-client-id": null,
@@ -2711,6 +2712,7 @@
             }
           ]
         },
+
         {
           "last-modified-date": {
             "value": 1617028188646
@@ -2747,7 +2749,7 @@
                 },
                 "source-client-id": null,
                 "source-name": {
-                  "value": "Sofia Maria Hernandez Garcia"
+                  "value": "Susan Maria Hernandez Lopez"
                 },
                 "assertion-origin-orcid": null,
                 "assertion-origin-client-id": null,
@@ -2861,7 +2863,6 @@
           ]
         },
 
-
         {
           "last-modified-date": {
             "value": 1683871926444
@@ -2900,7 +2901,7 @@
                 },
                 "source-client-id": null,
                 "source-name": {
-                  "value": "Timo J S"
+                  "value": "TJS"
                 },
                 "assertion-origin-orcid": null,
                 "assertion-origin-client-id": null,
@@ -2955,10 +2956,6 @@
           ]
         },
 
-
-
-
-
         {
           "last-modified-date": {
             "value": 1683875942547
@@ -2983,7 +2980,7 @@
                 },
                 "source-client-id": null,
                 "source-name": {
-                  "value": "Timo J S"
+                  "value": "TJS"
                 },
                 "assertion-origin-orcid": null,
                 "assertion-origin-client-id": null,
@@ -3008,9 +3005,490 @@
               "display-index": "1"
             }
           ]
+        },
+
+        {
+          "last-modified-date": {
+            "value": 1692353399268
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "doi",
+                "external-id-value": "10.1233456/54545813f.28b75999",
+                "external-id-normalized": {
+                  "value": "10.1233456/54545813f.28b75999",
+                  "transient": true
+                },
+                "external-id-normalized-error": null,
+                "external-id-url": {
+                  "value": "https://doi.org/10.1233456/54545813f.28b75999"
+                },
+                "external-id-relationship": "self"
+              }
+            ]
+          },
+          "work-summary": [
+            {
+              "put-code": 140715304,
+              "created-date": {
+                "value": 1692353399268
+              },
+              "last-modified-date": {
+                "value": 1692353399268
+              },
+              "source": {
+                "source-orcid": {
+                  "uri": "https://orcid.org/0000-0001-6790-8767",
+                  "path": "0000-0001-6790-8767",
+                  "host": "orcid.org"
+                },
+                "source-client-id": null,
+                "source-name": {
+                  "value": "John Doe"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": {
+                  "value": "Test conference paper name"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "doi",
+                    "external-id-value": "10.1233456/54545813f.28b75999",
+                    "external-id-normalized": {
+                      "value": "10.1233456/54545813f.28b75999",
+                      "transient": true
+                    },
+                    "external-id-normalized-error": null,
+                    "external-id-url": {
+                      "value": "https://doi.org/10.1233456/54545813f.28b75999"
+                    },
+                    "external-id-relationship": "self"
+                  }
+                ]
+              },
+              "url": {
+                "value": "http://dx.doi.org/10.1233456/54545813f.28b75999"
+              },
+              "type": "conference-paper",
+              "publication-date": {
+                "year": {
+                  "value": "2022"
+                },
+                "month": {
+                  "value": "08"
+                },
+                "day": {
+                  "value": "21"
+                }
+              },
+              "journal-title": {
+                "value": "Test 2021 conference"
+              },
+              "visibility": "public",
+              "path": "/0000-0001-6790-8767/work/12341234",
+              "display-index": "1"
+            }
+          ]
+        },
+
+        {
+          "last-modified-date": {
+            "value": 1692789589253
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "work-summary": [
+            {
+              "put-code": 1777991,
+              "created-date": {
+                "value": 1692789589253
+              },
+              "last-modified-date": {
+                "value": 1692789589253
+              },
+              "source": {
+                "source-orcid": {
+                  "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                  "path": "0000-0001-6790-8767",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-client-id": null,
+                "source-name": {
+                  "value": "TJS"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": {
+                  "value": "Test conference poster title"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": []
+              },
+              "url": {
+                "value": "https://test.conference.poster.url"
+              },
+              "type": "conference-poster",
+              "publication-date": {
+                "year": {
+                  "value": "2017"
+                },
+                "month": {
+                  "value": "03"
+                },
+                "day": {
+                  "value": "26"
+                }
+              },
+              "journal-title": {
+                "value": "Test conference title"
+              },
+              "visibility": "public",
+              "path": "/0000-0001-6790-8767/work/1777991",
+              "display-index": "1"
+            }
+          ]
+        },
+
+        {
+          "last-modified-date": {
+            "value": 1692789504175
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "work-summary": [
+            {
+              "put-code": 1777990,
+              "created-date": {
+                "value": 1692789504175
+              },
+              "last-modified-date": {
+                "value": 1692789504175
+              },
+              "source": {
+                "source-orcid": {
+                  "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                  "path": "0000-0001-6790-8767",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-client-id": null,
+                "source-name": {
+                  "value": "TJS"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": {
+                  "value": "Test conference abstract"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": []
+              },
+              "url": {
+                "value": "https://test.conference.abstract.url"
+              },
+              "type": "conference-abstract",
+              "publication-date": {
+                "year": {
+                  "value": "2017"
+                },
+                "month": {
+                  "value": "01"
+                },
+                "day": {
+                  "value": "14"
+                }
+              },
+              "journal-title": {
+                "value": "Test conference title"
+              },
+              "visibility": "public",
+              "path": "/0000-0001-6790-8767/work/1777990",
+              "display-index": "1"
+            }
+          ]
+        },
+
+        {
+          "last-modified-date": {
+            "value": 1692789780194
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "work-summary": [
+            {
+              "put-code": 1777993,
+              "created-date": {
+                "value": 1692789780194
+              },
+              "last-modified-date": {
+                "value": 1692789780194
+              },
+              "source": {
+                "source-orcid": {
+                  "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                  "path": "0000-0001-6790-8767",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-client-id": null,
+                "source-name": {
+                  "value": "TJS"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": {
+                  "value": "Test lecture/speech title"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": []
+              },
+              "url": {
+                "value": "https://test.lecture.speech.url"
+              },
+              "type": "lecture-speech",
+              "publication-date": {
+                "year": {
+                  "value": "2016"
+                },
+                "month": {
+                  "value": "11"
+                },
+                "day": {
+                  "value": "21"
+                }
+              },
+              "journal-title": {
+                "value": "Test lecture/speech publisher"
+              },
+              "visibility": "public",
+              "path": "/0000-0001-6790-8767/work/1777993",
+              "display-index": "1"
+            }
+          ]
+        },
+
+        {
+          "last-modified-date": {
+            "value": 1692779466952
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "work-summary": [
+            {
+              "put-code": 1777955,
+              "created-date": {
+                "value": 1692779466952
+              },
+              "last-modified-date": {
+                "value": 1692779466952
+              },
+              "source": {
+                "source-orcid": {
+                  "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                  "path": "0000-0001-6790-8767",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-client-id": null,
+                "source-name": {
+                  "value": "TJS"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": {
+                  "value": "Test translation title"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": []
+              },
+              "url": {
+                "value": "https://test.translation.url"
+              },
+              "type": "translation",
+              "publication-date": {
+                "year": {
+                  "value": "2023"
+                },
+                "month": {
+                  "value": "03"
+                },
+                "day": {
+                  "value": "15"
+                }
+              },
+              "journal-title": {
+                "value": "Test translation publisher"
+              },
+              "visibility": "public",
+              "path": "/0000-0001-6790-8767/work/1777955",
+              "display-index": "1"
+            }
+          ]
+        },
+
+        {
+          "last-modified-date": {
+            "value": 1692789680724
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "work-summary": [
+            {
+              "put-code": 1777992,
+              "created-date": {
+                "value": 1692789680724
+              },
+              "last-modified-date": {
+                "value": 1692789680724
+              },
+              "source": {
+                "source-orcid": {
+                  "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                  "path": "0000-0001-6790-8767",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-client-id": null,
+                "source-name": {
+                  "value": "TJS"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": {
+                  "value": "Test supervised student publication title"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": []
+              },
+              "url": {
+                "value": "https://test.supervised.student.publication.url"
+              },
+              "type": "supervised-student-publication",
+              "publication-date": {
+                "year": {
+                  "value": "2019"
+                },
+                "month": {
+                  "value": "04"
+                },
+                "day": {
+                  "value": "28"
+                }
+              },
+              "journal-title": {
+                "value": "Test supervised student publication institution"
+              },
+              "visibility": "public",
+              "path": "/0000-0001-6790-8767/work/1777992",
+              "display-index": "1"
+            }
+          ]
+        },
+
+        {
+          "last-modified-date": {
+            "value": 1692794660960
+          },
+          "external-ids": {
+            "external-id": []
+          },
+          "work-summary": [
+            {
+              "put-code": 1777995,
+              "created-date": {
+                "value": 1692794660960
+              },
+              "last-modified-date": {
+                "value": 1692794660960
+              },
+              "source": {
+                "source-orcid": {
+                  "uri": "https://sandbox.orcid.org/0000-0001-6790-8767",
+                  "path": "0000-0001-6790-8767",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-client-id": null,
+                "source-name": {
+                  "value": "TJS"
+                },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": {
+                  "value": "Test other title"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": []
+              },
+              "url": {
+                "value": "https://test.other.url"
+              },
+              "type": "other",
+              "publication-date": {
+                "year": {
+                  "value": "2016"
+                },
+                "month": {
+                  "value": "01"
+                },
+                "day": {
+                  "value": "16"
+                }
+              },
+              "journal-title": {
+                "value": "Test other publisher"
+              },
+              "visibility": "public",
+              "path": "/0000-0001-6790-8767/work/1777995",
+              "display-index": "1"
+            }
+          ]
         }
-
-
 
 
 

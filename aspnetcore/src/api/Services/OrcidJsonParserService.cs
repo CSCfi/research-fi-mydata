@@ -15,8 +15,9 @@ namespace api.Services
     public class OrcidJsonParserService : IOrcidJsonParserService
     {
         /*
-         * List of ORCID publication work types
+         * List of ORCID work types, which in research.fi are treated as publications
          * https://info.orcid.org/ufaqs/what-work-types-does-orcid-support/
+         * https://wiki.eduuni.fi/pages/viewpage.action?pageId=285247018
          */
         List<string> orcidWorkType_publications = new List<string>
         {
@@ -39,11 +40,25 @@ namespace api.Services
             "report",
             "review",
             "research-tool",
-            "supervised-student-publication",
             "test",
-            "translation",
             "website",
             "working-paper"
+        };
+
+        /*
+         * List of ORCID work types, which in research.fi are treated as research activities
+         * https://info.orcid.org/ufaqs/what-work-types-does-orcid-support/
+         * https://wiki.eduuni.fi/pages/viewpage.action?pageId=285247018
+         */
+        List<string> orcidWorkType_researchActivities = new List<string>
+        {
+            "conference-abstract",
+            "conference-paper",
+            "conference-poster",
+            "lecture-speech",
+            "other",
+            "supervised-student-publication",
+            "translation"
         };
 
         /*
@@ -76,17 +91,50 @@ namespace api.Services
         /*
          * Check that ORCID work type is publication
          */
-        private bool IsPublication(string orcidWorkType)
+        public bool IsPublication(string orcidWorkType)
         {
             return orcidWorkType_publications.Contains(orcidWorkType);
         }
 
         /*
+         * Check that ORCID work type is publication
+         */
+        public bool IsResearchActivity(string orcidWorkType)
+        {
+            return orcidWorkType_researchActivities.Contains(orcidWorkType);
+        }
+
+        /*
          * Check that ORCID work type is dataset
          */
-        private bool IsDataset(string orcidWorkType)
+        public bool IsDataset(string orcidWorkType)
         {
             return orcidWorkType == orcidWorkType_dataset;
+        }
+
+        /*
+         * Map ORCID work type to DimReferencedata.CodeValue
+         */
+        public string MapOrcidWorkTypeToDimReferencedataCodeValue(string workType)
+        {
+            switch (workType)
+            {
+                case "conference-abstract":
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_CONFERENCE;
+                case "conference-paper":
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_CONFERENCE;
+                case "conference-poster":
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_CONFERENCE;
+                case "lecture-speech":
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_LECTURE_SPEECH;
+                case "other":
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_OTHER;
+                case "supervised-student-publication":
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_SUPERVISED_STUDENT_PUBLICATION;
+                case "translation":
+                    return Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_TRANSLATION;
+            }
+            return "";
         }
 
         /*
@@ -124,9 +172,9 @@ namespace api.Services
         }
 
         /*
-         * Get DOI from ORCID publication
+         * Get DOI from ORCID work
          */
-        private string GetPublicationDoi(JsonElement externalIdsElement)
+        private string GetDoi(JsonElement externalIdsElement)
         {
             string doi = "";
             if (externalIdsElement.ValueKind != JsonValueKind.Null && externalIdsElement.TryGetProperty("external-id", out JsonElement externalIdElement))
@@ -529,41 +577,45 @@ namespace api.Services
         }
 
         /*
-         * Publications
+         * Works
          */
-        public List<OrcidPublication> GetPublications(String json)
+        public OrcidWorks GetWorks(String json, bool processOnlyResearchActivities=false)
         {
-            List<OrcidPublication> publications = new() { };
+            OrcidWorks orcidWorks = new();
+
             using (JsonDocument document = JsonDocument.Parse(json))
             {
-                JsonElement publicationsElement = document.RootElement.GetProperty("activities-summary").GetProperty("works");
-
-                if (publicationsElement.TryGetProperty("group", out JsonElement groupsElement))
+                JsonElement worksElement = document.RootElement.GetProperty("activities-summary").GetProperty("works");
+                if (worksElement.TryGetProperty("group", out JsonElement groupsElement))
                 {
                     foreach (JsonElement groupElement in groupsElement.EnumerateArray())
                     {
                         /*
                          *  Elements in "group" can contain "external-ids" and "work-summary".
-                         *  "work-summary" can contain multiple entries of the same publication.
+                         *  "work-summary" can contain multiple entries of the same work.
                          *  Get DOI from "external-ids" and the other properties from the first element in "work-summary".
                          */
                         string DOI = "";
 
-                        // Get publication DOI from "external-ids" array.
+                        // Get DOI from "external-ids" array.
                         if (groupElement.TryGetProperty("external-ids", out JsonElement externalIdsElement))
                         {
-                            DOI = GetPublicationDoi(externalIdsElement);
+                            DOI = GetDoi(externalIdsElement);
                         }
 
-                        // Get publication properties from "work-summary" array.
+                        // Get work properties from "work-summary" array.
                         if (groupElement.TryGetProperty("work-summary", out JsonElement workSummariesElement))
                         {
                             foreach (JsonElement workElement in workSummariesElement.EnumerateArray())
                             {
                                 string orcidWorkType = workElement.GetProperty("type").GetString();
-                                if (IsPublication(orcidWorkType))
+
+                                /*
+                                 * Publication
+                                 */
+                                if (IsPublication(orcidWorkType) && !processOnlyResearchActivities)
                                 {
-                                    publications.Add(
+                                    orcidWorks.Publications.Add(
                                         new OrcidPublication()
                                         {
                                             PublicationName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
@@ -577,46 +629,16 @@ namespace api.Services
                                     // Import only one element from "work-summary" array.
                                     break;
                                 }
-                            }
-                        }
-                    }
-                }
-            }
-            return publications;
-        }
 
-        /*
-         * Datasets
-         */
-        public List<OrcidDataset> GetDatasets(String json)
-        {
-            List<OrcidDataset> datasets = new() { };
-            using (JsonDocument document = JsonDocument.Parse(json))
-            {
-                JsonElement datasetsElement = document.RootElement.GetProperty("activities-summary").GetProperty("works");
-
-                if (datasetsElement.TryGetProperty("group", out JsonElement groupsElement))
-                {
-                    foreach (JsonElement groupElement in groupsElement.EnumerateArray())
-                    {
-                        /*
-                         *  Elements in "group" can contain "external-ids" and "work-summary".
-                         *  "work-summary" can contain multiple entries of the same publication.
-                         *  Get DOI from "external-ids" and the other properties from the first element in "work-summary".
-                         */
-
-                        // Get dataset properties from "work-summary" array.
-                        if (groupElement.TryGetProperty("work-summary", out JsonElement workSummariesElement))
-                        {
-                            foreach (JsonElement workElement in workSummariesElement.EnumerateArray())
-                            {
-                                string orcidWorkType = workElement.GetProperty("type").GetString();
-                                if (IsDataset(orcidWorkType))
+                                /*
+                                 * Dataset
+                                 */
+                                if (IsDataset(orcidWorkType) && !processOnlyResearchActivities)
                                 {
                                     string url = (workElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : workElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    datasets.Add(
+                                    orcidWorks.Datasets.Add(
                                         new OrcidDataset()
                                         {
                                             DatasetName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
@@ -630,12 +652,42 @@ namespace api.Services
                                     // Import only one element from "work-summary" array.
                                     break;
                                 }
+
+                                /*
+                                 * Research acvitity
+                                 */
+                                if (IsResearchActivity(orcidWorkType))
+                                {
+                                    string url = (workElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
+                                            "" : workElement.GetProperty("url").GetProperty("value").GetString();
+
+                                    string workType = workElement.GetProperty("type").GetString();
+
+                                    // Import only one element from "work-summary" array.
+                                    orcidWorks.ResearchActivities.Add(
+                                        new OrcidResearchActivity(
+                                          dimReferencedataCodeValue: MapOrcidWorkTypeToDimReferencedataCodeValue(workType),
+                                          workType: workType,
+                                          organizationName: "",
+                                          disambiguatedOrganizationIdentifier: "",
+                                          disambiguationSource: "",
+                                          departmentName: "",
+                                          name: workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                                          startDate: GetOrcidDate(workElement.GetProperty("publication-date")),
+                                          endDate: new OrcidDate(),
+                                          putCode: this.GetOrcidPutCode(workElement),
+                                          url: url
+                                        )
+                                    );
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
-            return datasets;
+
+            return orcidWorks;
         }
 
         /*
@@ -674,24 +726,25 @@ namespace api.Services
                                     string url = (distinctionSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : distinctionSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    string roleTitle = (distinctionSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                    string name = (distinctionSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
                                         "" : distinctionSummaryElement.GetProperty("role-title").GetString();
-                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+                                    name = name.Length > 255 ? name.Substring(0, 255) : name; // Database size 255
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.DISTINCTION,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.DISTINCTION,
+                                          workType: "",
                                           organizationName: distinctionSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: distinctionSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: roleTitle,
+                                          name: name,
                                           startDate: GetOrcidDate(distinctionSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(distinctionSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(distinctionSummaryElement),
                                           url: url
                                       )
-                                  ) ;
+                                   );
                                 }
                             }
                         }
@@ -724,18 +777,19 @@ namespace api.Services
                                     string url = (invitedPositionsSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : invitedPositionsSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    string roleTitle = (invitedPositionsSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                    string name = (invitedPositionsSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
                                         "" : invitedPositionsSummaryElement.GetProperty("role-title").GetString();
-                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+                                    name = name.Length > 255 ? name.Substring(0, 255) : name; // Database size 255
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.INVITED_POSITION,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.INVITED_POSITION,
+                                          workType: "",
                                           organizationName: invitedPositionsSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: invitedPositionsSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: roleTitle,
+                                          name: name,
                                           startDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(invitedPositionsSummaryElement),
@@ -774,18 +828,19 @@ namespace api.Services
                                     string url = (membershipSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : membershipSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    string roleTitle = (membershipSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                    string name = (membershipSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
                                         "" : membershipSummaryElement.GetProperty("role-title").GetString();
-                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+                                    name = name.Length > 255 ? name.Substring(0, 255) : name; // Database size 255
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.MEMBERSHIP,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.MEMBERSHIP,
+                                          workType: "",
                                           organizationName: membershipSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: membershipSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: roleTitle,
+                                          name: name,
                                           startDate: GetOrcidDate(membershipSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(membershipSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(membershipSummaryElement),
@@ -825,20 +880,21 @@ namespace api.Services
                                         string url = (peerReviewSummaryElement.GetProperty("review-url").ValueKind == JsonValueKind.Null) ?
                                             "" : peerReviewSummaryElement.GetProperty("review-url").GetProperty("value").GetString();
 
-                                        string roleTitle = (peerReviewSummaryElement.GetProperty("reviewer-role").ValueKind == JsonValueKind.Null) ?
+                                        string name = (peerReviewSummaryElement.GetProperty("reviewer-role").ValueKind == JsonValueKind.Null) ?
                                             "" : peerReviewSummaryElement.GetProperty("reviewer-role").GetString();
-                                        roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+                                        name = name.Length > 255 ? name.Substring(0, 255) : name; // Database size 255
 
                                         profileOnlyResearchActivityItems.Add(
                                               new OrcidResearchActivity(
-                                                  orcidActivityType: Constants.OrcidResearchActivityTypes.PEER_REVIEW,
+                                                  dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.PEER_REVIEW,
+                                                  workType: "",
                                                   organizationName: peerReviewSummaryElement.GetProperty("convening-organization").GetProperty("name").GetString(),
                                                   disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                                   disambiguationSource: disambiguationSource,
                                                   departmentName: "",
-                                                  roleTitle: roleTitle,
+                                                  name: name,
                                                   startDate: GetOrcidDate(peerReviewSummaryElement.GetProperty("completion-date")),
-                                                  endDate: new OrcidDate(), // TODO: Convert to nullable
+                                                  endDate: new OrcidDate(),
                                                   putCode: this.GetOrcidPutCode(peerReviewSummaryElement),
                                                   url: url
                                               )
@@ -876,18 +932,19 @@ namespace api.Services
                                     string url = (qualificationSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : qualificationSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    string roleTitle = (qualificationSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                    string name = (qualificationSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
                                         "" : qualificationSummaryElement.GetProperty("role-title").GetString();
-                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+                                    name = name.Length > 255 ? name.Substring(0, 255) : name; // Database size 255
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.QUALIFICATION,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.QUALIFICATION,
+                                          workType: "",
                                           organizationName: qualificationSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: qualificationSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: roleTitle,
+                                          name: name,
                                           startDate: GetOrcidDate(qualificationSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(qualificationSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(qualificationSummaryElement),
@@ -926,18 +983,19 @@ namespace api.Services
                                     string url = (serviceSummaryElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : serviceSummaryElement.GetProperty("url").GetProperty("value").GetString();
 
-                                    string roleTitle = (serviceSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
+                                    string name = (serviceSummaryElement.GetProperty("role-title").ValueKind == JsonValueKind.Null) ?
                                         "" : serviceSummaryElement.GetProperty("role-title").GetString();
-                                    roleTitle = roleTitle.Length > 255 ? roleTitle.Substring(0, 255) : roleTitle; // Database size 255
+                                    name = name.Length > 255 ? name.Substring(0, 255) : name; // Database size 255
 
                                     profileOnlyResearchActivityItems.Add(
                                       new OrcidResearchActivity(
-                                          orcidActivityType: Constants.OrcidResearchActivityTypes.SERVICE,
+                                          dimReferencedataCodeValue: Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.SERVICE,
+                                          workType: "",
                                           organizationName: serviceSummaryElement.GetProperty("organization").GetProperty("name").GetString(),
                                           disambiguatedOrganizationIdentifier: disambiguatedOrganizationIdentifier,
                                           disambiguationSource: disambiguationSource,
                                           departmentName: serviceSummaryElement.GetProperty("department-name").GetString(),
-                                          roleTitle: roleTitle,
+                                          name: name,
                                           startDate: GetOrcidDate(serviceSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(serviceSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(serviceSummaryElement),

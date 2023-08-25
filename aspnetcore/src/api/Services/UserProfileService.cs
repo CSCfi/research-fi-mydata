@@ -1724,30 +1724,30 @@ namespace api.Services
                                 );
                             }
 
-                            NameTranslation nameTraslationProfileOnlyResearchActivityName = _languageService.GetNameTranslation(
+                            NameTranslation nameTraslationProfileOnlyResearchActivity_Name = _languageService.GetNameTranslation(
                                 nameFi: p.DimProfileOnlyResearchActivity_NameFi,
                                 nameEn: p.DimProfileOnlyResearchActivity_NameEn,
                                 nameSv: p.DimProfileOnlyResearchActivity_NameSv
                             );
-                            NameTranslation nameTraslationProfileOnlyResearchActivityDescription = _languageService.GetNameTranslation(
+                            NameTranslation nameTraslationProfileOnlyResearchActivity_Description = _languageService.GetNameTranslation(
                                 nameFi: p.DimProfileOnlyResearchActivity_DescriptionFi,
                                 nameEn: p.DimProfileOnlyResearchActivity_DescriptionEn,
                                 nameSv: p.DimProfileOnlyResearchActivity_DescriptionSv
                             );
-                            NameTranslation nameTraslationProfileOnlyResearchActivityRoleName = _languageService.GetNameTranslation(
-                                nameFi: p.DimProfileOnlyResearchActivity_Role_NameFi,
-                                nameEn: p.DimProfileOnlyResearchActivity_Role_NameEn,
-                                nameSv: p.DimProfileOnlyResearchActivity_Role_NameSv
+                            NameTranslation nameTraslationProfileOnlyResearchActivity_ActivityName = _languageService.GetNameTranslation(
+                                nameFi: p.DimProfileOnlyResearchActivity_ActivityRole_NameFi,
+                                nameEn: p.DimProfileOnlyResearchActivity_ActivityRole_NameEn,
+                                nameSv: p.DimProfileOnlyResearchActivity_ActivityRole_NameSv
                             );
 
                             ProfileEditorActivityAndReward activityAndRewardProfileOnly = new()
                             {
-                                NameFi = nameTraslationProfileOnlyResearchActivityName.NameFi,
-                                NameEn = nameTraslationProfileOnlyResearchActivityName.NameEn,
-                                NameSv = nameTraslationProfileOnlyResearchActivityName.NameSv,
-                                DescriptionFi = nameTraslationProfileOnlyResearchActivityDescription.NameFi,
-                                DescriptionEn = nameTraslationProfileOnlyResearchActivityDescription.NameEn,
-                                DescriptionSv = nameTraslationProfileOnlyResearchActivityDescription.NameSv,
+                                NameFi = nameTraslationProfileOnlyResearchActivity_Name.NameFi,
+                                NameEn = nameTraslationProfileOnlyResearchActivity_Name.NameEn,
+                                NameSv = nameTraslationProfileOnlyResearchActivity_Name.NameSv,
+                                DescriptionFi = nameTraslationProfileOnlyResearchActivity_Description.NameFi,
+                                DescriptionEn = nameTraslationProfileOnlyResearchActivity_Description.NameEn,
+                                DescriptionSv = nameTraslationProfileOnlyResearchActivity_Description.NameSv,
                                 InternationalCollaboration = null, // not available in DimProfileOnlyResearchActivity
                                 StartDate = new ProfileEditorDate()
                                 {
@@ -1767,10 +1767,14 @@ namespace api.Services
                                     show: p.FactFieldValues_Show,
                                     primaryValue: p.FactFieldValues_PrimaryValue
                                 ),
-                                RoleCode = p.DimProfileOnlyResearchActivity_Role_CodeValue,
-                                RoleNameFi = nameTraslationProfileOnlyResearchActivityRoleName.NameFi,
-                                RoleNameEn = nameTraslationProfileOnlyResearchActivityRoleName.NameEn,
-                                RoleNameSv = nameTraslationProfileOnlyResearchActivityRoleName.NameSv,
+                                ActivityTypeCode = p.DimProfileOnlyResearchActivity_ActivityRole_CodeValue,
+                                ActivityTypeNameFi = nameTraslationProfileOnlyResearchActivity_ActivityName.NameFi,
+                                ActivityTypeNameEn = nameTraslationProfileOnlyResearchActivity_ActivityName.NameEn,
+                                ActivityTypeNameSv = nameTraslationProfileOnlyResearchActivity_ActivityName.NameSv,
+                                RoleCode = "", // TODO: Currently handling only one level of "aktiviteetitjaroolit" code scheme
+                                RoleNameFi = "",
+                                RoleNameEn = "",
+                                RoleNameSv = "",
                                 OrganizationNameFi = nameTranslationProfileOnlyResearchActivityOrganization.NameFi,
                                 OrganizationNameEn = nameTranslationProfileOnlyResearchActivityOrganization.NameEn,
                                 OrganizationNameSv = nameTranslationProfileOnlyResearchActivityOrganization.NameSv,
