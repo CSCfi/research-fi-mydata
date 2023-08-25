@@ -894,7 +894,7 @@ namespace api.Services
                                                   departmentName: "",
                                                   name: name,
                                                   startDate: GetOrcidDate(peerReviewSummaryElement.GetProperty("completion-date")),
-                                                  endDate: null,
+                                                  endDate: new OrcidDate(),
                                                   putCode: this.GetOrcidPutCode(peerReviewSummaryElement),
                                                   url: url
                                               )

@@ -686,7 +686,9 @@ namespace api.Tests
             Assert.Equal(2016, actual.StartDate.Year);
             Assert.Equal(2, actual.StartDate.Month);
             Assert.Equal(17, actual.StartDate.Day);
-            Assert.Null(actual.EndDate);
+            Assert.Equal(0, actual.EndDate.Year);
+            Assert.Equal(0, actual.EndDate.Month);
+            Assert.Equal(0, actual.EndDate.Day);
             Assert.Equal("", actual.Url);
 
             // Qualification
