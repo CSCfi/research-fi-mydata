@@ -250,10 +250,10 @@ namespace api.Services
                     dim_profile_only_research_activity_end_date.year AS 'DimProfileOnlyResearchActivity_EndDate_Year',
                     dim_profile_only_research_activity_end_date.month AS 'DimProfileOnlyResearchActivity_EndDate_Month',
                     dim_profile_only_research_activity_end_date.day AS 'DimProfileOnlyResearchActivity_EndDate_Day',
-                    profile_only_research_activity_actor_role.code_value AS 'DimProfileOnlyResearchActivity_Role_CodeValue',
-                    profile_only_research_activity_actor_role.name_fi AS 'DimProfileOnlyResearchActivity_Role_NameFi',
-                    profile_only_research_activity_actor_role.name_en AS 'DimProfileOnlyResearchActivity_Role_NameEn',
-                    profile_only_research_activity_actor_role.name_sv AS 'DimProfileOnlyResearchActivity_Role_NameSv',
+                    profile_only_research_activity_referencedata.code_value AS 'DimProfileOnlyResearchActivity_ActivityRole_CodeValue',
+                    profile_only_research_activity_referencedata.name_fi AS 'DimProfileOnlyResearchActivity_ActivityRole_NameFi',
+                    profile_only_research_activity_referencedata.name_en AS 'DimProfileOnlyResearchActivity_ActivityRole_NameEn',
+                    profile_only_research_activity_referencedata.name_sv AS 'DimProfileOnlyResearchActivity_ActivityRole_NameSv',
                     dim_profile_only_research_activity_web_link.url AS 'DimProfileOnlyResearchActivity_DimWebLink_Url',
 
                     research_activity_organization.id AS 'DimResearchActivity_DimOrganization_Id',
@@ -395,7 +395,7 @@ namespace api.Services
                 LEFT JOIN dim_organization AS profile_only_research_activity_organization_broader ON profile_only_research_activity_organization_broader.id=profile_only_research_activity_organization.dim_organization_broader AND profile_only_research_activity_organization.dim_organization_broader!=-1
                 JOIN dim_sector AS profile_only_research_activity_organization_sector ON profile_only_research_activity_organization.dim_sectorid=profile_only_research_activity_organization_sector.id
                 LEFT JOIN dim_sector AS profile_only_research_activity_organization_broader_sector ON profile_only_research_activity_organization_broader.dim_sectorid=profile_only_research_activity_organization_broader_sector.id
-                LEFT JOIN dim_referencedata AS profile_only_research_activity_actor_role ON ffv.dim_referencedata_actor_role_id=profile_only_research_activity_actor_role.id
+                LEFT JOIN dim_referencedata AS profile_only_research_activity_referencedata ON ffv.dim_referencedata_actor_role_id=profile_only_research_activity_referencedata.id
                 LEFT JOIN dim_date AS dim_profile_only_research_activity_start_date ON dim_profile_only_research_activity.dim_date_id_start=dim_profile_only_research_activity_start_date.id AND dim_profile_only_research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS dim_profile_only_research_activity_end_date ON dim_profile_only_research_activity.dim_date_id_end=dim_profile_only_research_activity_end_date.id AND dim_profile_only_research_activity_end_date.id!=-1
                 LEFT JOIN dim_web_link AS dim_profile_only_research_activity_web_link ON dim_profile_only_research_activity_web_link.dim_profile_only_research_activity_id=dim_profile_only_research_activity.id AND dim_profile_only_research_activity_web_link.dim_profile_only_research_activity_id!=-1
