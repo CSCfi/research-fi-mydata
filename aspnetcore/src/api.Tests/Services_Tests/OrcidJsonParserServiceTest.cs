@@ -58,7 +58,7 @@ namespace api.Tests
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonRecord();
-            OrcidGivenNames expectedGivenNames = new OrcidGivenNames("Sofia");
+            OrcidGivenNames expectedGivenNames = new OrcidGivenNames("Susan");
             OrcidGivenNames actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
             Assert.Equal(expectedGivenNames.Value, actualGivenNames.Value);
         }
@@ -78,7 +78,7 @@ namespace api.Tests
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonPersonalDetails();
-            OrcidGivenNames expectedGivenNames = new OrcidGivenNames("Sofia");
+            OrcidGivenNames expectedGivenNames = new OrcidGivenNames("Susan");
             OrcidGivenNames actualGivenNames = orcidJsonParserService.GetGivenNames(jsonStr);
             Assert.Equal(expectedGivenNames.Value, actualGivenNames.Value);
         }
@@ -88,7 +88,7 @@ namespace api.Tests
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonRecord();
-            OrcidFamilyName expectedFamilyName = new OrcidFamilyName("Garcia");
+            OrcidFamilyName expectedFamilyName = new OrcidFamilyName("Lopez");
             OrcidFamilyName actualFamilyName = orcidJsonParserService.GetFamilyName(jsonStr);
             Assert.Equal(expectedFamilyName.Value, actualFamilyName.Value);
         }
@@ -108,7 +108,7 @@ namespace api.Tests
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonPersonalDetails();
-            OrcidFamilyName expectedFamilyName = new OrcidFamilyName("Garcia");
+            OrcidFamilyName expectedFamilyName = new OrcidFamilyName("Lopez");
             OrcidFamilyName actualFamilyName = orcidJsonParserService.GetFamilyName(jsonStr);
             Assert.Equal(expectedFamilyName.Value, actualFamilyName.Value);
         }
@@ -118,7 +118,7 @@ namespace api.Tests
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonRecord();
-            OrcidCreditName expectedCreditName = new OrcidCreditName("Sofia Maria Hernandez Garcia");
+            OrcidCreditName expectedCreditName = new OrcidCreditName("Susan Maria Hernandez Lopez");
             OrcidCreditName actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
             Assert.Equal(expectedCreditName.Value, actualCreditName.Value);
         }
@@ -138,7 +138,7 @@ namespace api.Tests
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonPersonalDetails();
-            OrcidCreditName expectedCreditName = new OrcidCreditName("Sofia Maria Hernandez Garcia");
+            OrcidCreditName expectedCreditName = new OrcidCreditName("Susan Maria Hernandez Lopez");
             OrcidCreditName actualCreditName = orcidJsonParserService.GetCreditName(jsonStr);
             Assert.Equal(expectedCreditName.Value, actualCreditName.Value);
         }
@@ -152,7 +152,7 @@ namespace api.Tests
             List<OrcidOtherName> expectedOtherNames = new();
             expectedOtherNames.Add(
                 new OrcidOtherName(
-                    "Sofia Maria Garcia",
+                    "Susan Maria Lopez",
                     new OrcidPutCode(15812)
                 )
             );
@@ -185,7 +185,7 @@ namespace api.Tests
             List<OrcidOtherName> expectedOtherNames = new();
             expectedOtherNames.Add(
                 new OrcidOtherName(
-                    "Sofia Maria Garcia",
+                    "Susan Maria Lopez",
                     new OrcidPutCode(15812)
                 )
             );
@@ -215,7 +215,7 @@ namespace api.Tests
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonRecord();
             OrcidBiography expectedBiography = new OrcidBiography(
-                "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder."
+                "Susan Maria Hernandez Lopez is the researcher that is used as an example ORCID record holder."
             );
             OrcidBiography actualBiography = orcidJsonParserService.GetBiography(jsonStr);
             Assert.Equal(expectedBiography.Value, actualBiography.Value);
@@ -227,7 +227,7 @@ namespace api.Tests
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonPersonalDetails();
             OrcidBiography expectedBiography = new OrcidBiography(
-                "Sofia Maria Hernandez Garcia is the researcher that is used as an example ORCID record holder."
+                "Susan Maria Hernandez Lopez is the researcher that is used as an example ORCID record holder."
             );
             OrcidBiography actualBiography = orcidJsonParserService.GetBiography(jsonStr);
             Assert.Equal(expectedBiography.Value, actualBiography.Value);
@@ -241,7 +241,7 @@ namespace api.Tests
             List<OrcidResearcherUrl> expectedResearcherUrls = new() {
                 new OrcidResearcherUrl(
                     "Twitter",
-                    "https://twitter.com/ORCIDsofia",
+                    "https://twitter.com/ORCIDSusan",
                     new OrcidPutCode(41387)
                 )
             };
@@ -259,7 +259,7 @@ namespace api.Tests
             string jsonStr = getOrcidJsonRecord();
             List<OrcidEmail> expectedEmails = new() {
                 new OrcidEmail(
-                    "s.garcia@orcid.org",
+                    "s.Lopez@orcid.org",
                     new OrcidPutCode(null)
                 )
             };
@@ -397,13 +397,13 @@ namespace api.Tests
             Assert.Equal(new OrcidPutCode(47431).Value, actualEmployments[1].PutCode.Value);
         }
 
-        [Fact(DisplayName = "Get publications")]
-        public void TestGetPublications()
+        [Fact(DisplayName = "Get works - publications")]
+        public void TestGetWorks_Publications()
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonRecord();
-            List<OrcidPublication> actualPublications = orcidJsonParserService.GetPublications(jsonStr);
-            Assert.True(actualPublications.Count == 3, "Publications: should parse 3 publications");
+            List<OrcidPublication> actualPublications = orcidJsonParserService.GetWorks(jsonStr).Publications;
+            Assert.True(actualPublications.Count == 3, "Publications: should parse 3 publications from works");
 
             Assert.Equal("ORCID: a system to uniquely identify researchers", actualPublications[0].PublicationName);
             Assert.Equal(new OrcidPutCode(1022665).Value, actualPublications[0].PutCode.Value);
@@ -424,13 +424,13 @@ namespace api.Tests
             Assert.Equal("book", actualPublications[2].Type);
         }
 
-        [Fact(DisplayName = "Get datasets")]
-        public void TestGetDatasets()
+        [Fact(DisplayName = "Get works - datasets")]
+        public void TestGetWorks_Datasets()
         {
             OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
             string jsonStr = getOrcidJsonRecord();
-            List<OrcidDataset> actualDatasets = orcidJsonParserService.GetDatasets(jsonStr);
-            Assert.True(actualDatasets.Count == 2, "Publications: should parse 2 datasets");
+            List<OrcidDataset> actualDatasets = orcidJsonParserService.GetWorks(jsonStr).Datasets;
+            Assert.True(actualDatasets.Count == 2, "Publications: should parse 2 datasets from works");
 
             Assert.Equal("Test dataset 1", actualDatasets[0].DatasetName);
             Assert.Equal(new OrcidPutCode(1715011).Value, actualDatasets[0].PutCode.Value);
@@ -447,6 +447,139 @@ namespace api.Tests
             Assert.Equal("", actualDatasets[1].Url);
         }
 
+        [Fact(DisplayName = "Get works - research activities")]
+        public void TestGetWorks_ResearchActivities()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string jsonStr = getOrcidJsonRecord();
+
+            // Check that changing processOnlyResearchActivities does not affect result
+            List<OrcidResearchActivity> actualWorksResearchActivities = orcidJsonParserService.GetWorks(jsonStr, processOnlyResearchActivities: true).ResearchActivities;
+            OrcidResearchActivity actual;
+            Assert.True(actualWorksResearchActivities.Count == 7, "Should parse 7 research activity from works, processOnlyResearchActivities=true");
+            actualWorksResearchActivities = orcidJsonParserService.GetWorks(jsonStr, processOnlyResearchActivities: false).ResearchActivities;
+            Assert.True(actualWorksResearchActivities.Count == 7, "Should parse 7 research activity from works, processOnlyResearchActivities=false");
+
+            // Conference paper
+            actual = actualWorksResearchActivities[0];
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_CONFERENCE, actual.DimReferencedataCodeValue);
+            Assert.Equal(new OrcidPutCode(140715304).Value, actual.PutCode.Value);
+            Assert.Equal("", actual.OrganizationName);
+            Assert.Equal("", actual.DisambiguatedOrganizationIdentifier);
+            Assert.Equal("", actual.DisambiguationSource);
+            Assert.Equal("", actual.DepartmentName);
+            Assert.Equal("Test conference paper name", actual.Name);
+            Assert.Equal(2022, actual.StartDate.Year);
+            Assert.Equal(8, actual.StartDate.Month);
+            Assert.Equal(21, actual.StartDate.Day);
+            Assert.Equal(0, actual.EndDate.Year);
+            Assert.Equal(0, actual.EndDate.Month);
+            Assert.Equal(0, actual.EndDate.Day);
+            Assert.Equal("http://dx.doi.org/10.1233456/54545813f.28b75999", actual.Url);
+
+            // Conference poster
+            actual = actualWorksResearchActivities[1];
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_CONFERENCE, actual.DimReferencedataCodeValue);
+            Assert.Equal(new OrcidPutCode(1777991).Value, actual.PutCode.Value);
+            Assert.Equal("", actual.OrganizationName);
+            Assert.Equal("", actual.DisambiguatedOrganizationIdentifier);
+            Assert.Equal("", actual.DisambiguationSource);
+            Assert.Equal("", actual.DepartmentName);
+            Assert.Equal("Test conference poster title", actual.Name);
+            Assert.Equal(2017, actual.StartDate.Year);
+            Assert.Equal(3, actual.StartDate.Month);
+            Assert.Equal(26, actual.StartDate.Day);
+            Assert.Equal(0, actual.EndDate.Year);
+            Assert.Equal(0, actual.EndDate.Month);
+            Assert.Equal(0, actual.EndDate.Day);
+            Assert.Equal("https://test.conference.poster.url", actual.Url);
+
+            // Conference abstract
+            actual = actualWorksResearchActivities[2];
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_CONFERENCE, actual.DimReferencedataCodeValue);
+            Assert.Equal(new OrcidPutCode(1777990).Value, actual.PutCode.Value);
+            Assert.Equal("", actual.OrganizationName);
+            Assert.Equal("", actual.DisambiguatedOrganizationIdentifier);
+            Assert.Equal("", actual.DisambiguationSource);
+            Assert.Equal("", actual.DepartmentName);
+            Assert.Equal("Test conference abstract", actual.Name);
+            Assert.Equal(2017, actual.StartDate.Year);
+            Assert.Equal(1, actual.StartDate.Month);
+            Assert.Equal(14, actual.StartDate.Day);
+            Assert.Equal(0, actual.EndDate.Year);
+            Assert.Equal(0, actual.EndDate.Month);
+            Assert.Equal(0, actual.EndDate.Day);
+            Assert.Equal("https://test.conference.abstract.url", actual.Url);
+
+            // Lecture/speech
+            actual = actualWorksResearchActivities[3];
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_LECTURE_SPEECH, actual.DimReferencedataCodeValue);
+            Assert.Equal(new OrcidPutCode(1777993).Value, actual.PutCode.Value);
+            Assert.Equal("", actual.OrganizationName);
+            Assert.Equal("", actual.DisambiguatedOrganizationIdentifier);
+            Assert.Equal("", actual.DisambiguationSource);
+            Assert.Equal("", actual.DepartmentName);
+            Assert.Equal("Test lecture/speech title", actual.Name);
+            Assert.Equal(2016, actual.StartDate.Year);
+            Assert.Equal(11, actual.StartDate.Month);
+            Assert.Equal(21, actual.StartDate.Day);
+            Assert.Equal(0, actual.EndDate.Year);
+            Assert.Equal(0, actual.EndDate.Month);
+            Assert.Equal(0, actual.EndDate.Day);
+            Assert.Equal("https://test.lecture.speech.url", actual.Url);
+
+            // Translation
+            actual = actualWorksResearchActivities[4];
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_TRANSLATION, actual.DimReferencedataCodeValue);
+            Assert.Equal(new OrcidPutCode(1777955).Value, actual.PutCode.Value);
+            Assert.Equal("", actual.OrganizationName);
+            Assert.Equal("", actual.DisambiguatedOrganizationIdentifier);
+            Assert.Equal("", actual.DisambiguationSource);
+            Assert.Equal("", actual.DepartmentName);
+            Assert.Equal("Test translation title", actual.Name);
+            Assert.Equal(2023, actual.StartDate.Year);
+            Assert.Equal(3, actual.StartDate.Month);
+            Assert.Equal(15, actual.StartDate.Day);
+            Assert.Equal(0, actual.EndDate.Year);
+            Assert.Equal(0, actual.EndDate.Month);
+            Assert.Equal(0, actual.EndDate.Day);
+            Assert.Equal("https://test.translation.url", actual.Url);
+
+            // Supervised student publication
+            actual = actualWorksResearchActivities[5];
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_SUPERVISED_STUDENT_PUBLICATION, actual.DimReferencedataCodeValue);
+            Assert.Equal(new OrcidPutCode(1777992).Value, actual.PutCode.Value);
+            Assert.Equal("", actual.OrganizationName);
+            Assert.Equal("", actual.DisambiguatedOrganizationIdentifier);
+            Assert.Equal("", actual.DisambiguationSource);
+            Assert.Equal("", actual.DepartmentName);
+            Assert.Equal("Test supervised student publication title", actual.Name);
+            Assert.Equal(2019, actual.StartDate.Year);
+            Assert.Equal(4, actual.StartDate.Month);
+            Assert.Equal(28, actual.StartDate.Day);
+            Assert.Equal(0, actual.EndDate.Year);
+            Assert.Equal(0, actual.EndDate.Month);
+            Assert.Equal(0, actual.EndDate.Day);
+            Assert.Equal("https://test.supervised.student.publication.url", actual.Url);
+
+            // Other
+            actual = actualWorksResearchActivities[6];
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.WORK_OTHER, actual.DimReferencedataCodeValue);
+            Assert.Equal(new OrcidPutCode(1777995).Value, actual.PutCode.Value);
+            Assert.Equal("", actual.OrganizationName);
+            Assert.Equal("", actual.DisambiguatedOrganizationIdentifier);
+            Assert.Equal("", actual.DisambiguationSource);
+            Assert.Equal("", actual.DepartmentName);
+            Assert.Equal("Test other title", actual.Name);
+            Assert.Equal(2016, actual.StartDate.Year);
+            Assert.Equal(1, actual.StartDate.Month);
+            Assert.Equal(16, actual.StartDate.Day);
+            Assert.Equal(0, actual.EndDate.Year);
+            Assert.Equal(0, actual.EndDate.Month);
+            Assert.Equal(0, actual.EndDate.Day);
+            Assert.Equal("https://test.other.url", actual.Url);
+        }
+
         [Fact(DisplayName = "Get invited positions, distinctions, memberships, peer reviews, qualifications and services")]
         public void TestGetProfileOnlyResearchActivityItems()
         {
@@ -458,13 +591,13 @@ namespace api.Tests
 
             // Distinction
             actual = actualList[0];
-            Assert.Equal(Constants.OrcidResearchActivityTypes.DISTINCTION, actual.OrcidActivityType);
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.DISTINCTION, actual.DimReferencedataCodeValue);
             Assert.Equal(new OrcidPutCode(29770).Value, actual.PutCode.Value);
             Assert.Equal("Test organization 1", actual.OrganizationName);
             Assert.Equal("http://dx.doi.org/10.13039/321321", actual.DisambiguatedOrganizationIdentifier);
             Assert.Equal("FUNDREF", actual.DisambiguationSource);
             Assert.Equal("Test Department", actual.DepartmentName);
-            Assert.Equal("Test Distinction", actual.RoleTitle);
+            Assert.Equal("Test Distinction", actual.Name);
             Assert.Equal(2012, actual.StartDate.Year);
             Assert.Equal(7, actual.StartDate.Month);
             Assert.Equal(1, actual.StartDate.Day);
@@ -475,13 +608,13 @@ namespace api.Tests
 
             // Distinction
             actual = actualList[1];
-            Assert.Equal(Constants.OrcidResearchActivityTypes.DISTINCTION, actual.OrcidActivityType);
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.DISTINCTION, actual.DimReferencedataCodeValue);
             Assert.Equal(new OrcidPutCode(29771).Value, actual.PutCode.Value);
             Assert.Equal("Test organization 2", actual.OrganizationName);
             Assert.Equal("53455", actual.DisambiguatedOrganizationIdentifier);
             Assert.Equal("RINGGOLD", actual.DisambiguationSource);
             Assert.Equal("Test Department 2", actual.DepartmentName);
-            Assert.Equal("Test Distinction 2", actual.RoleTitle);
+            Assert.Equal("Test Distinction 2", actual.Name);
             Assert.Equal(2014, actual.StartDate.Year);
             Assert.Equal(10, actual.StartDate.Month);
             Assert.Equal(21, actual.StartDate.Day);
@@ -492,13 +625,13 @@ namespace api.Tests
 
             // Invited position
             actual = actualList[2];
-            Assert.Equal(Constants.OrcidResearchActivityTypes.INVITED_POSITION, actual.OrcidActivityType);
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.INVITED_POSITION, actual.DimReferencedataCodeValue);
             Assert.Equal(new OrcidPutCode(29778).Value, actual.PutCode.Value);
             Assert.Equal("University of Michigan", actual.OrganizationName);
             Assert.Equal("1259", actual.DisambiguatedOrganizationIdentifier);
             Assert.Equal("RINGGOLD", actual.DisambiguationSource);
             Assert.Equal("Dept Name", actual.DepartmentName);
-            Assert.Equal("Invited Position Title", actual.RoleTitle);
+            Assert.Equal("Invited Position Title", actual.Name);
             Assert.Equal(2018, actual.StartDate.Year);
             Assert.Equal(2, actual.StartDate.Month);
             Assert.Equal(2, actual.StartDate.Day);
@@ -509,13 +642,13 @@ namespace api.Tests
 
             // Membership
             actual = actualList[3];
-            Assert.Equal(Constants.OrcidResearchActivityTypes.MEMBERSHIP, actual.OrcidActivityType);
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.MEMBERSHIP, actual.DimReferencedataCodeValue);
             Assert.Equal(new OrcidPutCode(54008).Value, actual.PutCode.Value);
             Assert.Equal("Joensuun lyseon lukio", actual.OrganizationName);
             Assert.Equal("101236", actual.DisambiguatedOrganizationIdentifier);
             Assert.Equal("RINGGOLD", actual.DisambiguationSource);
             Assert.Equal("Test Membership Department 2", actual.DepartmentName);
-            Assert.Equal("Test Membership Type 2", actual.RoleTitle);
+            Assert.Equal("Test Membership Type 2", actual.Name);
             Assert.Equal(2016, actual.StartDate.Year);
             Assert.Equal(1, actual.StartDate.Month);
             Assert.Equal(13, actual.StartDate.Day);
@@ -526,13 +659,13 @@ namespace api.Tests
 
             // Membership
             actual = actualList[4];
-            Assert.Equal(Constants.OrcidResearchActivityTypes.MEMBERSHIP, actual.OrcidActivityType);
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.MEMBERSHIP, actual.DimReferencedataCodeValue);
             Assert.Equal(new OrcidPutCode(54007).Value, actual.PutCode.Value);
             Assert.Equal("University of Oulu", actual.OrganizationName);
             Assert.Equal("https://ror.org/03yj89h83", actual.DisambiguatedOrganizationIdentifier);
             Assert.Equal("ROR", actual.DisambiguationSource);
             Assert.Equal("Test Membership Department", actual.DepartmentName);
-            Assert.Equal("Test Membership Type", actual.RoleTitle);
+            Assert.Equal("Test Membership Type", actual.Name);
             Assert.Equal(1989, actual.StartDate.Year);
             Assert.Equal(1, actual.StartDate.Month);
             Assert.Equal(24, actual.StartDate.Day);
@@ -543,13 +676,13 @@ namespace api.Tests
 
             // Peer review
             actual = actualList[5];
-            Assert.Equal(Constants.OrcidResearchActivityTypes.PEER_REVIEW, actual.OrcidActivityType);
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.PEER_REVIEW, actual.DimReferencedataCodeValue);
             Assert.Equal(new OrcidPutCode(3466).Value, actual.PutCode.Value);
             Assert.Equal("ORCID", actual.OrganizationName);
             Assert.Equal("grid.455335.1", actual.DisambiguatedOrganizationIdentifier);
             Assert.Equal("GRID", actual.DisambiguationSource);
             Assert.Equal("", actual.DepartmentName);
-            Assert.Equal("reviewer", actual.RoleTitle);
+            Assert.Equal("reviewer", actual.Name);
             Assert.Equal(2016, actual.StartDate.Year);
             Assert.Equal(2, actual.StartDate.Month);
             Assert.Equal(17, actual.StartDate.Day);
@@ -560,13 +693,13 @@ namespace api.Tests
 
             // Qualification
             actual = actualList[13];
-            Assert.Equal(Constants.OrcidResearchActivityTypes.QUALIFICATION, actual.OrcidActivityType);
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.QUALIFICATION, actual.DimReferencedataCodeValue);
             Assert.Equal(new OrcidPutCode(29769).Value, actual.PutCode.Value);
             Assert.Equal("Program 973", actual.OrganizationName);
             Assert.Equal("grid.454688.3", actual.DisambiguatedOrganizationIdentifier);
             Assert.Equal("GRID", actual.DisambiguationSource);
             Assert.Equal("Dept Name", actual.DepartmentName);
-            Assert.Equal("Test Title", actual.RoleTitle);
+            Assert.Equal("Test Title", actual.Name);
             Assert.Equal(2017, actual.StartDate.Year);
             Assert.Equal(2, actual.StartDate.Month);
             Assert.Equal(22, actual.StartDate.Day);
@@ -577,13 +710,13 @@ namespace api.Tests
 
             // Service
             actual = actualList[14];
-            Assert.Equal(Constants.OrcidResearchActivityTypes.SERVICE, actual.OrcidActivityType);
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.SERVICE, actual.DimReferencedataCodeValue);
             Assert.Equal(new OrcidPutCode(54009).Value, actual.PutCode.Value);
             Assert.Equal("Lahden kaupunki", actual.OrganizationName);
             Assert.Equal("86631", actual.DisambiguatedOrganizationIdentifier);
             Assert.Equal("RINGGOLD", actual.DisambiguationSource);
             Assert.Equal("Test Service Department", actual.DepartmentName);
-            Assert.Equal("Test Service Role", actual.RoleTitle);
+            Assert.Equal("Test Service Role", actual.Name);
             Assert.Equal(2015, actual.StartDate.Year);
             Assert.Equal(2, actual.StartDate.Month);
             Assert.Equal(27, actual.StartDate.Day);
@@ -594,13 +727,13 @@ namespace api.Tests
 
             // Service
             actual = actualList[15];
-            Assert.Equal(Constants.OrcidResearchActivityTypes.SERVICE, actual.OrcidActivityType);
+            Assert.Equal(Constants.OrcidResearchActivity_To_ReferenceDataCodeValue.SERVICE, actual.DimReferencedataCodeValue);
             Assert.Equal(new OrcidPutCode(54010).Value, actual.PutCode.Value);
             Assert.Equal("Rovaniemen kaupunki", actual.OrganizationName);
             Assert.Equal("86672", actual.DisambiguatedOrganizationIdentifier);
             Assert.Equal("RINGGOLD", actual.DisambiguationSource);
             Assert.Equal("Test Service Department 2", actual.DepartmentName);
-            Assert.Equal("Test Service Role 2", actual.RoleTitle);
+            Assert.Equal("Test Service Role 2", actual.Name);
             Assert.Equal(2011, actual.StartDate.Year);
             Assert.Equal(1, actual.StartDate.Month);
             Assert.Equal(15, actual.StartDate.Day);
@@ -661,7 +794,6 @@ namespace api.Tests
             Assert.Equal(new OrcidPutCode(15531).Value, actualFunding.PutCode.Value);
             Assert.Equal("https://www.google.fi", actualFunding.Url);
             Assert.Equal("grant", actualFunding.Type);
-
         }
 
         [Fact(DisplayName = "Get funding detail - no amount specified")]
@@ -684,7 +816,55 @@ namespace api.Tests
             Assert.Equal(new OrcidPutCode(15862).Value, actualFunding.PutCode.Value);
             Assert.Equal("", actualFunding.Url);
             Assert.Equal("grant", actualFunding.Type);
+        }
 
+        [Fact(DisplayName = "Identify ORCID work types - dataset")]
+        public void TestOrcidWorkTypes_dataset()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            Assert.True(orcidJsonParserService.IsDataset("data-set"));
+            Assert.False(orcidJsonParserService.IsDataset("asdf123"));
+        }
+
+        [Fact(DisplayName = "Identify ORCID work types - publications")]
+        public void TestOrcidWorkTypes_publications()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            Assert.True(orcidJsonParserService.IsPublication("book"));
+            Assert.True(orcidJsonParserService.IsPublication("book-chapter"));
+            Assert.True(orcidJsonParserService.IsPublication("dictionary-entry"));
+            Assert.True(orcidJsonParserService.IsPublication("dissertation"));
+            Assert.True(orcidJsonParserService.IsPublication("dissertation-thesis"));
+            Assert.True(orcidJsonParserService.IsPublication("encyclopaedia-entry"));
+            Assert.True(orcidJsonParserService.IsPublication("edited-book"));
+            Assert.True(orcidJsonParserService.IsPublication("journal-article"));
+            Assert.True(orcidJsonParserService.IsPublication("journal-issue"));
+            Assert.True(orcidJsonParserService.IsPublication("magazine-article"));
+            Assert.True(orcidJsonParserService.IsPublication("manual"));
+            Assert.True(orcidJsonParserService.IsPublication("online-resource"));
+            Assert.True(orcidJsonParserService.IsPublication("newsletter-article"));
+            Assert.True(orcidJsonParserService.IsPublication("newspaper-article"));
+            Assert.True(orcidJsonParserService.IsPublication("preprint"));
+            Assert.True(orcidJsonParserService.IsPublication("report"));
+            Assert.True(orcidJsonParserService.IsPublication("review"));
+            Assert.True(orcidJsonParserService.IsPublication("research-tool"));
+            Assert.True(orcidJsonParserService.IsPublication("test"));
+            Assert.True(orcidJsonParserService.IsPublication("website"));
+            Assert.True(orcidJsonParserService.IsPublication("working-paper"));
+            Assert.False(orcidJsonParserService.IsPublication("sdfg2345"));
+        }
+
+        [Fact(DisplayName = "Identify ORCID work types - research activities")]
+        public void TestOrcidWorkTypes_researchActivities()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            Assert.True(orcidJsonParserService.IsResearchActivity("conference-abstract"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("conference-paper"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("conference-poster"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("lecture-speech"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("other"));
+            Assert.True(orcidJsonParserService.IsResearchActivity("supervised-student-publication"));
+            Assert.False(orcidJsonParserService.IsResearchActivity("dfgh3456"));
         }
     }
 }
