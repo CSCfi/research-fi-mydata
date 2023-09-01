@@ -26,12 +26,16 @@ public class BasicAuthenticatedHttpClient : IHttpClient
 
     public void Configure(IConfiguration configuration)
     {
-        var username = configuration["LogServer:username"];
-        var password = configuration["LogServer:password"];
+        if (!string.IsNullOrWhiteSpace(configuration["LogServer:username"]) &&
+            !string.IsNullOrWhiteSpace(configuration["LogServer:password"]))
+        {
+            string username = configuration["LogServer:username"];
+            string password = configuration["LogServer:password"];
 
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-          "Basic",
-          Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}")));
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+              "Basic",
+              Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}")));
+        }
     }
 
     public async Task<HttpResponseMessage> PostAsync(string requestUri, Stream contentStream)
