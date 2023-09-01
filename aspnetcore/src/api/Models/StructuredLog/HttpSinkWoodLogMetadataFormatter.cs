@@ -159,15 +159,15 @@ public class WoodLogMetadataFormatter : ITextFormatter
 
         foreach (var property in properties)
         {
-            if (property.Key == "WoodLogProjectNumber")
+            if (property.Key.ToLower() == "woodlogprojectnumber")
             {
                 woodProjectNumber = property;
             }
-            else if (property.Key == "WoodLogUseCase")
+            else if (property.Key.ToLower() == "woodlogusecase")
             {
                 woodUseCase = property;
             }
-            else if (property.Key == "WoodLogRetentionMonths")
+            else if (property.Key.ToLower() == "woodlogretentionmonths")
             {
                 woodRetentionMonths = property;
             }
