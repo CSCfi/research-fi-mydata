@@ -1295,31 +1295,31 @@ namespace api.Services
                 if (factFieldValuesProfileOnlyFundingDecision != null)
                 {
                     // Update existing DimProfileOnlyFundingDecision
-                    DimProfileOnlyFundingDecision dimProfileOnlyFundingDecision = factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision;
-                    dimProfileOnlyFundingDecision.NameEn = orcidFunding.Name;
-                    dimProfileOnlyFundingDecision.DimDateIdStartNavigation = fundingStartDate;
-                    dimProfileOnlyFundingDecision.DimDateIdStartNavigation = fundingEndDate;
-                    dimProfileOnlyFundingDecision.SourceDescription = orcidFunding.Path;
+                    DimProfileOnlyFundingDecision dimProfileOnlyFundingDecision_existing = factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision;
+                    dimProfileOnlyFundingDecision_existing.NameEn = orcidFunding.Name;
+                    dimProfileOnlyFundingDecision_existing.DimDateIdStartNavigation = fundingStartDate;
+                    dimProfileOnlyFundingDecision_existing.DimDateIdStartNavigation = fundingEndDate;
+                    dimProfileOnlyFundingDecision_existing.SourceDescription = orcidFunding.Path;
                     // Related DimWebLink
                     if (!string.IsNullOrWhiteSpace(orcidFunding.Url))
                     {
                         // URL exists, add or update DimWebLink
-                        if (dimProfileOnlyFundingDecision.DimWebLinks.Count() == 0)
+                        if (dimProfileOnlyFundingDecision_existing.DimWebLinks.Count() == 0)
                         {
                             // Add DimWebLink
                             DimWebLink datasetWebLink = GetDimWebLink(
                                 url: orcidFunding.Url,
                                 currentDateTime: currentDateTime,
                                 dimKnownPerson: dimUserProfile.DimKnownPerson,
-                                dimProfileOnlyFundingDecision: dimProfileOnlyFundingDecision
+                                dimProfileOnlyFundingDecision: dimProfileOnlyFundingDecision_existing
                             );
                             _ttvContext.DimWebLinks.Add(datasetWebLink);
-                            dimProfileOnlyFundingDecision.DimWebLinks.Add(datasetWebLink);
+                            dimProfileOnlyFundingDecision_existing.DimWebLinks.Add(datasetWebLink);
                         }
                         else
                         {
                             // Update DimWebLink
-                            DimWebLink datasetWebLink = dimProfileOnlyFundingDecision.DimWebLinks.First();
+                            DimWebLink datasetWebLink = dimProfileOnlyFundingDecision_existing.DimWebLinks.First();
                             datasetWebLink.Url = orcidFunding.Url;
                             datasetWebLink.Modified = currentDateTime;
                         }
@@ -1327,9 +1327,9 @@ namespace api.Services
                     else
                     {
                         // URL does not exist, delete DimWebLink
-                        if (dimProfileOnlyFundingDecision.DimWebLinks.Count() > 0)
+                        if (dimProfileOnlyFundingDecision_existing.DimWebLinks.Count() > 0)
                         {
-                            _ttvContext.DimWebLinks.Remove(dimProfileOnlyFundingDecision.DimWebLinks.First());
+                            _ttvContext.DimWebLinks.Remove(dimProfileOnlyFundingDecision_existing.DimWebLinks.First());
                         }
                     }
 
@@ -1341,13 +1341,28 @@ namespace api.Services
                         /*
                          * Funding relates directly to DimOrganization.
                          */
-                        dimProfileOnlyFundingDecision.DimOrganizationIdFunder = (int)dimOrganization_id_funding;
+                        dimProfileOnlyFundingDecision_existing.DimOrganizationIdFunder = (int)dimOrganization_id_funding;
 
                         /*
                          * When funding has related DimOrganization, possibly existing DimIdentifierlessData of type organization_name must be removed.
+                         * That will change the primary key of FactFieldValue, which must be recreated.
                          */
                         if (factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessDataId != -1 && factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
                         {
+                            // Create new FactFieldValues for activity and delete old
+                            FactFieldValue factFieldValuesProfileOnlyFundingDecisionNew = _userProfileService.GetEmptyFactFieldValue();
+                            factFieldValuesProfileOnlyFundingDecisionNew.DimIdentifierlessDataId = -1;
+                            factFieldValuesProfileOnlyFundingDecisionNew.DimUserProfile = factFieldValuesProfileOnlyFundingDecision.DimUserProfile;
+                            factFieldValuesProfileOnlyFundingDecisionNew.DimFieldDisplaySettings = factFieldValuesProfileOnlyFundingDecision.DimFieldDisplaySettings;
+                            factFieldValuesProfileOnlyFundingDecisionNew.DimRegisteredDataSourceId = factFieldValuesProfileOnlyFundingDecision.DimRegisteredDataSourceId;
+                            factFieldValuesProfileOnlyFundingDecisionNew.DimProfileOnlyFundingDecision = factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision;
+                            factFieldValuesProfileOnlyFundingDecisionNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesProfileOnlyFundingDecision.DimPidIdOrcidPutCodeNavigation;
+                            factFieldValuesProfileOnlyFundingDecisionNew.Show = factFieldValuesProfileOnlyFundingDecision.Show;
+                            factFieldValuesProfileOnlyFundingDecisionNew.PrimaryValue = factFieldValuesProfileOnlyFundingDecision.PrimaryValue;
+                            factFieldValuesProfileOnlyFundingDecisionNew.SourceId = factFieldValuesProfileOnlyFundingDecision.SourceId;
+                            factFieldValuesProfileOnlyFundingDecisionNew.SourceDescription = factFieldValuesProfileOnlyFundingDecision.SourceDescription;
+                            _ttvContext.Add(factFieldValuesProfileOnlyFundingDecisionNew);
+                            _ttvContext.FactFieldValues.Remove(factFieldValuesProfileOnlyFundingDecision);
                             _ttvContext.DimIdentifierlessData.Remove(factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData);
                         }
                     }
@@ -1363,12 +1378,21 @@ namespace api.Services
                              * Update organization name in existing DimIdentifierlessData.
                              */
                             factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData.ValueEn = orcidFunding.OrganizationName;
+                            factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData.UnlinkedIdentifier =
+                                _organizationHandlerService.GetUnlinkedIdentifierFromOrcidDisambiguation(
+                                    orcidDisambiguationSource: orcidFunding.DisambiguationSource,
+                                    orcidDisambiguatedOrganizationIdentifier: orcidFunding.DisambiguatedOrganizationIdentifier);
                         }
                         else
                         {
                             /*
                              * Create new DimIdentifierlessData for organization name.
+                             * That will change the primary key of FactFieldValue, which must be recreated.
                              */
+
+                            // Make sure DimProfileOnlyFundingDecision does not reference DimOrganization
+                            factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision.DimOrganizationIdFunder = -1;
+
                             DimIdentifierlessDatum dimIdentifierlessDatum_funding_organization_name =
                                 _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
                                     nameFi: "",
@@ -1377,10 +1401,26 @@ namespace api.Services
                                     orcidDisambiguationSource: orcidFunding.DisambiguationSource,
                                     orcidDisambiguatedOrganizationIdentifier: orcidFunding.DisambiguatedOrganizationIdentifier);
                             _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessDatum_funding_organization_name);
-                            factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData = dimIdentifierlessDatum_funding_organization_name;
+
+                            // Create new FactFieldValues for activity and delete old
+                            FactFieldValue factFieldValuesDimProfileOnlyFundingDecisionNew = _userProfileService.GetEmptyFactFieldValue();
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.DimIdentifierlessData = dimIdentifierlessDatum_funding_organization_name;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.DimUserProfile = factFieldValuesProfileOnlyFundingDecision.DimUserProfile;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.DimFieldDisplaySettings = factFieldValuesProfileOnlyFundingDecision.DimFieldDisplaySettings;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.DimRegisteredDataSourceId = factFieldValuesProfileOnlyFundingDecision.DimRegisteredDataSourceId;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.DimProfileOnlyFundingDecision = factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesProfileOnlyFundingDecision.DimPidIdOrcidPutCodeNavigation;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.Show = factFieldValuesProfileOnlyFundingDecision.Show;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.PrimaryValue = factFieldValuesProfileOnlyFundingDecision.PrimaryValue;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.SourceId = factFieldValuesProfileOnlyFundingDecision.SourceId;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.SourceDescription = factFieldValuesProfileOnlyFundingDecision.SourceDescription;
+
+                            _ttvContext.Add(factFieldValuesDimProfileOnlyFundingDecisionNew);
+                            _ttvContext.FactFieldValues.Remove(factFieldValuesProfileOnlyFundingDecision);
                         }
                     }
 
+                    dimProfileOnlyFundingDecision_existing.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     factFieldValuesProfileOnlyFundingDecision.Modified = currentDateTime;
                     // Mark as processed
@@ -1389,18 +1429,18 @@ namespace api.Services
                 else
                 {
                     // Create new DimProfileOnlyFundingDecision
-                    DimProfileOnlyFundingDecision dimProfileOnlyFundingDecision = _userProfileService.GetEmptyDimProfileOnlyFundingDecision();
-                    dimProfileOnlyFundingDecision.NameEn = orcidFunding.Name;
-                    dimProfileOnlyFundingDecision.DescriptionEn = orcidFunding.Description;
-                    dimProfileOnlyFundingDecision.DimDateIdStartNavigation = fundingStartDate;
-                    dimProfileOnlyFundingDecision.DimDateIdEndNavigation = fundingEndDate;
-                    dimProfileOnlyFundingDecision.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    dimProfileOnlyFundingDecision.Created = currentDateTime;
-                    dimProfileOnlyFundingDecision.SourceDescription = orcidFunding.Path;
+                    DimProfileOnlyFundingDecision dimProfileOnlyFundingDecision_new = _userProfileService.GetEmptyDimProfileOnlyFundingDecision();
+                    dimProfileOnlyFundingDecision_new.NameEn = orcidFunding.Name;
+                    dimProfileOnlyFundingDecision_new.DescriptionEn = orcidFunding.Description;
+                    dimProfileOnlyFundingDecision_new.DimDateIdStartNavigation = fundingStartDate;
+                    dimProfileOnlyFundingDecision_new.DimDateIdEndNavigation = fundingEndDate;
+                    dimProfileOnlyFundingDecision_new.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    dimProfileOnlyFundingDecision_new.Created = currentDateTime;
+                    dimProfileOnlyFundingDecision_new.SourceDescription = orcidFunding.Path;
                     // If organization was found, add relation
                     if (dimOrganization_id_funding != null && dimOrganization_id_funding > 0)
                     {
-                        dimProfileOnlyFundingDecision.DimOrganizationIdFunder = (int)dimOrganization_id_funding;
+                        dimProfileOnlyFundingDecision_new.DimOrganizationIdFunder = (int)dimOrganization_id_funding;
                     }
                     // Add related DimWebLink
                     if (!string.IsNullOrWhiteSpace(orcidFunding.Url))
@@ -1409,12 +1449,12 @@ namespace api.Services
                             url: orcidFunding.Url,
                             currentDateTime: currentDateTime,
                             dimKnownPerson: dimUserProfile.DimKnownPerson,
-                            dimProfileOnlyFundingDecision: dimProfileOnlyFundingDecision
+                            dimProfileOnlyFundingDecision: dimProfileOnlyFundingDecision_new
                         );
                         _ttvContext.DimWebLinks.Add(datasetWebLink);
-                        dimProfileOnlyFundingDecision.DimWebLinks.Add(datasetWebLink);
+                        dimProfileOnlyFundingDecision_new.DimWebLinks.Add(datasetWebLink);
                     }
-                    _ttvContext.DimProfileOnlyFundingDecisions.Add(dimProfileOnlyFundingDecision);
+                    _ttvContext.DimProfileOnlyFundingDecisions.Add(dimProfileOnlyFundingDecision_new);
 
                     // Add funding's ORCID put code into DimPid
                     DimPid dimPidOrcidPutCodePublication = _userProfileService.GetEmptyDimPid();
@@ -1424,27 +1464,13 @@ namespace api.Services
                     dimPidOrcidPutCodePublication.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                     _ttvContext.DimPids.Add(dimPidOrcidPutCodePublication);
 
-                    // Create FactFieldValues for orcid funding
+                    // Create FactFieldValues for ORCID funding
                     factFieldValuesProfileOnlyFundingDecision = _userProfileService.GetEmptyFactFieldValue();
                     factFieldValuesProfileOnlyFundingDecision.DimUserProfile = dimUserProfile;
                     factFieldValuesProfileOnlyFundingDecision.DimFieldDisplaySettings = dimFieldDisplaySettingsOrcidFunding;
                     factFieldValuesProfileOnlyFundingDecision.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
-                    factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision = dimProfileOnlyFundingDecision;
+                    factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision = dimProfileOnlyFundingDecision_new;
                     factFieldValuesProfileOnlyFundingDecision.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
-
-                    // If organization was not found, add organization_name into DimIdentifierlessData
-                    if (dimOrganization_id_funding == null || dimOrganization_id_funding == -1)
-                    {
-                        DimIdentifierlessDatum dimIdentifierlessData_oganizationName =
-                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
-                                nameFi: "",
-                                nameEn: orcidFunding.OrganizationName,
-                                nameSv: "",
-                                orcidDisambiguationSource: orcidFunding.DisambiguationSource,
-                                orcidDisambiguatedOrganizationIdentifier: orcidFunding.DisambiguatedOrganizationIdentifier);
-                        _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_oganizationName);
-                        factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData = dimIdentifierlessData_oganizationName;
-                    }
 
                     // Set correct DimReferenceDatum based on ORCID funding type
                     switch (orcidFunding.Type)
@@ -1462,11 +1488,23 @@ namespace api.Services
                             factFieldValuesProfileOnlyFundingDecision.DimReferencedataActorRoleId = dimReferencedata_salaryAward.Id;
                             break;
                     }
-
                     _ttvContext.FactFieldValues.Add(factFieldValuesProfileOnlyFundingDecision);
+
+                    // If organization was not found, add organization_name into DimIdentifierlessData
+                    if (dimOrganization_id_funding == null || dimOrganization_id_funding == -1)
+                    {
+                        DimIdentifierlessDatum dimIdentifierlessData_oganizationName =
+                            _organizationHandlerService.CreateIdentifierlessData_OrganizationName(
+                                nameFi: "",
+                                nameEn: orcidFunding.OrganizationName,
+                                nameSv: "",
+                                orcidDisambiguationSource: orcidFunding.DisambiguationSource,
+                                orcidDisambiguatedOrganizationIdentifier: orcidFunding.DisambiguatedOrganizationIdentifier);
+                        _ttvContext.DimIdentifierlessData.Add(dimIdentifierlessData_oganizationName);
+                        factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData = dimIdentifierlessData_oganizationName;
+                    }
                 }
             }
-
 
 
 
@@ -1576,7 +1614,7 @@ namespace api.Services
                     else
                     {
                         /*
-                         * Activity does to relate directly to any DimOrganization.
+                         * Activity does not relate directly to any DimOrganization.
                          * Update or create relation to DimIdentifierlessData via FactFieldValues.
                          */
                         if (factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessDataId != -1 && factFieldValuesDimProfileOnlyResearchActivity.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
