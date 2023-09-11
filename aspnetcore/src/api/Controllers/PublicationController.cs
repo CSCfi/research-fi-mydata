@@ -167,7 +167,7 @@ namespace api.Controllers
                             PublicationName = dimPublication.PublicationName,
                             PublicationYear = dimPublication.PublicationYear,
                             Doi = dimPublication.Doi,
-                            TypeCode = dimPublication.PublicationTypeCode,
+                            TypeCode = "", // TODO: get value from dim_referencedata relation
                             itemMeta = new ProfileEditorItemMeta(
                                 id: dimPublication.Id,
                                 type: Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,

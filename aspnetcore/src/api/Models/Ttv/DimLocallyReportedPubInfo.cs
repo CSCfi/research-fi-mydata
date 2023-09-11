@@ -13,9 +13,9 @@ public partial class DimLocallyReportedPubInfo
 
     public string SelfArchivedUrl { get; set; }
 
-    public string SelfArchivedVersionCode { get; set; }
+    public int SelfArchivedVersionCode { get; set; }
 
-    public string SelfArchivedLicenseCode { get; set; }
+    public int SelfArchivedLicenseCode { get; set; }
 
     public DateTime? SelfArchivedEmbargoDate { get; set; }
 
@@ -28,4 +28,8 @@ public partial class DimLocallyReportedPubInfo
     public DateTime? Modified { get; set; }
 
     public virtual DimPublication DimPublication { get; set; }
+
+    public virtual DimReferencedatum SelfArchivedLicenseCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum SelfArchivedVersionCodeNavigation { get; set; }
 }
