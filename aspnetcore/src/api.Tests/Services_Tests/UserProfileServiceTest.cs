@@ -423,5 +423,82 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
         }
+
+        [Fact(DisplayName = "Research activity deduplication")]
+        public void ResearchActivityDeduplication()
+        {
+            UserProfileService userProfileService = new();
+
+            // Duplicate
+            Assert.True(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are duplicates"
+            );
+            // Year differs
+            Assert.False(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2007,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are not duplicates, year differs"
+            );
+            // Fi name differs
+            Assert.False(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FIx",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are not duplicates, Fi name differs"
+            );
+            // En name differs
+            Assert.False(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name ENx",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are not duplicates, En name differs"
+            );
+            // Sv name differs
+            Assert.False(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SVx"
+                ),
+                "Research activities are not duplicates, Sv name differs"
+            );
+        }
     }
 }
