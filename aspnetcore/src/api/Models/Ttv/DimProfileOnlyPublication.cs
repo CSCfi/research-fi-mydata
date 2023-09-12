@@ -55,7 +55,7 @@ public partial class DimProfileOnlyPublication
 
     public string Volume { get; set; }
 
-    public string PublicationCountryCode { get; set; }
+    public int PublicationCountryCode { get; set; }
 
     public string PublisherName { get; set; }
 
@@ -65,7 +65,7 @@ public partial class DimProfileOnlyPublication
 
     public string ParentPublicationEditors { get; set; }
 
-    public int? LicenseCode { get; set; }
+    public int LicenseCode { get; set; }
 
     public string OpenAccessCode { get; set; }
 
@@ -75,7 +75,7 @@ public partial class DimProfileOnlyPublication
 
     public bool? Report { get; set; }
 
-    public int? ThesisTypeCode { get; set; }
+    public int ThesisTypeCode { get; set; }
 
     public string DoiHandle { get; set; }
 
@@ -109,11 +109,17 @@ public partial class DimProfileOnlyPublication
 
     public virtual DimReferencedatum LanguageCodeNavigation { get; set; }
 
+    public virtual DimReferencedatum LicenseCodeNavigation { get; set; }
+
     public virtual DimReferencedatum ParentTypeClassificationCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum PublicationCountryCodeNavigation { get; set; }
 
     public virtual DimReferencedatum PublicationFormatCodeNavigation { get; set; }
 
     public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum ThesisTypeCodeNavigation { get; set; }
 
     public virtual DimReferencedatum TypeClassificationCodeNavigation { get; set; }
 }

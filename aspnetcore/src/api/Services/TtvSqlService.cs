@@ -211,7 +211,7 @@ namespace api.Services
                     dim_publication.publication_year AS 'DimPublication_PublicationYear',
                     dim_publication.doi AS 'DimPublication_Doi',
                     dim_publication.authors_text AS 'DimPublication_AuthorsText',
-                    dim_publication.publication_type_code AS 'DimPublication_PublicationTypeCode',
+                    dim_publication_referencedata_type_code.code_value AS 'DimPublication_PublicationTypeCode',
                     dim_publication.journal_name AS 'DimPublication_JournalName',
                     dim_publication.conference_name AS 'DimPublication_ConferenceName',
                     dim_publication.parent_publication_name AS 'DimPublication_ParentPublicationName',
@@ -387,7 +387,10 @@ namespace api.Services
                 JOIN dim_education ON ffv.dim_education_id=dim_education.id
                 LEFT JOIN dim_date AS education_start_date ON dim_education.dim_start_date=education_start_date.id AND education_start_date.id!=-1
                 LEFT JOIN dim_date AS education_end_date ON dim_education.dim_end_date=education_end_date.id AND education_end_date.id!=-1
+
                 JOIN dim_publication ON ffv.dim_publication_id=dim_publication.id
+                LEFT JOIN dim_referencedata AS dim_publication_referencedata_type_code ON dim_publication.publication_type_code=dim_publication_referencedata_type_code.id AND dim_publication.publication_type_code!=-1
+
                 JOIN dim_profile_only_publication ON ffv.dim_profile_only_publication_id=dim_profile_only_publication.id
 
                 JOIN dim_profile_only_research_activity ON ffv.dim_profile_only_research_activity_id=dim_profile_only_research_activity.id
