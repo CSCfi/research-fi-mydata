@@ -218,18 +218,18 @@ namespace api.Tests
             Assert.Null(actualDimProfileOnlyPublication.ArticleNumberText);
             Assert.Null(actualDimProfileOnlyPublication.IssueNumber);
             Assert.Null(actualDimProfileOnlyPublication.Volume);
-            Assert.Null(actualDimProfileOnlyPublication.PublicationCountryCode);
+            Assert.Equal<int>(-1, actualDimProfileOnlyPublication.PublicationCountryCode);
             Assert.Null(actualDimProfileOnlyPublication.PublisherName);
             Assert.Null(actualDimProfileOnlyPublication.PublisherLocation);
             Assert.Null(actualDimProfileOnlyPublication.ParentPublicationName);
             Assert.Null(actualDimProfileOnlyPublication.ParentPublicationEditors);
-            Assert.Null(actualDimProfileOnlyPublication.LicenseCode);
+            Assert.Equal<int>(-1, actualDimProfileOnlyPublication.LicenseCode);
             Assert.Equal<int>(-1, actualDimProfileOnlyPublication.LanguageCode);
             Assert.Null(actualDimProfileOnlyPublication.OpenAccessCode);
             Assert.Null(actualDimProfileOnlyPublication.OriginalPublicationId);
             Assert.Null(actualDimProfileOnlyPublication.PeerReviewed);
             Assert.Null(actualDimProfileOnlyPublication.Report);
-            Assert.Null(actualDimProfileOnlyPublication.ThesisTypeCode);
+            Assert.Equal<int>(-1, actualDimProfileOnlyPublication.ThesisTypeCode);
             Assert.Null(actualDimProfileOnlyPublication.DoiHandle);
             Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, actualDimProfileOnlyPublication.SourceId);
             Assert.Equal(Constants.SourceDescriptions.PROFILE_API, actualDimProfileOnlyPublication.SourceDescription);
@@ -422,6 +422,83 @@ namespace api.Tests
             string actualMemoryCacheKey = userProfileService.GetCMemoryCacheKey_ProfileSettings(orcidId: orcidId);
             // Assert
             Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
+        }
+
+        [Fact(DisplayName = "Research activity deduplication")]
+        public void ResearchActivityDeduplication()
+        {
+            UserProfileService userProfileService = new();
+
+            // Duplicate
+            Assert.True(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are duplicates"
+            );
+            // Year differs
+            Assert.False(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2007,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are not duplicates, year differs"
+            );
+            // Fi name differs
+            Assert.False(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FIx",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are not duplicates, Fi name differs"
+            );
+            // En name differs
+            Assert.False(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name ENx",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are not duplicates, En name differs"
+            );
+            // Sv name differs
+            Assert.False(
+                userProfileService.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SVx"
+                ),
+                "Research activities are not duplicates, Sv name differs"
+            );
         }
     }
 }

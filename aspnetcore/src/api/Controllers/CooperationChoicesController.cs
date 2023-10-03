@@ -105,7 +105,8 @@ namespace api.Controllers
                         NameFi = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.NameFi,
                         NameEn = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.NameEn,
                         NameSv = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.NameSv,
-                        Selected = dimUserChoice.UserChoiceValue
+                        Selected = dimUserChoice.UserChoiceValue,
+                        Order = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.Order
                     }
                 );
             }

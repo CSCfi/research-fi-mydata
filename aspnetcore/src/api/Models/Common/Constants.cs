@@ -122,17 +122,8 @@
             public const string USER_CHOICES = "Kiinnostuksen_ilmaiseminen";
         }
 
-        public static class OrcidResearchActivityTypes
-        {
-            public const string DISTINCTION = "discinction";
-            public const string INVITED_POSITION = "invited_position";
-            public const string MEMBERSHIP = "membership";
-            public const string PEER_REVIEW = "peer review";
-            public const string QUALIFICATION = "qualification";
-            public const string SERVICE = "service";
-        }
-
-        public static class OrcidResearchActivityType_To_ReferenceDataCodeValue
+        // https://koodistot.suomi.fi/codescheme;registryCode=research;schemeCode=aktiviteetitjaroolit
+        public static class OrcidResearchActivity_To_ReferenceDataCodeValue
         {
             public const string DISTINCTION = "9.2";
             public const string INVITED_POSITION = "6.1";
@@ -140,6 +131,11 @@
             public const string PEER_REVIEW = "2.3";
             public const string QUALIFICATION = "16";
             public const string SERVICE = "5";
+            public const string WORK_CONFERENCE = "3.1";
+            public const string WORK_LECTURE_SPEECH = "3.3";
+            public const string WORK_OTHER = "14";
+            public const string WORK_SUPERVISED_STUDENT_PUBLICATION = "11.1";
+            public const string WORK_TRANSLATION = "2.2"; // TODO: change to "2.2.1" when dim_referencedata includes parent-child relations
         }
 
         public static class OrcidFundingTypes
@@ -150,6 +146,7 @@
             public const string SALARY_AWARD = "salary-award";
         }
 
+        // https://koodistot.suomi.fi/codescheme;registryCode=research;schemeCode=aktiviteetitjaroolit
         public static class OrcidFundingType_To_ReferenceDataCodeValue
         {
             public const string AWARD = "13.1";

@@ -33,7 +33,7 @@ public partial class DimPublication
 
     public string JufoClassCode { get; set; }
 
-    public string PublicationCountryCode { get; set; }
+    public int PublicationCountryCode { get; set; }
 
     public string JournalName { get; set; }
 
@@ -55,7 +55,7 @@ public partial class DimPublication
 
     public string ParentPublicationPublisher { get; set; }
 
-    public string PublicationTypeCode { get; set; }
+    public int PublicationTypeCode { get; set; }
 
     public bool? InternationalCollaboration { get; set; }
 
@@ -67,7 +67,7 @@ public partial class DimPublication
 
     public bool OtherCollaboration { get; set; }
 
-    public string LanguageCode { get; set; }
+    public int LanguageCode { get; set; }
 
     public string OpenAccessCode { get; set; }
 
@@ -85,7 +85,7 @@ public partial class DimPublication
 
     public int? PublicationYear { get; set; }
 
-    public int? LicenseCode { get; set; }
+    public int LicenseCode { get; set; }
 
     public decimal? ApcFeeEur { get; set; }
 
@@ -103,7 +103,7 @@ public partial class DimPublication
 
     public bool? Report { get; set; }
 
-    public int? ThesisTypeCode { get; set; }
+    public int ThesisTypeCode { get; set; }
 
     public bool? SelfArchivedCode { get; set; }
 
@@ -137,11 +137,21 @@ public partial class DimPublication
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
 
+    public virtual DimReferencedatum LanguageCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum LicenseCodeNavigation { get; set; }
+
     public virtual DimReferencedatum ParentPublicationTypeCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum PublicationCountryCodeNavigation { get; set; }
 
     public virtual DimReferencedatum PublicationTypeCode2Navigation { get; set; }
 
+    public virtual DimReferencedatum PublicationTypeCodeNavigation { get; set; }
+
     public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum ThesisTypeCodeNavigation { get; set; }
 
     public virtual ICollection<DimFieldOfArt> DimFieldOfArts { get; set; } = new List<DimFieldOfArt>();
 

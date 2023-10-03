@@ -175,10 +175,10 @@ namespace api.Models.ProfileEditor
         public int DimProfileOnlyResearchActivity_EndDate_Year { get; set; }
         public int DimProfileOnlyResearchActivity_EndDate_Month { get; set; }
         public int DimProfileOnlyResearchActivity_EndDate_Day { get; set; }
-        public string DimProfileOnlyResearchActivity_Role_CodeValue { get; set; }
-        public string DimProfileOnlyResearchActivity_Role_NameFi { get; set; }
-        public string DimProfileOnlyResearchActivity_Role_NameEn { get; set; }
-        public string DimProfileOnlyResearchActivity_Role_NameSv { get; set; }
+        public string DimProfileOnlyResearchActivity_ActivityRole_CodeValue { get; set; }
+        public string DimProfileOnlyResearchActivity_ActivityRole_NameFi { get; set; }
+        public string DimProfileOnlyResearchActivity_ActivityRole_NameEn { get; set; }
+        public string DimProfileOnlyResearchActivity_ActivityRole_NameSv { get; set; }
         public string DimProfileOnlyResearchActivity_DimWebLink_Url { get; set; }
         // DimResearchActivity
         public int DimResearchActivity_DimOrganization_Id { get; set; }
