@@ -123,6 +123,8 @@ public partial class DimPublication
 
     public string Abstract { get; set; }
 
+    public int FieldOfArtCode { get; set; }
+
     public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
 
     public virtual ICollection<DimLocallyReportedPubInfo> DimLocallyReportedPubInfos { get; set; } = new List<DimLocallyReportedPubInfo>();
@@ -136,6 +138,8 @@ public partial class DimPublication
     public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; } = new List<FactDimReferencedataFieldOfScience>();
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
+
+    public virtual DimReferencedatum FieldOfArtCodeNavigation { get; set; }
 
     public virtual DimReferencedatum LanguageCodeNavigation { get; set; }
 
@@ -152,10 +156,6 @@ public partial class DimPublication
     public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
 
     public virtual DimReferencedatum ThesisTypeCodeNavigation { get; set; }
-
-    public virtual ICollection<DimFieldOfArt> DimFieldOfArts { get; set; } = new List<DimFieldOfArt>();
-
-    public virtual ICollection<DimFieldOfEducation> DimFieldOfEducations { get; set; } = new List<DimFieldOfEducation>();
 
     public virtual ICollection<DimKeyword> DimKeywords { get; set; } = new List<DimKeyword>();
 

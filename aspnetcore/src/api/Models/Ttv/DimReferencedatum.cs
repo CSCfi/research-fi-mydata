@@ -63,6 +63,8 @@ public partial class DimReferencedatum
 
     public virtual ICollection<DimPublication> DimPublicationArticleTypeCodeNavigations { get; set; } = new List<DimPublication>();
 
+    public virtual ICollection<DimPublication> DimPublicationFieldOfArtCodeNavigations { get; set; } = new List<DimPublication>();
+
     public virtual ICollection<DimPublication> DimPublicationLanguageCodeNavigations { get; set; } = new List<DimPublication>();
 
     public virtual ICollection<DimPublication> DimPublicationLicenseCodeNavigations { get; set; } = new List<DimPublication>();

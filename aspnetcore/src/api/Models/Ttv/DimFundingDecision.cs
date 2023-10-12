@@ -103,8 +103,6 @@ public partial class DimFundingDecision
 
     public virtual ICollection<DimFundingDecision> InverseDimFundingDecisionIdParentDecisionNavigation { get; set; } = new List<DimFundingDecision>();
 
-    public virtual ICollection<DimFieldOfArt> DimFieldOfArts { get; set; } = new List<DimFieldOfArt>();
-
     public virtual ICollection<DimFundingDecision> DimFundingDecisionFroms { get; set; } = new List<DimFundingDecision>();
 
     public virtual ICollection<DimFundingDecision> DimFundingDecisionFromsNavigation { get; set; } = new List<DimFundingDecision>();

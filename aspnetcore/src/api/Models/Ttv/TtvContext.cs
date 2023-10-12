@@ -49,10 +49,6 @@ public partial class TtvContext : DbContext
 
     public virtual DbSet<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; }
 
-    public virtual DbSet<DimFieldOfArt> DimFieldOfArts { get; set; }
-
-    public virtual DbSet<DimFieldOfEducation> DimFieldOfEducations { get; set; }
-
     public virtual DbSet<DimFundingDecision> DimFundingDecisions { get; set; }
 
     public virtual DbSet<DimGeo> DimGeos { get; set; }
@@ -960,116 +956,6 @@ public partial class TtvContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<DimFieldOfArt>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__dim_fiel__3213E83F4D9A7338");
-
-            entity.ToTable("dim_field_of_art");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Created)
-                .HasColumnType("datetime")
-                .HasColumnName("created");
-            entity.Property(e => e.FieldId)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("field_id");
-            entity.Property(e => e.Modified)
-                .HasColumnType("datetime")
-                .HasColumnName("modified");
-            entity.Property(e => e.NameEn)
-                .HasMaxLength(255)
-                .HasColumnName("name_en");
-            entity.Property(e => e.NameFi)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("name_fi");
-            entity.Property(e => e.NameSv)
-                .HasMaxLength(255)
-                .HasColumnName("name_sv");
-            entity.Property(e => e.SourceDescription)
-                .HasMaxLength(255)
-                .HasColumnName("source_description");
-            entity.Property(e => e.SourceId)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("source_id");
-
-            entity.HasMany(d => d.DimPublications).WithMany(p => p.DimFieldOfArts)
-                .UsingEntity<Dictionary<string, object>>(
-                    "BrFieldOfArtDimPublication",
-                    r => r.HasOne<DimPublication>().WithMany()
-                        .HasForeignKey("DimPublicationId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FKbr_field_o505394"),
-                    l => l.HasOne<DimFieldOfArt>().WithMany()
-                        .HasForeignKey("DimFieldOfArtId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FKbr_field_o978876"),
-                    j =>
-                    {
-                        j.HasKey("DimFieldOfArtId", "DimPublicationId").HasName("PK__br_field__809A87CDC51CB6D5");
-                        j.ToTable("br_field_of_art_dim_publication");
-                        j.IndexerProperty<int>("DimFieldOfArtId").HasColumnName("dim_field_of_art_id");
-                        j.IndexerProperty<int>("DimPublicationId").HasColumnName("dim_publication_id");
-                    });
-        });
-
-        modelBuilder.Entity<DimFieldOfEducation>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__dim_fiel__3213E83FDDB2A932");
-
-            entity.ToTable("dim_field_of_education");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Created)
-                .HasColumnType("datetime")
-                .HasColumnName("created");
-            entity.Property(e => e.FieldId)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("field_id");
-            entity.Property(e => e.Modified)
-                .HasColumnType("datetime")
-                .HasColumnName("modified");
-            entity.Property(e => e.NameEn)
-                .HasMaxLength(255)
-                .HasColumnName("name_en");
-            entity.Property(e => e.NameFi)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("name_fi");
-            entity.Property(e => e.NameSv)
-                .HasMaxLength(255)
-                .HasColumnName("name_sv");
-            entity.Property(e => e.SourceDescription)
-                .HasMaxLength(255)
-                .HasColumnName("source_description");
-            entity.Property(e => e.SourceId)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("source_id");
-
-            entity.HasMany(d => d.DimPublications).WithMany(p => p.DimFieldOfEducations)
-                .UsingEntity<Dictionary<string, object>>(
-                    "BrFieldOfEducationDimPublication",
-                    r => r.HasOne<DimPublication>().WithMany()
-                        .HasForeignKey("DimPublicationId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FKbr_field_o449658"),
-                    l => l.HasOne<DimFieldOfEducation>().WithMany()
-                        .HasForeignKey("DimFieldOfEducationId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FKbr_field_o983513"),
-                    j =>
-                    {
-                        j.HasKey("DimFieldOfEducationId", "DimPublicationId").HasName("PK__br_field__6E377B2CD08233DA");
-                        j.ToTable("br_field_of_education_dim_publication");
-                        j.IndexerProperty<int>("DimFieldOfEducationId").HasColumnName("dim_field_of_education_id");
-                        j.IndexerProperty<int>("DimPublicationId").HasColumnName("dim_publication_id");
-                    });
-        });
-
         modelBuilder.Entity<DimFundingDecision>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__dim_fund__3213E83FC754B6DF");
@@ -1177,25 +1063,6 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimTypeOfFundingId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FKdim_fundin974924");
-
-            entity.HasMany(d => d.DimFieldOfArts).WithMany(p => p.DimFundingDecisions)
-                .UsingEntity<Dictionary<string, object>>(
-                    "BrFundingDecisionDimFieldOfArt",
-                    r => r.HasOne<DimFieldOfArt>().WithMany()
-                        .HasForeignKey("DimFieldOfArtId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FKbr_funding154428"),
-                    l => l.HasOne<DimFundingDecision>().WithMany()
-                        .HasForeignKey("DimFundingDecisionId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FKbr_funding281737"),
-                    j =>
-                    {
-                        j.HasKey("DimFundingDecisionId", "DimFieldOfArtId").HasName("PK__br_fundi__07CB586D2869F096");
-                        j.ToTable("br_funding_decision_dim_field_of_art");
-                        j.IndexerProperty<int>("DimFundingDecisionId").HasColumnName("dim_funding_decision_id");
-                        j.IndexerProperty<int>("DimFieldOfArtId").HasColumnName("dim_field_of_art_id");
-                    });
 
             entity.HasMany(d => d.DimFundingDecisionFroms).WithMany(p => p.DimFundingDecisionTos)
                 .UsingEntity<Dictionary<string, object>>(
@@ -2570,6 +2437,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.DoiHandle)
                 .HasMaxLength(4000)
                 .HasColumnName("doi_handle");
+            entity.Property(e => e.FieldOfArtCode).HasColumnName("field_of_art_code");
             entity.Property(e => e.GovermentCollaboration).HasColumnName("goverment_collaboration");
             entity.Property(e => e.HospitalDistrictCollaboration).HasColumnName("hospital_district_collaboration");
             entity.Property(e => e.InternationalCollaboration).HasColumnName("international_collaboration");
@@ -2681,6 +2549,11 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimRegisteredDataSourceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FKdim_public896887");
+
+            entity.HasOne(d => d.FieldOfArtCodeNavigation).WithMany(p => p.DimPublicationFieldOfArtCodeNavigations)
+                .HasForeignKey(d => d.FieldOfArtCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("field_of_art_code");
 
             entity.HasOne(d => d.LanguageCodeNavigation).WithMany(p => p.DimPublicationLanguageCodeNavigations)
                 .HasForeignKey(d => d.LanguageCode)
