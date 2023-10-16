@@ -662,6 +662,8 @@ namespace api.Services
                                             "" : workElement.GetProperty("url").GetProperty("value").GetString();
 
                                     string workType = workElement.GetProperty("type").GetString();
+                                    string name = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString();
+                                    name = name.Length > 255 ? name.Substring(0, 255) : name; // Database size 255
 
                                     // Import only one element from "work-summary" array.
                                     orcidWorks.ResearchActivities.Add(
@@ -672,7 +674,7 @@ namespace api.Services
                                           disambiguatedOrganizationIdentifier: "",
                                           disambiguationSource: "",
                                           departmentName: "",
-                                          name: workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                                          name: name,
                                           startDate: GetOrcidDate(workElement.GetProperty("publication-date")),
                                           endDate: new OrcidDate(),
                                           putCode: this.GetOrcidPutCode(workElement),
