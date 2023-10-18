@@ -2734,7 +2734,7 @@ public partial class TtvContext : DbContext
                         j.HasKey("DimReferencedataId", "DimPublicationId").HasName("PK__fact_dim__FD761943629A8020");
                         j.ToTable("fact_dim_referencedata_field_of_art");
                         j.IndexerProperty<int>("DimReferencedataId").HasColumnName("dim_referencedata_id");
-                        j.IndexerProperty<int>("DimPublicationId").HasColumnName("dim_publication id");
+                        j.IndexerProperty<int>("DimPublicationId").HasColumnName("dim_publication_id");
                     });
         });
 
