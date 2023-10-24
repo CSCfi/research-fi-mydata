@@ -103,5 +103,7 @@ public partial class DimReferencedatum
 
     public virtual ICollection<DimPublication> DimPublications { get; set; } = new List<DimPublication>();
 
+    public virtual ICollection<DimPublication> DimPublicationsNavigation { get; set; } = new List<DimPublication>();
+
     public virtual ICollection<DimResearchDataset> DimResearchDatasets { get; set; } = new List<DimResearchDataset>();
 }

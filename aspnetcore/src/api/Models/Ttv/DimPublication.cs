@@ -153,11 +153,9 @@ public partial class DimPublication
 
     public virtual DimReferencedatum ThesisTypeCodeNavigation { get; set; }
 
-    public virtual ICollection<DimFieldOfArt> DimFieldOfArts { get; set; } = new List<DimFieldOfArt>();
-
-    public virtual ICollection<DimFieldOfEducation> DimFieldOfEducations { get; set; } = new List<DimFieldOfEducation>();
-
     public virtual ICollection<DimKeyword> DimKeywords { get; set; } = new List<DimKeyword>();
 
     public virtual ICollection<DimReferencedatum> DimReferencedata { get; set; } = new List<DimReferencedatum>();
+
+    public virtual ICollection<DimReferencedatum> DimReferencedataNavigation { get; set; } = new List<DimReferencedatum>();
 }
