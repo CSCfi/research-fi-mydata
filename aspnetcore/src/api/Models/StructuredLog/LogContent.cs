@@ -35,6 +35,7 @@
             public const string ORCID_RECORD_GET_PUBLIC_API = "ORCID: record: get from public API";
             public const string ORCID_RECORD_IMPORT = "ORCID: record: import";
             public const string ORCID_RECORD_IMPORT_ADDITIONAL = "ORCID: record: import additional";
+            public const string ORCID_RECORD_PARSE = "ORCID: record: parse";
             public const string ORCID_REVOKE_TOKEN = "ORCID: revoke token";
             public const string ORCID_WEBHOOK_REGISTER = "ORCID: webhook: register";
             public const string ORCID_WEBHOOK_UNREGISTER = "ORCID: webhook: unregister";
