@@ -10,16 +10,7 @@ using api.Models.Common;
 using api.Models.Orcid;
 using api.Models.Log;
 using Dapper;
-using System.Transactions;
-using api.Controllers;
 using Microsoft.Extensions.Logging;
-using api.Models.Elasticsearch;
-using Elasticsearch.Net;
-using api.Models.Api;
-using Serilog;
-using System.Text.Json;
-using static api.Models.Common.Constants;
-using System.Security.Cryptography;
 
 namespace api.Services
 {

@@ -159,7 +159,7 @@ namespace api.Controllers
                                 action: LogContent.Action.ORCID_RECORD_IMPORT,
                                 state: LogContent.ActionState.START));
 
-                        importSuccess = await localOrcidImportService.ImportOrcidRecordJsonIntoUserProfile(dimUserprofileId, orcidRecordJson);
+                        importSuccess = await localOrcidImportService.ImportOrcidRecordJsonIntoUserProfile(dimUserprofileId, orcidRecordJson, logUserIdentification);
 
                         _logger.LogInformation(
                             LogContent.MESSAGE_TEMPLATE,
@@ -202,7 +202,7 @@ namespace api.Controllers
                             .Include(ffv => ffv.DimProfileOnlyFundingDecision)
                             .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation).ToListAsync();
 
-                        await localOrcidImportService.ImportAdditionalData(factFieldValues: ffvs, orcidAccessToken: orcidAccessToken);
+                        await localOrcidImportService.ImportAdditionalData(factFieldValues: ffvs, orcidAccessToken: orcidAccessToken, logUserIdentification: logUserIdentification);
                         await localTtvContext.SaveChangesAsync();
 
                         _logger.LogInformation(

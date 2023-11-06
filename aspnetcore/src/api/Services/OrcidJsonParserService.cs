@@ -615,10 +615,13 @@ namespace api.Services
                                  */
                                 if (IsPublication(orcidWorkType) && !processOnlyResearchActivities)
                                 {
+                                    string title = (workElement.GetProperty("title").ValueKind == JsonValueKind.Null) ?
+                                        "" : workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString();
+
                                     orcidWorks.Publications.Add(
                                         new OrcidPublication()
                                         {
-                                            PublicationName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                                            PublicationName = title,
                                             Doi = DOI,
                                             PublicationYear = this.GetPublicationYear(workElement),
                                             Type = orcidWorkType,
@@ -635,13 +638,15 @@ namespace api.Services
                                  */
                                 if (IsDataset(orcidWorkType) && !processOnlyResearchActivities)
                                 {
+                                    string title = (workElement.GetProperty("title").ValueKind == JsonValueKind.Null) ?
+                                        "" : workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString();
                                     string url = (workElement.GetProperty("url").ValueKind == JsonValueKind.Null) ?
                                         "" : workElement.GetProperty("url").GetProperty("value").GetString();
 
                                     orcidWorks.Datasets.Add(
                                         new OrcidDataset()
                                         {
-                                            DatasetName = workElement.GetProperty("title").GetProperty("title").GetProperty("value").GetString(),
+                                            DatasetName = title,
                                             DatasetDate = GetOrcidDate(workElement.GetProperty("publication-date")),
                                             Type = orcidWorkType,
                                             PutCode = this.GetOrcidPutCode(workElement),
