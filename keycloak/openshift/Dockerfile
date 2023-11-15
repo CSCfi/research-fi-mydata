@@ -1,7 +1,7 @@
 #
 # Build container
 #
-FROM quay.io/keycloak/keycloak:19.0.3 as builder
+FROM quay.io/keycloak/keycloak:20.0.5 as builder
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
@@ -17,7 +17,7 @@ RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 #
 # Optimized container
 #
-FROM quay.io/keycloak/keycloak:19.0.3
+FROM quay.io/keycloak/keycloak:20.0.5
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
 
