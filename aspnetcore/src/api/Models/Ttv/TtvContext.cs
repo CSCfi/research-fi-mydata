@@ -2430,6 +2430,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.Created)
                 .HasColumnType("datetime")
                 .HasColumnName("created");
+            entity.Property(e => e.DimPublicationChannelId).HasColumnName("dim_publication_channel_id");
             entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
             entity.Property(e => e.Doi)
                 .HasMaxLength(4000)
@@ -2459,12 +2460,6 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.JournalName)
                 .HasMaxLength(4000)
                 .HasColumnName("journal_name");
-            entity.Property(e => e.JufoClassCode)
-                .HasMaxLength(255)
-                .HasColumnName("jufo_class_code");
-            entity.Property(e => e.JufoCode)
-                .HasMaxLength(255)
-                .HasColumnName("jufo_code");
             entity.Property(e => e.JuuliAddress)
                 .HasMaxLength(4000)
                 .HasColumnName("juuli_address");
@@ -2477,9 +2472,6 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.OpenAccess)
                 .HasMaxLength(255)
                 .HasColumnName("open_access");
-            entity.Property(e => e.OpenAccessCode)
-                .HasMaxLength(255)
-                .HasColumnName("open_access_code");
             entity.Property(e => e.OriginalPublicationId)
                 .HasMaxLength(255)
                 .HasColumnName("original_publication_id");
@@ -2520,9 +2512,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.PublisherName)
                 .HasMaxLength(4000)
                 .HasColumnName("publisher_name");
-            entity.Property(e => e.PublisherOpenAccessCode)
-                .HasMaxLength(255)
-                .HasColumnName("publisher_open_access_code");
+            entity.Property(e => e.PublisherOpenAccessCode).HasColumnName("publisher_open_access_code");
             entity.Property(e => e.Report).HasColumnName("report");
             entity.Property(e => e.ReportingYear).HasColumnName("reporting_year");
             entity.Property(e => e.SelfArchivedCode).HasColumnName("self_archived_code");
@@ -2543,6 +2533,11 @@ public partial class TtvContext : DbContext
             entity.HasOne(d => d.ArticleTypeCodeNavigation).WithMany(p => p.DimPublicationArticleTypeCodeNavigations)
                 .HasForeignKey(d => d.ArticleTypeCode)
                 .HasConstraintName("article_type_code");
+
+            entity.HasOne(d => d.DimPublicationChannel).WithMany(p => p.DimPublications)
+                .HasForeignKey(d => d.DimPublicationChannelId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("publication_channel");
 
             entity.HasOne(d => d.DimRegisteredDataSource).WithMany(p => p.DimPublications)
                 .HasForeignKey(d => d.DimRegisteredDataSourceId)
@@ -2576,6 +2571,11 @@ public partial class TtvContext : DbContext
             entity.HasOne(d => d.PublicationTypeCode2Navigation).WithMany(p => p.DimPublicationPublicationTypeCode2Navigations)
                 .HasForeignKey(d => d.PublicationTypeCode2)
                 .HasConstraintName("publication_type_code2");
+
+            entity.HasOne(d => d.PublisherOpenAccessCodeNavigation).WithMany(p => p.DimPublicationPublisherOpenAccessCodeNavigations)
+                .HasForeignKey(d => d.PublisherOpenAccessCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("publisher_open_access");
 
             entity.HasOne(d => d.TargetAudienceCodeNavigation).WithMany(p => p.DimPublicationTargetAudienceCodeNavigations)
                 .HasForeignKey(d => d.TargetAudienceCode)
@@ -4022,12 +4022,12 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<FactJufoClassCodesForPubChannel>(entity =>
         {
-            entity.HasKey(e => new { e.DimPublicationChannelId, e.DimReferencedataId, e.Year }).HasName("PK__fact_juf__0E099E4B39813744");
+            entity.HasKey(e => new { e.DimPublicationChannelId, e.JufoClasses, e.Year }).HasName("PK__fact_juf__0E099E4B39813744");
 
             entity.ToTable("fact_jufo_class_codes_for_pub_channels");
 
             entity.Property(e => e.DimPublicationChannelId).HasColumnName("dim_publication_channel_id");
-            entity.Property(e => e.DimReferencedataId).HasColumnName("dim_referencedata_id");
+            entity.Property(e => e.JufoClasses).HasColumnName("jufo_classes");
             entity.Property(e => e.Year).HasColumnName("year");
 
             entity.HasOne(d => d.DimPublicationChannel).WithMany(p => p.FactJufoClassCodesForPubChannels)
@@ -4035,10 +4035,10 @@ public partial class TtvContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("jufo_classes");
 
-            entity.HasOne(d => d.DimReferencedata).WithMany(p => p.FactJufoClassCodesForPubChannels)
-                .HasForeignKey(d => d.DimReferencedataId)
+            entity.HasOne(d => d.JufoClassesNavigation).WithMany(p => p.FactJufoClassCodesForPubChannels)
+                .HasForeignKey(d => d.JufoClasses)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKfact_jufo_876058");
+                .HasConstraintName("FKfact_jufo_216849");
         });
 
         modelBuilder.Entity<FactUpkeep>(entity =>

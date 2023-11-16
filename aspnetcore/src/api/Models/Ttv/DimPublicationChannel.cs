@@ -15,6 +15,8 @@ public partial class DimPublicationChannel
 
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
 
+    public virtual ICollection<DimPublication> DimPublications { get; set; } = new List<DimPublication>();
+
     public virtual ICollection<DimResearchActivity> DimResearchActivities { get; set; } = new List<DimResearchActivity>();
 
     public virtual ICollection<FactJufoClassCodesForPubChannel> FactJufoClassCodesForPubChannels { get; set; } = new List<FactJufoClassCodesForPubChannel>();
