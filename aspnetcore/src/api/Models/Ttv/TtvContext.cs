@@ -2616,12 +2616,25 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.ChannelNameAnylang)
                 .HasMaxLength(4000)
                 .HasColumnName("channel_name_anylang");
+            entity.Property(e => e.Created)
+                .HasColumnType("datetime")
+                .HasColumnName("created");
             entity.Property(e => e.JufoCode)
                 .HasMaxLength(255)
                 .HasColumnName("jufo_code");
+            entity.Property(e => e.Modified)
+                .HasColumnType("datetime")
+                .HasColumnName("modified");
             entity.Property(e => e.PublisherNameText)
                 .HasMaxLength(4000)
                 .HasColumnName("publisher_name_text");
+            entity.Property(e => e.SourceDescription)
+                .HasMaxLength(255)
+                .HasColumnName("source_description");
+            entity.Property(e => e.SourceId)
+                .IsRequired()
+                .HasMaxLength(255)
+                .HasColumnName("source_id");
         });
 
         modelBuilder.Entity<DimPurpose>(entity =>
@@ -4022,13 +4035,26 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<FactJufoClassCodesForPubChannel>(entity =>
         {
-            entity.HasKey(e => new { e.DimPublicationChannelId, e.JufoClasses, e.Year }).HasName("PK__fact_juf__0E099E4B39813744");
+            entity.HasKey(e => new { e.DimPublicationChannelId, e.JufoClasses, e.Year }).HasName("PK__fact_juf__5280C574D130FC62");
 
             entity.ToTable("fact_jufo_class_codes_for_pub_channels");
 
             entity.Property(e => e.DimPublicationChannelId).HasColumnName("dim_publication_channel_id");
             entity.Property(e => e.JufoClasses).HasColumnName("jufo_classes");
             entity.Property(e => e.Year).HasColumnName("year");
+            entity.Property(e => e.Created)
+                .HasColumnType("datetime")
+                .HasColumnName("created");
+            entity.Property(e => e.Modified)
+                .HasColumnType("datetime")
+                .HasColumnName("modified");
+            entity.Property(e => e.SourceDescription)
+                .HasMaxLength(255)
+                .HasColumnName("source_description");
+            entity.Property(e => e.SourceId)
+                .IsRequired()
+                .HasMaxLength(255)
+                .HasColumnName("source_id");
 
             entity.HasOne(d => d.DimPublicationChannel).WithMany(p => p.FactJufoClassCodesForPubChannels)
                 .HasForeignKey(d => d.DimPublicationChannelId)
