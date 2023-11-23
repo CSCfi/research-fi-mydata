@@ -13,6 +13,14 @@ public partial class DimPublicationChannel
 
     public string PublisherNameText { get; set; }
 
+    public string SourceId { get; set; }
+
+    public string SourceDescription { get; set; }
+
+    public DateTime? Created { get; set; }
+
+    public DateTime? Modified { get; set; }
+
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
 
     public virtual ICollection<DimPublication> DimPublications { get; set; } = new List<DimPublication>();

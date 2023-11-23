@@ -11,6 +11,14 @@ public partial class FactJufoClassCodesForPubChannel
 
     public int Year { get; set; }
 
+    public string SourceId { get; set; }
+
+    public string SourceDescription { get; set; }
+
+    public DateTime? Created { get; set; }
+
+    public DateTime? Modified { get; set; }
+
     public virtual DimPublicationChannel DimPublicationChannel { get; set; }
 
     public virtual DimReferencedatum JufoClassesNavigation { get; set; }
