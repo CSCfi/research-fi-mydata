@@ -1517,7 +1517,7 @@ namespace api.Services
                     DimProfileOnlyFundingDecision dimProfileOnlyFundingDecision_existing = factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision;
                     dimProfileOnlyFundingDecision_existing.NameEn = orcidFunding.Name;
                     dimProfileOnlyFundingDecision_existing.DimDateIdStartNavigation = fundingStartDate;
-                    dimProfileOnlyFundingDecision_existing.DimDateIdStartNavigation = fundingEndDate;
+                    dimProfileOnlyFundingDecision_existing.DimDateIdEndNavigation = fundingEndDate;
                     dimProfileOnlyFundingDecision_existing.SourceDescription = orcidFunding.Path;
                     // Related DimWebLink
                     if (!string.IsNullOrWhiteSpace(orcidFunding.Url))
