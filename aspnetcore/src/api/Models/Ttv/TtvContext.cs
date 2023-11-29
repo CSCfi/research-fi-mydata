@@ -137,8 +137,6 @@ public partial class TtvContext : DbContext
 
     public virtual DbSet<FactInfraKeyword> FactInfraKeywords { get; set; }
 
-    public virtual DbSet<FactJufoClassCodesForPubChannel> FactJufoClassCodesForPubChannels { get; set; }
-
     public virtual DbSet<FactUpkeep> FactUpkeeps { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -2460,6 +2458,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.JournalName)
                 .HasMaxLength(4000)
                 .HasColumnName("journal_name");
+            entity.Property(e => e.JufoClass).HasColumnName("jufo_class");
             entity.Property(e => e.JuuliAddress)
                 .HasMaxLength(4000)
                 .HasColumnName("juuli_address");
@@ -2543,6 +2542,11 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimRegisteredDataSourceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FKdim_public896887");
+
+            entity.HasOne(d => d.JufoClassNavigation).WithMany(p => p.DimPublicationJufoClassNavigations)
+                .HasForeignKey(d => d.JufoClass)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("jufo_class");
 
             entity.HasOne(d => d.LanguageCodeNavigation).WithMany(p => p.DimPublicationLanguageCodeNavigations)
                 .HasForeignKey(d => d.LanguageCode)
@@ -4031,40 +4035,6 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimServicePointId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FKfact_infra619117");
-        });
-
-        modelBuilder.Entity<FactJufoClassCodesForPubChannel>(entity =>
-        {
-            entity.HasKey(e => new { e.DimPublicationChannelId, e.JufoClasses, e.Year }).HasName("PK__fact_juf__5280C574D130FC62");
-
-            entity.ToTable("fact_jufo_class_codes_for_pub_channels");
-
-            entity.Property(e => e.DimPublicationChannelId).HasColumnName("dim_publication_channel_id");
-            entity.Property(e => e.JufoClasses).HasColumnName("jufo_classes");
-            entity.Property(e => e.Year).HasColumnName("year");
-            entity.Property(e => e.Created)
-                .HasColumnType("datetime")
-                .HasColumnName("created");
-            entity.Property(e => e.Modified)
-                .HasColumnType("datetime")
-                .HasColumnName("modified");
-            entity.Property(e => e.SourceDescription)
-                .HasMaxLength(255)
-                .HasColumnName("source_description");
-            entity.Property(e => e.SourceId)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("source_id");
-
-            entity.HasOne(d => d.DimPublicationChannel).WithMany(p => p.FactJufoClassCodesForPubChannels)
-                .HasForeignKey(d => d.DimPublicationChannelId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("jufo_classes");
-
-            entity.HasOne(d => d.JufoClassesNavigation).WithMany(p => p.FactJufoClassCodesForPubChannels)
-                .HasForeignKey(d => d.JufoClasses)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKfact_jufo_216849");
         });
 
         modelBuilder.Entity<FactUpkeep>(entity =>
