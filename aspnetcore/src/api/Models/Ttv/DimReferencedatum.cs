@@ -63,6 +63,8 @@ public partial class DimReferencedatum
 
     public virtual ICollection<DimPublication> DimPublicationArticleTypeCodeNavigations { get; set; } = new List<DimPublication>();
 
+    public virtual ICollection<DimPublication> DimPublicationJufoClassNavigations { get; set; } = new List<DimPublication>();
+
     public virtual ICollection<DimPublication> DimPublicationLanguageCodeNavigations { get; set; } = new List<DimPublication>();
 
     public virtual ICollection<DimPublication> DimPublicationLicenseCodeNavigations { get; set; } = new List<DimPublication>();
@@ -96,8 +98,6 @@ public partial class DimReferencedatum
     public virtual ICollection<FactFieldValue> FactFieldValueDimReferencedataActorRoles { get; set; } = new List<FactFieldValue>();
 
     public virtual ICollection<FactFieldValue> FactFieldValueDimReferencedataFieldOfSciences { get; set; } = new List<FactFieldValue>();
-
-    public virtual ICollection<FactJufoClassCodesForPubChannel> FactJufoClassCodesForPubChannels { get; set; } = new List<FactJufoClassCodesForPubChannel>();
 
     public virtual ICollection<DimReferencedatum> InverseDimReferencedata { get; set; } = new List<DimReferencedatum>();
 
