@@ -29,10 +29,6 @@ public partial class DimPublication
 
     public string Isbn2 { get; set; }
 
-    public string JufoCode { get; set; }
-
-    public string JufoClassCode { get; set; }
-
     public int PublicationCountryCode { get; set; }
 
     public string JournalName { get; set; }
@@ -68,8 +64,6 @@ public partial class DimPublication
     public bool OtherCollaboration { get; set; }
 
     public int LanguageCode { get; set; }
-
-    public string OpenAccessCode { get; set; }
 
     public bool SpecialStateSubsidy { get; set; }
 
@@ -119,15 +113,21 @@ public partial class DimPublication
 
     public string OpenAccess { get; set; }
 
-    public string PublisherOpenAccessCode { get; set; }
+    public int PublisherOpenAccessCode { get; set; }
 
     public string Abstract { get; set; }
+
+    public int DimPublicationChannelId { get; set; }
+
+    public int JufoClass { get; set; }
 
     public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
 
     public virtual ICollection<DimLocallyReportedPubInfo> DimLocallyReportedPubInfos { get; set; } = new List<DimLocallyReportedPubInfo>();
 
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
+
+    public virtual DimPublicationChannel DimPublicationChannel { get; set; }
 
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 
@@ -136,6 +136,8 @@ public partial class DimPublication
     public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; } = new List<FactDimReferencedataFieldOfScience>();
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
+
+    public virtual DimReferencedatum JufoClassNavigation { get; set; }
 
     public virtual DimReferencedatum LanguageCodeNavigation { get; set; }
 
@@ -148,6 +150,8 @@ public partial class DimPublication
     public virtual DimReferencedatum PublicationTypeCode2Navigation { get; set; }
 
     public virtual DimReferencedatum PublicationTypeCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum PublisherOpenAccessCodeNavigation { get; set; }
 
     public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
 

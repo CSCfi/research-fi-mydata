@@ -209,7 +209,7 @@ namespace api.Controllers
                                         action: LogContent.Action.ORCID_RECORD_IMPORT,
                                         state: LogContent.ActionState.START));
 
-                await _orcidImportService.ImportOrcidRecordJsonIntoUserProfile(userprofileId, orcidRecordJson);
+                await _orcidImportService.ImportOrcidRecordJsonIntoUserProfile(userprofileId, orcidRecordJson, logUserIdentification);
                 importSuccess = true;
 
                 _logger.LogInformation(
@@ -264,7 +264,7 @@ namespace api.Controllers
                             .Include(ffv => ffv.DimProfileOnlyFundingDecision)
                             .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation).ToListAsync();
 
-                        await _orcidImportService.ImportAdditionalData(factFieldValues: ffvs, orcidAccessToken: orcidTokens.AccessToken, useOrcidPublicApi: useOrcidPublicApi);
+                        await _orcidImportService.ImportAdditionalData(factFieldValues: ffvs, orcidAccessToken: orcidTokens.AccessToken, logUserIdentification: logUserIdentification, useOrcidPublicApi: useOrcidPublicApi);
                         await localTtvContext.SaveChangesAsync();
 
                         _logger.LogInformation(

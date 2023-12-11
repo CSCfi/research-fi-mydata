@@ -10,16 +10,7 @@ using api.Models.Common;
 using api.Models.Orcid;
 using api.Models.Log;
 using Dapper;
-using System.Transactions;
-using api.Controllers;
 using Microsoft.Extensions.Logging;
-using api.Models.Elasticsearch;
-using Elasticsearch.Net;
-using api.Models.Api;
-using Serilog;
-using System.Text.Json;
-using static api.Models.Common.Constants;
-using System.Security.Cryptography;
 
 namespace api.Services
 {
@@ -839,6 +830,8 @@ namespace api.Services
                                 factFieldValuePublication.DimPublicationId = fc.DimPublicationId;
                                 factFieldValuePublication.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
                                 _ttvContext.FactFieldValues.Add(factFieldValuePublication);
+                                // Prevent duplicate key error with publications
+                                existingPublicationIds.Add(fc.DimPublicationId);
                             }
 
                             // research activity
@@ -850,6 +843,8 @@ namespace api.Services
                                 factFieldValueResearchActivity.DimResearchActivityId = fc.DimResearchActivityId;
                                 factFieldValueResearchActivity.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
                                 _ttvContext.FactFieldValues.Add(factFieldValueResearchActivity);
+                                // Prevent duplicate key error with research activities
+                                existingResearchActivityIds.Add(fc.DimResearchActivityId);
                             }
 
                             // research dataset
@@ -861,6 +856,8 @@ namespace api.Services
                                 factFieldValueResearchDataset.DimResearchDatasetId = fc.DimResearchDatasetId;
                                 factFieldValueResearchDataset.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
                                 _ttvContext.FactFieldValues.Add(factFieldValueResearchDataset);
+                                // Prevent duplicate key error with research datasets
+                                existingResearchDatasetIds.Add(fc.DimResearchDatasetId);
                             }
                         }
                     }

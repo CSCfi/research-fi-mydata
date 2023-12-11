@@ -1,20 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Threading.Tasks;
-using api.Controllers;
-using api.Models.Common;
+using api.Models.Log;
 using api.Models.Orcid;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using Nest;
-using Serilog.Core;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using Constants = api.Models.Common.Constants;
 
 namespace api.Services
@@ -31,10 +23,11 @@ namespace api.Services
         private readonly IOrganizationHandlerService _organizationHandlerService;
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly IUtilityService _utilityService;
+        private readonly ILogger<OrcidImportService> _logger;
 
         public OrcidImportService(
             TtvContext ttvContext, IUserProfileService userProfileService, IOrcidApiService orcidApiService, IOrcidJsonParserService orcidJsonParserService,
-            IOrganizationHandlerService organizationHandlerService, IUtilityService utilityService, IDataSourceHelperService dataSourceHelperService)
+            IOrganizationHandlerService organizationHandlerService, IUtilityService utilityService, IDataSourceHelperService dataSourceHelperService, ILogger<OrcidImportService> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -43,16 +36,32 @@ namespace api.Services
             _organizationHandlerService = organizationHandlerService;
             _utilityService = utilityService;
             _dataSourceHelperService = dataSourceHelperService;
+            _logger = logger;
         }
 
 
         /*
          *  Add DimDates entities needed in ORCID record.
          */
-        public async Task AddDimDates(string orcidRecordJson, DateTime currentDateTime)
+        public async Task AddDimDates(string orcidRecordJson, DateTime currentDateTime, LogUserIdentification logUserIdentification)
         {
             // Education DimDates
-            List<OrcidEducation> educations = _orcidJsonParserService.GetEducations(orcidRecordJson);
+            List<OrcidEducation> educations = new();
+            try
+            {
+                educations = _orcidJsonParserService.GetEducations(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             foreach (OrcidEducation education in educations)
             {
                 // Start date
@@ -101,7 +110,22 @@ namespace api.Services
             }
 
             // Employment DimDates
-            List<OrcidEmployment> employments = _orcidJsonParserService.GetEmployments(orcidRecordJson);
+            List<OrcidEmployment> employments = new();
+            try
+            {
+                employments = _orcidJsonParserService.GetEmployments(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             foreach (OrcidEmployment employment in employments)
             {
                 // Start date
@@ -149,7 +173,22 @@ namespace api.Services
             }
 
             // Funding DimDates
-            List<OrcidFunding> fundings = _orcidJsonParserService.GetFundings(orcidRecordJson);
+            List<OrcidFunding> fundings = new();
+            try
+            {
+                fundings = _orcidJsonParserService.GetFundings(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             foreach (OrcidFunding funding in fundings)
             {
                 // Start data
@@ -198,10 +237,40 @@ namespace api.Services
 
 
             // Research activity DimDates
-            List <OrcidResearchActivity> orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices =
-                _orcidJsonParserService.GetProfileOnlyResearchActivityItems(orcidRecordJson);
-            List<OrcidResearchActivity> orcidResearchActivity_works =
-                _orcidJsonParserService.GetWorks(orcidRecordJson, processOnlyResearchActivities: true).ResearchActivities;
+            List <OrcidResearchActivity> orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices = new();
+            try
+            {
+                orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices = _orcidJsonParserService.GetProfileOnlyResearchActivityItems(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
+
+            List<OrcidResearchActivity> orcidResearchActivity_works = new();
+            try
+            {
+                orcidResearchActivity_works = _orcidJsonParserService.GetWorks(orcidRecordJson, processOnlyResearchActivities: true).ResearchActivities;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
+
             foreach (OrcidResearchActivity researchActivity in orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices.Concat(orcidResearchActivity_works))
             {
                 // Start date
@@ -281,7 +350,7 @@ namespace api.Services
         /*
          * Import ORCID record json into user profile.
          */
-        public async Task<bool> ImportOrcidRecordJsonIntoUserProfile(int userprofileId, string orcidRecordJson)
+        public async Task<bool> ImportOrcidRecordJsonIntoUserProfile(int userprofileId, string orcidRecordJson, LogUserIdentification logUserIdentification)
         {
             // Get ORCID registered data source id.
             int orcidRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_ORCID;
@@ -373,7 +442,7 @@ namespace api.Services
             DateTime currentDateTime = _utilityService.GetCurrentDateTime();
 
             // Add DimDates.
-            await AddDimDates(orcidRecordJson, currentDateTime);
+            await AddDimDates(orcidRecordJson, currentDateTime, logUserIdentification);
 
             // Helper object to store processed IDs, used when deciding what data needs to be removed.
             OrcidImportHelper orcidImportHelper = new();
@@ -424,7 +493,22 @@ namespace api.Services
 
 
             // Other names
-            List<OrcidOtherName> otherNames = _orcidJsonParserService.GetOtherNames(orcidRecordJson);
+            List<OrcidOtherName> otherNames = new();
+            try
+            {
+                otherNames = _orcidJsonParserService.GetOtherNames(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             // Get DimFieldDisplaySettings for other name
             DimFieldDisplaySetting dimFieldDisplaySettingsOtherName =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsOtherName => dfdsOtherName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
@@ -483,7 +567,22 @@ namespace api.Services
             }
 
             // Researcher urls
-            List<OrcidResearcherUrl> researcherUrls = _orcidJsonParserService.GetResearcherUrls(orcidRecordJson);
+            List<OrcidResearcherUrl> researcherUrls = new();
+            try
+            {
+                researcherUrls = _orcidJsonParserService.GetResearcherUrls(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             // Get DimFieldDisplaySettings for weblink
             DimFieldDisplaySetting dimFieldDisplaySettingsWebLink =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK);
@@ -539,7 +638,22 @@ namespace api.Services
 
 
             // Researcher description
-            OrcidBiography biography = _orcidJsonParserService.GetBiography(orcidRecordJson);
+            OrcidBiography biography = null;
+            try
+            {
+                biography = _orcidJsonParserService.GetBiography(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             // Get DimFieldDisplaySettings for researcher description
             DimFieldDisplaySetting dimFieldDisplaySettingsResearcherDescription =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(
@@ -591,7 +705,22 @@ namespace api.Services
 
 
             // Email
-            List<OrcidEmail> emails = _orcidJsonParserService.GetEmails(orcidRecordJson);
+            List<OrcidEmail> emails = new();
+            try
+            {
+                emails = _orcidJsonParserService.GetEmails(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             // Email: DimFieldDisplaySettings
             DimFieldDisplaySetting dimFieldDisplaySettingsEmailAddress =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(
@@ -655,7 +784,22 @@ namespace api.Services
 
 
             // Keyword
-            List<OrcidKeyword> keywords = _orcidJsonParserService.GetKeywords(orcidRecordJson);
+            List<OrcidKeyword> keywords = new();
+            try
+            {
+                keywords = _orcidJsonParserService.GetKeywords(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             // Get DimFieldDisplaySettings for keyword
             DimFieldDisplaySetting dimFieldDisplaySettingsKeyword =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
@@ -718,7 +862,22 @@ namespace api.Services
 
 
             // External identifier (=DimPid)
-            List<OrcidExternalIdentifier> externalIdentifiers = _orcidJsonParserService.GetExternalIdentifiers(orcidRecordJson);
+            List<OrcidExternalIdentifier> externalIdentifiers = new();
+            try
+            {
+                externalIdentifiers = _orcidJsonParserService.GetExternalIdentifiers(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             // Get DimFieldDisplaySettings for keyword
             DimFieldDisplaySetting dimFieldDisplaySettingsExternalIdentifier =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
@@ -774,7 +933,22 @@ namespace api.Services
 
 
             // Education
-            List<OrcidEducation> educations = _orcidJsonParserService.GetEducations(orcidRecordJson);
+            List<OrcidEducation> educations = new();
+            try
+            {
+                educations = _orcidJsonParserService.GetEducations(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             // Get DimFieldDisplaySettings for education
             DimFieldDisplaySetting dimFieldDisplaySettingsEducation =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsEducation => dfdsEducation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
@@ -849,7 +1023,22 @@ namespace api.Services
 
 
             // Employment (Affiliation in Ttv database)
-            List<OrcidEmployment> employments = _orcidJsonParserService.GetEmployments(orcidRecordJson);
+            List<OrcidEmployment> employments = new();
+            try
+            {
+                employments = _orcidJsonParserService.GetEmployments(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             // Get DimFieldDisplaySettings for affiliation
             DimFieldDisplaySetting dimFieldDisplaySettingsAffiliation =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsAffiliation => dfdsAffiliation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
@@ -1071,7 +1260,22 @@ namespace api.Services
 
 
             // Works
-            OrcidWorks orcidWorks = _orcidJsonParserService.GetWorks(orcidRecordJson);
+            OrcidWorks orcidWorks = new();
+            try
+            {
+                orcidWorks = _orcidJsonParserService.GetWorks(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
 
             // Works => Publication
             if (orcidWorks.Publications.Count > 0)
@@ -1256,7 +1460,22 @@ namespace api.Services
 
 
             // Funding
-            List<OrcidFunding> orcidFundings = _orcidJsonParserService.GetFundings(orcidRecordJson);
+            List<OrcidFunding> orcidFundings = new();
+            try
+            {
+                orcidFundings = _orcidJsonParserService.GetFundings(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
             // Get DimFieldDisplaySettings for orcid publication
             DimFieldDisplaySetting dimFieldDisplaySettingsOrcidFunding =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
@@ -1298,7 +1517,7 @@ namespace api.Services
                     DimProfileOnlyFundingDecision dimProfileOnlyFundingDecision_existing = factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision;
                     dimProfileOnlyFundingDecision_existing.NameEn = orcidFunding.Name;
                     dimProfileOnlyFundingDecision_existing.DimDateIdStartNavigation = fundingStartDate;
-                    dimProfileOnlyFundingDecision_existing.DimDateIdStartNavigation = fundingEndDate;
+                    dimProfileOnlyFundingDecision_existing.DimDateIdEndNavigation = fundingEndDate;
                     dimProfileOnlyFundingDecision_existing.SourceDescription = orcidFunding.Path;
                     // Related DimWebLink
                     if (!string.IsNullOrWhiteSpace(orcidFunding.Url))
@@ -1513,7 +1732,22 @@ namespace api.Services
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsResearchActivity => dfdsResearchActivity.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY);
 
             // Invited positions, distinctions, memberships and services => Research activity
-            List<OrcidResearchActivity> orcidResearchActivities = _orcidJsonParserService.GetProfileOnlyResearchActivityItems(orcidRecordJson);
+            List<OrcidResearchActivity> orcidResearchActivities = new();
+            try
+            {
+                orcidResearchActivities = _orcidJsonParserService.GetProfileOnlyResearchActivityItems(orcidRecordJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.ORCID_RECORD_PARSE,
+                        state: LogContent.ActionState.IN_PROGRESS,
+                        error: true,
+                        message: $"{ex.ToString()}"));
+            }
 
             foreach (OrcidResearchActivity orcidResearchActivity in orcidResearchActivities.Concat(orcidWorks.ResearchActivities))
             {
@@ -1977,7 +2211,7 @@ namespace api.Services
          * Implemented for:
          *   - fundings
          */
-        public async Task<bool> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken, bool useOrcidPublicApi=false)
+        public async Task<bool> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken, LogUserIdentification logUserIdentification, bool useOrcidPublicApi=false)
         {
             foreach (FactFieldValue ffv in factFieldValues)
             {
@@ -1992,19 +2226,32 @@ namespace api.Services
                     {
                         result = await _orcidApiService.GetDataFromMemberApi(path: ffv.DimProfileOnlyFundingDecision.SourceDescription, orcidAccessToken: orcidAccessToken);
                     }
-                    OrcidFunding orcidFunding = _orcidJsonParserService.GetFundingDetail(fundingDetailJson: result);
-
-                    ffv.DimProfileOnlyFundingDecision.OrcidWorkType = orcidFunding.Type;
-                    ffv.DimProfileOnlyFundingDecision.NameEn = orcidFunding.Name;
-                    ffv.DimProfileOnlyFundingDecision.DescriptionEn = orcidFunding.Description;
-                    ffv.DimProfileOnlyFundingDecision.AmountInFundingDecisionCurrency =
-                        _utilityService.StringToNullableDecimal(orcidFunding.Amount);
-                    ffv.DimProfileOnlyFundingDecision.FundingDecisionCurrencyAbbreviation = orcidFunding.CurrencyCode;
-
-                    // Set EUR value
-                    if (orcidFunding.CurrencyCode == "EUR" && ffv.DimProfileOnlyFundingDecision.AmountInFundingDecisionCurrency != null)
+                    try
                     {
-                        ffv.DimProfileOnlyFundingDecision.AmountInEur = (decimal)ffv.DimProfileOnlyFundingDecision.AmountInFundingDecisionCurrency;
+                        OrcidFunding orcidFunding = _orcidJsonParserService.GetFundingDetail(fundingDetailJson: result);
+                        ffv.DimProfileOnlyFundingDecision.OrcidWorkType = orcidFunding.Type;
+                        ffv.DimProfileOnlyFundingDecision.NameEn = orcidFunding.Name;
+                        ffv.DimProfileOnlyFundingDecision.DescriptionEn = orcidFunding.Description;
+                        ffv.DimProfileOnlyFundingDecision.AmountInFundingDecisionCurrency =
+                            _utilityService.StringToNullableDecimal(orcidFunding.Amount);
+                        ffv.DimProfileOnlyFundingDecision.FundingDecisionCurrencyAbbreviation = orcidFunding.CurrencyCode;
+
+                        // Set EUR value
+                        if (orcidFunding.CurrencyCode == "EUR" && ffv.DimProfileOnlyFundingDecision.AmountInFundingDecisionCurrency != null)
+                        {
+                            ffv.DimProfileOnlyFundingDecision.AmountInEur = (decimal)ffv.DimProfileOnlyFundingDecision.AmountInFundingDecisionCurrency;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: LogContent.Action.ORCID_RECORD_PARSE,
+                                state: LogContent.ActionState.IN_PROGRESS,
+                                error: true,
+                                message: $"{ex.ToString()}"));
                     }
                 }
             }
