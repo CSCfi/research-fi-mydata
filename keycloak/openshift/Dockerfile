@@ -34,6 +34,15 @@ ENV KC_HOSTNAME_STRICT=false
 ENV KC_HOSTNAME_STRICT_HTTPS=false
 ENV KC_PROXY=edge
 ENV HTTP_ADDRESS_FORWARDING=true
+# Environment variable KC_LOG_GELF_LEVEL must be set to 'debug' in order to get Keycloak user events
+ENV KC_LOG_GELF_LEVEL=debug
 
 # Start the container in production mode.
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized"]
+# Configure Keycloak log levels
+# - Set INFO as default
+# - Show Keycloak events in log. Included events are configured in Keycloak user interface. Log level must be DEBUG.
+#     - org.keycloak.events:DEBUG
+# - To reduce logging, set org.keycloak subcategories:
+#     - org.keycloak.events.jpa:ERROR
+#     - org.keycloak.broker:ERROR
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized", "--log-level=\"INFO,org.keycloak.events:DEBUG,org.keycloak.events.jpa:ERROR,org.keycloak.broker:ERROR\""]
