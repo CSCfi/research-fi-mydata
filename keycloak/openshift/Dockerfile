@@ -1,7 +1,7 @@
 #
 # Build container
 #
-FROM quay.io/keycloak/keycloak:19.0.3 as builder
+FROM --platform=linux/amd64 quay.io/keycloak/keycloak:20.0.5 as builder
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
@@ -17,7 +17,7 @@ RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 #
 # Optimized container
 #
-FROM quay.io/keycloak/keycloak:19.0.3
+FROM --platform=linux/amd64 quay.io/keycloak/keycloak:20.0.5
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
 
@@ -34,6 +34,15 @@ ENV KC_HOSTNAME_STRICT=false
 ENV KC_HOSTNAME_STRICT_HTTPS=false
 ENV KC_PROXY=edge
 ENV HTTP_ADDRESS_FORWARDING=true
+# Environment variable KC_LOG_GELF_LEVEL must be set to 'debug' in order to get Keycloak user events
+ENV KC_LOG_GELF_LEVEL=debug
 
 # Start the container in production mode.
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized"]
+# Configure Keycloak log levels
+# - Set INFO as default
+# - Show Keycloak events in log. Included events are configured in Keycloak user interface. Log level must be DEBUG.
+#     - org.keycloak.events:DEBUG
+# - To reduce logging, set org.keycloak subcategories:
+#     - org.keycloak.events.jpa:ERROR
+#     - org.keycloak.broker:ERROR
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized", "--log-level=\"INFO,org.keycloak.events:DEBUG,org.keycloak.events.jpa:ERROR,org.keycloak.broker:ERROR\""]
