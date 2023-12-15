@@ -86,7 +86,7 @@ namespace api.Services
                 if (
                     IsOrcidPublication(profileData) &&
                     profileData.DimProfileOnlyPublication_Doi != "" &&
-                    profileData.DimProfileOnlyPublication_Doi == publication.Doi &&
+                    profileData.DimProfileOnlyPublication_Doi.ToLower() == publication.Doi.ToLower() &&
                     !HasSameDoiButIsDifferentPublication(profileData.DimProfileOnlyPublication_PublicationName, publication)
                 )
                 {
