@@ -7,7 +7,7 @@
   
   	<properties>
   		<javaVersion>1.8</javaVersion>
-		<keycloakVersion>19.0.3</keycloakVersion>
+		<keycloakVersion>23.0.3</keycloakVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
      	<maven.compiler.target>1.8</maven.compiler.target>
