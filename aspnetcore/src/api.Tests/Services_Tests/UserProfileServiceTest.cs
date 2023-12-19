@@ -500,5 +500,43 @@ namespace api.Tests
                 "Research activities are not duplicates, Sv name differs"
             );
         }
+
+        [Fact(DisplayName = "Get profile editor source")]
+        public void GetProfileEditorSource()
+        {
+            // Arrange
+            LanguageService languageService = new LanguageService();
+            UserProfileService userProfileService = new(languageService: languageService);
+            ProfileDataFromSql p = new ()
+            {
+                DimRegisteredDataSource_Id = 1234,
+                DimRegisteredDataSource_Name = "TestRegisteredDataSourceName",
+                DimRegisteredDataSource_DimOrganization_NameFi = "TestOrganizationNameFi",
+                DimRegisteredDataSource_DimOrganization_NameEn = "TestOrganizationNameEn",
+                DimRegisteredDataSource_DimOrganization_NameSv = "TestOrganizationNameSv",
+                DimRegisteredDataSource_DimOrganization_DimSector_SectorId = "TestSectorId"
+            };
+            ProfileEditorSource expectedProfileEditorSource = new ()
+            {
+                Id = 1234,
+                RegisteredDataSource = "TestRegisteredDataSourceName",
+                Organization = new Organization()
+                {
+                    NameFi = "TestOrganizationNameFi",
+                    NameEn = "TestOrganizationNameEn",
+                    NameSv = "TestOrganizationNameSv",
+                    SectorId = "TestSectorId"
+                }
+            };
+            // Act
+            ProfileEditorSource actualProfileEditorSource = userProfileService.GetProfileEditorSource(p);
+            // Assert
+            Assert.Equal(expectedProfileEditorSource.Id, actualProfileEditorSource.Id);
+            Assert.Equal(expectedProfileEditorSource.RegisteredDataSource, actualProfileEditorSource.RegisteredDataSource);
+            Assert.Equal(expectedProfileEditorSource.Organization.NameFi, actualProfileEditorSource.Organization.NameFi);
+            Assert.Equal(expectedProfileEditorSource.Organization.NameEn, actualProfileEditorSource.Organization.NameEn);
+            Assert.Equal(expectedProfileEditorSource.Organization.NameSv, actualProfileEditorSource.Organization.NameSv);
+            Assert.Equal(expectedProfileEditorSource.Organization.SectorId, actualProfileEditorSource.Organization.SectorId);
+        }
     }
 }

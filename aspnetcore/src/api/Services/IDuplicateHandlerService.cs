@@ -10,5 +10,6 @@ namespace api.Services
         List<ProfileEditorPublication> AddPublicationToProfileEditorData(ProfileEditorSource dataSource, ProfileDataFromSql profileData, List<ProfileEditorPublication> publications);
         bool HasSameDoiButIsDifferentPublication(string orcidPublicationName, ProfileEditorPublication publication);
         bool IsOrcidPublication(ProfileDataFromSql profileData);
+        int? HandlePublicationYear(int? dimDateYear);
     }
 }

@@ -302,11 +302,11 @@ namespace api.Tests
                 DimFieldDisplaySettings_FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
             };
 
-            // Create ProfileDataRaw for ORCID publication 1. The same DOI and name as in Virta publication.
+            // Create ProfileDataRaw for ORCID publication 1. The same DOI (in uppercase letters) and name as in Virta publication.
             ProfileDataFromSql profileDataOrcid1 = new()
             {
                 DimProfileOnlyPublication_PublicationId = "publicationId456",
-                DimProfileOnlyPublication_Doi = "doi123",
+                DimProfileOnlyPublication_Doi = "DOI123",
                 DimProfileOnlyPublication_PublicationName = "name123",
                 DimFieldDisplaySettings_FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY
             };
