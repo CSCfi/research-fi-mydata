@@ -11,7 +11,7 @@ public partial class DimPublication
 
     public string PublicationId { get; set; }
 
-    public string PublicationStatusCode { get; set; }
+    public int PublicationStatusCode { get; set; }
 
     public string PublicationOrgId { get; set; }
 
@@ -146,6 +146,8 @@ public partial class DimPublication
     public virtual DimReferencedatum ParentPublicationTypeCodeNavigation { get; set; }
 
     public virtual DimReferencedatum PublicationCountryCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum PublicationStatusCodeNavigation { get; set; }
 
     public virtual DimReferencedatum PublicationTypeCode2Navigation { get; set; }
 

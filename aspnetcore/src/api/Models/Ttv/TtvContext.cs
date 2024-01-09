@@ -2499,9 +2499,7 @@ public partial class TtvContext : DbContext
                 .IsRequired()
                 .HasMaxLength(255)
                 .HasColumnName("publication_org_id");
-            entity.Property(e => e.PublicationStatusCode)
-                .HasMaxLength(255)
-                .HasColumnName("publication_status_code");
+            entity.Property(e => e.PublicationStatusCode).HasColumnName("publication_status_code");
             entity.Property(e => e.PublicationTypeCode).HasColumnName("publication_type_code");
             entity.Property(e => e.PublicationTypeCode2).HasColumnName("publication_type_code2");
             entity.Property(e => e.PublicationYear).HasColumnName("publication_year");
@@ -2566,6 +2564,11 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.PublicationCountryCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("publication_country_code");
+
+            entity.HasOne(d => d.PublicationStatusCodeNavigation).WithMany(p => p.DimPublicationPublicationStatusCodeNavigations)
+                .HasForeignKey(d => d.PublicationStatusCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("publication_status_code");
 
             entity.HasOne(d => d.PublicationTypeCodeNavigation).WithMany(p => p.DimPublicationPublicationTypeCodeNavigations)
                 .HasForeignKey(d => d.PublicationTypeCode)
