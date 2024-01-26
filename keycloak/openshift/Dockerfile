@@ -1,15 +1,14 @@
 #
 # Build container
 #
-FROM --platform=linux/amd64 quay.io/keycloak/keycloak:20.0.5 as builder
+FROM --platform=linux/amd64 quay.io/keycloak/keycloak:23.0.4 as builder
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
 ENV KC_DB=mssql
 
 # Install custom providers. Researchfi customization jar file should be added here.
-RUN curl -sL https://github.com/CSCfi/research-fi-mydata/raw/devel/keycloak/custom/build_dependencies/researchfi.mapper-0.0.1-BETA.jar \
-    -o/opt/keycloak/providers/researchfi.mapper-0.0.1-BETA.jar
+ADD --chown=keycloak:keycloak https://github.com/CSCfi/research-fi-mydata/raw/devel/keycloak/custom/build_dependencies/researchfi.mapper-0.0.1-BETA.jar /opt/keycloak/providers/researchfi.mapper-0.0.1-BETA.jar
 RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 
 
@@ -17,7 +16,7 @@ RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 #
 # Optimized container
 #
-FROM --platform=linux/amd64 quay.io/keycloak/keycloak:20.0.5
+FROM --platform=linux/amd64 quay.io/keycloak/keycloak:23.0.4
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
 
@@ -45,4 +44,4 @@ ENV KC_LOG_GELF_LEVEL=debug
 # - To reduce logging, set org.keycloak subcategories:
 #     - org.keycloak.events.jpa:ERROR
 #     - org.keycloak.broker:ERROR
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized", "--log-level=\"INFO,org.keycloak.events:DEBUG,org.keycloak.events.jpa:ERROR,org.keycloak.broker:ERROR\""]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized", "--log-level=INFO,org.keycloak.events:DEBUG,org.keycloak.events.jpa:ERROR,org.keycloak.broker:ERROR"]
