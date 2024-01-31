@@ -302,11 +302,11 @@ namespace api.Tests
                 DimFieldDisplaySettings_FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
             };
 
-            // Create ProfileDataRaw for ORCID publication 1. The same DOI and name as in Virta publication.
+            // Create ProfileDataRaw for ORCID publication 1. The same DOI (in uppercase letters) and name as in Virta publication.
             ProfileDataFromSql profileDataOrcid1 = new()
             {
                 DimProfileOnlyPublication_PublicationId = "publicationId456",
-                DimProfileOnlyPublication_Doi = "doi123",
+                DimProfileOnlyPublication_Doi = "DOI123",
                 DimProfileOnlyPublication_PublicationName = "name123",
                 DimFieldDisplaySettings_FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY
             };
@@ -352,6 +352,63 @@ namespace api.Tests
             Assert.Equal(2, publications3.Count);
         }
 
+        [Fact(DisplayName = "AddPublicationToProfileEditorData_HandleDoiNull")]
+        public void addPublicationToProfileEditorData_021()
+        {
+            DuplicateHandlerService duplicateHandlerService = new();
+
+            // Datasources
+            ProfileEditorSource profileEditorSourceVirta = new()
+            {
+                Id = 1,
+                RegisteredDataSource = "Virta",
+                Organization = new Organization() { }
+            };
+            ProfileEditorSource profileEditorSourceOrcid = new()
+            {
+                Id = 2,
+                RegisteredDataSource = "ORCID",
+                Organization = new Organization() { }
+            };
+
+            // Create ProfileDataRaw for Virta publication 1
+            ProfileDataFromSql profileDataVirta1 = new()
+            {
+                DimPublication_PublicationId = "publicationId123",
+                DimPublication_Doi = null, // DOI missing
+                DimPublication_PublicationName = "name123",
+                DimPublication_PublicationTypeCode = "A4",
+                DimFieldDisplaySettings_FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
+            };
+
+            // Create ProfileDataRaw for ORCID publication 1. The same DOI (in uppercase letters) and name as in Virta publication.
+            ProfileDataFromSql profileDataOrcid1 = new()
+            {
+                DimProfileOnlyPublication_PublicationId = "publicationId456",
+                DimProfileOnlyPublication_Doi = "doi123",
+                DimProfileOnlyPublication_PublicationName = "name123",
+                DimFieldDisplaySettings_FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY
+            };
+
+            // Create empty list of publications
+            List<ProfileEditorPublication> publications = new();
+
+            // Add Virta publication
+            List<ProfileEditorPublication> publications1 = duplicateHandlerService.AddPublicationToProfileEditorData(
+                dataSource: profileEditorSourceVirta,
+                profileData: profileDataVirta1,
+                publications: publications
+            );
+            // Add ORCID publication
+            List<ProfileEditorPublication> publications2 = duplicateHandlerService.AddPublicationToProfileEditorData(
+                dataSource: profileEditorSourceOrcid,
+                profileData: profileDataOrcid1,
+                publications: publications1
+            );
+
+            // Check that publication list contains two publications
+            Assert.Equal(2, publications2.Count);
+        }
 
         [Fact(DisplayName = "TestPublicationYearHandling")]
         public void testPublicationYearHandling()

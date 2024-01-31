@@ -70,6 +70,11 @@ namespace api.Services
             _dataSourceHelperService = dataSourceHelperService;
         }
 
+        public UserProfileService(ILanguageService languageService)
+        {
+            _languageService = languageService;
+        }
+
         /*
          * Get FieldIdentifiers.
          */
@@ -1041,11 +1046,36 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
         }
 
+        /*
+         * Create object indincating data source. Used for every profile data item.
+         */
+        public ProfileEditorSource GetProfileEditorSource(ProfileDataFromSql p)
+        {
+            // Organization name translation
+            NameTranslation nameTranslationSourceOrganization = _languageService.GetNameTranslation(
+                nameFi: p.DimRegisteredDataSource_DimOrganization_NameFi,
+                nameEn: p.DimRegisteredDataSource_DimOrganization_NameEn,
+                nameSv: p.DimRegisteredDataSource_DimOrganization_NameSv
+            );
+
+            ProfileEditorSource profileEditorSource = new()
+            {
+                Id = p.DimRegisteredDataSource_Id,
+                RegisteredDataSource = p.DimRegisteredDataSource_Name,
+                Organization = new Organization()
+                {
+                    NameFi = nameTranslationSourceOrganization.NameFi,
+                    NameEn = nameTranslationSourceOrganization.NameEn,
+                    NameSv = nameTranslationSourceOrganization.NameSv,
+                    SectorId = p.DimRegisteredDataSource_DimOrganization_DimSector_SectorId
+                }
+            };
+            return profileEditorSource;
+        }
 
 
         /*
-         *  Get profile data. New version using data structure,
-         *  where each item contains a list of data sources.
+         *  Get profile data.
          */
         public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
         {
@@ -1065,28 +1095,13 @@ namespace api.Services
             // Helper list, which is used in deduplication of research activities
             List<ProfileDataFromSql> profileOnlyResearchActivityRowsToDeduplicate = new();
 
+            // Helper lists, which are used in DOI based deduplication of ORCID publications
+            List<ProfileDataFromSql> profileOnlyPublicationsToDeduplicate = new();
+
             foreach (ProfileDataFromSql p in profileDataList)
             {
-                // Organization name translation
-                NameTranslation nameTranslationSourceOrganization = _languageService.GetNameTranslation(
-                    nameFi: p.DimRegisteredDataSource_DimOrganization_NameFi,
-                    nameEn: p.DimRegisteredDataSource_DimOrganization_NameEn,
-                    nameSv: p.DimRegisteredDataSource_DimOrganization_NameSv
-                );
-
                 // Source object containing registered data source and organization name.
-                ProfileEditorSource profileEditorSource = new()
-                {
-                    Id = p.DimRegisteredDataSource_Id,
-                    RegisteredDataSource = p.DimRegisteredDataSource_Name,
-                    Organization = new Organization()
-                    {
-                        NameFi = nameTranslationSourceOrganization.NameFi,
-                        NameEn = nameTranslationSourceOrganization.NameEn,
-                        NameSv = nameTranslationSourceOrganization.NameSv,
-                        SectorId = p.DimRegisteredDataSource_DimOrganization_DimSector_SectorId
-                    }
-                };
+                ProfileEditorSource profileEditorSource = GetProfileEditorSource(p);
 
                 // Add data source into list of unique data sources.
                 if (!uniqueDataSourceIds.Contains(profileEditorSource.Id))
@@ -1467,7 +1482,7 @@ namespace api.Services
                         );
                         break;
 
-                    // Publication
+                    // Publication (DimPublication)
                     case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION:
                         profileDataResponse.activity.publications =
                             _duplicateHandlerService.AddPublicationToProfileEditorData(
@@ -1477,14 +1492,10 @@ namespace api.Services
                             );
                         break;
 
-                    // Publication (ORCID)
+                    // Publication (DimProfileOnlyPublication)
+                    // Collect items into a helper list. They will be deduplicated later.
                     case Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY:
-                        profileDataResponse.activity.publications =
-                            _duplicateHandlerService.AddPublicationToProfileEditorData(
-                                dataSource: profileEditorSource,
-                                profileData: p,
-                                publications: profileDataResponse.activity.publications
-                            );
+                        profileOnlyPublicationsToDeduplicate.Add(p);
                         break;
 
                     // Research activity
@@ -1929,6 +1940,19 @@ namespace api.Services
                     default:
                         break;
                 }
+            }
+
+            /*
+             * ORCID publication deduplication
+             */
+            foreach (ProfileDataFromSql p in profileOnlyPublicationsToDeduplicate)
+            {
+                ProfileEditorSource profileEditorSource = GetProfileEditorSource(p);
+                profileDataResponse.activity.publications = _duplicateHandlerService.AddPublicationToProfileEditorData(
+                    dataSource: profileEditorSource,
+                    profileData: p,
+                    publications: profileDataResponse.activity.publications
+                );
             }
 
             /*

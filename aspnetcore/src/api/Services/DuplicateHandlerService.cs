@@ -85,8 +85,8 @@ namespace api.Services
                 // Check duplicate DOI.
                 if (
                     IsOrcidPublication(profileData) &&
-                    profileData.DimProfileOnlyPublication_Doi != "" &&
-                    profileData.DimProfileOnlyPublication_Doi == publication.Doi &&
+                    !string.IsNullOrWhiteSpace(profileData.DimProfileOnlyPublication_Doi) && !string.IsNullOrWhiteSpace(publication.Doi) &&
+                    profileData.DimProfileOnlyPublication_Doi.ToLower() == publication.Doi.ToLower() &&
                     !HasSameDoiButIsDifferentPublication(profileData.DimProfileOnlyPublication_PublicationName, publication)
                 )
                 {
