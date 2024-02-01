@@ -9,7 +9,10 @@ ENV KC_DB=mssql
 
 # Install custom providers. Researchfi customization jar file should be added here.
 ADD --chown=keycloak:keycloak https://github.com/CSCfi/research-fi-mydata/raw/devel/keycloak/custom/build_dependencies/researchfi.mapper-0.0.1-BETA.jar /opt/keycloak/providers/researchfi.mapper-0.0.1-BETA.jar
+RUN chmod a+r /opt/keycloak/providers/researchfi.mapper-0.0.1-BETA.jar
+
 RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
+
 
 
 
@@ -17,11 +20,14 @@ RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 # Optimized container
 #
 FROM --platform=linux/amd64 quay.io/keycloak/keycloak:23.0.4
+
+# Enable SHA1 to prevent JDBC error with SQL Server: "Algorithm constraints check failed on signature algorithm SHA1withRSA"
+# https://github.com/keycloak/keycloak/issues/19185
+USER root
+RUN sed -i "s|MD2, SHA1, MD5|MD2, MD5 |g" /etc/crypto-policies/back-ends/java.config
+
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
-
-# For demonstration purposes only, please make sure to use proper certificates in production instead
-# RUN keytool -genkeypair -storepass password -storetype PKCS12 -keyalg RSA -keysize 2048 -dname "CN=server" -alias server -ext "SAN:c=DNS:localhost,IP:127.0.0.1" -keystore conf/server.keystore
 
 # Database connection can be specified here, but it is better to provide it from container environment. For example, as a secret in OpenShift.
 # ENV KC_DB_URL=jdbc:sqlserver://myservername:1433;DatabaseName=mydatabasename;
@@ -37,6 +43,11 @@ ENV HTTP_ADDRESS_FORWARDING=true
 ENV KC_LOG_GELF_LEVEL=debug
 
 # Start the container in production mode.
+#
+# Enable backward compatibility in SAML metadata by start up parameter: keycloak.saml.deprecated.encryption=true.
+# NOTE! This will not work from Keycloak 24 onwards, Suomi.fi metadata must be updated according to:
+# https://www.keycloak.org/docs/latest/upgrading/index.html#saml-sp-metadata-changes
+#
 # Configure Keycloak log levels
 # - Set INFO as default
 # - Show Keycloak events in log. Included events are configured in Keycloak user interface. Log level must be DEBUG.
@@ -44,4 +55,4 @@ ENV KC_LOG_GELF_LEVEL=debug
 # - To reduce logging, set org.keycloak subcategories:
 #     - org.keycloak.events.jpa:ERROR
 #     - org.keycloak.broker:ERROR
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized", "--log-level=INFO,org.keycloak.events:DEBUG,org.keycloak.events.jpa:ERROR,org.keycloak.broker:ERROR"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized", "-Dkeycloak.saml.deprecated.encryption=true", "--log-level=INFO,org.keycloak.events:DEBUG,org.keycloak.events.jpa:ERROR,org.keycloak.broker:ERROR"]
