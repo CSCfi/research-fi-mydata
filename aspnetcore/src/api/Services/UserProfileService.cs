@@ -1003,7 +1003,8 @@ namespace api.Services
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = currentDateTime,
                     AllowAllSubscriptions = false,
-                    Hidden = false
+                    Hidden = false,
+                    PublishNewOrcidData = false
                 };
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
             }
@@ -2626,17 +2627,12 @@ namespace api.Services
                     action: LogContent.Action.PROFILE_HIDE,
                     state: LogContent.ActionState.START));
 
-            // Set property "hidden" in user profile
-            DimUserProfile dimUserProfile = await GetUserprofileTracking(orcidId);
-            dimUserProfile.Hidden = true;
-            await _ttvContext.SaveChangesAsync();
-
             // Delete profile from Elasticsearch
             await DeleteProfileFromElasticsearch(orcidId, logUserIdentification);
         }
 
         /*
-         * Reveal profile from state "hidden.
+         * Reveal profile from state "hidden".
          */
         public async Task RevealProfile(string orcidId, LogUserIdentification logUserIdentification)
         {
@@ -2647,13 +2643,58 @@ namespace api.Services
                     action: LogContent.Action.PROFILE_REVEAL,
                     state: LogContent.ActionState.START));
 
-            // Set property "hidden" in user profile
-            DimUserProfile dimUserProfile = await GetUserprofileTracking(orcidId);
-            dimUserProfile.Hidden = false;
+            // Update profile in Elasticsearch
+            DimUserProfile dimUserProfile = await GetUserprofile(orcidId);
+            await UpdateProfileInElasticsearch(orcidId: orcidId, userprofileId: dimUserProfile.Id, logUserIdentification: logUserIdentification);
+        }
+
+        /*
+         * Get profile settings
+         */
+        public ProfileSettings GetProfileSettings(DimUserProfile dimUserProfile) {
+            return new ProfileSettings
+            {
+                Hidden = dimUserProfile.Hidden,
+                PublishNewOrcidData = dimUserProfile.PublishNewOrcidData
+            };
+        }
+
+        /*
+         * Save profile settings
+         */
+        public async Task SaveProfileSettings(string orcidId, DimUserProfile dimUserProfile, ProfileSettings profileSettings, LogUserIdentification logUserIdentification)
+        {
+            bool hiddenToggled = false;
+
+            // Set 'hidden' to DimSUerProfile
+            if (profileSettings.Hidden != null)
+            {
+                dimUserProfile.Hidden = profileSettings.Hidden.Value;
+                hiddenToggled = true;
+            }
+
+            // Set'publishNewOrcidData' to DimUserProfile
+            if (profileSettings.PublishNewOrcidData != null)
+            {
+                dimUserProfile.PublishNewOrcidData = profileSettings.PublishNewOrcidData.Value;
+            }
+
+            // Save DimUserProfile changes before further processing
             await _ttvContext.SaveChangesAsync();
 
-            // Update profile in Elasticsearch
-            await UpdateProfileInElasticsearch(orcidId: orcidId, userprofileId: dimUserProfile.Id, logUserIdentification: logUserIdentification);
+            // Change user profile visibility according to new settings
+            if (hiddenToggled) {
+                if (profileSettings.Hidden == true)
+                {
+                    // Hide profile
+                    await HideProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
+                }
+                else if (profileSettings.Hidden == false)
+                {
+                    // Reveal profile
+                    await RevealProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
+                }
+            }
         }
 
         /*

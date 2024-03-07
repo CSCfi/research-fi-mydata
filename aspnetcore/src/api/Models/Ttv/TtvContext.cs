@@ -3517,6 +3517,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.OrcidTokenScope)
                 .HasMaxLength(255)
                 .HasColumnName("orcid_token_scope");
+            entity.Property(e => e.PublishNewOrcidData).HasColumnName("publish_new_orcid_data");
             entity.Property(e => e.SourceDescription)
                 .HasMaxLength(255)
                 .HasColumnName("source_description");

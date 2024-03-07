@@ -538,5 +538,26 @@ namespace api.Tests
             Assert.Equal(expectedProfileEditorSource.Organization.NameSv, actualProfileEditorSource.Organization.NameSv);
             Assert.Equal(expectedProfileEditorSource.Organization.SectorId, actualProfileEditorSource.Organization.SectorId);
         }
+
+        [Fact(DisplayName = "ProfileSettings from DimUserProfile")]
+        public void GetProfileSettings()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimUserProfile dimUserProfile = new()
+            {
+                Hidden = true,
+                PublishNewOrcidData = true
+            };
+            ProfileSettings expectedProfileSettings = new ProfileSettings() {
+                Hidden = true,
+                PublishNewOrcidData = true
+            }; 
+            // Act
+            ProfileSettings actualProfileSettings = userProfileService.GetProfileSettings(dimUserProfile);
+            // Assert
+            Assert.Equal(expectedProfileSettings.Hidden, actualProfileSettings.Hidden);
+            Assert.Equal(expectedProfileSettings.PublishNewOrcidData, actualProfileSettings.PublishNewOrcidData);
+        }
     }
 }

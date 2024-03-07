@@ -348,6 +348,16 @@ namespace api.Services
         }
 
         /*
+         * Helper method, set parameter 'show' of new FactFieldValue.
+         * Setting is determined by presence of ORCID put code and and user's setting DimUserProfile.PublishNewOrcidData.
+         * Presence of ORCID put code is used as a signal that the data is new.
+         */
+        private bool Set_FactFieldValues_Show(FactFieldValue ffv)
+        {
+            return ffv.DimPidIdOrcidPutCodeNavigation != null && ffv.DimUserProfile.PublishNewOrcidData;
+        }
+
+        /*
          * Import ORCID record json into user profile.
          */
         public async Task<bool> ImportOrcidRecordJsonIntoUserProfile(int userprofileId, string orcidRecordJson, LogUserIdentification logUserIdentification)
@@ -562,6 +572,7 @@ namespace api.Services
                     factFieldValuesOtherName.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesOtherName.DimName = dimName_otherName;
                     factFieldValuesOtherName.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeOtherName;
+                    factFieldValuesOtherName.Show = Set_FactFieldValues_Show(factFieldValuesOtherName);
                     _ttvContext.FactFieldValues.Add(factFieldValuesOtherName);
                 }
             }
@@ -632,6 +643,7 @@ namespace api.Services
                     factFieldValuesWebLink.DimWebLink = dimWebLink;
                     factFieldValuesWebLink.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesWebLink.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeWebLink;
+                    factFieldValuesWebLink.Show = Set_FactFieldValues_Show(factFieldValuesWebLink);
                     _ttvContext.FactFieldValues.Add(factFieldValuesWebLink);
                 }
             }
@@ -699,6 +711,7 @@ namespace api.Services
                     factFieldValuesResearcherDescription.DimFieldDisplaySettings = dimFieldDisplaySettingsResearcherDescription;
                     factFieldValuesResearcherDescription.DimResearcherDescription = dimResearcherDescription;
                     factFieldValuesResearcherDescription.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    factFieldValuesResearcherDescription.Show = Set_FactFieldValues_Show(factFieldValuesResearcherDescription);
                     _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
                 }
             }
@@ -777,6 +790,7 @@ namespace api.Services
 
                         factFieldValuesEmail.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeEmail;
                     }
+                    factFieldValuesEmail.Show = Set_FactFieldValues_Show(factFieldValuesEmail);
 
                     _ttvContext.FactFieldValues.Add(factFieldValuesEmail);
                 }
@@ -854,6 +868,7 @@ namespace api.Services
                     factFieldValuesKeyword.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesKeyword.DimKeyword = dimKeyword;
                     factFieldValuesKeyword.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeKeyword;
+                    factFieldValuesKeyword.Show = Set_FactFieldValues_Show(factFieldValuesKeyword);
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
                 }
                 processedKeywordFactFieldValues.Add(factFieldValuesKeyword);
@@ -927,6 +942,7 @@ namespace api.Services
                     factFieldValuesExternalIdentifier.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesExternalIdentifier.DimPid = dimPid;
                     factFieldValuesExternalIdentifier.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeExternalIdentifier;
+                    factFieldValuesExternalIdentifier.Show = Set_FactFieldValues_Show(factFieldValuesExternalIdentifier);
                     _ttvContext.FactFieldValues.Add(factFieldValuesExternalIdentifier);
                 }
             }
@@ -1016,6 +1032,7 @@ namespace api.Services
                     factFieldValuesEducation.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesEducation.DimEducation = dimEducation;
                     factFieldValuesEducation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeEducation;
+                    factFieldValuesEducation.Show = Set_FactFieldValues_Show(factFieldValuesEducation);
                     _ttvContext.FactFieldValues.Add(factFieldValuesEducation);
                 }
             }
@@ -1227,6 +1244,7 @@ namespace api.Services
                     factFieldValuesAffiliation.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesAffiliation.DimAffiliation = dimAffiliation_new;
                     factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeAffiliation;
+                    factFieldValuesAffiliation.Show = Set_FactFieldValues_Show(factFieldValuesAffiliation);
 
                     // If organization was not found, add organization_name into DimIdentifierlessData
                     if (dimOrganization_id_affiliation == null || dimOrganization_id_affiliation == -1)
@@ -1334,6 +1352,7 @@ namespace api.Services
                         factFieldValuesPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                         factFieldValuesPublication.DimProfileOnlyPublication = dimProfileOnlyPublication;
                         factFieldValuesPublication.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
+                        factFieldValuesPublication.Show = Set_FactFieldValues_Show(factFieldValuesPublication);
                         _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
                     }
                 }
@@ -1452,6 +1471,7 @@ namespace api.Services
                         factFieldValuesProfileOnlyDataset.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                         factFieldValuesProfileOnlyDataset.DimProfileOnlyDataset = dimProfileOnlyDataset;
                         factFieldValuesProfileOnlyDataset.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeDataset;
+                        factFieldValuesProfileOnlyDataset.Show = Set_FactFieldValues_Show(factFieldValuesProfileOnlyDataset);
                         _ttvContext.FactFieldValues.Add(factFieldValuesProfileOnlyDataset);
                     }
                 }
@@ -1690,6 +1710,7 @@ namespace api.Services
                     factFieldValuesProfileOnlyFundingDecision.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision = dimProfileOnlyFundingDecision_new;
                     factFieldValuesProfileOnlyFundingDecision.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
+                    factFieldValuesProfileOnlyFundingDecision.Show = Set_FactFieldValues_Show(factFieldValuesProfileOnlyFundingDecision);
 
                     // Set correct DimReferenceDatum based on ORCID funding type
                     switch (orcidFunding.Type)
@@ -1950,6 +1971,7 @@ namespace api.Services
                     factFieldValuesDimProfileOnlyResearchActivity.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity = dimProfileOnlyResearchActivity_new;
                     factFieldValuesDimProfileOnlyResearchActivity.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeResearchActivity;
+                    factFieldValuesDimProfileOnlyResearchActivity.Show = Set_FactFieldValues_Show(factFieldValuesDimProfileOnlyResearchActivity);
                     // Set correct DimReferenceDatum based on ORCID activity type
                     DimReferencedatum dimReferencedata = await _ttvContext.DimReferencedata.Where(
                             dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_RESEARCH_ACTIVITY &&

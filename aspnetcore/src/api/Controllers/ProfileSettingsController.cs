@@ -6,16 +6,11 @@ using api.Models.ProfileEditor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Collections.Generic;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Http;
 using System;
 using Microsoft.Extensions.Logging;
 using api.Models.Log;
-using api.Models.ProfileEditor.Items;
-using static api.Models.Common.Constants;
 
 namespace api.Controllers
 {
@@ -48,6 +43,15 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
+            // Get user profile
+            DimUserProfile dimUserProfile = await _userProfileService.GetUserprofile(orcidId);
+
+            // Check that userprofile exists.
+            if (dimUserProfile == null)
+            {
+                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+            }
+
             // Cache key
             string cacheKey = _userProfileService.GetCMemoryCacheKey_ProfileSettings(orcidId);
 
@@ -57,26 +61,8 @@ namespace api.Controllers
                 return Ok(new ApiResponseProfileSettingsGet(success: true, reason: "", data: cachedProfileSettings, fromCache: true));
             }
 
-            // Cached response was not found, get data
-            DimUserProfile dimUserProfile;
-            ProfileSettings profileSettings = new();
-            try
-            {
-                dimUserProfile = await _userProfileService.GetUserprofile(orcidId);
-                profileSettings.Hidden = dimUserProfile.Hidden;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation(
-                    LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
-                    new LogApiInfo(
-                        action: LogContent.Action.SETTINGS_GET,
-                        error: true,
-                        state: LogContent.ActionState.FAILED,
-                        message: $"{ex.ToString()}"));
-                return Ok(new ApiResponse(success: false, reason: "profile not found", fromCache: false));
-            }
+            // Get settings data
+            ProfileSettings profileSettings = _userProfileService.GetProfileSettings(dimUserProfile);
 
             // Store data into cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -84,13 +70,16 @@ namespace api.Controllers
                 .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
             _cache.Set(cacheKey, profileSettings, cacheEntryOptions);
 
-            return Ok(new ApiResponseProfileSettingsGet(success: true, reason: "", data: profileSettings, fromCache: false));
+            return Ok(
+                new ApiResponseProfileSettingsGet(
+                    success: true,
+                    reason: "",
+                    data: profileSettings,
+                    fromCache: false));
         }
 
         /// <summary>
         /// Set profile settings.
-        /// Setting "hidden" to true removes profile from Elasticsearch and disables Elasticsearch sync for the profile.
-        /// Setting "hidden" to false adds profile to Elasticsearch and enables Elasticsearch sync for the profile.
         /// </summary>
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
@@ -104,55 +93,45 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
+            // Get user profile
+            DimUserProfile dimUserProfile = await _userProfileService.GetUserprofileTracking(orcidId);
+
+            // Check that userprofile exists.
+            if (dimUserProfile == null)
+            {
+                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+            }
+
             // Remove cached data
             string cacheKey = _userProfileService.GetCMemoryCacheKey_ProfileSettings(orcidId);
             _cache.Remove(cacheKey);
 
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
 
-            // Handle setting "hidden"
-            if (profileSettings.Hidden != null)
-            {
-                if (profileSettings.Hidden == true)
-                {
-                    // Hide profile
-                    await _userProfileService.HideProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
-                }
-                else if (profileSettings.Hidden == false)
-                {
-                    // Reveal profile
-                    await _userProfileService.RevealProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
-                }
-            }
+            string settingsToLogMessage = $"hidden={profileSettings.Hidden}, publishNewOrcidData={profileSettings.PublishNewOrcidData}";
 
-            return Ok(new ApiResponse());
-        }
-
-
-
-        /// <summary>
-        /// DEPRECATED
-        /// Set profile state to "hidden".
-        /// Profile is removed from Elasticsearch index.
-        /// </summary>
-        [HttpGet]
-        [Route("hideprofile")]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> HideProfileFromPortal()
-        {
-            // Get ORCID id
-            string orcidId = GetOrcidId();
-
-            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
                 logUserIdentification,
                 new LogApiInfo(
-                    action: LogContent.Action.PROFILE_HIDE,
-                    state: LogContent.ActionState.START));
+                    action: LogContent.Action.SETTINGS_SET,
+                    state: LogContent.ActionState.START,
+                    message: settingsToLogMessage));
 
-            // Set profile state to "hidden"
-            await _userProfileService.HideProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
+            // Save settings
+            await _userProfileService.SaveProfileSettings(
+                orcidId: orcidId,
+                dimUserProfile: dimUserProfile,
+                profileSettings: profileSettings,
+                logUserIdentification: logUserIdentification);
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.SETTINGS_SET,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: settingsToLogMessage));
 
             return Ok(new ApiResponse());
         }
