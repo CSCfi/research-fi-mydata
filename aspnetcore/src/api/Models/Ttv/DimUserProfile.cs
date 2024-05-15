@@ -33,6 +33,8 @@ public partial class DimUserProfile
 
     public bool Hidden { get; set; }
 
+    public bool PublishNewOrcidData { get; set; }
+
     public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; } = new List<BrGrantedPermission>();
 
     public virtual ICollection<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; } = new List<DimFieldDisplaySetting>();

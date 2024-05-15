@@ -35,7 +35,13 @@ public partial class DimReferencedatum
 
     public virtual ICollection<DimAffiliation> DimAffiliations { get; set; } = new List<DimAffiliation>();
 
+    public virtual ICollection<DimCallDecision> DimCallDecisions { get; set; } = new List<DimCallDecision>();
+
+    public virtual ICollection<DimCallProgramme> DimCallProgrammesNavigation { get; set; } = new List<DimCallProgramme>();
+
     public virtual ICollection<DimEducation> DimEducations { get; set; } = new List<DimEducation>();
+
+    public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; } = new List<DimFundingDecision>();
 
     public virtual ICollection<DimLocallyReportedPubInfo> DimLocallyReportedPubInfoSelfArchivedLicenseCodeNavigations { get; set; } = new List<DimLocallyReportedPubInfo>();
 

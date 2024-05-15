@@ -33,6 +33,8 @@ public partial class DimResearchCommunity
 
     public int DimRegisteredDataSourceId { get; set; }
 
+    public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
+
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 
     public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; } = new List<DimResearcherToResearchCommunity>();

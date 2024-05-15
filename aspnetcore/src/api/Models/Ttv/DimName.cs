@@ -35,6 +35,8 @@ public partial class DimName
 
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 
+    public virtual ICollection<DimResearchProject> DimResearchProjects { get; set; } = new List<DimResearchProject>();
+
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
