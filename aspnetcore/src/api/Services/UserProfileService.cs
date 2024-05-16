@@ -503,6 +503,9 @@ namespace api.Services
                 DimProfileOnlyDatasetId = -1,
                 DimProfileOnlyFundingDecisionId = -1,
                 DimProfileOnlyPublicationId = -1,
+                DimResearchCommunityId = -1,
+                DimResearchProjectId = -1,
+
                 SourceId = Constants.SourceIdentifiers.PROFILE_API,
                 SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                 Created = _utilityService.GetCurrentDateTime(),

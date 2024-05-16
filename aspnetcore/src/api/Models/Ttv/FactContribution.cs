@@ -43,6 +43,8 @@ public partial class FactContribution
 
     public DateTime? Modified { get; set; }
 
+    public int DimResearchProjectId { get; set; }
+
     public virtual DimDate DimDate { get; set; }
 
     public virtual DimFundingDecision DimFundingDecision { get; set; }

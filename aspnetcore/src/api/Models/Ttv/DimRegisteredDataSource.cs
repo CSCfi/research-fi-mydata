@@ -59,6 +59,8 @@ public partial class DimRegisteredDataSource
 
     public virtual ICollection<DimResearchDataset> DimResearchDatasets { get; set; } = new List<DimResearchDataset>();
 
+    public virtual ICollection<DimResearchProject> DimResearchProjects { get; set; } = new List<DimResearchProject>();
+
     public virtual ICollection<DimResearcherDescription> DimResearcherDescriptions { get; set; } = new List<DimResearcherDescription>();
 
     public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; } = new List<DimResearcherToResearchCommunity>();
