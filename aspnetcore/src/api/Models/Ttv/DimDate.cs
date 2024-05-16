@@ -25,6 +25,8 @@ public partial class DimDate
 
     public virtual ICollection<DimAffiliation> DimAffiliationStartDateNavigations { get; set; } = new List<DimAffiliation>();
 
+    public virtual ICollection<DimCallDecision> DimCallDecisions { get; set; } = new List<DimCallDecision>();
+
     public virtual ICollection<DimCallProgramme> DimCallProgrammeDimDateIdDueNavigations { get; set; } = new List<DimCallProgramme>();
 
     public virtual ICollection<DimCallProgramme> DimCallProgrammeDimDateIdOpenNavigations { get; set; } = new List<DimCallProgramme>();
@@ -56,6 +58,10 @@ public partial class DimDate
     public virtual ICollection<DimResearchActivity> DimResearchActivityDimEndDateNavigations { get; set; } = new List<DimResearchActivity>();
 
     public virtual ICollection<DimResearchActivity> DimResearchActivityDimStartDateNavigations { get; set; } = new List<DimResearchActivity>();
+
+    public virtual ICollection<DimResearchProject> DimResearchProjectEndDateNavigations { get; set; } = new List<DimResearchProject>();
+
+    public virtual ICollection<DimResearchProject> DimResearchProjectStartDateNavigations { get; set; } = new List<DimResearchProject>();
 
     public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityEndDateNavigations { get; set; } = new List<DimResearcherToResearchCommunity>();
 

@@ -47,6 +47,8 @@ public partial class DimWebLink
 
     public int? DimProfileOnlyFundingDecisionId { get; set; }
 
+    public int? DimResearchProjectId { get; set; }
+
     public virtual DimCallProgramme DimCallProgramme { get; set; }
 
     public virtual DimFundingDecision DimFundingDecision { get; set; }

@@ -63,6 +63,14 @@ public partial class DimCallProgramme
 
     public string CallNameDetailsSv { get; set; }
 
+    public string LocalIdentifier { get; set; }
+
+    public int? TypeOfFunding { get; set; }
+
+    public virtual ICollection<DimCallDecision> DimCallDecisions { get; set; } = new List<DimCallDecision>();
+
+    public virtual DimCallProgramme DimCallProgrammeNavigation { get; set; }
+
     public virtual DimDate DimDateIdDueNavigation { get; set; }
 
     public virtual DimDate DimDateIdOpenNavigation { get; set; }
@@ -74,6 +82,10 @@ public partial class DimCallProgramme
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 
     public virtual ICollection<DimWebLink> DimWebLinks { get; set; } = new List<DimWebLink>();
+
+    public virtual ICollection<DimCallProgramme> InverseDimCallProgrammeNavigation { get; set; } = new List<DimCallProgramme>();
+
+    public virtual DimReferencedatum TypeOfFundingNavigation { get; set; }
 
     public virtual ICollection<DimCallProgramme> DimCallProgrammeId2s { get; set; } = new List<DimCallProgramme>();
 

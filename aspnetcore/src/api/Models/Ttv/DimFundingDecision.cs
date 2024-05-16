@@ -27,6 +27,9 @@ public partial class DimFundingDecision
 
     public int DimFundingDecisionIdParentDecision { get; set; }
 
+    /// <summary>
+    /// Päätöksen paikallinen tunniste (tiedon toimittajan)
+    /// </summary>
     public string FunderProjectNumber { get; set; }
 
     public string Acronym { get; set; }
@@ -65,11 +68,18 @@ public partial class DimFundingDecision
 
     public int DimRegisteredDataSourceId { get; set; }
 
+    /// <summary>
+    /// Rahoituspäätös - Päätöspaneeli
+    /// </summary>
+    public int? DimCallDecisionsId { get; set; }
+
     public virtual ICollection<BrFundingConsortiumParticipation> BrFundingConsortiumParticipations { get; set; } = new List<BrFundingConsortiumParticipation>();
 
     public virtual ICollection<BrParticipatesInFundingGroup> BrParticipatesInFundingGroups { get; set; } = new List<BrParticipatesInFundingGroup>();
 
     public virtual ICollection<BrWordClusterDimFundingDecision> BrWordClusterDimFundingDecisions { get; set; } = new List<BrWordClusterDimFundingDecision>();
+
+    public virtual DimCallDecision DimCallDecisions { get; set; }
 
     public virtual DimCallProgramme DimCallProgramme { get; set; }
 
@@ -87,11 +97,9 @@ public partial class DimFundingDecision
 
     public virtual DimOrganization DimOrganizationIdFunderNavigation { get; set; }
 
-    public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
-
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 
-    public virtual DimTypeOfFunding DimTypeOfFunding { get; set; }
+    public virtual DimReferencedatum DimTypeOfFunding { get; set; }
 
     public virtual ICollection<DimWebLink> DimWebLinks { get; set; } = new List<DimWebLink>();
 
@@ -105,11 +113,7 @@ public partial class DimFundingDecision
 
     public virtual ICollection<DimFundingDecision> DimFundingDecisionFroms { get; set; } = new List<DimFundingDecision>();
 
-    public virtual ICollection<DimFundingDecision> DimFundingDecisionFromsNavigation { get; set; } = new List<DimFundingDecision>();
-
     public virtual ICollection<DimFundingDecision> DimFundingDecisionTos { get; set; } = new List<DimFundingDecision>();
-
-    public virtual ICollection<DimFundingDecision> DimFundingDecisionTosNavigation { get; set; } = new List<DimFundingDecision>();
 
     public virtual ICollection<DimKeyword> DimKeywords { get; set; } = new List<DimKeyword>();
 }

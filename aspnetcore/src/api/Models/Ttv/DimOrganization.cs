@@ -87,6 +87,8 @@ public partial class DimOrganization
 
     public virtual ICollection<DimResearchActivity> DimResearchActivities { get; set; } = new List<DimResearchActivity>();
 
+    public virtual ICollection<DimResearchProject> DimResearchProjects { get; set; } = new List<DimResearchProject>();
+
     public virtual DimSector DimSector { get; set; }
 
     public virtual ICollection<DimWebLink> DimWebLinks { get; set; } = new List<DimWebLink>();
