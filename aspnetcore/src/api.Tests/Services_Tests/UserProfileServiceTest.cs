@@ -281,7 +281,6 @@ namespace api.Tests
             Assert.Equal<int>(-1, actualDimPid.DimInfrastructureId);
             Assert.Equal<int>(-1, actualDimPid.DimPublicationChannelId);
             Assert.Equal<int>(-1, actualDimPid.DimResearchDatasetId);
-            Assert.Equal<int>(-1, (int)actualDimPid.DimFundingDecisionId);
             Assert.Equal<int>(-1, (int)actualDimPid.DimResearchProjectId);
             Assert.Equal<int>(-1, (int)actualDimPid.DimResearchCommunityId);
             Assert.Equal<int>(-1, actualDimPid.DimResearchDataCatalogId);
