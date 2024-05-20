@@ -45,8 +45,6 @@ public partial class DimPid
 
     public int? DimProfileOnlyFundingDecisionId { get; set; }
 
-    public int? DimFundingDecisionId { get; set; }
-
     public int? DimResearchProjectId { get; set; }
 
     public int? DimResearchCommunityId { get; set; }
