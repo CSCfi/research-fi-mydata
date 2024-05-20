@@ -152,154 +152,6 @@ public partial class TtvContext : DbContext
         {
             entity.HasKey(e => new { e.DimResearchDatasetId, e.DimResearchDatasetId2 }).HasName("PK__br_datas__9FEA685A42BC14F8");
 
-public partial class TtvContext : DbContext
-{
-    public TtvContext()
-    {
-    }
-
-    public TtvContext(DbContextOptions<TtvContext> options)
-        : base(options)
-    {
-    }
-
-    public virtual DbSet<BrDatasetDatasetRelationship> BrDatasetDatasetRelationships { get; set; }
-
-    public virtual DbSet<BrFundingConsortiumParticipation> BrFundingConsortiumParticipations { get; set; }
-
-    public virtual DbSet<BrGrantedPermission> BrGrantedPermissions { get; set; }
-
-    public virtual DbSet<BrParticipatesInFundingGroup> BrParticipatesInFundingGroups { get; set; }
-
-    public virtual DbSet<BrServiceSubscription> BrServiceSubscriptions { get; set; }
-
-    public virtual DbSet<BrWordClusterDimFundingDecision> BrWordClusterDimFundingDecisions { get; set; }
-
-    public virtual DbSet<BrWordsDefineACluster> BrWordsDefineAClusters { get; set; }
-
-    public virtual DbSet<DimAffiliation> DimAffiliations { get; set; }
-
-    public virtual DbSet<DimCallDecision> DimCallDecisions { get; set; }
-
-    public virtual DbSet<DimCallProgramme> DimCallProgrammes { get; set; }
-
-    public virtual DbSet<DimCompetence> DimCompetences { get; set; }
-
-    public virtual DbSet<DimDate> DimDates { get; set; }
-
-    public virtual DbSet<DimEducation> DimEducations { get; set; }
-
-    public virtual DbSet<DimEmailAddrress> DimEmailAddrresses { get; set; }
-
-    public virtual DbSet<DimEsfri> DimEsfris { get; set; }
-
-    public virtual DbSet<DimEvent> DimEvents { get; set; }
-
-    public virtual DbSet<DimExternalService> DimExternalServices { get; set; }
-
-    public virtual DbSet<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; }
-
-    public virtual DbSet<DimFundingDecision> DimFundingDecisions { get; set; }
-
-    public virtual DbSet<DimGeo> DimGeos { get; set; }
-
-    public virtual DbSet<DimIdentifierlessDatum> DimIdentifierlessData { get; set; }
-
-    public virtual DbSet<DimInfrastructure> DimInfrastructures { get; set; }
-
-    public virtual DbSet<DimKeyword> DimKeywords { get; set; }
-
-    public virtual DbSet<DimKnownPerson> DimKnownPeople { get; set; }
-
-    public virtual DbSet<DimLocallyReportedPubInfo> DimLocallyReportedPubInfos { get; set; }
-
-    public virtual DbSet<DimMeril> DimMerils { get; set; }
-
-    public virtual DbSet<DimMinedWord> DimMinedWords { get; set; }
-
-    public virtual DbSet<DimName> DimNames { get; set; }
-
-    public virtual DbSet<DimNewsFeed> DimNewsFeeds { get; set; }
-
-    public virtual DbSet<DimNewsItem> DimNewsItems { get; set; }
-
-    public virtual DbSet<DimOrganisationMedium> DimOrganisationMedia { get; set; }
-
-    public virtual DbSet<DimOrganization> DimOrganizations { get; set; }
-
-    public virtual DbSet<DimPid> DimPids { get; set; }
-
-    public virtual DbSet<DimProfileOnlyDataset> DimProfileOnlyDatasets { get; set; }
-
-    public virtual DbSet<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisions { get; set; }
-
-    public virtual DbSet<DimProfileOnlyPublication> DimProfileOnlyPublications { get; set; }
-
-    public virtual DbSet<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivities { get; set; }
-
-    public virtual DbSet<DimPublication> DimPublications { get; set; }
-
-    public virtual DbSet<DimPublicationChannel> DimPublicationChannels { get; set; }
-
-    public virtual DbSet<DimPurpose> DimPurposes { get; set; }
-
-    public virtual DbSet<DimReferencedatum> DimReferencedata { get; set; }
-
-    public virtual DbSet<DimRegisteredDataSource> DimRegisteredDataSources { get; set; }
-
-    public virtual DbSet<DimResearchActivity> DimResearchActivities { get; set; }
-
-    public virtual DbSet<DimResearchActivityDimKeyword> DimResearchActivityDimKeywords { get; set; }
-
-    public virtual DbSet<DimResearchCommunity> DimResearchCommunities { get; set; }
-
-    public virtual DbSet<DimResearchDataCatalog> DimResearchDataCatalogs { get; set; }
-
-    public virtual DbSet<DimResearchDataset> DimResearchDatasets { get; set; }
-
-    public virtual DbSet<DimResearchProject> DimResearchProjects { get; set; }
-
-    public virtual DbSet<DimResearcherDescription> DimResearcherDescriptions { get; set; }
-
-    public virtual DbSet<DimResearcherToResearchCommunity> DimResearcherToResearchCommunities { get; set; }
-
-    public virtual DbSet<DimSector> DimSectors { get; set; }
-
-    public virtual DbSet<DimService> DimServices { get; set; }
-
-    public virtual DbSet<DimServicePoint> DimServicePoints { get; set; }
-
-    public virtual DbSet<DimTelephoneNumber> DimTelephoneNumbers { get; set; }
-
-    public virtual DbSet<DimTypeOfFunding> DimTypeOfFundings { get; set; }
-
-    public virtual DbSet<DimUserChoice> DimUserChoices { get; set; }
-
-    public virtual DbSet<DimUserProfile> DimUserProfiles { get; set; }
-
-    public virtual DbSet<DimWebLink> DimWebLinks { get; set; }
-
-    public virtual DbSet<DimWordCluster> DimWordClusters { get; set; }
-
-    public virtual DbSet<FactContribution> FactContributions { get; set; }
-
-    public virtual DbSet<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; }
-
-    public virtual DbSet<FactFieldValue> FactFieldValues { get; set; }
-
-    public virtual DbSet<FactInfraKeyword> FactInfraKeywords { get; set; }
-
-    public virtual DbSet<FactUpkeep> FactUpkeeps { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:DefaultConnection");
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<BrDatasetDatasetRelationship>(entity =>
-        {
-            entity.HasKey(e => new { e.DimResearchDatasetId, e.DimResearchDatasetId2 }).HasName("PK__br_datas__9FEA685A42BC14F8");
-
             entity.ToTable("br_dataset_dataset_relationship");
 
             entity.Property(e => e.DimResearchDatasetId).HasColumnName("dim_research_dataset_id");
@@ -587,83 +439,6 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.DecisionMaker).HasColumnName("decision_maker");
             entity.Property(e => e.DimCallProgrammeId).HasColumnName("dim_call_programme_id");
             entity.Property(e => e.DimDateIdApproval).HasColumnName("dim_date_id_approval");
-            entity.Property(e => e.SourceDescription)
-                .HasMaxLength(255)
-                .HasColumnName("source_description");
-            entity.Property(e => e.SourceId)
-                .HasMaxLength(255)
-                .HasColumnName("source_id");
-
-            entity.HasOne(d => d.DecisionMakerNavigation).WithMany(p => p.DimCallDecisions)
-                .HasForeignKey(d => d.DecisionMaker)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("decision_maker");
-
-            entity.HasOne(d => d.DimCallProgramme).WithMany(p => p.DimCallDecisions)
-                .HasForeignKey(d => d.DimCallProgrammeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKdim_call_d831756");
-
-            entity.HasOne(d => d.DimDateIdApprovalNavigation).WithMany(p => p.DimCallDecisions)
-                .HasForeignKey(d => d.DimDateIdApproval)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKdim_call_d543999");
-        });
-
-        modelBuilder.Entity<DimCallProgramme>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__dim_call__3213E83FDE9183B2");
-
-            entity.ToTable("dim_call_decisions", tb => tb.HasComment("Rahoituspäätöspaneeli"));
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CallProcessingPhase)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("call_name_details_en");
-            entity.Property(e => e.CallNameDetailsFi)
-                .HasMaxLength(255)
-                .HasColumnName("call_name_details_fi");
-            entity.Property(e => e.CallNameDetailsSv)
-                .HasMaxLength(255)
-                .HasColumnName("call_name_details_sv");
-            entity.Property(e => e.ContactInformation).HasColumnName("contact_information");
-            entity.Property(e => e.ContinuousApplicationPeriod).HasColumnName("continuous_application_period");
-            entity.Property(e => e.Created)
-                .HasColumnType("datetime")
-                .HasColumnName("created");
-            entity.Property(e => e.DescriptionEn).HasColumnName("description_en");
-            entity.Property(e => e.DescriptionFi).HasColumnName("description_fi");
-            entity.Property(e => e.DescriptionSv).HasColumnName("description_sv");
-            entity.Property(e => e.DimCallProgrammeId).HasColumnName("dim_call_programme_id");
-            entity.Property(e => e.DimDateIdDue).HasColumnName("dim_date_id_due");
-            entity.Property(e => e.DimDateIdOpen).HasColumnName("dim_date_id_open");
-            entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
-            entity.Property(e => e.DueDateDueTime)
-                .HasPrecision(0)
-                .HasColumnName("due_date_due_time");
-            entity.Property(e => e.EuCallId)
-                .HasMaxLength(511)
-                .HasColumnName("eu_call_id");
-            entity.Property(e => e.IsOpenCall).HasColumnName("is_open_call");
-            entity.Property(e => e.LocalIdentifier)
-                .HasMaxLength(255)
-                .HasColumnName("local_identifier");
-            entity.Property(e => e.Modified)
-                .HasColumnType("datetime")
-                .HasColumnName("modified");
-            entity.Property(e => e.NameEn)
-                .HasMaxLength(511)
-                .HasColumnName("name_en");
-            entity.Property(e => e.NameFi)
-                .HasMaxLength(511)
-                .HasColumnName("name_fi");
-            entity.Property(e => e.NameSv)
-                .HasMaxLength(511)
-                .HasColumnName("name_sv");
-            entity.Property(e => e.NameUnd)
-                .HasMaxLength(511)
-                .HasColumnName("name_und");
             entity.Property(e => e.SourceDescription)
                 .HasMaxLength(255)
                 .HasColumnName("source_description");
@@ -1300,10 +1075,6 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimCallDecisionsId)
                 .HasConstraintName("FKdim_fundin257658");
 
-            entity.HasOne(d => d.DimCallDecisions).WithMany(p => p.DimFundingDecisions)
-                .HasForeignKey(d => d.DimCallDecisionsId)
-                .HasConstraintName("FKdim_fundin257658");
-
             entity.HasOne(d => d.DimCallProgramme).WithMany(p => p.DimFundingDecisions)
                 .HasForeignKey(d => d.DimCallProgrammeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1395,6 +1166,8 @@ public partial class TtvContext : DbContext
         modelBuilder.Entity<DimGeo>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__dim_geo__3213E83F16BA183D");
+
+            entity.ToTable("dim_geo");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CountryCode)
@@ -2237,10 +2010,6 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimResearchActivityId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FKdim_pid725718");
-
-            entity.HasOne(d => d.DimResearchCommunity).WithMany(p => p.DimPids)
-                .HasForeignKey(d => d.DimResearchCommunityId)
-                .HasConstraintName("FKdim_pid146045");
 
             entity.HasOne(d => d.DimResearchCommunity).WithMany(p => p.DimPids)
                 .HasForeignKey(d => d.DimResearchCommunityId)
@@ -3353,97 +3122,6 @@ public partial class TtvContext : DbContext
         modelBuilder.Entity<DimResearchProject>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F137B9F9E");
-
-            entity.ToTable("dim_research_project");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.AbbrevationEn)
-                .HasMaxLength(4000)
-                .HasColumnName("abbrevation_en");
-            entity.Property(e => e.AbbrevationFi)
-                .HasMaxLength(4000)
-                .HasComment("Hanke - lyhenne")
-                .HasColumnName("abbrevation_fi");
-            entity.Property(e => e.AbbrevationSv)
-                .HasMaxLength(4000)
-                .HasColumnName("abbrevation_sv");
-            entity.Property(e => e.AdditionalInformationEn).HasColumnName("additional_information_en");
-            entity.Property(e => e.AdditionalInfromationFi)
-                .HasComment("Hanke - lisätieto")
-                .HasColumnName("additional_infromation_fi");
-            entity.Property(e => e.AddtitionalInformationSv).HasColumnName("addtitional_information_sv");
-            entity.Property(e => e.Created)
-                .HasColumnType("datetime")
-                .HasColumnName("created");
-            entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
-            entity.Property(e => e.EndDate)
-                .HasComment("Hanke - päättymispäivämäärä")
-                .HasColumnName("end_date");
-            entity.Property(e => e.GoalsEn).HasColumnName("goals_en");
-            entity.Property(e => e.GoalsFi).HasColumnName("goals_fi");
-            entity.Property(e => e.GoalsSv).HasColumnName("goals_sv");
-            entity.Property(e => e.Modified)
-                .HasColumnType("datetime")
-                .HasColumnName("modified");
-            entity.Property(e => e.NameEn)
-                .HasMaxLength(4000)
-                .HasColumnName("name_en");
-            entity.Property(e => e.NameFi)
-                .HasMaxLength(4000)
-                .HasComment("Hanke - nimi")
-                .HasColumnName("name_fi");
-            entity.Property(e => e.NameSv)
-                .HasMaxLength(4000)
-                .HasColumnName("name_sv");
-            entity.Property(e => e.OutcomeEffectEn).HasColumnName("outcome_effect_en");
-            entity.Property(e => e.OutcomeEffectFi).HasColumnName("outcome_effect_fi");
-            entity.Property(e => e.OutcomeEffectSv).HasColumnName("outcome_effect_sv");
-            entity.Property(e => e.ResponsibleOrganization)
-                .HasComment("Hanke - vastuuorganisaatio")
-                .HasColumnName("responsible_organization");
-            entity.Property(e => e.ResponsiblePerson).HasColumnName("responsible_person");
-            entity.Property(e => e.SourceDescription)
-                .HasMaxLength(255)
-                .HasColumnName("source_description");
-            entity.Property(e => e.SourceId)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("source_id");
-            entity.Property(e => e.StartDate)
-                .HasComment("Hanke - alkamispäivämäärä")
-                .HasColumnName("start_date");
-            entity.Property(e => e.SummaryEn).HasColumnName("summary_en");
-            entity.Property(e => e.SummaryFi)
-                .HasComment("Hanke - tiivistelmä")
-                .HasColumnName("summary_fi");
-            entity.Property(e => e.SummarySv).HasColumnName("summary_sv");
-
-            entity.HasOne(d => d.DimRegisteredDataSource).WithMany(p => p.DimResearchProjects)
-                .HasForeignKey(d => d.DimRegisteredDataSourceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKdim_resear450820");
-
-            entity.HasOne(d => d.EndDateNavigation).WithMany(p => p.DimResearchProjectEndDateNavigations)
-                .HasForeignKey(d => d.EndDate)
-                .HasConstraintName("FKdim_resear517343");
-
-            entity.HasOne(d => d.ResponsibleOrganizationNavigation).WithMany(p => p.DimResearchProjects)
-                .HasForeignKey(d => d.ResponsibleOrganization)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKdim_resear741036");
-
-            entity.HasOne(d => d.ResponsiblePersonNavigation).WithMany(p => p.DimResearchProjects)
-                .HasForeignKey(d => d.ResponsiblePerson)
-                .HasConstraintName("FKdim_resear684392");
-
-            entity.HasOne(d => d.StartDateNavigation).WithMany(p => p.DimResearchProjectStartDateNavigations)
-                .HasForeignKey(d => d.StartDate)
-                .HasConstraintName("FKdim_resear246050");
-        });
-
-        modelBuilder.Entity<DimResearcherDescription>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83FFAFA1A53");
 
             entity.ToTable("dim_research_project");
 
