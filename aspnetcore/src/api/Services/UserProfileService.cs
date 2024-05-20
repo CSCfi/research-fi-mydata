@@ -496,7 +496,6 @@ namespace api.Services
                 DimInfrastructureId = -1,
                 DimPublicationChannelId = -1,
                 DimResearchDatasetId = -1,
-                DimFundingDecisionId = -1,
                 DimResearchDataCatalogId = -1,
                 DimResearchActivityId = -1,
                 DimEventId = -1,
