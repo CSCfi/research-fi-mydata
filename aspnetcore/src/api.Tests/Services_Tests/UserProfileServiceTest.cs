@@ -281,7 +281,8 @@ namespace api.Tests
             Assert.Equal<int>(-1, actualDimPid.DimInfrastructureId);
             Assert.Equal<int>(-1, actualDimPid.DimPublicationChannelId);
             Assert.Equal<int>(-1, actualDimPid.DimResearchDatasetId);
-            Assert.Equal<int>(-1, actualDimPid.DimFundingDecisionId);
+            Assert.Equal<int>(-1, (int)actualDimPid.DimResearchProjectId);
+            Assert.Equal<int>(-1, (int)actualDimPid.DimResearchCommunityId);
             Assert.Equal<int>(-1, actualDimPid.DimResearchDataCatalogId);
             Assert.Equal<int>(-1, actualDimPid.DimResearchActivityId);
             Assert.Equal<int>(-1, actualDimPid.DimEventId);
@@ -537,6 +538,27 @@ namespace api.Tests
             Assert.Equal(expectedProfileEditorSource.Organization.NameEn, actualProfileEditorSource.Organization.NameEn);
             Assert.Equal(expectedProfileEditorSource.Organization.NameSv, actualProfileEditorSource.Organization.NameSv);
             Assert.Equal(expectedProfileEditorSource.Organization.SectorId, actualProfileEditorSource.Organization.SectorId);
+        }
+
+        [Fact(DisplayName = "ProfileSettings from DimUserProfile")]
+        public void GetProfileSettings()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            DimUserProfile dimUserProfile = new()
+            {
+                Hidden = true,
+                PublishNewOrcidData = true
+            };
+            ProfileSettings expectedProfileSettings = new ProfileSettings() {
+                Hidden = true,
+                PublishNewOrcidData = true
+            }; 
+            // Act
+            ProfileSettings actualProfileSettings = userProfileService.GetProfileSettings(dimUserProfile);
+            // Assert
+            Assert.Equal(expectedProfileSettings.Hidden, actualProfileSettings.Hidden);
+            Assert.Equal(expectedProfileSettings.PublishNewOrcidData, actualProfileSettings.PublishNewOrcidData);
         }
     }
 }

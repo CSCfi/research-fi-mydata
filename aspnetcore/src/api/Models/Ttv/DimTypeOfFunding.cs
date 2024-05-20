@@ -25,8 +25,6 @@ public partial class DimTypeOfFunding
 
     public int DimTypeOfFundingId { get; set; }
 
-    public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; } = new List<DimFundingDecision>();
-
     public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisions { get; set; } = new List<DimProfileOnlyFundingDecision>();
 
     public virtual DimTypeOfFunding DimTypeOfFundingNavigation { get; set; }

@@ -25,8 +25,6 @@ public partial class DimPid
 
     public int DimResearchDatasetId { get; set; }
 
-    public int DimFundingDecisionId { get; set; }
-
     public int DimResearchDataCatalogId { get; set; }
 
     public int DimResearchActivityId { get; set; }
@@ -47,9 +45,11 @@ public partial class DimPid
 
     public int? DimProfileOnlyFundingDecisionId { get; set; }
 
-    public virtual DimEvent DimEvent { get; set; }
+    public int? DimResearchProjectId { get; set; }
 
-    public virtual DimFundingDecision DimFundingDecision { get; set; }
+    public int? DimResearchCommunityId { get; set; }
+
+    public virtual DimEvent DimEvent { get; set; }
 
     public virtual DimInfrastructure DimInfrastructure { get; set; }
 
@@ -68,6 +68,8 @@ public partial class DimPid
     public virtual DimPublicationChannel DimPublicationChannel { get; set; }
 
     public virtual DimResearchActivity DimResearchActivity { get; set; }
+
+    public virtual DimResearchCommunity DimResearchCommunity { get; set; }
 
     public virtual DimResearchDataCatalog DimResearchDataCatalog { get; set; }
 
