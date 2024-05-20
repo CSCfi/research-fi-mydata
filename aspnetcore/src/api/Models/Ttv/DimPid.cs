@@ -24,7 +24,6 @@ public partial class DimPid
     public int DimPublicationChannelId { get; set; }
 
     public int DimResearchDatasetId { get; set; }
-
     public int DimResearchDataCatalogId { get; set; }
 
     public int DimResearchActivityId { get; set; }
