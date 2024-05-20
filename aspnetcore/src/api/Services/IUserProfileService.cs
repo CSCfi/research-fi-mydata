@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using api.Models.Log;
 using api.Models.Orcid;
+using api.Models.ProfileEditor;
 using api.Models.ProfileEditor.Items;
 using api.Models.Ttv;
 
@@ -29,6 +30,7 @@ namespace api.Services
         DimKnownPerson GetNewDimKnownPerson(string orcidId, DateTime currentDateTime);
         Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false);
         Task<DimUserProfile> GetUserprofile(string orcidId);
+        Task<DimUserProfile> GetUserprofileTracking(string orcidId);
         Task<DimUserProfile> GetUserprofileById(int Id);
         Task<int> GetUserprofileId(string orcidId);
         Task<bool> IsUserprofilePublished(int dimUserProfileId);
@@ -38,6 +40,8 @@ namespace api.Services
         Task<bool> UserprofileExistsForOrcidId(string orcidId);
         Task HideProfile(string orcidId, LogUserIdentification logUserIdentification);
         Task RevealProfile(string orcidId, LogUserIdentification logUserIdentification);
+        ProfileSettings GetProfileSettings(DimUserProfile dimUserProfile);
+        Task SaveProfileSettings(string orcidId, DimUserProfile dimUserProfile, ProfileSettings profileSettings, LogUserIdentification logUserIdentification);
         string GetCMemoryCacheKey_ProfileSettings(string orcidId);
     }
 }

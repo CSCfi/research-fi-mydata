@@ -41,6 +41,7 @@
             public const string ORCID_WEBHOOK_UNREGISTER = "ORCID: webhook: unregister";
             public const string ORCID_WEBHOOK_RECEIVED = "ORCID: webhook: received";
             public const string SETTINGS_GET = "Settings: get";
+            public const string SETTINGS_SET = "Settings: set";
         }
 
         public static class ActionState

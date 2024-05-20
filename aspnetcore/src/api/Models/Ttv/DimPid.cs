@@ -24,7 +24,6 @@ public partial class DimPid
     public int DimPublicationChannelId { get; set; }
 
     public int DimResearchDatasetId { get; set; }
-
     public int DimResearchDataCatalogId { get; set; }
 
     public int DimResearchActivityId { get; set; }
@@ -44,7 +43,6 @@ public partial class DimPid
     public int? DimProfileOnlyDatasetId { get; set; }
 
     public int? DimProfileOnlyFundingDecisionId { get; set; }
-
     public int? DimResearchProjectId { get; set; }
 
     public int? DimResearchCommunityId { get; set; }
