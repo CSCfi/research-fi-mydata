@@ -1,0 +1,130 @@
+# This file is part of the research.fi service
+#
+# Copyright 2024 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  labels:
+    app: mydata-api-qa
+    template: mydata-api-qa
+  name: mydata-api-qa
+  annotations:
+    description: "Mydata backend QA"
+    iconClass: icon-dotnet
+objects:
+
+  # Service
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: mydata-api-qa
+      labels:
+        app: mydata-api-qa
+      annotations:
+        description: Mydata backend QA
+    spec:
+      ports:
+        - name: dotnet
+          port: 8080
+          targetPort: 8080
+      selector:
+        app: mydata-api-qa
+
+  # Route
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: mydata-api-qa
+      labels:
+        app: mydata-api-qa
+    spec:
+      host: mydata-api-qa.2.rahtiapp.fi
+      to:
+        kind: Service
+        name: mydata-api-qa
+        weight: 100
+      port:
+        targetPort: dotnet
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  # ImageStream
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      name: mydata-api-qa
+      labels:
+        app: mydata-api-qa
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      name: mydata-api-build-qa
+      labels:
+        app: mydata-api-qa
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: qa
+        contextDir: .
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: aspnetcore/openshift/api/rahti2/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: mydata-api-qa:latest
+      successfulBuildsHistoryLimit: 2
+      failedBuildsHistoryLimit: 2
+
+  # Deployment
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: mydata-api-qa
+      labels:
+        app: mydata-api-qa
+    spec:
+      selector:
+        matchLabels:
+          app: mydata-api-qa
+      template:
+        metadata:
+          labels:
+            app: mydata-api-qa
+        spec:
+          containers:
+            - name: mydata-api-container-qa
+              image: image-registry.openshift-image-registry.svc:5000/researchfi-qa/mydata-api-qa:latest
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources:
+                limits:
+                  cpu: 500m
+                  memory: 6Gi
+                requests:
+                  cpu: 100m
+                  memory: 2Gi
+      replicas: 1
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - mydata-api-container-qa
+            from:
+              kind: ImageStreamTag
+              name: mydata-api-qa:latest
+      strategy:
+        type: RollingUpdate

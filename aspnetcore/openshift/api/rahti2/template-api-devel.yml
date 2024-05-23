@@ -1,0 +1,130 @@
+# This file is part of the research.fi service
+#
+# Copyright 2024 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  labels:
+    app: mydata-api-devel
+    template: mydata-api-devel
+  name: mydata-api-devel
+  annotations:
+    description: "Mydata backend devel"
+    iconClass: icon-dotnet
+objects:
+
+  # Service
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: mydata-api-devel
+      labels:
+        app: mydata-api-devel
+      annotations:
+        description: Mydata backend devel
+    spec:
+      ports:
+        - name: dotnet
+          port: 8080
+          targetPort: 8080
+      selector:
+        app: mydata-api-devel
+
+  # Route
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: mydata-api-devel
+      labels:
+        app: mydata-api-devel
+    spec:
+      host: mydata-api-devel.2.rahtiapp.fi
+      to:
+        kind: Service
+        name: mydata-api-devel
+        weight: 100
+      port:
+        targetPort: dotnet
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  # ImageStream
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      name: mydata-api-devel
+      labels:
+        app: mydata-api-devel
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      name: mydata-api-build-devel
+      labels:
+        app: mydata-api-devel
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: devel
+        contextDir: .
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: aspnetcore/openshift/api/rahti2/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: mydata-api-devel:latest
+      successfulBuildsHistoryLimit: 2
+      failedBuildsHistoryLimit: 2
+
+  # Deployment
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: mydata-api-devel
+      labels:
+        app: mydata-api-devel
+    spec:
+      selector:
+        matchLabels:
+          app: mydata-api-devel
+      template:
+        metadata:
+          labels:
+            app: mydata-api-devel
+        spec:
+          containers:
+            - name: mydata-api-container-devel
+              image: image-registry.openshift-image-registry.svc:5000/researchfi-devel/mydata-api-devel:latest
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources:
+                limits:
+                  cpu: 500m
+                  memory: 4Gi
+                requests:
+                  cpu: 100m
+                  memory: 1Gi
+      replicas: 1
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - mydata-api-container-devel
+            from:
+              kind: ImageStreamTag
+              name: mydata-api-devel:latest
+      strategy:
+        type: RollingUpdate
