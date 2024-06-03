@@ -1,0 +1,128 @@
+# This file is part of the research.fi service
+#
+# Copyright 2024 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  labels:
+    app: keycloak-devel
+    template: keycloak-devel
+  name: keycloak-devel
+  annotations:
+    description: "Research.fi Keycloak devel"
+objects:
+
+  # Service
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: keycloak-devel
+      labels:
+        app: keycloak-devel
+      annotations:
+        description: Research.fi Keycloak devel
+    spec:
+      ports:
+        - name: keycloak
+          port: 8080
+          targetPort: 8080
+      selector:
+        app: keycloak-devel
+
+  # Route
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: keycloak-devel
+      labels:
+        app: keycloak-devel
+    spec:
+      host: keycloak-devel.2.rahtiapp.fi
+      to:
+        kind: Service
+        name: keycloak-devel
+        weight: 100
+      port:
+        targetPort: keycloak
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  # ImageStream
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      name: keycloak-devel
+      labels:
+        app: keycloak-devel
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      name: keycloak-devel-build
+      labels:
+        app: keycloak-devel
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: master
+        contextDir: .
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: keycloak/openshift/rahti2/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: keycloak-devel:latest
+      successfulBuildsHistoryLimit: 2
+      failedBuildsHistoryLimit: 2
+
+  # Deployment config
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: keycloak-devel
+      labels:
+        app: keycloak-devel
+    spec:
+      selector:
+        matchLabels:
+          app: keycloak-devel
+      template:
+        metadata:
+          labels:
+            app: keycloak-devel
+        spec:
+          containers:
+            - name: keycloak-devel-container
+              image: image-registry.openshift-image-registry.svc:5000/researchfi-devel/keycloak-devel:latest
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources:
+                limits:
+                  cpu: 1
+                  memory: 1Gi
+                requests:
+                  cpu: 250m
+                  memory: 256Mi
+      replicas: 1
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - keycloak-devel-container
+            from:
+              kind: ImageStreamTag
+              name: keycloak-devel:latest
+      strategy:
+        type: Recreate

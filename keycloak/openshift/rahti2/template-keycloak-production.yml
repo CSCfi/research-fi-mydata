@@ -1,0 +1,128 @@
+# This file is part of the research.fi service
+#
+# Copyright 2024 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland servicedesk@csc.fi
+# :license: MIT
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  labels:
+    app: keycloak-production
+    template: keycloak-production
+  name: keycloak-production
+  annotations:
+    description: "Research.fi Keycloak production"
+objects:
+
+  # Service
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: keycloak-production
+      labels:
+        app: keycloak-production
+      annotations:
+        description: Research.fi Keycloak production
+    spec:
+      ports:
+        - name: keycloak
+          port: 8080
+          targetPort: 8080
+      selector:
+        app: keycloak-production
+
+  # Route
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: keycloak-production
+      labels:
+        app: keycloak-production
+    spec:
+      host: researchfi-auth.2.rahtiapp.fi
+      to:
+        kind: Service
+        name: keycloak-production
+        weight: 100
+      port:
+        targetPort: keycloak
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  # ImageStream
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      name: keycloak-production
+      labels:
+        app: keycloak-production
+
+  # BuildConfig using Docker build strategy
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      name: keycloak-production-build
+      labels:
+        app: keycloak-production
+    spec:
+      source:
+        git:
+          uri: https://github.com/CSCfi/research-fi-mydata.git
+          ref: master
+        contextDir: .
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: keycloak/openshift/rahti2/Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: keycloak-production:latest
+      successfulBuildsHistoryLimit: 2
+      failedBuildsHistoryLimit: 2
+
+  # Deployment config
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: keycloak-production
+      labels:
+        app: keycloak-production
+    spec:
+      selector:
+        matchLabels:
+          app: keycloak-production
+      template:
+        metadata:
+          labels:
+            app: keycloak-production
+        spec:
+          containers:
+            - name: keycloak-production-container
+              image: image-registry.openshift-image-registry.svc:5000/researchfi-production/keycloak-production:latest
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources:
+                limits:
+                  cpu: 1
+                  memory: 1Gi
+                requests:
+                  cpu: 500m
+                  memory: 512Mi
+      replicas: 1
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - keycloak-production-container
+            from:
+              kind: ImageStreamTag
+              name: keycloak-production:latest
+      strategy:
+        type: Recreate
