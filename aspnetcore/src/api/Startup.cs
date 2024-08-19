@@ -141,7 +141,7 @@ namespace api
                 {
                     builder.WithOrigins(
                         "https://*.csc.fi",
-                        "https://*.rahtiapp.fi",
+                        "https://*.2.rahtiapp.fi",
                         "https://localhost:5003"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
@@ -159,9 +159,9 @@ namespace api
                         "https://www.tiedejatutkimus.fi",
                         "https://www.forskning.fi",
                         "https://www.research.fi",
-                        "https://researchfi-qa.rahtiapp.fi",
-                        "https://researchfi-qa-sv.rahtiapp.fi",
-                        "https://researchfi-qa-en.rahtiapp.fi"
+                        "https://researchfi-qa.2.rahtiapp.fi",
+                        "https://researchfi-qa-sv.2.rahtiapp.fi",
+                        "https://researchfi-qa-en.2.rahtiapp.fi"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()

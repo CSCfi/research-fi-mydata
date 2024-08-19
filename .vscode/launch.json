@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             "launchSettingsProfile": "http",
-            "program": "${workspaceFolder}/aspnetcore/src/api/bin/Debug/net6.0/api.dll",
+            "program": "${workspaceFolder}/aspnetcore/src/api/bin/Debug/net8.0/api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/aspnetcore/src/api",
             "stopAtEntry": false,
