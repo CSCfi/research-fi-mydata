@@ -11,7 +11,7 @@ public partial class DimCallProgramme
 
     public int DimDateIdOpen { get; set; }
 
-    public TimeSpan? DueDateDueTime { get; set; }
+    public TimeOnly? DueDateDueTime { get; set; }
 
     public string Abbreviation { get; set; }
 
