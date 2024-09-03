@@ -33,20 +33,11 @@ public partial class DimResearchProject
     /// <summary>
     /// Hanke - tiivistelmä
     /// </summary>
-    public string SummaryFi { get; set; }
+    public string DescriptionFi { get; set; }
 
-    public string SummaryEn { get; set; }
+    public string DescriptionEn { get; set; }
 
-    public string SummarySv { get; set; }
-
-    /// <summary>
-    /// Hanke - lisätieto
-    /// </summary>
-    public string AdditionalInfromationFi { get; set; }
-
-    public string AdditionalInformationEn { get; set; }
-
-    public string AddtitionalInformationSv { get; set; }
+    public string DescriptionSv { get; set; }
 
     /// <summary>
     /// Hanke - alkamispäivämäärä
