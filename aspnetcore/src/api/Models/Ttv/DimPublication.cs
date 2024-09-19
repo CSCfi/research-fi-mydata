@@ -121,6 +121,8 @@ public partial class DimPublication
 
     public int JufoClass { get; set; }
 
+    public int? DimPublicationId { get; set; }
+
     public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
 
     public virtual ICollection<DimLocallyReportedPubInfo> DimLocallyReportedPubInfos { get; set; } = new List<DimLocallyReportedPubInfo>();
@@ -129,6 +131,8 @@ public partial class DimPublication
 
     public virtual DimPublicationChannel DimPublicationChannel { get; set; }
 
+    public virtual DimPublication DimPublicationNavigation { get; set; }
+
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
@@ -136,6 +140,8 @@ public partial class DimPublication
     public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; } = new List<FactDimReferencedataFieldOfScience>();
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
+
+    public virtual ICollection<DimPublication> InverseDimPublicationNavigation { get; set; } = new List<DimPublication>();
 
     public virtual DimReferencedatum JufoClassNavigation { get; set; }
 
