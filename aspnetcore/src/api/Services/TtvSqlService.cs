@@ -704,10 +704,19 @@ namespace api.Services
         public string GetSqlQuery_Select_FactContribution(int dimNameId)
         {
             return $@"SELECT DISTINCT
-                        dim_research_activity_id AS 'DimResearchActivityId',
-                        dim_research_dataset_id AS 'DimResearchDatasetId',
-                        dim_publication_id AS 'DimPublicationId'
-                      FROM fact_contribution WHERE dim_name_id = {dimNameId} AND (dim_research_activity_id!=-1 OR dim_research_dataset_id!=-1 OR dim_publication_id!=-1)";
+                        fc.dim_research_activity_id AS 'DimResearchActivityId',
+                        fc.dim_research_dataset_id AS 'DimResearchDatasetId',
+                        fc.dim_publication_id AS 'DimPublicationId',
+                        COALESCE(dp.dim_publication_id, -1) AS 'CoPublication_Parent_DimPublicationId'
+                    FROM
+                        fact_contribution AS fc
+                    JOIN
+                        dim_publication AS dp ON fc.dim_publication_id=dp.id
+                    WHERE
+                        fc.dim_name_id = {dimNameId} AND
+                        (
+                            fc.dim_research_activity_id!=-1 OR fc.dim_research_dataset_id!=-1 OR fc.dim_publication_id!=-1
+                        )";
         }
 
         // Return SQL SELECT statement for br_participates_in_funding_group
