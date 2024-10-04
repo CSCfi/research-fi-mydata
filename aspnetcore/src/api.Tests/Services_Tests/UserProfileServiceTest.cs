@@ -560,5 +560,53 @@ namespace api.Tests
             Assert.Equal(expectedProfileSettings.Hidden, actualProfileSettings.Hidden);
             Assert.Equal(expectedProfileSettings.PublishNewOrcidData, actualProfileSettings.PublishNewOrcidData);
         }
+
+        [Fact(DisplayName = "ProfileSettings from DimUserProfile")]
+        public void GetFullNameFromLastNameAndFistNames_01()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            string expectedFullname = "Smith John";
+            // Act
+            string actualFullname = userProfileService.GetFullname("Smith", "John");
+            // Assert
+            Assert.Equal(expectedFullname, actualFullname);
+        }
+
+        [Fact(DisplayName = "ProfileSettings from DimUserProfile - last name is empty")]
+        public void GetFullNameFromLastNameAndFistNames_02()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            string expectedFullname = "John";
+            // Act
+            string actualFullname = userProfileService.GetFullname("", "John");
+            // Assert
+            Assert.Equal(expectedFullname, actualFullname);
+        }
+
+        [Fact(DisplayName = "ProfileSettings from DimUserProfile - fist name is empty")]
+        public void GetFullNameFromLastNameAndFistNames_03()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            string expectedFullname = "Smith";
+            // Act
+            string actualFullname = userProfileService.GetFullname("Smith", "");
+            // Assert
+            Assert.Equal(expectedFullname, actualFullname);
+        }
+
+        [Fact(DisplayName = "ProfileSettings from DimUserProfile - trim whitespaces")]
+        public void GetFullNameFromLastNameAndFistNames_04()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            string expectedFullname = "Smith John";
+            // Act
+            string actualFullname = userProfileService.GetFullname("  Smith  ", "  John  ");
+            // Assert
+            Assert.Equal(expectedFullname, actualFullname);
+        }
     }
 }

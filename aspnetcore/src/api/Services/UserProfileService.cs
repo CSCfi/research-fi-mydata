@@ -550,6 +550,13 @@ namespace api.Services
                 aNameSv == bNameSv);
         }
 
+        /*
+         * Get fullName from lastName and firstNames
+         */
+        public string GetFullname(string lastName, string firstNames)
+        {
+            return $"{lastName.Trim()} {firstNames.Trim()}".Trim();
+        }
 
         /*
          * Search and add data from TTV database.
@@ -1120,9 +1127,9 @@ namespace api.Services
                         profileDataResponse.personal.names.Add(
                             new ProfileEditorName()
                             {
-                                FirstNames = p.DimName_FirstNames,
-                                LastName = p.DimName_LastName,
-                                FullName = $"{p.DimName_LastName} {p.DimName_FirstNames}", // Populate for Elasticsearch queries
+                                FirstNames = p.DimName_FirstNames.Trim(),
+                                LastName = p.DimName_LastName.Trim(),
+                                FullName = GetFullname(p.DimName_LastName, p.DimName_FirstNames), // Populate for Elasticsearch queries
                                 itemMeta = new ProfileEditorItemMeta(
                                 
                                     id: p.FactFieldValues_DimNameId,
@@ -1140,7 +1147,7 @@ namespace api.Services
                         profileDataResponse.personal.otherNames.Add(
                             new ProfileEditorName()
                             {
-                                FullName = p.DimName_FullName,
+                                FullName = p.DimName_FullName.Trim(),
                                 itemMeta = new ProfileEditorItemMeta(
                                     id: p.FactFieldValues_DimNameId,
                                     type: Constants.ItemMetaTypes.PERSON_OTHER_NAMES,
