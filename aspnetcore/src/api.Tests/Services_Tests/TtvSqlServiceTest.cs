@@ -489,10 +489,19 @@ namespace api.Tests
             TtvSqlService ttvSqlService = new();
             string expectedSqlString =
                 $@"SELECT DISTINCT
-                        dim_research_activity_id AS 'DimResearchActivityId',
-                        dim_research_dataset_id AS 'DimResearchDatasetId',
-                        dim_publication_id AS 'DimPublicationId'
-                      FROM fact_contribution WHERE dim_name_id = 1234 AND (dim_research_activity_id!=-1 OR dim_research_dataset_id!=-1 OR dim_publication_id!=-1)";
+                        fc.dim_research_activity_id AS 'DimResearchActivityId',
+                        fc.dim_research_dataset_id AS 'DimResearchDatasetId',
+                        fc.dim_publication_id AS 'DimPublicationId',
+                        COALESCE(dp.dim_publication_id, -1) AS 'CoPublication_Parent_DimPublicationId'
+                    FROM
+                        fact_contribution AS fc
+                    JOIN
+                        dim_publication AS dp ON fc.dim_publication_id=dp.id
+                    WHERE
+                        fc.dim_name_id = 1234 AND
+                        (
+                            fc.dim_research_activity_id!=-1 OR fc.dim_research_dataset_id!=-1 OR fc.dim_publication_id!=-1
+                        )";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Select_FactContribution(1234);
             // Assert

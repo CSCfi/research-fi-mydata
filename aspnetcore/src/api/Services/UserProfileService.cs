@@ -836,16 +836,21 @@ namespace api.Services
                         foreach (FactContributionTableMinimalDTO fc in factContributions)
                         {
                             // publication
-                            if (fc.DimPublicationId != -1 && !existingPublicationIds.Contains(fc.DimPublicationId))
+                            //
+                            // Co-publications have multiple rows in table fact_contribution. Here only the "main" publication should be included.
+                            // If FactContributionTableMinimalDTO.CoPublication_Parent_DimPublicationId has value (other than -1), that must be used.
+                            // Otherwise FactContributionTableMinimalDTO.DimPublicationId must be used.
+                            int publicationId = fc.CoPublication_Parent_DimPublicationId > 0 ? fc.CoPublication_Parent_DimPublicationId : fc.DimPublicationId;
+                            if (publicationId != -1 && !existingPublicationIds.Contains(publicationId))
                             {
                                 FactFieldValue factFieldValuePublication = this.GetEmptyFactFieldValue();
                                 factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
                                 factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting_publication.Id;
-                                factFieldValuePublication.DimPublicationId = fc.DimPublicationId;
+                                factFieldValuePublication.DimPublicationId = publicationId;
                                 factFieldValuePublication.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
                                 _ttvContext.FactFieldValues.Add(factFieldValuePublication);
                                 // Prevent duplicate key error with publications
-                                existingPublicationIds.Add(fc.DimPublicationId);
+                                existingPublicationIds.Add(publicationId);
                             }
 
                             // research activity
