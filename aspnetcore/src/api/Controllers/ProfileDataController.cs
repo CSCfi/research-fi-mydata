@@ -58,10 +58,8 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
-            // Cache key
-            string cacheKey = _userProfileService.GetCMemoryCacheKey_UserProfile(orcidId);
-
             // Send cached response, if exists.
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_UserProfile(orcidId);
             if (_cache.TryGetValue(cacheKey, out ProfileEditorDataResponse cachedResponse))
             {
                 return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: cachedResponse, fromCache: true));
@@ -106,8 +104,9 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
-            // Remove cached profile data response. Cache key is ORCID ID.
-            _cache.Remove(orcidId);
+            // Remove cached profile data response.
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_UserProfile(orcidId);
+            _cache.Remove(cacheKey);
 
             // Collect information about updated items to a response object, which will be sent in response.
             ProfileEditorDataModificationResponse profileEditorDataModificationResponse = new();
