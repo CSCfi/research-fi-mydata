@@ -166,5 +166,16 @@
             public const string PROFILE_SHARING_GRANTS = "07";
             public const string PROFILE_SHARING_ACTIVITIES_AND_DISTINCTIONS = "08";
         }
+
+        public static class ApiResponseReasons
+        {
+            public const string PROFILE_ALREADY_EXISTS = "profile already exists";
+            public const string PROFILE_NOT_FOUND = "profile not found";
+            public const string PROFILE_CREATE_FAILED = "create profile failed";
+            public const string INVALID_REQUEST = "invalid request data";
+            public const string NOTHING_TO_MODIFY = "nothing to modify";
+            public const string NOTHING_TO_ADD = "nothing to add";
+            public const string NOTHING_TO_REMOVE = "nothing to remove";
+        }
     }
 }

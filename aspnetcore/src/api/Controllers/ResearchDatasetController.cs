@@ -57,26 +57,24 @@ namespace api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
             // Return immediately if there is nothing to add
             if (profileEditorResearchdatasetToAdd.Count == 0)
             {
-                return Ok(new ApiResponse(success: false, reason: "nothing to add"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_ADD));
             }
 
             // Get ORCID id
             string orcidId = GetOrcidId();
 
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
-
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // TODO: FactFieldValues relation to DimResearchDataset
             DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId)
@@ -186,26 +184,24 @@ namespace api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
             // Return immediately if there is nothing to remove
             if (localIdentifiers.Count == 0)
             {
-                return Ok(new ApiResponse(success: false, reason: "nothing to remove"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_REMOVE));
             }
 
             // Get ORCID id
             string orcidId = GetOrcidId();
 
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
-
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Response object
             ProfileEditorRemoveResearchDatasetResponse profileEditorRemoveResearchDatasetResponse = new();

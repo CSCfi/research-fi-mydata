@@ -412,6 +412,19 @@ namespace api.Tests
             Assert.Equal<ulong>(9999123456789, actualResult.TemporaryUniqueId);
         }
 
+        [Fact(DisplayName = "Memory cache key - user profile")]
+        public void MemoryCacheKey_UserProfile()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            string orcidId = "1234-5678-9098-7654";
+            string expectedMemoryCacheKey = $"userprofile-{orcidId}";
+            // Act
+            string actualMemoryCacheKey = userProfileService.GetCMemoryCacheKey_UserProfile(orcidId: orcidId);
+            // Assert
+            Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
+        }
+
         [Fact(DisplayName = "Memory cache key - profile settings")]
         public void MemoryCacheKey_ProfileSettings()
         {
@@ -421,6 +434,32 @@ namespace api.Tests
             string expectedMemoryCacheKey = $"profilesettings-{orcidId}";
             // Act
             string actualMemoryCacheKey = userProfileService.GetCMemoryCacheKey_ProfileSettings(orcidId: orcidId);
+            // Assert
+            Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
+        }
+
+        [Fact(DisplayName = "Memory cache key - user choices")]
+        public void MemoryCacheKey_UserChoices()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            string orcidId = "1234-5678-9098-7654";
+            string expectedMemoryCacheKey = $"userchoices-{orcidId}";
+            // Act
+            string actualMemoryCacheKey = userProfileService.GetCMemoryCacheKey_UserChoices(orcidId: orcidId);
+            // Assert
+            Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
+        }
+
+        [Fact(DisplayName = "Memory cache key - given permissions")]
+        public void MemoryCacheKey_GivenPermissions()
+        {
+            // Arrange
+            UserProfileService userProfileService = new();
+            string orcidId = "1234-5678-9098-7654";
+            string expectedMemoryCacheKey = $"given_permissions-{orcidId}";
+            // Act
+            string actualMemoryCacheKey = userProfileService.GetCMemoryCacheKey_GivenPermissions(orcidId: orcidId);
             // Assert
             Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
         }

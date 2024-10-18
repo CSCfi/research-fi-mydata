@@ -32,16 +32,20 @@ namespace api.Services
         Task<DimUserProfile> GetUserprofile(string orcidId);
         Task<DimUserProfile> GetUserprofileTracking(string orcidId);
         Task<DimUserProfile> GetUserprofileById(int Id);
-        Task<int> GetUserprofileId(string orcidId);
+        Task<(bool UserProfileExists, int UserProfileId)> GetUserprofileIdForOrcidId(string orcidId);
         Task<bool> IsUserprofilePublished(int dimUserProfileId);
         Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens);
         Task<bool> DeleteProfileFromElasticsearch(string orcidId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_UPDATE);
         Task<bool> UpdateProfileInElasticsearch(string orcidId, int userprofileId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_UPDATE);
-        Task<bool> UserprofileExistsForOrcidId(string orcidId);
         Task HideProfile(string orcidId, LogUserIdentification logUserIdentification);
         Task RevealProfile(string orcidId, LogUserIdentification logUserIdentification);
         ProfileSettings GetProfileSettings(DimUserProfile dimUserProfile);
         Task SaveProfileSettings(string orcidId, DimUserProfile dimUserProfile, ProfileSettings profileSettings, LogUserIdentification logUserIdentification);
+        string GetCMemoryCacheKey_UserProfile(string orcidId);
         string GetCMemoryCacheKey_ProfileSettings(string orcidId);
+        string GetCMemoryCacheKey_UserChoices(string orcidId);
+        string GetCMemoryCacheKey_SharePurposes();
+        string GetCMemoryCacheKey_SharePermissions();
+        string GetCMemoryCacheKey_GivenPermissions(string orcidId);
     }
 }

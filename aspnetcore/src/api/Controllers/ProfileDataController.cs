@@ -13,6 +13,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using api.Models.Log;
+using System.Security.AccessControl;
 
 namespace api.Controllers
 {
@@ -51,16 +52,14 @@ namespace api.Controllers
             string orcidId = GetOrcidId();
 
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-
             // Cache key
-            string cacheKey = orcidId;
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_UserProfile(orcidId);
 
             // Send cached response, if exists.
             if (_cache.TryGetValue(cacheKey, out ProfileEditorDataResponse cachedResponse))
@@ -100,13 +99,11 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
-            // Get user profile
-            DimUserProfile dimUserProfile = await _userProfileService.GetUserprofile(orcidId);
-
             // Check that userprofile exists.
-            if (dimUserProfile == null || dimUserProfile.Id < 0)
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
             // Remove cached profile data response. Cache key is ORCID ID.
@@ -118,7 +115,7 @@ namespace api.Controllers
             // Set 'Show' and 'PrimaryValue' in FactFieldValues
             foreach (ProfileEditorItemMeta profileEditorItemMeta in profileEditorDataModificationRequest.items.ToList())
             {
-                string updateSql = _ttvSqlService.GetSqlQuery_Update_FactFieldValues(dimUserProfile.Id, profileEditorItemMeta);
+                string updateSql = _ttvSqlService.GetSqlQuery_Update_FactFieldValues(userprofileId, profileEditorItemMeta);
                 await _userProfileService.ExecuteRawSql(updateSql);
                 profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
             }
@@ -127,7 +124,7 @@ namespace api.Controllers
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
             await _userProfileService.UpdateProfileInElasticsearch(
                 orcidId: orcidId,
-                userprofileId: dimUserProfile.Id,
+                userprofileId: userprofileId,
                 logUserIdentification: logUserIdentification);
 
             return Ok(new ApiResponseProfileDataPatch(success: true, reason: "", data: profileEditorDataModificationResponse, fromCache: false));

@@ -15,6 +15,7 @@ using api.Models.Ttv;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using api.Models.Common;
 
 namespace api.Controllers
 {
@@ -67,13 +68,11 @@ namespace api.Controllers
             // Get ORCID id.
             string orcidId = this.GetOrcidId();
 
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-
             // Check that userprofile exists.
-            if (userprofileId < 1)
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
             // Get ORCID record from ORCID member or public API.

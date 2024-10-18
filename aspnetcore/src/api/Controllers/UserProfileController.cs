@@ -10,6 +10,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Http;
 using Serilog;
+using System.Reflection.Metadata;
+using api.Models.Common;
+using Nest;
 
 namespace api.Controllers
 {
@@ -48,13 +51,16 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
-            if (await _userProfileService.UserprofileExistsForOrcidId(orcidId: GetOrcidId()))
+
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(GetOrcidId());
+            if (userprofileExists)
             {
                 return Ok(new ApiResponse(success: true));
             }
             else
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
         }
 
@@ -75,9 +81,10 @@ namespace api.Controllers
                     action: LogContent.Action.PROFILE_CREATE,
                     state: LogContent.ActionState.START));
 
-            // Return immediately, if profile already exist.
+            // Return immediately, if profile already exists.
             // Log error, but pass silently in user profile API.
-            if (await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(GetOrcidId());
+            if (userprofileExists)
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
@@ -86,7 +93,7 @@ namespace api.Controllers
                         action: LogContent.Action.PROFILE_CREATE,
                         state: LogContent.ActionState.FAILED,
                         error: true,
-                        message: "already exists"));
+                        message: "profile already exists"));
                 return Ok(new ApiResponse(success: true));
             }
 
@@ -105,7 +112,7 @@ namespace api.Controllers
                         state: LogContent.ActionState.FAILED,
                         error: true,
                         message: LogContent.ActionState.FAILED));
-                return Ok(new ApiResponse(success: false, reason: "create profile failed"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_CREATE_FAILED));
             }
 
             // Register ORCID webhook. Continue profile creation in case of error.
@@ -170,7 +177,8 @@ namespace api.Controllers
                     state: LogContent.ActionState.START));
 
             // Return immediately, if profile does not exist.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(GetOrcidId());
+            if (!userprofileExists)
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
