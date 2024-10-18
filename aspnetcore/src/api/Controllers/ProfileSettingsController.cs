@@ -49,7 +49,7 @@ namespace api.Controllers
             // Check that userprofile exists.
             if (dimUserProfile == null)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
             // Cache key
@@ -87,7 +87,7 @@ namespace api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
             // Get ORCID id
@@ -99,7 +99,7 @@ namespace api.Controllers
             // Check that userprofile exists.
             if (dimUserProfile == null)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
             // Remove cached data

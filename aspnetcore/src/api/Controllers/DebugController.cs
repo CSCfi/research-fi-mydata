@@ -117,14 +117,14 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
-            // Check that user profile exists.
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-            if (userprofileId == -1)
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
             // User identification object for logging
@@ -157,13 +157,14 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
             // Check if user profile already exists.
-            if (await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (userprofileExists)
             {
-                return Ok(new ApiResponse(success: true, reason: "profile already exists"));
+                return Ok(new ApiResponse(success: true, reason: Constants.ApiResponseReasons.PROFILE_ALREADY_EXISTS));
             }
 
             // Check that ORCID ID exists in DimPid and is linked to DimKnownPerson.
@@ -215,19 +216,17 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
             // Return immediately, if profile does not exist.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
                 string msg = "profile does not exist for ORCID ID: " + orcidId;
                 _logger.LogInformation($"{logPrefix}{msg}");
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
-
-            // Get userprofile id.
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);

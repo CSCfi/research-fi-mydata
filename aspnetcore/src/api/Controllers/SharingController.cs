@@ -47,7 +47,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponseProfileSharingPurposesGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPurposes()
         {
-            string cacheKey = "share_purposes";
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_SharePurposes();
 
             // Send cached response, if exists.
             if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingPurposesResponse cachedResponse))
@@ -74,7 +74,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponseProfileSharingPermissionsGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPermissions()
         {
-            string cacheKey = "share_permissions";
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_SharePermissions();
 
             // Send cached response, if exists.
             if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingPermissionsResponse cachedResponse))
@@ -105,23 +105,19 @@ namespace api.Controllers
             // Get ORCID id
             string orcidId = GetOrcidId();
 
-            // Cache key
-            string cacheKey = orcidId + "_given_permissions";
-
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
             // Send cached response, if exists.
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_GivenPermissions(orcidId);
             if (_cache.TryGetValue(cacheKey, out ProfileEditorSharingGivenPermissionsResponse cachedResponse))
             {
                 return Ok(new ApiResponseProfileSharingGivenPermissionsGet(success: true, reason: "", data: cachedResponse, fromCache: true));
             }
-
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             // Get profile data
             ProfileEditorSharingGivenPermissionsResponse profileSharingResponse = await _sharingService.GetProfileEditorSharingResponse(userprofileId);
@@ -143,33 +139,32 @@ namespace api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
             // Return immediately if there is nothing to add
             if (permissionsToAdd.Count == 0)
             {
-                return Ok(new ApiResponse(success: false, reason: "nothing to add"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_ADD));
             }
 
             // Get ORCID id
             string orcidId = GetOrcidId();
 
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
-
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             await _sharingService.AddPermissions(userprofileId, permissionsToAdd);
 
             await _ttvContext.SaveChangesAsync();
 
             // Remove cached given permissions list.
-            _cache.Remove(orcidId + "_given_permissions");
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_GivenPermissions(orcidId);
+            _cache.Remove(cacheKey);
 
             return Ok(new ApiResponse(success: true));
         }
@@ -183,33 +178,32 @@ namespace api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
             // Return immediately if there is nothing to delete
             if (permissionsToDelete.Count == 0)
             {
-                return Ok(new ApiResponse(success: false, reason: "nothing to remove"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_REMOVE));
             }
 
             // Get ORCID id
             string orcidId = GetOrcidId();
 
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
-
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
 
             await _sharingService.DeletePermissions(userprofileId, permissionsToDelete);
 
             await _ttvContext.SaveChangesAsync();
 
             // Remove cached given permissions list.
-            _cache.Remove(orcidId + "_given_permissions");
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_GivenPermissions(orcidId);
+            _cache.Remove(cacheKey);
 
             return Ok(new ApiResponse(success: true));
         }

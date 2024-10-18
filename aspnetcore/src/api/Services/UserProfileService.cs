@@ -149,28 +149,21 @@ namespace api.Services
         }
 
         /*
-         * Get Id of DimUserProfile based on ORCID Id.
-         */
-        public async Task<int> GetUserprofileId(string orcidId)
-        {
-            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking().FirstOrDefaultAsync();
-            if (dimUserProfile == null)
-            {
-                return -1;
-            }
-            else
-            {
-                return dimUserProfile.Id;
-            }
-        }
-
-        /*
          * Check if user profile exists for ORCID Id.
          */
-        public async Task<bool> UserprofileExistsForOrcidId(string orcidId)
-        {
-            int userProfileId = await GetUserprofileId(orcidId: orcidId);
-            return userProfileId > -1;
+        public async Task<(bool UserProfileExists, int UserProfileId)> GetUserprofileIdForOrcidId(string orcidId)
+        {   
+            IntegerDTO dimUserProfileIdDTO = await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking()
+                .Select(dimUserProfile => new IntegerDTO()  
+                {  
+                    Integer = dimUserProfile.Id
+                }).FirstOrDefaultAsync();
+            if (dimUserProfileIdDTO == null || dimUserProfileIdDTO.Integer < 0) {
+                return (UserProfileExists: false,  UserProfileId: -1);
+            }
+            else {
+                return (UserProfileExists: true,  UserProfileId: dimUserProfileIdDTO.Integer);
+            }
         }
 
         /*
@@ -2705,11 +2698,51 @@ namespace api.Services
         }
 
         /*
+         * Returns memory cache key for user profile
+         */
+        public string GetCMemoryCacheKey_UserProfile(string orcidId)
+        {
+            return $"userprofile-{orcidId}";
+        }
+
+        /*
          * Returns memory cache key for profile settings
          */
         public string GetCMemoryCacheKey_ProfileSettings(string orcidId)
         {
             return $"profilesettings-{orcidId}";
+        }
+
+        /*
+         * Returns memory cache key for user choices
+         */
+        public string GetCMemoryCacheKey_UserChoices(string orcidId)
+        {
+            return $"userchoices-{orcidId}";
+        }
+
+        /*
+         * Returns memory cache key for share purposes
+         */
+        public string GetCMemoryCacheKey_SharePurposes()
+        {
+            return "share_purposes";
+        }
+
+        /*
+         * Returns memory cache key for share permissions
+         */
+        public string GetCMemoryCacheKey_SharePermissions()
+        {
+            return "share_permissions";
+        }
+
+        /*
+         * Returns memory cache key for given permissions
+         */
+        public string GetCMemoryCacheKey_GivenPermissions(string orcidId)
+        {
+            return $"given_permissions-{orcidId}";
         }
 
         /*

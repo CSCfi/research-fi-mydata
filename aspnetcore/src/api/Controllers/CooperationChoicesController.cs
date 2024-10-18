@@ -50,16 +50,14 @@ namespace api.Controllers
             string orcidId = GetOrcidId();
 
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-
-            // Send cached response, if exists. Cache key is ORCID ID + "_choices"
-            string cacheKey = orcidId + "_choices";
+            // Send cached response, if exists.
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_UserChoices(orcidId);
             if (_cache.TryGetValue(cacheKey, out List<ProfileEditorCooperationItem> cachedResponse))
             {
                 return Ok(new ApiResponseCooperationGet(success: true, reason: "", data: cachedResponse, fromCache: true));
@@ -132,29 +130,28 @@ namespace api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: "invalid request data"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
             // Return immediately if there is nothing to modify.
             if (profileEditorCooperationItems.Count == 0)
             {
-                return Ok(new ApiResponse(success: false, reason: "nothing to modify"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_MODIFY));
             }
 
             // Get ORCID id
             string orcidId = GetOrcidId();
 
             // Check that userprofile exists.
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: orcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
             {
-                return Ok(new ApiResponse(success: false, reason: "profile not found"));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
-            // Get userprofile id
-            int userprofileId = await _userProfileService.GetUserprofileId(orcidId);
-
-            // Remove cached profile data response. Cache key is ORCID ID + "_choices"
-            _cache.Remove(orcidId + "_choices");
+            // Remove cached profile data response.
+            string cacheKey = _userProfileService.GetCMemoryCacheKey_UserChoices(orcidId);
+            _cache.Remove(cacheKey);
 
             // Save cooperation selections
             foreach (ProfileEditorCooperationItem profileEditorCooperationItem in profileEditorCooperationItems)

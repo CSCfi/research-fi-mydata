@@ -64,7 +64,8 @@ namespace api.Services
             }
 
             // Check that user profile exists
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: webhookOrcidId))
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(webhookOrcidId);
+            if (!userprofileExists)
             {
                 _logger.LogError($"{logPrefix}ORCID webhook registration failed for {webhookOrcidId}: user profile not found");
                 return;
@@ -94,7 +95,9 @@ namespace api.Services
             }
 
             // Check that user profile exists
-            if (!await _userProfileService.UserprofileExistsForOrcidId(orcidId: webhookOrcidId))
+
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(webhookOrcidId);
+            if (!userprofileExists)
             {
                 _logger.LogError($"{logPrefix}ORCID webhook registration failed for {webhookOrcidId}: user profile not found");
                 return;
