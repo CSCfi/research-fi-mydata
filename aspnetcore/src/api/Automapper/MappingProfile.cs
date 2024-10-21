@@ -1,6 +1,9 @@
 ﻿using api.Models.ProfileEditor.Items;
 using api.Models.Elasticsearch;
 using AutoMapper;
+using api.Models.Ttv;
+using api.Models.ProfileEditor;
+using System.Linq;
 
 public class MappingProfile : Profile
 {
@@ -31,5 +34,15 @@ public class MappingProfile : Profile
         CreateMap<ProfileEditorActor, ElasticsearchActor>();
         CreateMap<ProfileEditorPreferredIdentifier, ElasticsearchPreferredIdentifier>();
         CreateMap<ProfileEditorActivityAndReward, ElasticsearchActivityAndReward>();
+        CreateMap<DimReferencedatum, ProfileEditorCooperationItem>()
+            .ForMember(dst => dst.Id, opt => opt.MapFrom(src => src.DimUserChoices.First().Id))
+            .ForMember(dst => dst.Selected, opt => opt.MapFrom(src => src.DimUserChoices.First().UserChoiceValue));
+
+        CreateMap<DimUserChoice, ElasticsearchCooperation>()
+            .ForMember(dst => dst.Id, opt => opt.MapFrom(src => src.DimReferencedataIdAsUserChoiceLabelNavigation.Id))
+            .ForMember(dst => dst.NameFi, opt => opt.MapFrom(src => src.DimReferencedataIdAsUserChoiceLabelNavigation.NameFi))
+            .ForMember(dst => dst.NameEn, opt => opt.MapFrom(src => src.DimReferencedataIdAsUserChoiceLabelNavigation.NameEn))
+            .ForMember(dst => dst.NameSv, opt => opt.MapFrom(src => src.DimReferencedataIdAsUserChoiceLabelNavigation.NameSv))
+            .ForMember(dst => dst.Order, opt => opt.MapFrom(src => src.DimReferencedataIdAsUserChoiceLabelNavigation.Order));
     }
 }
