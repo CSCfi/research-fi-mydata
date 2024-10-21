@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using AutoMapper;
 
 namespace api.Controllers
 {
@@ -28,15 +29,17 @@ namespace api.Controllers
         private readonly ITtvSqlService _ttvSqlService;
         private readonly IUtilityService _utilityService;
         private readonly IMemoryCache _cache;
+        private readonly IMapper _mapper;
 
         public CooperationChoicesController(TtvContext ttvContext, IUserProfileService userProfileService,
-            ITtvSqlService ttvSqlService, IUtilityService utilityService, IMemoryCache memoryCache)
+            ITtvSqlService ttvSqlService, IUtilityService utilityService, IMemoryCache memoryCache, IMapper mapper)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _ttvSqlService = ttvSqlService;
             _utilityService = utilityService;
             _cache = memoryCache;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -90,31 +93,13 @@ namespace api.Controllers
             }
             await _ttvContext.SaveChangesAsync();
 
-
-            // Collect data for API response.
-            List<ProfileEditorCooperationItem> cooperationItems = new();
-            foreach (DimReferencedatum dimReferenceDataUserChoice in dimReferenceDataUserChoices)
-            {
-                DimUserChoice dimUserChoice = dimReferenceDataUserChoice.DimUserChoices.First();
-                cooperationItems.Add(
-                    new ProfileEditorCooperationItem()
-                    {
-                        Id = dimUserChoice.Id,
-                        NameFi = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.NameFi,
-                        NameEn = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.NameEn,
-                        NameSv = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.NameSv,
-                        Selected = dimUserChoice.UserChoiceValue,
-                        Order = dimUserChoice.DimReferencedataIdAsUserChoiceLabelNavigation.Order
-                    }
-                );
-            }
+            // Map to API response.
+            List<ProfileEditorCooperationItem> cooperationItems = _mapper.Map<List<ProfileEditorCooperationItem>>(dimReferenceDataUserChoices);
 
             // Save response in cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 // Keep in cache for this time, reset time if accessed.
                 .SetSlidingExpiration(TimeSpan.FromSeconds(Constants.Cache.MEMORY_CACHE_EXPIRATION_SECONDS));
-
-            // Save data in cache. Cache key is ORCID ID.
             _cache.Set(cacheKey, cooperationItems, cacheEntryOptions);
 
             return Ok(new ApiResponseCooperationGet(success: true, reason: "", data: cooperationItems, fromCache: false));

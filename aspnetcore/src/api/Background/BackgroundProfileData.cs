@@ -8,6 +8,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using AutoMapper.QueryableExtensions;
 
 namespace api.Services
 {
@@ -52,24 +53,10 @@ namespace api.Services
             elasticsearchPerson.id = orcidId;
 
             // Add cooperation choices
-            List<DimUserChoice> userChoices =
+            List<ElasticsearchCooperation> userChoices =
                 await localTtvContext.DimUserChoices.TagWith("Get user choices for Elasticsearch")
-                .Where(duc => duc.DimUserProfileId == userprofileId && duc.UserChoiceValue == true)
-                .Include(duc => duc.DimReferencedataIdAsUserChoiceLabelNavigation).AsNoTracking().ToListAsync();
-
-            foreach (DimUserChoice uc in userChoices)
-            {
-                elasticsearchPerson.cooperation.Add(
-                    new ElasticsearchCooperation()
-                    {
-                        Id = uc.DimReferencedataIdAsUserChoiceLabelNavigation.Id,
-                        NameFi = uc.DimReferencedataIdAsUserChoiceLabelNavigation.NameFi,
-                        NameEn = uc.DimReferencedataIdAsUserChoiceLabelNavigation.NameEn,
-                        NameSv = uc.DimReferencedataIdAsUserChoiceLabelNavigation.NameSv,
-                        Order = uc.DimReferencedataIdAsUserChoiceLabelNavigation.Order
-                    }
-                );
-            }
+                .Where(duc => duc.DimUserProfileId == userprofileId && duc.UserChoiceValue == true).AsNoTracking().ProjectTo<ElasticsearchCooperation>(mapper.ConfigurationProvider).ToListAsync();
+            elasticsearchPerson.cooperation.AddRange(userChoices);
 
             return elasticsearchPerson;
         }
