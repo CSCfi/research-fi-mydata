@@ -2,6 +2,6 @@
 {
     public partial class IntegerDTO
     {
-        public int Integer { get; set; }
+        public int Value { get; set; }
     }
 }

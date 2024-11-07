@@ -119,6 +119,10 @@ namespace api.Controllers
                 profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
             }
 
+            // Refresh 'modified' timestamp in table dim_user_profile
+            string setModifiedSql = _ttvSqlService.GetSqlQuery_Update_DimUserProfile_Modified(userprofileId);
+            await _userProfileService.ExecuteRawSql(setModifiedSql); 
+
             // Update Elasticsearch index.
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
             await _userProfileService.UpdateProfileInElasticsearch(

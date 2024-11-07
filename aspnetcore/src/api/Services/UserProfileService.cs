@@ -156,13 +156,13 @@ namespace api.Services
             IntegerDTO dimUserProfileIdDTO = await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking()
                 .Select(dimUserProfile => new IntegerDTO()  
                 {  
-                    Integer = dimUserProfile.Id
+                    Value = dimUserProfile.Id
                 }).FirstOrDefaultAsync();
-            if (dimUserProfileIdDTO == null || dimUserProfileIdDTO.Integer < 0) {
+            if (dimUserProfileIdDTO == null || dimUserProfileIdDTO.Value < 0) {
                 return (UserProfileExists: false,  UserProfileId: -1);
             }
             else {
-                return (UserProfileExists: true,  UserProfileId: dimUserProfileIdDTO.Integer);
+                return (UserProfileExists: true,  UserProfileId: dimUserProfileIdDTO.Value);
             }
         }
 
@@ -1009,6 +1009,7 @@ namespace api.Services
                     SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = currentDateTime,
+                    Modified = currentDateTime,
                     AllowAllSubscriptions = false,
                     Hidden = false,
                     PublishNewOrcidData = false

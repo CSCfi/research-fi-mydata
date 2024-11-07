@@ -26,12 +26,14 @@ namespace api.Controllers
     public class WebhookController : ControllerBase
     {
         private readonly IUserProfileService _userProfileService;
+        private readonly ITtvSqlService _ttvSqlService;
         private readonly ILogger<OrcidController> _logger;
         private readonly IBackgroundTaskQueue _taskQueue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IMemoryCache _cache;
 
         public WebhookController(IUserProfileService userProfileService,
+            ITtvSqlService ttvSqlService,
             ILogger<OrcidController> logger,
             IBackgroundTaskQueue taskQueue,
             IServiceScopeFactory serviceScopeFactory,
@@ -40,6 +42,7 @@ namespace api.Controllers
             IMemoryCache memoryCache)
         {
             _userProfileService = userProfileService;
+            _ttvSqlService = ttvSqlService;
             _logger = logger;
             _taskQueue = taskQueue;
             _serviceScopeFactory = serviceScopeFactory;
@@ -90,6 +93,10 @@ namespace api.Controllers
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(webhookOrcidId);
+
+            // Refresh 'modified' timestamp in table dim_user_profile
+            string setModifiedSql = _ttvSqlService.GetSqlQuery_Update_DimUserProfile_Modified(dimUserProfile.Id);
+            await _userProfileService.ExecuteRawSql(setModifiedSql); 
 
             // Store values to be used in background task.
             orcidAccessToken = dimUserProfile.OrcidAccessToken;
