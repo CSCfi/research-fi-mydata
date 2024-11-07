@@ -167,6 +167,16 @@ namespace api.Services
         }
 
         /*
+         * Set 'modified' timestamp in user profile
+         */
+        public async Task SetModifiedTimestampInUserProfile(int Id)
+        {
+            await ExecuteRawSql(
+                _ttvSqlService.GetSqlQuery_Update_DimUserProfile_Modified(Id)
+            ); 
+        }
+
+        /*
          * Add or update DimName.
          */
         public async Task<DimName> AddOrUpdateDimName(String lastName, String firstNames, int dimKnownPersonId, int dimRegisteredDataSourceId)
