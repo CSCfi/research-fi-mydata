@@ -119,6 +119,9 @@ namespace api.Controllers
                 profileEditorDataModificationResponse.items.Add(profileEditorItemMeta);
             }
 
+            // Refresh 'modified' timestamp in user profile
+            await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);
+
             // Update Elasticsearch index.
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
             await _userProfileService.UpdateProfileInElasticsearch(

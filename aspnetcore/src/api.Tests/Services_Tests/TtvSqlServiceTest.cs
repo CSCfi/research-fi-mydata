@@ -901,9 +901,21 @@ namespace api.Tests
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
-            string expectedSqlString = $"SELECT hidden as 'Hidden' FROM dim_user_profile WHERE id={53445623}";
+            string expectedSqlString = $"SELECT hidden as 'Hidden' FROM dim_user_profile WHERE id=53445623";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Select_GetHiddenInUserprofile(53445623);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for setting 'modified' timestamp in userprofile")]
+        public void GetSqlQuery_Update_DimUserProfile_Modified()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = $"UPDATE dim_user_profile SET modified=GETDATE() WHERE id=445566778";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Update_DimUserProfile_Modified(445566778);
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }

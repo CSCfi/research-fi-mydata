@@ -161,6 +161,9 @@ namespace api.Controllers
                 }
             }
 
+            // Refresh 'modified' timestamp in user profile
+            await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);
+
             // Update Elasticsearch index
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
             await _userProfileService.UpdateProfileInElasticsearch(
@@ -228,6 +231,8 @@ namespace api.Controllers
             }
             await _ttvContext.SaveChangesAsync();
 
+            // Refresh 'modified' timestamp in user profile
+            await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);
 
             // Update Elasticsearch index.
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();

@@ -147,8 +147,10 @@ namespace api.Controllers
                     dimUserChoice.UserChoiceValue = profileEditorCooperationItem.Selected;
                 }
             }
-
             await _ttvContext.SaveChangesAsync();
+
+            // Refresh 'modified' timestamp in user profile
+            await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);
 
             return Ok(new ApiResponse(success: true));
         }

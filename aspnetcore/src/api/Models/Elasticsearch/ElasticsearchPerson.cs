@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Nest;
 
 namespace api.Models.Elasticsearch
@@ -30,5 +31,6 @@ namespace api.Models.Elasticsearch
         public ElasticsearchActivity activity { get; set; }
         public List<ElasticsearchCooperation> cooperation { get; set; }
         public List<ElasticsearchSource> uniqueDataSources { get; set; }
+        public DateTime? updated { get; set; }
     }
 }

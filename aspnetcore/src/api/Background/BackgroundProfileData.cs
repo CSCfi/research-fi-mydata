@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using api.Models.Log;
 using api.Models.Ttv;
+using api.Models.Common;
 using api.Models.Elasticsearch;
 using Microsoft.Extensions.DependencyInjection;
 using api.Models.ProfileEditor.Items;
@@ -57,6 +58,13 @@ namespace api.Services
                 await localTtvContext.DimUserChoices.TagWith("Get user choices for Elasticsearch")
                 .Where(duc => duc.DimUserProfileId == userprofileId && duc.UserChoiceValue == true).AsNoTracking().ProjectTo<ElasticsearchCooperation>(mapper.ConfigurationProvider).ToListAsync();
             elasticsearchPerson.cooperation.AddRange(userChoices);
+
+            // Add updated timestamp
+            DateTimeDTO userProfileModified = await localTtvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId).AsNoTracking().Select(dimUserProfile => new DateTimeDTO()  
+                {  
+                    Value = dimUserProfile.Modified
+                }).FirstOrDefaultAsync();
+            elasticsearchPerson.updated = userProfileModified.Value;
 
             return elasticsearchPerson;
         }

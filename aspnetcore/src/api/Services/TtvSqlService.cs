@@ -95,6 +95,12 @@ namespace api.Services
                             {fk_column_name}={profileEditorItemMeta.Id}";
         }
 
+        // Return SQL update statement for setting 'modified' timestamp in userprofile.
+        public string GetSqlQuery_Update_DimUserProfile_Modified(int dimUserProfileId)
+        {
+            return $@"UPDATE dim_user_profile SET modified=GETDATE() WHERE id={dimUserProfileId}";
+        }
+
         // Convert list of integers into a comma separated string
         public string ConvertListOfIntsToCommaSeparatedString(List<int> listOfInts)
         {
