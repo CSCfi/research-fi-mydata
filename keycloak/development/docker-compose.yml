@@ -1,0 +1,97 @@
+# Set up Keycloak, MS SQL database and Nginx reverse proxy.
+# Keycloak is accessible via reverse proxy: http://localhost:8086/keycloak/
+name: researchfi-auth-test
+services:
+
+  # Keycloak
+  keycloak-service:
+    image: keycloak
+    build:
+      dockerfile: Dockerfile-dev
+    depends_on:
+      - db-service
+      - logstash-service
+    container_name: auth-test-keycloak
+    restart: unless-stopped
+    environment:
+      - KC_DB_URL=jdbc:sqlserver://db-service:1433;DatabaseName=keycloak;trustServerCertificate=true;integratedSecurity=false;
+      - KC_DB_USERNAME=sa
+      - KC_DB_PASSWORD=Devel1234
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=pwd12345
+      - KC_LOG=console,syslog
+      - KC_LOG_SYSLOG_APP_NAME=keycloak
+      - KC_LOG_SYSLOG_PROTOCOL=tcp
+      - KC_LOG_SYSLOG_ENDPOINT=logstash-service:6601
+      - KC_LOG_SYSLOG_OUTPUT=json #default
+      - KC_LOG_SYSLOG_FORMAT=<format>
+      - KC_LOG_SYSLOG_TYPE=rfc5424 #rfc3164
+      - KC_HOSTNAME=http://localhost:8086/keycloak
+      - KC_HOSTNAME_ADMIN=http://localhost:8086/keycloak
+      - KC_PROXY_HEADERS=xforwarded
+      - KC_HTTP_ENABLED=true
+    networks:
+      - researchfi-auth-test-net
+
+  # Microsoft SQL Server database for Keycloak
+  db-service:
+    platform: linux/amd64
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: auth-test-db
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=1
+      - MSSQL_PID=Express
+      - SA_PASSWORD=Devel1234
+    entrypoint:
+      - /usr/src/sql/entrypoint.sh
+    volumes:
+      - ./sql/:/usr/src/sql/
+    ports:
+      - 1435:1433
+    networks:
+      - researchfi-auth-test-net
+
+  # Nginx reverse proxy for Keycloak
+  nginx-service:
+    image: nginx
+    container_name: auth-test-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/index.html:/etc/nginx/html/index.html
+    ports:
+      - 8086:8080
+    networks:
+      - researchfi-auth-test-net
+    depends_on:
+      - keycloak-service
+
+  # Logstash for receiving Keycloak log messages
+  # Parse syslog message, add Koivu-related metadata into the log message. Send json log message to fake-Koivu (http-dump)
+  logstash-service:
+    image: opensearchproject/logstash-oss-with-opensearch-output-plugin:8.9.0
+    container_name: auth-test-logstash
+    restart: unless-stopped
+    volumes:
+    # Pipelines config file
+    - type: bind
+      source: ./logstash/pipelines.yml
+      target:  /usr/share/logstash/config/pipelines.yml
+    # Keycloak pipeline definition
+    - type: bind
+      source: ./logstash/keycloak.conf
+      target:  /usr/share/logstash/pipeline/keycloak.conf
+    networks:
+      - researchfi-auth-test-net
+
+  # HTTP dump, displays all incoming HTTP requests in stdout.
+  # Simulates Koivu end of the pipeline, helps in verififying that Keycloak log messages are in suitable format.
+  http-dump-service:
+    image: stefannienhuis/http-dump
+    container_name: auth-test-http-dump
+    networks:
+      - researchfi-auth-test-net
+
+networks:
+  researchfi-auth-test-net:
