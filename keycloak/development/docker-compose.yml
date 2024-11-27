@@ -70,7 +70,7 @@ services:
   # Logstash for receiving Keycloak log messages
   # Parse syslog message, add Koivu-related metadata into the log message. Send json log message to fake-Koivu (http-dump)
   logstash-service:
-    image: opensearchproject/logstash-oss-with-opensearch-output-plugin:8.9.0
+    image: logstash:8.16.1
     container_name: auth-test-logstash
     restart: unless-stopped
     volumes:
