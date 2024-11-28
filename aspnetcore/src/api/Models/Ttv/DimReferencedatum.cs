@@ -69,6 +69,8 @@ public partial class DimReferencedatum
 
     public virtual ICollection<DimPublication> DimPublicationArticleTypeCodeNavigations { get; set; } = new List<DimPublication>();
 
+    public virtual ICollection<DimPublication> DimPublicationJufoClassCodeFrozenNavigations { get; set; } = new List<DimPublication>();
+
     public virtual ICollection<DimPublication> DimPublicationJufoClassNavigations { get; set; } = new List<DimPublication>();
 
     public virtual ICollection<DimPublication> DimPublicationLanguageCodeNavigations { get; set; } = new List<DimPublication>();
