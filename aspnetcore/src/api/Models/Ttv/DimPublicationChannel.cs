@@ -23,7 +23,9 @@ public partial class DimPublicationChannel
 
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
 
-    public virtual ICollection<DimPublication> DimPublications { get; set; } = new List<DimPublication>();
+    public virtual ICollection<DimPublication> DimPublicationDimPublicationChannelIdFrozenNavigations { get; set; } = new List<DimPublication>();
+
+    public virtual ICollection<DimPublication> DimPublicationDimPublicationChannels { get; set; } = new List<DimPublication>();
 
     public virtual ICollection<DimResearchActivity> DimResearchActivities { get; set; } = new List<DimResearchActivity>();
 }

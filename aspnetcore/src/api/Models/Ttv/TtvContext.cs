@@ -2558,10 +2558,15 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.ArticleTypeCode)
                 .HasConstraintName("article_type_code");
 
-            entity.HasOne(d => d.DimPublicationChannel).WithMany(p => p.DimPublications)
+            entity.HasOne(d => d.DimPublicationChannel).WithMany(p => p.DimPublicationDimPublicationChannels)
                 .HasForeignKey(d => d.DimPublicationChannelId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("publication_channel");
+
+            entity.HasOne(d => d.DimPublicationChannelIdFrozenNavigation).WithMany(p => p.DimPublicationDimPublicationChannelIdFrozenNavigations)
+                .HasForeignKey(d => d.DimPublicationChannelIdFrozen)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("publication_channel_frozen");
 
             entity.HasOne(d => d.DimPublicationNavigation).WithMany(p => p.InverseDimPublicationNavigation)
                 .HasForeignKey(d => d.DimPublicationId)
