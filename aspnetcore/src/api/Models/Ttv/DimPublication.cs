@@ -135,6 +135,8 @@ public partial class DimPublication
 
     public virtual DimPublicationChannel DimPublicationChannel { get; set; }
 
+    public virtual DimPublicationChannel DimPublicationChannelIdFrozenNavigation { get; set; }
+
     public virtual DimPublication DimPublicationNavigation { get; set; }
 
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
