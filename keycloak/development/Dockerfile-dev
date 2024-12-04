@@ -29,9 +29,6 @@ RUN sed -i "s|MD2, SHA1, MD5|MD2, MD5 |g" /etc/crypto-policies/back-ends/java.co
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
 
-# Environment variable KC_LOG_GELF_LEVEL must be set to 'debug' in order to get Keycloak user events
-#ENV KC_LOG_GELF_LEVEL=debug
-
 # Start the container in production mode.
 #
 # Enable backward compatibility in SAML metadata by start up parameter: keycloak.saml.deprecated.encryption=true.
