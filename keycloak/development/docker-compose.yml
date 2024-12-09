@@ -17,8 +17,8 @@ services:
       - KC_DB_URL=jdbc:sqlserver://db-service:1433;DatabaseName=keycloak;trustServerCertificate=true;integratedSecurity=false;
       - KC_DB_USERNAME=sa
       - KC_DB_PASSWORD=Devel1234
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=pwd12345
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=pwd12345
       - KC_LOG=console,syslog
       - KC_LOG_SYSLOG_APP_NAME=keycloak
       - KC_LOG_SYSLOG_PROTOCOL=tcp

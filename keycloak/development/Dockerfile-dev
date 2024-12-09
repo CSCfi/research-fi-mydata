@@ -1,7 +1,7 @@
 #
 # Build container
 #
-FROM --platform=linux/amd64 keycloak/keycloak:25.0.6 AS builder
+FROM --platform=linux/amd64 keycloak/keycloak:26.0.7 AS builder
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
@@ -19,7 +19,7 @@ RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 #
 # Optimized container
 #
-FROM --platform=linux/amd64 keycloak/keycloak:25.0.6
+FROM --platform=linux/amd64 keycloak/keycloak:26.0.7
 
 # Enable SHA1 to prevent JDBC error with SQL Server: "Algorithm constraints check failed on signature algorithm SHA1withRSA"
 # https://github.com/keycloak/keycloak/issues/19185
