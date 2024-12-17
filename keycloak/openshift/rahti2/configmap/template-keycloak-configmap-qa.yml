@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 'keycloak-configmap-qa'
+  namespace: researchfi-qa
+data:
+  KC_LOG_SYSLOG_TYPE: rfc5424
+  KC_LOG_SYSLOG_OUTPUT: json
+  KC_HOSTNAME_ADMIN: 'https://<keycloak URL here>'
+  KC_PROXY_HEADERS: xforwarded
+  KC_LOG_SYSLOG_APP_NAME: keycloak-qa
+  KC_HTTP_ENABLED: 'true'
+  KC_HOSTNAME: 'https://<keycloak URL here>'
+  KC_LOG_SYSLOG_ENDPOINT: 'logstash-qa.researchfi-qa.svc.cluster.local:8080'
+  KC_LOG: 'console,syslog'
+  KC_LOG_SYSLOG_PROTOCOL: tcp
+binaryData: {}
+immutable: false
