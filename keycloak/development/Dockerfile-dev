@@ -24,7 +24,10 @@ FROM --platform=linux/amd64 keycloak/keycloak:26.0.7
 # Enable SHA1 to prevent JDBC error with SQL Server: "Algorithm constraints check failed on signature algorithm SHA1withRSA"
 # https://github.com/keycloak/keycloak/issues/19185
 USER root
-RUN sed -i "s|MD2, SHA1, MD5|MD2, MD5 |g" /etc/crypto-policies/back-ends/java.config
+# Remove "SHA1" from disabledAlgorithms 
+RUN sed -i "s|, SHA1,|,|g" /etc/crypto-policies/back-ends/java.config
+# Remove "SHA1withRSA" from disabledAlgorithms 
+RUN sed -i "s|, SHA1withRSA,|,|g" /etc/crypto-policies/back-ends/java.config
 
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
