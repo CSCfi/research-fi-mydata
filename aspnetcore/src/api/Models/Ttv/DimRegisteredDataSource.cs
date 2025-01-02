@@ -25,6 +25,8 @@ public partial class DimRegisteredDataSource
 
     public virtual ICollection<DimCompetence> DimCompetences { get; set; } = new List<DimCompetence>();
 
+    public virtual ICollection<DimDescriptiveItem> DimDescriptiveItems { get; set; } = new List<DimDescriptiveItem>();
+
     public virtual ICollection<DimEducation> DimEducations { get; set; } = new List<DimEducation>();
 
     public virtual ICollection<DimEmailAddrress> DimEmailAddrresses { get; set; } = new List<DimEmailAddrress>();

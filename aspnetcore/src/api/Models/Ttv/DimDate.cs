@@ -31,6 +31,10 @@ public partial class DimDate
 
     public virtual ICollection<DimCallProgramme> DimCallProgrammeDimDateIdOpenNavigations { get; set; } = new List<DimCallProgramme>();
 
+    public virtual ICollection<DimDescriptiveItem> DimDescriptiveItemDimEndDateNavigations { get; set; } = new List<DimDescriptiveItem>();
+
+    public virtual ICollection<DimDescriptiveItem> DimDescriptiveItemDimStartDateNavigations { get; set; } = new List<DimDescriptiveItem>();
+
     public virtual ICollection<DimEducation> DimEducationDimEndDateNavigations { get; set; } = new List<DimEducation>();
 
     public virtual ICollection<DimEducation> DimEducationDimStartDateNavigations { get; set; } = new List<DimEducation>();

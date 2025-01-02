@@ -13,7 +13,7 @@ public partial class DimFundingDecision
 
     public int DimDateIdEnd { get; set; }
 
-    public int DimNameIdContactPerson { get; set; }
+    public long DimNameIdContactPerson { get; set; }
 
     public int DimCallProgrammeId { get; set; }
 

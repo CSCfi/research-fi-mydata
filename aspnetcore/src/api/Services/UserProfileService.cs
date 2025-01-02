@@ -524,7 +524,7 @@ namespace api.Services
          * - metax
          * - sftp_funding
          */
-        public bool CanIncludeDimNameInUserProfile(List<int> existingIDs, DimName dimName)
+        public bool CanIncludeDimNameInUserProfile(List<long> existingIDs, DimName dimName)
         {
             return
                 !existingIDs.Contains(dimName.Id) &&
@@ -588,7 +588,7 @@ namespace api.Services
             List<int> existingResearcherDescriptionIds = new();
             List<int> existingAffiliationIds = new();
             List<int> existingEducationIds = new();
-            List<int> existingNameIds = new();
+            List<long> existingNameIds = new();
             List<int> existingPublicationIds = new();
             List<int> existingResearchActivityIds = new();
             List<int> existingResearchDatasetIds = new();
@@ -601,7 +601,7 @@ namespace api.Services
                 existingResearcherDescriptionIds = ffvs.Where(ffv => ffv.DimResearcherDescriptionId != -1).Select(ffv => ffv.DimResearcherDescriptionId).Distinct().ToList<int>();
                 existingAffiliationIds = ffvs.Where(ffv => ffv.DimAffiliationId != -1).Select(ffv => ffv.DimAffiliationId).Distinct().ToList<int>();
                 existingEducationIds = ffvs.Where(ffv => ffv.DimEducationId != -1).Select(ffv => ffv.DimEducationId).Distinct().ToList<int>();
-                existingNameIds = ffvs.Where(ffv => ffv.DimNameId != -1).Select(ffv => ffv.DimNameId).Distinct().ToList<int>();
+                existingNameIds = ffvs.Where(ffv => ffv.DimNameId != -1).Select(ffv => ffv.DimNameId).Distinct().ToList<long>();
                 existingPublicationIds = ffvs.Where(ffv => ffv.DimPublicationId != -1).Select(ffv => ffv.DimPublicationId).Distinct().ToList<int>();
                 existingResearchActivityIds = ffvs.Where(ffv => ffv.DimResearchActivityId != -1).Select(ffv => ffv.DimResearchActivityId).Distinct().ToList<int>();
                 existingResearchDatasetIds = ffvs.Where(ffv => ffv.DimResearchDatasetId != -1).Select(ffv => ffv.DimResearchDatasetId).Distinct().ToList<int>();
@@ -2241,7 +2241,7 @@ namespace api.Services
                 List<int> dimFieldOfScienceIds = new();
                 List<int> dimFundingDecisionIds = new();
                 List<int> dimKeywordIds = new();
-                List<int> dimNameIds = new();
+                List<long> dimNameIds = new();
                 List<int> dimProfileOnlyDatasetIds = new();
                 List<int> dimProfileOnlyFundingDecisionIds = new();
                 List<int> dimProfileOnlyPublicationIds = new();

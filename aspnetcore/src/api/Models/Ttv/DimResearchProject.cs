@@ -13,33 +13,6 @@ public partial class DimResearchProject
     public int ResponsibleOrganization { get; set; }
 
     /// <summary>
-    /// Hanke - nimi
-    /// </summary>
-    public string NameFi { get; set; }
-
-    public string NameEn { get; set; }
-
-    public string NameSv { get; set; }
-
-    /// <summary>
-    /// Hanke - lyhenne
-    /// </summary>
-    public string AbbrevationFi { get; set; }
-
-    public string AbbrevationEn { get; set; }
-
-    public string AbbrevationSv { get; set; }
-
-    /// <summary>
-    /// Hanke - tiivistelmä
-    /// </summary>
-    public string DescriptionFi { get; set; }
-
-    public string DescriptionEn { get; set; }
-
-    public string DescriptionSv { get; set; }
-
-    /// <summary>
     /// Hanke - alkamispäivämäärä
     /// </summary>
     public int? StartDate { get; set; }
@@ -59,19 +32,9 @@ public partial class DimResearchProject
 
     public int DimRegisteredDataSourceId { get; set; }
 
-    public int? ResponsiblePerson { get; set; }
+    public long ResponsiblePerson { get; set; }
 
-    public string GoalsFi { get; set; }
-
-    public string GoalsEn { get; set; }
-
-    public string GoalsSv { get; set; }
-
-    public string OutcomeEffectFi { get; set; }
-
-    public string OutcomeEffectEn { get; set; }
-
-    public string OutcomeEffectSv { get; set; }
+    public virtual ICollection<DimDescriptiveItem> DimDescriptiveItems { get; set; } = new List<DimDescriptiveItem>();
 
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 

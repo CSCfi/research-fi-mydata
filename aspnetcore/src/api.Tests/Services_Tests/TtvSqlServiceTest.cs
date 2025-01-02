@@ -219,6 +219,31 @@ namespace api.Tests
             );
         }
 
+        [Fact(DisplayName = "Test that list of longs is converted to a comma separated string")]
+        public void Test_ConvertListOfLongsToCommaSeparatedString()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            List<long> listOfLongs = new()
+            {
+                2345433443543589,
+                432523,
+                2,
+                45,
+                5376575647657777645,
+                98752,
+                1111111111111111
+            };
+            string expectedString = "2345433443543589,432523,2,45,5376575647657777645,98752,1111111111111111";
+            // Act
+            string actualString = ttvSqlService.ConvertListOfLongsToCommaSeparatedString(listOfLongs);
+            // Assert
+            Assert.Equal(
+                expectedString,
+                actualString
+            );
+        }
+
         [Fact(DisplayName = "Get SQL query for updating FactFieldValues, first name")]
         public void Test_getSqlQuery_Update_FactFieldValues_first_name()
         {
@@ -621,7 +646,7 @@ namespace api.Tests
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
-            List<int> ids = new() { 101, 102, 103 };
+            List<long> ids = new() { 101, 102, 103 };
             string expectedSqlString = "DELETE FROM dim_name WHERE id IN (101,102,103)";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimNames(ids);

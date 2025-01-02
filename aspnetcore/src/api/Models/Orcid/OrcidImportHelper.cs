@@ -19,7 +19,7 @@ namespace api.Models.Orcid
             dimProfileOnlyFundingDecisionIds = new();
         }
 
-        public List<int> dimNameIds { get; set; }
+        public List<long> dimNameIds { get; set; }
         public List<int> dimWebLinkIds { get; set; }
         public List<int> dimResearcherDescriptionIds { get; set; }
         public List<int> dimEmailAddressIds { get; set; }
