@@ -107,6 +107,12 @@ namespace api.Services
             return string.Join<int>(",", listOfInts);
         }
 
+        // Convert list of long integers into a comma separated string
+        public string ConvertListOfLongsToCommaSeparatedString(List<long> listOfLongs)
+        {
+            return string.Join<long>(",", listOfLongs);
+        }
+
         /*
          * Return SQL statement for getting profile data.
          * Parameter forElasticsearch controls if query should be limited to
@@ -550,9 +556,9 @@ namespace api.Services
         }
 
         // Return SQL DELETE statement for dim_name
-        public string GetSqlQuery_Delete_DimNames(List<int> dimNameIds)
+        public string GetSqlQuery_Delete_DimNames(List<long> dimNameIds)
         {
-            return $"DELETE FROM dim_name WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimNameIds)})";
+            return $"DELETE FROM dim_name WHERE id IN ({ConvertListOfLongsToCommaSeparatedString(dimNameIds)})";
         }
 
         // Return SQL DELETE statement for dim_profile_dataset
@@ -707,7 +713,7 @@ namespace api.Services
         }
 
         // Return SQL SELECT statement for fact_contribution
-        public string GetSqlQuery_Select_FactContribution(int dimNameId)
+        public string GetSqlQuery_Select_FactContribution(long dimNameId)
         {
             return $@"SELECT DISTINCT
                         fc.dim_research_activity_id AS 'DimResearchActivityId',
@@ -726,7 +732,7 @@ namespace api.Services
         }
 
         // Return SQL SELECT statement for br_participates_in_funding_group
-        public string GetSqlQuery_Select_BrParticipatesInFundingGroup(int dimNameId, List<int> existingFundingDecisionIds)
+        public string GetSqlQuery_Select_BrParticipatesInFundingGroup(long dimNameId, List<int> existingFundingDecisionIds)
         {
             string excludeFundingDecisionIdsSQL =
                 existingFundingDecisionIds.Count > 0 ? $" AND dim_funding_decisionid NOT IN ({ConvertListOfIntsToCommaSeparatedString(existingFundingDecisionIds)})" : "";

@@ -103,7 +103,7 @@ namespace api.Tests
             // Assert
             Assert.Equal<int>(-1, actualFfv.DimUserProfileId);
             Assert.Equal<int>(-1, actualFfv.DimFieldDisplaySettingsId);
-            Assert.Equal<int>(-1, actualFfv.DimNameId);
+            Assert.Equal<long>(-1, actualFfv.DimNameId);
             Assert.Equal<int>(-1, actualFfv.DimWebLinkId);
             Assert.Equal<int>(-1, actualFfv.DimFundingDecisionId);
             Assert.Equal<int>(-1, actualFfv.DimPublicationId);
@@ -303,7 +303,7 @@ namespace api.Tests
                 Id = 1,
                 DimRegisteredDataSource = dimRegisteredDataSourceVirta
             };
-            List<int> existingIds = new() { };
+            List<long> existingIds = new() { };
             // Act
             bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
             // Assert
@@ -320,7 +320,7 @@ namespace api.Tests
                 Id = 2,
                 DimRegisteredDataSource = dimRegisteredDataSourceVirta
             };
-            List<int> existingIds = new() { };
+            List<long> existingIds = new() { };
             // Act
             bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
             // Assert
@@ -337,7 +337,7 @@ namespace api.Tests
                 Id = 3,
                 DimRegisteredDataSource = dimRegisteredDataSourceVirta
             };
-            List<int> existingIds = new() { };
+            List<long> existingIds = new() { };
             // Act
             bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
             // Assert
@@ -355,7 +355,7 @@ namespace api.Tests
                 Id = 4,
                 DimRegisteredDataSource = dimRegisteredDataSourceVirta
             };
-            List<int> existingIds = new() { };
+            List<long> existingIds = new() { };
             // Act
             bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
             // Assert
@@ -373,7 +373,7 @@ namespace api.Tests
                 Id = 5,
                 DimRegisteredDataSource = dimRegisteredDataSourceVirta
             };
-            List<int> existingIds = new() { 2,3,4,5,6 };
+            List<long> existingIds = new() { 2,3,4,5,6 };
             // Act
             bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
             // Assert
@@ -391,7 +391,7 @@ namespace api.Tests
                 Id = 101010,
                 DimRegisteredDataSource = dimRegisteredDataSourceVirta
             };
-            List<int> existingIds = new() { 3, 4, 5, 6, 7 };
+            List<long> existingIds = new() { 3, 4, 5, 6, 7 };
             // Act
             bool actualResult = userProfileService.CanIncludeDimNameInUserProfile(existingIds, dimName);
             // Assert
