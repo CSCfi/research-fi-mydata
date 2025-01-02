@@ -7,7 +7,7 @@ public partial class BrParticipatesInFundingGroup
 {
     public int DimFundingDecisionid { get; set; }
 
-    public int DimNameId { get; set; }
+    public long DimNameId { get; set; }
 
     public int DimOrganizationId { get; set; }
 

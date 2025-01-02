@@ -11,7 +11,7 @@ public partial class FactContribution
 
     public int DimDateId { get; set; }
 
-    public int DimNameId { get; set; }
+    public long DimNameId { get; set; }
 
     public int DimPublicationId { get; set; }
 
