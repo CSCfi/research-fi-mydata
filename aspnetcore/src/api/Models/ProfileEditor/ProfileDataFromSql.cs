@@ -15,7 +15,7 @@ namespace api.Models.ProfileEditor
         public bool? FactFieldValues_Show { get; set; }
         public bool? FactFieldValues_PrimaryValue { get; set; }
         public int FactFieldValues_DimUserProfileId { get; set; }
-        public int FactFieldValues_DimNameId { get; set; }
+        public long FactFieldValues_DimNameId { get; set; }
         public int FactFieldValues_DimWebLinkId { get; set; }
         public int FactFieldValues_DimResearcherDescriptionId { get; set; }
         public int FactFieldValues_DimEmailAddrressId { get; set; }
