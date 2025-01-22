@@ -45,4 +45,4 @@ WORKDIR /opt/keycloak
 # - To reduce logging, set org.keycloak subcategories:
 #     - org.keycloak.events.jpa:ERROR
 #     - org.keycloak.broker:ERROR
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized", "--log-level=INFO,org.keycloak.events:DEBUG,org.keycloak.events.jpa:ERROR,org.keycloak.broker:ERROR", "--log-console-format='%z{Europe/Helsinki}'", "--log-syslog-format='%z{Europe/Helsinki}'"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start",  "--optimized", "--log-level=INFO,org.keycloak.events:DEBUG,org.keycloak.events.jpa:ERROR,org.keycloak.broker:ERROR", "--log-console-format='%z{Europe/Helsinki}%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n'"]
