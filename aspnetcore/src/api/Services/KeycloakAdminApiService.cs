@@ -200,6 +200,15 @@ namespace api.Services
                 // Get Keycloak user data.
                 string keycloakUserDataRaw = await this.GetRawUserDataFromKeycloakAdminApi(keycloakUserId, logUserIdentification);
 
+                // Debug logging
+                 _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.KEYCLOAK_GET_RAW_USER_DATA,
+                        message: keycloakUserDataRaw,
+                        state: LogContent.ActionState.COMPLETE));
+
                 // Stop if Keycloak user data was not received.
                 if (keycloakUserDataRaw == "")
                 {
