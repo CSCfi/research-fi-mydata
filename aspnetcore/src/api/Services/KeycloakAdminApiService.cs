@@ -52,6 +52,7 @@ namespace api.Services
         /*
          * Get user data from Keycloak Admin API.
          * Use name HttpClient "keycloakClient".
+         * https://www.keycloak.org/docs-api/latest/rest-api/
          */
         public async Task<string> GetRawUserDataFromKeycloakAdminApi(string keycloakUserId, LogUserIdentification logUserIdentification)
         {
@@ -92,51 +93,11 @@ namespace api.Services
         }
 
         /*
-         * Get user properties from raw Keycloak user data.
-         * https://www.keycloak.org/docs-api/latest/rest-api/index.html#UserRepresentation
-         */
-        public KeycloakUserDTO? GetKeycloakUserDtoFromRawKeycloakUserData(string keycloakUserDataRaw)
-        {
-            KeycloakUserDTO keycloakUserDTO = new KeycloakUserDTO();
-            using (JsonDocument document = JsonDocument.Parse(keycloakUserDataRaw))
-            {
-                document.RootElement.TryGetProperty("federatedIdentities", out JsonElement federatedIdentitiesElement);
-                foreach (JsonElement identityElement in federatedIdentitiesElement.EnumerateArray())
-                {
-                    identityElement.TryGetProperty("identityProvider", out JsonElement identityProviderElement);
-                    identityElement.TryGetProperty("userId", out JsonElement userIdElement);
-                    if (identityProviderElement.GetString() == "orcid")
-                    {
-                        keycloakUserDTO.Orcid = userIdElement.GetString();
-                    }
-                    if (identityProviderElement.GetString() == "firstName")
-                    {
-                        keycloakUserDTO.FirstName = userIdElement.GetString();
-                    }
-                    if (identityProviderElement.GetString() == "lastName")
-                    {
-                        keycloakUserDTO.LastName = userIdElement.GetString();
-                    }
-                }
-            }
-
-            if (String.IsNullOrWhiteSpace(keycloakUserDTO.Orcid))
-            {
-                return null;
-            }
-            else
-            {
-                return keycloakUserDTO;
-            }
-        }
-
-        /*
-         * Set ORCID ID as Keycloak user attribute using Keycloak Admin API.
+         * Update Keycloak user data using Keycloak Admin API.
          * Use name HttpClient "keycloakClient".
-         * https://www.keycloak.org/docs-api/latest/rest-api/index.html#UserRepresentation
-         * https://www.keycloak.org/docs/latest/upgrading/#partial-update-to-user-attributes-when-updating-users-through-the-admin-user-api-is-no-longer-supported
+         * https://www.keycloak.org/docs-api/latest/rest-api/
          */
-        public async Task<bool> SetOrcidIdAsKeycloakUserAttribute(string keycloakUserId, KeycloakUserDTO keycloakUserDTO, LogUserIdentification logUserIdentification)
+        public async Task<bool> UpdateKeycloakUser(string keycloakUserId, string keycloakUserModelSerialized, LogUserIdentification logUserIdentification)
         {
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
@@ -147,8 +108,7 @@ namespace api.Services
 
             HttpClient keycloakAdminApiHttpClient = _httpClientFactory.CreateClient("keycloakClient");
             HttpRequestMessage request = new(method: HttpMethod.Put, requestUri: keycloakUserId);
-            string stringPayload = "{\"attributes\": {\"firstName\": \"" + keycloakUserDTO.FirstName + "\", \"lastName\": \"" + keycloakUserDTO.LastName + "\", \"orcid\": [\"" + keycloakUserDTO.Orcid + "\"]}}";
-            request.Content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
+            request.Content = new StringContent(keycloakUserModelSerialized, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await keycloakAdminApiHttpClient.SendAsync(request);
             try
             {
@@ -183,7 +143,7 @@ namespace api.Services
         public async Task<bool> SetOrcidAttributedInKeycloak(JwtSecurityToken jwtFromUser, LogUserIdentification logUserIdentification)
         {
             /*
-             * check is orcid already in token
+             * Check is "orcid" already in token
              * yes:
              *    return
              * no:
@@ -200,32 +160,59 @@ namespace api.Services
                 // Get Keycloak user data.
                 string keycloakUserDataRaw = await this.GetRawUserDataFromKeycloakAdminApi(keycloakUserId, logUserIdentification);
 
-                // Debug logging
-                 _logger.LogInformation(
-                    LogContent.MESSAGE_TEMPLATE,
-                    logUserIdentification,
-                    new LogApiInfo(
-                        action: LogContent.Action.KEYCLOAK_GET_RAW_USER_DATA,
-                        message: keycloakUserDataRaw,
-                        state: LogContent.ActionState.COMPLETE));
-
                 // Stop if Keycloak user data was not received.
                 if (keycloakUserDataRaw == "")
                 {
                     return false;
                 }
 
-                // Get Keycloak user data
-                KeycloakUserDTO? keycloakUserDTO = this.GetKeycloakUserDtoFromRawKeycloakUserData(keycloakUserDataRaw);
+                // Parse Keycloak user data.
+                // https://www.keycloak.org/docs-api/latest/rest-api/#UserRepresentation
+                KeycloakUserDTO? keycloakUserDTO = new();
+                try {
+                    keycloakUserDTO = JsonSerializer.Deserialize<KeycloakUserDTO>(keycloakUserDataRaw);
+                }
+                catch (JsonException)
+                {
+                    _logger.LogError(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.KEYCLOAK_SET_ORCID_ATTRIBUTE,
+                            error: true,
+                            state: LogContent.ActionState.FAILED,
+                            message: "Failed to parse Keycloak user model JSON: " + keycloakUserDataRaw));
+                    return false;
+                }
+
+                // Search ORCID ID from federated identities list.
+                string orcidId = "";
+                foreach (FederatedIdentity federatedIdentity in keycloakUserDTO.FederatedIdentities)
+                {
+                    if (federatedIdentity.IdentityProvider == "orcid")
+                    {
+                        orcidId = federatedIdentity.UserId;
+                        break;
+                    }
+                }
 
                 // Stop if ORCID ID was not found.
-                if (keycloakUserDTO == null)
+                if (string.IsNullOrWhiteSpace(orcidId))
                 {
                     return false;
                 }
 
-                // Set orcid id as Keycloak user attribute.
-                return await this.SetOrcidIdAsKeycloakUserAttribute(keycloakUserId, keycloakUserDTO, logUserIdentification);
+                // Set ORCID ID as Keycloak user attribute.
+                keycloakUserDTO.Attributes = new UserAttributes()
+                {
+                    Orcid = new() { orcidId }
+                };
+
+                // Serialize Keycloak user data.
+                string keycloakUserModelSerialized = JsonSerializer.Serialize(keycloakUserDTO);
+
+                // Update user in Keycloak.
+                return await this.UpdateKeycloakUser(keycloakUserId, keycloakUserModelSerialized, logUserIdentification);
             }
             return true;
         }
