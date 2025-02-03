@@ -40,9 +40,9 @@ public class ResearchfiUsernameTemplateMapper extends UsernameTemplateMapper {
      * @return
      */
     private String getMD5Hash(String data) {
-        System.out.println("Input data: " + data);
         String result = null;
         try {
+            data = data.toUpperCase();
             MessageDigest digest = MessageDigest.getInstance("MD5");
             byte[] hash = digest.digest(data.getBytes("UTF-8"));
             return bytesToHex(hash); // make it printable
