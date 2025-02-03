@@ -40,6 +40,7 @@ public class ResearchfiUsernameTemplateMapper extends UsernameTemplateMapper {
      * @return
      */
     private String getMD5Hash(String data) {
+        System.out.println("Input data: " + data);
         String result = null;
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
