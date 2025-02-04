@@ -8,7 +8,7 @@ ENV KC_FEATURES=token-exchange
 ENV KC_DB=mssql
 
 # Install custom providers. Researchfi customization jar file should be added here.
-ADD --chown=keycloak:keycloak https://github.com/CSCfi/research-fi-mydata/raw/CSCTTV-3921-keycloak-mapper-update/keycloak/custom/build_dependencies/researchfi.mapper-0.0.2.jar /opt/keycloak/providers/researchfi.mapper-0.0.2.jar
+ADD --chown=keycloak:keycloak https://github.com/CSCfi/research-fi-mydata/raw/master/custom/build_dependencies/researchfi.mapper-0.0.2.jar /opt/keycloak/providers/researchfi.mapper-0.0.2.jar
 RUN chmod a+r /opt/keycloak/providers/researchfi.mapper-0.0.2.jar
 
 RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
