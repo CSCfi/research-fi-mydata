@@ -8,3 +8,9 @@ authentication (https://www.suomi.fi).
 
 Implementation is done by extending this class:
 https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/broker/saml/mappers/UsernameTemplateMapper.java
+
+# Development - Docker build
+```
+chmod +x build.sh
+./build.sh
+```

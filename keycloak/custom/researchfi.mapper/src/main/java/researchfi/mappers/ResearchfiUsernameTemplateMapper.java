@@ -11,20 +11,26 @@ import org.keycloak.models.IdentityProviderMapperModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import java.security.MessageDigest;
-import javax.xml.bind.DatatypeConverter;
 
 public class ResearchfiUsernameTemplateMapper extends UsernameTemplateMapper {
     public static final String PROVIDER_ID = "researchfi-saml-username-idp-mapper";
 
     /**
-     * Use javax.xml.bind.DatatypeConverter class in JDK to convert byte array
-     * to a hexadecimal string. Note that this generates hexadecimal in upper case.
+     * Convert byte array to a hexadecimal string.
      * 
      * @param hash
      * @return
      */
-    private String bytesToHex(byte[] hash) {
-        return DatatypeConverter.printHexBinary(hash);
+    public String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     /**
@@ -36,6 +42,7 @@ public class ResearchfiUsernameTemplateMapper extends UsernameTemplateMapper {
     private String getMD5Hash(String data) {
         String result = null;
         try {
+            data = data.toUpperCase();
             MessageDigest digest = MessageDigest.getInstance("MD5");
             byte[] hash = digest.digest(data.getBytes("UTF-8"));
             return bytesToHex(hash); // make it printable
