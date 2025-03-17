@@ -38,6 +38,9 @@ namespace api.Services
         /*
          * Constructor.
          * Do not setup Elasticsearch client unless configuration values are ok.
+         *
+         * Compatibility mode is enabled for Elasticsearch 8:
+         * https://www.elastic.co/guide/en/elasticsearch/client/net-api/7.17/connecting-to-elasticsearch-v8.html#enabling-compatibility-mode
          */
         public ElasticsearchService(
             IConfiguration configuration,
@@ -56,7 +59,8 @@ namespace api.Services
                 ConnectionSettings settings = new ConnectionSettings(new Uri(Configuration["ELASTICSEARCH:URL"]))
                     .MaximumRetries(3)
                     .DefaultIndex(elasticsearchProfileIndexName)
-                    .BasicAuthentication(Configuration["ELASTICSEARCH:USERNAME"], Configuration["ELASTICSEARCH:PASSWORD"]);
+                    .BasicAuthentication(Configuration["ELASTICSEARCH:USERNAME"], Configuration["ELASTICSEARCH:PASSWORD"])
+                    .EnableApiVersioningHeader(); // Required for Elasticsearch 8
                 ESclient = new ElasticClient(settings);
 
                 // Ensure required index exists.
