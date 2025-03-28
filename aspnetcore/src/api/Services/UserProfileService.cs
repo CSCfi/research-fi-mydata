@@ -577,8 +577,6 @@ namespace api.Services
                     message: $"dim_user_profile.id={dimUserProfile.Id}"
                     ));
 
-            _logger.LogInformation("DEBUG: AddTtvDataToUserProfile");
-
             // Get FactFieldValues
             List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(f => f.DimUserProfileId == dimUserProfile.Id).AsNoTracking().ToListAsync();
             // Collect lists of IDs, which are already included in the profile.
@@ -595,7 +593,6 @@ namespace api.Services
             List<int> existingResearchDatasetIds = new();
             List<int> existingFundingDecisionIds = new();
 
-            _logger.LogInformation($"DEBUG: ffv count = {ffvs.Count}");
             if (ffvs != null)
             {
                 existingEmailIds = ffvs.Where(ffv => ffv.DimEmailAddrressId != -1).Select(ffv => ffv.DimEmailAddrressId).Distinct().ToList<int>();
@@ -803,7 +800,6 @@ namespace api.Services
                 DimFieldDisplaySetting dimFieldDisplaySetting_researchDataset =
                     dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET).First();
 
-                _logger.LogInformation("DEBUG: loop dim names");
                 // Loop DimNames, which have valid registered data source
                 foreach (DimName dimName in dimKnownPerson.DimNames.Where(dimName => dimName.DimRegisteredDataSourceId != -1))
                 {
@@ -839,8 +835,6 @@ namespace api.Services
                         string factContributionSql = _ttvSqlService.GetSqlQuery_Select_FactContribution(dimName.Id);
                         List<FactContributionTableMinimalDTO> factContributions = (await connection.QueryAsync<FactContributionTableMinimalDTO>(factContributionSql)).ToList();
 
-                        _logger.LogInformation("DEBUG: search fact_contribution");
-
                         // Loop FactContributions related to a DimName. Add entries to user profile. Exclude already existing IDs.
                         foreach (FactContributionTableMinimalDTO fc in factContributions)
                         {
@@ -850,7 +844,6 @@ namespace api.Services
                             // If FactContributionTableMinimalDTO.CoPublication_Parent_DimPublicationId has value (other than -1), that must be used.
                             // Otherwise FactContributionTableMinimalDTO.DimPublicationId must be used.
                             int publicationId = fc.CoPublication_Parent_DimPublicationId > 0 ? fc.CoPublication_Parent_DimPublicationId : fc.DimPublicationId;
-                            _logger.LogInformation($"DEBUG: publicationId={publicationId}");
                             if (publicationId != -1 && !existingPublicationIds.Contains(publicationId))
                             {
                                 FactFieldValue factFieldValuePublication = this.GetEmptyFactFieldValue();
