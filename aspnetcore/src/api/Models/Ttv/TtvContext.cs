@@ -141,6 +141,8 @@ public partial class TtvContext : DbContext
 
     public virtual DbSet<FactFieldValue> FactFieldValues { get; set; }
 
+    public virtual DbSet<FactFieldValuesTest> FactFieldValuesTests { get; set; }
+
     public virtual DbSet<FactInfraKeyword> FactInfraKeywords { get; set; }
 
     public virtual DbSet<FactKeyword> FactKeywords { get; set; }
@@ -154,7 +156,7 @@ public partial class TtvContext : DbContext
     {
         modelBuilder.Entity<BrDatasetDatasetRelationship>(entity =>
         {
-            entity.HasKey(e => new { e.DimResearchDatasetId, e.DimResearchDatasetId2 }).HasName("PK__br_datas__9FEA685A464756D5");
+            entity.HasKey(e => new { e.DimResearchDatasetId, e.DimResearchDatasetId2 }).HasName("PK__br_datas__9FEA685A609AA747");
 
             entity.ToTable("br_dataset_dataset_relationship");
 
@@ -178,7 +180,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<BrFundingConsortiumParticipation>(entity =>
         {
-            entity.HasKey(e => new { e.DimFundingDecisionId, e.DimOrganizationid }).HasName("PK__br_fundi__3DB567F8F68FB7BC");
+            entity.HasKey(e => new { e.DimFundingDecisionId, e.DimOrganizationid }).HasName("PK__br_fundi__3DB567F838FA95E5");
 
             entity.ToTable("br_funding_consortium_participation");
 
@@ -205,7 +207,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<BrGrantedPermission>(entity =>
         {
-            entity.HasKey(e => new { e.DimUserProfileId, e.DimExternalServiceId, e.DimPermittedFieldGroup }).HasName("PK__br_grant__F51F7BCB3D7E13E6");
+            entity.HasKey(e => new { e.DimUserProfileId, e.DimExternalServiceId, e.DimPermittedFieldGroup }).HasName("PK__br_grant__F51F7BCB75F08C12");
 
             entity.ToTable("br_granted_permissions");
 
@@ -287,7 +289,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<BrWordClusterDimFundingDecision>(entity =>
         {
-            entity.HasKey(e => new { e.DimWordClusterId, e.DimFundingDecisionId }).HasName("PK__br_word___7D640B5A7DB1BC24");
+            entity.HasKey(e => new { e.DimWordClusterId, e.DimFundingDecisionId }).HasName("PK__br_word___7D640B5AE599DE38");
 
             entity.ToTable("br_word_cluster_dim_funding_decision");
 
@@ -320,7 +322,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<BrWordsDefineACluster>(entity =>
         {
-            entity.HasKey(e => new { e.DimMinedWordsId, e.DimWordClusterId }).HasName("PK__br_words__0602FA378A3C0AB4");
+            entity.HasKey(e => new { e.DimMinedWordsId, e.DimWordClusterId }).HasName("PK__br_words__0602FA3780C09B43");
 
             entity.ToTable("br_words_define_a_cluster");
 
@@ -353,7 +355,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimAffiliation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_affi__3213E83FD784DC45");
+            entity.HasKey(e => e.Id).HasName("PK__dim_affi__3213E83FB22925B3");
 
             entity.ToTable("dim_affiliation");
 
@@ -430,15 +432,15 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimCallDecision>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_call__3213E83FD2F9082B");
+            entity.HasKey(e => e.Id).HasName("PK__dim_call__3213E83FD98AF042");
 
-            entity.ToTable("dim_call_decisions", tb => tb.HasComment("Rahoituspäätöspaneeli"));
+            entity.ToTable("dim_call_decisions", tb => tb.HasComment("Rahoitusp��t�spaneeli"));
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CallProcessingPhase)
                 .IsRequired()
                 .HasMaxLength(255)
-                .HasComment("Rahoituspäätöspaneeli - Haun vaihe")
+                .HasComment("Rahoitusp��t�spaneeli - Haun vaihe")
                 .HasColumnName("call_processing_phase");
             entity.Property(e => e.DecisionMaker).HasColumnName("decision_maker");
             entity.Property(e => e.DimCallProgrammeId).HasColumnName("dim_call_programme_id");
@@ -573,7 +575,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("belongs to / a part of "),
                     j =>
                     {
-                        j.HasKey("DimCallProgrammeId", "DimCallProgrammeId2").HasName("PK__br_call___6F0CEDFBFB40F243");
+                        j.HasKey("DimCallProgrammeId", "DimCallProgrammeId2").HasName("PK__br_call___6F0CEDFBFD01D134");
                         j.ToTable("br_call_programme_dim_call_programme");
                         j.IndexerProperty<int>("DimCallProgrammeId").HasColumnName("dim_call_programme_id");
                         j.IndexerProperty<int>("DimCallProgrammeId2").HasColumnName("dim_call_programme_id2");
@@ -592,7 +594,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_call_pr785575"),
                     j =>
                     {
-                        j.HasKey("DimCallProgrammeId", "DimCallProgrammeId2").HasName("PK__br_call___6F0CEDFBFB40F243");
+                        j.HasKey("DimCallProgrammeId", "DimCallProgrammeId2").HasName("PK__br_call___6F0CEDFBFD01D134");
                         j.ToTable("br_call_programme_dim_call_programme");
                         j.IndexerProperty<int>("DimCallProgrammeId").HasColumnName("dim_call_programme_id");
                         j.IndexerProperty<int>("DimCallProgrammeId2").HasColumnName("dim_call_programme_id2");
@@ -611,7 +613,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("has disciplines"),
                     j =>
                     {
-                        j.HasKey("DimCallProgrammeId", "DimReferencedataId").HasName("PK__br_dim_r__0A5B885D90EF4632");
+                        j.HasKey("DimCallProgrammeId", "DimReferencedataId").HasName("PK__br_dim_r__0A5B885D7591E658");
                         j.ToTable("br_dim_referencedata_dim_call_programme");
                         j.IndexerProperty<int>("DimCallProgrammeId").HasColumnName("dim_call_programme_id");
                         j.IndexerProperty<int>("DimReferencedataId").HasColumnName("dim_referencedata_id");
@@ -620,7 +622,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimCompetence>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_comp__3213E83FCB2CACD8");
+            entity.HasKey(e => e.Id).HasName("PK__dim_comp__3213E83FD9C3D2B9");
 
             entity.ToTable("dim_competence");
 
@@ -674,7 +676,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimDate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_date__3213E83FDC72C61E");
+            entity.HasKey(e => e.Id).HasName("PK__dim_date__3213E83FB50C4612");
 
             entity.ToTable("dim_date");
 
@@ -699,7 +701,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimDescriptiveItem>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_desc__3213E83F8B3C7317");
+            entity.HasKey(e => e.Id).HasName("PK__dim_desc__3213E83FDF6AB4E0");
 
             entity.ToTable("dim_descriptive_item", tb => tb.HasComment("https://iri.suomi.fi/model/researchfi_core_project/\r\nProjektin kuvailutiedot ajassa\r\nhttps://iri.suomi.fi/model/researchfi_core_project/cl_project_descriptive_in_time"));
 
@@ -709,7 +711,7 @@ public partial class TtvContext : DbContext
                 .HasColumnName("created");
             entity.Property(e => e.DescriptiveItem)
                 .IsUnicode(false)
-                .HasComment("https://iri.suomi.fi/model/researchfi_core_project/\r\nProjektin kuvailutiedot ajassa\r\nhttps://iri.suomi.fi/model/researchfi_core_project/cl_project_descriptive_in_time\r\n* kuvailutiedon sisältö")
+                .HasComment("https://iri.suomi.fi/model/researchfi_core_project/\r\nProjektin kuvailutiedot ajassa\r\nhttps://iri.suomi.fi/model/researchfi_core_project/cl_project_descriptive_in_time\r\n* kuvailutiedon sis�lt�")
                 .HasColumnName("descriptive_item");
             entity.Property(e => e.DescriptiveItemLanguage)
                 .HasMaxLength(255)
@@ -722,14 +724,14 @@ public partial class TtvContext : DbContext
                 .HasComment("https://iri.suomi.fi/model/researchfi_core_project/\r\nhttps://iri.suomi.fi/model/researchfi_core_project/cl_project_descriptive_type\r\n- description\r\n- name\r\n- goal\r\n- outcome_effect\r\n- abberviation")
                 .HasColumnName("descriptive_item_type");
             entity.Property(e => e.DimEndDate)
-                .HasComment("https://iri.suomi.fi/model/researchfi_core_project/\r\nProjektin kuvailutiedot ajassa\r\nhttps://iri.suomi.fi/model/researchfi_core_project/cl_project_descriptive_in_time\r\n* päättymispäivämäärä")
+                .HasComment("https://iri.suomi.fi/model/researchfi_core_project/\r\nProjektin kuvailutiedot ajassa\r\nhttps://iri.suomi.fi/model/researchfi_core_project/cl_project_descriptive_in_time\r\n* p��ttymisp�iv�m��r�")
                 .HasColumnName("dim_end_date");
             entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
             entity.Property(e => e.DimResearchProjectId)
                 .HasComment("https://iri.suomi.fi/model/researchfi_core_project/\r\nProjektin kuvailutiedot ajassa\r\nhttps://iri.suomi.fi/model/researchfi_core_project/cl_project_descriptive_in_time\r\n- liittyy projektiin")
                 .HasColumnName("dim_research_project_id");
             entity.Property(e => e.DimStartDate)
-                .HasComment("https://iri.suomi.fi/model/researchfi_core_project/\r\nProjektin kuvailutiedot ajassa\r\nhttps://iri.suomi.fi/model/researchfi_core_project/cl_project_descriptive_in_time\r\n* alkamispäivämäärä")
+                .HasComment("https://iri.suomi.fi/model/researchfi_core_project/\r\nProjektin kuvailutiedot ajassa\r\nhttps://iri.suomi.fi/model/researchfi_core_project/cl_project_descriptive_in_time\r\n* alkamisp�iv�m��r�")
                 .HasColumnName("dim_start_date");
             entity.Property(e => e.Modified)
                 .HasColumnType("datetime")
@@ -764,7 +766,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimEducation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_educ__3213E83FA308B9AE");
+            entity.HasKey(e => e.Id).HasName("PK__dim_educ__3213E83F1971048D");
 
             entity.ToTable("dim_education");
 
@@ -847,7 +849,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimEmailAddrress>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_emai__3213E83F7F40E7EA");
+            entity.HasKey(e => e.Id).HasName("PK__dim_emai__3213E83FFFB900F9");
 
             entity.ToTable("dim_email_addrress");
 
@@ -884,7 +886,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimEsfri>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_esfr__3213E83FE3708FE1");
+            entity.HasKey(e => e.Id).HasName("PK__dim_esfr__3213E83FF9794BB6");
 
             entity.ToTable("dim_esfri");
 
@@ -928,7 +930,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_esfri_d559740"),
                     j =>
                     {
-                        j.HasKey("DimEsfriId", "DimInfrastructureId").HasName("PK__br_esfri__A4A0FE10D9945662");
+                        j.HasKey("DimEsfriId", "DimInfrastructureId").HasName("PK__br_esfri__A4A0FE10E3E5FE20");
                         j.ToTable("br_esfri_dim_infrastructure");
                         j.IndexerProperty<int>("DimEsfriId").HasColumnName("dim_esfri_id");
                         j.IndexerProperty<int>("DimInfrastructureId").HasColumnName("dim_infrastructure_id");
@@ -937,7 +939,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimEvent>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_even__3213E83FB4DB05DE");
+            entity.HasKey(e => e.Id).HasName("PK__dim_even__3213E83F3D4A19AD");
 
             entity.ToTable("dim_event");
 
@@ -995,7 +997,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimExternalService>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_exte__3213E83F4707B6E7");
+            entity.HasKey(e => e.Id).HasName("PK__dim_exte__3213E83FF8A2A1D7");
 
             entity.ToTable("dim_external_service");
 
@@ -1030,7 +1032,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimFieldDisplaySetting>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_fiel__3213E83F6D2DE502");
+            entity.HasKey(e => e.Id).HasName("PK__dim_fiel__3213E83F6C340D15");
 
             entity.ToTable("dim_field_display_settings");
 
@@ -1070,7 +1072,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_field_d783303"),
                     j =>
                     {
-                        j.HasKey("DimFieldDisplaySettingsId", "DimRegisteredDataSourceId").HasName("PK__br_field__6148A7721A230EB9");
+                        j.HasKey("DimFieldDisplaySettingsId", "DimRegisteredDataSourceId").HasName("PK__br_field__6148A772D7495CF1");
                         j.ToTable("br_field_display_settings_dim_registered_data_source");
                         j.IndexerProperty<int>("DimFieldDisplaySettingsId").HasColumnName("dim_field_display_settings_id");
                         j.IndexerProperty<int>("DimRegisteredDataSourceId").HasColumnName("dim_registered_data_source_id");
@@ -1079,7 +1081,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimFundingDecision>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_fund__3213E83F116F6448");
+            entity.HasKey(e => e.Id).HasName("PK__dim_fund__3213E83FB60704BC");
 
             entity.ToTable("dim_funding_decision");
 
@@ -1101,7 +1103,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.DescriptionFi).HasColumnName("description_fi");
             entity.Property(e => e.DescriptionSv).HasColumnName("description_sv");
             entity.Property(e => e.DimCallDecisionsId)
-                .HasComment("Rahoituspäätös - Päätöspaneeli")
+                .HasComment("Rahoitusp��t�s - P��t�spaneeli")
                 .HasColumnName("dim_call_decisions_id");
             entity.Property(e => e.DimCallProgrammeId).HasColumnName("dim_call_programme_id");
             entity.Property(e => e.DimDateIdApproval).HasColumnName("dim_date_id_approval");
@@ -1118,7 +1120,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.DimTypeOfFundingId).HasColumnName("dim_type_of_funding_id");
             entity.Property(e => e.FunderProjectNumber)
                 .HasMaxLength(255)
-                .HasComment("Päätöksen paikallinen tunniste (tiedon toimittajan)")
+                .HasComment("P��t�ksen paikallinen tunniste (tiedon toimittajan)")
                 .HasColumnName("funder_project_number");
             entity.Property(e => e.FundingDecisionCurrencyAbbreviation)
                 .HasMaxLength(255)
@@ -1206,7 +1208,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_related689923"),
                     j =>
                     {
-                        j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_relat__909664916E7D3FD3");
+                        j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_relat__9096649128E91F39");
                         j.ToTable("br_related_funding_decision");
                         j.IndexerProperty<int>("DimFundingDecisionFromId").HasColumnName("dim_funding_decision_from_id");
                         j.IndexerProperty<int>("DimFundingDecisionToId").HasColumnName("dim_funding_decision_to_id");
@@ -1225,7 +1227,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_related232364"),
                     j =>
                     {
-                        j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_relat__909664916E7D3FD3");
+                        j.HasKey("DimFundingDecisionFromId", "DimFundingDecisionToId").HasName("PK__br_relat__9096649128E91F39");
                         j.ToTable("br_related_funding_decision");
                         j.IndexerProperty<int>("DimFundingDecisionFromId").HasColumnName("dim_funding_decision_from_id");
                         j.IndexerProperty<int>("DimFundingDecisionToId").HasColumnName("dim_funding_decision_to_id");
@@ -1234,7 +1236,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimGeo>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_geo__3213E83FCFA21FA2");
+            entity.HasKey(e => e.Id).HasName("PK__dim_geo__3213E83FEFC1157F");
 
             entity.ToTable("dim_geo");
 
@@ -1291,7 +1293,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimIdentifierlessDatum>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_iden__3213E83F4625F11E");
+            entity.HasKey(e => e.Id).HasName("PK__dim_iden__3213E83F215238AE");
 
             entity.ToTable("dim_identifierless_data");
 
@@ -1334,7 +1336,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimInfrastructure>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_infr__3213E83FDC4BBFCD");
+            entity.HasKey(e => e.Id).HasName("PK__dim_infr__3213E83F2844667F");
 
             entity.ToTable("dim_infrastructure");
 
@@ -1409,7 +1411,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimKeyword>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_keyw__3213E83F24A9C234");
+            entity.HasKey(e => e.Id).HasName("PK__dim_keyw__3213E83F68E0BDC1");
 
             entity.ToTable("dim_keyword");
 
@@ -1478,7 +1480,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_keyword224605"),
                     j =>
                     {
-                        j.HasKey("DimKeywordId", "DimFundingDecisionId").HasName("PK__br_keywo__8C7B929B5130C593");
+                        j.HasKey("DimKeywordId", "DimFundingDecisionId").HasName("PK__br_keywo__8C7B929B543F4A47");
                         j.ToTable("br_keyword_dim_funding_decision");
                         j.IndexerProperty<int>("DimKeywordId").HasColumnName("dim_keyword_id");
                         j.IndexerProperty<int>("DimFundingDecisionId").HasColumnName("dim_funding_decision_id");
@@ -1497,7 +1499,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_keyword944303"),
                     j =>
                     {
-                        j.HasKey("DimKeywordId", "DimPublicationId").HasName("PK__br_keywo__C6E31F1AB66AFC05");
+                        j.HasKey("DimKeywordId", "DimPublicationId").HasName("PK__br_keywo__C6E31F1A64449180");
                         j.ToTable("br_keyword_dim_publication");
                         j.IndexerProperty<int>("DimKeywordId").HasColumnName("dim_keyword_id");
                         j.IndexerProperty<int>("DimPublicationId").HasColumnName("dim_publication_id");
@@ -1506,7 +1508,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimKnownPerson>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_know__3213E83FC7D31429");
+            entity.HasKey(e => e.Id).HasName("PK__dim_know__3213E83F71984D07");
 
             entity.ToTable("dim_known_person");
 
@@ -1536,7 +1538,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimLocallyReportedPubInfo>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_loca__3213E83F13468998");
+            entity.HasKey(e => e.Id).HasName("PK__dim_loca__3213E83F05BDFBA6");
 
             entity.ToTable("dim_locally_reported_pub_info");
 
@@ -1584,7 +1586,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimMeril>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_meri__3213E83F77BAA15F");
+            entity.HasKey(e => e.Id).HasName("PK__dim_meri__3213E83FE55F747E");
 
             entity.ToTable("dim_meril");
 
@@ -1628,7 +1630,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_meril_d209645"),
                     j =>
                     {
-                        j.HasKey("DimMerilId", "DimInfrastructureId").HasName("PK__br_meril__A30C54DAF16D4AD0");
+                        j.HasKey("DimMerilId", "DimInfrastructureId").HasName("PK__br_meril__A30C54DA24DDDD4C");
                         j.ToTable("br_meril_dim_infrastructure");
                         j.IndexerProperty<int>("DimMerilId").HasColumnName("dim_meril_id");
                         j.IndexerProperty<int>("DimInfrastructureId").HasColumnName("dim_infrastructure_id");
@@ -1637,7 +1639,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimMinedWord>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_mine__3213E83F66EFE059");
+            entity.HasKey(e => e.Id).HasName("PK__dim_mine__3213E83F3406086F");
 
             entity.ToTable("dim_mined_words");
 
@@ -1663,7 +1665,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimName>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_name__3213E83F7B3C4CF1");
+            entity.HasKey(e => e.Id).HasName("PK__dim_name__3213E83F271386FA");
 
             entity.ToTable("dim_name");
 
@@ -1709,7 +1711,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimNewsFeed>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_news__3213E83FA75D4601");
+            entity.HasKey(e => e.Id).HasName("PK__dim_news__3213E83F96F1DC15");
 
             entity.ToTable("dim_news_feed");
 
@@ -1737,7 +1739,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimNewsItem>(entity =>
         {
-            entity.HasKey(e => new { e.Id, e.DimNewsFeedid }).HasName("PK__dim_news__B87E670377DEA422");
+            entity.HasKey(e => new { e.Id, e.DimNewsFeedid }).HasName("PK__dim_news__B87E6703C03D617B");
 
             entity.ToTable("dim_news_item");
 
@@ -1808,7 +1810,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimOrganization>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_orga__3213E83FEAB47B87");
+            entity.HasKey(e => e.Id).HasName("PK__dim_orga__3213E83F40537E65");
 
             entity.ToTable("dim_organization");
 
@@ -1866,6 +1868,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.PostalAddress)
                 .HasMaxLength(511)
                 .HasColumnName("postal_address");
+            entity.Property(e => e.ResearchFiVisibilityLimited).HasColumnName("research_fi_visibility_limited");
             entity.Property(e => e.SourceDescription)
                 .HasMaxLength(255)
                 .HasColumnName("source_description");
@@ -1905,7 +1908,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_organiz621686"),
                     j =>
                     {
-                        j.HasKey("DimOrganizationid", "DimCallProgrammeid").HasName("PK__br_organ__10F219BCE3602C5A");
+                        j.HasKey("DimOrganizationid", "DimCallProgrammeid").HasName("PK__br_organ__10F219BC062F1D46");
                         j.ToTable("br_organizations_fund_call_programmes");
                         j.IndexerProperty<int>("DimOrganizationid").HasColumnName("dim_organizationid");
                         j.IndexerProperty<int>("DimCallProgrammeid").HasColumnName("dim_call_programmeid");
@@ -1924,7 +1927,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_predece849307"),
                     j =>
                     {
-                        j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_prede__A7CAD2F405A10D94");
+                        j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_prede__A7CAD2F451AE9735");
                         j.ToTable("br_predecessor_organization");
                         j.IndexerProperty<int>("DimOrganizationid").HasColumnName("dim_organizationid");
                         j.IndexerProperty<int>("DimOrganizationid2").HasColumnName("dim_organizationid2");
@@ -1943,7 +1946,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_success452227"),
                     j =>
                     {
-                        j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_succe__A7CAD2F4DAB1AD59");
+                        j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_succe__A7CAD2F426E3D898");
                         j.ToTable("br_successor organization");
                         j.IndexerProperty<int>("DimOrganizationid").HasColumnName("dim_organizationid");
                         j.IndexerProperty<int>("DimOrganizationid2").HasColumnName("dim_organizationid2");
@@ -1962,7 +1965,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_predece505451"),
                     j =>
                     {
-                        j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_prede__A7CAD2F405A10D94");
+                        j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_prede__A7CAD2F451AE9735");
                         j.ToTable("br_predecessor_organization");
                         j.IndexerProperty<int>("DimOrganizationid").HasColumnName("dim_organizationid");
                         j.IndexerProperty<int>("DimOrganizationid2").HasColumnName("dim_organizationid2");
@@ -1981,7 +1984,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_success902531"),
                     j =>
                     {
-                        j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_succe__A7CAD2F4DAB1AD59");
+                        j.HasKey("DimOrganizationid", "DimOrganizationid2").HasName("PK__br_succe__A7CAD2F426E3D898");
                         j.ToTable("br_successor organization");
                         j.IndexerProperty<int>("DimOrganizationid").HasColumnName("dim_organizationid");
                         j.IndexerProperty<int>("DimOrganizationid2").HasColumnName("dim_organizationid2");
@@ -1990,7 +1993,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimPid>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_pid__3213E83F1D16147B");
+            entity.HasKey(e => e.Id).HasName("PK__dim_pid__3213E83FC26CE3BC");
 
             entity.ToTable("dim_pid");
 
@@ -2102,7 +2105,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimProfileOnlyDataset>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_prof__3213E83F911670C0");
+            entity.HasKey(e => e.Id).HasName("PK__dim_prof__3213E83F201F3B3F");
 
             entity.ToTable("dim_profile_only_dataset");
 
@@ -2163,7 +2166,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimProfileOnlyFundingDecision>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_prof__3213E83F8A2EE74A");
+            entity.HasKey(e => e.Id).HasName("PK__dim_prof__3213E83FE1D224CE");
 
             entity.ToTable("dim_profile_only_funding_decision");
 
@@ -2260,7 +2263,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimProfileOnlyPublication>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_prof__3213E83FA661F4EE");
+            entity.HasKey(e => e.Id).HasName("PK__dim_prof__3213E83F8191916D");
 
             entity.ToTable("dim_profile_only_publication");
 
@@ -2416,7 +2419,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimProfileOnlyResearchActivity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_prof__3213E83FE053C8B7");
+            entity.HasKey(e => e.Id).HasName("PK__dim_prof__3213E83FB5292598");
 
             entity.ToTable("dim_profile_only_research_activity");
 
@@ -2497,7 +2500,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimPublication>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_publ__3213E83FE30BF713");
+            entity.HasKey(e => e.Id).HasName("PK__dim_publ__3213E83F415345EC");
 
             entity.ToTable("dim_publication");
 
@@ -2525,28 +2528,11 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.DimPublicationChannelIdFrozen).HasColumnName("dim_publication_channel_id_frozen");
             entity.Property(e => e.DimPublicationId).HasColumnName("dim_publication_id");
             entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
-            entity.Property(e => e.Doi)
-                .HasMaxLength(4000)
-                .HasColumnName("doi");
             entity.Property(e => e.DoiHandle)
                 .HasMaxLength(4000)
                 .HasColumnName("doi_handle");
-            entity.Property(e => e.GovermentCollaboration).HasColumnName("goverment_collaboration");
-            entity.Property(e => e.HospitalDistrictCollaboration).HasColumnName("hospital_district_collaboration");
             entity.Property(e => e.InternationalCollaboration).HasColumnName("international_collaboration");
             entity.Property(e => e.InternationalPublication).HasColumnName("international_publication");
-            entity.Property(e => e.Isbn)
-                .HasMaxLength(255)
-                .HasColumnName("isbn");
-            entity.Property(e => e.Isbn2)
-                .HasMaxLength(255)
-                .HasColumnName("isbn2");
-            entity.Property(e => e.Issn)
-                .HasMaxLength(255)
-                .HasColumnName("issn");
-            entity.Property(e => e.Issn2)
-                .HasMaxLength(255)
-                .HasColumnName("issn2");
             entity.Property(e => e.IssueNumber)
                 .HasMaxLength(255)
                 .HasColumnName("issue_number");
@@ -2555,9 +2541,6 @@ public partial class TtvContext : DbContext
                 .HasColumnName("journal_name");
             entity.Property(e => e.JufoClass).HasColumnName("jufo_class");
             entity.Property(e => e.JufoClassCodeFrozen).HasColumnName("jufo_class_code_frozen");
-            entity.Property(e => e.JuuliAddress)
-                .HasMaxLength(4000)
-                .HasColumnName("juuli_address");
             entity.Property(e => e.LanguageCode).HasColumnName("language_code");
             entity.Property(e => e.LicenseCode).HasColumnName("license_code");
             entity.Property(e => e.Modified)
@@ -2570,16 +2553,15 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.OriginalPublicationId)
                 .HasMaxLength(255)
                 .HasColumnName("original_publication_id");
-            entity.Property(e => e.OtherCollaboration).HasColumnName("other_collaboration");
             entity.Property(e => e.PageNumberText)
                 .HasMaxLength(255)
                 .HasColumnName("page_number_text");
+            entity.Property(e => e.ParentPublicationEditors)
+                .HasMaxLength(4000)
+                .HasColumnName("parent_publication_editors");
             entity.Property(e => e.ParentPublicationName)
                 .HasMaxLength(4000)
                 .HasColumnName("parent_publication_name");
-            entity.Property(e => e.ParentPublicationPublisher)
-                .HasMaxLength(4000)
-                .HasColumnName("parent_publication_publisher");
             entity.Property(e => e.ParentPublicationTypeCode).HasColumnName("parent_publication_type_code");
             entity.Property(e => e.PeerReviewed).HasColumnName("peer_reviewed");
             entity.Property(e => e.PublicationCountryCode).HasColumnName("publication_country_code");
@@ -2616,7 +2598,6 @@ public partial class TtvContext : DbContext
                 .IsRequired()
                 .HasMaxLength(255)
                 .HasColumnName("source_id");
-            entity.Property(e => e.SpecialStateSubsidy).HasColumnName("special_state_subsidy");
             entity.Property(e => e.TargetAudienceCode).HasColumnName("target_audience_code");
             entity.Property(e => e.ThesisTypeCode).HasColumnName("thesis_type_code");
             entity.Property(e => e.Volume)
@@ -2716,7 +2697,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_artpubl464312"),
                     j =>
                     {
-                        j.HasKey("DimPublicationId", "DimReferencedataid").HasName("PK__br_artpu__879F18F350061417");
+                        j.HasKey("DimPublicationId", "DimReferencedataid").HasName("PK__br_artpu__879F18F30520DBF8");
                         j.ToTable("br_artpublication_typecategory");
                         j.IndexerProperty<int>("DimPublicationId").HasColumnName("dim_publication_id");
                         j.IndexerProperty<int>("DimReferencedataid").HasColumnName("dim_referencedataid");
@@ -2725,7 +2706,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimPublicationChannel>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_publ__3213E83FA2E9BA3B");
+            entity.HasKey(e => e.Id).HasName("PK__dim_publ__3213E83FD5B54B2B");
 
             entity.ToTable("dim_publication_channel");
 
@@ -2756,7 +2737,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimPurpose>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_purp__3213E83FB4F4F7FB");
+            entity.HasKey(e => e.Id).HasName("PK__dim_purp__3213E83F10C5583B");
 
             entity.ToTable("dim_purpose");
 
@@ -2799,7 +2780,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimReferencedatum>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_refe__3213E83F69CC08EC");
+            entity.HasKey(e => e.Id).HasName("PK__dim_refe__3213E83F3145FB91");
 
             entity.ToTable("dim_referencedata");
 
@@ -2861,7 +2842,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKfact_dim_r130466"),
                     j =>
                     {
-                        j.HasKey("DimReferencedataId", "DimPublicationId").HasName("PK__fact_dim__62A1BBCB69D8E9CC");
+                        j.HasKey("DimReferencedataId", "DimPublicationId").HasName("PK__fact_dim__62A1BBCB4C0425DE");
                         j.ToTable("fact_dim_referencedata_field_of_art");
                         j.IndexerProperty<int>("DimReferencedataId").HasColumnName("dim_referencedata_id");
                         j.IndexerProperty<int>("DimPublicationId").HasColumnName("dim_publication_id");
@@ -2870,7 +2851,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimRegisteredDataSource>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_regi__3213E83FB81C5F68");
+            entity.HasKey(e => e.Id).HasName("PK__dim_regi__3213E83F56E78BBE");
 
             entity.ToTable("dim_registered_data_source");
 
@@ -2902,7 +2883,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimResearchActivity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F17756666");
+            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83FEA105C70");
 
             entity.ToTable("dim_research_activity");
 
@@ -2986,7 +2967,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimResearchActivityDimKeyword>(entity =>
         {
-            entity.HasKey(e => new { e.DimResearchActivityId, e.DimKeywordId }).HasName("PK__dim_rese__F7B536BC341143EF");
+            entity.HasKey(e => new { e.DimResearchActivityId, e.DimKeywordId }).HasName("PK__dim_rese__F7B536BC6720FD5D");
 
             entity.ToTable("dim_research_activity_dim_keyword");
 
@@ -3001,7 +2982,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimResearchCommunity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F9E966DBF");
+            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F6E52AF92");
 
             entity.ToTable("dim_research_community");
 
@@ -3048,7 +3029,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimResearchDataCatalog>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83FC6AC2055");
+            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F0C6CED4C");
 
             entity.ToTable("dim_research_data_catalog");
 
@@ -3088,7 +3069,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimResearchDataset>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F91D1936E");
+            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F2FF05E9B");
 
             entity.ToTable("dim_research_dataset");
 
@@ -3179,7 +3160,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("dataset-keywords"),
                     j =>
                     {
-                        j.HasKey("DimResearchDatasetId", "DimKeywordId").HasName("PK__br_resea__4D226DF205B0C821");
+                        j.HasKey("DimResearchDatasetId", "DimKeywordId").HasName("PK__br_resea__4D226DF27EAEB927");
                         j.ToTable("br_research_dataset_dim_keyword");
                         j.IndexerProperty<int>("DimResearchDatasetId").HasColumnName("dim_research_dataset_id");
                         j.IndexerProperty<int>("DimKeywordId").HasColumnName("dim_keyword_id");
@@ -3198,7 +3179,7 @@ public partial class TtvContext : DbContext
                         .HasConstraintName("FKbr_languag34243"),
                     j =>
                     {
-                        j.HasKey("DimResearchDatasetId", "DimReferencedataId").HasName("PK__br_langu__576647BF516D34CB");
+                        j.HasKey("DimResearchDatasetId", "DimReferencedataId").HasName("PK__br_langu__576647BF2E26FA2B");
                         j.ToTable("br_language_codes_for_datasets");
                         j.IndexerProperty<int>("DimResearchDatasetId").HasColumnName("dim_research_dataset_id");
                         j.IndexerProperty<int>("DimReferencedataId").HasColumnName("dim_referencedata_id");
@@ -3207,7 +3188,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimResearchProject>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F916C260E");
+            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83FC9432C99");
 
             entity.ToTable("dim_research_project");
 
@@ -3217,7 +3198,7 @@ public partial class TtvContext : DbContext
                 .HasColumnName("created");
             entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
             entity.Property(e => e.EndDate)
-                .HasComment("Hanke - päättymispäivämäärä")
+                .HasComment("Hanke - p��ttymisp�iv�m��r�")
                 .HasColumnName("end_date");
             entity.Property(e => e.Modified)
                 .HasColumnType("datetime")
@@ -3234,7 +3215,7 @@ public partial class TtvContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("source_id");
             entity.Property(e => e.StartDate)
-                .HasComment("Hanke - alkamispäivämäärä")
+                .HasComment("Hanke - alkamisp�iv�m��r�")
                 .HasColumnName("start_date");
 
             entity.HasOne(d => d.DimRegisteredDataSource).WithMany(p => p.DimResearchProjects)
@@ -3263,7 +3244,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimResearcherDescription>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F112F961D");
+            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83FEA9CB585");
 
             entity.ToTable("dim_researcher_description");
 
@@ -3301,7 +3282,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimResearcherToResearchCommunity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83F381DFC16");
+            entity.HasKey(e => e.Id).HasName("PK__dim_rese__3213E83FE07BB21A");
 
             entity.ToTable("dim_researcher_to_research_community");
 
@@ -3361,7 +3342,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimSector>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_sect__3213E83FCF689C81");
+            entity.HasKey(e => e.Id).HasName("PK__dim_sect__3213E83F214D97E5");
 
             entity.ToTable("dim_sector");
 
@@ -3397,7 +3378,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimService>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_serv__3213E83FB210C4C4");
+            entity.HasKey(e => e.Id).HasName("PK__dim_serv__3213E83F73CE59FE");
 
             entity.ToTable("dim_service");
 
@@ -3460,7 +3441,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimServicePoint>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_serv__3213E83FA1F2EBFA");
+            entity.HasKey(e => e.Id).HasName("PK__dim_serv__3213E83F0D740E2D");
 
             entity.ToTable("dim_service_point");
 
@@ -3538,7 +3519,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimTelephoneNumber>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_tele__3213E83FA19EB321");
+            entity.HasKey(e => e.Id).HasName("PK__dim_tele__3213E83F4E60740D");
 
             entity.ToTable("dim_telephone_number");
 
@@ -3575,11 +3556,11 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimTypeOfFunding>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_type__3213E83FA17A1AFC");
+            entity.HasKey(e => e.Id).HasName("PK__dim_type__3213E83F428A078C");
 
             entity.ToTable("dim_type_of_funding");
 
-            entity.HasIndex(e => e.TypeId, "UQ__dim_type__2C00059957866DEA").IsUnique();
+            entity.HasIndex(e => e.TypeId, "UQ__dim_type__2C000599E808332B").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Created)
@@ -3619,7 +3600,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimUserChoice>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_user__3213E83F58B7E98D");
+            entity.HasKey(e => e.Id).HasName("PK__dim_user__3213E83F0C4929AA");
 
             entity.ToTable("dim_user_choices");
 
@@ -3654,7 +3635,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimUserProfile>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_user__3213E83F0F73516C");
+            entity.HasKey(e => e.Id).HasName("PK__dim_user__3213E83FE5BDBBCE");
 
             entity.ToTable("dim_user_profile");
 
@@ -3796,7 +3777,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimWordCluster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_word__3213E83FBD661392");
+            entity.HasKey(e => e.Id).HasName("PK__dim_word__3213E83F01759208");
 
             entity.ToTable("dim_word_cluster");
 
@@ -3820,7 +3801,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<FactContribution>(entity =>
         {
-            entity.HasKey(e => new { e.DimFundingDecisionId, e.DimOrganizationId, e.DimDateId, e.DimNameId, e.DimPublicationId, e.DimGeoId, e.DimInfrastructureId, e.DimNewsFeedId, e.DimResearchDatasetId, e.DimResearchDataCatalogId, e.DimIdentifierlessDataId, e.DimResearchActivityId, e.DimResearchCommunityId, e.DimReferencedataActorRoleId, e.DimResearchProjectId }).HasName("PK__fact_con__7D4857053B6110A6");
+            entity.HasKey(e => new { e.DimFundingDecisionId, e.DimOrganizationId, e.DimDateId, e.DimNameId, e.DimPublicationId, e.DimGeoId, e.DimInfrastructureId, e.DimNewsFeedId, e.DimResearchDatasetId, e.DimResearchDataCatalogId, e.DimIdentifierlessDataId, e.DimResearchActivityId, e.DimResearchCommunityId, e.DimReferencedataActorRoleId, e.DimResearchProjectId }).HasName("PK__fact_con__7D48570512E1B476");
 
             entity.ToTable("fact_contribution");
 
@@ -3932,7 +3913,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<FactDimReferencedataFieldOfScience>(entity =>
         {
-            entity.HasKey(e => new { e.DimReferencedataId, e.DimResearchDatasetId, e.DimKnownPersonId, e.DimPublicationId, e.DimResearchActivityId, e.DimFundingDecisionId, e.DimInfrastructureId }).HasName("PK__fact_dim__3CB15DD376635B68");
+            entity.HasKey(e => new { e.DimReferencedataId, e.DimResearchDatasetId, e.DimKnownPersonId, e.DimPublicationId, e.DimResearchActivityId, e.DimFundingDecisionId, e.DimInfrastructureId }).HasName("PK__fact_dim__3CB15DD32904C093");
 
             entity.ToTable("fact_dim_referencedata_field_of_science");
 
@@ -4166,9 +4147,60 @@ public partial class TtvContext : DbContext
                 .HasConstraintName("FKfact_field475402");
         });
 
+        modelBuilder.Entity<FactFieldValuesTest>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("fact_field_values_test");
+
+            entity.Property(e => e.Created)
+                .HasColumnType("datetime")
+                .HasColumnName("created");
+            entity.Property(e => e.DimAffiliationId).HasColumnName("dim_affiliation_id");
+            entity.Property(e => e.DimCompetenceId).HasColumnName("dim_competence_id");
+            entity.Property(e => e.DimEducationId).HasColumnName("dim_education_id");
+            entity.Property(e => e.DimEmailAddrressId).HasColumnName("dim_email_addrress_id");
+            entity.Property(e => e.DimEventId).HasColumnName("dim_event_id");
+            entity.Property(e => e.DimFieldDisplaySettingsId).HasColumnName("dim_field_display_settings_id");
+            entity.Property(e => e.DimFundingDecisionId).HasColumnName("dim_funding_decision_id");
+            entity.Property(e => e.DimIdentifierlessDataId).HasColumnName("dim_identifierless_data_id");
+            entity.Property(e => e.DimKeywordId).HasColumnName("dim_keyword_id");
+            entity.Property(e => e.DimNameId).HasColumnName("dim_name_id");
+            entity.Property(e => e.DimPidId).HasColumnName("dim_pid_id");
+            entity.Property(e => e.DimPidIdOrcidPutCode).HasColumnName("dim_pid_id_orcid_put_code");
+            entity.Property(e => e.DimProfileOnlyDatasetId).HasColumnName("dim_profile_only_dataset_id");
+            entity.Property(e => e.DimProfileOnlyFundingDecisionId).HasColumnName("dim_profile_only_funding_decision_id");
+            entity.Property(e => e.DimProfileOnlyPublicationId).HasColumnName("dim_profile_only_publication_id");
+            entity.Property(e => e.DimProfileOnlyResearchActivityId).HasColumnName("dim_profile_only_research_activity_id");
+            entity.Property(e => e.DimPublicationId).HasColumnName("dim_publication_id");
+            entity.Property(e => e.DimReferencedataActorRoleId).HasColumnName("dim_referencedata_actor_role_id");
+            entity.Property(e => e.DimReferencedataFieldOfScienceId).HasColumnName("dim_referencedata_field_of_science_id");
+            entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
+            entity.Property(e => e.DimResearchActivityId).HasColumnName("dim_research_activity_id");
+            entity.Property(e => e.DimResearchCommunityId).HasColumnName("dim_research_community_id");
+            entity.Property(e => e.DimResearchDatasetId).HasColumnName("dim_research_dataset_id");
+            entity.Property(e => e.DimResearcherDescriptionId).HasColumnName("dim_researcher_description_id");
+            entity.Property(e => e.DimResearcherToResearchCommunityId).HasColumnName("dim_researcher_to_research_community_id");
+            entity.Property(e => e.DimTelephoneNumberId).HasColumnName("dim_telephone_number_id");
+            entity.Property(e => e.DimUserProfileId).HasColumnName("dim_user_profile_id");
+            entity.Property(e => e.DimWebLinkId).HasColumnName("dim_web_link_id");
+            entity.Property(e => e.Modified)
+                .HasColumnType("datetime")
+                .HasColumnName("modified");
+            entity.Property(e => e.PrimaryValue).HasColumnName("primary_value");
+            entity.Property(e => e.Show).HasColumnName("show");
+            entity.Property(e => e.SourceDescription)
+                .HasMaxLength(255)
+                .HasColumnName("source_description");
+            entity.Property(e => e.SourceId)
+                .IsRequired()
+                .HasMaxLength(255)
+                .HasColumnName("source_id");
+        });
+
         modelBuilder.Entity<FactInfraKeyword>(entity =>
         {
-            entity.HasKey(e => new { e.DimKeywordId, e.DimServiceId, e.DimServicePointId, e.DimInfrastructureId }).HasName("PK__fact_inf__3C29B68007C6F679");
+            entity.HasKey(e => new { e.DimKeywordId, e.DimServiceId, e.DimServicePointId, e.DimInfrastructureId }).HasName("PK__fact_inf__3C29B6800BF4B5BC");
 
             entity.ToTable("fact_infra_keywords");
 
@@ -4213,7 +4245,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<FactKeyword>(entity =>
         {
-            entity.HasKey(e => new { e.DimKeywordId, e.DimResearchProjectId }).HasName("PK__fact_key__3711EA3DA91C3371");
+            entity.HasKey(e => new { e.DimKeywordId, e.DimResearchProjectId }).HasName("PK__fact_key__3711EA3DDF56397D");
 
             entity.ToTable("fact_keywords");
 
@@ -4241,7 +4273,7 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<FactUpkeep>(entity =>
         {
-            entity.HasKey(e => new { e.DimOrganizationId, e.DimGeoId, e.DimInfrastructureId, e.DimServiceId, e.DimServicePointId, e.DimDateIdStart, e.DimDateIdEnd }).HasName("PK__fact_upk__850A8E30C9FC9F36");
+            entity.HasKey(e => new { e.DimOrganizationId, e.DimGeoId, e.DimInfrastructureId, e.DimServiceId, e.DimServicePointId, e.DimDateIdStart, e.DimDateIdEnd }).HasName("PK__fact_upk__850A8E3072C1EABA");
 
             entity.ToTable("fact_upkeep");
 

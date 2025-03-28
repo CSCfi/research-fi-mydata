@@ -25,17 +25,9 @@ public partial class DimPublication
 
     public string ArticleNumberText { get; set; }
 
-    public string Isbn { get; set; }
-
-    public string Isbn2 { get; set; }
-
     public int PublicationCountryCode { get; set; }
 
     public string JournalName { get; set; }
-
-    public string Issn { get; set; }
-
-    public string Issn2 { get; set; }
 
     public string Volume { get; set; }
 
@@ -49,33 +41,21 @@ public partial class DimPublication
 
     public string ParentPublicationName { get; set; }
 
-    public string ParentPublicationPublisher { get; set; }
+    public string ParentPublicationEditors { get; set; }
 
     public int PublicationTypeCode { get; set; }
 
     public bool? InternationalCollaboration { get; set; }
 
-    public bool HospitalDistrictCollaboration { get; set; }
-
     public int InternationalPublication { get; set; }
 
-    public bool GovermentCollaboration { get; set; }
-
-    public bool OtherCollaboration { get; set; }
-
     public int LanguageCode { get; set; }
-
-    public bool SpecialStateSubsidy { get; set; }
 
     public bool? BusinessCollaboration { get; set; }
 
     public string DoiHandle { get; set; }
 
-    public string JuuliAddress { get; set; }
-
     public string OriginalPublicationId { get; set; }
-
-    public string Doi { get; set; }
 
     public int? PublicationYear { get; set; }
 
