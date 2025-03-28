@@ -84,7 +84,7 @@ namespace api.Controllers
                             .ThenInclude(drds => drds.DimOrganization).AsNoTracking()
                 .Include(dup => dup.FactFieldValues)
                     .ThenInclude(ffv => ffv.DimPublication)
-                    .ThenInclude(ffv => ffv.DimPids).AsNoTracking().FirstOrDefaultAsync(dup => dup.Id == userprofileId);
+                        .ThenInclude(publication => publication.DimPids.Where(pid => pid.PidType == "doi")).AsNoTracking().FirstOrDefaultAsync(dup => dup.Id == userprofileId);
 
             // TODO: Currently all added publications get the same data source (Tiedejatutkimus.fi)
 
@@ -166,7 +166,7 @@ namespace api.Controllers
                             PublicationId = dimPublication.PublicationId,
                             PublicationName = dimPublication.PublicationName,
                             PublicationYear = dimPublication.PublicationYear,
-                            Doi = dimPublication.DimPids.Where(pid => pid.PidType == "doi").Select(pid => pid.PidContent).FirstOrDefault(),
+                            Doi = dimPublication.DimPids.Select(pid => pid.PidContent).FirstOrDefault(),
                             TypeCode = "", // TODO: get value from dim_referencedata relation
                             itemMeta = new ProfileEditorItemMeta(
                                 id: dimPublication.Id,
