@@ -221,7 +221,7 @@ namespace api.Services
                     dim_publication.publication_id AS 'DimPublication_PublicationId',
                     dim_publication.publication_name AS 'DimPublication_PublicationName',
                     dim_publication.publication_year AS 'DimPublication_PublicationYear',
-                    dim_publication.doi AS 'DimPublication_Doi',
+                    publication_doi.pid_content AS 'DimPublication_Doi',
                     dim_publication.authors_text AS 'DimPublication_AuthorsText',
                     dim_publication_referencedata_type_code.code_value AS 'DimPublication_PublicationTypeCode',
                     dim_publication.journal_name AS 'DimPublication_JournalName',
@@ -384,6 +384,7 @@ namespace api.Services
                 JOIN dim_telephone_number ON ffv.dim_telephone_number_id=dim_telephone_number.id
                 JOIN dim_keyword ON ffv.dim_keyword_id=dim_keyword.id
                 JOIN dim_pid ON ffv.dim_pid_id=dim_pid.id
+                LEFT JOIN dim_pid AS publication_doi ON ffv.dim_publication_id=publication_doi.dim_publication_id AND ffv.dim_publication_id!=-1 AND publication_doi.pid_type='doi'
 
                 JOIN dim_affiliation ON ffv.dim_affiliation_id=dim_affiliation.id
                 JOIN dim_organization AS affiliation_organization ON dim_affiliation.dim_organization_id=affiliation_organization.id

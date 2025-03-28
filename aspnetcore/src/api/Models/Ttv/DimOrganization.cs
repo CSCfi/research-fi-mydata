@@ -61,6 +61,8 @@ public partial class DimOrganization
 
     public int DimRegisteredDataSourceId { get; set; }
 
+    public bool ResearchFiVisibilityLimited { get; set; }
+
     public virtual ICollection<BrFundingConsortiumParticipation> BrFundingConsortiumParticipations { get; set; } = new List<BrFundingConsortiumParticipation>();
 
     public virtual ICollection<BrParticipatesInFundingGroup> BrParticipatesInFundingGroups { get; set; } = new List<BrParticipatesInFundingGroup>();

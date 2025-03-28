@@ -577,7 +577,6 @@ namespace api.Services
                     message: $"dim_user_profile.id={dimUserProfile.Id}"
                     ));
 
-
             // Get FactFieldValues
             List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(f => f.DimUserProfileId == dimUserProfile.Id).AsNoTracking().ToListAsync();
             // Collect lists of IDs, which are already included in the profile.
@@ -593,6 +592,7 @@ namespace api.Services
             List<int> existingResearchActivityIds = new();
             List<int> existingResearchDatasetIds = new();
             List<int> existingFundingDecisionIds = new();
+
             if (ffvs != null)
             {
                 existingEmailIds = ffvs.Where(ffv => ffv.DimEmailAddrressId != -1).Select(ffv => ffv.DimEmailAddrressId).Distinct().ToList<int>();
