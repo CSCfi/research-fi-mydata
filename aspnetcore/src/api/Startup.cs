@@ -142,7 +142,8 @@ namespace api
                     builder.WithOrigins(
                         "https://*.csc.fi",
                         "https://*.2.rahtiapp.fi",
-                        "https://localhost:5003"
+                        "https://localhost:5003",
+                        "http://localhost:8080"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()
