@@ -30,7 +30,8 @@
             public const string PROFILE_DELETE = "Profile: delete";
             public const string PROFILE_HIDE = "Profile: hide";
             public const string PROFILE_REVEAL = "Profile: reveal";
-            public const string PROFILE_MODIFY = "Profile: modify";
+            public const string PROFILE_MODIFY_PUBLICATION_ADD = "Profile: modify: add publication";
+            public const string PROFILE_MODIFY_PUBLICATION_DELETE = "Profile: modify: delete publication";
             public const string ORCID_RECORD_GET_MEMBER_API = "ORCID: record: get from member API";
             public const string ORCID_RECORD_GET_PUBLIC_API = "ORCID: record: get from public API";
             public const string ORCID_RECORD_IMPORT = "ORCID: record: import";

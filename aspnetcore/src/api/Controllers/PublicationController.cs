@@ -61,9 +61,23 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_ADD,
+                    state: LogContent.ActionState.START,
+                    message: $"PublicationIDs: {string.Join(", ", profileEditorPublicationsToAdd.Select(p => p.PublicationId))}"));
+
             // Return immediately if there is nothing to add
             if (profileEditorPublicationsToAdd.Count == 0)
             {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_ADD,
+                        state: LogContent.ActionState.COMPLETE));
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_ADD));
             }
 
@@ -184,6 +198,13 @@ namespace api.Controllers
                 }
             }
 
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_ADD,
+                    state: LogContent.ActionState.COMPLETE));
+
             // Refresh 'modified' timestamp in user profile
             await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);
 
@@ -213,9 +234,24 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_DELETE,
+                    state: LogContent.ActionState.START,
+                    message: $"PublicationIDs: {string.Join(", ", publicationIds)}"));
+
             // Return immediately if there is nothing to remove
             if (publicationIds.Count == 0)
             {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_DELETE,
+                        state: LogContent.ActionState.COMPLETE
+                    ));
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_REMOVE));
             }
 
@@ -249,6 +285,14 @@ namespace api.Controllers
                 }
             }
             await _ttvContext.SaveChangesAsync();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_DELETE,
+                    state: LogContent.ActionState.COMPLETE
+                ));
 
             // Refresh 'modified' timestamp in user profile
             await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);
