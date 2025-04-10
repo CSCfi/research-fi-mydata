@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -30,9 +32,10 @@ namespace api.Controllers
         private readonly IUtilityService _utilityService;
         private readonly IMemoryCache _cache;
         private readonly IMapper _mapper;
+        private readonly ILogger<UserProfileController> _logger;
 
         public CooperationChoicesController(TtvContext ttvContext, IUserProfileService userProfileService,
-            ITtvSqlService ttvSqlService, IUtilityService utilityService, IMemoryCache memoryCache, IMapper mapper)
+            ITtvSqlService ttvSqlService, IUtilityService utilityService, IMemoryCache memoryCache, IMapper mapper, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -40,6 +43,7 @@ namespace api.Controllers
             _utilityService = utilityService;
             _cache = memoryCache;
             _mapper = mapper;
+            _logger = logger;
         }
 
         /// <summary>
@@ -118,9 +122,23 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_COOPERATION_CHOICES,
+                    state: LogContent.ActionState.START));
+
             // Return immediately if there is nothing to modify.
             if (profileEditorCooperationItems.Count == 0)
             {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_MODIFY_COOPERATION_CHOICES,
+                        state: LogContent.ActionState.COMPLETE));
+
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_MODIFY));
             }
 
@@ -148,6 +166,13 @@ namespace api.Controllers
                 }
             }
             await _ttvContext.SaveChangesAsync();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_COOPERATION_CHOICES,
+                    state: LogContent.ActionState.COMPLETE));
 
             // Refresh 'modified' timestamp in user profile
             await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);

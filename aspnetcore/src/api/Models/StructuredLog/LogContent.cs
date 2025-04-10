@@ -30,6 +30,7 @@
             public const string PROFILE_DELETE = "Profile: delete";
             public const string PROFILE_HIDE = "Profile: hide";
             public const string PROFILE_REVEAL = "Profile: reveal";
+            public const string PROFILE_MODIFY_COOPERATION_CHOICES = "Profile: modify: co-operation choices";
             public const string PROFILE_MODIFY_FUNDINGDECISION_ADD = "Profile: modify: add funding decision";
             public const string PROFILE_MODIFY_FUNDINGDECISION_DELETE = "Profile: modify: delete funding decision";
             public const string PROFILE_MODIFY_PUBLICATION_ADD = "Profile: modify: add publication";
