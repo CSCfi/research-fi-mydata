@@ -522,6 +522,7 @@ namespace api.Services
             // Get DimFieldDisplaySettings for other name
             DimFieldDisplaySetting dimFieldDisplaySettingsOtherName =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsOtherName => dfdsOtherName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidOtherName otherName in otherNames)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
@@ -576,6 +577,7 @@ namespace api.Services
                     _ttvContext.FactFieldValues.Add(factFieldValuesOtherName);
                 }
             }
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
 
             // Researcher urls
             List<OrcidResearcherUrl> researcherUrls = new();
@@ -597,6 +599,7 @@ namespace api.Services
             // Get DimFieldDisplaySettings for weblink
             DimFieldDisplaySetting dimFieldDisplaySettingsWebLink =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK);
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidResearcherUrl researchUrl in researcherUrls)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
@@ -647,6 +650,7 @@ namespace api.Services
                     _ttvContext.FactFieldValues.Add(factFieldValuesWebLink);
                 }
             }
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
 
 
             // Researcher description
@@ -738,6 +742,7 @@ namespace api.Services
             DimFieldDisplaySetting dimFieldDisplaySettingsEmailAddress =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(
                     dimFieldDisplaySettingsEmailAddress => dimFieldDisplaySettingsEmailAddress.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS);
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidEmail email in emails)
             {
                 // Check if email already exists
@@ -795,6 +800,7 @@ namespace api.Services
                     _ttvContext.FactFieldValues.Add(factFieldValuesEmail);
                 }
             }
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
 
 
             // Keyword
@@ -819,6 +825,7 @@ namespace api.Services
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
             // Collect list of processed FactFieldValues related to keyword. Needed when deleting keywords.
             List<FactFieldValue> processedKeywordFactFieldValues = new();
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidKeyword keyword in keywords)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimKeyword
@@ -873,7 +880,7 @@ namespace api.Services
                 }
                 processedKeywordFactFieldValues.Add(factFieldValuesKeyword);
             }
-
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
 
 
             // External identifier (=DimPid)
@@ -896,6 +903,7 @@ namespace api.Services
             // Get DimFieldDisplaySettings for keyword
             DimFieldDisplaySetting dimFieldDisplaySettingsExternalIdentifier =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidExternalIdentifier externalIdentifier in externalIdentifiers)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
@@ -946,6 +954,7 @@ namespace api.Services
                     _ttvContext.FactFieldValues.Add(factFieldValuesExternalIdentifier);
                 }
             }
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
 
 
             // Education
@@ -968,6 +977,7 @@ namespace api.Services
             // Get DimFieldDisplaySettings for education
             DimFieldDisplaySetting dimFieldDisplaySettingsEducation =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsEducation => dfdsEducation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidEducation education in educations)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimEducation
@@ -1036,6 +1046,7 @@ namespace api.Services
                     _ttvContext.FactFieldValues.Add(factFieldValuesEducation);
                 }
             }
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
 
 
 
@@ -1059,6 +1070,7 @@ namespace api.Services
             // Get DimFieldDisplaySettings for affiliation
             DimFieldDisplaySetting dimFieldDisplaySettingsAffiliation =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsAffiliation => dfdsAffiliation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidEmployment employment in employments)
             {
                 /*
@@ -1275,6 +1287,7 @@ namespace api.Services
                         departmentNameSv: "");
                 }
             }
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
 
 
             // Works
@@ -1301,6 +1314,7 @@ namespace api.Services
                 // Get DimFieldDisplaySettings for orcid publication
                 DimFieldDisplaySetting dimFieldDisplaySettingsOrcidPublication =
                     dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY);
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
                 foreach (OrcidPublication orcidPublication in orcidWorks.Publications)
                 {
                     // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyPublication
@@ -1356,6 +1370,7 @@ namespace api.Services
                         _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
                     }
                 }
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             }
 
             // Works => Dataset
@@ -1364,6 +1379,7 @@ namespace api.Services
                 // Get DimFieldDisplaySettings for orcid dataset
                 DimFieldDisplaySetting dimFieldDisplaySettingsProfileOnlyDataset =
                     dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
                 foreach (OrcidDataset orcidDataset in orcidWorks.Datasets)
                 {
                     // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyDataset
@@ -1475,6 +1491,7 @@ namespace api.Services
                         _ttvContext.FactFieldValues.Add(factFieldValuesProfileOnlyDataset);
                     }
                 }
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             }
 
 
@@ -1508,6 +1525,7 @@ namespace api.Services
                 await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_FUNDING && dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.GRANT).AsNoTracking().FirstOrDefaultAsync();
             DimReferencedatum dimReferencedata_salaryAward =
                 await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_FUNDING && dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.SALARY_AWARD).AsNoTracking().FirstOrDefaultAsync();
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidFunding orcidFunding in orcidFundings)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyFundingDecision
@@ -1745,6 +1763,7 @@ namespace api.Services
                     }
                 }
             }
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
 
 
 
@@ -1770,6 +1789,7 @@ namespace api.Services
                         message: $"{ex.ToString()}"));
             }
 
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidResearchActivity orcidResearchActivity in orcidResearchActivities.Concat(orcidWorks.ResearchActivities))
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyResearchActivity
@@ -2006,215 +2026,226 @@ namespace api.Services
                         departmentNameSv: "");
                 }
             }
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
 
-            // Remove names, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvDimNames =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimNameId > 0 &&
-                    !orcidImportHelper.dimNameIds.Contains(ffv.DimNameId)).ToList();
-            foreach (FactFieldValue removableFfvDimName in removableFfvDimNames.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvDimName);
-                _ttvContext.DimNames.Remove(removableFfvDimName.DimName);
-                if (removableFfvDimName.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvDimName.DimPidIdOrcidPutCodeNavigation);
-                }
-            }
 
-            // Remove web links, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvWebLinks =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimWebLinkId > 0 &&
-                    !orcidImportHelper.dimWebLinkIds.Contains(ffv.DimWebLinkId)).ToList();
-            foreach (FactFieldValue removableFfvWebLink in removableFfvWebLinks.Distinct())
+            try
             {
-                _ttvContext.FactFieldValues.Remove(removableFfvWebLink);
-                _ttvContext.DimWebLinks.Remove(removableFfvWebLink.DimWebLink);
-                if (removableFfvWebLink.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvWebLink.DimPidIdOrcidPutCodeNavigation);
-                }
-            }
-
-            // Remove researcher descriptions, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvResearcherDescriptions =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimResearcherDescriptionId > 0 &&
-                    !orcidImportHelper.dimResearcherDescriptionIds.Contains(ffv.DimResearcherDescriptionId)).ToList();
-            foreach (FactFieldValue removableFfvResearcherDescription in removableFfvResearcherDescriptions.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvResearcherDescription);
-                _ttvContext.DimResearcherDescriptions.Remove(removableFfvResearcherDescription.DimResearcherDescription);
-                if (removableFfvResearcherDescription.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvResearcherDescription.DimPidIdOrcidPutCodeNavigation);
-                }
-            }
-
-            // Remove email addresses, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvEmails =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimEmailAddrressId > 0 &&
-                    !orcidImportHelper.dimEmailAddressIds.Contains(ffv.DimEmailAddrressId)).ToList();
-            foreach (FactFieldValue removableFfvEmail in removableFfvEmails.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvEmail);
-                _ttvContext.DimEmailAddrresses.Remove(removableFfvEmail.DimEmailAddrress);
-                if (removableFfvEmail.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvEmail.DimPidIdOrcidPutCodeNavigation);
-                }
-            }
-
-            // Remove keywords, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvKeywords =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimKeywordId > 0 &&
-                    !orcidImportHelper.dimKeywordIds.Contains(ffv.DimKeywordId)).ToList();
-            foreach (FactFieldValue removableFfvKeyword in removableFfvKeywords.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvKeyword);
-                _ttvContext.DimKeywords.Remove(removableFfvKeyword.DimKeyword);
-                if (removableFfvKeyword.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvKeyword.DimPidIdOrcidPutCodeNavigation);
-                }
-            }
-
-            // Remove external identifiers, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvExternalIdentifiers =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimPidId > 0 &&
-                    !orcidImportHelper.dimPidIds.Contains(ffv.DimPidId)).ToList();
-            foreach (FactFieldValue removableFfvExternalIdentifier in removableFfvExternalIdentifiers.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvExternalIdentifier);
-                _ttvContext.DimPids.Remove(removableFfvExternalIdentifier.DimPid);
-                if (removableFfvExternalIdentifier.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvExternalIdentifier.DimPidIdOrcidPutCodeNavigation);
-                }
-            }
-
-            // Remove educations, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvEducations =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimEducationId > 0 &&
-                    !orcidImportHelper.dimEducationIds.Contains(ffv.DimEducationId)).ToList();
-            foreach (FactFieldValue removableFfvEducation in removableFfvEducations.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvEducation);
-                _ttvContext.DimEducations.Remove(removableFfvEducation.DimEducation);
-                if (removableFfvEducation.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvEducation.DimPidIdOrcidPutCodeNavigation);
-                }
-            }
-
-            // Remove affiliations, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvAffiliations =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimAffiliationId > 0 &&
-                    !orcidImportHelper.dimAffiliationIds.Contains(ffv.DimAffiliationId)).ToList();
-            foreach (FactFieldValue removableFfvAffiliation in removableFfvAffiliations.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvAffiliation);
-                _ttvContext.DimAffiliations.Remove(removableFfvAffiliation.DimAffiliation);
-                if (removableFfvAffiliation.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvAffiliation.DimPidIdOrcidPutCodeNavigation);
-                }
-                // Affiliation organization can be stored in DimIdentifierlessData
-                if (removableFfvAffiliation.DimIdentifierlessDataId > 0)
-                {
-                    // DimIdentifierlessData can have child entity
-                    _ttvContext.DimIdentifierlessData.RemoveRange(removableFfvAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData);
-                    _ttvContext.DimIdentifierlessData.Remove(removableFfvAffiliation.DimIdentifierlessData);
-                }
-            }
-
-            // Remove publications, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvPublications =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimProfileOnlyPublicationId > 0 &&
-                    !orcidImportHelper.dimProfileOnlyPublicationIds.Contains(ffv.DimProfileOnlyPublicationId)).ToList();
-            foreach (FactFieldValue removableFfvPublication in removableFfvPublications.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvPublication);
-                _ttvContext.DimProfileOnlyPublications.Remove(removableFfvPublication.DimProfileOnlyPublication);
-                if (removableFfvPublication.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvPublication.DimPidIdOrcidPutCodeNavigation);
-                }
-            }
-
-            // Remove datasets, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvDatasets =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimProfileOnlyDatasetId > 0 &&
-                    !orcidImportHelper.dimProfileOnlyDatasetIds.Contains(ffv.DimProfileOnlyDatasetId)).ToList();
-            foreach (FactFieldValue removableFfvDataset in removableFfvDatasets.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvDataset);
-                _ttvContext.DimProfileOnlyDatasets.Remove(removableFfvDataset.DimProfileOnlyDataset);
-                _ttvContext.DimWebLinks.RemoveRange(removableFfvDataset.DimProfileOnlyDataset.DimWebLinks);
-                if (removableFfvDataset.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvDataset.DimPidIdOrcidPutCodeNavigation);
-                }
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
                 
-            }
+                // Remove names, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvDimNames =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimNameId > 0 &&
+                        !orcidImportHelper.dimNameIds.Contains(ffv.DimNameId)).ToList();
+                foreach (FactFieldValue removableFfvDimName in removableFfvDimNames.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvDimName);
+                    _ttvContext.DimNames.Remove(removableFfvDimName.DimName);
+                    if (removableFfvDimName.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvDimName.DimPidIdOrcidPutCodeNavigation);
+                    }
+                }
 
-            // Remove research activities, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvResearchActivities =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimProfileOnlyResearchActivityId > 0 &&
-                    !orcidImportHelper.dimProfileOnlyResearchActivityIds.Contains(ffv.DimProfileOnlyResearchActivityId)).ToList();
-            foreach (FactFieldValue removableFfvResearchActivity in removableFfvResearchActivities.Distinct())
-            {
-                _ttvContext.FactFieldValues.Remove(removableFfvResearchActivity);
-                _ttvContext.DimProfileOnlyResearchActivities.Remove(removableFfvResearchActivity.DimProfileOnlyResearchActivity);
-                _ttvContext.DimWebLinks.RemoveRange(removableFfvResearchActivity.DimProfileOnlyResearchActivity.DimWebLinks);
-                if (removableFfvResearchActivity.DimPidIdOrcidPutCode > 0)
+                // Remove web links, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvWebLinks =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimWebLinkId > 0 &&
+                        !orcidImportHelper.dimWebLinkIds.Contains(ffv.DimWebLinkId)).ToList();
+                foreach (FactFieldValue removableFfvWebLink in removableFfvWebLinks.Distinct())
                 {
-                    _ttvContext.DimPids.Remove(removableFfvResearchActivity.DimPidIdOrcidPutCodeNavigation);
+                    _ttvContext.FactFieldValues.Remove(removableFfvWebLink);
+                    _ttvContext.DimWebLinks.Remove(removableFfvWebLink.DimWebLink);
+                    if (removableFfvWebLink.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvWebLink.DimPidIdOrcidPutCodeNavigation);
+                    }
+                }
+
+                // Remove researcher descriptions, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvResearcherDescriptions =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimResearcherDescriptionId > 0 &&
+                        !orcidImportHelper.dimResearcherDescriptionIds.Contains(ffv.DimResearcherDescriptionId)).ToList();
+                foreach (FactFieldValue removableFfvResearcherDescription in removableFfvResearcherDescriptions.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvResearcherDescription);
+                    _ttvContext.DimResearcherDescriptions.Remove(removableFfvResearcherDescription.DimResearcherDescription);
+                    if (removableFfvResearcherDescription.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvResearcherDescription.DimPidIdOrcidPutCodeNavigation);
+                    }
+                }
+
+                // Remove email addresses, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvEmails =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimEmailAddrressId > 0 &&
+                        !orcidImportHelper.dimEmailAddressIds.Contains(ffv.DimEmailAddrressId)).ToList();
+                foreach (FactFieldValue removableFfvEmail in removableFfvEmails.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvEmail);
+                    _ttvContext.DimEmailAddrresses.Remove(removableFfvEmail.DimEmailAddrress);
+                    if (removableFfvEmail.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvEmail.DimPidIdOrcidPutCodeNavigation);
+                    }
+                }
+
+                // Remove keywords, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvKeywords =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimKeywordId > 0 &&
+                        !orcidImportHelper.dimKeywordIds.Contains(ffv.DimKeywordId)).ToList();
+                foreach (FactFieldValue removableFfvKeyword in removableFfvKeywords.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvKeyword);
+                    _ttvContext.DimKeywords.Remove(removableFfvKeyword.DimKeyword);
+                    if (removableFfvKeyword.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvKeyword.DimPidIdOrcidPutCodeNavigation);
+                    }
+                }
+
+                // Remove external identifiers, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvExternalIdentifiers =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimPidId > 0 &&
+                        !orcidImportHelper.dimPidIds.Contains(ffv.DimPidId)).ToList();
+                foreach (FactFieldValue removableFfvExternalIdentifier in removableFfvExternalIdentifiers.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvExternalIdentifier);
+                    _ttvContext.DimPids.Remove(removableFfvExternalIdentifier.DimPid);
+                    if (removableFfvExternalIdentifier.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvExternalIdentifier.DimPidIdOrcidPutCodeNavigation);
+                    }
+                }
+
+                // Remove educations, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvEducations =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimEducationId > 0 &&
+                        !orcidImportHelper.dimEducationIds.Contains(ffv.DimEducationId)).ToList();
+                foreach (FactFieldValue removableFfvEducation in removableFfvEducations.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvEducation);
+                    _ttvContext.DimEducations.Remove(removableFfvEducation.DimEducation);
+                    if (removableFfvEducation.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvEducation.DimPidIdOrcidPutCodeNavigation);
+                    }
+                }
+
+                // Remove affiliations, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvAffiliations =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimAffiliationId > 0 &&
+                        !orcidImportHelper.dimAffiliationIds.Contains(ffv.DimAffiliationId)).ToList();
+                foreach (FactFieldValue removableFfvAffiliation in removableFfvAffiliations.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvAffiliation);
+                    _ttvContext.DimAffiliations.Remove(removableFfvAffiliation.DimAffiliation);
+                    if (removableFfvAffiliation.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvAffiliation.DimPidIdOrcidPutCodeNavigation);
+                    }
+                    // Affiliation organization can be stored in DimIdentifierlessData
+                    if (removableFfvAffiliation.DimIdentifierlessDataId > 0)
+                    {
+                        // DimIdentifierlessData can have child entity
+                        _ttvContext.DimIdentifierlessData.RemoveRange(removableFfvAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData);
+                        _ttvContext.DimIdentifierlessData.Remove(removableFfvAffiliation.DimIdentifierlessData);
+                    }
+                }
+
+                // Remove publications, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvPublications =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimProfileOnlyPublicationId > 0 &&
+                        !orcidImportHelper.dimProfileOnlyPublicationIds.Contains(ffv.DimProfileOnlyPublicationId)).ToList();
+                foreach (FactFieldValue removableFfvPublication in removableFfvPublications.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvPublication);
+                    _ttvContext.DimProfileOnlyPublications.Remove(removableFfvPublication.DimProfileOnlyPublication);
+                    if (removableFfvPublication.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvPublication.DimPidIdOrcidPutCodeNavigation);
+                    }
+                }
+
+                // Remove datasets, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvDatasets =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimProfileOnlyDatasetId > 0 &&
+                        !orcidImportHelper.dimProfileOnlyDatasetIds.Contains(ffv.DimProfileOnlyDatasetId)).ToList();
+                foreach (FactFieldValue removableFfvDataset in removableFfvDatasets.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvDataset);
+                    _ttvContext.DimProfileOnlyDatasets.Remove(removableFfvDataset.DimProfileOnlyDataset);
+                    _ttvContext.DimWebLinks.RemoveRange(removableFfvDataset.DimProfileOnlyDataset.DimWebLinks);
+                    if (removableFfvDataset.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvDataset.DimPidIdOrcidPutCodeNavigation);
+                    }
+                    
+                }
+
+                // Remove research activities, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvResearchActivities =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimProfileOnlyResearchActivityId > 0 &&
+                        !orcidImportHelper.dimProfileOnlyResearchActivityIds.Contains(ffv.DimProfileOnlyResearchActivityId)).ToList();
+                foreach (FactFieldValue removableFfvResearchActivity in removableFfvResearchActivities.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvResearchActivity);
+                    _ttvContext.DimProfileOnlyResearchActivities.Remove(removableFfvResearchActivity.DimProfileOnlyResearchActivity);
+                    _ttvContext.DimWebLinks.RemoveRange(removableFfvResearchActivity.DimProfileOnlyResearchActivity.DimWebLinks);
+                    if (removableFfvResearchActivity.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvResearchActivity.DimPidIdOrcidPutCodeNavigation);
+                    }
+                }
+
+                // Remove fundings, which user has deleted in ORCID
+                List<FactFieldValue> removableFfvFundings =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
+                        ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
+                        ffv.DimProfileOnlyFundingDecisionId > 0 &&
+                        !orcidImportHelper.dimProfileOnlyFundingDecisionIds.Contains(ffv.DimProfileOnlyFundingDecisionId)).ToList();
+                foreach (FactFieldValue removableFfvFunding in removableFfvFundings.Distinct())
+                {
+                    _ttvContext.FactFieldValues.Remove(removableFfvFunding);
+                    _ttvContext.DimProfileOnlyFundingDecisions.Remove(removableFfvFunding.DimProfileOnlyFundingDecision);
+                    _ttvContext.DimWebLinks.RemoveRange(removableFfvFunding.DimProfileOnlyFundingDecision.DimWebLinks);
+                    if (removableFfvFunding.DimPidIdOrcidPutCode > 0)
+                    {
+                        _ttvContext.DimPids.Remove(removableFfvFunding.DimPidIdOrcidPutCodeNavigation);
+                    }
+                    // Funding organization can be stored in DimIdentifierlessData
+                    if (removableFfvFunding.DimIdentifierlessDataId > 0)
+                    {
+                        // DimIdentifierlessData can have child entity
+                        _ttvContext.DimIdentifierlessData.RemoveRange(removableFfvFunding.DimIdentifierlessData.InverseDimIdentifierlessData);
+                        _ttvContext.DimIdentifierlessData.Remove(removableFfvFunding.DimIdentifierlessData);
+                    }
                 }
             }
-
-            // Remove fundings, which user has deleted in ORCID
-            List<FactFieldValue> removableFfvFundings =
-                dimUserProfile.FactFieldValues.Where(ffv =>
-                    ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId &&
-                    ffv.DimProfileOnlyFundingDecisionId > 0 &&
-                    !orcidImportHelper.dimProfileOnlyFundingDecisionIds.Contains(ffv.DimProfileOnlyFundingDecisionId)).ToList();
-            foreach (FactFieldValue removableFfvFunding in removableFfvFundings.Distinct())
+            finally
             {
-                _ttvContext.FactFieldValues.Remove(removableFfvFunding);
-                _ttvContext.DimProfileOnlyFundingDecisions.Remove(removableFfvFunding.DimProfileOnlyFundingDecision);
-                _ttvContext.DimWebLinks.RemoveRange(removableFfvFunding.DimProfileOnlyFundingDecision.DimWebLinks);
-                if (removableFfvFunding.DimPidIdOrcidPutCode > 0)
-                {
-                    _ttvContext.DimPids.Remove(removableFfvFunding.DimPidIdOrcidPutCodeNavigation);
-                }
-                // Funding organization can be stored in DimIdentifierlessData
-                if (removableFfvFunding.DimIdentifierlessDataId > 0)
-                {
-                    // DimIdentifierlessData can have child entity
-                    _ttvContext.DimIdentifierlessData.RemoveRange(removableFfvFunding.DimIdentifierlessData.InverseDimIdentifierlessData);
-                    _ttvContext.DimIdentifierlessData.Remove(removableFfvFunding.DimIdentifierlessData);
-                }
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             }
 
             await _ttvContext.SaveChangesAsync();
