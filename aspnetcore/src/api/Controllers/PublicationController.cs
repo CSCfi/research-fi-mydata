@@ -67,7 +67,7 @@ namespace api.Controllers
                 new LogApiInfo(
                     action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_ADD,
                     state: LogContent.ActionState.START,
-                    message: $"PublicationIDs: {string.Join(", ", profileEditorPublicationsToAdd.Select(p => p.PublicationId))}"));
+                    message: $"IDs: {string.Join(", ", profileEditorPublicationsToAdd.Select(p => p.PublicationId))}"));
 
             // Return immediately if there is nothing to add
             if (profileEditorPublicationsToAdd.Count == 0)
@@ -203,7 +203,8 @@ namespace api.Controllers
                 this.GetLogUserIdentification(),
                 new LogApiInfo(
                     action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_ADD,
-                    state: LogContent.ActionState.COMPLETE));
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"IDs: {string.Join(", ", profileEditorAddPublicationResponse.publicationsAdded.Select(p => p.PublicationId))}"));
 
             // Refresh 'modified' timestamp in user profile
             await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);
@@ -240,7 +241,7 @@ namespace api.Controllers
                 new LogApiInfo(
                     action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_DELETE,
                     state: LogContent.ActionState.START,
-                    message: $"PublicationIDs: {string.Join(", ", publicationIds)}"));
+                    message: $"IDs: {string.Join(", ", publicationIds)}"));
 
             // Return immediately if there is nothing to remove
             if (publicationIds.Count == 0)
@@ -291,7 +292,8 @@ namespace api.Controllers
                 this.GetLogUserIdentification(),
                 new LogApiInfo(
                     action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_DELETE,
-                    state: LogContent.ActionState.COMPLETE
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"IDs: {string.Join(", ", profileEditorRemovePublicationResponse.publicationsRemoved)}"
                 ));
 
             // Refresh 'modified' timestamp in user profile
