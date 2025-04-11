@@ -42,6 +42,9 @@ namespace api.Services
 
         /*
          *  Add DimDates entities needed in ORCID record.
+         *
+         * For performance improvements, Entity Framework change tracker is disabled when adding new entities in foreach loop.
+         *    _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
          */
         public async Task AddDimDates(string orcidRecordJson, DateTime currentDateTime, LogUserIdentification logUserIdentification)
         {
@@ -62,51 +65,57 @@ namespace api.Services
                         error: true,
                         message: $"{ex.ToString()}"));
             }
-            foreach (OrcidEducation education in educations)
+            try
             {
-                // Start date
-                DimDate educationStartDate =
-                    await _ttvContext.DimDates.FirstOrDefaultAsync(
-                        dd => dd.Year == education.StartDate.Year &&
-                        dd.Month == education.StartDate.Month &&
-                        dd.Day == education.StartDate.Day);
-                if (educationStartDate == null)
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
+                foreach (OrcidEducation education in educations)
                 {
-                    educationStartDate = new DimDate()
+                    // Start date
+                    DimDate educationStartDate =
+                        await _ttvContext.DimDates.FirstOrDefaultAsync(
+                            dd => dd.Year == education.StartDate.Year &&
+                            dd.Month == education.StartDate.Month &&
+                            dd.Day == education.StartDate.Day);
+                    if (educationStartDate == null)
                     {
-                        Year = education.StartDate.Year,
-                        Month = education.StartDate.Month,
-                        Day = education.StartDate.Day,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    _ttvContext.DimDates.Add(educationStartDate);
-                    await _ttvContext.SaveChangesAsync();
-                }
-
-                // End date
-                DimDate educationEndDate =
-                    await _ttvContext.DimDates.FirstOrDefaultAsync(
-                        ed => ed.Year == education.EndDate.Year &&
-                        ed.Month == education.EndDate.Month &&
-                        ed.Day == education.EndDate.Day);
-                if (educationEndDate == null)
-                {
-                    educationEndDate = new DimDate()
+                        educationStartDate = new DimDate()
+                        {
+                            Year = education.StartDate.Year,
+                            Month = education.StartDate.Month,
+                            Day = education.StartDate.Day,
+                            SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                            Created = currentDateTime,
+                            Modified = currentDateTime
+                        };
+                        _ttvContext.DimDates.Add(educationStartDate);
+                    }
+                    // End date
+                    DimDate educationEndDate =
+                        await _ttvContext.DimDates.FirstOrDefaultAsync(
+                            ed => ed.Year == education.EndDate.Year &&
+                            ed.Month == education.EndDate.Month &&
+                            ed.Day == education.EndDate.Day);
+                    if (educationEndDate == null)
                     {
-                        Year = education.EndDate.Year,
-                        Month = education.EndDate.Month,
-                        Day = education.EndDate.Day,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    _ttvContext.DimDates.Add(educationEndDate);
-                    await _ttvContext.SaveChangesAsync();
+                        educationEndDate = new DimDate()
+                        {
+                            Year = education.EndDate.Year,
+                            Month = education.EndDate.Month,
+                            Day = education.EndDate.Day,
+                            SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                            Created = currentDateTime,
+                            Modified = currentDateTime
+                        };
+                        _ttvContext.DimDates.Add(educationEndDate);
+                    }
                 }
+            }
+            finally
+            {
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+                await _ttvContext.SaveChangesAsync();
             }
 
             // Employment DimDates
@@ -126,50 +135,56 @@ namespace api.Services
                         error: true,
                         message: $"{ex.ToString()}"));
             }
-            foreach (OrcidEmployment employment in employments)
+            try
             {
-                // Start date
-                DimDate employmentStartDate =
-                    await _ttvContext.DimDates.FirstOrDefaultAsync(
-                        dd => dd.Year == employment.StartDate.Year &&
-                        dd.Month == employment.StartDate.Month &&
-                        dd.Day == employment.StartDate.Day);
-                if (employmentStartDate == null)
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
+                foreach (OrcidEmployment employment in employments)
                 {
-                    employmentStartDate = new DimDate()
+                    // Start date
+                    DimDate employmentStartDate =
+                        await _ttvContext.DimDates.FirstOrDefaultAsync(
+                            dd => dd.Year == employment.StartDate.Year &&
+                            dd.Month == employment.StartDate.Month &&
+                            dd.Day == employment.StartDate.Day);
+                    if (employmentStartDate == null)
                     {
-                        Year = employment.StartDate.Year,
-                        Month = employment.StartDate.Month,
-                        Day = employment.StartDate.Day,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    _ttvContext.DimDates.Add(employmentStartDate);
-                    await _ttvContext.SaveChangesAsync();
-                }
-
-                // End date
-                DimDate employmentEndDate = await _ttvContext.DimDates.FirstOrDefaultAsync(
-                    dd => dd.Year == employment.EndDate.Year &&
-                    dd.Month == employment.EndDate.Month &&
-                    dd.Day == employment.EndDate.Day);
-                if (employmentEndDate == null)
-                {
-                    employmentEndDate = new DimDate()
+                        employmentStartDate = new DimDate()
+                        {
+                            Year = employment.StartDate.Year,
+                            Month = employment.StartDate.Month,
+                            Day = employment.StartDate.Day,
+                            SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                            Created = currentDateTime,
+                            Modified = currentDateTime
+                        };
+                        _ttvContext.DimDates.Add(employmentStartDate);
+                    }
+                    // End date
+                    DimDate employmentEndDate = await _ttvContext.DimDates.FirstOrDefaultAsync(
+                        dd => dd.Year == employment.EndDate.Year &&
+                        dd.Month == employment.EndDate.Month &&
+                        dd.Day == employment.EndDate.Day);
+                    if (employmentEndDate == null)
                     {
-                        Year = employment.EndDate.Year,
-                        Month = employment.EndDate.Month,
-                        Day = employment.EndDate.Day,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    _ttvContext.DimDates.Add(employmentEndDate);
-                    await _ttvContext.SaveChangesAsync();
+                        employmentEndDate = new DimDate()
+                        {
+                            Year = employment.EndDate.Year,
+                            Month = employment.EndDate.Month,
+                            Day = employment.EndDate.Day,
+                            SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                            Created = currentDateTime,
+                            Modified = currentDateTime
+                        };
+                        _ttvContext.DimDates.Add(employmentEndDate);
+                    }
                 }
+            }
+            finally
+            {
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+                await _ttvContext.SaveChangesAsync();
             }
 
             // Funding DimDates
@@ -189,52 +204,57 @@ namespace api.Services
                         error: true,
                         message: $"{ex.ToString()}"));
             }
-            foreach (OrcidFunding funding in fundings)
+            try
             {
-                // Start data
-                DimDate fundingStartDate =
-                    await _ttvContext.DimDates.FirstOrDefaultAsync(
-                        dd => dd.Year == funding.StartDate.Year &&
-                        dd.Month == funding.StartDate.Month &&
-                        dd.Day == funding.StartDate.Day);
-                if (fundingStartDate == null)
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
+                foreach (OrcidFunding funding in fundings)
                 {
-                    fundingStartDate = new DimDate()
+                    // Start data
+                    DimDate fundingStartDate =
+                        await _ttvContext.DimDates.FirstOrDefaultAsync(
+                            dd => dd.Year == funding.StartDate.Year &&
+                            dd.Month == funding.StartDate.Month &&
+                            dd.Day == funding.StartDate.Day);
+                    if (fundingStartDate == null)
                     {
-                        Year = funding.StartDate.Year,
-                        Month = funding.StartDate.Month,
-                        Day = funding.StartDate.Day,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    _ttvContext.DimDates.Add(fundingStartDate);
-                    await _ttvContext.SaveChangesAsync();
-                }
-
-                // End date
-                DimDate fundingEndDate = await _ttvContext.DimDates.FirstOrDefaultAsync(
-                    dd => dd.Year == funding.EndDate.Year &&
-                    dd.Month == funding.EndDate.Month &&
-                    dd.Day == funding.EndDate.Day);
-                if (fundingEndDate == null)
-                {
-                    fundingEndDate = new DimDate()
+                        fundingStartDate = new DimDate()
+                        {
+                            Year = funding.StartDate.Year,
+                            Month = funding.StartDate.Month,
+                            Day = funding.StartDate.Day,
+                            SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                            Created = currentDateTime,
+                            Modified = currentDateTime
+                        };
+                        _ttvContext.DimDates.Add(fundingStartDate);
+                    }
+                    // End date
+                    DimDate fundingEndDate = await _ttvContext.DimDates.FirstOrDefaultAsync(
+                        dd => dd.Year == funding.EndDate.Year &&
+                        dd.Month == funding.EndDate.Month &&
+                        dd.Day == funding.EndDate.Day);
+                    if (fundingEndDate == null)
                     {
-                        Year = funding.EndDate.Year,
-                        Month = funding.EndDate.Month,
-                        Day = funding.EndDate.Day,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    _ttvContext.DimDates.Add(fundingEndDate);
-                    await _ttvContext.SaveChangesAsync();
+                        fundingEndDate = new DimDate()
+                        {
+                            Year = funding.EndDate.Year,
+                            Month = funding.EndDate.Month,
+                            Day = funding.EndDate.Day,
+                            SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                            Created = currentDateTime,
+                            Modified = currentDateTime
+                        };
+                        _ttvContext.DimDates.Add(fundingEndDate);
+                    }
                 }
             }
-
+            finally
+            {
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+                await _ttvContext.SaveChangesAsync();
+            }
 
             // Research activity DimDates
             List <OrcidResearchActivity> orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices = new();
@@ -253,7 +273,6 @@ namespace api.Services
                         error: true,
                         message: $"{ex.ToString()}"));
             }
-
             List<OrcidResearchActivity> orcidResearchActivity_works = new();
             try
             {
@@ -270,52 +289,57 @@ namespace api.Services
                         error: true,
                         message: $"{ex.ToString()}"));
             }
-
-            foreach (OrcidResearchActivity researchActivity in orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices.Concat(orcidResearchActivity_works))
+            try
             {
-                // Start date
-                DimDate researchActivityStartDate =
-                    await _ttvContext.DimDates.FirstOrDefaultAsync(
-                        dd => dd.Year == researchActivity.StartDate.Year &&
-                        dd.Month == researchActivity.StartDate.Month &&
-                        dd.Day == researchActivity.StartDate.Day);
-                if (researchActivityStartDate == null)
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
+                foreach (OrcidResearchActivity researchActivity in orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices.Concat(orcidResearchActivity_works))
                 {
-                    researchActivityStartDate = new DimDate()
+                    // Start date
+                    DimDate researchActivityStartDate =
+                        await _ttvContext.DimDates.FirstOrDefaultAsync(
+                            dd => dd.Year == researchActivity.StartDate.Year &&
+                            dd.Month == researchActivity.StartDate.Month &&
+                            dd.Day == researchActivity.StartDate.Day);
+                    if (researchActivityStartDate == null)
                     {
-                        Year = researchActivity.StartDate.Year,
-                        Month = researchActivity.StartDate.Month,
-                        Day = researchActivity.StartDate.Day,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    _ttvContext.DimDates.Add(researchActivityStartDate);
-                    await _ttvContext.SaveChangesAsync();
-                }
-
-                // End date
-                DimDate researchActivityEndDate =
-                    await _ttvContext.DimDates.FirstOrDefaultAsync(
-                        dd => dd.Year == researchActivity.EndDate.Year &&
-                        dd.Month == researchActivity.EndDate.Month &&
-                        dd.Day == researchActivity.EndDate.Day);
-                if (researchActivityEndDate == null)
-                {
-                    researchActivityEndDate = new DimDate()
+                        researchActivityStartDate = new DimDate()
+                        {
+                            Year = researchActivity.StartDate.Year,
+                            Month = researchActivity.StartDate.Month,
+                            Day = researchActivity.StartDate.Day,
+                            SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                            Created = currentDateTime,
+                            Modified = currentDateTime
+                        };
+                        _ttvContext.DimDates.Add(researchActivityStartDate);
+                    }
+                    // End date
+                    DimDate researchActivityEndDate =
+                        await _ttvContext.DimDates.FirstOrDefaultAsync(
+                            dd => dd.Year == researchActivity.EndDate.Year &&
+                            dd.Month == researchActivity.EndDate.Month &&
+                            dd.Day == researchActivity.EndDate.Day);
+                    if (researchActivityEndDate == null)
                     {
-                        Year = researchActivity.EndDate.Year,
-                        Month = researchActivity.EndDate.Month,
-                        Day = researchActivity.EndDate.Day,
-                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
-                    };
-                    _ttvContext.DimDates.Add(researchActivityEndDate);
-                    await _ttvContext.SaveChangesAsync();
+                        researchActivityEndDate = new DimDate()
+                        {
+                            Year = researchActivity.EndDate.Year,
+                            Month = researchActivity.EndDate.Month,
+                            Day = researchActivity.EndDate.Day,
+                            SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                            SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                            Created = currentDateTime,
+                            Modified = currentDateTime
+                        };
+                        _ttvContext.DimDates.Add(researchActivityEndDate);
+                    }
                 }
+            }
+            finally
+            {
+                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+                await _ttvContext.SaveChangesAsync();
             }
         }
 
@@ -359,9 +383,17 @@ namespace api.Services
 
         /*
          * Import ORCID record json into user profile.
+         *
+         * For performance improvements, Entity Framework change tracker is disabled when adding new entities in foreach loop.
+         *    _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
          */
         public async Task<bool> ImportOrcidRecordJsonIntoUserProfile(int userprofileId, string orcidRecordJson, LogUserIdentification logUserIdentification)
         {
+            // Add DimDates.
+            DateTime currentDateTime = _utilityService.GetCurrentDateTime();
+            await AddDimDates(orcidRecordJson, currentDateTime, logUserIdentification);
+            _ttvContext.ChangeTracker.Clear(); // Detach tracked DimDate entities to free memory
+
             // Get ORCID registered data source id.
             int orcidRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_ORCID;
 
@@ -448,14 +480,10 @@ namespace api.Services
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimKeyword).FirstOrDefaultAsync();
 
-            // Get current DateTime
-            DateTime currentDateTime = _utilityService.GetCurrentDateTime();
-
-            // Add DimDates.
-            await AddDimDates(orcidRecordJson, currentDateTime, logUserIdentification);
-
             // Helper object to store processed IDs, used when deciding what data needs to be removed.
             OrcidImportHelper orcidImportHelper = new();
+
+
 
             // Name
             DimFieldDisplaySetting dimFieldDisplaySettingsName =
@@ -500,6 +528,7 @@ namespace api.Services
                 factFieldValuesName.Show = true; // ORCID name is selected by default.
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
             }
+
 
 
             // Other names
@@ -578,6 +607,9 @@ namespace api.Services
                 }
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            otherNames = null;
+
+
 
             // Researcher urls
             List<OrcidResearcherUrl> researcherUrls = new();
@@ -651,6 +683,8 @@ namespace api.Services
                 }
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            researcherUrls = null;
+
 
 
             // Researcher description
@@ -719,6 +753,8 @@ namespace api.Services
                     _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
                 }
             }
+            biography = null;
+
 
 
             // Email
@@ -801,6 +837,8 @@ namespace api.Services
                 }
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            emails = null;
+
 
 
             // Keyword
@@ -881,6 +919,8 @@ namespace api.Services
                 processedKeywordFactFieldValues.Add(factFieldValuesKeyword);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            keywords = null;
+
 
 
             // External identifier (=DimPid)
@@ -955,6 +995,8 @@ namespace api.Services
                 }
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            externalIdentifiers = null;
+
 
 
             // Education
@@ -1047,6 +1089,7 @@ namespace api.Services
                 }
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            educations = null;
 
 
 
@@ -1288,6 +1331,8 @@ namespace api.Services
                 }
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            employments = null;
+
 
 
             // Works
@@ -1372,6 +1417,9 @@ namespace api.Services
                 }
                 _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             }
+            // Cannot yet set orcidWorks = null
+            orcidWorks.Publications.Clear(); // Clear Publications to free up memory
+            orcidWorks.Publications.TrimExcess();
 
             // Works => Dataset
             if (orcidWorks.Datasets.Count > 0)
@@ -1493,6 +1541,9 @@ namespace api.Services
                 }
                 _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             }
+            // Cannot yet set orcidWorks = null
+            orcidWorks.Datasets.Clear(); // Clear Datasets to free up memory
+            orcidWorks.Datasets.TrimExcess();
 
 
 
@@ -1764,6 +1815,7 @@ namespace api.Services
                 }
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            orcidFundings = null;
 
 
 
@@ -2027,6 +2079,8 @@ namespace api.Services
                 }
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            orcidResearchActivities = null;
+            orcidWorks = null;
 
 
             try
