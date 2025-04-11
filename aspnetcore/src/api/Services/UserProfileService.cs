@@ -2254,7 +2254,7 @@ namespace api.Services
                 List<int> dimWebLinkIds = new();
 
                 // Begin transaction
-                using var transaction = await connection.BeginTransactionAsync();
+                using var deleteTransaction = await _ttvContext.Database.BeginTransactionAsync();
 
                 try
                 {
@@ -2501,7 +2501,7 @@ namespace api.Services
                     );
 
                     // Commit transaction
-                    transaction.Commit();
+                    deleteTransaction.Commit();
                 }
                 catch (Exception exceptionFromProfileDelete)
                 {
@@ -2512,7 +2512,7 @@ namespace api.Services
                     _logger.LogInformation($"Try to rollback user profile deletion (dim_user_profile.id={userprofileId})");
                     try
                     {
-                        transaction.Rollback();
+                        deleteTransaction.Rollback();
                         _logger.LogInformation($"Rollback success (dim_user_profile.id={userprofileId})");
                     }
                     catch (Exception exceptionFromRollback)
