@@ -10,11 +10,10 @@ RUN dotnet restore
 COPY aspnetcore/src/api/ ./
 RUN dotnet publish -c Release -o out
 
-
-
 # Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
+ENV TZ=Europe/Helsinki
 COPY --from=build-env /app/out .
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "api.dll"]

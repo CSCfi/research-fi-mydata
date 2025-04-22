@@ -61,9 +61,23 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_ADD,
+                    state: LogContent.ActionState.START,
+                    message: $"IDs: {string.Join(", ", profileEditorPublicationsToAdd.Select(p => p.PublicationId))}"));
+
             // Return immediately if there is nothing to add
             if (profileEditorPublicationsToAdd.Count == 0)
             {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_ADD,
+                        state: LogContent.ActionState.COMPLETE));
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_ADD));
             }
 
@@ -137,9 +151,28 @@ namespace api.Controllers
                 if (!publicationProcessed)
                 {
                     // Get DimPublication
-                    DimPublication dimPublication = await _ttvContext.DimPublications.AsNoTracking().FirstOrDefaultAsync(dp => dp.PublicationId == publicationToAdd.PublicationId);
+                    ProfileEditorPublication profileEditorPublication = await _ttvContext.DimPublications.Select(dp => new ProfileEditorPublication()
+                    {
+                        PublicationId = dp.PublicationId,
+                        PublicationName = dp.PublicationName,
+                        PublicationYear = dp.PublicationYear,
+                        Doi = dp.DimPids.Select(pid => pid.PidContent).FirstOrDefault(),
+                        TypeCode = dp.PublicationTypeCodeNavigation.CodeValue,
+                        AuthorsText = dp.AuthorsText,
+                        JournalName = dp.JournalName,
+                        ConferenceName = dp.ConferenceName,
+                        ParentPublicationName = dp.ParentPublicationName,
+                        DataSources = new List<ProfileEditorSource> { dataSource },
+                        itemMeta = new ProfileEditorItemMeta(
+                            dp.Id,
+                            Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
+                            publicationToAdd.Show != null ? publicationToAdd.Show : false,
+                            publicationToAdd.PrimaryValue != null ? publicationToAdd.PrimaryValue : false
+                        )
+                    }).AsNoTracking().FirstOrDefaultAsync(dp => dp.PublicationId == publicationToAdd.PublicationId);
+                    
                     // Check if DimPublication exists
-                    if (dimPublication == null)
+                    if (profileEditorPublication == null)
                     {
                         // Publication does not exist
                         profileEditorAddPublicationResponse.publicationsNotFound.Add(publicationToAdd.PublicationId);
@@ -148,11 +181,11 @@ namespace api.Controllers
                     {
                         // Add FactFieldValue
                         FactFieldValue factFieldValuePublication = _userProfileService.GetEmptyFactFieldValue();
-                        factFieldValuePublication.Show = publicationToAdd.Show != null ? publicationToAdd.Show : false;
-                        factFieldValuePublication.PrimaryValue = publicationToAdd.PrimaryValue != null ? publicationToAdd.PrimaryValue : false;
+                        factFieldValuePublication.Show = profileEditorPublication.itemMeta.Show;
+                        factFieldValuePublication.PrimaryValue = profileEditorPublication.itemMeta.PrimaryValue;
                         factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
                         factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsPublication.Id;
-                        factFieldValuePublication.DimPublicationId = dimPublication.Id;
+                        factFieldValuePublication.DimPublicationId = (int)profileEditorPublication.itemMeta.Id;
                         factFieldValuePublication.DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV;
                         factFieldValuePublication.SourceId = Constants.SourceIdentifiers.TIEDEJATUTKIMUS;
                         factFieldValuePublication.Created = _utilityService.GetCurrentDateTime();
@@ -160,30 +193,18 @@ namespace api.Controllers
                         _ttvContext.FactFieldValues.Add(factFieldValuePublication);
                         await _ttvContext.SaveChangesAsync();
 
-                        // Response data
-                        ProfileEditorPublication publicationItem = new()
-                        {
-                            PublicationId = dimPublication.PublicationId,
-                            PublicationName = dimPublication.PublicationName,
-                            PublicationYear = dimPublication.PublicationYear,
-                            Doi = dimPublication.DimPids.Select(pid => pid.PidContent).FirstOrDefault(),
-                            TypeCode = "", // TODO: get value from dim_referencedata relation
-                            itemMeta = new ProfileEditorItemMeta(
-                                id: dimPublication.Id,
-                                type: Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
-                                show: factFieldValuePublication.Show,
-                                primaryValue: factFieldValuePublication.PrimaryValue
-                            ),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                dataSource
-                            }
-                        };
-
-                        profileEditorAddPublicationResponse.publicationsAdded.Add(publicationItem);
+                        profileEditorAddPublicationResponse.publicationsAdded.Add(profileEditorPublication);
                     }
                 }
             }
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_ADD,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"IDs: {string.Join(", ", profileEditorAddPublicationResponse.publicationsAdded.Select(p => p.PublicationId))}"));
 
             // Refresh 'modified' timestamp in user profile
             await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);
@@ -214,9 +235,24 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_DELETE,
+                    state: LogContent.ActionState.START,
+                    message: $"IDs: {string.Join(", ", publicationIds)}"));
+
             // Return immediately if there is nothing to remove
             if (publicationIds.Count == 0)
             {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_DELETE,
+                        state: LogContent.ActionState.COMPLETE
+                    ));
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.NOTHING_TO_REMOVE));
             }
 
@@ -250,6 +286,15 @@ namespace api.Controllers
                 }
             }
             await _ttvContext.SaveChangesAsync();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_MODIFY_PUBLICATION_DELETE,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"IDs: {string.Join(", ", profileEditorRemovePublicationResponse.publicationsRemoved)}"
+                ));
 
             // Refresh 'modified' timestamp in user profile
             await _userProfileService.SetModifiedTimestampInUserProfile(userprofileId);

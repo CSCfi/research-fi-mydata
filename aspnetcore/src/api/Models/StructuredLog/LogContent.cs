@@ -30,7 +30,13 @@
             public const string PROFILE_DELETE = "Profile: delete";
             public const string PROFILE_HIDE = "Profile: hide";
             public const string PROFILE_REVEAL = "Profile: reveal";
-            public const string PROFILE_MODIFY = "Profile: modify";
+            public const string PROFILE_MODIFY_COOPERATION_CHOICES = "Profile: modify: co-operation choices";
+            public const string PROFILE_MODIFY_FUNDINGDECISION_ADD = "Profile: modify: add funding decision";
+            public const string PROFILE_MODIFY_FUNDINGDECISION_DELETE = "Profile: modify: delete funding decision";
+            public const string PROFILE_MODIFY_PUBLICATION_ADD = "Profile: modify: add publication";
+            public const string PROFILE_MODIFY_PUBLICATION_DELETE = "Profile: modify: delete publication";
+            public const string PROFILE_MODIFY_RESEARCHDATASET_ADD = "Profile: modify: add research dataset";
+            public const string PROFILE_MODIFY_RESEARCHDATASET_DELETE = "Profile: modify: delete research dataset";
             public const string ORCID_RECORD_GET_MEMBER_API = "ORCID: record: get from member API";
             public const string ORCID_RECORD_GET_PUBLIC_API = "ORCID: record: get from public API";
             public const string ORCID_RECORD_IMPORT = "ORCID: record: import";
