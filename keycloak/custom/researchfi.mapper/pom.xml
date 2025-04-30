@@ -7,7 +7,7 @@
   
   	<properties>
   		<javaVersion>21</javaVersion>
-		<keycloakVersion>26.0.7</keycloakVersion>
+		<keycloakVersion>26.2.2</keycloakVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>21</maven.compiler.source>
      	<maven.compiler.target>21</maven.compiler.target>
