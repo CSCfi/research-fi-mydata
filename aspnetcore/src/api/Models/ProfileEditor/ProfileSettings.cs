@@ -13,9 +13,9 @@
         public bool? Hidden { get; set; }
 
         /// <summary>
-        /// When true, new ORCID data items are automatically made public.
-        /// When false, user must manually set new ORCID data items public.
+        /// When true, new data items are automatically made public.
+        /// When false, user must manually set new data items public.
         /// </summary>
-        public bool? PublishNewOrcidData { get; set; }
+        public bool? PublishNewData { get; set; }
     }
 }

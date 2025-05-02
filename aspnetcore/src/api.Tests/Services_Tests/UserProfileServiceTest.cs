@@ -591,13 +591,13 @@ namespace api.Tests
             };
             ProfileSettings expectedProfileSettings = new ProfileSettings() {
                 Hidden = true,
-                PublishNewOrcidData = true
+                PublishNewData = true
             }; 
             // Act
             ProfileSettings actualProfileSettings = userProfileService.GetProfileSettings(dimUserProfile);
             // Assert
             Assert.Equal(expectedProfileSettings.Hidden, actualProfileSettings.Hidden);
-            Assert.Equal(expectedProfileSettings.PublishNewOrcidData, actualProfileSettings.PublishNewOrcidData);
+            Assert.Equal(expectedProfileSettings.PublishNewData, actualProfileSettings.PublishNewData);
         }
 
         [Fact(DisplayName = "ProfileSettings from DimUserProfile")]
@@ -647,5 +647,122 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedFullname, actualFullname);
         }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is false")]
+        public void SetFactFieldValuesShow_01()
+        {
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            // Act
+            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
+            ffv.DimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = false
+            };
+            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
+                FieldIdentifier = Constants.FieldIdentifiers.PERSON_NAME
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false imUserProfile.PublishNewOrcidData is false but field identifier is PERSON_NAME")]
+        public void SetFactFieldValuesShow_02()
+        {
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            // Act
+            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
+            ffv.DimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
+                FieldIdentifier = Constants.FieldIdentifiers.PERSON_NAME
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false imUserProfile.PublishNewOrcidData is false but field identifier is PERSON_TELEPHONE_NUMBER")]
+        public void SetFactFieldValuesShow_03()
+        {
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            // Act
+            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
+            ffv.DimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
+                FieldIdentifier = Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false imUserProfile.PublishNewOrcidData is false but field identifier is PERSON_KEYWORD")]
+        public void SetFactFieldValuesShow_04()
+        {
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            // Act
+            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
+            ffv.DimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
+                FieldIdentifier = Constants.FieldIdentifiers.PERSON_KEYWORD
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false imUserProfile.PublishNewOrcidData is false but field identifier is PERSON_RESEARCHER_DESCRIPTION")]
+        public void SetFactFieldValuesShow_05()
+        {
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            // Act
+            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
+            ffv.DimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
+                FieldIdentifier = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return true imUserProfile.PublishNewOrcidData is false but field identifier is ACTIVITY_PUBLICATION")]
+        public void SetFactFieldValuesShow_06()
+        {
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            // Act
+            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
+            ffv.DimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
+                FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv);
+            // Assert
+            Assert.True(actualShow);
+        }
+
+
+
     }
 }
