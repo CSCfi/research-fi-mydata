@@ -6,6 +6,8 @@ using api.Models.ProfileEditor.Items;
 using System.Collections.Generic;
 using System;
 using api.Models.ProfileEditor;
+using api.Models.Log;
+using Microsoft.Extensions.Logging;
 
 namespace api.Tests
 {
@@ -591,13 +593,13 @@ namespace api.Tests
             };
             ProfileSettings expectedProfileSettings = new ProfileSettings() {
                 Hidden = true,
-                PublishNewOrcidData = true
+                PublishNewData = true
             }; 
             // Act
             ProfileSettings actualProfileSettings = userProfileService.GetProfileSettings(dimUserProfile);
             // Assert
             Assert.Equal(expectedProfileSettings.Hidden, actualProfileSettings.Hidden);
-            Assert.Equal(expectedProfileSettings.PublishNewOrcidData, actualProfileSettings.PublishNewOrcidData);
+            Assert.Equal(expectedProfileSettings.PublishNewData, actualProfileSettings.PublishNewData);
         }
 
         [Fact(DisplayName = "ProfileSettings from DimUserProfile")]
@@ -646,6 +648,147 @@ namespace api.Tests
             string actualFullname = userProfileService.GetFullname("  Smith  ", "  John  ");
             // Assert
             Assert.Equal(expectedFullname, actualFullname);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is false")]
+        public void SetFactFieldValuesShow_01()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            DimUserProfile dimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = false
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, logUserIdentification);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile is null")]
+        public void SetFactFieldValuesShow_02()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(null, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, logUserIdentification);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when fieldIdentifier is < 0")]
+        public void SetFactFieldValuesShow_03()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            DimUserProfile dimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, fieldIdentifier: -1, logUserIdentification);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is true but field identifier is PERSON_NAME")]
+        public void SetFactFieldValuesShow_04()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            DimUserProfile dimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_NAME, logUserIdentification);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is true but field identifier is PERSON_TELEPHONE_NUMBER")]
+        public void SetFactFieldValuesShow_05()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            DimUserProfile dimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER, logUserIdentification);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is true but field identifier is PERSON_KEYWORD")]
+        public void SetFactFieldValuesShow_06()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            DimUserProfile dimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_KEYWORD, logUserIdentification);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is true but field identifier is PERSON_RESEARCHER_DESCRIPTION")]
+        public void SetFactFieldValuesShow_07()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            DimUserProfile dimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION, logUserIdentification);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return true when DimUserProfile.PublishNewOrcidData is true and field identifier is ACTIVITY_PUBLICATION")]
+        public void SetFactFieldValuesShow_08()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            DimUserProfile dimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, logUserIdentification);
+            // Assert
+            Assert.True(actualShow);
         }
     }
 }
