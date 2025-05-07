@@ -656,57 +656,16 @@ namespace api.Tests
             UtilityService utilityService = new UtilityService();
             UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
-            // Act
-            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
-            ffv.DimUserProfile = new DimUserProfile() {
+            DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = false
             };
-            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
-                FieldIdentifier = Constants.FieldIdentifiers.PERSON_NAME
-            };
             // Act
-            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv, logUserIdentification);
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, logUserIdentification);
             // Assert
             Assert.False(actualShow);
         }
 
         [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile is null")]
-        public void SetFactFieldValuesShow_011()
-        {
-            // Arrange
-            UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
-            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
-            // Act
-            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
-            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
-                FieldIdentifier = Constants.FieldIdentifiers.PERSON_NAME
-            };
-            // Act
-            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv, logUserIdentification);
-            // Assert
-            Assert.False(actualShow);
-        }
-
-        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.DimFieldDisplaySettings is null")]
-        public void SetFactFieldValuesShow_012()
-        {
-            // Arrange
-            UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
-            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
-            // Act
-            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
-            ffv.DimUserProfile = new DimUserProfile() {
-                PublishNewOrcidData = false
-            };
-            // Act
-            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv, logUserIdentification);
-            // Assert
-            Assert.False(actualShow);
-        }
-
-        [Fact(DisplayName = "SetFactFieldValuesShow - return false DimUserProfile.PublishNewOrcidData is false but field identifier is PERSON_NAME")]
         public void SetFactFieldValuesShow_02()
         {
             // Arrange
@@ -714,99 +673,103 @@ namespace api.Tests
             UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
             // Act
-            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
-            ffv.DimUserProfile = new DimUserProfile() {
-                PublishNewOrcidData = true
-            };
-            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
-                FieldIdentifier = Constants.FieldIdentifiers.PERSON_NAME
-            };
-            // Act
-            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv, logUserIdentification);
+            bool actualShow = userProfileService.SetFactFieldValuesShow(null, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, logUserIdentification);
             // Assert
             Assert.False(actualShow);
         }
 
-        [Fact(DisplayName = "SetFactFieldValuesShow - return false DimUserProfile.PublishNewOrcidData is false but field identifier is PERSON_TELEPHONE_NUMBER")]
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when fieldIdentifier is < 0")]
         public void SetFactFieldValuesShow_03()
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
             UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
-            // Act
-            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
-            ffv.DimUserProfile = new DimUserProfile() {
+            DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true
             };
-            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
-                FieldIdentifier = Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER
-            };
             // Act
-            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv, logUserIdentification);
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, -1, logUserIdentification);
             // Assert
             Assert.False(actualShow);
         }
 
-        [Fact(DisplayName = "SetFactFieldValuesShow - return false DimUserProfile.PublishNewOrcidData is false but field identifier is PERSON_KEYWORD")]
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is true but field identifier is PERSON_NAME")]
         public void SetFactFieldValuesShow_04()
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
             UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
-            // Act
-            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
-            ffv.DimUserProfile = new DimUserProfile() {
+            DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true
             };
-            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
-                FieldIdentifier = Constants.FieldIdentifiers.PERSON_KEYWORD
-            };
             // Act
-            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv, logUserIdentification);
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_NAME, logUserIdentification);
             // Assert
             Assert.False(actualShow);
         }
 
-        [Fact(DisplayName = "SetFactFieldValuesShow - return false DimUserProfile.PublishNewOrcidData is false but field identifier is PERSON_RESEARCHER_DESCRIPTION")]
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is true but field identifier is PERSON_TELEPHONE_NUMBER")]
         public void SetFactFieldValuesShow_05()
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
             UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
-            // Act
-            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
-            ffv.DimUserProfile = new DimUserProfile() {
+            DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true
             };
-            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
-                FieldIdentifier = Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION
-            };
             // Act
-            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv, logUserIdentification);
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER, logUserIdentification);
             // Assert
             Assert.False(actualShow);
         }
 
-        [Fact(DisplayName = "SetFactFieldValuesShow - return true DimUserProfile.PublishNewOrcidData is false but field identifier is ACTIVITY_PUBLICATION")]
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is true but field identifier is PERSON_KEYWORD")]
         public void SetFactFieldValuesShow_06()
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
             UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
-            // Act
-            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
-            ffv.DimUserProfile = new DimUserProfile() {
+            DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true
             };
-            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
-                FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_KEYWORD, logUserIdentification);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.PublishNewOrcidData is true but field identifier is PERSON_RESEARCHER_DESCRIPTION")]
+        public void SetFactFieldValuesShow_07()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            DimUserProfile dimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
             };
             // Act
-            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv, logUserIdentification);
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION, logUserIdentification);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return true when DimUserProfile.PublishNewOrcidData is true and field identifier is ACTIVITY_PUBLICATION")]
+        public void SetFactFieldValuesShow_08()
+        {
+            // Arrange
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
+            DimUserProfile dimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = true
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, logUserIdentification);
             // Assert
             Assert.True(actualShow);
         }
