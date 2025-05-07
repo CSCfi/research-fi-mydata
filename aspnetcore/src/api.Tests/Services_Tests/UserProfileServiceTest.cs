@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System;
 using api.Models.ProfileEditor;
 using api.Models.Log;
+using Microsoft.Extensions.Logging;
 
 namespace api.Tests
 {
@@ -654,7 +655,9 @@ namespace api.Tests
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
             DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = false
@@ -670,7 +673,9 @@ namespace api.Tests
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
             // Act
             bool actualShow = userProfileService.SetFactFieldValuesShow(null, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, logUserIdentification);
@@ -683,13 +688,15 @@ namespace api.Tests
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
             DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true
             };
             // Act
-            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, -1, logUserIdentification);
+            bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, fieldIdentifier: -1, logUserIdentification);
             // Assert
             Assert.False(actualShow);
         }
@@ -699,7 +706,9 @@ namespace api.Tests
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
             DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true
@@ -715,7 +724,9 @@ namespace api.Tests
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
             DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true
@@ -731,7 +742,9 @@ namespace api.Tests
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
             DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true
@@ -747,7 +760,9 @@ namespace api.Tests
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
             DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true
@@ -763,7 +778,9 @@ namespace api.Tests
         {
             // Arrange
             UtilityService utilityService = new UtilityService();
-            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            ILogger<UserProfileService> _logger = loggerFactory.CreateLogger<UserProfileService>();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService, logger: _logger);
             LogUserIdentification logUserIdentification = new LogUserIdentification(keycloakId: "testKeycloakId", orcid: "testOrcidId", ip: "123.456.789.1");
             DimUserProfile dimUserProfile = new DimUserProfile() {
                 PublishNewOrcidData = true

@@ -65,6 +65,12 @@ namespace api.Services
         public UserProfileService(IUtilityService utilityService) {
             _utilityService = utilityService;
         }
+
+        public UserProfileService(IUtilityService utilityService, ILogger<UserProfileService> logger) {
+            _utilityService = utilityService;
+            _logger = logger;
+        }
+
         public UserProfileService(IDataSourceHelperService dataSourceHelperService)
         {
             _dataSourceHelperService = dataSourceHelperService;
