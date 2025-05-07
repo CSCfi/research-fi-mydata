@@ -363,6 +363,7 @@ namespace api.Controllers
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
 
             await _adminService.AddNewTtvDataInUserProfileBackground(dimUserProfileId, logUserIdentification);
+            await _adminService.UpdateUserprofileInElasticsearch(dimUserProfileId: dimUserProfileId, logUserIdentification: logUserIdentification);
 
             return Ok();
         }
