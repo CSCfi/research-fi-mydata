@@ -567,7 +567,7 @@ namespace api.Services
          *
          * Despite its name, the setting DimUserProfile.PublishNewOrcidData covers both ORCID and TTV data.
          */
-        public bool SetFactFieldValuesShow(FactFieldValue ffv)
+        public bool SetFactFieldValuesShow(FactFieldValue ffv, LogUserIdentification logUserIdentification)
         {
             try
             {
@@ -585,7 +585,14 @@ namespace api.Services
             }
             catch
             {
-                // Continue silently and return false in case of an error
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_MODIFY_SHOW,
+                        state: LogContent.ActionState.FAILED,
+                        message: $"Failed to set FactFieldValues.Show"
+                        ));
                 return false;
             }
         }
@@ -654,7 +661,7 @@ namespace api.Services
                         factFieldValueEmailAddress.DimFieldDisplaySettingsId = dimFieldDisplaySetting_emailAddress.Id;
                         factFieldValueEmailAddress.DimEmailAddrressId = email.Id;
                         factFieldValueEmailAddress.DimRegisteredDataSourceId = email.DimRegisteredDataSourceId;
-                        factFieldValueEmailAddress.Show = this.SetFactFieldValuesShow(factFieldValueEmailAddress);
+                        factFieldValueEmailAddress.Show = this.SetFactFieldValuesShow(factFieldValueEmailAddress, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValueEmailAddress);
                     }
                 }
@@ -684,7 +691,7 @@ namespace api.Services
                         factFieldValueWebLink.DimFieldDisplaySettingsId = dimFieldDisplaySetting_webLink.Id;
                         factFieldValueWebLink.DimWebLinkId = webLink.Id;
                         factFieldValueWebLink.DimRegisteredDataSourceId = webLink.DimRegisteredDataSourceId;
-                        factFieldValueWebLink.Show = this.SetFactFieldValuesShow(factFieldValueWebLink);
+                        factFieldValueWebLink.Show = this.SetFactFieldValuesShow(factFieldValueWebLink, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValueWebLink);
                     }
                 }
@@ -714,7 +721,7 @@ namespace api.Services
                         factFieldValueTelephoneNumber.DimFieldDisplaySettingsId = dimFieldDisplaySetting_telephoneNumber.Id;
                         factFieldValueTelephoneNumber.DimTelephoneNumberId = telephoneNumber.Id;
                         factFieldValueTelephoneNumber.DimRegisteredDataSourceId = telephoneNumber.DimRegisteredDataSourceId;
-                        factFieldValueTelephoneNumber.Show = this.SetFactFieldValuesShow(factFieldValueTelephoneNumber);
+                        factFieldValueTelephoneNumber.Show = this.SetFactFieldValuesShow(factFieldValueTelephoneNumber, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValueTelephoneNumber);
                     }
                 }
@@ -744,7 +751,7 @@ namespace api.Services
                         factFieldValueResearcherDescription.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researcherDescription.Id;
                         factFieldValueResearcherDescription.DimResearcherDescriptionId = researcherDescription.Id;
                         factFieldValueResearcherDescription.DimRegisteredDataSourceId = researcherDescription.DimRegisteredDataSourceId;
-                        factFieldValueResearcherDescription.Show = this.SetFactFieldValuesShow(factFieldValueResearcherDescription);
+                        factFieldValueResearcherDescription.Show = this.SetFactFieldValuesShow(factFieldValueResearcherDescription, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValueResearcherDescription);
                     }
                 }
@@ -774,7 +781,7 @@ namespace api.Services
                         factFieldValueAffiliation.DimFieldDisplaySettingsId = dimFieldDisplaySetting_affiliation.Id;
                         factFieldValueAffiliation.DimAffiliationId = affiliation.Id;
                         factFieldValueAffiliation.DimRegisteredDataSourceId = affiliation.DimRegisteredDataSourceId;
-                        factFieldValueAffiliation.Show = this.SetFactFieldValuesShow(factFieldValueAffiliation);
+                        factFieldValueAffiliation.Show = this.SetFactFieldValuesShow(factFieldValueAffiliation, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValueAffiliation);
                     }
                 }
@@ -804,7 +811,7 @@ namespace api.Services
                         factFieldValueEducation.DimFieldDisplaySettingsId = dimFieldDisplaySetting_education.Id;
                         factFieldValueEducation.DimEducationId = education.Id;
                         factFieldValueEducation.DimRegisteredDataSourceId = education.DimRegisteredDataSourceId;
-                        factFieldValueEducation.Show = this.SetFactFieldValuesShow(factFieldValueEducation);
+                        factFieldValueEducation.Show = this.SetFactFieldValuesShow(factFieldValueEducation, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValueEducation);
                     }
                 }
@@ -850,7 +857,7 @@ namespace api.Services
                             factFieldValueName.DimFieldDisplaySettingsId = dimFieldDisplaySetting_name.Id;
                             factFieldValueName.DimNameId = dimName.Id;
                             factFieldValueName.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                            factFieldValueName.Show = this.SetFactFieldValuesShow(factFieldValueName);
+                            factFieldValueName.Show = this.SetFactFieldValuesShow(factFieldValueName, logUserIdentification);
                             _ttvContext.FactFieldValues.Add(factFieldValueName);
                         }
                         else if (!String.IsNullOrWhiteSpace(dimName.FullName))
@@ -861,7 +868,7 @@ namespace api.Services
                             factFieldValueOtherNames.DimFieldDisplaySettingsId = dimFieldDisplaySetting_otherNames.Id;
                             factFieldValueOtherNames.DimNameId = dimName.Id;
                             factFieldValueOtherNames.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                            factFieldValueOtherNames.Show = this.SetFactFieldValuesShow(factFieldValueOtherNames);
+                            factFieldValueOtherNames.Show = this.SetFactFieldValuesShow(factFieldValueOtherNames, logUserIdentification);
                             _ttvContext.FactFieldValues.Add(factFieldValueOtherNames);
                         }
                     }
@@ -888,7 +895,7 @@ namespace api.Services
                                 factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting_publication.Id;
                                 factFieldValuePublication.DimPublicationId = publicationId;
                                 factFieldValuePublication.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                                factFieldValuePublication.Show = this.SetFactFieldValuesShow(factFieldValuePublication);
+                                factFieldValuePublication.Show = this.SetFactFieldValuesShow(factFieldValuePublication, logUserIdentification);
                                 _ttvContext.FactFieldValues.Add(factFieldValuePublication);
                                 // Prevent duplicate key error with publications
                                 existingPublicationIds.Add(publicationId);
@@ -902,7 +909,7 @@ namespace api.Services
                                 factFieldValueResearchActivity.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researchActivity.Id;
                                 factFieldValueResearchActivity.DimResearchActivityId = fc.DimResearchActivityId;
                                 factFieldValueResearchActivity.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                                factFieldValueResearchActivity.Show = this.SetFactFieldValuesShow(factFieldValueResearchActivity);
+                                factFieldValueResearchActivity.Show = this.SetFactFieldValuesShow(factFieldValueResearchActivity, logUserIdentification);
                                 _ttvContext.FactFieldValues.Add(factFieldValueResearchActivity);
                                 // Prevent duplicate key error with research activities
                                 existingResearchActivityIds.Add(fc.DimResearchActivityId);
@@ -916,7 +923,7 @@ namespace api.Services
                                 factFieldValueResearchDataset.DimFieldDisplaySettingsId = dimFieldDisplaySetting_researchDataset.Id;
                                 factFieldValueResearchDataset.DimResearchDatasetId = fc.DimResearchDatasetId;
                                 factFieldValueResearchDataset.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                                factFieldValueResearchDataset.Show = this.SetFactFieldValuesShow(factFieldValueResearchDataset);
+                                factFieldValueResearchDataset.Show = this.SetFactFieldValuesShow(factFieldValueResearchDataset, logUserIdentification);
                                 _ttvContext.FactFieldValues.Add(factFieldValueResearchDataset);
                                 // Prevent duplicate key error with research datasets
                                 existingResearchDatasetIds.Add(fc.DimResearchDatasetId);
@@ -948,7 +955,7 @@ namespace api.Services
                             factFieldValueFundingDecision.DimFieldDisplaySettingsId = dimFieldDisplaySetting_fundingDecision.Id;
                             factFieldValueFundingDecision.DimFundingDecisionId = fundingDecisionId;
                             factFieldValueFundingDecision.DimRegisteredDataSourceId = dimName.DimRegisteredDataSourceId;
-                            factFieldValueFundingDecision.Show = this.SetFactFieldValuesShow(factFieldValueFundingDecision);
+                            factFieldValueFundingDecision.Show = this.SetFactFieldValuesShow(factFieldValueFundingDecision, logUserIdentification);
                             _ttvContext.FactFieldValues.Add(factFieldValueFundingDecision);
                         }
                     }

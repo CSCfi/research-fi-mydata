@@ -37,6 +37,7 @@
             public const string PROFILE_MODIFY_PUBLICATION_DELETE = "Profile: modify: delete publication";
             public const string PROFILE_MODIFY_RESEARCHDATASET_ADD = "Profile: modify: add research dataset";
             public const string PROFILE_MODIFY_RESEARCHDATASET_DELETE = "Profile: modify: delete research dataset";
+            public const string PROFILE_MODIFY_SHOW = "Profile: modify: toggle show";
             public const string ORCID_RECORD_GET_MEMBER_API = "ORCID: record: get from member API";
             public const string ORCID_RECORD_GET_PUBLIC_API = "ORCID: record: get from public API";
             public const string ORCID_RECORD_IMPORT = "ORCID: record: import";

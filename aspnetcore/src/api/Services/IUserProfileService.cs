@@ -48,6 +48,6 @@ namespace api.Services
         string GetCMemoryCacheKey_SharePermissions();
         string GetCMemoryCacheKey_GivenPermissions(string orcidId);
         Task SetModifiedTimestampInUserProfile(int Id);
-        bool SetFactFieldValuesShow(FactFieldValue ffv);
+        bool SetFactFieldValuesShow(FactFieldValue ffv, LogUserIdentification logUserIdentification);
     }
 }
