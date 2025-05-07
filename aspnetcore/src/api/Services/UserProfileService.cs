@@ -569,12 +569,25 @@ namespace api.Services
          */
         public bool SetFactFieldValuesShow(FactFieldValue ffv)
         {
-            return
-                ffv.DimUserProfile.PublishNewOrcidData &&
-                ffv.DimFieldDisplaySettings.FieldIdentifier != Constants.FieldIdentifiers.PERSON_NAME &&
-                ffv.DimFieldDisplaySettings.FieldIdentifier != Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER &&
-                ffv.DimFieldDisplaySettings.FieldIdentifier != Constants.FieldIdentifiers.PERSON_KEYWORD &&
-                ffv.DimFieldDisplaySettings.FieldIdentifier != Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION;
+            try
+            {
+                if (ffv == null || ffv.DimFieldDisplaySettings == null || ffv.DimUserProfile == null)
+                {
+                    return false;
+                }
+
+                return
+                    ffv.DimUserProfile.PublishNewOrcidData &&
+                    ffv.DimFieldDisplaySettings.FieldIdentifier != Constants.FieldIdentifiers.PERSON_NAME &&
+                    ffv.DimFieldDisplaySettings.FieldIdentifier != Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER &&
+                    ffv.DimFieldDisplaySettings.FieldIdentifier != Constants.FieldIdentifiers.PERSON_KEYWORD &&
+                    ffv.DimFieldDisplaySettings.FieldIdentifier != Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION;
+            }
+            catch
+            {
+                // Continue silently and return false in case of an error
+                return false;
+            }
         }
 
         /*

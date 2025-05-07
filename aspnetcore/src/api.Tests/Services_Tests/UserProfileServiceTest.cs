@@ -667,7 +667,39 @@ namespace api.Tests
             Assert.False(actualShow);
         }
 
-        [Fact(DisplayName = "SetFactFieldValuesShow - return false imUserProfile.PublishNewOrcidData is false but field identifier is PERSON_NAME")]
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile is null")]
+        public void SetFactFieldValuesShow_011()
+        {
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            // Act
+            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
+            ffv.DimFieldDisplaySettings = new DimFieldDisplaySetting() {
+                FieldIdentifier = Constants.FieldIdentifiers.PERSON_NAME
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false when DimUserProfile.DimFieldDisplaySettings is null")]
+        public void SetFactFieldValuesShow_012()
+        {
+            UtilityService utilityService = new UtilityService();
+            UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
+            // Act
+            FactFieldValue ffv = userProfileService.GetEmptyFactFieldValue();
+            ffv.DimUserProfile = new DimUserProfile() {
+                PublishNewOrcidData = false
+            };
+            // Act
+            bool actualShow = userProfileService.SetFactFieldValuesShow(ffv);
+            // Assert
+            Assert.False(actualShow);
+        }
+
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false DimUserProfile.PublishNewOrcidData is false but field identifier is PERSON_NAME")]
         public void SetFactFieldValuesShow_02()
         {
             UtilityService utilityService = new UtilityService();
@@ -686,7 +718,7 @@ namespace api.Tests
             Assert.False(actualShow);
         }
 
-        [Fact(DisplayName = "SetFactFieldValuesShow - return false imUserProfile.PublishNewOrcidData is false but field identifier is PERSON_TELEPHONE_NUMBER")]
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false DimUserProfile.PublishNewOrcidData is false but field identifier is PERSON_TELEPHONE_NUMBER")]
         public void SetFactFieldValuesShow_03()
         {
             UtilityService utilityService = new UtilityService();
@@ -705,7 +737,7 @@ namespace api.Tests
             Assert.False(actualShow);
         }
 
-        [Fact(DisplayName = "SetFactFieldValuesShow - return false imUserProfile.PublishNewOrcidData is false but field identifier is PERSON_KEYWORD")]
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false DimUserProfile.PublishNewOrcidData is false but field identifier is PERSON_KEYWORD")]
         public void SetFactFieldValuesShow_04()
         {
             UtilityService utilityService = new UtilityService();
@@ -724,7 +756,7 @@ namespace api.Tests
             Assert.False(actualShow);
         }
 
-        [Fact(DisplayName = "SetFactFieldValuesShow - return false imUserProfile.PublishNewOrcidData is false but field identifier is PERSON_RESEARCHER_DESCRIPTION")]
+        [Fact(DisplayName = "SetFactFieldValuesShow - return false DimUserProfile.PublishNewOrcidData is false but field identifier is PERSON_RESEARCHER_DESCRIPTION")]
         public void SetFactFieldValuesShow_05()
         {
             UtilityService utilityService = new UtilityService();
@@ -743,7 +775,7 @@ namespace api.Tests
             Assert.False(actualShow);
         }
 
-        [Fact(DisplayName = "SetFactFieldValuesShow - return true imUserProfile.PublishNewOrcidData is false but field identifier is ACTIVITY_PUBLICATION")]
+        [Fact(DisplayName = "SetFactFieldValuesShow - return true DimUserProfile.PublishNewOrcidData is false but field identifier is ACTIVITY_PUBLICATION")]
         public void SetFactFieldValuesShow_06()
         {
             UtilityService utilityService = new UtilityService();
