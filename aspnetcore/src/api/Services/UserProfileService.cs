@@ -571,8 +571,40 @@ namespace api.Services
         {
             try
             {
-                if (ffv == null || ffv.DimFieldDisplaySettings == null || ffv.DimUserProfile == null)
+                if (ffv == null)
                 {
+                    _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_MODIFY_SHOW,
+                        state: LogContent.ActionState.FAILED,
+                        message: $"Failed to assert auto publish criteria: ffv==null"
+                        ));
+                    return false;
+                }
+                else if (ffv.DimFieldDisplaySettings == null)
+                {
+                    _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_MODIFY_SHOW,
+                        state: LogContent.ActionState.FAILED,
+                        message: $"Failed to assert auto publish criteria: ffv.DimFieldDisplaySettings==null"
+                        ));
+                    return false;
+                }
+                else if (ffv.DimUserProfile == null)
+                {
+                    _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_MODIFY_SHOW,
+                        state: LogContent.ActionState.FAILED,
+                        message: $"Failed to assert auto publish criteria: ffv.DimUserProfile==null"
+                        ));
                     return false;
                 }
 
