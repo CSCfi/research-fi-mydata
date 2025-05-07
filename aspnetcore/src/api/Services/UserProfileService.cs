@@ -645,8 +645,10 @@ namespace api.Services
                     message: $"dim_user_profile.id={dimUserProfile.Id}"
                     ));
 
-            // Get FactFieldValues
-            List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(f => f.DimUserProfileId == dimUserProfile.Id).AsNoTracking().ToListAsync();
+            // Get FactFieldValues. Include DimFieldDisplaySettings, which are needed to set 'show' parameter in SetFactFieldValuesShow().
+            List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(f => f.DimUserProfileId == dimUserProfile.Id).AsNoTracking()
+                .Include(ffv => ffv.DimFieldDisplaySettings).AsNoTracking()
+                .ToListAsync();
             // Collect lists of IDs, which are already included in the profile.
             // They are used in SQL where condition to filter out duplicates.
             List<int> existingEmailIds = new();
