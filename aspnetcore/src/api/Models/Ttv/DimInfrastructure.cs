@@ -53,6 +53,10 @@ public partial class DimInfrastructure
 
     public virtual ICollection<FactInfraKeyword> FactInfraKeywords { get; set; } = new List<FactInfraKeyword>();
 
+    public virtual ICollection<FactRelation> FactRelationFromInfrastructures { get; set; } = new List<FactRelation>();
+
+    public virtual ICollection<FactRelation> FactRelationToInfrastructures { get; set; } = new List<FactRelation>();
+
     public virtual ICollection<FactUpkeep> FactUpkeeps { get; set; } = new List<FactUpkeep>();
 
     public virtual ICollection<DimInfrastructure> InverseNextInfastructure { get; set; } = new List<DimInfrastructure>();

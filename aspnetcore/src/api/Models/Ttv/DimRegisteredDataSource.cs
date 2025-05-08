@@ -73,5 +73,7 @@ public partial class DimRegisteredDataSource
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
 
+    public virtual ICollection<FactRelation> FactRelations { get; set; } = new List<FactRelation>();
+
     public virtual ICollection<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; } = new List<DimFieldDisplaySetting>();
 }
