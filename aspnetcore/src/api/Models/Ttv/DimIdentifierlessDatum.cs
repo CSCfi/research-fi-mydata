@@ -33,5 +33,9 @@ public partial class DimIdentifierlessDatum
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
 
+    public virtual ICollection<FactRelation> FactRelationFromIdentifierlessData { get; set; } = new List<FactRelation>();
+
+    public virtual ICollection<FactRelation> FactRelationToIdentifierlessData { get; set; } = new List<FactRelation>();
+
     public virtual ICollection<DimIdentifierlessDatum> InverseDimIdentifierlessData { get; set; } = new List<DimIdentifierlessDatum>();
 }

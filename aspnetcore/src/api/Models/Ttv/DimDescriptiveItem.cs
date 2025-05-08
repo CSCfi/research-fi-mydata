@@ -70,9 +70,17 @@ public partial class DimDescriptiveItem
 
     public int DimRegisteredDataSourceId { get; set; }
 
+    public int DimPublicationId { get; set; }
+
+    public int DimResearchDatasetId { get; set; }
+
     public virtual DimDate DimEndDateNavigation { get; set; }
 
+    public virtual DimPublication DimPublication { get; set; }
+
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
+
+    public virtual DimResearchDataset DimResearchDataset { get; set; }
 
     public virtual DimResearchProject DimResearchProject { get; set; }
 

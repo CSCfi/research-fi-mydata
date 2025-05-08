@@ -73,6 +73,10 @@ public partial class DimDate
 
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
 
+    public virtual ICollection<FactRelation> FactRelationEndDateNavigations { get; set; } = new List<FactRelation>();
+
+    public virtual ICollection<FactRelation> FactRelationStartDateNavigations { get; set; } = new List<FactRelation>();
+
     public virtual ICollection<FactUpkeep> FactUpkeepDimDateIdEndNavigations { get; set; } = new List<FactUpkeep>();
 
     public virtual ICollection<FactUpkeep> FactUpkeepDimDateIdStartNavigations { get; set; } = new List<FactUpkeep>();

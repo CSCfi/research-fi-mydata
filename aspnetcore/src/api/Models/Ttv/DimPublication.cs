@@ -91,8 +91,6 @@ public partial class DimPublication
 
     public int DimRegisteredDataSourceId { get; set; }
 
-    public string OpenAccess { get; set; }
-
     public int PublisherOpenAccessCode { get; set; }
 
     public string Abstract { get; set; }
@@ -107,7 +105,11 @@ public partial class DimPublication
 
     public int DimPublicationChannelIdFrozen { get; set; }
 
+    public int OpenAccessCode { get; set; }
+
     public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
+
+    public virtual ICollection<DimDescriptiveItem> DimDescriptiveItems { get; set; } = new List<DimDescriptiveItem>();
 
     public virtual ICollection<DimLocallyReportedPubInfo> DimLocallyReportedPubInfos { get; set; } = new List<DimLocallyReportedPubInfo>();
 
@@ -127,6 +129,10 @@ public partial class DimPublication
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
 
+    public virtual ICollection<FactRelation> FactRelationFromPublications { get; set; } = new List<FactRelation>();
+
+    public virtual ICollection<FactRelation> FactRelationToPublications { get; set; } = new List<FactRelation>();
+
     public virtual ICollection<DimPublication> InverseDimPublicationNavigation { get; set; } = new List<DimPublication>();
 
     public virtual DimReferencedatum JufoClassCodeFrozenNavigation { get; set; }
@@ -136,6 +142,8 @@ public partial class DimPublication
     public virtual DimReferencedatum LanguageCodeNavigation { get; set; }
 
     public virtual DimReferencedatum LicenseCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum OpenAccessCodeNavigation { get; set; }
 
     public virtual DimReferencedatum ParentPublicationTypeCodeNavigation { get; set; }
 
