@@ -26,7 +26,7 @@ namespace api.Models.Elasticsearch
         public string JournalName { get; set; }
         public int OpenAccess { get; set; }
         public string ParentPublicationName { get; set; }
-        public ElasticsearchPublicationPeerReviewed? PeerReviewed { get; set; } = null;
+        public List<ElasticsearchPublicationPeerReviewed> PeerReviewed { get; set; } = new List<ElasticsearchPublicationPeerReviewed>();
         public string PublicationId { get; set; }
         public string PublicationName { get; set; }
         public string PublicationTypeCode { get; set; }

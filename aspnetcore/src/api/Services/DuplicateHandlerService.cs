@@ -117,12 +117,15 @@ namespace api.Services
                         JournalName = profileData.DimPublication_JournalName,
                         OpenAccess = !string.IsNullOrEmpty(profileData.DimPublication_OpenAccessCode) && profileData.DimPublication_OpenAccessCode == "1" ? 1 : 0,
                         ParentPublicationName = profileData.DimPublication_ParentPublicationName,
-                        PeerReviewed = new ProfileEditorPublicationPeerReviewed()
+                        PeerReviewed = new List<ProfileEditorPublicationPeerReviewed>()
                         {
-                            Id = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedCode : NotPeerReviewedCode,
-                            NameFiPeerReviewed = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedFi : NotPeerReviewedFi,
-                            NameSvPeerReviewed = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedSv : NotPeerReviewedSv,
-                            NameEnPeerReviewed = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedEn : NotPeerReviewedEn
+                            new ProfileEditorPublicationPeerReviewed()
+                            {
+                                Id = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedCode : NotPeerReviewedCode,
+                                NameFiPeerReviewed = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedFi : NotPeerReviewedFi,
+                                NameSvPeerReviewed = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedSv : NotPeerReviewedSv,
+                                NameEnPeerReviewed = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedEn : NotPeerReviewedEn
+                            }
                         },
                         PublicationId = profileData.DimPublication_PublicationId,
                         PublicationName = profileData.DimPublication_PublicationName,
@@ -152,12 +155,15 @@ namespace api.Services
                         JournalName = "",
                         OpenAccess = !string.IsNullOrEmpty(profileData.DimProfileOnlyPublication_OpenAccessCode) && profileData.DimProfileOnlyPublication_OpenAccessCode == "1" ? 1 : 0,
                         ParentPublicationName = "",
-                        PeerReviewed = new ProfileEditorPublicationPeerReviewed()
+                        PeerReviewed = new List<ProfileEditorPublicationPeerReviewed>()
                         {
-                            Id = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedCode : NotPeerReviewedCode,
-                            NameFiPeerReviewed = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedFi : NotPeerReviewedFi,
-                            NameSvPeerReviewed = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedSv : NotPeerReviewedSv,
-                            NameEnPeerReviewed = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedEn : NotPeerReviewedEn
+                            new ProfileEditorPublicationPeerReviewed()
+                            {
+                                Id = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedCode : NotPeerReviewedCode,
+                                NameFiPeerReviewed = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedFi : NotPeerReviewedFi,
+                                NameSvPeerReviewed = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedSv : NotPeerReviewedSv,
+                                NameEnPeerReviewed = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedEn : NotPeerReviewedEn
+                            }
                         },
                         PublicationId = profileData.DimProfileOnlyPublication_PublicationId,
                         PublicationName = profileData.DimProfileOnlyPublication_PublicationName,

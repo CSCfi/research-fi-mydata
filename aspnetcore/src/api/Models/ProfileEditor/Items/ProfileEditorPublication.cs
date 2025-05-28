@@ -24,7 +24,7 @@ namespace api.Models.ProfileEditor.Items
         public string JournalName { get; set; }
         public int OpenAccess { get; set; }
         public string ParentPublicationName { get; set; }
-        public ProfileEditorPublicationPeerReviewed? PeerReviewed { get; set; } = null;
+        public List<ProfileEditorPublicationPeerReviewed> PeerReviewed { get; set; } = new List<ProfileEditorPublicationPeerReviewed>();
         public string PublicationId { get; set; }
         public string PublicationName { get; set; }
         public string PublicationTypeCode { get; set; }
