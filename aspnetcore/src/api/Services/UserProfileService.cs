@@ -1978,6 +1978,7 @@ namespace api.Services
                                         (await connection.QueryAsync<ProfileEditorPreferredIdentifier>(
                                             $"SELECT pid_type AS 'PidType', pid_content AS 'PidContent' FROM dim_pid WHERE dim_research_dataset_id={p.FactFieldValues_DimResearchDatasetId}"
                                         )).ToList(),
+                                    FairdataUrl = $"https://etsin.fairdata.fi/dataset/{p.DimResearchDataset_LocalIdentifier}",
                                     itemMeta = new ProfileEditorItemMeta(
                                         id: p.FactFieldValues_DimResearchDatasetId,
                                         type: Constants.ItemMetaTypes.ACTIVITY_RESEARCH_DATASET,
