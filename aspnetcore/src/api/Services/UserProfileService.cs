@@ -1970,6 +1970,7 @@ namespace api.Services
                                     DescriptionFi = nameTranslationResearchDatasetDescription.NameFi,
                                     DescriptionSv = nameTranslationResearchDatasetDescription.NameFi,
                                     DescriptionEn = nameTranslationResearchDatasetDescription.NameFi,
+                                    AccessType = p.DimResearchDataset_AccessType,
                                     // Only year part of datetime is set in DatasetCreated 
                                     DatasetCreated =
                                         (p.DimResearchDataset_DatasetCreated != null) ? p.DimResearchDataset_DatasetCreated.Value.Year : null,

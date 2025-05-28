@@ -27,6 +27,7 @@ public class MappingProfile : Profile
         CreateMap<ProfileEditorKeyword, ElasticsearchKeyword>();
         CreateMap<ProfileEditorName, ElasticsearchName>();
         CreateMap<ProfileEditorPublication, ElasticsearchPublication>();
+        CreateMap<ProfileEditorPublicationPeerReviewed, ElasticsearchPublicationPeerReviewed>();
         CreateMap<ProfileEditorResearchDataset, ElasticsearchResearchDataset>();
         CreateMap<ProfileEditorResearcherDescription, ElasticsearchResearcherDescription>();
         CreateMap<ProfileEditorTelephoneNumber, ElasticsearchTelephoneNumber>();

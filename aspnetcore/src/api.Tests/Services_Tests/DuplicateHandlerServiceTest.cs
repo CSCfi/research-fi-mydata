@@ -17,7 +17,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", TypeCode = "code123" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "code123" };
             Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -26,7 +26,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", TypeCode = "A3" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "A3" };
             Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -35,7 +35,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", TypeCode = "A3" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "A3" };
             Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -44,7 +44,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", TypeCode = "A4" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "A4" };
             Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -53,7 +53,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", TypeCode = "A4" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "A4" };
             Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -62,7 +62,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", TypeCode = "B2" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "B2" };
             Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -71,7 +71,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", TypeCode = "B2" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "B2" };
             Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -80,7 +80,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", TypeCode = "B3" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "B3" };
             Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -89,7 +89,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", TypeCode = "B3" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "B3" };
             Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -98,7 +98,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", TypeCode = "D2" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "D2" };
             Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -107,7 +107,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", TypeCode = "D2" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "D2" };
             Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -116,7 +116,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", TypeCode = "D3" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "D3" };
             Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -125,7 +125,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", TypeCode = "D3" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "D3" };
             Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -134,7 +134,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", TypeCode = "E1" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "E1" };
             Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 
@@ -143,7 +143,7 @@ namespace api.Tests
         {
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
-            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", TypeCode = "E1" };
+            ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "E1" };
             Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
         }
 

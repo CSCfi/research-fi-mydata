@@ -227,10 +227,16 @@ namespace api.Services
                     dim_publication.journal_name AS 'DimPublication_JournalName',
                     dim_publication.conference_name AS 'DimPublication_ConferenceName',
                     dim_publication.parent_publication_name AS 'DimPublication_ParentPublicationName',
+                    dim_publication.self_archived_code AS 'DimPublication_SelfArchivedCode',
+                    dim_publication_locally_reported_pub_info.self_archived_url AS 'DimPublication_SelfArchivedAddress',
+                    dim_publication_referencedata_open_access_code.code_value AS 'DimPublication_OpenAccessCode',
+                    dim_publication.peer_reviewed AS 'DimPublication_PeerReviewed',
                     dim_profile_only_publication.publication_id AS 'DimProfileOnlyPublication_PublicationId',
                     dim_profile_only_publication.publication_name AS 'DimProfileOnlyPublication_PublicationName',
                     dim_profile_only_publication.publication_year AS 'DimProfileOnlyPublication_PublicationYear',
                     dim_profile_only_publication.doi_handle AS 'DimProfileOnlyPublication_Doi',
+                    dim_profile_only_publication.peer_reviewed AS 'DimProfileOnlyPublication_PeerReviewed',
+                    dim_profile_only_publication.open_access_code AS 'DimProfileOnlyPublication_OpenAccessCode',
 
                     profile_only_research_activity_organization.id AS 'DimProfileOnlyResearchActivity_DimOrganization_Id',
                     profile_only_research_activity_organization.organization_id AS 'DimProfileOnlyResearchActivity_DimOrganization_OrganizationId',
@@ -360,6 +366,7 @@ namespace api.Services
                     dim_research_dataset.description_en AS 'DimResearchDataset_DescriptionEn',
                     dim_research_dataset.description_sv AS 'DimResearchDataset_DescriptionSv',
                     dim_research_dataset.dataset_created AS 'DimResearchDataset_DatasetCreated',
+                    dim_research_dataset_referencedata_availability.code_value AS 'DimResearchDataset_AccessType',
 
                     dim_profile_only_dataset.local_identifier AS 'DimProfileOnlyDataset_LocalIdentifier',
                     dim_profile_only_dataset.name_fi AS 'DimProfileOnlyDataset_NameFi',
@@ -403,6 +410,8 @@ namespace api.Services
 
                 JOIN dim_publication ON ffv.dim_publication_id=dim_publication.id
                 LEFT JOIN dim_referencedata AS dim_publication_referencedata_type_code ON dim_publication.publication_type_code=dim_publication_referencedata_type_code.id AND dim_publication.publication_type_code!=-1
+                LEFT JOIN dim_referencedata AS dim_publication_referencedata_open_access_code ON dim_publication.open_access_code=dim_publication_referencedata_open_access_code.id AND dim_publication.open_access_code!=-1
+                LEFT JOIN dim_locally_reported_pub_info AS dim_publication_locally_reported_pub_info ON dim_locally_reported_pub_info.dim_publicationid=dim_publication.id
 
                 JOIN dim_profile_only_publication ON ffv.dim_profile_only_publication_id=dim_profile_only_publication.id
 
@@ -453,6 +462,7 @@ namespace api.Services
                 LEFT JOIN dim_web_link AS dim_profile_only_funding_decision_web_link ON dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id=dpofd.id AND dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id!=-1
 
                 JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
+                LEFT JOIN dim_referencedata AS dim_research_dataset_referencedata_availability ON dim_research_dataset_referencedata_availability.dim_referencedata_availability=dim_referencedata.id
 
                 JOIN dim_profile_only_dataset ON ffv.dim_profile_only_dataset_id=dim_profile_only_dataset.id
                 LEFT JOIN dim_web_link AS dim_profile_only_dataset_web_link ON dim_profile_only_dataset_web_link.dim_profile_only_dataset_id=dim_profile_only_dataset.id AND dim_profile_only_dataset_web_link.dim_profile_only_dataset_id!=-1

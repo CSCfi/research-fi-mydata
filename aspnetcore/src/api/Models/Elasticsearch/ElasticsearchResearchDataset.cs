@@ -7,6 +7,7 @@ namespace api.Models.Elasticsearch
     {
         public ElasticsearchResearchDataset()
         {
+            AccessType = "";
             Actor = new List<ElasticsearchActor>();
             Identifier = "";
             NameFi = "";
@@ -21,6 +22,7 @@ namespace api.Models.Elasticsearch
         }
 
         // Properties are according to ElasticSearch index, not according to model DimResearchDataset
+        public string AccessType { get; set; }
         public List<ElasticsearchActor> Actor { get; set; }
         public string Identifier { get; set; }
         public string NameFi { get; set; }

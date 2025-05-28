@@ -157,7 +157,7 @@ namespace api.Controllers
                         PublicationName = dp.PublicationName,
                         PublicationYear = dp.PublicationYear,
                         Doi = dp.DimPids.Select(pid => pid.PidContent).FirstOrDefault(),
-                        TypeCode = dp.PublicationTypeCodeNavigation.CodeValue,
+                        PublicationTypeCode = dp.PublicationTypeCodeNavigation.CodeValue,
                         AuthorsText = dp.AuthorsText,
                         JournalName = dp.JournalName,
                         ConferenceName = dp.ConferenceName,
