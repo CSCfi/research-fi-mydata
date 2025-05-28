@@ -411,7 +411,7 @@ namespace api.Services
                 JOIN dim_publication ON ffv.dim_publication_id=dim_publication.id
                 LEFT JOIN dim_referencedata AS dim_publication_referencedata_type_code ON dim_publication.publication_type_code=dim_publication_referencedata_type_code.id AND dim_publication.publication_type_code!=-1
                 LEFT JOIN dim_referencedata AS dim_publication_referencedata_open_access_code ON dim_publication.open_access_code=dim_publication_referencedata_open_access_code.id AND dim_publication.open_access_code!=-1
-                LEFT JOIN dim_locally_reported_pub_info AS dim_publication_locally_reported_pub_info ON dim_locally_reported_pub_info.dim_publicationid=dim_publication.id
+                LEFT JOIN dim_locally_reported_pub_info AS dim_publication_locally_reported_pub_info ON dim_publication_locally_reported_pub_info.dim_publicationid=dim_publication.id
 
                 JOIN dim_profile_only_publication ON ffv.dim_profile_only_publication_id=dim_profile_only_publication.id
 
