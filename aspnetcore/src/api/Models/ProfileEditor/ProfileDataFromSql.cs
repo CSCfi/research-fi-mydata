@@ -141,7 +141,8 @@ namespace api.Models.ProfileEditor
         public string DimPublication_ParentPublicationName { get; set; }
         public string DimPublication_SelfArchivedAddress { get; set; }
         public bool? DimPublication_SelfArchivedCode { get; set; }
-        public string DimPublication_OpenAccessCode { get; set; }
+        public int DimPublication_DimReferenceData_Id_OpenAccessCode { get; set; }
+        public string DimPublication_OpenAccessCodeValue { get; set; }
         public bool? DimPublication_PeerReviewed { get; set; }
         // DimProfileOnlyPublication
         public string DimProfileOnlyPublication_PublicationId { get; set; }

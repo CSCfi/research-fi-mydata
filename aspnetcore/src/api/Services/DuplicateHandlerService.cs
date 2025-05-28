@@ -115,7 +115,8 @@ namespace api.Services
                         DataSources = new List<ProfileEditorSource> { dataSource },
                         Doi = profileData.DimPublication_Doi,
                         JournalName = profileData.DimPublication_JournalName,
-                        OpenAccess = !string.IsNullOrEmpty(profileData.DimPublication_OpenAccessCode) && profileData.DimPublication_OpenAccessCode == "1" ? 1 : 0,
+                        // Replicate OpenAccess behaviour from publication index. Unknown value is set to 9.
+                        OpenAccess = profileData.DimPublication_DimReferenceData_Id_OpenAccessCode != -1 && int.TryParse(profileData.DimPublication_OpenAccessCodeValue, out int openAccessCodeValue) ? openAccessCodeValue : 9,
                         ParentPublicationName = profileData.DimPublication_ParentPublicationName,
                         PeerReviewed = new List<ProfileEditorPublicationPeerReviewed>()
                         {
