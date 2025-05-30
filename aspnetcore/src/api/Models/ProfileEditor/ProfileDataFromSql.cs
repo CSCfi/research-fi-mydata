@@ -139,11 +139,18 @@ namespace api.Models.ProfileEditor
         public string DimPublication_JournalName { get; set; }
         public string DimPublication_ConferenceName { get; set; }
         public string DimPublication_ParentPublicationName { get; set; }
+        public string DimPublication_SelfArchivedAddress { get; set; }
+        public bool? DimPublication_SelfArchivedCode { get; set; }
+        public int DimPublication_DimReferenceData_Id_OpenAccessCode { get; set; }
+        public string DimPublication_OpenAccessCodeValue { get; set; }
+        public bool? DimPublication_PeerReviewed { get; set; }
         // DimProfileOnlyPublication
         public string DimProfileOnlyPublication_PublicationId { get; set; }
         public string DimProfileOnlyPublication_PublicationName { get; set; }
         public int DimProfileOnlyPublication_PublicationYear { get; set; }
         public string DimProfileOnlyPublication_Doi { get; set; }
+        public bool? DimProfileOnlyPublication_PeerReviewed { get; set; }
+        public string DimProfileOnlyPublication_OpenAccessCode { get; set; }
         // DimProfileOnlyResearchActivity
         public int DimProfileOnlyResearchActivity_DimOrganization_Id { get; set; }
         public string DimProfileOnlyResearchActivity_DimOrganization_OrganizationId { get; set; }
@@ -272,7 +279,8 @@ namespace api.Models.ProfileEditor
         public string DimResearchDataset_DescriptionFi { get; set; }
         public string DimResearchDataset_DescriptionEn { get; set; }
         public string DimResearchDataset_DescriptionSv { get; set; }
-        public DateTime? DimResearchDataset_DatasetCreated {get; set; }
+        public string DimResearchDataset_AccessType { get; set; }
+        public DateTime? DimResearchDataset_DatasetCreated { get; set; }
         // DimProfileOnlyDataset
         public string DimProfileOnlyDataset_LocalIdentifier { get; set; }
         public string DimProfileOnlyDataset_NameFi { get; set; }

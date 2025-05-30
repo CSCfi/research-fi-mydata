@@ -7,7 +7,9 @@ namespace api.Models.Elasticsearch
     {
         public ElasticsearchResearchDataset()
         {
+            AccessType = "";
             Actor = new List<ElasticsearchActor>();
+            FairdataUrl = "";
             Identifier = "";
             NameFi = "";
             NameSv = "";
@@ -21,16 +23,18 @@ namespace api.Models.Elasticsearch
         }
 
         // Properties are according to ElasticSearch index, not according to model DimResearchDataset
+        public string AccessType { get; set; }
         public List<ElasticsearchActor> Actor { get; set; }
-        public string Identifier { get; set; }
-        public string NameFi { get; set; }
-        public string NameSv { get; set; }
-        public string NameEn { get; set; }
+        public string FairdataUrl { get; set; }
+        public int? DatasetCreated { get; set; }
+        public string DescriptionEn { get; set; }
         public string DescriptionFi { get; set; }
         public string DescriptionSv { get; set; }
-        public string DescriptionEn { get; set; }
-        public string Url { get; set; }
-        public int? DatasetCreated { get; set; }
+        public string Identifier { get; set; }
+        public string NameEn { get; set; }
+        public string NameFi { get; set; }
+        public string NameSv { get; set; }
         public List<ElasticsearchPreferredIdentifier> PreferredIdentifiers { get; set; }
+        public string Url { get; set; }
     }
 }

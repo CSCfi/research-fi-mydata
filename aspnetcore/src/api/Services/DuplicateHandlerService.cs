@@ -13,6 +13,14 @@ namespace api.Services
     public class DuplicateHandlerService : IDuplicateHandlerService
     {
         private readonly List<string> typeCodes = new() { "A3", "A4", "B2", "B3", "D2", "D3", "E1" };
+        private const string PeerReviewedCode = "1";
+        private const string NotPeerReviewedCode = "0";
+        private const string PeerReviewedFi = "Vertaisarvioitu";
+        private const string NotPeerReviewedFi = "Ei-vertaisarvioitu";
+        private const string PeerReviewedSv = "Kollegialt utvärderad";
+        private const string NotPeerReviewedSv = "Inte kollegialt utvärderad";
+        private const string PeerReviewedEn = "Peer-Reviewed";
+        private const string NotPeerReviewedEn = "Non Peer-Reviewed";
 
         public DuplicateHandlerService()
         {
@@ -47,7 +55,7 @@ namespace api.Services
          */
         public bool HasSameDoiButIsDifferentPublication(string orcidPublicationName, ProfileEditorPublication publication)
         {
-            return this.typeCodes.Contains(publication.TypeCode) && orcidPublicationName != publication.PublicationName;
+            return this.typeCodes.Contains(publication.PublicationTypeCode) && orcidPublicationName != publication.PublicationName;
         }
 
         /*
@@ -102,22 +110,36 @@ namespace api.Services
                 publications.Add(
                     new ProfileEditorPublication()
                     {
+                        AuthorsText = profileData.DimPublication_AuthorsText,
+                        ConferenceName = profileData.DimPublication_ConferenceName,
+                        DataSources = new List<ProfileEditorSource> { dataSource },
+                        Doi = profileData.DimPublication_Doi,
+                        JournalName = profileData.DimPublication_JournalName,
+                        // Replicate OpenAccess behaviour from publication index. Unknown value is set to 9.
+                        OpenAccess = profileData.DimPublication_DimReferenceData_Id_OpenAccessCode != -1 && int.TryParse(profileData.DimPublication_OpenAccessCodeValue, out int openAccessCodeValue) ? openAccessCodeValue : 9,
+                        ParentPublicationName = profileData.DimPublication_ParentPublicationName,
+                        PeerReviewed = new List<ProfileEditorPublicationPeerReviewed>()
+                        {
+                            new ProfileEditorPublicationPeerReviewed()
+                            {
+                                Id = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedCode : NotPeerReviewedCode,
+                                NameFiPeerReviewed = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedFi : NotPeerReviewedFi,
+                                NameSvPeerReviewed = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedSv : NotPeerReviewedSv,
+                                NameEnPeerReviewed = profileData.DimPublication_PeerReviewed != null && profileData.DimPublication_PeerReviewed.Value ? PeerReviewedEn : NotPeerReviewedEn
+                            }
+                        },
                         PublicationId = profileData.DimPublication_PublicationId,
                         PublicationName = profileData.DimPublication_PublicationName,
+                        PublicationTypeCode = profileData.DimPublication_PublicationTypeCode,
                         PublicationYear = HandlePublicationYear(profileData.DimPublication_PublicationYear),
-                        Doi = profileData.DimPublication_Doi,
-                        AuthorsText = profileData.DimPublication_AuthorsText,
-                        TypeCode = profileData.DimPublication_PublicationTypeCode,
-                        JournalName = profileData.DimPublication_JournalName,
-                        ConferenceName = profileData.DimPublication_ConferenceName,
-                        ParentPublicationName = profileData.DimPublication_ParentPublicationName,
+                        SelfArchivedAddress = profileData.DimPublication_SelfArchivedAddress,
+                        SelfArchivedCode = (profileData.DimPublication_SelfArchivedCode != null && (bool)profileData.DimPublication_SelfArchivedCode) ? "1" : "0",
                         itemMeta = new ProfileEditorItemMeta(
                             id: profileData.FactFieldValues_DimPublicationId,
                             type: Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
                             show: profileData.FactFieldValues_Show,
                             primaryValue: profileData.FactFieldValues_PrimaryValue
-                        ),
-                        DataSources = new List<ProfileEditorSource> { dataSource }
+                        )
                     }
                 );
             }
@@ -127,22 +149,35 @@ namespace api.Services
                 publications.Add(
                     new ProfileEditorPublication()
                     {
+                        AuthorsText = "",
+                        ConferenceName = "",
+                        DataSources = new List<ProfileEditorSource> { dataSource },
+                        Doi = profileData.DimProfileOnlyPublication_Doi,
+                        JournalName = "",
+                        OpenAccess = !string.IsNullOrEmpty(profileData.DimProfileOnlyPublication_OpenAccessCode) && profileData.DimProfileOnlyPublication_OpenAccessCode == "1" ? 1 : 0,
+                        ParentPublicationName = "",
+                        PeerReviewed = new List<ProfileEditorPublicationPeerReviewed>()
+                        {
+                            new ProfileEditorPublicationPeerReviewed()
+                            {
+                                Id = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedCode : NotPeerReviewedCode,
+                                NameFiPeerReviewed = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedFi : NotPeerReviewedFi,
+                                NameSvPeerReviewed = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedSv : NotPeerReviewedSv,
+                                NameEnPeerReviewed = profileData.DimProfileOnlyPublication_PeerReviewed != null && profileData.DimProfileOnlyPublication_PeerReviewed.Value ? PeerReviewedEn : NotPeerReviewedEn
+                            }
+                        },
                         PublicationId = profileData.DimProfileOnlyPublication_PublicationId,
                         PublicationName = profileData.DimProfileOnlyPublication_PublicationName,
+                        PublicationTypeCode = "",
                         PublicationYear = HandlePublicationYear(profileData.DimProfileOnlyPublication_PublicationYear),
-                        Doi = profileData.DimProfileOnlyPublication_Doi,
-                        AuthorsText = "",
-                        TypeCode = "",
-                        JournalName = "",
-                        ConferenceName = "",
-                        ParentPublicationName = "",
+                        SelfArchivedAddress = "",
+                        SelfArchivedCode = "",
                         itemMeta = new ProfileEditorItemMeta(
                             id: profileData.FactFieldValues_DimProfileOnlyPublicationId,
                             type: Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY,
                             show: profileData.FactFieldValues_Show,
                             primaryValue: profileData.FactFieldValues_PrimaryValue
-                        ),
-                        DataSources = new List<ProfileEditorSource> { dataSource }
+                        )
                     }
                 );
             }
