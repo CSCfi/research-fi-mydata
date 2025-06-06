@@ -3668,6 +3668,7 @@ public partial class TtvContext : DbContext
                 .HasColumnName("created");
             entity.Property(e => e.DimKnownPersonId).HasColumnName("dim_known_person_id");
             entity.Property(e => e.Hidden).HasColumnName("hidden");
+            entity.Property(e => e.HighlightOpeness).HasColumnName("highlight_openess");
             entity.Property(e => e.Modified)
                 .HasColumnType("datetime")
                 .HasColumnName("modified");

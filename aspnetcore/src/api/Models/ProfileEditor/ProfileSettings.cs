@@ -17,5 +17,10 @@
         /// When false, user must manually set new data items public.
         /// </summary>
         public bool? PublishNewData { get; set; }
+
+        /// <summary>
+        /// Indicates whether openess should be highlighted in the profile.
+        /// </summary>
+        public bool? HighlightOpeness { get; set; }
     }
 }
