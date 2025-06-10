@@ -2715,7 +2715,8 @@ namespace api.Services
             return new ProfileSettings
             {
                 Hidden = dimUserProfile.Hidden,
-                PublishNewData = dimUserProfile.PublishNewOrcidData
+                PublishNewData = dimUserProfile.PublishNewOrcidData,
+                HighlightOpeness = dimUserProfile.HighlightOpeness
             };
         }
 
@@ -2726,17 +2727,21 @@ namespace api.Services
         {
             bool hiddenToggled = false;
 
-            // Set 'hidden' to DimSUerProfile
+            // Hidden
             if (profileSettings.Hidden != null)
             {
                 dimUserProfile.Hidden = profileSettings.Hidden.Value;
                 hiddenToggled = true;
             }
-
-            // Set'publishNewData' to DimUserProfile
+            // PublishNewData
             if (profileSettings.PublishNewData != null)
             {
                 dimUserProfile.PublishNewOrcidData = profileSettings.PublishNewData.Value;
+            }
+            // HighlightOpeness
+            if (profileSettings.HighlightOpeness != null)
+            {
+                dimUserProfile.HighlightOpeness = profileSettings.HighlightOpeness.Value;
             }
 
             // Save DimUserProfile changes before further processing

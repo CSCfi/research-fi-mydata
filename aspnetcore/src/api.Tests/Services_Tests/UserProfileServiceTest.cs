@@ -581,7 +581,7 @@ namespace api.Tests
             Assert.Equal(expectedProfileEditorSource.Organization.SectorId, actualProfileEditorSource.Organization.SectorId);
         }
 
-        [Fact(DisplayName = "ProfileSettings from DimUserProfile")]
+        [Fact(DisplayName = "GetProfileSettings")]
         public void GetProfileSettings()
         {
             // Arrange
@@ -589,20 +589,23 @@ namespace api.Tests
             DimUserProfile dimUserProfile = new()
             {
                 Hidden = true,
-                PublishNewOrcidData = true
+                PublishNewOrcidData = true,
+                HighlightOpeness = true
             };
             ProfileSettings expectedProfileSettings = new ProfileSettings() {
                 Hidden = true,
-                PublishNewData = true
-            }; 
+                PublishNewData = true,
+                HighlightOpeness = true
+            };
             // Act
             ProfileSettings actualProfileSettings = userProfileService.GetProfileSettings(dimUserProfile);
             // Assert
             Assert.Equal(expectedProfileSettings.Hidden, actualProfileSettings.Hidden);
             Assert.Equal(expectedProfileSettings.PublishNewData, actualProfileSettings.PublishNewData);
+            Assert.Equal(expectedProfileSettings.HighlightOpeness, actualProfileSettings.HighlightOpeness);
         }
 
-        [Fact(DisplayName = "ProfileSettings from DimUserProfile")]
+        [Fact(DisplayName = "GetFullname")]
         public void GetFullNameFromLastNameAndFistNames_01()
         {
             // Arrange
@@ -614,7 +617,7 @@ namespace api.Tests
             Assert.Equal(expectedFullname, actualFullname);
         }
 
-        [Fact(DisplayName = "ProfileSettings from DimUserProfile - last name is empty")]
+        [Fact(DisplayName = "GetFullname - last name is empty")]
         public void GetFullNameFromLastNameAndFistNames_02()
         {
             // Arrange
@@ -626,7 +629,7 @@ namespace api.Tests
             Assert.Equal(expectedFullname, actualFullname);
         }
 
-        [Fact(DisplayName = "ProfileSettings from DimUserProfile - fist name is empty")]
+        [Fact(DisplayName = "GetFullname - first name is empty")]
         public void GetFullNameFromLastNameAndFistNames_03()
         {
             // Arrange
@@ -638,7 +641,7 @@ namespace api.Tests
             Assert.Equal(expectedFullname, actualFullname);
         }
 
-        [Fact(DisplayName = "ProfileSettings from DimUserProfile - trim whitespaces")]
+        [Fact(DisplayName = "GetFullname - trim whitespaces")]
         public void GetFullNameFromLastNameAndFistNames_04()
         {
             // Arrange

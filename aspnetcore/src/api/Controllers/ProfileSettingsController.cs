@@ -108,7 +108,7 @@ namespace api.Controllers
 
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
 
-            string settingsToLogMessage = $"hidden={profileSettings.Hidden}, publishNewOrcidData={profileSettings.PublishNewData}";
+            string settingsToLogMessage = $"hidden={profileSettings.Hidden}, publishNewData={profileSettings.PublishNewData}, highlightOpeness={profileSettings.HighlightOpeness}";
 
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
