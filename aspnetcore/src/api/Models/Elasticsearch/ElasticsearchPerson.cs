@@ -29,6 +29,7 @@ namespace api.Models.Elasticsearch
         [Nested]
         [PropertyName("activity")]
         public ElasticsearchActivity activity { get; set; }
+        public ElasticsearchProfileSettings settings { get; set; }
         public List<ElasticsearchCooperation> cooperation { get; set; }
         public List<ElasticsearchSource> uniqueDataSources { get; set; }
         public DateTime? updated { get; set; }

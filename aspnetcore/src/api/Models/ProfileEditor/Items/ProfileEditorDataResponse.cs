@@ -13,6 +13,7 @@ namespace api.Models.ProfileEditor.Items
 
         public ProfileEditorDataPersonal personal { get; set; }
         public ProfileEditorDataActivity activity { get; set; }
+        public ProfileSettings settings { get; set; }
         public List<ProfileEditorSource> uniqueDataSources { get; set; }
     }
 }

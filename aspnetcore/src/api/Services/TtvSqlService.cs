@@ -122,6 +122,9 @@ namespace api.Services
         {
             return $@"
                 SELECT
+                    dup.hidden AS 'DimUserProfile_Settings_Hidden',
+                    dup.publish_new_orcid_data AS 'DimUserProfile_Settings_PublishNewOrcidData',
+                    dup.highlight_openess AS 'DimUserProfile_Settings_HighlightOpeness',
                     dfds.id AS 'DimFieldDisplaySettings_Id',
                     dfds.field_identifier AS 'DimFieldDisplaySettings_FieldIdentifier',
                     dfds.show AS 'DimFieldDisplaySettings_Show',
@@ -381,6 +384,7 @@ namespace api.Services
 
                 FROM fact_field_values AS ffv
 
+                JOIN dim_user_profile AS dup ON ffv.dim_user_profile_id=dup.id
                 JOIN dim_field_display_settings AS dfds ON ffv.dim_field_display_settings_id=dfds.id
                 JOIN dim_registered_data_source AS drds ON ffv.dim_registered_data_source_id=drds.id
                 JOIN dim_organization AS drds_organization ON drds.dim_organization_id=drds_organization.id

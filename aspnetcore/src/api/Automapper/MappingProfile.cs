@@ -45,5 +45,6 @@ public class MappingProfile : Profile
             .ForMember(dst => dst.NameEn, opt => opt.MapFrom(src => src.DimReferencedataIdAsUserChoiceLabelNavigation.NameEn))
             .ForMember(dst => dst.NameSv, opt => opt.MapFrom(src => src.DimReferencedataIdAsUserChoiceLabelNavigation.NameSv))
             .ForMember(dst => dst.Order, opt => opt.MapFrom(src => src.DimReferencedataIdAsUserChoiceLabelNavigation.Order));
+        CreateMap<ProfileSettings, ElasticsearchProfileSettings>();
     }
 }

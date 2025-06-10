@@ -102,9 +102,12 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
-            // Remove cached data
-            string cacheKey = _userProfileService.GetCMemoryCacheKey_ProfileSettings(orcidId);
-            _cache.Remove(cacheKey);
+            // Remove cached settings data
+            string cacheKey_settings = _userProfileService.GetCMemoryCacheKey_ProfileSettings(orcidId);
+            _cache.Remove(cacheKey_settings);
+            // Remove cached user profile data, because it also contains settings
+            string cacheKey_userProfile = _userProfileService.GetCMemoryCacheKey_UserProfile(orcidId);
+            _cache.Remove(cacheKey_userProfile);
 
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
 
