@@ -1191,6 +1191,17 @@ namespace api.Services
             // Helper lists, which are used in DOI based deduplication of ORCID publications
             List<ProfileDataFromSql> profileOnlyPublicationsToDeduplicate = new();
 
+            // Add settings
+            if (profileDataList.Any())
+            {
+                profileDataResponse.settings = new ProfileSettings()
+                {
+                    Hidden = profileDataList.First().DimUserProfile_Settings_Hidden,
+                    PublishNewData = profileDataList.First().DimUserProfile_Settings_PublishNewOrcidData,
+                    HighlightOpeness = profileDataList.First().DimUserProfile_Settings_HighlightOpeness
+                };
+            }
+
             foreach (ProfileDataFromSql p in profileDataList)
             {
                 // Source object containing registered data source and organization name.
@@ -1214,7 +1225,7 @@ namespace api.Services
                                 LastName = p.DimName_LastName.Trim(),
                                 FullName = GetFullname(p.DimName_LastName, p.DimName_FirstNames), // Populate for Elasticsearch queries
                                 itemMeta = new ProfileEditorItemMeta(
-                                
+
                                     id: p.FactFieldValues_DimNameId,
                                     type: Constants.ItemMetaTypes.PERSON_NAME,
                                     show: p.FactFieldValues_Show,
@@ -1780,7 +1791,7 @@ namespace api.Services
                          * 
                          * Collect data row into a temporary list.
                          * They are added into reponse data in the end of this function, in research activity deduplication phase.
-                         */ 
+                         */
                         if (p.FactFieldValues_DimProfileOnlyResearchActivityId != -1)
                         {
                             profileOnlyResearchActivityRowsToDeduplicate.Add(p);
@@ -2242,14 +2253,6 @@ namespace api.Services
                         DataSources = new List<ProfileEditorSource> { profileEditorSource }
                     };
 
-                    // Add settings
-                    profileDataResponse.settings = new ProfileSettings()
-                    {
-                        Hidden = p.DimUserProfile_Settings_Hidden,
-                        PublishNewData = p.DimUserProfile_Settings_PublishNewOrcidData,
-                        HighlightOpeness = p.DimUserProfile_Settings_HighlightOpeness
-                    };
-
                     // Add Elasticsearch person index related data.
                     if (forElasticsearch && !String.IsNullOrWhiteSpace(p.DimProfileOnlyResearchActivity_DimOrganization_DimSector_SectorId))
                     {
@@ -2275,7 +2278,6 @@ namespace api.Services
                     }
                     profileDataResponse.activity.activitiesAndRewards.Add(activityAndRewardProfileOnly);
                 }
-  
             }
 
             return profileDataResponse;

@@ -11,6 +11,7 @@ namespace api.Models.Elasticsearch
             id = "";
             personal = new();
             activity = new();
+            settings = new();
             cooperation = new();
             uniqueDataSources = new();
         }
@@ -20,6 +21,7 @@ namespace api.Models.Elasticsearch
             id = orcidId;
             personal = new();
             activity = new();
+            settings = new();
             cooperation = new();
             uniqueDataSources = new();
         }
