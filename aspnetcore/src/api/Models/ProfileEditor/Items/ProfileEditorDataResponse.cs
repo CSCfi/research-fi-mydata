@@ -8,6 +8,7 @@ namespace api.Models.ProfileEditor.Items
         {
             personal = new();
             activity = new();
+            settings = new();
             uniqueDataSources = new();
         }
 
