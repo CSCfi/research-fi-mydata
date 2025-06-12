@@ -2242,14 +2242,6 @@ namespace api.Services
                         DataSources = new List<ProfileEditorSource> { profileEditorSource }
                     };
 
-                    // Add settings
-                    profileDataResponse.settings = new ProfileSettings()
-                    {
-                        Hidden = p.DimUserProfile_Settings_Hidden,
-                        PublishNewData = p.DimUserProfile_Settings_PublishNewOrcidData,
-                        HighlightOpeness = p.DimUserProfile_Settings_HighlightOpeness
-                    };
-
                     // Add Elasticsearch person index related data.
                     if (forElasticsearch && !String.IsNullOrWhiteSpace(p.DimProfileOnlyResearchActivity_DimOrganization_DimSector_SectorId))
                     {
@@ -2275,8 +2267,15 @@ namespace api.Services
                     }
                     profileDataResponse.activity.activitiesAndRewards.Add(activityAndRewardProfileOnly);
                 }
-  
             }
+
+            // Add settings
+            profileDataResponse.settings = new ProfileSettings()
+            {
+                Hidden = p.DimUserProfile_Settings_Hidden,
+                PublishNewData = p.DimUserProfile_Settings_PublishNewOrcidData,
+                HighlightOpeness = p.DimUserProfile_Settings_HighlightOpeness
+            };
 
             return profileDataResponse;
         }
