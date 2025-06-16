@@ -134,11 +134,10 @@ namespace api.Services
         {
             return $@"SELECT
                         duc.id AS 'Id',
-                        duc.user_choice_value AS 'DimUserChoice_UserChoiceValue',
-                        duc.dim_referencedata_id_as_user_choice_label AS 'Selected',
                         dr.name_fi AS 'NameFi',
                         dr.name_en AS 'NameEn',
                         dr.name_sv AS 'NameSv',
+                        duc.user_choice_value AS 'Selected',
                         dr.[order] AS 'Order'
                     FROM dim_user_choices AS duc
                     JOIN dim_referencedata AS dr ON duc.dim_referencedata_id_as_user_choice_label=dr.id
