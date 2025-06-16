@@ -50,5 +50,7 @@ namespace api.Services
         string GetSqlQuery_Select_GetHiddenInUserprofile(int dimUserProfileId);
         string GetSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta);
         string GetSqlQuery_Update_DimUserProfile_Modified(int dimUserProfileId);
+        string GetSqlQuery_ProfileEditorCooperationItems(int userprofileId);
+        string GetSqlQuery_ProfileSettings(int userprofileId);
     }
 }

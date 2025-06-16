@@ -1129,6 +1129,26 @@ namespace api.Services
             // Save DimUserProfile, DimFieldDisplaySettings and BrGrantedPermissions changes.
             await _ttvContext.SaveChangesAsync();
 
+            // DimUserChoices
+            List<DimReferencedatum> dimReferenceDataUserChoices =
+                await _ttvContext.DimReferencedata.Where(dr =>
+                    dr.CodeScheme == Constants.ReferenceDataCodeSchemes.USER_CHOICES).ToListAsync();
+            foreach (DimReferencedatum dimReferenceDataUserChoice in dimReferenceDataUserChoices)
+            {
+                DimUserChoice dimUserChoice = new DimUserChoice()
+                {
+                    UserChoiceValue = false,
+                    DimUserProfileId = dimUserProfile.Id,
+                    DimReferencedataIdAsUserChoiceLabelNavigation = dimReferenceDataUserChoice,
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = _utilityService.GetCurrentDateTime()
+                };
+                _ttvContext.DimUserChoices.Add(dimUserChoice);   
+            }
+            await _ttvContext.SaveChangesAsync();
+
             // Search TTV database and add related entries into user profile.
             await AddTtvDataToUserProfile(
                 dimKnownPerson: dimPid.DimKnownPerson,
@@ -1192,15 +1212,14 @@ namespace api.Services
             List<ProfileDataFromSql> profileOnlyPublicationsToDeduplicate = new();
 
             // Add settings
-            if (profileDataList.Any())
-            {
-                profileDataResponse.settings = new ProfileSettings()
-                {
-                    Hidden = profileDataList.First().DimUserProfile_Settings_Hidden,
-                    PublishNewData = profileDataList.First().DimUserProfile_Settings_PublishNewOrcidData,
-                    HighlightOpeness = profileDataList.First().DimUserProfile_Settings_HighlightOpeness
-                };
-            }
+            ProfileSettings profileSettings = (await connection.QueryAsync<ProfileSettings>(
+                _ttvSqlService.GetSqlQuery_ProfileSettings(userprofileId))).FirstOrDefault();
+            profileDataResponse.settings = profileSettings;
+
+            // Add cooperation choices
+            List<ProfileEditorCooperationItem> cooperationItems = (await connection.QueryAsync<ProfileEditorCooperationItem>(
+                _ttvSqlService.GetSqlQuery_ProfileEditorCooperationItems(userprofileId))).ToList();
+            profileDataResponse.cooperation.AddRange(cooperationItems);
 
             foreach (ProfileDataFromSql p in profileDataList)
             {

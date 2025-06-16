@@ -75,7 +75,7 @@ namespace api.Controllers
             List<DimReferencedatum> dimReferenceDataUserChoices = await _ttvContext.DimReferencedata.TagWith("Get user choices").Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.USER_CHOICES)
                 .Include(dr => dr.DimUserChoices.Where(duc => duc.DimUserProfileId == userprofileId)).ToListAsync();
 
-            // Chech that all available choices have DimUserChoice for this user profile.
+            // Check that all available choices have DimUserChoice for this user profile.
             foreach (DimReferencedatum dimReferenceDataUserChoice in dimReferenceDataUserChoices)
             {
                 DimUserChoice dimUserChoice = dimReferenceDataUserChoice.DimUserChoices.FirstOrDefault();
@@ -152,9 +152,12 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
-            // Remove cached profile data response.
+            // Remove cached cooperation data
             string cacheKey = _userProfileService.GetCMemoryCacheKey_UserChoices(orcidId);
             _cache.Remove(cacheKey);
+            // Remove cached user profile data, because it also contains settings
+            string cacheKey_userProfile = _userProfileService.GetCMemoryCacheKey_UserProfile(orcidId);
+            _cache.Remove(cacheKey_userProfile);
 
             // Save cooperation selections
             foreach (ProfileEditorCooperationItem profileEditorCooperationItem in profileEditorCooperationItems)

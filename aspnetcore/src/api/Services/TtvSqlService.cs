@@ -114,6 +114,40 @@ namespace api.Services
         }
 
         /*
+         * Return SQL statement for getting profile settings.
+         */
+        public string GetSqlQuery_ProfileSettings(int userprofileId)
+        {
+            return $@"SELECT
+                        hidden AS 'Hidden',
+                        publish_new_orcid_data AS 'PublishNewData',
+                        highlight_openess AS 'HighlightOpeness'
+                    FROM dim_user_profile
+                    WHERE id={userprofileId}";
+        }
+
+        /*
+         * Return SQL statement for getting profile editor cooperation items.
+         * Queried from dim_user_choices and dim_referencedata tables.
+         */
+        public string GetSqlQuery_ProfileEditorCooperationItems(int userprofileId)
+        {
+            return $@"SELECT
+                        duc.id AS 'Id',
+                        dr.name_fi AS 'NameFi',
+                        dr.name_en AS 'NameEn',
+                        dr.name_sv AS 'NameSv',
+                        duc.user_choice_value AS 'Selected',
+                        dr.[order] AS 'Order'
+                    FROM dim_user_choices AS duc
+                    JOIN dim_referencedata AS dr ON duc.dim_referencedata_id_as_user_choice_label=dr.id
+                    WHERE
+                        duc.dim_user_profile_id={userprofileId}
+                    ORDER BY
+                        dr.[order]";
+        }
+
+        /*
          * Return SQL statement for getting profile data.
          * Parameter forElasticsearch controls if query should be limited to
          * contain only user's published items.
@@ -122,9 +156,6 @@ namespace api.Services
         {
             return $@"
                 SELECT
-                    dup.hidden AS 'DimUserProfile_Settings_Hidden',
-                    dup.publish_new_orcid_data AS 'DimUserProfile_Settings_PublishNewOrcidData',
-                    dup.highlight_openess AS 'DimUserProfile_Settings_HighlightOpeness',
                     dfds.id AS 'DimFieldDisplaySettings_Id',
                     dfds.field_identifier AS 'DimFieldDisplaySettings_FieldIdentifier',
                     dfds.show AS 'DimFieldDisplaySettings_Show',
@@ -384,7 +415,6 @@ namespace api.Services
 
                 FROM fact_field_values AS ffv
 
-                JOIN dim_user_profile AS dup ON ffv.dim_user_profile_id=dup.id
                 JOIN dim_field_display_settings AS dfds ON ffv.dim_field_display_settings_id=dfds.id
                 JOIN dim_registered_data_source AS drds ON ffv.dim_registered_data_source_id=drds.id
                 JOIN dim_organization AS drds_organization ON drds.dim_organization_id=drds_organization.id
