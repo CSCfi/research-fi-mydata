@@ -1192,15 +1192,14 @@ namespace api.Services
             List<ProfileDataFromSql> profileOnlyPublicationsToDeduplicate = new();
 
             // Add settings
-            if (profileDataList.Any())
-            {
-                profileDataResponse.settings = new ProfileSettings()
-                {
-                    Hidden = profileDataList.First().DimUserProfile_Settings_Hidden,
-                    PublishNewData = profileDataList.First().DimUserProfile_Settings_PublishNewOrcidData,
-                    HighlightOpeness = profileDataList.First().DimUserProfile_Settings_HighlightOpeness
-                };
-            }
+            ProfileSettings profileSettings = (await connection.QueryAsync<ProfileSettings>(
+                _ttvSqlService.GetSqlQuery_ProfileSettings(userprofileId))).FirstOrDefault();
+            profileDataResponse.settings = profileSettings;
+
+            // Add cooperation choices
+            List<ProfileEditorCooperationItem> cooperationItems = (await connection.QueryAsync<ProfileEditorCooperationItem>(
+                _ttvSqlService.GetSqlQuery_ProfileEditorCooperationItems(userprofileId))).ToList();
+            profileDataResponse.cooperation.AddRange(cooperationItems);
 
             foreach (ProfileDataFromSql p in profileDataList)
             {

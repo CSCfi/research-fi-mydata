@@ -308,7 +308,7 @@ namespace api.Tests
             // Arrange
             TtvSqlService ttvSqlService = new();
             int dimKnownPersonId = 9999;
-            List<int> existingIds = new() {};
+            List<int> existingIds = new() { };
             string expectedSqlString =
                     @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_email_addrress
@@ -342,7 +342,7 @@ namespace api.Tests
             // Arrange
             TtvSqlService ttvSqlService = new();
             int dimKnownPersonId = 9998;
-            List<int> existingIds = new() {};
+            List<int> existingIds = new() { };
             string expectedSqlString =
                     @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_researcher_description
@@ -376,7 +376,7 @@ namespace api.Tests
             // Arrange
             TtvSqlService ttvSqlService = new();
             int dimKnownPersonId = 9997;
-            List<int> existingIds = new() {};
+            List<int> existingIds = new() { };
             string expectedSqlString =
                     @$"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_web_link
@@ -410,7 +410,7 @@ namespace api.Tests
             // Arrange
             TtvSqlService ttvSqlService = new();
             int dimKnownPersonId = 9996;
-            List<int> existingIds = new() {};
+            List<int> existingIds = new() { };
             string expectedSqlString =
                     @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_telephone_number
@@ -444,7 +444,7 @@ namespace api.Tests
             // Arrange
             TtvSqlService ttvSqlService = new();
             int dimKnownPersonId = 9995;
-            List<int> existingIds = new() {};
+            List<int> existingIds = new() { };
             string expectedSqlString =
                     @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_affiliation
@@ -478,7 +478,7 @@ namespace api.Tests
             // Arrange
             TtvSqlService ttvSqlService = new();
             int dimKnownPersonId = 9994;
-            List<int> existingIds = new() {};
+            List<int> existingIds = new() { };
             string expectedSqlString =
                     @"SELECT id as 'Id', dim_registered_data_source_id AS 'DimRegisteredDataSourceId'
                         FROM dim_education
@@ -542,7 +542,7 @@ namespace api.Tests
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
-            List<int> ids = new() { 12, 23, 34};
+            List<int> ids = new() { 12, 23, 34 };
             string expectedSqlString = "DELETE FROM dim_affiliation WHERE id IN (12,23,34)";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimAffiliations(ids);
@@ -562,7 +562,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-        
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, education")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_education()
         {
@@ -575,7 +575,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-        
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, email")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_email()
         {
@@ -588,7 +588,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-        
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, event")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_event()
         {
@@ -601,7 +601,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-        
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, field of science")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_field_of_science()
         {
@@ -614,7 +614,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-        
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, funding decision")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_funding_decision()
         {
@@ -627,7 +627,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-        
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, keyword")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_keyword()
         {
@@ -640,7 +640,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-        
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, name")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_name()
         {
@@ -718,7 +718,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-        
+
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, research activity")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_research_activity()
         {
@@ -809,7 +809,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-        
+
         [Fact(DisplayName = "Get SQL query for selecting fact_field_values")]
         public void Test_GetSqlQuery_Select_FactFieldValues()
         {
@@ -857,7 +857,7 @@ namespace api.Tests
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
-      
+
         [Fact(DisplayName = "Get SQL query for deleting dim_field_display_settings")]
         public void Test_GetSqlQuery_Delete_DimFieldDisplaySettings()
         {
@@ -941,6 +941,48 @@ namespace api.Tests
             string expectedSqlString = $"UPDATE dim_user_profile SET modified=GETDATE() WHERE id=445566778";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Update_DimUserProfile_Modified(445566778);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+
+        [Fact(DisplayName = "Get SQL query for getting profile settings")]
+        public void GetSqlQuery_Select_ProfileSettings()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = @"SELECT
+                        hidden AS 'Hidden',
+                        publish_new_orcid_data AS 'PublishNewData',
+                        highlight_openess AS 'HighlightOpeness'
+                    FROM dim_user_profile
+                    WHERE id=765432";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_ProfileSettings(765432);
+            // Assert
+            Assert.Equal(expectedSqlString, actualSqlString);
+        }
+        
+        [Fact(DisplayName = "Get SQL query for getting profile editor cooperation items.")]
+        public void GetSqlQuery_Select_ProfileEditorCooperationItems()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = @"SELECT
+                        duc.id AS 'Id',
+                        duc.user_choice_value AS 'DimUserChoice_UserChoiceValue',
+                        duc.dim_referencedata_id_as_user_choice_label AS 'Selected',
+                        dr.name_fi AS 'NameFi',
+                        dr.name_en AS 'NameEn',
+                        dr.name_sv AS 'NameSv',
+                        dr.[order] AS 'Order'
+                    FROM dim_user_choices AS duc
+                    JOIN dim_referencedata AS dr ON duc.dim_referencedata_id_as_user_choice_label=dr.id
+                    WHERE
+                        duc.dim_user_profile_id=123456
+                    ORDER BY
+                        dr.[order]";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_ProfileEditorCooperationItems(123456);
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }

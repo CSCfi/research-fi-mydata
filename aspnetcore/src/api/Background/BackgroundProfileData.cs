@@ -53,12 +53,6 @@ namespace api.Services
             ElasticsearchPerson elasticsearchPerson = mapper.Map<ElasticsearchPerson>(profileEditorDataResponse);
             elasticsearchPerson.id = orcidId;
 
-            // Add cooperation choices
-            List<ElasticsearchCooperation> userChoices =
-                await localTtvContext.DimUserChoices.TagWith("Get user choices for Elasticsearch")
-                .Where(duc => duc.DimUserProfileId == userprofileId && duc.UserChoiceValue == true).AsNoTracking().ProjectTo<ElasticsearchCooperation>(mapper.ConfigurationProvider).ToListAsync();
-            elasticsearchPerson.cooperation.AddRange(userChoices);
-
             // Add updated timestamp
             DateTimeDTO userProfileModified = await localTtvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId).AsNoTracking().Select(dimUserProfile => new DateTimeDTO()  
                 {  

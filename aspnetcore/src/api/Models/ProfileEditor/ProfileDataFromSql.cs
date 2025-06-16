@@ -10,10 +10,6 @@ namespace api.Models.ProfileEditor
         public ProfileDataFromSql()
         {
         }
-        // Settings
-        public bool DimUserProfile_Settings_Hidden { get; set; }
-        public bool DimUserProfile_Settings_PublishNewOrcidData { get; set; }
-        public bool DimUserProfile_Settings_HighlightOpeness { get; set; }
 
         // FactFieldValues
         public bool? FactFieldValues_Show { get; set; }

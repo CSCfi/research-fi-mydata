@@ -152,9 +152,12 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
-            // Remove cached profile data response.
+            // Remove cached cooperation data
             string cacheKey = _userProfileService.GetCMemoryCacheKey_UserChoices(orcidId);
             _cache.Remove(cacheKey);
+            // Remove cached user profile data, because it also contains settings
+            string cacheKey_userProfile = _userProfileService.GetCMemoryCacheKey_UserProfile(orcidId);
+            _cache.Remove(cacheKey_userProfile);
 
             // Save cooperation selections
             foreach (ProfileEditorCooperationItem profileEditorCooperationItem in profileEditorCooperationItems)
