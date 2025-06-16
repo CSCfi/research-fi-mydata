@@ -28,6 +28,7 @@
             public const string PROFILE_ADD_TTV_DATA = "Profile: add TTV data";
             public const string PROFILE_CREATE = "Profile: create";
             public const string PROFILE_DELETE = "Profile: delete";
+            public const string PROFILE_DELETE_DATABASE = "Profile: delete from database";
             public const string PROFILE_HIDE = "Profile: hide";
             public const string PROFILE_REVEAL = "Profile: reveal";
             public const string PROFILE_MODIFY_COOPERATION_CHOICES = "Profile: modify: co-operation choices";
