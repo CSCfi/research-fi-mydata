@@ -9,6 +9,7 @@ namespace api.Models.ProfileEditor.Items
             personal = new();
             activity = new();
             settings = new();
+            cooperation = new List<ProfileEditorCooperationItem>();
             uniqueDataSources = new();
         }
 
