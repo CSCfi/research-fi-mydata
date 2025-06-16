@@ -7,9 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using api.Models.ProfileEditor.Items;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Linq;
-using AutoMapper.QueryableExtensions;
+using api.Models.ProfileEditor;
 
 namespace api.Services
 {
@@ -52,6 +51,17 @@ namespace api.Services
             // Set id to ORCID ID
             ElasticsearchPerson elasticsearchPerson = mapper.Map<ElasticsearchPerson>(profileEditorDataResponse);
             elasticsearchPerson.id = orcidId;
+
+            // Set cooperation items
+            elasticsearchPerson.cooperation = profileEditorDataResponse.cooperation.Where(c => c.Selected)
+                .Select(c => new ElasticsearchCooperation
+                {
+                    Id = c.Id,
+                    NameFi = c.NameFi,
+                    NameEn = c.NameEn,
+                    NameSv = c.NameSv,
+                    Order = c.Order
+                }).ToList();
 
             // Add updated timestamp
             DateTimeDTO userProfileModified = await localTtvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId).AsNoTracking().Select(dimUserProfile => new DateTimeDTO()  
