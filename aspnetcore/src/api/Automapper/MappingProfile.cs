@@ -9,7 +9,8 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<ProfileEditorDataResponse, ElasticsearchPerson>();
+        CreateMap<ProfileEditorDataResponse, ElasticsearchPerson>()
+            .ForMember(dst => dst.cooperation, opt => opt.Ignore());
         CreateMap<ProfileEditorDataPersonal, ElasticsearchPersonal>();
         CreateMap<ProfileEditorDataActivity, ElasticsearchActivity>();
         CreateMap<ProfileEditorSource, ElasticsearchSource>();
