@@ -1219,6 +1219,9 @@ namespace api.Services
             // Add cooperation choices
             List<ProfileEditorCooperationItem> cooperationItems = (await connection.QueryAsync<ProfileEditorCooperationItem>(
                 _ttvSqlService.GetSqlQuery_ProfileEditorCooperationItems(userprofileId))).ToList();
+
+            _logger.LogInformation("Cooperation items SQL query executed for user profile {UserProfileId}: {sqlQuery}", userprofileId, _ttvSqlService.GetSqlQuery_ProfileEditorCooperationItems(userprofileId));
+            _logger.LogInformation("Cooperation items retrieved for user profile {UserProfileId}: {CooperationItemsCount}", userprofileId, cooperationItems.Count);
             profileDataResponse.cooperation.AddRange(cooperationItems);
 
             foreach (ProfileDataFromSql p in profileDataList)
