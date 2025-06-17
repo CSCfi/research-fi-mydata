@@ -17,8 +17,8 @@ namespace api.Services
         string GetSqlQuery_Delete_DimFieldDisplaySettings(int userprofileId);
         string GetSqlQuery_Delete_DimFieldsOfScience(List<int> dimFieldOfScienceIds);
         string GetSqlQuery_Delete_DimFundingDecisions(List<int> dimFundingDecisionIds);
-        string GetSqlQuery_Delete_DimIdentifierlessData_Children(int dimIdentifierlessDataId);
-        string GetSqlQuery_Delete_DimIdentifierlessData_Parent(int id);
+        string GetSqlQuery_Delete_DimIdentifierlessData_Children(List<int> dimIdentifierlessDataIds);
+        string GetSqlQuery_Delete_DimIdentifierlessData_Parent(List<int> dimIdentifierlessDataIds);
         string GetSqlQuery_Delete_DimKeyword(List<int> dimKeywordIds);
         string GetSqlQuery_Delete_DimNames(List<long> dimNameIds);
         string GetSqlQuery_Delete_DimProfileOnlyDatasets(List<int> dimProfileOnlyDatasetIds);

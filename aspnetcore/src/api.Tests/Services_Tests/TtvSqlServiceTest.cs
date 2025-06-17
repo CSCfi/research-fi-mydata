@@ -839,9 +839,10 @@ namespace api.Tests
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
-            string expectedSqlString = "DELETE FROM dim_identifierless_data where dim_identifierless_data_id=554433";
+            List<int> ids = new() { 2233, 3344, 4455 };
+            string expectedSqlString = "DELETE FROM dim_identifierless_data WHERE dim_identifierless_data_id IN (2233,3344,4455)";
             // Act
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(554433);
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(ids);
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }
@@ -851,9 +852,10 @@ namespace api.Tests
         {
             // Arrange
             TtvSqlService ttvSqlService = new();
-            string expectedSqlString = "DELETE FROM dim_identifierless_data where id=665544";
+            List<int> ids = new() { 665544,778899, 889900 };
+            string expectedSqlString = "DELETE FROM dim_identifierless_data WHERE id IN (665544,778899,889900)";
             // Act
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(665544);
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(ids);
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }

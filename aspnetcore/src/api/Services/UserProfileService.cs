@@ -2358,6 +2358,7 @@ namespace api.Services
                 List<int> dimResearcherToResearchCommunityIds = new();
                 List<int> dimTelephoneNumberIds = new();
                 List<int> dimWebLinkIds = new();
+                List<int> dimIdentifierlessDataIds = new();
 
                 // Begin transaction
                 using var deleteTransaction = await _ttvContext.Database.BeginTransactionAsync();
@@ -2375,20 +2376,6 @@ namespace api.Services
                         // Not all related data should be automatically deleted
                         if (CanDeleteFactFieldValueRelatedData(factFieldValue))
                         {
-                            // dim_identifierless_data needs special handling, since it can have nested items
-                            if (factFieldValue.DimIdentifierlessDataId != -1)
-                            {
-                                // First delete possible child items from dim_identifierless_data
-                                await ExecuteSqlQueryWithProfiling(
-                                    sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(factFieldValue.DimIdentifierlessDataId)
-                                );
-
-                                // Then delete parent from dim_identifierless_data
-                                await ExecuteSqlQueryWithProfiling(
-                                    sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(factFieldValue.DimIdentifierlessDataId)
-                                );
-                            }
-
                             // Collect IDs
                             if (factFieldValue.DimAffiliationId != -1) dimAffiliationIds.Add(factFieldValue.DimAffiliationId);
                             if (factFieldValue.DimCompetenceId != -1) dimCompetenceIds.Add(factFieldValue.DimCompetenceId);
@@ -2399,6 +2386,7 @@ namespace api.Services
                             if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
+                            if (factFieldValue.DimIdentifierlessDataId != -1) dimIdentifierlessDataIds.Add(factFieldValue.DimIdentifierlessDataId);
                             if (factFieldValue.DimProfileOnlyDatasetId != -1)
                             {
                                 dimProfileOnlyDatasetIds.Add(factFieldValue.DimProfileOnlyDatasetId);
@@ -2507,6 +2495,18 @@ namespace api.Services
                     {
                         await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimNames(dimNameIds)
+                        );
+                    }
+                    // Delete identifierless data
+                    if (dimIdentifierlessDataIds.Count > 0)
+                    {
+                        // Delete children first
+                        await ExecuteSqlQueryWithProfiling(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(dimIdentifierlessDataIds)
+                        );
+                        // Then delete parents
+                        await ExecuteSqlQueryWithProfiling(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(dimIdentifierlessDataIds)
                         );
                     }
                     // Delete profile only datasets

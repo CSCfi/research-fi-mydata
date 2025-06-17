@@ -541,16 +541,16 @@ namespace api.Services
             return $"DELETE FROM fact_field_values WHERE dim_user_profile_id={userprofileId}";
         }
 
-        // Return SQL DELETE statement for dim_identifierless_data children.
-        public string GetSqlQuery_Delete_DimIdentifierlessData_Children(int dimIdentifierlessDataId)
+        // Return SQL DELETE statement for dim_identifierless_data children
+        public string GetSqlQuery_Delete_DimIdentifierlessData_Children(List<int> dimIdentifierlessDataIds)
         {
-            return $"DELETE FROM dim_identifierless_data where dim_identifierless_data_id={dimIdentifierlessDataId}";
+            return $"DELETE FROM dim_identifierless_data WHERE dim_identifierless_data_id IN ({ConvertListOfIntsToCommaSeparatedString(dimIdentifierlessDataIds)})";
         }
 
-        // Return SQL DELETE statement for dim_identifierless_data parent.
-        public string GetSqlQuery_Delete_DimIdentifierlessData_Parent(int id)
+        // Return SQL DELETE statement for dim_identifierless_data parent
+        public string GetSqlQuery_Delete_DimIdentifierlessData_Parent(List<int> dimIdentifierlessDataIds)
         {
-            return $"DELETE FROM dim_identifierless_data where id={id}";
+            return $"DELETE FROM dim_identifierless_data WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimIdentifierlessDataIds)})";
         }
 
         // Return SQL DELETE statement for dim_affiliation
