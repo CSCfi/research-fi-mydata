@@ -195,9 +195,17 @@ namespace api.Controllers
             DimUserProfile userProfile = await _userProfileService.GetUserprofile(orcidId);
 
             // Delete profile data from database
+            // Start stopwatch to measure time taken for database delete
+            var deleteProfileDataStopwatch = System.Diagnostics.Stopwatch.StartNew();
             bool deleteSuccess = false;
             try
             {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_DELETE_DATABASE,
+                        state: LogContent.ActionState.START));
                 deleteSuccess = await _userProfileService.DeleteProfileDataAsync(userprofileId: userProfile.Id, logUserIdentification: this.GetLogUserIdentification());
             }
             catch (Exception ex)
@@ -206,14 +214,26 @@ namespace api.Controllers
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
                     new LogApiInfo(
-                        action: LogContent.Action.PROFILE_DELETE,
+                        action: LogContent.Action.PROFILE_DELETE_DATABASE,
                         state: LogContent.ActionState.FAILED,
                         error: true,
                         message: ex.ToString()));
             }
 
+            // Stop stopwatch after delete operation
+            deleteProfileDataStopwatch.Stop();
+
             if (deleteSuccess)
             {
+                // Log successful database delete
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_DELETE_DATABASE,
+                        state: LogContent.ActionState.COMPLETE,
+                        message: $"took {deleteProfileDataStopwatch.ElapsedMilliseconds} ms"));
+
                 // Remove cached profile data response. Cache key is ORCID ID.
                 _cache.Remove(orcidId);
 

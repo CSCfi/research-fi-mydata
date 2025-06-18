@@ -11,6 +11,7 @@ using api.Models.Orcid;
 using api.Models.Log;
 using Dapper;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace api.Services
 {
@@ -2357,6 +2358,7 @@ namespace api.Services
                 List<int> dimResearcherToResearchCommunityIds = new();
                 List<int> dimTelephoneNumberIds = new();
                 List<int> dimWebLinkIds = new();
+                List<int> dimIdentifierlessDataIds = new();
 
                 // Begin transaction
                 using var deleteTransaction = await _ttvContext.Database.BeginTransactionAsync();
@@ -2364,7 +2366,7 @@ namespace api.Services
                 try
                 {
                     // Delete fact_field_values
-                    await _ttvContext.Database.ExecuteSqlRawAsync(
+                    await ExecuteSqlQueryWithProfiling(
                         sql: _ttvSqlService.GetSqlQuery_Delete_FactFieldValues(userprofileId)
                     );
 
@@ -2374,20 +2376,6 @@ namespace api.Services
                         // Not all related data should be automatically deleted
                         if (CanDeleteFactFieldValueRelatedData(factFieldValue))
                         {
-                            // dim_identifierless_data needs special handling, since it can have nested items
-                            if (factFieldValue.DimIdentifierlessDataId != -1)
-                            {
-                                // First delete possible child items from dim_identifierless_data
-                                await _ttvContext.Database.ExecuteSqlRawAsync(
-                                    sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(factFieldValue.DimIdentifierlessDataId)
-                                );
-
-                                // Then delete parent from dim_identifierless_data
-                                await _ttvContext.Database.ExecuteSqlRawAsync(
-                                    sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(factFieldValue.DimIdentifierlessDataId)
-                                );
-                            }
-
                             // Collect IDs
                             if (factFieldValue.DimAffiliationId != -1) dimAffiliationIds.Add(factFieldValue.DimAffiliationId);
                             if (factFieldValue.DimCompetenceId != -1) dimCompetenceIds.Add(factFieldValue.DimCompetenceId);
@@ -2398,6 +2386,7 @@ namespace api.Services
                             if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
+                            if (factFieldValue.DimIdentifierlessDataId != -1) dimIdentifierlessDataIds.Add(factFieldValue.DimIdentifierlessDataId);
                             if (factFieldValue.DimProfileOnlyDatasetId != -1)
                             {
                                 dimProfileOnlyDatasetIds.Add(factFieldValue.DimProfileOnlyDatasetId);
@@ -2441,167 +2430,179 @@ namespace api.Services
                     // Delete web links
                     if (dimWebLinkIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimWebLinks(dimWebLinkIds)
                         );
                     }
                     // Delete affiliations
                     if (dimAffiliationIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimAffiliations(dimAffiliationIds)
                         );
                     }
                     // Delete competences
                     if (dimCompetenceIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimCompetences(dimCompetenceIds)
                         );
                     }
                     // Delete educations
                     if (dimEducationIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimEducations(dimEducationIds)
                         );
                     }
                     // Delete email addresses
                     if (dimEmailAddrressIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimEmailAddrresses(dimEmailAddrressIds)
                         );
                     }
                     // Delete events
                     if (dimEventIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimEvents(dimEventIds)
                         );
                     }
                     // Delete fields of science
                     if (dimFieldOfScienceIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimFieldsOfScience(dimFieldOfScienceIds)
                         );
                     }
                     // Delete funding decisions
                     if (dimFundingDecisionIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimFundingDecisions(dimFundingDecisionIds)
                         );
                     }
                     // Delete Keywords
                     if (dimKeywordIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimKeyword(dimKeywordIds)
                         );
                     }
                     // Delete names
                     if (dimNameIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimNames(dimNameIds)
+                        );
+                    }
+                    // Delete identifierless data
+                    if (dimIdentifierlessDataIds.Count > 0)
+                    {
+                        // Delete children first
+                        await ExecuteSqlQueryWithProfiling(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Children(dimIdentifierlessDataIds)
+                        );
+                        // Then delete parents
+                        await ExecuteSqlQueryWithProfiling(
+                            sql: _ttvSqlService.GetSqlQuery_Delete_DimIdentifierlessData_Parent(dimIdentifierlessDataIds)
                         );
                     }
                     // Delete profile only datasets
                     if (dimProfileOnlyDatasetIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyDatasets(dimProfileOnlyDatasetIds)
                         );
                     }
                     // Delete profile only funding decisions
                     if (dimProfileOnlyFundingDecisionIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyFundingDecisions(dimProfileOnlyFundingDecisionIds)
                         );
                     }
                     // Delete profile only publications
                     if (dimProfileOnlyPublicationIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyPublications(dimProfileOnlyPublicationIds)
                         );
                     }
                     // Delete profile only research activities
                     if (dimProfileOnlyResearchActivityIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimProfileOnlyResearchActivities(dimProfileOnlyResearchActivityIds)
                         );
                     }
                     // Delete PIDs
                     if (dimPidIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimPids(dimPidIds)
                         );
                     }
                     // Delete research activities
                     if (dimResearchActivityIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchActivities(dimResearchActivityIds)
                         );
                     }
                     // Delete research communities
                     if (dimResearchCommunityIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchCommunities(dimResearchCommunityIds)
                         );
                     }
                     // Delete research datasets
                     if (dimResearchDatasetIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchDatasets(dimResearchDatasetIds)
                         );
                     }
                     // Delete researcher descriptions
                     if (dimResearcherDescriptionIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchDescriptions(dimResearcherDescriptionIds)
                         );
                     }
                     // Delete researcher to research communities
                     if (dimResearcherToResearchCommunityIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimResearcherToResearchCommunities(dimResearcherToResearchCommunityIds)
                         );
                     }
                     // Delete telephone numbers
                     if (dimTelephoneNumberIds.Count > 0)
                     {
-                        await _ttvContext.Database.ExecuteSqlRawAsync(
+                        await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimTelephoneNumbers(dimTelephoneNumberIds)
                         );
                     }
                     // Delete dim_field_display_settings
-                    await _ttvContext.Database.ExecuteSqlRawAsync(
+                    await ExecuteSqlQueryWithProfiling(
                         sql: _ttvSqlService.GetSqlQuery_Delete_DimFieldDisplaySettings(userprofileId)
                     );
 
                     // Delete br_granted_permissions
-                    await _ttvContext.Database.ExecuteSqlRawAsync(
+                    await ExecuteSqlQueryWithProfiling(
                         sql: _ttvSqlService.GetSqlQuery_Delete_BrGrantedPermissions(userprofileId)
                     );
 
                     // Delete dim_user_choices
-                    await _ttvContext.Database.ExecuteSqlRawAsync(
+                    await ExecuteSqlQueryWithProfiling(
                         sql: _ttvSqlService.GetSqlQuery_Delete_DimUserChoices(userprofileId)
                     );
 
                     // Delete dim_user_profile
-                    await _ttvContext.Database.ExecuteSqlRawAsync(
+                    await ExecuteSqlQueryWithProfiling(
                         sql: _ttvSqlService.GetSqlQuery_Delete_DimUserProfile(userprofileId)
                     );
 
@@ -2629,6 +2630,19 @@ namespace api.Services
                 }
             }
             return true;
+        }
+
+        /*
+         * Execute a raw SQL query and log the execution time for profiling purposes.
+         * This method is useful for performance analysis and optimization.
+         */
+        private async Task ExecuteSqlQueryWithProfiling(string sql)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            _logger.LogDebug($"SQL query start: {sql}");
+            await _ttvContext.Database.ExecuteSqlRawAsync(sql: sql);
+            stopwatch.Stop();
+            _logger.LogDebug($"SQL query complete, execution time: {stopwatch.ElapsedMilliseconds} ms");
         }
 
         /*
@@ -2844,7 +2858,7 @@ namespace api.Services
          */
         public async Task ExecuteRawSql(string sql)
         {
-            await _ttvContext.Database.ExecuteSqlRawAsync(sql);
+            await ExecuteSqlQueryWithProfiling(sql: sql);
         }
     }
 }
