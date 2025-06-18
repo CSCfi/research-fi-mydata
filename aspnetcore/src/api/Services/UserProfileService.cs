@@ -2639,10 +2639,10 @@ namespace api.Services
         private async Task ExecuteSqlQueryWithProfiling(string sql)
         {
             var stopwatch = Stopwatch.StartNew();
-            _logger.LogInformation($"SQL query start: {sql}");
+            _logger.LogDebug($"SQL query start: {sql}");
             await _ttvContext.Database.ExecuteSqlRawAsync(sql: sql);
             stopwatch.Stop();
-            _logger.LogInformation($"SQL query complete,execution time: {stopwatch.ElapsedMilliseconds} ms");
+            _logger.LogDebug($"SQL query complete, execution time: {stopwatch.ElapsedMilliseconds} ms");
         }
 
         /*
