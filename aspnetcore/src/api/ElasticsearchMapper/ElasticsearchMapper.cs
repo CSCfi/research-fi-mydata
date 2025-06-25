@@ -3,8 +3,8 @@ using api.Models.Elasticsearch;
 using api.Models.ProfileEditor;
 using System.Linq;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
 
+namespace api.CustomMapper;
 public static class ElasticsearchMapper
 {
     public static ElasticsearchPerson MapToElasticsearchPerson(ProfileEditorDataResponse src, string orcidId = null)
@@ -17,7 +17,7 @@ public static class ElasticsearchMapper
             activity = MapToElasticsearchActivity(src.activity),
             settings = MapToElasticsearchProfileSettings(src.settings),
             cooperation = MapToElasticsearchCooperation(src.cooperation),
-            uniqueDataSources = src.uniqueDataSources?.Select(MapToElasticsearchSource).ToList()
+            uniqueDataSources = MapToElasticsearchSource(src.uniqueDataSources)
         };
     }
     public static ElasticsearchPersonal MapToElasticsearchPersonal(ProfileEditorDataPersonal src)
@@ -157,13 +157,14 @@ public static class ElasticsearchMapper
             }).ToList();
     }
 
-    public static ElasticsearchSource MapToElasticsearchSource(ProfileEditorSource src)
+    public static List<ElasticsearchSource> MapToElasticsearchSource(List<ProfileEditorSource> src)
     {
         if (src == null) return null;
-        return new ElasticsearchSource
+        return src?.Select(ds => new ElasticsearchSource
         {
-            // Map properties as needed
-        };
+            RegisteredDataSource = ds.RegisteredDataSource,
+            Organization = ds.Organization
+        }).ToList();
     }
 
     public static ElasticsearchEmail MapToElasticsearchEmail(ProfileEditorEmail src)
