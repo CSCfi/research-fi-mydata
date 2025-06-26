@@ -142,7 +142,8 @@ namespace api
                         "https://*.csc.fi",
                         "https://*.2.rahtiapp.fi",
                         "https://localhost:5003",
-                        "http://localhost:8080"
+                        "http://localhost:8080",
+                        "http://localhost:6001"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()
