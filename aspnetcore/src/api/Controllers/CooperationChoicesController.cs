@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using System;
-using AutoMapper;
 using Microsoft.Extensions.Logging;
 using api.Models.Log;
 
@@ -31,18 +30,16 @@ namespace api.Controllers
         private readonly ITtvSqlService _ttvSqlService;
         private readonly IUtilityService _utilityService;
         private readonly IMemoryCache _cache;
-        private readonly IMapper _mapper;
         private readonly ILogger<UserProfileController> _logger;
 
         public CooperationChoicesController(TtvContext ttvContext, IUserProfileService userProfileService,
-            ITtvSqlService ttvSqlService, IUtilityService utilityService, IMemoryCache memoryCache, IMapper mapper, ILogger<UserProfileController> logger)
+            ITtvSqlService ttvSqlService, IUtilityService utilityService, IMemoryCache memoryCache, ILogger<UserProfileController> logger)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
             _ttvSqlService = ttvSqlService;
             _utilityService = utilityService;
             _cache = memoryCache;
-            _mapper = mapper;
             _logger = logger;
         }
 
@@ -72,8 +69,13 @@ namespace api.Controllers
 
             // Get choices from DimReferencedata by code scheme.
             // MUST NOT use AsNoTracking, because it is possible that DimUserChoise entities will be added.
-            List<DimReferencedatum> dimReferenceDataUserChoices = await _ttvContext.DimReferencedata.TagWith("Get user choices").Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.USER_CHOICES)
-                .Include(dr => dr.DimUserChoices.Where(duc => duc.DimUserProfileId == userprofileId)).ToListAsync();
+            List<DimReferencedatum> dimReferenceDataUserChoices =
+                await _ttvContext.DimReferencedata.TagWith("Get user choices")
+                    .Where(dr =>
+                        dr.CodeScheme == Constants.ReferenceDataCodeSchemes.USER_CHOICES)
+                    .Include(dr =>
+                        dr.DimUserChoices.Where(duc => duc.DimUserProfileId == userprofileId))
+                    .ToListAsync();
 
             // Check that all available choices have DimUserChoice for this user profile.
             foreach (DimReferencedatum dimReferenceDataUserChoice in dimReferenceDataUserChoices)
@@ -98,7 +100,17 @@ namespace api.Controllers
             await _ttvContext.SaveChangesAsync();
 
             // Map to API response.
-            List<ProfileEditorCooperationItem> cooperationItems = _mapper.Map<List<ProfileEditorCooperationItem>>(dimReferenceDataUserChoices);
+            List<ProfileEditorCooperationItem> cooperationItems =
+                dimReferenceDataUserChoices.Select(
+                    dr => new ProfileEditorCooperationItem
+                    {
+                        Id = dr.DimUserChoices.First().Id,
+                        NameFi = dr.NameFi,
+                        NameEn = dr.NameEn,
+                        NameSv = dr.NameSv,
+                        Selected = dr.DimUserChoices.First().UserChoiceValue,
+                        Order = dr.Order
+                    }).ToList();
 
             // Save response in cache
             MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
