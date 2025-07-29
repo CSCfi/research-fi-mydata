@@ -12,6 +12,80 @@ namespace api.Tests
     public class ElasticsearchMapperTests
     {
         private const string orcidId = "1234-5678-9012-3456";
+        private ProfileEditorSource profileEditorSource1 = new ProfileEditorSource
+        {
+            Id = 1,
+            RegisteredDataSource = "source-id-1",
+            Organization = new Organization
+            {
+                NameFi = "source-name-1-fi",
+                NameEn = "source-name-1-en",
+                NameSv = "source-name-1-sv",
+                SectorId = "source-sector-id-1"
+            }
+        };
+
+        private ProfileEditorSource profileEditorSource2 = new ProfileEditorSource
+        {
+            Id = 2,
+            RegisteredDataSource = "source-id-2",
+            Organization = new Organization
+            {
+                NameFi = "source-name-2-fi",
+                NameEn = "source-name-2-en",
+                NameSv = "source-name-2-sv",
+                SectorId = "source-sector-id-2"
+            }
+        };
+
+        private ProfileEditorSource profileEditorSource3 = new ProfileEditorSource
+        {
+            Id = 3,
+            RegisteredDataSource = "source-id-3",
+            Organization = new Organization
+            {
+                NameFi = "source-name-3-fi",
+                NameEn = "source-name-3-en",
+                NameSv = "source-name-3-sv",
+                SectorId = "source-sector-id-3"
+            }
+        };
+
+        private ElasticsearchSource elasticsearchSource1 = new ElasticsearchSource
+        {
+            RegisteredDataSource = "source-id-1",
+            Organization = new Organization
+            {
+                NameFi = "source-name-1-fi",
+                NameEn = "source-name-1-en",
+                NameSv = "source-name-1-sv",
+                SectorId = "source-sector-id-1"
+            }
+        };
+
+        private ElasticsearchSource elasticsearchSource2 = new ElasticsearchSource
+        {
+            RegisteredDataSource = "source-id-2",
+            Organization = new Organization
+            {
+                NameFi = "source-name-2-fi",
+                NameEn = "source-name-2-en",
+                NameSv = "source-name-2-sv",
+                SectorId = "source-sector-id-2"
+            }
+        };
+
+        private ElasticsearchSource elasticsearchSource3 = new ElasticsearchSource
+        {
+            RegisteredDataSource = "source-id-3",
+            Organization = new Organization
+            {
+                NameFi = "source-name-3-fi",
+                NameEn = "source-name-3-en",
+                NameSv = "source-name-3-sv",
+                SectorId = "source-sector-id-3"
+            }
+        };
 
         private ProfileEditorDataResponse GetProfileEditorDataResponse()
         {
@@ -26,28 +100,24 @@ namespace api.Tests
                             FirstNames = "name - test first name 1",
                             LastName = "name - test last name 1",
                             FullName = "name - test full name 1",
-                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: false),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                new ProfileEditorSource
-                                {
-                                    Id = 1,
-                                    RegisteredDataSource = "source-id-1",
-                                    Organization = new Organization()
-{
-                                        NameFi = "source-name-1-fi",
-                                        NameEn = "source-name-1-en",
-                                        NameSv = "source-name-1-sv",
-                                        SectorId = "source-sector-id-1"
-                                    }
-                                }
-                            }
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1, profileEditorSource2 }
                         },
                         new ProfileEditorName
                         {
                             FirstNames = "name - test first name 2",
                             LastName = "name - test last name 2",
-                            FullName = "name - test full name 2"
+                            FullName = "name - test full name 2",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorName
+                        {
+                            FirstNames = "name - test first name 3",
+                            LastName = "name - test last name 3",
+                            FullName = "name - test full name 3",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
                         }
                     },
                     otherNames = new List<ProfileEditorName>
@@ -56,39 +126,125 @@ namespace api.Tests
                         {
                             FirstNames = "other name - test first name 1",
                             LastName = "other name - test last name 1",
-                            FullName = "other name - test other name 1"
+                            FullName = "other name - test other name 1",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
                         },
                         new ProfileEditorName
                         {
                             FirstNames = "other name - test first name 2",
                             LastName = "other name - test last name 2",
-                            FullName = "other name - test full name 2"
+                            FullName = "other name - test full name 2",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorName
+                        {
+                            FirstNames = "other name - test first name 3",
+                            LastName = "other name - test last name 3",
+                            FullName = "other name - test full name 3",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
                         }
                     },
                     emails = new List<ProfileEditorEmail>
                     {
-                        new ProfileEditorEmail { Value = "email1@example.com" },
-                        new ProfileEditorEmail { Value = "email2@example.com" }
+                        new ProfileEditorEmail {
+                            Value = "email1@example.org",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
+                        },
+                        new ProfileEditorEmail {
+                            Value = "email2@example.org",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorEmail {
+                            Value = "email3@example.org",
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
+                        }
                     },
                     telephoneNumbers = new List<ProfileEditorTelephoneNumber>
                     {
-                        new ProfileEditorTelephoneNumber { Value = "123456789" },
-                        new ProfileEditorTelephoneNumber { Value = "987654321" }
+                        new ProfileEditorTelephoneNumber {
+                            Value = "123456789",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
+                        },
+                        new ProfileEditorTelephoneNumber {
+                            Value = "987654321",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorTelephoneNumber {
+                            Value = "456789012",
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
+                        }
                     },
                     webLinks = new List<ProfileEditorWebLink>
                     {
-                        new ProfileEditorWebLink { Url = "https://example.com", LinkLabel = "Example 1" },
-                        new ProfileEditorWebLink { Url = "https://example.org", LinkLabel = "Example 2" }
+                        new ProfileEditorWebLink {
+                            Url = "https://example1.org",
+                            LinkLabel = "Example 1",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
+                        },
+                        new ProfileEditorWebLink {
+                            Url = "https://example2.org",
+                            LinkLabel = "Example 2",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                            new ProfileEditorWebLink {
+                            Url = "https://example3.org",
+                            LinkLabel = "Example 3",
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
+                        }
                     },
                     keywords = new List<ProfileEditorKeyword>
                     {
-                        new ProfileEditorKeyword { Value = "keyword1" },
-                        new ProfileEditorKeyword { Value = "keyword2" }
+                        new ProfileEditorKeyword {
+                            Value = "keyword1",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
+                        },
+                        new ProfileEditorKeyword {
+                            Value = "keyword2",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorKeyword {
+                            Value = "keyword3",
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
+                        }
                     },
                     fieldOfSciences = new List<ProfileEditorFieldOfScience>
                     {
-                        new ProfileEditorFieldOfScience { NameFi = "fi field of science 1", NameEn = "en field of science 1", NameSv = "sv field of science 1" },
-                        new ProfileEditorFieldOfScience { NameFi = "fi field of science 2", NameEn = "en field of science 2", NameSv = "sv field of science 2" },
+                        new ProfileEditorFieldOfScience {
+                            NameFi = "fi field of science 1",
+                            NameEn = "en field of science 1",
+                            NameSv = "sv field of science 1",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
+                        },
+                        new ProfileEditorFieldOfScience {
+                            NameFi = "fi field of science 2",
+                            NameEn = "en field of science 2",
+                            NameSv = "sv field of science 2",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorFieldOfScience {
+                            NameFi = "fi field of science 3",
+                            NameEn = "en field of science 3",
+                            NameSv = "sv field of science 3",
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
+                        }
                     },
                     researcherDescriptions = new List<ProfileEditorResearcherDescription>
                     {
@@ -96,19 +252,47 @@ namespace api.Tests
                         {
                             ResearchDescriptionFi = "fi description 1",
                             ResearchDescriptionEn = "en description 1",
-                            ResearchDescriptionSv = "sv description 1"
+                            ResearchDescriptionSv = "sv description 1",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
                         },
                         new ProfileEditorResearcherDescription
                         {
                             ResearchDescriptionFi = "fi description 2",
                             ResearchDescriptionEn = "en description 2",
-                            ResearchDescriptionSv = "sv description 2"
+                            ResearchDescriptionSv = "sv description 2",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorResearcherDescription
+                        {
+                            ResearchDescriptionFi = "fi description 3",
+                            ResearchDescriptionEn = "en description 3",
+                            ResearchDescriptionSv = "sv description 3",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
                         }
                     },
                     externalIdentifiers = new List<ProfileEditorExternalIdentifier>
                     {
-                        new ProfileEditorExternalIdentifier { PidContent = "external-id-1", PidType = "type-1" },
-                        new ProfileEditorExternalIdentifier { PidContent = "external-id-2", PidType = "type-2" }
+                        new ProfileEditorExternalIdentifier {
+                            PidContent = "external-id-1",
+                            PidType = "type-1",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
+                        },
+                        new ProfileEditorExternalIdentifier {
+                            PidContent = "external-id-2",
+                            PidType = "type-2",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorExternalIdentifier {
+                            PidContent = "external-id-3",
+                            PidType = "type-3",
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
+                        }
                     }
                 },
                 activity = new ProfileEditorDataActivity()
@@ -150,13 +334,13 @@ namespace api.Tests
                                             organizationId = "aff1 - sector1 - org1 - orgid",
                                             OrganizationNameFi = "aff1 - sector 1 - org1 - orgNameFi",
                                             OrganizationNameEn = "aff1 - sector 1 - org1 - orgNameEn",
-                                            OrganizationNameSv = "aff1 - sector 1 - org1 - orgNameSv",
+                                            OrganizationNameSv = "aff1 - sector 1 - org1 - orgNameSv"
                                         },
                                         new ProfileEditorSectorOrganization {
                                             organizationId = "aff1 - sector1 - org2 - orgid",
                                             OrganizationNameFi = "aff1 - sector 1 - org2 - orgNameFi",
                                             OrganizationNameEn = "aff1 - sector 1 - org2 - orgNameEn",
-                                            OrganizationNameSv = "aff1 - sector 1 - org2 - orgNameSv",
+                                            OrganizationNameSv = "aff1 - sector 1 - org2 - orgNameSv"
                                         }
                                     }
                                 },
@@ -170,32 +354,39 @@ namespace api.Tests
                                             organizationId = "aff1 - sector2 - org1 - orgid",
                                             OrganizationNameFi = "aff1 - sector2 - org1 - orgNameFi",
                                             OrganizationNameEn = "aff1 - sector2 - org1 - orgNameEn",
-                                            OrganizationNameSv = "aff1 - sector2 - org1 - orgNameSv",
+                                            OrganizationNameSv = "aff1 - sector2 - org1 - orgNameSv"
                                         },
                                         new ProfileEditorSectorOrganization {
                                             organizationId = "aff1 - sector2 - org2 - orgid",
                                             OrganizationNameFi = "aff1 - sector2 - org2 - orgNameFi",
                                             OrganizationNameEn = "aff1 - sector2 - org2 - orgNameEn",
-                                            OrganizationNameSv = "aff1 - sector2 - org2 - orgNameSv",
+                                            OrganizationNameSv = "aff1 - sector2 - org2 - orgNameSv"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
                         },
                         new ProfileEditorAffiliation
                         {
-                            OrganizationNameFi = "aff2 - orgNameFi",
-                            OrganizationNameSv = "aff2 - orgNameSv",
-                            OrganizationNameEn = "aff2 - orgNameEn",
-                            DepartmentNameFi = "aff2 - deptNameFi",
-                            DepartmentNameSv = "aff2 - deptNameSv",
-                            DepartmentNameEn = "aff2 - deptNameEn",
-                            PositionNameFi = "aff2 - posNameFi",
-                            PositionNameSv = "aff2 - posNameSv",
-                            PositionNameEn = "aff2 - posNameEn",
-                            AffiliationTypeFi = "aff2 - affTypeFi",
-                            AffiliationTypeEn = "aff2 - affTypeEn",
-                            AffiliationTypeSv = "aff2 - affTypeSv",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorAffiliation
+                        {
+                            OrganizationNameFi = "aff3 - orgNameFi",
+                            OrganizationNameSv = "aff3 - orgNameSv",
+                            OrganizationNameEn = "aff3 - orgNameEn",
+                            DepartmentNameFi = "aff3 - deptNameFi",
+                            DepartmentNameSv = "aff3 - deptNameSv",
+                            DepartmentNameEn = "aff3 - deptNameEn",
+                            PositionNameFi = "aff3 - posNameFi",
+                            PositionNameSv = "aff3 - posNameSv",
+                            PositionNameEn = "aff3 - posNameEn",
+                            AffiliationTypeFi = "aff3 - affTypeFi",
+                            AffiliationTypeEn = "aff3 - affTypeEn",
+                            AffiliationTypeSv = "aff3 - affTypeSv",
                             StartDate = new ProfileEditorDate() {
                                 Year = 2023,
                                 Month = 1,
@@ -208,46 +399,48 @@ namespace api.Tests
                             },
                             sector = new List<ProfileEditorSector> {
                                 new ProfileEditorSector {
-                                    sectorId = "aff2 - sector1 - id",
-                                    nameFiSector = "aff2 - sector1 - nameFi",
-                                    nameEnSector = "aff2 - sector1 - nameEn",
-                                    nameSvSector = "aff2 - sector1 - nameSv",
+                                    sectorId = "aff3 - sector1 - id",
+                                    nameFiSector = "aff3 - sector1 - nameFi",
+                                    nameEnSector = "aff3 - sector1 - nameEn",
+                                    nameSvSector = "aff3 - sector1 - nameSv",
                                     organization = new List<ProfileEditorSectorOrganization> {
                                         new ProfileEditorSectorOrganization {
-                                            organizationId = "aff2 - sector1 - org1 - orgid",
-                                            OrganizationNameFi = "aff2 - sector1 - org1 - orgNameFi",
-                                            OrganizationNameEn = "aff2 - sector1 - org1 - orgNameEn",
-                                            OrganizationNameSv = "aff2 - sector1 - org1 - orgNameSv",
+                                            organizationId = "aff3 - sector1 - org1 - orgid",
+                                            OrganizationNameFi = "aff3 - sector1 - org1 - orgNameFi",
+                                            OrganizationNameEn = "aff3 - sector1 - org1 - orgNameEn",
+                                            OrganizationNameSv = "aff3 - sector1 - org1 - orgNameSv"
                                         },
                                         new ProfileEditorSectorOrganization {
-                                            organizationId = "aff2 - sector1 - org2 - orgid",
-                                            OrganizationNameFi = "aff2 - sector1 - org2 - orgNameFi",
-                                            OrganizationNameEn = "aff2 - sector1 - org2 - orgNameEn",
-                                            OrganizationNameSv = "aff2 - sector1 - org2 - orgNameSv",
+                                            organizationId = "aff3 - sector1 - org2 - orgid",
+                                            OrganizationNameFi = "aff3 - sector1 - org2 - orgNameFi",
+                                            OrganizationNameEn = "aff3 - sector1 - org2 - orgNameEn",
+                                            OrganizationNameSv = "aff3 - sector1 - org2 - orgNameSv"
                                         }
                                     }
                                 },
                                 new ProfileEditorSector {
-                                    sectorId = "aff2 - sector2 - id",
-                                    nameFiSector = "aff2 - sector2 - nameFi",
-                                    nameEnSector = "aff2 - sector2 - nameEn",
-                                    nameSvSector = "aff2 - sector2 - nameSv",
+                                    sectorId = "aff3 - sector2 - id",
+                                    nameFiSector = "aff3 - sector2 - nameFi",
+                                    nameEnSector = "aff3 - sector2 - nameEn",
+                                    nameSvSector = "aff3 - sector2 - nameSv",
                                     organization = new List<ProfileEditorSectorOrganization> {
                                         new ProfileEditorSectorOrganization {
-                                            organizationId = "aff2 - sector2 - org1 - orgid",
-                                            OrganizationNameFi = "aff2 - sector2 - org1 - orgNameFi",
-                                            OrganizationNameEn = "aff2 - sector2 - org1 - orgNameEn",
-                                            OrganizationNameSv = "aff2 - sector2 - org1 - orgNameSv",
+                                            organizationId = "aff3 - sector2 - org1 - orgid",
+                                            OrganizationNameFi = "aff3 - sector2 - org1 - orgNameFi",
+                                            OrganizationNameEn = "aff3 - sector2 - org1 - orgNameEn",
+                                            OrganizationNameSv = "aff3 - sector2 - org1 - orgNameSv"
                                         },
                                         new ProfileEditorSectorOrganization {
-                                            organizationId = "aff2 - sector2 - org2 - orgid",
-                                            OrganizationNameFi = "aff2 - sector2 - org2 - orgNameFi",
-                                            OrganizationNameEn = "aff2 - sector2 - org2 - orgNameEn",
-                                            OrganizationNameSv = "aff2 - sector2 - org2 - orgNameSv",
+                                            organizationId = "aff3 - sector2 - org2 - orgid",
+                                            OrganizationNameFi = "aff3 - sector2 - org2 - orgNameFi",
+                                            OrganizationNameEn = "aff3 - sector2 - org2 - orgNameEn",
+                                            OrganizationNameSv = "aff3 - sector2 - org2 - orgNameSv"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
                         }
                     },
                     educations = new List<ProfileEditorEducation>
@@ -259,16 +452,25 @@ namespace api.Tests
                             NameEn = "ed1 - nameEn",
                             DegreeGrantingInstitutionName = "ed1 - degreeGrantingInstitutionName",
                             StartDate = new ProfileEditorDate { Year = 2015, Month = 1, Day = 1 },
-                            EndDate = new ProfileEditorDate { Year = 2019, Month = 12, Day = 31 }
+                            EndDate = new ProfileEditorDate { Year = 2019, Month = 12, Day = 31 },
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
                         },
                         new ProfileEditorEducation
                         {
-                            NameFi = "ed2 - nameFi",
-                            NameSv = "ed2 - nameSv",
-                            NameEn = "ed2 - nameEn",
-                            DegreeGrantingInstitutionName = "ed2 - degreeGrantingInstitutionName",
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
+                        },
+                        new ProfileEditorEducation
+                        {
+                            NameFi = "ed3 - nameFi",
+                            NameSv = "ed3 - nameSv",
+                            NameEn = "ed3 - nameEn",
+                            DegreeGrantingInstitutionName = "ed3 - degreeGrantingInstitutionName",
                             StartDate = new ProfileEditorDate { Year = 2016, Month = 2, Day = 2 },
-                            EndDate = new ProfileEditorDate { Year = 2020, Month = 11, Day = 30 }
+                            EndDate = new ProfileEditorDate { Year = 2020, Month = 11, Day = 30 },
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
                         }
                     },
                     publications = new List<ProfileEditorPublication>
@@ -287,53 +489,30 @@ namespace api.Tests
                             PublicationYear = 2021,
                             SelfArchivedAddress = "pub1 - self archived address",
                             SelfArchivedCode = "pub1 - self archived code",
-                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: false),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                new ProfileEditorSource
-                                {
-                                    Id = 1,
-                                    RegisteredDataSource = "source-id-1",
-                                    Organization = new Organization()
-                                    {
-                                        NameFi = "source-name-1-fi",
-                                        NameEn = "source-name-1-en",
-                                        NameSv = "source-name-1-sv",
-                                        SectorId = "source-sector-id-1"
-                                    }
-                                }
-                            }
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 1, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
                         },
                         new ProfileEditorPublication
                         {
-                            AuthorsText = "pub2 - authors text",
-                            Doi = "pub2 - doi",
-                            ConferenceName = "pub2 - conference name",
-                            JournalName = "pub2 - journal name",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 1, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
+                        },
+                        new ProfileEditorPublication
+                        {
+                            AuthorsText = "pub3 - authors text",
+                            Doi = "pub3 - doi",
+                            ConferenceName = "pub3 - conference name",
+                            JournalName = "pub3 - journal name",
                             OpenAccess = 0,
-                            ParentPublicationName = "pub2 - parent publication name",
-                            PublicationId = "pub2 - publication id",
-                            PublicationName = "pub2 - publication name",
-                            PublicationTypeCode = "pub2 - publication type code",
+                            ParentPublicationName = "pub3 - parent publication name",
+                            PublicationId = "pub3 - publication id",
+                            PublicationName = "pub3 - publication name",
+                            PublicationTypeCode = "pub3 - publication type code",
                             PublicationYear = 2022,
-                            SelfArchivedAddress = "pub2 - self archived address",
-                            SelfArchivedCode = "pub2 - self archived code",
-                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 1, show: true, primaryValue: false),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                new ProfileEditorSource
-                                {
-                                    Id = 2,
-                                    RegisteredDataSource = "source-id-2",
-                                    Organization = new Organization()
-                                    {
-                                        NameFi = "source-name-2-fi",
-                                        NameEn = "source-name-2-en",
-                                        NameSv = "source-name-2-sv",
-                                        SectorId = "source-sector-id-2"
-                                    }
-                                }
-                            }
+                            SelfArchivedAddress = "pub3 - self archived address",
+                            SelfArchivedCode = "pub3 - self archived code",
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 1, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
                         }
                     },
                     fundingDecisions = new List<ProfileEditorFundingDecision>
@@ -363,66 +542,43 @@ namespace api.Tests
                             AmountInEur = 100000,
                             AmountInFundingDecisionCurrency = 90000,
                             FundingDecisionCurrencyAbbreviation = "EUR",
-                            Url = "https://example.com/funding1",
+                            Url = "https://example.org/funding1",
                             itemMeta = new ProfileEditorItemMeta(id: 1, type: 2, show: true, primaryValue: false),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                new ProfileEditorSource
-                                {
-                                    Id = 1,
-                                    RegisteredDataSource = "source-id-1",
-                                    Organization = new Organization()
-                                    {
-                                        NameFi = "source-name-1-fi",
-                                        NameEn = "source-name-1-en",
-                                        NameSv = "source-name-1-sv",
-                                        SectorId = "source-sector-id-1"
-                                    }
-                                }
-                            }
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
+                        },
+                        new ProfileEditorFundingDecision
+                        {
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 2, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
                         },
                         new ProfileEditorFundingDecision
                         {
                             ProjectId = 456,
-                            ProjectAcronym = "funding2 - project acronym",
-                            ProjectNameFi = "funding2 - project name fi",
-                            ProjectNameSv = "funding2 - project name sv",
-                            ProjectNameEn = "funding2 - project name en",
-                            ProjectDescriptionFi = "funding2 - project description fi",
-                            ProjectDescriptionSv = "funding2 - project description sv",
-                            ProjectDescriptionEn = "funding2 - project description en",
-                            FunderNameFi = "funding2 - funder name fi",
-                            FunderNameSv = "funding2 - funder name sv",
-                            FunderNameEn = "funding2 - funder name en",
-                            FunderProjectNumber = "funding2 - funder project number",
-                            TypeOfFundingNameFi = "funding2 - type of funding name fi",
-                            TypeOfFundingNameSv = "funding2 - type of funding name sv",
-                            TypeOfFundingNameEn = "funding2 - type of funding name en",
-                            CallProgrammeNameFi = "funding2 - call programme name fi",
-                            CallProgrammeNameSv = "funding2 - call programme name sv",
-                            CallProgrammeNameEn = "funding2 - call programme name en",
+                            ProjectAcronym = "funding3 - project acronym",
+                            ProjectNameFi = "funding3 - project name fi",
+                            ProjectNameSv = "funding3 - project name sv",
+                            ProjectNameEn = "funding3 - project name en",
+                            ProjectDescriptionFi = "funding3 - project description fi",
+                            ProjectDescriptionSv = "funding3 - project description sv",
+                            ProjectDescriptionEn = "funding3 - project description en",
+                            FunderNameFi = "funding3 - funder name fi",
+                            FunderNameSv = "funding3 - funder name sv",
+                            FunderNameEn = "funding3 - funder name en",
+                            FunderProjectNumber = "funding3 - funder project number",
+                            TypeOfFundingNameFi = "funding3 - type of funding name fi",
+                            TypeOfFundingNameSv = "funding3 - type of funding name sv",
+                            TypeOfFundingNameEn = "funding3 - type of funding name en",
+                            CallProgrammeNameFi = "funding3 - call programme name fi",
+                            CallProgrammeNameSv = "funding3 - call programme name sv",
+                            CallProgrammeNameEn = "funding3 - call programme name en",
                             FundingStartYear = 2022,
                             FundingEndYear = 2024,
                             AmountInEur = 200000,
                             AmountInFundingDecisionCurrency = 440000,
                             FundingDecisionCurrencyAbbreviation = "USD",
-                            Url = "https://example.com/funding2",
-                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 2, show: true, primaryValue: false),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                new ProfileEditorSource
-                                {
-                                    Id = 1,
-                                    RegisteredDataSource = "source-id-1",
-                                    Organization = new Organization()
-                                    {
-                                        NameFi = "source-name-1-fi",
-                                        NameEn = "source-name-1-en",
-                                        NameSv = "source-name-1-sv",
-                                        SectorId = "source-sector-id-1"
-                                    }
-                                }
-                            }
+                            Url = "https://example.org/funding3",
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 2, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
                         }
                     },
                     researchDatasets = new List<ProfileEditorResearchDataset>
@@ -447,7 +603,7 @@ namespace api.Tests
                                     actorRoleNameEn = "Role 2",
                                 }
                             },
-                            FairdataUrl = "https://fairdata.example.com/dataset1",
+                            FairdataUrl = "https://fairdata.example.org/dataset1",
                             Identifier = "dataset-identifier-1",
                             NameFi = "dataset 1 - nameFi",
                             NameSv = "dataset 1 - nameSv",
@@ -455,7 +611,7 @@ namespace api.Tests
                             DescriptionFi = "dataset 1 - descriptionFi",
                             DescriptionSv = "dataset 1 - descriptionSv",
                             DescriptionEn = "dataset 1 - descriptionEn",
-                            Url = "https://example.com/dataset1",
+                            Url = "https://example.org/dataset1",
                             DatasetCreated = 2021,
                             PreferredIdentifiers = new List<ProfileEditorPreferredIdentifier>
                             {
@@ -470,26 +626,17 @@ namespace api.Tests
                                     PidType = "preferred-type-2"
                                 }
                             },
-                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 3, show: true, primaryValue: false),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                new ProfileEditorSource
-                                {
-                                    Id = 1,
-                                    RegisteredDataSource = "source-id-1",
-                                    Organization = new Organization()
-                                    {
-                                        NameFi = "source-name-1-fi",
-                                        NameEn = "source-name-1-en",
-                                        NameSv = "source-name-1-sv",
-                                        SectorId = "source-sector-id-1"
-                                    }
-                                }
-                            }
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 3, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
                         },
                         new ProfileEditorResearchDataset
                         {
-                            AccessType = "dataset-access-type-2",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 3, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource2 }
+                        },
+                        new ProfileEditorResearchDataset
+                        {
+                            AccessType = "dataset-access-type-3",
                             Actor = new List<ProfileEditorActor>
                             {
                                 new ProfileEditorActor
@@ -507,15 +654,15 @@ namespace api.Tests
                                     actorRoleNameEn = "Role 4",
                                 }
                             },
-                            FairdataUrl = "https://fairdata.example.com/dataset2",
-                            Identifier = "dataset-identifier-2",
-                            NameFi = "dataset 2 - nameFi",
-                            NameSv = "dataset 2 - nameSv",
-                            NameEn = "dataset 2 - nameEn",
-                            DescriptionFi = "dataset 2 - descriptionFi",
-                            DescriptionSv = "dataset 2 - descriptionSv",
-                            DescriptionEn = "dataset 2 - descriptionEn",
-                            Url = "https://example.com/dataset2",
+                            FairdataUrl = "https://fairdata.example.org/dataset3",
+                            Identifier = "dataset-identifier-3",
+                            NameFi = "dataset 3 - nameFi",
+                            NameSv = "dataset 3 - nameSv",
+                            NameEn = "dataset 3 - nameEn",
+                            DescriptionFi = "dataset 3 - descriptionFi",
+                            DescriptionSv = "dataset 3 - descriptionSv",
+                            DescriptionEn = "dataset 3 - descriptionEn",
+                            Url = "https://example.org/dataset3",
                             DatasetCreated = 2022,
                             PreferredIdentifiers = new List<ProfileEditorPreferredIdentifier>
                             {
@@ -530,22 +677,8 @@ namespace api.Tests
                                     PidType = "preferred-type-4"
                                 }
                             },
-                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 3, show: true, primaryValue: false),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                new ProfileEditorSource
-                                {
-                                    Id = 1,
-                                    RegisteredDataSource = "source-id-1",
-                                    Organization = new Organization()
-                                    {
-                                        NameFi = "source-name-1-fi",
-                                        NameEn = "source-name-1-en",
-                                        NameSv = "source-name-1-sv",
-                                        SectorId = "source-sector-id-1"
-                                    }
-                                }
-                            }
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 3, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
                         }
                     },
                     activitiesAndRewards = new List<ProfileEditorActivityAndReward>
@@ -603,31 +736,22 @@ namespace api.Tests
                                     }
                                 }
                             },
-                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 4, show: true, primaryValue: false),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                new ProfileEditorSource
-                                {
-                                    Id = 1,
-                                    RegisteredDataSource = "source-id-1",
-                                    Organization = new Organization()
-                                    {
-                                        NameFi = "source-name-1-fi",
-                                        NameEn = "source-name-1-en",
-                                        NameSv = "source-name-1-sv",
-                                        SectorId = "source-sector-id-1"
-                                    }
-                                }
-                            }
+                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 4, show: true, primaryValue: true),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
                         },
                         new ProfileEditorActivityAndReward
                         {
-                            NameFi = "activityAndReward 2 - nameFi",
-                            NameEn = "activityAndReward 2 - nameEn",
-                            NameSv = "activityAndReward 2 - nameSv",
-                            DescriptionFi = "activityAndReward 2 - descriptionFi",
-                            DescriptionEn = "activityAndReward 2 - descriptionEn",
-                            DescriptionSv = "activityAndReward 2 - descriptionSv",
+                            itemMeta = new ProfileEditorItemMeta(id: 2, type: 4, show: false, primaryValue: false), // This should not be included in the Elasticsearch mapping (show == false)
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource1 }
+                        },
+                        new ProfileEditorActivityAndReward
+                        {
+                            NameFi = "activityAndReward 3 - nameFi",
+                            NameEn = "activityAndReward 3 - nameEn",
+                            NameSv = "activityAndReward 3 - nameSv",
+                            DescriptionFi = "activityAndReward 3 - descriptionFi",
+                            DescriptionEn = "activityAndReward 3 - descriptionEn",
+                            DescriptionSv = "activityAndReward 3 - descriptionSv",
                             InternationalCollaboration = null,
                             StartDate = new ProfileEditorDate
                             {
@@ -641,54 +765,40 @@ namespace api.Tests
                                 Month = 12,
                                 Day = 31
                             },
-                            ActivityTypeCode = "activityAndReward 2 - type-code",
-                            ActivityTypeNameFi = "activityAndReward 2 - type-name-fi",
-                            ActivityTypeNameEn = "activityAndReward 2 - type-name-en",
-                            ActivityTypeNameSv = "activityAndReward 2 - type-name-sv",
-                            RoleCode = "activityAndReward 2 - role-code",
-                            RoleNameFi = "activityAndReward 2 - role-name-fi",
-                            RoleNameEn = "activityAndReward 2 - role-name-en",
-                            RoleNameSv = "activityAndReward 2 - role-name-sv",
-                            OrganizationNameFi = "activityAndReward 2 - organization-name-fi",
-                            OrganizationNameSv = "activityAndReward 2 - organization-name-sv",
-                            OrganizationNameEn = "activityAndReward 2 - organization-name-en",
-                            DepartmentNameFi = "activityAndReward 2 - department-name-fi",
-                            DepartmentNameSv = "activityAndReward 2 - department-name-sv",
-                            DepartmentNameEn = "activityAndReward 2 - department-name-en",
-                            Url = "activityAndReward 2 - url",
+                            ActivityTypeCode = "activityAndReward 3 - type-code",
+                            ActivityTypeNameFi = "activityAndReward 3 - type-name-fi",
+                            ActivityTypeNameEn = "activityAndReward 3 - type-name-en",
+                            ActivityTypeNameSv = "activityAndReward 3 - type-name-sv",
+                            RoleCode = "activityAndReward 3 - role-code",
+                            RoleNameFi = "activityAndReward 3 - role-name-fi",
+                            RoleNameEn = "activityAndReward 3 - role-name-en",
+                            RoleNameSv = "activityAndReward 3 - role-name-sv",
+                            OrganizationNameFi = "activityAndReward 3 - organization-name-fi",
+                            OrganizationNameSv = "activityAndReward 3 - organization-name-sv",
+                            OrganizationNameEn = "activityAndReward 3 - organization-name-en",
+                            DepartmentNameFi = "activityAndReward 3 - department-name-fi",
+                            DepartmentNameSv = "activityAndReward 3 - department-name-sv",
+                            DepartmentNameEn = "activityAndReward 3 - department-name-en",
+                            Url = "activityAndReward 3 - url",
                             sector = new List<ProfileEditorSector> {
                                 new ProfileEditorSector
                                 {
-                                    sectorId = "activityAndReward 2 - sector1 - id",
-                                    nameFiSector = "activityAndReward 2 - sector1 - nameFi",
-                                    nameEnSector = "activityAndReward 2 - sector1 - nameEn",
-                                    nameSvSector = "activityAndReward 2 - sector1 - nameSv",
+                                    sectorId = "activityAndReward 3 - sector1 - id",
+                                    nameFiSector = "activityAndReward 3 - sector1 - nameFi",
+                                    nameEnSector = "activityAndReward 3 - sector1 - nameEn",
+                                    nameSvSector = "activityAndReward 3 - sector1 - nameSv",
                                     organization = new List<ProfileEditorSectorOrganization> {
                                         new ProfileEditorSectorOrganization {
-                                            organizationId = "activityAndReward 2 - sector1 - org1 - orgid",
-                                            OrganizationNameFi = "activityAndReward 2 - sector 1 - org1 - orgNameFi",
-                                            OrganizationNameEn = "activityAndReward 2 - sector 1 - org1 - orgNameEn",
-                                            OrganizationNameSv = "activityAndReward 2 - sector 1 - org1 - orgNameSv"
+                                            organizationId = "activityAndReward 3 - sector1 - org1 - orgid",
+                                            OrganizationNameFi = "activityAndReward 3 - sector 1 - org1 - orgNameFi",
+                                            OrganizationNameEn = "activityAndReward 3 - sector 1 - org1 - orgNameEn",
+                                            OrganizationNameSv = "activityAndReward 3 - sector 1 - org1 - orgNameSv"
                                         }
                                     }
                                 }
                             },
-                            itemMeta = new ProfileEditorItemMeta(id: 1, type: 4, show: true, primaryValue: false),
-                            DataSources = new List<ProfileEditorSource>
-                            {
-                                new ProfileEditorSource
-                                {
-                                    Id = 1,
-                                    RegisteredDataSource = "source-id-1",
-                                    Organization = new Organization()
-                                    {
-                                        NameFi = "source-name-1-fi",
-                                        NameEn = "source-name-1-en",
-                                        NameSv = "source-name-1-sv",
-                                        SectorId = "source-sector-id-1"
-                                    }
-                                }
-                            }
+                            itemMeta = new ProfileEditorItemMeta(id: 3, type: 4, show: true, primaryValue: false),
+                            DataSources = new List<ProfileEditorSource> { profileEditorSource3 }
                         }
                     }
                 },
@@ -771,13 +881,17 @@ namespace api.Tests
                         {
                             FirstNames = "name - test first name 1",
                             LastName = "name - test last name 1",
-                            FullName = "name - test full name 1"
+                            FullName = "name - test full name 1",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1, elasticsearchSource2 }
                         },
                         new ElasticsearchName
                         {
-                            FirstNames = "name - test first name 2",
-                            LastName = "name - test last name 2",
-                            FullName = "name - test full name 2"
+                            FirstNames = "name - test first name 3",
+                            LastName = "name - test last name 3",
+                            FullName = "name - test full name 3",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
                     },
                     otherNames = new List<ElasticsearchName>
@@ -786,39 +900,89 @@ namespace api.Tests
                         {
                             FirstNames = "other name - test first name 1",
                             LastName = "other name - test last name 1",
-                            FullName = "other name - test other name 1"
+                            FullName = "other name - test other name 1",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
                         },
                         new ElasticsearchName
                         {
-                            FirstNames = "other name - test first name 2",
-                            LastName = "other name - test last name 2",
-                            FullName = "other name - test full name 2"
+                            FirstNames = "other name - test first name 3",
+                            LastName = "other name - test last name 3",
+                            FullName = "other name - test full name 3",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
                     },
                     emails = new List<ElasticsearchEmail>
                     {
-                        new ElasticsearchEmail { Value = "email1@example.com" },
-                        new ElasticsearchEmail { Value = "email2@example.com" }
+                        new ElasticsearchEmail {
+                            Value = "email1@example.org",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
+                        },
+                        new ElasticsearchEmail {
+                            Value = "email3@example.org",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
+                        }
                     },
                     telephoneNumbers = new List<ElasticsearchTelephoneNumber>
                     {
-                        new ElasticsearchTelephoneNumber { Value = "123456789" },
-                        new ElasticsearchTelephoneNumber { Value = "987654321" }
+                        new ElasticsearchTelephoneNumber {
+                            Value = "123456789",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
+                        },
+                        new ElasticsearchTelephoneNumber {
+                            Value = "456789012",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
+                        }
                     },
                     webLinks = new List<ElasticsearchWebLink>
                     {
-                        new ElasticsearchWebLink { Url = "https://example.com", LinkLabel = "Example 1" },
-                        new ElasticsearchWebLink { Url = "https://example.org", LinkLabel = "Example 2" }
+                        new ElasticsearchWebLink {
+                            Url = "https://example1.org",
+                            LinkLabel = "Example 1",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
+                        },
+                        new ElasticsearchWebLink {
+                            Url = "https://example3.org",
+                            LinkLabel = "Example 3",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
+                        }
                     },
                     keywords = new List<ElasticsearchKeyword>
                     {
-                        new ElasticsearchKeyword { Value = "keyword1" },
-                        new ElasticsearchKeyword { Value = "keyword2" }
+                        new ElasticsearchKeyword {
+                            Value = "keyword1",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
+                        },
+                        new ElasticsearchKeyword {
+                            Value = "keyword3",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
+                        }
                     },
                     fieldOfSciences = new List<ElasticsearchFieldOfScience>
                     {
-                        new ElasticsearchFieldOfScience { NameFi = "fi field of science 1", NameEn = "en field of science 1", NameSv = "sv field of science 1" },
-                        new ElasticsearchFieldOfScience { NameFi = "fi field of science 2", NameEn = "en field of science 2", NameSv = "sv field of science 2" },
+                        new ElasticsearchFieldOfScience {
+                            NameFi = "fi field of science 1",
+                            NameEn = "en field of science 1",
+                            NameSv = "sv field of science 1",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
+                        },
+                        new ElasticsearchFieldOfScience {
+                            NameFi = "fi field of science 3",
+                            NameEn = "en field of science 3",
+                            NameSv = "sv field of science 3",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
+                        },
                     },
                     researcherDescriptions = new List<ElasticsearchResearcherDescription>
                     {
@@ -826,19 +990,33 @@ namespace api.Tests
                         {
                             ResearchDescriptionFi = "fi description 1",
                             ResearchDescriptionEn = "en description 1",
-                            ResearchDescriptionSv = "sv description 1"
+                            ResearchDescriptionSv = "sv description 1",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
                         },
                         new ElasticsearchResearcherDescription
                         {
-                            ResearchDescriptionFi = "fi description 2",
-                            ResearchDescriptionEn = "en description 2",
-                            ResearchDescriptionSv = "sv description 2"
+                            ResearchDescriptionFi = "fi description 3",
+                            ResearchDescriptionEn = "en description 3",
+                            ResearchDescriptionSv = "sv description 3",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
                     },
                     externalIdentifiers = new List<ElasticsearchExternalIdentifier>
                     {
-                        new ElasticsearchExternalIdentifier { PidContent = "external-id-1", PidType = "type-1" },
-                        new ElasticsearchExternalIdentifier { PidContent = "external-id-2", PidType = "type-2" }
+                        new ElasticsearchExternalIdentifier {
+                            PidContent = "external-id-1",
+                            PidType = "type-1",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
+                        },
+                        new ElasticsearchExternalIdentifier {
+                            PidContent = "external-id-3",
+                            PidType = "type-3",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
+                        }
                     }
                 },
                 activity = new ElasticsearchActivity
@@ -910,22 +1088,24 @@ namespace api.Tests
                                         }
                                     }
                                 }
-                            }
+                            },
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
                         },
                         new ElasticsearchAffiliation
                         {
-                            OrganizationNameFi = "aff2 - orgNameFi",
-                            OrganizationNameSv = "aff2 - orgNameSv",
-                            OrganizationNameEn = "aff2 - orgNameEn",
-                            DepartmentNameFi = "aff2 - deptNameFi",
-                            DepartmentNameSv = "aff2 - deptNameSv",
-                            DepartmentNameEn = "aff2 - deptNameEn",
-                            PositionNameFi = "aff2 - posNameFi",
-                            PositionNameSv = "aff2 - posNameSv",
-                            PositionNameEn = "aff2 - posNameEn",
-                            AffiliationTypeFi = "aff2 - affTypeFi",
-                            AffiliationTypeEn = "aff2 - affTypeEn",
-                            AffiliationTypeSv = "aff2 - affTypeSv",
+                            OrganizationNameFi = "aff3 - orgNameFi",
+                            OrganizationNameSv = "aff3 - orgNameSv",
+                            OrganizationNameEn = "aff3 - orgNameEn",
+                            DepartmentNameFi = "aff3 - deptNameFi",
+                            DepartmentNameSv = "aff3 - deptNameSv",
+                            DepartmentNameEn = "aff3 - deptNameEn",
+                            PositionNameFi = "aff3 - posNameFi",
+                            PositionNameSv = "aff3 - posNameSv",
+                            PositionNameEn = "aff3 - posNameEn",
+                            AffiliationTypeFi = "aff3 - affTypeFi",
+                            AffiliationTypeEn = "aff3 - affTypeEn",
+                            AffiliationTypeSv = "aff3 - affTypeSv",
                             StartDate = new ElasticsearchDate() {
                                 Year = 2023,
                                 Month = 1,
@@ -938,46 +1118,48 @@ namespace api.Tests
                             },
                             sector = new List<ElasticsearchSector> {
                                 new ElasticsearchSector {
-                                    sectorId = "aff2 - sector1 - id",
-                                    nameFiSector = "aff2 - sector1 - nameFi",
-                                    nameEnSector = "aff2 - sector1 - nameEn",
-                                    nameSvSector = "aff2 - sector1 - nameSv",
+                                    sectorId = "aff3 - sector1 - id",
+                                    nameFiSector = "aff3 - sector1 - nameFi",
+                                    nameEnSector = "aff3 - sector1 - nameEn",
+                                    nameSvSector = "aff3 - sector1 - nameSv",
                                     organization = new List<ElasticsearchSectorOrganization> {
                                         new ElasticsearchSectorOrganization {
-                                            organizationId = "aff2 - sector1 - org1 - orgid",
-                                            OrganizationNameFi = "aff2 - sector1 - org1 - orgNameFi",
-                                            OrganizationNameEn = "aff2 - sector1 - org1 - orgNameEn",
-                                            OrganizationNameSv = "aff2 - sector1 - org1 - orgNameSv"
+                                            organizationId = "aff3 - sector1 - org1 - orgid",
+                                            OrganizationNameFi = "aff3 - sector1 - org1 - orgNameFi",
+                                            OrganizationNameEn = "aff3 - sector1 - org1 - orgNameEn",
+                                            OrganizationNameSv = "aff3 - sector1 - org1 - orgNameSv"
                                         },
                                         new ElasticsearchSectorOrganization {
-                                            organizationId = "aff2 - sector1 - org2 - orgid",
-                                            OrganizationNameFi = "aff2 - sector1 - org2 - orgNameFi",
-                                            OrganizationNameEn = "aff2 - sector1 - org2 - orgNameEn",
-                                            OrganizationNameSv = "aff2 - sector1 - org2 - orgNameSv"
+                                            organizationId = "aff3 - sector1 - org2 - orgid",
+                                            OrganizationNameFi = "aff3 - sector1 - org2 - orgNameFi",
+                                            OrganizationNameEn = "aff3 - sector1 - org2 - orgNameEn",
+                                            OrganizationNameSv = "aff3 - sector1 - org2 - orgNameSv"
                                         }
                                     }
                                 },
                                 new ElasticsearchSector {
-                                    sectorId = "aff2 - sector2 - id",
-                                    nameFiSector = "aff2 - sector2 - nameFi",
-                                    nameEnSector = "aff2 - sector2 - nameEn",
-                                    nameSvSector = "aff2 - sector2 - nameSv",
+                                    sectorId = "aff3 - sector2 - id",
+                                    nameFiSector = "aff3 - sector2 - nameFi",
+                                    nameEnSector = "aff3 - sector2 - nameEn",
+                                    nameSvSector = "aff3 - sector2 - nameSv",
                                     organization = new List<ElasticsearchSectorOrganization> {
                                         new ElasticsearchSectorOrganization {
-                                            organizationId = "aff2 - sector2 - org1 - orgid",
-                                            OrganizationNameFi = "aff2 - sector2 - org1 - orgNameFi",
-                                            OrganizationNameEn = "aff2 - sector2 - org1 - orgNameEn",
-                                            OrganizationNameSv = "aff2 - sector2 - org1 - orgNameSv"
+                                            organizationId = "aff3 - sector2 - org1 - orgid",
+                                            OrganizationNameFi = "aff3 - sector2 - org1 - orgNameFi",
+                                            OrganizationNameEn = "aff3 - sector2 - org1 - orgNameEn",
+                                            OrganizationNameSv = "aff3 - sector2 - org1 - orgNameSv"
                                         },
                                         new ElasticsearchSectorOrganization {
-                                            organizationId = "aff2 - sector2 - org2 - orgid",
-                                            OrganizationNameFi = "aff2 - sector2 - org2 - orgNameFi",
-                                            OrganizationNameEn = "aff2 - sector2 - org2 - orgNameEn",
-                                            OrganizationNameSv = "aff2 - sector2 - org2 - orgNameSv"
+                                            organizationId = "aff3 - sector2 - org2 - orgid",
+                                            OrganizationNameFi = "aff3 - sector2 - org2 - orgNameFi",
+                                            OrganizationNameEn = "aff3 - sector2 - org2 - orgNameEn",
+                                            OrganizationNameSv = "aff3 - sector2 - org2 - orgNameSv"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
                     },
                     educations = new List<ElasticsearchEducation>
@@ -989,16 +1171,20 @@ namespace api.Tests
                             NameEn = "ed1 - nameEn",
                             DegreeGrantingInstitutionName = "ed1 - degreeGrantingInstitutionName",
                             StartDate = new ElasticsearchDate { Year = 2015, Month = 1, Day = 1 },
-                            EndDate = new ElasticsearchDate { Year = 2019, Month = 12, Day = 31 }
+                            EndDate = new ElasticsearchDate { Year = 2019, Month = 12, Day = 31 },
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
                         },
                         new ElasticsearchEducation
                         {
-                            NameFi = "ed2 - nameFi",
-                            NameSv = "ed2 - nameSv",
-                            NameEn = "ed2 - nameEn",
-                            DegreeGrantingInstitutionName = "ed2 - degreeGrantingInstitutionName",
+                            NameFi = "ed3 - nameFi",
+                            NameSv = "ed3 - nameSv",
+                            NameEn = "ed3 - nameEn",
+                            DegreeGrantingInstitutionName = "ed3 - degreeGrantingInstitutionName",
                             StartDate = new ElasticsearchDate { Year = 2016, Month = 2, Day = 2 },
-                            EndDate = new ElasticsearchDate { Year = 2020, Month = 11, Day = 30 }
+                            EndDate = new ElasticsearchDate { Year = 2020, Month = 11, Day = 30 },
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
                     },
                     publications = new List<ElasticsearchPublication>()
@@ -1017,21 +1203,25 @@ namespace api.Tests
                             PublicationYear = 2021,
                             SelfArchivedAddress = "pub1 - self archived address",
                             SelfArchivedCode = "pub1 - self archived code",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
                         },
                         new ElasticsearchPublication
                         {
-                            AuthorsText = "pub2 - authors text",
-                            Doi = "pub2 - doi",
-                            ConferenceName = "pub2 - conference name",
-                            JournalName = "pub2 - journal name",
+                            AuthorsText = "pub3 - authors text",
+                            Doi = "pub3 - doi",
+                            ConferenceName = "pub3 - conference name",
+                            JournalName = "pub3 - journal name",
                             OpenAccess = 0,
-                            ParentPublicationName = "pub2 - parent publication name",
-                            PublicationId = "pub2 - publication id",
-                            PublicationName = "pub2 - publication name",
-                            PublicationTypeCode = "pub2 - publication type code",
+                            ParentPublicationName = "pub3 - parent publication name",
+                            PublicationId = "pub3 - publication id",
+                            PublicationName = "pub3 - publication name",
+                            PublicationTypeCode = "pub3 - publication type code",
                             PublicationYear = 2022,
-                            SelfArchivedAddress = "pub2 - self archived address",
-                            SelfArchivedCode = "pub2 - self archived code",
+                            SelfArchivedAddress = "pub3 - self archived address",
+                            SelfArchivedCode = "pub3 - self archived code",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
                     },
                     fundingDecisions = new List<ElasticsearchFundingDecision>
@@ -1060,33 +1250,37 @@ namespace api.Tests
                             AmountInEur = 100000,
                             AmountInFundingDecisionCurrency = 90000,
                             FundingDecisionCurrencyAbbreviation = "EUR",
-                            Url = "https://example.com/funding1",
+                            Url = "https://example.org/funding1",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
                         },
                         new ElasticsearchFundingDecision
                         {
-                            ProjectAcronym = "funding2 - project acronym",
-                            ProjectNameFi = "funding2 - project name fi",
-                            ProjectNameSv = "funding2 - project name sv",
-                            ProjectNameEn = "funding2 - project name en",
-                            ProjectDescriptionFi = "funding2 - project description fi",
-                            ProjectDescriptionSv = "funding2 - project description sv",
-                            ProjectDescriptionEn = "funding2 - project description en",
-                            FunderNameFi = "funding2 - funder name fi",
-                            FunderNameSv = "funding2 - funder name sv",
-                            FunderNameEn = "funding2 - funder name en",
-                            FunderProjectNumber = "funding2 - funder project number",
-                            TypeOfFundingNameFi = "funding2 - type of funding name fi",
-                            TypeOfFundingNameSv = "funding2 - type of funding name sv",
-                            TypeOfFundingNameEn = "funding2 - type of funding name en",
-                            CallProgrammeNameFi = "funding2 - call programme name fi",
-                            CallProgrammeNameSv = "funding2 - call programme name sv",
-                            CallProgrammeNameEn = "funding2 - call programme name en",
+                            ProjectAcronym = "funding3 - project acronym",
+                            ProjectNameFi = "funding3 - project name fi",
+                            ProjectNameSv = "funding3 - project name sv",
+                            ProjectNameEn = "funding3 - project name en",
+                            ProjectDescriptionFi = "funding3 - project description fi",
+                            ProjectDescriptionSv = "funding3 - project description sv",
+                            ProjectDescriptionEn = "funding3 - project description en",
+                            FunderNameFi = "funding3 - funder name fi",
+                            FunderNameSv = "funding3 - funder name sv",
+                            FunderNameEn = "funding3 - funder name en",
+                            FunderProjectNumber = "funding3 - funder project number",
+                            TypeOfFundingNameFi = "funding3 - type of funding name fi",
+                            TypeOfFundingNameSv = "funding3 - type of funding name sv",
+                            TypeOfFundingNameEn = "funding3 - type of funding name en",
+                            CallProgrammeNameFi = "funding3 - call programme name fi",
+                            CallProgrammeNameSv = "funding3 - call programme name sv",
+                            CallProgrammeNameEn = "funding3 - call programme name en",
                             FundingStartYear = 2022,
                             FundingEndYear = 2024,
                             AmountInEur = 200000,
                             AmountInFundingDecisionCurrency = 440000,
                             FundingDecisionCurrencyAbbreviation = "USD",
-                            Url = "https://example.com/funding2"
+                            Url = "https://example.org/funding3",
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
                     },
                     researchDatasets = new List<ElasticsearchResearchDataset>
@@ -1111,7 +1305,7 @@ namespace api.Tests
                                     actorRoleNameEn = "Role 2",
                                 }
                             },
-                            FairdataUrl = "https://fairdata.example.com/dataset1",
+                            FairdataUrl = "https://fairdata.example.org/dataset1",
                             Identifier = "dataset-identifier-1",
                             NameFi = "dataset 1 - nameFi",
                             NameSv = "dataset 1 - nameSv",
@@ -1119,7 +1313,7 @@ namespace api.Tests
                             DescriptionFi = "dataset 1 - descriptionFi",
                             DescriptionSv = "dataset 1 - descriptionSv",
                             DescriptionEn = "dataset 1 - descriptionEn",
-                            Url = "https://example.com/dataset1",
+                            Url = "https://example.org/dataset1",
                             DatasetCreated = 2021,
                             PreferredIdentifiers = new List<ElasticsearchPreferredIdentifier>
                             {
@@ -1133,11 +1327,13 @@ namespace api.Tests
                                     PidContent = "preferred-id-2",
                                     PidType = "preferred-type-2"
                                 }
-                            }
+                            },
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
                         },
                         new ElasticsearchResearchDataset
                         {
-                            AccessType = "dataset-access-type-2",
+                            AccessType = "dataset-access-type-3",
                             Actor = new List<ElasticsearchActor>
                             {
                                 new ElasticsearchActor
@@ -1155,15 +1351,15 @@ namespace api.Tests
                                     actorRoleNameEn = "Role 4",
                                 }
                             },
-                            FairdataUrl = "https://fairdata.example.com/dataset2",
-                            Identifier = "dataset-identifier-2",
-                            NameFi = "dataset 2 - nameFi",
-                            NameSv = "dataset 2 - nameSv",
-                            NameEn = "dataset 2 - nameEn",
-                            DescriptionFi = "dataset 2 - descriptionFi",
-                            DescriptionSv = "dataset 2 - descriptionSv",
-                            DescriptionEn = "dataset 2 - descriptionEn",
-                            Url = "https://example.com/dataset2",
+                            FairdataUrl = "https://fairdata.example.org/dataset3",
+                            Identifier = "dataset-identifier-3",
+                            NameFi = "dataset 3 - nameFi",
+                            NameSv = "dataset 3 - nameSv",
+                            NameEn = "dataset 3 - nameEn",
+                            DescriptionFi = "dataset 3 - descriptionFi",
+                            DescriptionSv = "dataset 3 - descriptionSv",
+                            DescriptionEn = "dataset 3 - descriptionEn",
+                            Url = "https://example.org/dataset3",
                             DatasetCreated = 2022,
                             PreferredIdentifiers = new List<ElasticsearchPreferredIdentifier>
                             {
@@ -1177,7 +1373,9 @@ namespace api.Tests
                                     PidContent = "preferred-id-4",
                                     PidType = "preferred-type-4"
                                 }
-                            }
+                            },
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
                     },
                     activitiesAndRewards = new List<ElasticsearchActivityAndReward>
@@ -1234,16 +1432,18 @@ namespace api.Tests
                                         }
                                     }
                                 }
-                            }
+                            },
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
                         },
                         new ElasticsearchActivityAndReward
                         {
-                            NameFi = "activityAndReward 2 - nameFi",
-                            NameEn = "activityAndReward 2 - nameEn",
-                            NameSv = "activityAndReward 2 - nameSv",
-                            DescriptionFi = "activityAndReward 2 - descriptionFi",
-                            DescriptionEn = "activityAndReward 2 - descriptionEn",
-                            DescriptionSv = "activityAndReward 2 - descriptionSv",
+                            NameFi = "activityAndReward 3 - nameFi",
+                            NameEn = "activityAndReward 3 - nameEn",
+                            NameSv = "activityAndReward 3 - nameSv",
+                            DescriptionFi = "activityAndReward 3 - descriptionFi",
+                            DescriptionEn = "activityAndReward 3 - descriptionEn",
+                            DescriptionSv = "activityAndReward 3 - descriptionSv",
                             InternationalCollaboration = null,
                             StartDate = new ElasticsearchDate
                             {
@@ -1257,38 +1457,40 @@ namespace api.Tests
                                 Month = 12,
                                 Day = 31
                             },
-                            ActivityTypeCode = "activityAndReward 2 - type-code",
-                            ActivityTypeNameFi = "activityAndReward 2 - type-name-fi",
-                            ActivityTypeNameEn = "activityAndReward 2 - type-name-en",
-                            ActivityTypeNameSv = "activityAndReward 2 - type-name-sv",
-                            RoleCode = "activityAndReward 2 - role-code",
-                            RoleNameFi = "activityAndReward 2 - role-name-fi",
-                            RoleNameEn = "activityAndReward 2 - role-name-en",
-                            RoleNameSv = "activityAndReward 2 - role-name-sv",
-                            OrganizationNameFi = "activityAndReward 2 - organization-name-fi",
-                            OrganizationNameSv = "activityAndReward 2 - organization-name-sv",
-                            OrganizationNameEn = "activityAndReward 2 - organization-name-en",
-                            DepartmentNameFi = "activityAndReward 2 - department-name-fi",
-                            DepartmentNameSv = "activityAndReward 2 - department-name-sv",
-                            DepartmentNameEn = "activityAndReward 2 - department-name-en",
-                            Url = "activityAndReward 2 - url",
+                            ActivityTypeCode = "activityAndReward 3 - type-code",
+                            ActivityTypeNameFi = "activityAndReward 3 - type-name-fi",
+                            ActivityTypeNameEn = "activityAndReward 3 - type-name-en",
+                            ActivityTypeNameSv = "activityAndReward 3 - type-name-sv",
+                            RoleCode = "activityAndReward 3 - role-code",
+                            RoleNameFi = "activityAndReward 3 - role-name-fi",
+                            RoleNameEn = "activityAndReward 3 - role-name-en",
+                            RoleNameSv = "activityAndReward 3 - role-name-sv",
+                            OrganizationNameFi = "activityAndReward 3 - organization-name-fi",
+                            OrganizationNameSv = "activityAndReward 3 - organization-name-sv",
+                            OrganizationNameEn = "activityAndReward 3 - organization-name-en",
+                            DepartmentNameFi = "activityAndReward 3 - department-name-fi",
+                            DepartmentNameSv = "activityAndReward 3 - department-name-sv",
+                            DepartmentNameEn = "activityAndReward 3 - department-name-en",
+                            Url = "activityAndReward 3 - url",
                             sector = new List<ElasticsearchSector> {
                                 new ElasticsearchSector
                                 {
-                                    sectorId = "activityAndReward 2 - sector1 - id",
-                                    nameFiSector = "activityAndReward 2 - sector1 - nameFi",
-                                    nameEnSector = "activityAndReward 2 - sector1 - nameEn",
-                                    nameSvSector = "activityAndReward 2 - sector1 - nameSv",
+                                    sectorId = "activityAndReward 3 - sector1 - id",
+                                    nameFiSector = "activityAndReward 3 - sector1 - nameFi",
+                                    nameEnSector = "activityAndReward 3 - sector1 - nameEn",
+                                    nameSvSector = "activityAndReward 3 - sector1 - nameSv",
                                     organization = new List<ElasticsearchSectorOrganization> {
                                         new ElasticsearchSectorOrganization {
-                                            organizationId = "activityAndReward 2 - sector1 - org1 - orgid",
-                                            OrganizationNameFi = "activityAndReward 2 - sector 1 - org1 - orgNameFi",
-                                            OrganizationNameEn = "activityAndReward 2 - sector 1 - org1 - orgNameEn",
-                                            OrganizationNameSv = "activityAndReward 2 - sector 1 - org1 - orgNameSv"
+                                            organizationId = "activityAndReward 3 - sector1 - org1 - orgid",
+                                            OrganizationNameFi = "activityAndReward 3 - sector 1 - org1 - orgNameFi",
+                                            OrganizationNameEn = "activityAndReward 3 - sector 1 - org1 - orgNameEn",
+                                            OrganizationNameSv = "activityAndReward 3 - sector 1 - org1 - orgNameSv"
                                         }
                                     }
                                 }
-                            }
+                            },
+                            itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
+                            DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
                     }
                 },
@@ -1363,81 +1565,162 @@ namespace api.Tests
             Assert.Equal(expectedObject.personal.names[0].FirstNames, actualObject.personal.names[0].FirstNames);
             Assert.Equal(expectedObject.personal.names[0].LastName, actualObject.personal.names[0].LastName);
             Assert.Equal(expectedObject.personal.names[0].FullName, actualObject.personal.names[0].FullName);
-            Assert.Null(actualObject.personal.names[0].itemMeta);
-            Assert.Null(actualObject.personal.names[0].DataSources);
+            Assert.Equal(expectedObject.personal.names[0].itemMeta.PrimaryValue, actualObject.personal.names[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[0].RegisteredDataSource, actualObject.personal.names[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[0].Organization.NameEn, actualObject.personal.names[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[0].Organization.NameFi, actualObject.personal.names[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[0].Organization.NameSv, actualObject.personal.names[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[0].Organization.SectorId, actualObject.personal.names[0].DataSources[0].Organization.SectorId);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[1].RegisteredDataSource, actualObject.personal.names[0].DataSources[1].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[1].Organization.NameEn, actualObject.personal.names[0].DataSources[1].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[1].Organization.NameFi, actualObject.personal.names[0].DataSources[1].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[1].Organization.NameSv, actualObject.personal.names[0].DataSources[1].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.names[0].DataSources[1].Organization.SectorId, actualObject.personal.names[0].DataSources[1].Organization.SectorId);
             Assert.Equal(expectedObject.personal.names[1].LastName, actualObject.personal.names[1].LastName);
             Assert.Equal(expectedObject.personal.names[1].FullName, actualObject.personal.names[1].FullName);
             Assert.Equal(expectedObject.personal.names[1].FirstNames, actualObject.personal.names[1].FirstNames);
-            Assert.Null(actualObject.personal.names[1].itemMeta);
-            Assert.Null(actualObject.personal.names[1].DataSources);
+            Assert.Equal(expectedObject.personal.names[1].itemMeta.PrimaryValue, actualObject.personal.names[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.names[1].DataSources[0].RegisteredDataSource, actualObject.personal.names[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.names[1].DataSources[0].Organization.NameEn, actualObject.personal.names[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.names[1].DataSources[0].Organization.NameFi, actualObject.personal.names[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.names[1].DataSources[0].Organization.NameSv, actualObject.personal.names[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.names[1].DataSources[0].Organization.SectorId, actualObject.personal.names[1].DataSources[0].Organization.SectorId);
             // Assert personal.otherNames
             Assert.Equal(expectedObject.personal.otherNames[0].FirstNames, actualObject.personal.otherNames[0].FirstNames);
             Assert.Equal(expectedObject.personal.otherNames[0].LastName, actualObject.personal.otherNames[0].LastName);
             Assert.Equal(expectedObject.personal.otherNames[0].FullName, actualObject.personal.otherNames[0].FullName);
-            Assert.Null(actualObject.personal.otherNames[0].itemMeta);
-            Assert.Null(actualObject.personal.otherNames[0].DataSources);
+            Assert.Equal(expectedObject.personal.otherNames[0].itemMeta.PrimaryValue, actualObject.personal.otherNames[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.otherNames[0].DataSources[0].RegisteredDataSource, actualObject.personal.otherNames[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.otherNames[0].DataSources[0].Organization.NameEn, actualObject.personal.otherNames[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.otherNames[0].DataSources[0].Organization.NameFi, actualObject.personal.otherNames[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.otherNames[0].DataSources[0].Organization.NameSv, actualObject.personal.otherNames[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.otherNames[0].DataSources[0].Organization.SectorId, actualObject.personal.otherNames[0].DataSources[0].Organization.SectorId);
             Assert.Equal(expectedObject.personal.otherNames[1].LastName, actualObject.personal.otherNames[1].LastName);
             Assert.Equal(expectedObject.personal.otherNames[1].FullName, actualObject.personal.otherNames[1].FullName);
             Assert.Equal(expectedObject.personal.otherNames[1].FirstNames, actualObject.personal.otherNames[1].FirstNames);
-            Assert.Null(actualObject.personal.otherNames[1].itemMeta);
-            Assert.Null(actualObject.personal.otherNames[1].DataSources);
+            Assert.Equal(expectedObject.personal.otherNames[1].itemMeta.PrimaryValue, actualObject.personal.otherNames[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.otherNames[1].DataSources[0].RegisteredDataSource, actualObject.personal.otherNames[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.otherNames[1].DataSources[0].Organization.NameEn, actualObject.personal.otherNames[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.otherNames[1].DataSources[0].Organization.NameFi, actualObject.personal.otherNames[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.otherNames[1].DataSources[0].Organization.NameSv, actualObject.personal.otherNames[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.otherNames[1].DataSources[0].Organization.SectorId, actualObject.personal.otherNames[1].DataSources[0].Organization.SectorId);
             // Assert personal.emails
             Assert.Equal(expectedObject.personal.emails[0].Value, actualObject.personal.emails[0].Value);
+            Assert.Equal(expectedObject.personal.emails[0].itemMeta.PrimaryValue, actualObject.personal.emails[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.emails[0].DataSources[0].RegisteredDataSource, actualObject.personal.emails[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.emails[0].DataSources[0].Organization.NameEn, actualObject.personal.emails[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.emails[0].DataSources[0].Organization.NameFi, actualObject.personal.emails[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.emails[0].DataSources[0].Organization.NameSv, actualObject.personal.emails[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.emails[0].DataSources[0].Organization.SectorId, actualObject.personal.emails[0].DataSources[0].Organization.SectorId);
             Assert.Equal(expectedObject.personal.emails[1].Value, actualObject.personal.emails[1].Value);
-            Assert.Null(actualObject.personal.emails[0].itemMeta);
-            Assert.Null(actualObject.personal.emails[0].DataSources);
+            Assert.Equal(expectedObject.personal.emails[1].itemMeta.PrimaryValue, actualObject.personal.emails[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.emails[1].DataSources[0].RegisteredDataSource, actualObject.personal.emails[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.emails[1].DataSources[0].Organization.NameEn, actualObject.personal.emails[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.emails[1].DataSources[0].Organization.NameFi, actualObject.personal.emails[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.emails[1].DataSources[0].Organization.NameSv, actualObject.personal.emails[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.emails[1].DataSources[0].Organization.SectorId, actualObject.personal.emails[1].DataSources[0].Organization.SectorId);
             // Assert personal.telephoneNumbers
             Assert.Equal(expectedObject.personal.telephoneNumbers[0].Value, actualObject.personal.telephoneNumbers[0].Value);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[0].itemMeta.PrimaryValue, actualObject.personal.telephoneNumbers[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[0].DataSources[0].RegisteredDataSource, actualObject.personal.telephoneNumbers[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[0].DataSources[0].Organization.NameEn, actualObject.personal.telephoneNumbers[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[0].DataSources[0].Organization.NameFi, actualObject.personal.telephoneNumbers[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[0].DataSources[0].Organization.NameSv, actualObject.personal.telephoneNumbers[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[0].DataSources[0].Organization.SectorId, actualObject.personal.telephoneNumbers[0].DataSources[0].Organization.SectorId);
             Assert.Equal(expectedObject.personal.telephoneNumbers[1].Value, actualObject.personal.telephoneNumbers[1].Value);
-            Assert.Null(actualObject.personal.telephoneNumbers[0].itemMeta);
-            Assert.Null(actualObject.personal.telephoneNumbers[0].DataSources);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[1].itemMeta.PrimaryValue, actualObject.personal.telephoneNumbers[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[1].DataSources[0].RegisteredDataSource, actualObject.personal.telephoneNumbers[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[1].DataSources[0].Organization.NameEn, actualObject.personal.telephoneNumbers[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[1].DataSources[0].Organization.NameFi, actualObject.personal.telephoneNumbers[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[1].DataSources[0].Organization.NameSv, actualObject.personal.telephoneNumbers[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.telephoneNumbers[1].DataSources[0].Organization.SectorId, actualObject.personal.telephoneNumbers[1].DataSources[0].Organization.SectorId);
             // Assert personal.webLinks
             Assert.Equal(expectedObject.personal.webLinks[0].Url, actualObject.personal.webLinks[0].Url);
             Assert.Equal(expectedObject.personal.webLinks[0].LinkLabel, actualObject.personal.webLinks[0].LinkLabel);
-            Assert.Null(actualObject.personal.webLinks[0].itemMeta);
-            Assert.Null(actualObject.personal.webLinks[0].DataSources);
+            Assert.Equal(expectedObject.personal.webLinks[0].itemMeta.PrimaryValue, actualObject.personal.webLinks[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.webLinks[0].DataSources[0].RegisteredDataSource, actualObject.personal.webLinks[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.webLinks[0].DataSources[0].Organization.NameEn, actualObject.personal.webLinks[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.webLinks[0].DataSources[0].Organization.NameFi, actualObject.personal.webLinks[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.webLinks[0].DataSources[0].Organization.NameSv, actualObject.personal.webLinks[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.webLinks[0].DataSources[0].Organization.SectorId, actualObject.personal.webLinks[0].DataSources[0].Organization.SectorId);
             Assert.Equal(expectedObject.personal.webLinks[1].Url, actualObject.personal.webLinks[1].Url);
             Assert.Equal(expectedObject.personal.webLinks[1].LinkLabel, actualObject.personal.webLinks[1].LinkLabel);
-            Assert.Null(actualObject.personal.webLinks[1].itemMeta);
-            Assert.Null(actualObject.personal.webLinks[1].DataSources);
+            Assert.Equal(expectedObject.personal.webLinks[1].itemMeta.PrimaryValue, actualObject.personal.webLinks[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.webLinks[1].DataSources[0].RegisteredDataSource, actualObject.personal.webLinks[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.webLinks[1].DataSources[0].Organization.NameEn, actualObject.personal.webLinks[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.webLinks[1].DataSources[0].Organization.NameFi, actualObject.personal.webLinks[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.webLinks[1].DataSources[0].Organization.NameSv, actualObject.personal.webLinks[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.webLinks[1].DataSources[0].Organization.SectorId, actualObject.personal.webLinks[1].DataSources[0].Organization.SectorId);
             // Assert personal.keywords
             Assert.Equal(expectedObject.personal.keywords[0].Value, actualObject.personal.keywords[0].Value);
-            Assert.Null(actualObject.personal.keywords[0].itemMeta);
-            Assert.Null(actualObject.personal.keywords[0].DataSources);
+            Assert.Equal(expectedObject.personal.keywords[0].itemMeta.PrimaryValue, actualObject.personal.keywords[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.keywords[0].DataSources[0].RegisteredDataSource, actualObject.personal.keywords[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.keywords[0].DataSources[0].Organization.NameEn, actualObject.personal.keywords[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.keywords[0].DataSources[0].Organization.NameFi, actualObject.personal.keywords[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.keywords[0].DataSources[0].Organization.NameSv, actualObject.personal.keywords[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.keywords[0].DataSources[0].Organization.SectorId, actualObject.personal.keywords[0].DataSources[0].Organization.SectorId);
             Assert.Equal(expectedObject.personal.keywords[1].Value, actualObject.personal.keywords[1].Value);
-            Assert.Null(actualObject.personal.keywords[1].itemMeta);
-            Assert.Null(actualObject.personal.keywords[1].DataSources);
+            Assert.Equal(expectedObject.personal.keywords[1].itemMeta.PrimaryValue, actualObject.personal.keywords[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.keywords[1].DataSources[0].RegisteredDataSource, actualObject.personal.keywords[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.keywords[1].DataSources[0].Organization.NameEn, actualObject.personal.keywords[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.keywords[1].DataSources[0].Organization.NameFi, actualObject.personal.keywords[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.keywords[1].DataSources[0].Organization.NameSv, actualObject.personal.keywords[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.keywords[1].DataSources[0].Organization.SectorId, actualObject.personal.keywords[1].DataSources[0].Organization.SectorId);
             // Assert personal.fieldOfSciences
             Assert.Equal(expectedObject.personal.fieldOfSciences[0].NameFi, actualObject.personal.fieldOfSciences[0].NameFi);
             Assert.Equal(expectedObject.personal.fieldOfSciences[0].NameEn, actualObject.personal.fieldOfSciences[0].NameEn);
             Assert.Equal(expectedObject.personal.fieldOfSciences[0].NameSv, actualObject.personal.fieldOfSciences[0].NameSv);
-            Assert.Null(actualObject.personal.fieldOfSciences[0].itemMeta);
-            Assert.Null(actualObject.personal.fieldOfSciences[0].DataSources);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[0].itemMeta.PrimaryValue, actualObject.personal.fieldOfSciences[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[0].DataSources[0].RegisteredDataSource, actualObject.personal.fieldOfSciences[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[0].DataSources[0].Organization.NameEn, actualObject.personal.fieldOfSciences[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[0].DataSources[0].Organization.NameFi, actualObject.personal.fieldOfSciences[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[0].DataSources[0].Organization.NameSv, actualObject.personal.fieldOfSciences[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[0].DataSources[0].Organization.SectorId, actualObject.personal.fieldOfSciences[0].DataSources[0].Organization.SectorId);
             Assert.Equal(expectedObject.personal.fieldOfSciences[1].NameFi, actualObject.personal.fieldOfSciences[1].NameFi);
             Assert.Equal(expectedObject.personal.fieldOfSciences[1].NameEn, actualObject.personal.fieldOfSciences[1].NameEn);
             Assert.Equal(expectedObject.personal.fieldOfSciences[1].NameSv, actualObject.personal.fieldOfSciences[1].NameSv);
-            Assert.Null(actualObject.personal.fieldOfSciences[1].itemMeta);
-            Assert.Null(actualObject.personal.fieldOfSciences[1].DataSources);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[1].itemMeta.PrimaryValue, actualObject.personal.fieldOfSciences[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[1].DataSources[0].RegisteredDataSource, actualObject.personal.fieldOfSciences[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[1].DataSources[0].Organization.NameEn, actualObject.personal.fieldOfSciences[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[1].DataSources[0].Organization.NameFi, actualObject.personal.fieldOfSciences[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[1].DataSources[0].Organization.NameSv, actualObject.personal.fieldOfSciences[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.fieldOfSciences[1].DataSources[0].Organization.SectorId, actualObject.personal.fieldOfSciences[1].DataSources[0].Organization.SectorId);
             // Assert personal.researcherDescriptions
             Assert.Equal(expectedObject.personal.researcherDescriptions[0].ResearchDescriptionFi, actualObject.personal.researcherDescriptions[0].ResearchDescriptionFi);
             Assert.Equal(expectedObject.personal.researcherDescriptions[0].ResearchDescriptionEn, actualObject.personal.researcherDescriptions[0].ResearchDescriptionEn);
             Assert.Equal(expectedObject.personal.researcherDescriptions[0].ResearchDescriptionSv, actualObject.personal.researcherDescriptions[0].ResearchDescriptionSv);
-            Assert.Null(actualObject.personal.researcherDescriptions[0].itemMeta);
-            Assert.Null(actualObject.personal.researcherDescriptions[0].DataSources);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[0].itemMeta.PrimaryValue, actualObject.personal.researcherDescriptions[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[0].DataSources[0].RegisteredDataSource, actualObject.personal.researcherDescriptions[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[0].DataSources[0].Organization.NameEn, actualObject.personal.researcherDescriptions[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[0].DataSources[0].Organization.NameFi, actualObject.personal.researcherDescriptions[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[0].DataSources[0].Organization.NameSv, actualObject.personal.researcherDescriptions[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[0].DataSources[0].Organization.SectorId, actualObject.personal.researcherDescriptions[0].DataSources[0].Organization.SectorId);
             Assert.Equal(expectedObject.personal.researcherDescriptions[1].ResearchDescriptionFi, actualObject.personal.researcherDescriptions[1].ResearchDescriptionFi);
             Assert.Equal(expectedObject.personal.researcherDescriptions[1].ResearchDescriptionEn, actualObject.personal.researcherDescriptions[1].ResearchDescriptionEn);
             Assert.Equal(expectedObject.personal.researcherDescriptions[1].ResearchDescriptionSv, actualObject.personal.researcherDescriptions[1].ResearchDescriptionSv);
-            Assert.Null(actualObject.personal.researcherDescriptions[1].itemMeta);
-            Assert.Null(actualObject.personal.researcherDescriptions[1].DataSources);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[1].itemMeta.PrimaryValue, actualObject.personal.researcherDescriptions[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[1].DataSources[0].RegisteredDataSource, actualObject.personal.researcherDescriptions[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[1].DataSources[0].Organization.NameEn, actualObject.personal.researcherDescriptions[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[1].DataSources[0].Organization.NameFi, actualObject.personal.researcherDescriptions[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[1].DataSources[0].Organization.NameSv, actualObject.personal.researcherDescriptions[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.researcherDescriptions[1].DataSources[0].Organization.SectorId, actualObject.personal.researcherDescriptions[1].DataSources[0].Organization.SectorId);
             // Assert personal.externalIdentifiers
             Assert.Equal(expectedObject.personal.externalIdentifiers[0].PidContent, actualObject.personal.externalIdentifiers[0].PidContent);
             Assert.Equal(expectedObject.personal.externalIdentifiers[0].PidType, actualObject.personal.externalIdentifiers[0].PidType);
-            Assert.Null(actualObject.personal.externalIdentifiers[0].itemMeta);
-            Assert.Null(actualObject.personal.externalIdentifiers[0].DataSources);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[0].itemMeta.PrimaryValue, actualObject.personal.externalIdentifiers[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[0].DataSources[0].RegisteredDataSource, actualObject.personal.externalIdentifiers[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[0].DataSources[0].Organization.NameEn, actualObject.personal.externalIdentifiers[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[0].DataSources[0].Organization.NameFi, actualObject.personal.externalIdentifiers[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[0].DataSources[0].Organization.NameSv, actualObject.personal.externalIdentifiers[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[0].DataSources[0].Organization.SectorId, actualObject.personal.externalIdentifiers[0].DataSources[0].Organization.SectorId);
             Assert.Equal(expectedObject.personal.externalIdentifiers[1].PidContent, actualObject.personal.externalIdentifiers[1].PidContent);
             Assert.Equal(expectedObject.personal.externalIdentifiers[1].PidType, actualObject.personal.externalIdentifiers[1].PidType);
-            Assert.Null(actualObject.personal.externalIdentifiers[1].itemMeta);
-            Assert.Null(actualObject.personal.externalIdentifiers[1].DataSources);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[1].itemMeta.PrimaryValue, actualObject.personal.externalIdentifiers[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[1].DataSources[0].RegisteredDataSource, actualObject.personal.externalIdentifiers[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[1].DataSources[0].Organization.NameEn, actualObject.personal.externalIdentifiers[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[1].DataSources[0].Organization.NameFi, actualObject.personal.externalIdentifiers[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[1].DataSources[0].Organization.NameSv, actualObject.personal.externalIdentifiers[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.personal.externalIdentifiers[1].DataSources[0].Organization.SectorId, actualObject.personal.externalIdentifiers[1].DataSources[0].Organization.SectorId);
             // Assert activity.affiliations - affiliation 1
             Assert.Equal(expectedObject.activity.affiliations[0].OrganizationNameFi, actualObject.activity.affiliations[0].OrganizationNameFi);
             Assert.Equal(expectedObject.activity.affiliations[0].OrganizationNameSv, actualObject.activity.affiliations[0].OrganizationNameSv);
@@ -1484,8 +1767,12 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.affiliations[0].sector[1].organization[1].OrganizationNameFi, actualObject.activity.affiliations[0].sector[1].organization[1].OrganizationNameFi);
             Assert.Equal(expectedObject.activity.affiliations[0].sector[1].organization[1].OrganizationNameEn, actualObject.activity.affiliations[0].sector[1].organization[1].OrganizationNameEn);
             Assert.Equal(expectedObject.activity.affiliations[0].sector[1].organization[1].OrganizationNameSv, actualObject.activity.affiliations[0].sector[1].organization[1].OrganizationNameSv);
-            Assert.Null(actualObject.activity.affiliations[0].itemMeta);
-            Assert.Null(actualObject.activity.affiliations[0].DataSources);
+            Assert.Equal(expectedObject.activity.affiliations[0].itemMeta.PrimaryValue, actualObject.activity.affiliations[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.activity.affiliations[0].DataSources[0].RegisteredDataSource, actualObject.activity.affiliations[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.affiliations[0].DataSources[0].Organization.NameEn, actualObject.activity.affiliations[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.affiliations[0].DataSources[0].Organization.NameFi, actualObject.activity.affiliations[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.affiliations[0].DataSources[0].Organization.NameSv, actualObject.activity.affiliations[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.affiliations[0].DataSources[0].Organization.SectorId, actualObject.activity.affiliations[0].DataSources[0].Organization.SectorId);
             // Assert activity.affiliations - affiliation 2
             Assert.Equal(expectedObject.activity.affiliations[1].OrganizationNameFi, actualObject.activity.affiliations[1].OrganizationNameFi);
             Assert.Equal(expectedObject.activity.affiliations[1].OrganizationNameSv, actualObject.activity.affiliations[1].OrganizationNameSv);
@@ -1532,8 +1819,12 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.affiliations[1].sector[1].organization[1].OrganizationNameFi, actualObject.activity.affiliations[1].sector[1].organization[1].OrganizationNameFi);
             Assert.Equal(expectedObject.activity.affiliations[1].sector[1].organization[1].OrganizationNameEn, actualObject.activity.affiliations[1].sector[1].organization[1].OrganizationNameEn);
             Assert.Equal(expectedObject.activity.affiliations[1].sector[1].organization[1].OrganizationNameSv, actualObject.activity.affiliations[1].sector[1].organization[1].OrganizationNameSv);
-            Assert.Null(actualObject.activity.affiliations[1].itemMeta);
-            Assert.Null(actualObject.activity.affiliations[1].DataSources);
+            Assert.Equal(expectedObject.activity.affiliations[1].itemMeta.PrimaryValue, actualObject.activity.affiliations[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.activity.affiliations[1].DataSources[0].RegisteredDataSource, actualObject.activity.affiliations[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.affiliations[1].DataSources[0].Organization.NameEn, actualObject.activity.affiliations[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.affiliations[1].DataSources[0].Organization.NameFi, actualObject.activity.affiliations[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.affiliations[1].DataSources[0].Organization.NameSv, actualObject.activity.affiliations[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.affiliations[1].DataSources[0].Organization.SectorId, actualObject.activity.affiliations[1].DataSources[0].Organization.SectorId);
             // Assert activity.educations - education 1
             Assert.Equal(expectedObject.activity.educations[0].NameFi, actualObject.activity.educations[0].NameFi);
             Assert.Equal(expectedObject.activity.educations[0].NameSv, actualObject.activity.educations[0].NameSv);
@@ -1545,8 +1836,12 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.educations[0].EndDate.Year, actualObject.activity.educations[0].EndDate.Year);
             Assert.Equal(expectedObject.activity.educations[0].EndDate.Month, actualObject.activity.educations[0].EndDate.Month);
             Assert.Equal(expectedObject.activity.educations[0].EndDate.Day, actualObject.activity.educations[0].EndDate.Day);
-            Assert.Null(actualObject.activity.educations[0].itemMeta);
-            Assert.Null(actualObject.activity.educations[0].DataSources);
+            Assert.Equal(expectedObject.activity.educations[0].itemMeta.PrimaryValue, actualObject.activity.educations[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.activity.educations[0].DataSources[0].RegisteredDataSource, actualObject.activity.educations[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.educations[0].DataSources[0].Organization.NameEn, actualObject.activity.educations[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.educations[0].DataSources[0].Organization.NameFi, actualObject.activity.educations[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.educations[0].DataSources[0].Organization.NameSv, actualObject.activity.educations[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.educations[0].DataSources[0].Organization.SectorId, actualObject.activity.educations[0].DataSources[0].Organization.SectorId);
             // Assert activity.educations - education 2
             Assert.Equal(expectedObject.activity.educations[1].NameFi, actualObject.activity.educations[1].NameFi);
             Assert.Equal(expectedObject.activity.educations[1].NameSv, actualObject.activity.educations[1].NameSv);
@@ -1558,8 +1853,12 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.educations[1].EndDate.Year, actualObject.activity.educations[1].EndDate.Year);
             Assert.Equal(expectedObject.activity.educations[1].EndDate.Month, actualObject.activity.educations[1].EndDate.Month);
             Assert.Equal(expectedObject.activity.educations[1].EndDate.Day, actualObject.activity.educations[1].EndDate.Day);
-            Assert.Null(actualObject.activity.educations[1].itemMeta);
-            Assert.Null(actualObject.activity.educations[1].DataSources);
+            Assert.Equal(expectedObject.activity.educations[1].itemMeta.PrimaryValue, actualObject.activity.educations[1].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.activity.educations[1].DataSources[0].RegisteredDataSource, actualObject.activity.educations[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.educations[1].DataSources[0].Organization.NameEn, actualObject.activity.educations[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.educations[1].DataSources[0].Organization.NameFi, actualObject.activity.educations[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.educations[1].DataSources[0].Organization.NameSv, actualObject.activity.educations[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.educations[1].DataSources[0].Organization.SectorId, actualObject.activity.educations[1].DataSources[0].Organization.SectorId);
             // Assert activity.publications - publication 1
             Assert.Equal(expectedObject.activity.publications[0].AuthorsText, actualObject.activity.publications[0].AuthorsText);
             Assert.Equal(expectedObject.activity.publications[0].Doi, actualObject.activity.publications[0].Doi);
@@ -1573,8 +1872,12 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.publications[0].PublicationYear, actualObject.activity.publications[0].PublicationYear);
             Assert.Equal(expectedObject.activity.publications[0].SelfArchivedAddress, actualObject.activity.publications[0].SelfArchivedAddress);
             Assert.Equal(expectedObject.activity.publications[0].SelfArchivedCode, actualObject.activity.publications[0].SelfArchivedCode);
-            Assert.Null(actualObject.activity.publications[0].itemMeta);
-            Assert.Null(actualObject.activity.publications[0].DataSources);
+            Assert.Equal(expectedObject.activity.publications[0].itemMeta.PrimaryValue, actualObject.activity.publications[0].itemMeta.PrimaryValue);
+            Assert.Equal(expectedObject.activity.publications[0].DataSources[0].RegisteredDataSource, actualObject.activity.publications[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.publications[0].DataSources[0].Organization.NameEn, actualObject.activity.publications[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.publications[0].DataSources[0].Organization.NameFi, actualObject.activity.publications[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.publications[0].DataSources[0].Organization.NameSv, actualObject.activity.publications[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.publications[0].DataSources[0].Organization.SectorId, actualObject.activity.publications[0].DataSources[0].Organization.SectorId);
             // Assert activity.publications - publication 2
             Assert.Equal(expectedObject.activity.publications[1].AuthorsText, actualObject.activity.publications[1].AuthorsText);
             Assert.Equal(expectedObject.activity.publications[1].Doi, actualObject.activity.publications[1].Doi);
@@ -1588,8 +1891,11 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.publications[1].PublicationYear, actualObject.activity.publications[1].PublicationYear);
             Assert.Equal(expectedObject.activity.publications[1].SelfArchivedAddress, actualObject.activity.publications[1].SelfArchivedAddress);
             Assert.Equal(expectedObject.activity.publications[1].SelfArchivedCode, actualObject.activity.publications[1].SelfArchivedCode);
-            Assert.Null(actualObject.activity.publications[1].itemMeta);
-            Assert.Null(actualObject.activity.publications[1].DataSources);
+            Assert.Equal(expectedObject.activity.publications[1].DataSources[0].RegisteredDataSource, actualObject.activity.publications[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.publications[1].DataSources[0].Organization.NameEn, actualObject.activity.publications[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.publications[1].DataSources[0].Organization.NameFi, actualObject.activity.publications[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.publications[1].DataSources[0].Organization.NameSv, actualObject.activity.publications[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.publications[1].DataSources[0].Organization.SectorId, actualObject.activity.publications[1].DataSources[0].Organization.SectorId);
             // Assert activity.fundingDecisions - funding decision 1
             Assert.Equal(expectedObject.activity.fundingDecisions[0].ProjectId, actualObject.activity.fundingDecisions[0].ProjectId);
             Assert.Equal(expectedObject.activity.fundingDecisions[0].ProjectAcronym, actualObject.activity.fundingDecisions[0].ProjectAcronym);
@@ -1615,8 +1921,11 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.fundingDecisions[0].AmountInFundingDecisionCurrency, actualObject.activity.fundingDecisions[0].AmountInFundingDecisionCurrency);
             Assert.Equal(expectedObject.activity.fundingDecisions[0].FundingDecisionCurrencyAbbreviation, actualObject.activity.fundingDecisions[0].FundingDecisionCurrencyAbbreviation);
             Assert.Equal(expectedObject.activity.fundingDecisions[0].Url, actualObject.activity.fundingDecisions[0].Url);
-            Assert.Null(actualObject.activity.fundingDecisions[0].itemMeta);
-            Assert.Null(actualObject.activity.fundingDecisions[0].DataSources);
+            Assert.Equal(expectedObject.activity.fundingDecisions[0].DataSources[0].RegisteredDataSource, actualObject.activity.fundingDecisions[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.fundingDecisions[0].DataSources[0].Organization.NameEn, actualObject.activity.fundingDecisions[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.fundingDecisions[0].DataSources[0].Organization.NameFi, actualObject.activity.fundingDecisions[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.fundingDecisions[0].DataSources[0].Organization.NameSv, actualObject.activity.fundingDecisions[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.fundingDecisions[0].DataSources[0].Organization.SectorId, actualObject.activity.fundingDecisions[0].DataSources[0].Organization.SectorId);
             // Assert activity.fundingDecisions - funding decision 2
             Assert.Equal(expectedObject.activity.fundingDecisions[1].ProjectId, actualObject.activity.fundingDecisions[1].ProjectId);
             Assert.Equal(expectedObject.activity.fundingDecisions[1].ProjectAcronym, actualObject.activity.fundingDecisions[1].ProjectAcronym);
@@ -1642,8 +1951,11 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.fundingDecisions[1].AmountInFundingDecisionCurrency, actualObject.activity.fundingDecisions[1].AmountInFundingDecisionCurrency);
             Assert.Equal(expectedObject.activity.fundingDecisions[1].FundingDecisionCurrencyAbbreviation, actualObject.activity.fundingDecisions[1].FundingDecisionCurrencyAbbreviation);
             Assert.Equal(expectedObject.activity.fundingDecisions[1].Url, actualObject.activity.fundingDecisions[1].Url);
-            Assert.Null(actualObject.activity.fundingDecisions[1].itemMeta);
-            Assert.Null(actualObject.activity.fundingDecisions[1].DataSources);
+            Assert.Equal(expectedObject.activity.fundingDecisions[1].DataSources[0].RegisteredDataSource, actualObject.activity.fundingDecisions[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.fundingDecisions[1].DataSources[0].Organization.NameEn, actualObject.activity.fundingDecisions[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.fundingDecisions[1].DataSources[0].Organization.NameFi, actualObject.activity.fundingDecisions[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.fundingDecisions[1].DataSources[0].Organization.NameSv, actualObject.activity.fundingDecisions[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.fundingDecisions[1].DataSources[0].Organization.SectorId, actualObject.activity.fundingDecisions[1].DataSources[0].Organization.SectorId);
             // Assert activity.researchDatasets - dataset 1
             Assert.Equal(expectedObject.activity.researchDatasets[0].AccessType, actualObject.activity.researchDatasets[0].AccessType);
             Assert.Equal(expectedObject.activity.researchDatasets[0].Actor[0].actorRole, actualObject.activity.researchDatasets[0].Actor[0].actorRole);
@@ -1668,8 +1980,11 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.researchDatasets[0].PreferredIdentifiers[0].PidType, actualObject.activity.researchDatasets[0].PreferredIdentifiers[0].PidType);
             Assert.Equal(expectedObject.activity.researchDatasets[0].PreferredIdentifiers[1].PidContent, actualObject.activity.researchDatasets[0].PreferredIdentifiers[1].PidContent);
             Assert.Equal(expectedObject.activity.researchDatasets[0].PreferredIdentifiers[1].PidType, actualObject.activity.researchDatasets[0].PreferredIdentifiers[1].PidType);
-            Assert.Null(actualObject.activity.researchDatasets[0].itemMeta);
-            Assert.Null(actualObject.activity.researchDatasets[0].DataSources);
+            Assert.Equal(expectedObject.activity.researchDatasets[0].DataSources[0].RegisteredDataSource, actualObject.activity.researchDatasets[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.researchDatasets[0].DataSources[0].Organization.NameEn, actualObject.activity.researchDatasets[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.researchDatasets[0].DataSources[0].Organization.NameFi, actualObject.activity.researchDatasets[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.researchDatasets[0].DataSources[0].Organization.NameSv, actualObject.activity.researchDatasets[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.researchDatasets[0].DataSources[0].Organization.SectorId, actualObject.activity.researchDatasets[0].DataSources[0].Organization.SectorId);
             // Assert activity.researchDatasets - dataset 2
             Assert.Equal(expectedObject.activity.researchDatasets[1].AccessType, actualObject.activity.researchDatasets[1].AccessType);
             Assert.Equal(expectedObject.activity.researchDatasets[1].Actor[0].actorRole, actualObject.activity.researchDatasets[1].Actor[0].actorRole);
@@ -1694,8 +2009,11 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.researchDatasets[1].PreferredIdentifiers[0].PidType, actualObject.activity.researchDatasets[1].PreferredIdentifiers[0].PidType);
             Assert.Equal(expectedObject.activity.researchDatasets[1].PreferredIdentifiers[1].PidContent, actualObject.activity.researchDatasets[1].PreferredIdentifiers[1].PidContent);
             Assert.Equal(expectedObject.activity.researchDatasets[1].PreferredIdentifiers[1].PidType, actualObject.activity.researchDatasets[1].PreferredIdentifiers[1].PidType);
-            Assert.Null(actualObject.activity.researchDatasets[1].itemMeta);
-            Assert.Null(actualObject.activity.researchDatasets[1].DataSources);
+            Assert.Equal(expectedObject.activity.researchDatasets[1].DataSources[0].RegisteredDataSource, actualObject.activity.researchDatasets[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.researchDatasets[1].DataSources[0].Organization.NameEn, actualObject.activity.researchDatasets[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.researchDatasets[1].DataSources[0].Organization.NameFi, actualObject.activity.researchDatasets[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.researchDatasets[1].DataSources[0].Organization.NameSv, actualObject.activity.researchDatasets[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.researchDatasets[1].DataSources[0].Organization.SectorId, actualObject.activity.researchDatasets[1].DataSources[0].Organization.SectorId);
             // Assert activity.activitiesAndRewards - activity and reward 1
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].NameFi, actualObject.activity.activitiesAndRewards[0].NameFi);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].NameEn, actualObject.activity.activitiesAndRewards[0].NameEn);
@@ -1735,8 +2053,11 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].sector[0].organization[0].OrganizationNameFi, actualObject.activity.activitiesAndRewards[0].sector[0].organization[0].OrganizationNameFi);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].sector[0].organization[0].OrganizationNameEn, actualObject.activity.activitiesAndRewards[0].sector[0].organization[0].OrganizationNameEn);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].sector[0].organization[0].OrganizationNameSv, actualObject.activity.activitiesAndRewards[0].sector[0].organization[0].OrganizationNameSv);
-            Assert.Null(actualObject.activity.activitiesAndRewards[0].itemMeta);
-            Assert.Null(actualObject.activity.activitiesAndRewards[0].DataSources);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].DataSources[0].RegisteredDataSource, actualObject.activity.activitiesAndRewards[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].DataSources[0].Organization.NameEn, actualObject.activity.activitiesAndRewards[0].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].DataSources[0].Organization.NameFi, actualObject.activity.activitiesAndRewards[0].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].DataSources[0].Organization.NameSv, actualObject.activity.activitiesAndRewards[0].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].DataSources[0].Organization.SectorId, actualObject.activity.activitiesAndRewards[0].DataSources[0].Organization.SectorId);
             // Assert activity.activitiesAndRewards - activity and reward 2
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].NameFi, actualObject.activity.activitiesAndRewards[1].NameFi);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].NameEn, actualObject.activity.activitiesAndRewards[1].NameEn);
@@ -1776,8 +2097,11 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].sector[0].organization[0].OrganizationNameFi, actualObject.activity.activitiesAndRewards[1].sector[0].organization[0].OrganizationNameFi);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].sector[0].organization[0].OrganizationNameEn, actualObject.activity.activitiesAndRewards[1].sector[0].organization[0].OrganizationNameEn);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].sector[0].organization[0].OrganizationNameSv, actualObject.activity.activitiesAndRewards[1].sector[0].organization[0].OrganizationNameSv);
-            Assert.Null(actualObject.activity.activitiesAndRewards[1].itemMeta);
-            Assert.Null(actualObject.activity.activitiesAndRewards[1].DataSources);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[1].DataSources[0].RegisteredDataSource, actualObject.activity.activitiesAndRewards[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[1].DataSources[0].Organization.NameEn, actualObject.activity.activitiesAndRewards[1].DataSources[0].Organization.NameEn);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[1].DataSources[0].Organization.NameFi, actualObject.activity.activitiesAndRewards[1].DataSources[0].Organization.NameFi);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[1].DataSources[0].Organization.NameSv, actualObject.activity.activitiesAndRewards[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[1].DataSources[0].Organization.SectorId, actualObject.activity.activitiesAndRewards[1].DataSources[0].Organization.SectorId);
             // Assert settings
             Assert.Equal(expectedObject.settings.HighlightOpeness, actualObject.settings.HighlightOpeness);
             Assert.Null(actualObject.settings.GetType().GetProperty("Hidden")); // Hidden is not mapped

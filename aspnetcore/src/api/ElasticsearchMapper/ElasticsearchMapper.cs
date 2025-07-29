@@ -51,86 +51,131 @@ public static class ElasticsearchMapper
         };
     }
 
+    public static ElasticsearchItemMeta MapToElasticsearchItemMeta(ProfileEditorItemMeta src)
+    {
+        if (src == null) return null;
+        return new ElasticsearchItemMeta
+        {
+            PrimaryValue = src.PrimaryValue ?? false
+        };
+    }
+
     public static List<ElasticsearchName> MapToElasticsearchPersonal_Names(List<ProfileEditorName> src)
     {
-        return src?.Select(name => new ElasticsearchName
-        {
+        return src?
+            .Where(name => name.itemMeta != null && name.itemMeta.Show == true)
+            .Select(name => new ElasticsearchName
+            {
             FirstNames = name.FirstNames,
             LastName = name.LastName,
-            FullName = name.FullName
-        }).ToList();
+            FullName = name.FullName,
+            itemMeta = MapToElasticsearchItemMeta(name.itemMeta),
+            DataSources = MapToElasticsearchSource(name.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchName> MapToElasticsearchPersonal_OtherNames(List<ProfileEditorName> src)
     {
-        return src?.Select(name => new ElasticsearchName
-        {
-            FirstNames = name.FirstNames,
-            LastName = name.LastName,
-            FullName = name.FullName
-        }).ToList();
+        return src?
+            .Where(otherName => otherName.itemMeta != null && otherName.itemMeta.Show == true)
+            .Select(otherName => new ElasticsearchName
+            {
+                FirstNames = otherName.FirstNames,
+                LastName = otherName.LastName,
+                FullName = otherName.FullName,
+                itemMeta = MapToElasticsearchItemMeta(otherName.itemMeta),
+                DataSources = MapToElasticsearchSource(otherName.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchEmail> MapToElasticsearchPersonal_Emails(List<ProfileEditorEmail> src)
     {
-        return src?.Select(email => new ElasticsearchEmail
-        {
-            Value = email.Value
-        }).ToList();
+        return src?
+            .Where(email => email.itemMeta != null && email.itemMeta.Show == true)
+            .Select(email => new ElasticsearchEmail
+            {
+                Value = email.Value,
+                itemMeta = MapToElasticsearchItemMeta(email.itemMeta),
+                DataSources = MapToElasticsearchSource(email.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchTelephoneNumber> MapToElasticsearchPersonal_TelephoneNumbers(List<ProfileEditorTelephoneNumber> src)
     {
-        return src?.Select(tel => new ElasticsearchTelephoneNumber
-        {
-            Value = tel.Value
-        }).ToList();
+        return src?
+            .Where(tel => tel.itemMeta != null && tel.itemMeta.Show == true)
+            .Select(tel => new ElasticsearchTelephoneNumber
+            {
+                Value = tel.Value,
+                itemMeta = MapToElasticsearchItemMeta(tel.itemMeta),
+                DataSources = MapToElasticsearchSource(tel.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchWebLink> MapToElasticsearchPersonal_WebLinks(List<ProfileEditorWebLink> src)
     {
-        return src?.Select(link => new ElasticsearchWebLink
-        {
-            Url = link.Url,
-            LinkLabel = link.LinkLabel
-        }).ToList();
+        return src?
+            .Where(link => link.itemMeta != null && link.itemMeta.Show == true)
+            .Select(link => new ElasticsearchWebLink
+            {
+                Url = link.Url,
+                LinkLabel = link.LinkLabel,
+                itemMeta = MapToElasticsearchItemMeta(link.itemMeta),
+                DataSources = MapToElasticsearchSource(link.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchKeyword> MapToElasticsearchPersonal_Keywords(List<ProfileEditorKeyword> src)
     {
-        return src?.Select(keyword => new ElasticsearchKeyword
-        {
-            Value = keyword.Value
-        }).ToList();
+        return src?
+            .Where(keyword => keyword.itemMeta != null && keyword.itemMeta.Show == true)
+            .Select(keyword => new ElasticsearchKeyword
+            {
+                Value = keyword.Value,
+                itemMeta = MapToElasticsearchItemMeta(keyword.itemMeta),
+                DataSources = MapToElasticsearchSource(keyword.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchFieldOfScience> MapToElasticsearchPersonal_FieldOfSciences(List<ProfileEditorFieldOfScience> src)
     {
-        return src?.Select(fos => new ElasticsearchFieldOfScience
-        {
-            NameFi = fos.NameFi,
-            NameEn = fos.NameEn,
-            NameSv = fos.NameSv
-        }).ToList();
+        return src?
+            .Where(fos => fos.itemMeta != null && fos.itemMeta.Show == true)
+            .Select(fos => new ElasticsearchFieldOfScience
+            {
+                NameFi = fos.NameFi,
+                NameEn = fos.NameEn,
+                NameSv = fos.NameSv,
+                itemMeta = MapToElasticsearchItemMeta(fos.itemMeta),
+                DataSources = MapToElasticsearchSource(fos.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchResearcherDescription> MapToElasticsearchPersonal_ResearcherDescriptions(List<ProfileEditorResearcherDescription> src)
     {
-        return src?.Select(desc => new ElasticsearchResearcherDescription
-        {
-            ResearchDescriptionFi = desc.ResearchDescriptionFi,
-            ResearchDescriptionEn = desc.ResearchDescriptionEn,
-            ResearchDescriptionSv = desc.ResearchDescriptionSv
-        }).ToList();
+        return src?
+            .Where(desc => desc.itemMeta != null && desc.itemMeta.Show == true)
+            .Select(desc => new ElasticsearchResearcherDescription
+            {
+                ResearchDescriptionFi = desc.ResearchDescriptionFi,
+                ResearchDescriptionEn = desc.ResearchDescriptionEn,
+                ResearchDescriptionSv = desc.ResearchDescriptionSv,
+                itemMeta = MapToElasticsearchItemMeta(desc.itemMeta),
+                DataSources = MapToElasticsearchSource(desc.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchExternalIdentifier> MapToElasticsearchPersonal_ExternalIdentifiers(List<ProfileEditorExternalIdentifier> src)
     {
-        return src?.Select(extId => new ElasticsearchExternalIdentifier
-        {
-            PidContent = extId.PidContent,
-            PidType = extId.PidType
-        }).ToList();
+        return src?
+            .Where(extId => extId.itemMeta != null && extId.itemMeta.Show == true)
+            .Select(extId => new ElasticsearchExternalIdentifier
+            {
+                PidContent = extId.PidContent,
+                PidType = extId.PidType,
+                itemMeta = MapToElasticsearchItemMeta(extId.itemMeta),
+                DataSources = MapToElasticsearchSource(extId.DataSources)
+            }).ToList();
     }
 
     public static ElasticsearchProfileSettings MapToElasticsearchProfileSettings(ProfileSettings src)
@@ -172,122 +217,145 @@ public static class ElasticsearchMapper
         if (src == null) return null;
         return new ElasticsearchEmail
         {
-            Value = src.Value
+            Value = src.Value,
+            itemMeta = MapToElasticsearchItemMeta(src.itemMeta)
         };
     }
 
     public static List<ElasticsearchAffiliation> MapToElasticsearchActivity_Affiliations(List<ProfileEditorAffiliation> src)
     {
-        return src?.Select(aff => new ElasticsearchAffiliation
-        {
-            OrganizationNameFi = aff.OrganizationNameFi,
-            OrganizationNameSv = aff.OrganizationNameSv,
-            OrganizationNameEn = aff.OrganizationNameEn,
-            DepartmentNameFi = aff.DepartmentNameFi,
-            DepartmentNameSv = aff.DepartmentNameSv,
-            DepartmentNameEn = aff.DepartmentNameEn,
-            PositionNameFi = aff.PositionNameFi,
-            PositionNameSv = aff.PositionNameSv,
-            PositionNameEn = aff.PositionNameEn,
-            AffiliationTypeFi = aff.AffiliationTypeFi,
-            AffiliationTypeEn = aff.AffiliationTypeEn,
-            AffiliationTypeSv = aff.AffiliationTypeSv,
-            StartDate = MapToElasticsearchDate(aff.StartDate),
-            EndDate = MapToElasticsearchDate(aff.EndDate),
-            sector = MapToElasticsearchSector(aff.sector)
-        }).ToList();
+        return src?
+            .Where(aff => aff.itemMeta != null && aff.itemMeta.Show == true)
+            .Select(aff => new ElasticsearchAffiliation
+            {
+                OrganizationNameFi = aff.OrganizationNameFi,
+                OrganizationNameSv = aff.OrganizationNameSv,
+                OrganizationNameEn = aff.OrganizationNameEn,
+                DepartmentNameFi = aff.DepartmentNameFi,
+                DepartmentNameSv = aff.DepartmentNameSv,
+                DepartmentNameEn = aff.DepartmentNameEn,
+                PositionNameFi = aff.PositionNameFi,
+                PositionNameSv = aff.PositionNameSv,
+                PositionNameEn = aff.PositionNameEn,
+                AffiliationTypeFi = aff.AffiliationTypeFi,
+                AffiliationTypeEn = aff.AffiliationTypeEn,
+                AffiliationTypeSv = aff.AffiliationTypeSv,
+                StartDate = MapToElasticsearchDate(aff.StartDate),
+                EndDate = MapToElasticsearchDate(aff.EndDate),
+                sector = MapToElasticsearchSector(aff.sector),
+                itemMeta = MapToElasticsearchItemMeta(aff.itemMeta),
+                DataSources = MapToElasticsearchSource(aff.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchEducation> MapToElasticsearchActivity_Educations(List<ProfileEditorEducation> src)
     {
-        return src?.Select(edu => new ElasticsearchEducation
-        {
-            NameFi = edu.NameFi,
-            NameEn = edu.NameEn,
-            NameSv = edu.NameSv,
-            DegreeGrantingInstitutionName = edu.DegreeGrantingInstitutionName,
-            StartDate = MapToElasticsearchDate(edu.StartDate),
-            EndDate = MapToElasticsearchDate(edu.EndDate)
-        }).ToList();
+        return src?
+            .Where(edu => edu.itemMeta != null && edu.itemMeta.Show == true)
+            .Select(edu => new ElasticsearchEducation
+            {
+                NameFi = edu.NameFi,
+                NameEn = edu.NameEn,
+                NameSv = edu.NameSv,
+                DegreeGrantingInstitutionName = edu.DegreeGrantingInstitutionName,
+                StartDate = MapToElasticsearchDate(edu.StartDate),
+                EndDate = MapToElasticsearchDate(edu.EndDate),
+                itemMeta = MapToElasticsearchItemMeta(edu.itemMeta),
+                DataSources = MapToElasticsearchSource(edu.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchPublication> MapToElasticsearchActivity_Publications(List<ProfileEditorPublication> src)
     {
-        return src?.Select(pub => new ElasticsearchPublication
-        {
-            AuthorsText = pub.AuthorsText,
-            Doi = pub.Doi,
-            ConferenceName = pub.ConferenceName,
-            JournalName = pub.JournalName,
-            OpenAccess = pub.OpenAccess,
-            ParentPublicationName = pub.ParentPublicationName,
-            PublicationId = pub.PublicationId,
-            PublicationName = pub.PublicationName,
-            PublicationTypeCode = pub.PublicationTypeCode,
-            PublicationYear = pub.PublicationYear,
-            SelfArchivedAddress = pub.SelfArchivedAddress,
-            SelfArchivedCode = pub.SelfArchivedCode
-        }).ToList();
+        return src?
+            .Where(pub => pub.itemMeta != null && pub.itemMeta.Show == true)
+            .Select(pub => new ElasticsearchPublication
+            {
+                AuthorsText = pub.AuthorsText,
+                Doi = pub.Doi,
+                ConferenceName = pub.ConferenceName,
+                JournalName = pub.JournalName,
+                OpenAccess = pub.OpenAccess,
+                ParentPublicationName = pub.ParentPublicationName,
+                PublicationId = pub.PublicationId,
+                PublicationName = pub.PublicationName,
+                PublicationTypeCode = pub.PublicationTypeCode,
+                PublicationYear = pub.PublicationYear,
+                SelfArchivedAddress = pub.SelfArchivedAddress,
+                SelfArchivedCode = pub.SelfArchivedCode,
+                itemMeta = MapToElasticsearchItemMeta(pub.itemMeta),
+                DataSources = MapToElasticsearchSource(pub.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchFundingDecision> MapToElasticsearchActivity_FundingDecisions(List<ProfileEditorFundingDecision> src)
     {
-        return src?.Select(fd => new ElasticsearchFundingDecision
-        {
-            ProjectAcronym = fd.ProjectAcronym,
-            ProjectNameFi = fd.ProjectNameFi,
-            ProjectNameSv = fd.ProjectNameSv,
-            ProjectNameEn = fd.ProjectNameEn,
-            ProjectDescriptionFi = fd.ProjectDescriptionFi,
-            ProjectDescriptionSv = fd.ProjectDescriptionSv,
-            ProjectDescriptionEn = fd.ProjectDescriptionEn,
-            FunderNameFi = fd.FunderNameFi,
-            FunderNameSv = fd.FunderNameSv,
-            FunderNameEn = fd.FunderNameEn,
-            FunderProjectNumber = fd.FunderProjectNumber,
-            TypeOfFundingNameFi = fd.TypeOfFundingNameFi,
-            TypeOfFundingNameSv = fd.TypeOfFundingNameSv,
-            TypeOfFundingNameEn = fd.TypeOfFundingNameEn,
-            CallProgrammeNameFi = fd.CallProgrammeNameFi,
-            CallProgrammeNameSv = fd.CallProgrammeNameSv,
-            CallProgrammeNameEn = fd.CallProgrammeNameEn,
-            FundingStartYear = fd.FundingStartYear,
-            FundingEndYear = fd.FundingEndYear,
-            AmountInEur = fd.AmountInEur,
-            AmountInFundingDecisionCurrency = fd.AmountInFundingDecisionCurrency,
-            FundingDecisionCurrencyAbbreviation = fd.FundingDecisionCurrencyAbbreviation,
-            Url = fd.Url
-        }).ToList();
+        return src?
+            .Where(fd => fd.itemMeta != null && fd.itemMeta.Show == true)
+            .Select(fd => new ElasticsearchFundingDecision
+            {
+                ProjectAcronym = fd.ProjectAcronym,
+                ProjectNameFi = fd.ProjectNameFi,
+                ProjectNameSv = fd.ProjectNameSv,
+                ProjectNameEn = fd.ProjectNameEn,
+                ProjectDescriptionFi = fd.ProjectDescriptionFi,
+                ProjectDescriptionSv = fd.ProjectDescriptionSv,
+                ProjectDescriptionEn = fd.ProjectDescriptionEn,
+                FunderNameFi = fd.FunderNameFi,
+                FunderNameSv = fd.FunderNameSv,
+                FunderNameEn = fd.FunderNameEn,
+                FunderProjectNumber = fd.FunderProjectNumber,
+                TypeOfFundingNameFi = fd.TypeOfFundingNameFi,
+                TypeOfFundingNameSv = fd.TypeOfFundingNameSv,
+                TypeOfFundingNameEn = fd.TypeOfFundingNameEn,
+                CallProgrammeNameFi = fd.CallProgrammeNameFi,
+                CallProgrammeNameSv = fd.CallProgrammeNameSv,
+                CallProgrammeNameEn = fd.CallProgrammeNameEn,
+                FundingStartYear = fd.FundingStartYear,
+                FundingEndYear = fd.FundingEndYear,
+                AmountInEur = fd.AmountInEur,
+                AmountInFundingDecisionCurrency = fd.AmountInFundingDecisionCurrency,
+                FundingDecisionCurrencyAbbreviation = fd.FundingDecisionCurrencyAbbreviation,
+                Url = fd.Url,
+                itemMeta = MapToElasticsearchItemMeta(fd.itemMeta),
+                DataSources = MapToElasticsearchSource(fd.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchResearchDataset> MapToElasticsearchActivity_ResearchDatasets(List<ProfileEditorResearchDataset> src)
     {
-        return src?.Select(ds => new ElasticsearchResearchDataset
-        {
-            AccessType = ds.AccessType,
-            Actor = MapToElasticsearchActor(ds.Actor),
-            FairdataUrl = ds.FairdataUrl,
-            Identifier = ds.Identifier,
-            NameFi = ds.NameFi,
-            NameSv = ds.NameSv,
-            NameEn = ds.NameEn,
-            DescriptionFi = ds.DescriptionFi,
-            DescriptionSv = ds.DescriptionSv,
-            DescriptionEn = ds.DescriptionEn,
-            Url = ds.Url,
-            DatasetCreated = ds.DatasetCreated,
-            PreferredIdentifiers = MapToElasticsearchPreferredIdentifier(ds.PreferredIdentifiers)
-        }).ToList();
+        return src?
+            .Where(ds => ds.itemMeta != null && ds.itemMeta.Show == true)
+            .Select(ds => new ElasticsearchResearchDataset
+            {
+                AccessType = ds.AccessType,
+                Actor = MapToElasticsearchActor(ds.Actor),
+                FairdataUrl = ds.FairdataUrl,
+                Identifier = ds.Identifier,
+                NameFi = ds.NameFi,
+                NameSv = ds.NameSv,
+                NameEn = ds.NameEn,
+                DescriptionFi = ds.DescriptionFi,
+                DescriptionSv = ds.DescriptionSv,
+                DescriptionEn = ds.DescriptionEn,
+                Url = ds.Url,
+                DatasetCreated = ds.DatasetCreated,
+                PreferredIdentifiers = MapToElasticsearchPreferredIdentifier(ds.PreferredIdentifiers),
+                itemMeta = MapToElasticsearchItemMeta(ds.itemMeta),
+                DataSources = MapToElasticsearchSource(ds.DataSources)
+            }).ToList();
     }
 
     public static List<ElasticsearchActivityAndReward> MapToElasticsearchActivity_ActivitiesAndRewards(List<ProfileEditorActivityAndReward> src)
     {
-        return src?.Select(ar => new ElasticsearchActivityAndReward
-        {
-            NameFi = ar.NameFi,
-            NameEn = ar.NameEn,
-            NameSv = ar.NameSv,
-            DescriptionFi = ar.DescriptionFi,
+        return src?
+            .Where(ar => ar.itemMeta != null && ar.itemMeta.Show == true)
+            .Select(ar => new ElasticsearchActivityAndReward
+            {
+                NameFi = ar.NameFi,
+                NameEn = ar.NameEn,
+                NameSv = ar.NameSv,
+                DescriptionFi = ar.DescriptionFi,
             DescriptionEn = ar.DescriptionEn,
             DescriptionSv = ar.DescriptionSv,
             InternationalCollaboration = ar.InternationalCollaboration,
@@ -308,7 +376,9 @@ public static class ElasticsearchMapper
             DepartmentNameSv = ar.DepartmentNameSv,
             DepartmentNameEn = ar.DepartmentNameEn,
             Url = ar.Url,
-            sector = MapToElasticsearchSector(ar.sector)
+            sector = MapToElasticsearchSector(ar.sector),
+            itemMeta = MapToElasticsearchItemMeta(ar.itemMeta),
+            DataSources = MapToElasticsearchSource(ar.DataSources)
         }).ToList();
     }
 
