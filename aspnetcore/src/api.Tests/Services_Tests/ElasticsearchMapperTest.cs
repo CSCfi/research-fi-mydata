@@ -483,6 +483,23 @@ namespace api.Tests
                             JournalName = "pub1 - journal name",
                             OpenAccess = 1,
                             ParentPublicationName = "pub1 - parent publication name",
+                            PeerReviewed = new List<ProfileEditorPublicationPeerReviewed>
+                            {
+                                new ProfileEditorPublicationPeerReviewed
+                                {
+                                    Id = "pub1 - peerreview1 - id",
+                                    NameFiPeerReviewed = "pub1 - peerreview1 - name fi",
+                                    NameSvPeerReviewed = "pub1 - peerreview1 - name en",
+                                    NameEnPeerReviewed = "pub1 - peerreview1 - name sv"
+                                },
+                                new ProfileEditorPublicationPeerReviewed
+                                {
+                                    Id = "pub1 - peerreview2 - id",
+                                    NameFiPeerReviewed = "pub1 - peerreview2 - name fi",
+                                    NameSvPeerReviewed = "pub1 - peerreview2 - name en",
+                                    NameEnPeerReviewed = "pub1 - peerreview2 - name sv"
+                                }
+                            },
                             PublicationId = "pub1 - publication id",
                             PublicationName = "pub1 - publication name",
                             PublicationTypeCode = "pub1 - publication type code",
@@ -505,6 +522,16 @@ namespace api.Tests
                             JournalName = "pub3 - journal name",
                             OpenAccess = 0,
                             ParentPublicationName = "pub3 - parent publication name",
+                            PeerReviewed = new List<ProfileEditorPublicationPeerReviewed>
+                            {
+                                new ProfileEditorPublicationPeerReviewed
+                                {
+                                    Id = "pub3 - peerreview1 - id",
+                                    NameFiPeerReviewed = "pub3 - peerreview1 - name fi",
+                                    NameSvPeerReviewed = "pub3 - peerreview1 - name en",
+                                    NameEnPeerReviewed = "pub3 - peerreview1 - name sv"
+                                },
+                            },
                             PublicationId = "pub3 - publication id",
                             PublicationName = "pub3 - publication name",
                             PublicationTypeCode = "pub3 - publication type code",
@@ -1197,6 +1224,23 @@ namespace api.Tests
                             JournalName = "pub1 - journal name",
                             OpenAccess = 1,
                             ParentPublicationName = "pub1 - parent publication name",
+                            PeerReviewed = new List<ElasticsearchPublicationPeerReviewed>
+                            {
+                                new ElasticsearchPublicationPeerReviewed
+                                {
+                                    Id = "pub1 - peerreview1 - id",
+                                    NameFiPeerReviewed = "pub1 - peerreview1 - name fi",
+                                    NameSvPeerReviewed = "pub1 - peerreview1 - name en",
+                                    NameEnPeerReviewed = "pub1 - peerreview1 - name sv"
+                                },
+                                new ElasticsearchPublicationPeerReviewed
+                                {
+                                    Id = "pub1 - peerreview2 - id",
+                                    NameFiPeerReviewed = "pub1 - peerreview2 - name fi",
+                                    NameSvPeerReviewed = "pub1 - peerreview2 - name en",
+                                    NameEnPeerReviewed = "pub1 - peerreview2 - name sv"
+                                }
+                            },
                             PublicationId = "pub1 - publication id",
                             PublicationName = "pub1 - publication name",
                             PublicationTypeCode = "pub1 - publication type code",
@@ -1214,6 +1258,16 @@ namespace api.Tests
                             JournalName = "pub3 - journal name",
                             OpenAccess = 0,
                             ParentPublicationName = "pub3 - parent publication name",
+                            PeerReviewed = new List<ElasticsearchPublicationPeerReviewed>
+                            {
+                                new ElasticsearchPublicationPeerReviewed
+                                {
+                                    Id = "pub3 - peerreview1 - id",
+                                    NameFiPeerReviewed = "pub3 - peerreview1 - name fi",
+                                    NameSvPeerReviewed = "pub3 - peerreview1 - name en",
+                                    NameEnPeerReviewed = "pub3 - peerreview1 - name sv"
+                                },
+                            },
                             PublicationId = "pub3 - publication id",
                             PublicationName = "pub3 - publication name",
                             PublicationTypeCode = "pub3 - publication type code",
@@ -1228,6 +1282,7 @@ namespace api.Tests
                     {
                         new ElasticsearchFundingDecision
                         {
+                            ProjectId = 123,
                             ProjectAcronym = "funding1 - project acronym",
                             ProjectNameFi = "funding1 - project name fi",
                             ProjectNameSv = "funding1 - project name sv",
@@ -1256,6 +1311,7 @@ namespace api.Tests
                         },
                         new ElasticsearchFundingDecision
                         {
+                            ProjectId = 456,
                             ProjectAcronym = "funding3 - project acronym",
                             ProjectNameFi = "funding3 - project name fi",
                             ProjectNameSv = "funding3 - project name sv",
@@ -1866,6 +1922,15 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.publications[0].JournalName, actualObject.activity.publications[0].JournalName);
             Assert.Equal(expectedObject.activity.publications[0].OpenAccess, actualObject.activity.publications[0].OpenAccess);
             Assert.Equal(expectedObject.activity.publications[0].ParentPublicationName, actualObject.activity.publications[0].ParentPublicationName);
+            Assert.NotEmpty(actualObject.activity.publications[0].PeerReviewed);
+            Assert.Equal(expectedObject.activity.publications[0].PeerReviewed[0].Id, actualObject.activity.publications[0].PeerReviewed[0].Id);
+            Assert.Equal(expectedObject.activity.publications[0].PeerReviewed[0].NameFiPeerReviewed, actualObject.activity.publications[0].PeerReviewed[0].NameFiPeerReviewed);
+            Assert.Equal(expectedObject.activity.publications[0].PeerReviewed[0].NameSvPeerReviewed, actualObject.activity.publications[0].PeerReviewed[0].NameSvPeerReviewed);
+            Assert.Equal(expectedObject.activity.publications[0].PeerReviewed[0].NameEnPeerReviewed, actualObject.activity.publications[0].PeerReviewed[0].NameEnPeerReviewed);
+            Assert.Equal(expectedObject.activity.publications[0].PeerReviewed[1].Id, actualObject.activity.publications[0].PeerReviewed[1].Id);
+            Assert.Equal(expectedObject.activity.publications[0].PeerReviewed[1].NameFiPeerReviewed, actualObject.activity.publications[0].PeerReviewed[1].NameFiPeerReviewed);
+            Assert.Equal(expectedObject.activity.publications[0].PeerReviewed[1].NameSvPeerReviewed, actualObject.activity.publications[0].PeerReviewed[1].NameSvPeerReviewed);
+            Assert.Equal(expectedObject.activity.publications[0].PeerReviewed[1].NameEnPeerReviewed, actualObject.activity.publications[0].PeerReviewed[1].NameEnPeerReviewed);
             Assert.Equal(expectedObject.activity.publications[0].PublicationId, actualObject.activity.publications[0].PublicationId);
             Assert.Equal(expectedObject.activity.publications[0].PublicationName, actualObject.activity.publications[0].PublicationName);
             Assert.Equal(expectedObject.activity.publications[0].PublicationTypeCode, actualObject.activity.publications[0].PublicationTypeCode);
@@ -1885,6 +1950,11 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.publications[1].JournalName, actualObject.activity.publications[1].JournalName);
             Assert.Equal(expectedObject.activity.publications[1].OpenAccess, actualObject.activity.publications[1].OpenAccess);
             Assert.Equal(expectedObject.activity.publications[1].ParentPublicationName, actualObject.activity.publications[1].ParentPublicationName);
+            Assert.NotEmpty(actualObject.activity.publications[1].PeerReviewed);
+            Assert.Equal(expectedObject.activity.publications[1].PeerReviewed[0].Id, actualObject.activity.publications[1].PeerReviewed[0].Id);
+            Assert.Equal(expectedObject.activity.publications[1].PeerReviewed[0].NameFiPeerReviewed, actualObject.activity.publications[1].PeerReviewed[0].NameFiPeerReviewed);
+            Assert.Equal(expectedObject.activity.publications[1].PeerReviewed[0].NameSvPeerReviewed, actualObject.activity.publications[1].PeerReviewed[0].NameSvPeerReviewed);
+            Assert.Equal(expectedObject.activity.publications[1].PeerReviewed[0].NameEnPeerReviewed, actualObject.activity.publications[1].PeerReviewed[0].NameEnPeerReviewed);
             Assert.Equal(expectedObject.activity.publications[1].PublicationId, actualObject.activity.publications[1].PublicationId);
             Assert.Equal(expectedObject.activity.publications[1].PublicationName, actualObject.activity.publications[1].PublicationName);
             Assert.Equal(expectedObject.activity.publications[1].PublicationTypeCode, actualObject.activity.publications[1].PublicationTypeCode);

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Collections.Generic;
 
 namespace api.CustomMapper;
+
+// ElasticsearchMapper maps profile editor model to Elasticsearch model.
 public static class ElasticsearchMapper
 {
     public static ElasticsearchPerson MapToElasticsearchPerson(ProfileEditorDataResponse src, string orcidId = null)
@@ -66,11 +68,11 @@ public static class ElasticsearchMapper
             .Where(name => name.itemMeta != null && name.itemMeta.Show == true)
             .Select(name => new ElasticsearchName
             {
-            FirstNames = name.FirstNames,
-            LastName = name.LastName,
-            FullName = name.FullName,
-            itemMeta = MapToElasticsearchItemMeta(name.itemMeta),
-            DataSources = MapToElasticsearchSource(name.DataSources)
+                FirstNames = name.FirstNames,
+                LastName = name.LastName,
+                FullName = name.FullName,
+                itemMeta = MapToElasticsearchItemMeta(name.itemMeta),
+                DataSources = MapToElasticsearchSource(name.DataSources)
             }).ToList();
     }
 
@@ -277,6 +279,13 @@ public static class ElasticsearchMapper
                 JournalName = pub.JournalName,
                 OpenAccess = pub.OpenAccess,
                 ParentPublicationName = pub.ParentPublicationName,
+                PeerReviewed = pub.PeerReviewed.Select(pr => new ElasticsearchPublicationPeerReviewed
+                {
+                    Id = pr.Id,
+                    NameFiPeerReviewed = pr.NameFiPeerReviewed,
+                    NameSvPeerReviewed = pr.NameSvPeerReviewed,
+                    NameEnPeerReviewed = pr.NameEnPeerReviewed
+                }).ToList(),
                 PublicationId = pub.PublicationId,
                 PublicationName = pub.PublicationName,
                 PublicationTypeCode = pub.PublicationTypeCode,
@@ -294,6 +303,7 @@ public static class ElasticsearchMapper
             .Where(fd => fd.itemMeta != null && fd.itemMeta.Show == true)
             .Select(fd => new ElasticsearchFundingDecision
             {
+                ProjectId = fd.ProjectId,
                 ProjectAcronym = fd.ProjectAcronym,
                 ProjectNameFi = fd.ProjectNameFi,
                 ProjectNameSv = fd.ProjectNameSv,
@@ -356,30 +366,30 @@ public static class ElasticsearchMapper
                 NameEn = ar.NameEn,
                 NameSv = ar.NameSv,
                 DescriptionFi = ar.DescriptionFi,
-            DescriptionEn = ar.DescriptionEn,
-            DescriptionSv = ar.DescriptionSv,
-            InternationalCollaboration = ar.InternationalCollaboration,
-            StartDate = MapToElasticsearchDate(ar.StartDate),
-            EndDate = MapToElasticsearchDate(ar.EndDate),
-            ActivityTypeCode = ar.ActivityTypeCode,
-            ActivityTypeNameFi = ar.ActivityTypeNameFi,
-            ActivityTypeNameEn = ar.ActivityTypeNameEn,
-            ActivityTypeNameSv = ar.ActivityTypeNameSv,
-            RoleCode = ar.RoleCode,
-            RoleNameFi = ar.RoleNameFi,
-            RoleNameEn = ar.RoleNameEn,
-            RoleNameSv = ar.RoleNameSv,
-            OrganizationNameFi = ar.OrganizationNameFi,
-            OrganizationNameSv = ar.OrganizationNameSv,
-            OrganizationNameEn = ar.OrganizationNameEn,
-            DepartmentNameFi = ar.DepartmentNameFi,
-            DepartmentNameSv = ar.DepartmentNameSv,
-            DepartmentNameEn = ar.DepartmentNameEn,
-            Url = ar.Url,
-            sector = MapToElasticsearchSector(ar.sector),
-            itemMeta = MapToElasticsearchItemMeta(ar.itemMeta),
-            DataSources = MapToElasticsearchSource(ar.DataSources)
-        }).ToList();
+                DescriptionEn = ar.DescriptionEn,
+                DescriptionSv = ar.DescriptionSv,
+                InternationalCollaboration = ar.InternationalCollaboration,
+                StartDate = MapToElasticsearchDate(ar.StartDate),
+                EndDate = MapToElasticsearchDate(ar.EndDate),
+                ActivityTypeCode = ar.ActivityTypeCode,
+                ActivityTypeNameFi = ar.ActivityTypeNameFi,
+                ActivityTypeNameEn = ar.ActivityTypeNameEn,
+                ActivityTypeNameSv = ar.ActivityTypeNameSv,
+                RoleCode = ar.RoleCode,
+                RoleNameFi = ar.RoleNameFi,
+                RoleNameEn = ar.RoleNameEn,
+                RoleNameSv = ar.RoleNameSv,
+                OrganizationNameFi = ar.OrganizationNameFi,
+                OrganizationNameSv = ar.OrganizationNameSv,
+                OrganizationNameEn = ar.OrganizationNameEn,
+                DepartmentNameFi = ar.DepartmentNameFi,
+                DepartmentNameSv = ar.DepartmentNameSv,
+                DepartmentNameEn = ar.DepartmentNameEn,
+                Url = ar.Url,
+                sector = MapToElasticsearchSector(ar.sector),
+                itemMeta = MapToElasticsearchItemMeta(ar.itemMeta),
+                DataSources = MapToElasticsearchSource(ar.DataSources)
+            }).ToList();
     }
 
     public static ElasticsearchDate MapToElasticsearchDate(ProfileEditorDate src)
