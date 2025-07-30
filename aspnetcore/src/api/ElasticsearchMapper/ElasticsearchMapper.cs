@@ -214,16 +214,6 @@ public static class ElasticsearchMapper
         }).ToList();
     }
 
-    public static ElasticsearchEmail MapToElasticsearchEmail(ProfileEditorEmail src)
-    {
-        if (src == null) return null;
-        return new ElasticsearchEmail
-        {
-            Value = src.Value,
-            itemMeta = MapToElasticsearchItemMeta(src.itemMeta)
-        };
-    }
-
     public static List<ElasticsearchAffiliation> MapToElasticsearchActivity_Affiliations(List<ProfileEditorAffiliation> src)
     {
         return src?
