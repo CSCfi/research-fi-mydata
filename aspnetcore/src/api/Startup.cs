@@ -17,7 +17,6 @@ using IdentityModel.Client;
 using Microsoft.Net.Http.Headers;
 using System.Linq;
 using Serilog;
-using AutoMapper;
 
 namespace api
 {
@@ -143,7 +142,8 @@ namespace api
                         "https://*.csc.fi",
                         "https://*.2.rahtiapp.fi",
                         "https://localhost:5003",
-                        "http://localhost:8080"
+                        "http://localhost:8080",
+                        "http://localhost:6001"
                     )
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()
@@ -260,19 +260,7 @@ namespace api
                 httpClient.DefaultRequestHeaders.Add("ADMINTOKEN", Configuration["ADMINTOKEN"]);
             });
 
-            // Automapper
-            // Auto Mapper Configurations
-            var mapperConfig = new MapperConfiguration(mc =>
-            {
-                mc.AddProfile(new MappingProfile());
-            });
-
-            IMapper mapper = mapperConfig.CreateMapper();
-            services.AddSingleton(mapper);
-
-
             services.AddResponseCompression();
-
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IOrcidApiService, OrcidApiService>();
             services.AddScoped<IOrcidImportService, OrcidImportService>();

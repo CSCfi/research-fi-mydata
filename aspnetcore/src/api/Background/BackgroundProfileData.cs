@@ -5,10 +5,10 @@ using api.Models.Common;
 using api.Models.Elasticsearch;
 using Microsoft.Extensions.DependencyInjection;
 using api.Models.ProfileEditor.Items;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using api.Models.ProfileEditor;
+using api.CustomMapper;
 
 namespace api.Services
 {
@@ -37,7 +37,6 @@ namespace api.Services
             // Create a scope and get TtvContext for data query.
             using IServiceScope scope = _serviceScopeFactory.CreateScope();
             IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
-            IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
             TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
 
             // Get profile data
@@ -47,21 +46,8 @@ namespace api.Services
                     logUserIdentification: logUserIdentification,
                     forElasticsearch: true);
 
-            // Convert profile editor model into Elasticsearch model using Automapper.
-            // Set id to ORCID ID
-            ElasticsearchPerson elasticsearchPerson = mapper.Map<ElasticsearchPerson>(profileEditorDataResponse);
-            elasticsearchPerson.id = orcidId;
-
-            // Set cooperation items
-            elasticsearchPerson.cooperation = profileEditorDataResponse.cooperation.Where(c => c.Selected)
-                .Select(c => new ElasticsearchCooperation
-                {
-                    Id = c.Id,
-                    NameFi = c.NameFi,
-                    NameEn = c.NameEn,
-                    NameSv = c.NameSv,
-                    Order = c.Order
-                }).ToList();
+            // Convert profile editor model into Elasticsearch model.
+            ElasticsearchPerson elasticsearchPerson = ElasticsearchMapper.MapToElasticsearchPerson(src: profileEditorDataResponse, orcidId: orcidId);
 
             // Add updated timestamp
             DateTimeDTO userProfileModified = await localTtvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId).AsNoTracking().Select(dimUserProfile => new DateTimeDTO()  
