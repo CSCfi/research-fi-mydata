@@ -2698,7 +2698,7 @@ namespace api.Services
                     logUserIdentification,
                     new LogApiInfo(
                         action: logAction,
-                        state: LogContent.ActionState.IN_PROGRESS,
+                        state: LogContent.ActionState.INITIALIZING,
                         message: "Profile is not published, delete from Elasticsearch"));
 
                 await DeleteProfileFromElasticsearch(orcidId, logUserIdentification);
@@ -2711,7 +2711,7 @@ namespace api.Services
                 logUserIdentification,
                 new LogApiInfo(
                     action: logAction,
-                    state: LogContent.ActionState.IN_PROGRESS,
+                    state: LogContent.ActionState.INITIALIZING,
                     message: "Profile is published, update in Elasticsearch"));
 
             bool startBackgroudTaskResult = await _elasticsearchService.BackgroundUpdate(
