@@ -54,6 +54,7 @@
 
         public static class ActionState
         {
+            public const string INITIALIZING = "initializing";
             public const string START = "start";
             public const string IN_PROGRESS = "in progress";
             public const string COMPLETE = "complete";

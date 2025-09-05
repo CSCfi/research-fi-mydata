@@ -2692,9 +2692,27 @@ namespace api.Services
             bool isUserprofilePublished = await IsUserprofilePublished(userprofileId);
             if (!isUserprofilePublished)
             {
-                // Profile is not published or is hidden. Make sure it is removed from Elasticsearch
+                // Profile is not published. Make sure it is deleted from Elasticsearch
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: logAction,
+                        state: LogContent.ActionState.INITIALIZING,
+                        message: "Profile is not published, delete from Elasticsearch"));
+
                 await DeleteProfileFromElasticsearch(orcidId, logUserIdentification);
+                return true;
             }
+
+            // Profile is published. Update in Elasticsearch
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: logAction,
+                    state: LogContent.ActionState.INITIALIZING,
+                    message: "Profile is published, update in Elasticsearch"));
 
             bool startBackgroudTaskResult = await _elasticsearchService.BackgroundUpdate(
                 orcidId: orcidId,
