@@ -5,15 +5,15 @@ using api.Controllers;
 namespace api.Tests.Controllers_Tests
 {
     /*
-     * Tests for GreetingController experimental MVC functionality
+     * Tests for AiPocController experimental MVC functionality
      */
-    public class GreetingControllerTests
+    public class AiPocControllerTests
     {
         [Fact]
         public void Index_ReturnsViewResult()
         {
             // Arrange
-            var controller = new GreetingController();
+            var controller = new AiPocController();
 
             // Act
             var result = controller.Index();
@@ -23,26 +23,26 @@ namespace api.Tests.Controllers_Tests
         }
 
         [Fact]
-        public void Greet_WithValidName_ReturnsResultView()
+        public void Greet_WithValidInput_ReturnsResultView()
         {
             // Arrange
-            var controller = new GreetingController();
-            var name = "John Doe";
+            var controller = new AiPocController();
+            var orcid = "abc123";
 
             // Act
-            var result = controller.Greet(name);
+            var result = controller.Greet(orcid);
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
             Assert.Equal("Result", viewResult.ViewName);
-            Assert.Equal(name, controller.ViewBag.Name);
+            Assert.Equal(orcid, controller.ViewBag.Orcid);
         }
 
         [Fact]
-        public void Greet_WithEmptyName_ReturnsIndexViewWithError()
+        public void Greet_WithEmptyOrcid_ReturnsIndexViewWithError()
         {
             // Arrange
-            var controller = new GreetingController();
+            var controller = new AiPocController();
 
             // Act
             var result = controller.Greet("");
@@ -54,10 +54,10 @@ namespace api.Tests.Controllers_Tests
         }
 
         [Fact]
-        public void Greet_WithWhitespaceName_ReturnsIndexViewWithError()
+        public void Greet_WithWhitespaceOrcid_ReturnsIndexViewWithError()
         {
             // Arrange
-            var controller = new GreetingController();
+            var controller = new AiPocController();
 
             // Act
             var result = controller.Greet("   ");
@@ -69,10 +69,10 @@ namespace api.Tests.Controllers_Tests
         }
 
         [Fact]
-        public void Greet_WithNullName_ReturnsIndexViewWithError()
+        public void Greet_WithNullOrcid_ReturnsIndexViewWithError()
         {
             // Arrange
-            var controller = new GreetingController();
+            var controller = new AiPocController();
 
             // Act
             var result = controller.Greet(null);
