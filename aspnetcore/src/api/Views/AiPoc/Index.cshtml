@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Name Input Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>AI POC experimental</h1>
+<p>Enter ORCID below to test the AI functionality.</p>
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="error">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<form method="post" action="/AiPoc/Greet">
+    <div class="form-group">
+        <label for="orcid">ORCID:</label>
+        <input type="text" id="orcid" name="orcid" placeholder="Enter ORCID here..." />
+    </div>
+    <div class="form-group">
+        <button type="submit">Submit</button>
+    </div>
+</form>
+
+<p><em>This is an experimental feature for testing AI generated content.</em></p>
