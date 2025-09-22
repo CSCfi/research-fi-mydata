@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Greeting Result";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Greeting Result</h1>
+
+<div class="result">
+    <strong>Hello @ViewBag.Name!</strong>
+</div>
+
+<p>The form was successfully submitted and the name was processed by the MVC controller.</p>
+
+<a href="/Greeting" class="back-link">← Back to Form</a>
+
+<p><em>This demonstrates successful MVC view rendering with data from the controller.</em></p>
