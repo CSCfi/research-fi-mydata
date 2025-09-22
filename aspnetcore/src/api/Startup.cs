@@ -58,6 +58,9 @@ namespace api
             }
 
             services.AddControllers();
+            
+            // Add MVC services for views and forms (experimental feature)
+            services.AddControllersWithViews();
 
             // Swagger documentation
             if (Environment.IsDevelopment())
@@ -327,6 +330,11 @@ namespace api
 
             app.UseEndpoints(endpoints =>
             {
+                // Add MVC routing for experimental features
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    
                 endpoints.MapControllers();
             });
         }
