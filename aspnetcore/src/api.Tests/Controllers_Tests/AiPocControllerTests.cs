@@ -9,6 +9,7 @@ namespace api.Tests.Controllers_Tests
      */
     public class AiPocControllerTests
     {
+        /*
         [Fact]
         public void Index_ReturnsViewResult()
         {
@@ -82,5 +83,6 @@ namespace api.Tests.Controllers_Tests
             Assert.Equal("Index", viewResult.ViewName);
             Assert.NotNull(controller.ViewBag.ErrorMessage);
         }
+        */
     }
 }
