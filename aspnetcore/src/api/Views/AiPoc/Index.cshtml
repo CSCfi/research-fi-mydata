@@ -4,7 +4,7 @@
 }
 
 <h1>AI POC</h1>
-<h2>Get profile data for ORCID</h2>
+<h2>Get profile data</h2>
 
 @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
 {
@@ -23,23 +23,24 @@
     </div>
 </form>
 
-<hr />
+<hr class="my-5" />
 
 <h2>Query AI model</h2>
 
 <form id="promptForm" class="mb-4">
     <div class="form-group mb-3">
-        <label for="prompt" class="form-label">Prompt:</label>
+        <label for="prompt" class="form-label">Model instructions:</label>
         <textarea id="systemPrompt" name="systemPrompt" class="form-control" rows="5" placeholder="Enter prompt here..."></textarea>
         <label for="profileData" class="form-label mt-3">Profile Data:</label>
         <textarea id="profileData" name="profileData" class="form-control" rows="10"></textarea>
     </div>
+    <div class="form-text mb-3">Model instructions and profile data together form the prompt sent to the AI model.</div>
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Query AI model</button>
     </div>
 </form>
 
-<hr />
+<hr class="my-5" />
 
 <h2>Query result</h2>
 
