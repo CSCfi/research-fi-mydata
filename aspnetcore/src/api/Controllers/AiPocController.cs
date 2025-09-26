@@ -55,7 +55,7 @@ namespace api.Controllers
             {
                 ChatCompletionOptions options = new()
                 {
-                    MaxOutputTokenCount = 200
+                    MaxOutputTokenCount = 500
                     // Temperature = 0.5f,
                     // TopP = 0.9f
                 };
