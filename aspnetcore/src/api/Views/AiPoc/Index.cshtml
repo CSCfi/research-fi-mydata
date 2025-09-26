@@ -3,24 +3,91 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>AI POC experimental</h1>
-<p>Enter ORCID below to test the AI functionality.</p>
+<h1>AI POC</h1>
+<h2>Get profile data for ORCID</h2>
 
 @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
 {
-    <div class="error">
+    <div class="alert alert-danger">
         @ViewBag.ErrorMessage
     </div>
 }
 
-<form method="post" action="/AiPoc/Greet">
-    <div class="form-group">
-        <label for="orcid">ORCID:</label>
-        <input type="text" id="orcid" name="orcid" placeholder="Enter ORCID here..." />
+<form id="orcidForm" class="mb-4">
+    <div class="form-group mb-3">
+        <label for="orcid" class="form-label">ORCID:</label>
+        <input type="text" id="orcid" name="orcid" class="form-control" placeholder="Enter ORCID here..." />
     </div>
     <div class="form-group">
-        <button type="submit">Submit</button>
+        <button type="submit" class="btn btn-primary">Get profile data</button>
     </div>
 </form>
 
-<p><em>This is an experimental feature for testing AI generated content.</em></p>
+<hr />
+
+<h2>Query AI model</h2>
+
+<form id="promptForm" class="mb-4">
+    <div class="form-group mb-3">
+        <label for="prompt" class="form-label">Prompt:</label>
+        <textarea id="systemPrompt" name="systemPrompt" class="form-control" rows="5" placeholder="Enter prompt here..."></textarea>
+        <label for="profileData" class="form-label mt-3">Profile Data:</label>
+        <textarea id="profileData" name="profileData" class="form-control" rows="10"></textarea>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Query AI model</button>
+    </div>
+</form>
+
+<hr />
+
+<h2>Query result</h2>
+
+<div id="result2" class="mt-4"></div>
+
+
+
+
+@section Scripts {
+    <script>
+        document.getElementById("orcidForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // Clear previous profile data
+            document.getElementById("profileData").value = "";
+
+            // Get profile data for the given ORCID
+            const formData = new FormData(this);
+            const profileDataResponse = await fetch("/AiPoc/GetProfileDataForPrompt", {
+                method: "POST",
+                body: formData
+            });
+
+            // Set profile data in the input field
+            const profileDataResult = await profileDataResponse.text();
+            document.getElementById("profileData").value = profileDataResult;
+        });
+
+        document.getElementById("promptForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const resultContainer = document.getElementById("result2");
+            const promptFormData = new FormData(this);
+
+            // Show loading indicator
+            resultContainer.innerHTML = "<div class='spinner-border text-primary' role='status'><span class='visually-hidden'>Loading...</span></div>";
+
+            try {
+                const response = await fetch("/AiPoc/QueryAiModel", {
+                    method: "POST",
+                    body: promptFormData
+                });
+
+                const result = await response.text();
+                resultContainer.innerHTML = result;
+            } catch (error) {
+                resultContainer.innerHTML = `<div class='alert alert-danger'>Error: ${error.message}</div>`;
+            }
+        });
+    </script>
+}
