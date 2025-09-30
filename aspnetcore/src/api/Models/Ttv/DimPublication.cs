@@ -93,8 +93,6 @@ public partial class DimPublication
 
     public int PublisherOpenAccessCode { get; set; }
 
-    public string Abstract { get; set; }
-
     public int DimPublicationChannelId { get; set; }
 
     public int JufoClass { get; set; }
