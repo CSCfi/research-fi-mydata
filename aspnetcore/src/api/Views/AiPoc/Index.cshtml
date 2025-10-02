@@ -84,8 +84,11 @@
                     body: promptFormData
                 });
 
-                const result = await response.text();
-                resultContainer.innerHTML = result;
+                const markdownResult = await response.text();
+
+                // Convert Markdown to HTML and render it
+                const htmlResult = marked.parse(markdownResult);
+                resultContainer.innerHTML = htmlResult;
             } catch (error) {
                 resultContainer.innerHTML = `<div class='alert alert-danger'>Error: ${error.message}</div>`;
             }
