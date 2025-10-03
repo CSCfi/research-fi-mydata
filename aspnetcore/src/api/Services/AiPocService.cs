@@ -7,6 +7,7 @@ using api.Models.Aitta;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using api.Models.AittaModel;
 
 namespace api.Services
 {
@@ -26,7 +27,7 @@ namespace api.Services
 
 
 
-        public async Task<AittaProfileData?> GetProfileDataForPromt(string orcidId)
+        public async Task<AittaModel?> GetProfileDataForPromt(string orcidId)
         {
             List<FactFieldValue> factFieldValues = await _ttvContext.FactFieldValues
                 .Include(ffv => ffv.DimName)
@@ -47,7 +48,7 @@ namespace api.Services
                 .AsSplitQuery()
                 .ToListAsync();
 
-            AittaProfileData profileData = new AittaProfileData();
+            AittaModel aittaModel = new AittaModel();
 
             if (factFieldValues.Count == 0)
             {
@@ -58,13 +59,13 @@ namespace api.Services
             // Names
             foreach (DimName n in factFieldValues.Where(ffv => ffv.DimNameId > 0 && (!string.IsNullOrWhiteSpace(ffv.DimName.FirstNames) || !string.IsNullOrWhiteSpace(ffv.DimName.LastName))).Select(ffv => ffv.DimName).ToList())
             {
-                profileData.Name.Add($"{n.FirstNames} {n.LastName}");
+                aittaModel.PersonName = $"{n.FirstNames} {n.LastName}";
             }
 
             // Researcher descriptions
-            foreach (DimResearcherDescription rd in factFieldValues.Where(ffv => ffv.DimResearcherDescriptionId > 0 ).Select(ffv => ffv.DimResearcherDescription).ToList())
+            foreach (DimResearcherDescription rd in factFieldValues.Where(ffv => ffv.DimResearcherDescriptionId > 0).Select(ffv => ffv.DimResearcherDescription).ToList())
             {
-                profileData.ResearcherDescription.Add(rd.ResearchDescriptionEn);
+                aittaModel.ResearcherDescription.Add(rd.ResearchDescriptionEn);
             }
 
             // Affiliations
@@ -79,22 +80,20 @@ namespace api.Services
                 {
                     organizationName = a.DimOrganization.NameEn;
                 }
-                profileData.Affiliations.Add(new Affiliation
+
+                aittaModel.HasAffiliation.Add(new AittaAffiliation
                 {
-                    Position = a.PositionNameEn,
-                    Organization = organizationName,
-                    StartDate = a.StartDateNavigation != null ? new ProfileDataDate { Year = a.StartDateNavigation.Year, Month = a.StartDateNavigation.Month } : null,
-                    EndDate = a.EndDateNavigation != null ? new ProfileDataDate { Year = a.EndDateNavigation.Year, Month = a.EndDateNavigation.Month } : null
+                    AffiliationType = "",
+                    PositionTitle = a.PositionNameEn,
+                    StartsOn = a.StartDateNavigation != null ? new AittaDate { Year = a.StartDateNavigation.Year, Month = a.StartDateNavigation.Month } : null,
+                    EndsOn = a.EndDateNavigation != null ? new AittaDate { Year = a.EndDateNavigation.Year, Month = a.EndDateNavigation.Month } : null
                 });
+
             }
 
             // Educations
             foreach (DimEducation e in factFieldValues.Where(ffv => ffv.DimEducationId > 0).Select(ffv => ffv.DimEducation).ToList())
             {
-                profileData.Educations.Add(new Education
-                {
-                    Name = e.NameEn
-                });
             }
 
             // TTV publications
@@ -109,25 +108,14 @@ namespace api.Services
                 {
                     publicationAbstract = "";
                 }
-                profileData.Publications.Add(new Publication
-                {
-                    Name = p.PublicationName,
-                    Abstract = publicationAbstract,
-                    Year = p.PublicationYear
-                });
             }
 
             // ORCID publications
             foreach (DimProfileOnlyPublication p in factFieldValues.Where(ffv => ffv.DimProfileOnlyPublicationId > 0).Select(ffv => ffv.DimProfileOnlyPublication).ToList())
             {
-                profileData.Publications.Add(new Publication
-                {
-                    Name = p.PublicationName,
-                    Year = p.PublicationYear
-                });
             }
 
-            return profileData;
+            return aittaModel;
         }
     }
 }
