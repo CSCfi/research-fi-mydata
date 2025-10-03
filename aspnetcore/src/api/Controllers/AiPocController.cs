@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using OpenAI.Chat;
 using api.Models.Aitta;
 using System.Text.Json;
+using api.Models.AittaModel;
 
 namespace api.Controllers
 {
@@ -38,7 +39,7 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> GetProfileDataForPrompt(string orcid)
         {
-            AittaProfileData? profileDataForPromt = await _aiPocService.GetProfileDataForPromt(orcid);
+            AittaModel? profileDataForPromt = await _aiPocService.GetProfileDataForPromt(orcid);
             return Content(
                 JsonSerializer.Serialize(
                     profileDataForPromt,

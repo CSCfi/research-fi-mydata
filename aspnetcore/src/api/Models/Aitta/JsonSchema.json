@@ -1,0 +1,465 @@
+{
+    "description": "Lähetettävät tiedot",
+    "id": "https://iri.suomi.fi/model/researchfi_data_aitta/1.0.0/",
+    "type": "object",
+    "title": "Tiede ja tutkimus - AITTA",
+    "properties": {
+        "date": {
+            "description": "",
+            "type": "object",
+            "title": "Päivämäärä",
+            "required": ["dateGeneral"],
+            "properties": {"dateGeneral": {
+                "description": "",
+                "type": "string",
+                "title": "päivämäärä"
+            }}
+        },
+        "research_publication": {
+            "description": "",
+            "type": "object",
+            "title": "Tutkimusjulkaisut",
+            "required": ["publication_name"],
+            "properties": {
+                "Tieteenala2010": {
+                    "description": "",
+                    "type": "array",
+                    "title": "tieteenala luokitus",
+                    "items": [{
+                        "description": "",
+                        "title": "tieteenala luokitus",
+                        "$ref": "#/properties/reference_data"
+                    }]
+                },
+                "publication_year": {
+                    "description": "",
+                    "type": "number",
+                    "title": "julkaisun julkaisuvuosi"
+                },
+                "publication_name": {
+                    "description": "",
+                    "type": "string",
+                    "title": "julkaisun nimi"
+                },
+                "julkaisutyyppiluokitus": {
+                    "description": "",
+                    "title": "julkaisutyyppi luokitus",
+                    "$ref": "#/properties/reference_data"
+                },
+                "julkaisunyleiso": {
+                    "description": "",
+                    "title": "julkaisun yleisö koodi",
+                    "$ref": "#/properties/reference_data"
+                },
+                "Avainsana": {
+                    "description": "",
+                    "type": "array",
+                    "title": "avainsana",
+                    "items": [{
+                        "description": "",
+                        "title": "avainsana",
+                        "$ref": ""
+                    }]
+                },
+                "publication_abstract": {
+                    "description": "",
+                    "title": "tiivistelmä",
+                    "$ref": "#/properties/descriptive_item"
+                }
+            }
+        },
+        "granted_funding": {
+            "description": "",
+            "type": "object",
+            "title": "Myönnetty rahoitus",
+            "required": [
+                "hasFunder",
+                "granted_funding_name"
+            ],
+            "properties": {
+                "TeemaAla": {
+                    "description": "",
+                    "type": "array",
+                    "title": "teema-ala",
+                    "items": [{
+                        "description": "",
+                        "title": "teema-ala",
+                        "$ref": "#/properties/keyword"
+                    }]
+                },
+                "endsOn": {
+                    "description": "",
+                    "title": "päättyy",
+                    "$ref": "#/properties/date"
+                },
+                "Tieteenala2010": {
+                    "description": "",
+                    "type": "array",
+                    "title": "tieteenala luokitus",
+                    "items": [{
+                        "description": "",
+                        "title": "tieteenala luokitus",
+                        "$ref": "#/properties/reference_data"
+                    }]
+                },
+                "granted_funding_description": {
+                    "description": "otetaan ensimmäinen tai kaksi ensimmäistä virkettä mukaan kyselyyn ja katsotaan tuloksia (toiveena että kuvailee mistä aiheesta hanke on) ",
+                    "type": "string",
+                    "title": "myönnetyn rahoituksen kuvaus"
+                },
+                "rahoitusmuoto24": {
+                    "description": "",
+                    "type": "array",
+                    "title": "rahoitusmuoto koodi",
+                    "items": [{
+                        "description": "",
+                        "title": "rahoitusmuoto koodi",
+                        "$ref": ""
+                    }]
+                },
+                "Avainsana": {
+                    "description": "",
+                    "type": "array",
+                    "title": "avainsana",
+                    "items": [{
+                        "description": "",
+                        "title": "avainsana",
+                        "$ref": ""
+                    }]
+                },
+                "Tutkimusala": {
+                    "description": "",
+                    "type": "array",
+                    "title": "tutkimusala",
+                    "items": [{
+                        "description": "",
+                        "title": "tutkimusala",
+                        "$ref": "#/properties/keyword"
+                    }]
+                },
+                "startsOn": {
+                    "description": "",
+                    "title": "alkaa",
+                    "$ref": "#/properties/date"
+                },
+                "hasFunder": {
+                    "description": "",
+                    "title": "omaa rahoittajan",
+                    "$ref": "#/properties/research_organization"
+                },
+                "granted_funding_name": {
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "description": "",
+                    "type": "array",
+                    "title": "myönnetyn rahoituksen nimi",
+                    "items": {"type": "string"}
+                }
+            }
+        },
+        "education": {
+            "description": "",
+            "type": "object",
+            "title": "Koulutus",
+            "required": [
+                "degree_granting_institution",
+                "education_name"
+            ],
+            "properties": {
+                "degree_granting_institution": {
+                    "description": "",
+                    "type": "object",
+                    "title": "tutkinnon myöntäjän nimi"
+                },
+                "education_name": {
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "description": "",
+                    "type": "array",
+                    "title": "tutkinnon nimi kielivariantit",
+                    "items": {"type": "string"}
+                }
+            }
+        },
+        "descriptive_item": {
+            "description": "",
+            "type": "object",
+            "title": "Sisällön kuvaus tekstit",
+            "required": ["descriptive_content"],
+            "properties": {"descriptive_content": {
+                "description": "",
+                "type": "string",
+                "title": "sisältöä kuvaava teksti"
+            }}
+        },
+        "reference_data": {
+            "description": "",
+            "type": "object",
+            "title": "Koodiarvon selite",
+            "required": ["code_name"],
+            "properties": {"code_name": {
+                "description": "",
+                "type": "string",
+                "title": "koodin selite"
+            }}
+        },
+        "affiliation_attributes": {
+            "description": "",
+            "type": "object",
+            "title": "Affiliaatio",
+            "required": ["affiliation_target_organization"],
+            "properties": {
+                "affiliation_type": {
+                    "description": "",
+                    "type": "string",
+                    "title": "affiliaation tyyppi"
+                },
+                "endsOn": {
+                    "description": "",
+                    "title": "päättyy",
+                    "$ref": "#/properties/date"
+                },
+                "position_title": {
+                    "description": "",
+                    "type": "string",
+                    "title": "tehtävänimike"
+                },
+                "affiliation_target_organization": {
+                    "description": "",
+                    "title": "affiliaation organisaatio",
+                    "$ref": "#/properties/research_organization"
+                },
+                "startsOn": {
+                    "description": "",
+                    "title": "alkaa",
+                    "$ref": "#/properties/date"
+                }
+            }
+        },
+        "keyword": {
+            "description": "",
+            "type": "object",
+            "title": "Sisällön kuvaus termit",
+            "required": ["keyword_content"],
+            "properties": {"keyword_content": {
+                "description": "",
+                "type": "string",
+                "title": "kuvailutermi"
+            }}
+        },
+        "toAitta": {
+            "description": "",
+            "type": "object",
+            "title": "Tiedot AITTAan",
+            "required": [
+                "person_name",
+                "show_in_profile"
+            ],
+            "properties": {
+                "userParticipateGrantedfunding": {
+                    "description": "",
+                    "type": "array",
+                    "title": "on osallinen myönnetyssä rahoituksessa",
+                    "items": [{
+                        "description": "",
+                        "title": "on osallinen myönnetyssä rahoituksessa",
+                        "$ref": "#/properties/granted_funding"
+                    }]
+                },
+                "show_in_profile": {
+                    "description": "",
+                    "title": "tieto näytetään profiilissa",
+                    "enum": ["1"]
+                },
+                "userParticipatedDataset": {
+                    "description": "",
+                    "type": "array",
+                    "title": "on osallinen aineistossa",
+                    "items": [{
+                        "description": "",
+                        "title": "on osallinen aineistossa",
+                        "$ref": "#/properties/research_dataset"
+                    }]
+                },
+                "researcher_description": {
+                    "maxItems": 2,
+                    "description": "dim_researcher_description.research_description_en / source",
+                    "type": "array",
+                    "title": "tutkimustoiminnan kuvaus",
+                    "items": {"type": "string"}
+                },
+                "hasCompleted": {
+                    "description": "",
+                    "type": "array",
+                    "title": "on suorittanut",
+                    "items": [{
+                        "description": "",
+                        "title": "on suorittanut",
+                        "$ref": "#/properties/education"
+                    }]
+                },
+                "userParticipatedPublication": {
+                    "description": "",
+                    "type": "array",
+                    "title": "on osallinen julkaisussa",
+                    "items": [{
+                        "description": "",
+                        "title": "on osallinen julkaisussa",
+                        "$ref": "#/properties/research_publication"
+                    }]
+                },
+                "person_name": {
+                    "description": "",
+                    "type": "string",
+                    "title": "henkilön nimi"
+                },
+                "userParticipateActivity": {
+                    "description": "",
+                    "type": "array",
+                    "title": "on osallinen aktiviteetissä",
+                    "items": [{
+                        "description": "",
+                        "title": "on osallinen aktiviteetissä",
+                        "$ref": "#/properties/research_activity"
+                    }]
+                },
+                "hasAffiliation": {
+                    "description": "",
+                    "type": "array",
+                    "title": "on affilioitunut",
+                    "items": [{
+                        "description": "",
+                        "title": "on affilioitunut",
+                        "$ref": "#/properties/affiliation_attributes"
+                    }]
+                }
+            }
+        },
+        "research_dataset": {
+            "description": "",
+            "type": "object",
+            "title": "Tutkimusaineistot",
+            "properties": {
+                "dataset_description": {
+                    "description": "Kokeiluun: otetaan ensimmäinen tai kaksi ensimmäistä virkettä mukaan kyselyyn ja katsotaan tuloksia (toiveena että kuvailee mistä aiheesta aineisto on)",
+                    "title": "aineiston kuvaus",
+                    "$ref": "#/properties/descriptive_item"
+                },
+                "Tieteenala2010": {
+                    "description": "",
+                    "type": "array",
+                    "title": "tieteenala luokitus",
+                    "items": [{
+                        "description": "",
+                        "title": "tieteenala luokitus",
+                        "$ref": "#/properties/reference_data"
+                    }]
+                },
+                "Theme": {
+                    "description": "",
+                    "type": "array",
+                    "title": "asiasana",
+                    "items": [{
+                        "description": "",
+                        "title": "asiasana",
+                        "$ref": "#/properties/keyword"
+                    }]
+                },
+                "Avainsana": {
+                    "description": "",
+                    "type": "array",
+                    "title": "avainsana",
+                    "items": [{
+                        "description": "",
+                        "title": "avainsana",
+                        "$ref": ""
+                    }]
+                },
+                "dataset_title": {
+                    "description": "",
+                    "title": "aineiston nimi",
+                    "$ref": "#/properties/descriptive_item"
+                },
+                "dataset_creation_date": {
+                    "description": "only year",
+                    "type": "number",
+                    "title": "aineiston julkaisuvuosi"
+                }
+            }
+        },
+        "research_organization": {
+            "description": "",
+            "type": "object",
+            "title": "Organisaatio",
+            "required": ["organization_name"],
+            "properties": {
+                "isPartOfOrganization": {
+                    "description": "",
+                    "title": "kuuluu pääorganisaatioon",
+                    "$ref": "#/properties/research_organization"
+                },
+                "organization_name": {
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "description": "",
+                    "type": "array",
+                    "title": "organisaation nimi",
+                    "items": {"type": "string"}
+                }
+            }
+        },
+        "research_activity": {
+            "description": "",
+            "type": "object",
+            "title": "Tutkimusaktiviteetit",
+            "required": ["aktivity_title"],
+            "properties": {
+                "description_lang_variant": {
+                    "maxItems": 3,
+                    "description": "",
+                    "type": "array",
+                    "title": "kuvaus kielivariantit",
+                    "items": {"type": "string"}
+                },
+                "activityRole": {
+                    "description": "roolit koodiston alimmalla tasolla",
+                    "type": "array",
+                    "title": "aktiviteetin rooli",
+                    "items": [{
+                        "description": "roolit koodiston alimmalla tasolla",
+                        "title": "aktiviteetin rooli",
+                        "$ref": "#/properties/reference_data"
+                    }]
+                },
+                "endsOn": {
+                    "description": "",
+                    "title": "päättyy",
+                    "$ref": "#/properties/date"
+                },
+                "activityType": {
+                    "description": "koodi arvot koodiston ylimmällä tasolla",
+                    "type": "array",
+                    "title": "aktiviteetin tyyppi",
+                    "items": [{
+                        "description": "koodi arvot koodiston ylimmällä tasolla",
+                        "title": "aktiviteetin tyyppi",
+                        "$ref": "#/properties/reference_data"
+                    }]
+                },
+                "startsOn": {
+                    "description": "",
+                    "title": "alkaa",
+                    "$ref": "#/properties/date"
+                },
+                "aktivity_title": {
+                    "minItems": 1,
+                    "maxItems": 3,
+                    "description": "",
+                    "type": "array",
+                    "title": "aktiviteetin otsikko",
+                    "items": {"type": "string"}
+                }
+            }
+        }
+    }
+}
