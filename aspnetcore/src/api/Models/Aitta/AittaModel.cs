@@ -1,0 +1,113 @@
+using System.Collections.Generic;
+
+namespace api.Models.AittaModel
+{
+    public partial class AittaModel
+    {
+        public AittaModel()
+        {
+        }
+
+        public List<AittaGrantedFunding> UserParticipatedGrantedFunding { get; set; } = new List<AittaGrantedFunding>();
+        public List<AittaResearchDataset> UserParticipatedDataset { get; set; } = new List<AittaResearchDataset>();
+        public List<string> ResearcherDescription { get; set; } = new List<string>();
+        public List<AittaEducation> HasCompleted { get; set; } = new List<AittaEducation>();
+        public List<AittaPublication> UserParticipatedPublication { get; set; } = new List<AittaPublication>();
+        public string PersonName { get; set; } = string.Empty;
+        public List<AittaResearchActivity> UserParticipatedActivity { get; set; } = new List<AittaResearchActivity>();
+        public List<AittaAffiliation> HasAffiliation { get; set; } = new List<AittaAffiliation>();
+    }
+
+    public class AittaKeyword
+    {
+        public string? KeywordContent { get; set; } = null;
+    }
+
+    public class AittaDescriptiveItem
+    {
+        public string? DescriptiveContent { get; set; } = null;
+    }
+
+    public class AittaReferenceData
+    {
+        public string? CodeName { get; set; } = null;
+        public string? CodeValue { get; set; } = null;
+    }
+
+    public class AittaOrganization
+    {
+        public AittaOrganization? IsPartOfOrganization { get; set; } = null;
+        public string? OrganizationName { get; set; } = null;
+    }
+
+    public class AittaPublication
+    {
+        public List<AittaReferenceData>? Tieteenala2010 { get; set; } = null;
+        public int? PublicationYear { get; set; } = null;
+        public string PublicationName { get; set; } = string.Empty;
+        public List<AittaReferenceData>? Julkaisutyyppiluokitus { get; set; } = null;
+        public List<AittaReferenceData>? Julkaisunyleiso { get; set; } = null;
+        public List<string>? Avainsana { get; set; } = null;
+        public AittaDescriptiveItem? Abstract { get; set; } = null;
+    }
+
+    public class AittaResearchActivity
+    {
+        public List<string>? DescriptionLangVariant { get; set; } = null;
+        public List<AittaReferenceData>? ActivityRole { get; set; } = null;
+        public AittaDate? EndsOn { get; set; } = null;
+        public List<AittaReferenceData>? ActivityType { get; set; } = null;
+        public AittaDate? StartsOn { get; set; } = null;
+        public List<string>? ActivityTitle { get; set; } = null;
+    }
+    public class AittaResearchDataset
+    {
+        public AittaDescriptiveItem? DatasetDescription { get; set; } = null;
+        public List<AittaReferenceData>? Tieteenala2010 { get; set; } = null;
+        public List<AittaKeyword>? Theme { get; set; } = null;
+        public List<string>? Avainsana { get; set; } = null;
+        public AittaDescriptiveItem? DatasetTitle { get; set; } = null;
+        public int? DatasetCreationDate { get; set; } = null;
+    }
+
+    public class AittaGrantedFunding
+    {
+        public List<AittaKeyword>? TeemaAla { get; set; } = null;
+        public AittaDate? EndsOn { get; set; } = null;
+        public List<AittaReferenceData>? Tieteenala2010 { get; set; } = null;
+        public string? GrantedFundingDescription { get; set; } = null;
+        public List<string>? Rahoitusmuoto24 { get; set; } = null;
+        public List<string>? Avainsana { get; set; } = null;
+        public List<AittaKeyword>? Tutkimusala { get; set; } = null;
+        public AittaDate? StartsOn { get; set; } = null;
+        public AittaOrganization? HasFunder { get; set; } = null;
+        public List<string>? GrantedFundingName { get; set; } = null;
+    }
+
+    public class AittaEducation_DegreeGrantingInstitution
+    {
+        public string? Description { get; set; } = null;
+        public string? Title { get; set; } = null;
+    }
+
+    public class AittaEducation
+    {
+        public AittaEducation_DegreeGrantingInstitution? DegreeGrantingInstitution { get; set; } = null;
+        public List<string>? EducationName { get; set; } = null;
+    }
+
+    public class AittaAffiliation
+    {
+        public string? AffiliationType { get; set; } = null;
+        public string? PositionTitle { get; set; } = null;
+        public AittaOrganization? Organization { get; set; } = null;
+        public AittaDate? StartsOn { get; set; } = null;
+        public AittaDate? EndsOn { get; set; } = null;
+    }
+
+    public class AittaDate
+    {
+        public int? Year { get; set; }
+        public int? Month { get; set; }
+    }
+}
