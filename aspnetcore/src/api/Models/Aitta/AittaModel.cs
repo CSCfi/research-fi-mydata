@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
 
-namespace api.Models.AittaModel
+namespace api.Models.Ai
 {
     public partial class AittaModel
     {
@@ -45,8 +46,8 @@ namespace api.Models.AittaModel
         public List<AittaReferenceData>? Tieteenala2010 { get; set; } = null;
         public int? PublicationYear { get; set; } = null;
         public string PublicationName { get; set; } = string.Empty;
-        public List<AittaReferenceData>? Julkaisutyyppiluokitus { get; set; } = null;
-        public List<AittaReferenceData>? Julkaisunyleiso { get; set; } = null;
+        public AittaReferenceData? Julkaisutyyppiluokitus { get; set; } = null;
+        public AittaReferenceData? Julkaisunyleiso { get; set; } = null;
         public List<string>? Avainsana { get; set; } = null;
         public AittaDescriptiveItem? Abstract { get; set; } = null;
     }
@@ -67,7 +68,7 @@ namespace api.Models.AittaModel
         public List<AittaKeyword>? Theme { get; set; } = null;
         public List<string>? Avainsana { get; set; } = null;
         public AittaDescriptiveItem? DatasetTitle { get; set; } = null;
-        public int? DatasetCreationDate { get; set; } = null;
+        public DateTime? DatasetCreationDate { get; set; } = null;
     }
 
     public class AittaGrantedFunding
@@ -92,8 +93,8 @@ namespace api.Models.AittaModel
 
     public class AittaEducation
     {
-        public AittaEducation_DegreeGrantingInstitution? DegreeGrantingInstitution { get; set; } = null;
-        public List<string>? EducationName { get; set; } = null;
+        public string? DegreeGrantingInstitution { get; set; } = null;
+        public string? EducationName { get; set; } = null;
     }
 
     public class AittaAffiliation
