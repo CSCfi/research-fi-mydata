@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models.Ttv;
-using api.Models.Aitta;
+using api.Models.Ai;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using api.Models.AittaModel;
 
 namespace api.Services
 {
@@ -25,8 +24,6 @@ namespace api.Services
             _logger = logger;
         }
 
-
-
         public async Task<AittaModel?> GetProfileDataForPromt(string orcidId)
         {
             List<FactFieldValue> factFieldValues = await _ttvContext.FactFieldValues
@@ -43,10 +40,9 @@ namespace api.Services
                 .Include(ffv => ffv.DimPublication)
                     .ThenInclude(pub => pub.DimDescriptiveItems)
                 .Include(ffv => ffv.DimProfileOnlyPublication)
+                .Include(ffv => ffv.DimResearchDataset)
                 .Where(ffv => ffv.DimUserProfile != null && ffv.DimUserProfile.OrcidId == orcidId && ffv.Show == true)
-                .AsNoTracking()
-                .AsSplitQuery()
-                .ToListAsync();
+                .AsNoTracking().AsSplitQuery().ToListAsync();
 
             AittaModel aittaModel = new AittaModel();
 
@@ -71,20 +67,15 @@ namespace api.Services
             // Affiliations
             foreach (DimAffiliation a in factFieldValues.Where(ffv => ffv.DimAffiliationId > 0).Select(ffv => ffv.DimAffiliation).ToList())
             {
-                string organizationName = "";
-                if (a.DimOrganization.DimOrganizationBroader != null)
-                {
-                    organizationName = a.DimOrganization.DimOrganizationBroaderNavigation.NameEn;
-                }
-                else
-                {
-                    organizationName = a.DimOrganization.NameEn;
-                }
-
                 aittaModel.HasAffiliation.Add(new AittaAffiliation
                 {
-                    AffiliationType = "",
-                    PositionTitle = a.PositionNameEn,
+                    AffiliationType = !string.IsNullOrWhiteSpace(a.AffiliationTypeEn) ? a.AffiliationTypeEn : null,
+                    PositionTitle = !string.IsNullOrWhiteSpace(a.PositionNameEn) ? a.PositionNameEn : null,
+                    Organization = new AittaOrganization
+                    {
+                        OrganizationName = a.DimOrganization.NameEn,
+                        IsPartOfOrganization = a.DimOrganization.DimOrganizationBroader != null ? new AittaOrganization { OrganizationName = a.DimOrganization.DimOrganizationBroaderNavigation.NameEn } : null
+                    },
                     StartsOn = a.StartDateNavigation != null ? new AittaDate { Year = a.StartDateNavigation.Year, Month = a.StartDateNavigation.Month } : null,
                     EndsOn = a.EndDateNavigation != null ? new AittaDate { Year = a.EndDateNavigation.Year, Month = a.EndDateNavigation.Month } : null
                 });
@@ -94,6 +85,11 @@ namespace api.Services
             // Educations
             foreach (DimEducation e in factFieldValues.Where(ffv => ffv.DimEducationId > 0).Select(ffv => ffv.DimEducation).ToList())
             {
+                aittaModel.HasCompleted.Add(new AittaEducation
+                {
+                    EducationName = !string.IsNullOrWhiteSpace(e.NameEn) ? e.NameEn : null,
+                    DegreeGrantingInstitution = !string.IsNullOrWhiteSpace(e.DegreeGrantingInstitutionName) ? e.DegreeGrantingInstitutionName : null
+                });
             }
 
             // TTV publications
@@ -102,17 +98,49 @@ namespace api.Services
                 string? publicationAbstract = p.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "Abstract").Select(di => di.DescriptiveItem).FirstOrDefault();
                 if (publicationAbstract != null)
                 {
+                    // Take only part of the abstract to keep the prompt size reasonable
                     publicationAbstract = $"{publicationAbstract.Substring(0, Math.Min(200, publicationAbstract.Length))}";
                 }
-                else
+
+                aittaModel.UserParticipatedPublication.Add(new AittaPublication
                 {
-                    publicationAbstract = "";
-                }
+                    PublicationName = !string.IsNullOrWhiteSpace(p.PublicationName) ? p.PublicationName : null,
+                    PublicationYear = p.PublicationYear > 0 ? p.PublicationYear : null,
+                    Abstract = publicationAbstract != null ? new AittaDescriptiveItem { DescriptiveContent = publicationAbstract } : null,
+                    Avainsana = p.DimKeywords.Select(kw => kw.Keyword).ToList(),
+                    Tieteenala2010 = p.FactDimReferencedataFieldOfSciences.Select(fdrfs => new AittaReferenceData { CodeName = fdrfs.DimReferencedata.CodeScheme, CodeValue = fdrfs.DimReferencedata.CodeValue }).ToList(),
+                    Julkaisutyyppiluokitus = p.PublicationTypeCodeNavigation != null ? new AittaReferenceData { CodeName = p.PublicationTypeCodeNavigation.CodeScheme, CodeValue = p.PublicationTypeCodeNavigation.CodeValue } : null,
+                    Julkaisunyleiso = p.TargetAudienceCodeNavigation != null ? new AittaReferenceData { CodeName = p.TargetAudienceCodeNavigation.CodeScheme, CodeValue = p.TargetAudienceCodeNavigation.CodeValue } : null
+                });
             }
 
             // ORCID publications
             foreach (DimProfileOnlyPublication p in factFieldValues.Where(ffv => ffv.DimProfileOnlyPublicationId > 0).Select(ffv => ffv.DimProfileOnlyPublication).ToList())
             {
+                aittaModel.UserParticipatedPublication.Add(new AittaPublication
+                {
+                    PublicationName = !string.IsNullOrWhiteSpace(p.PublicationName) ? p.PublicationName : null,
+                    PublicationYear = p.PublicationYear > 0 ? p.PublicationYear : null,
+                    Abstract = null,
+                    Avainsana = null,
+                    Tieteenala2010 = null,
+                    Julkaisutyyppiluokitus = null,
+                    Julkaisunyleiso = null
+                });
+            }
+
+            // Activities
+            foreach (DimResearchDataset rd in factFieldValues.Where(ffv => ffv.DimResearchDatasetId > 0).Select(ffv => ffv.DimResearchDataset).ToList())
+            {
+                aittaModel.UserParticipatedDataset.Add(new AittaResearchDataset
+                {
+                    DatasetTitle = !string.IsNullOrWhiteSpace(rd.NameEn) ? new AittaDescriptiveItem { DescriptiveContent = rd.NameEn } : null,
+                    DatasetDescription = !string.IsNullOrWhiteSpace(rd.DescriptionEn) ? new AittaDescriptiveItem { DescriptiveContent = rd.DescriptionEn } : null,
+                    DatasetCreationDate = rd.DatasetCreated != null ? rd.DatasetCreated : null,
+                    Theme = null,
+                    Avainsana = null,
+                    Tieteenala2010 = null
+                });
             }
 
             return aittaModel;
