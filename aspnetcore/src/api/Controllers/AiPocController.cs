@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
 using OpenAI.Chat;
-using api.Models.Aitta;
+using api.Models.Ai;
 using System.Text.Json;
-using api.Models.AittaModel;
 
 namespace api.Controllers
 {
