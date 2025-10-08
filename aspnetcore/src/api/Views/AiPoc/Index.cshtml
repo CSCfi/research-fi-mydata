@@ -19,7 +19,7 @@
         <input type="text" id="orcid" name="orcid" class="form-control" placeholder="Enter ORCID here..." />
     </div>
     <div class="form-group">
-        <button type="submit" class="btn btn-primary">Get profile data</button>
+        <button type="submit" id="submitOrcid" class="btn btn-primary" disabled>Get profile data</button>
     </div>
 </form>
 
@@ -31,8 +31,9 @@
     <div class="form-group mb-3">
         <label for="prompt" class="form-label">Model instructions:</label>
         <textarea id="systemPrompt" name="systemPrompt" class="form-control" rows="5" placeholder="Enter prompt here..."></textarea>
-        <label for="profileData" class="form-label mt-3">Profile Data:</label>
-        <textarea id="profileData" name="profileData" class="form-control" rows="10"></textarea>
+        <label for="profileDataViewer" class="form-label mt-3">Profile Data:</label>
+        <div id="profileDataViewer" class="json-container border p-3" style="background-color: #f8f9fa; max-height: 400px; overflow-y: auto;"></div>
+        <input type="hidden" id="profileData" name="profileData" />
     </div>
     <div class="form-text mb-3">Model instructions and profile data together form the prompt sent to the AI model.</div>
     <div class="form-group">
@@ -42,20 +43,31 @@
 
 <hr class="my-5" />
 
-<h2>Query result</h2>
+@section RightColumn {
+    <h2>Query result</h2>
 
-<div id="result2" class="mt-4"></div>
+    <div id="result2" class="mt-4"></div>
+}
 
 
 
 
 @section Scripts {
     <script>
+        const orcidInput = document.getElementById("orcid");
+        const submitButton = document.getElementById("submitOrcid");
+
+        // Enable/disable the submit button based on input value
+        orcidInput.addEventListener("input", function () {
+            submitButton.disabled = !orcidInput.value.trim();
+        });
+
         document.getElementById("orcidForm").addEventListener("submit", async function (e) {
             e.preventDefault();
 
             // Clear previous profile data
-            document.getElementById("profileData").value = "";
+            const profileDataContainer = document.getElementById("profileDataViewer");
+            profileDataContainer.innerHTML = "";
 
             // Get profile data for the given ORCID
             const formData = new FormData(this);
@@ -64,9 +76,21 @@
                 body: formData
             });
 
-            // Set profile data in the input field
+            
             const profileDataResult = await profileDataResponse.text();
+
+            // Set profile data in hidden input for form submission
             document.getElementById("profileData").value = profileDataResult;
+
+            // Set profile data in the JSON viewer
+            try {
+                // Attempt to pretty-print JSON
+                const jsonData = JSON.parse(profileDataResult);
+                $(profileDataContainer).jsonViewer(jsonData, { collapsed: true }); // Collapsed by default
+            } catch (error) {
+                // If not valid JSON, display raw text
+                profileDataContainer.textContent = profileDataResult;
+            }
         });
 
         document.getElementById("promptForm").addEventListener("submit", async function (e) {
