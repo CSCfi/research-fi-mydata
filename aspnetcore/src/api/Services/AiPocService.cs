@@ -7,6 +7,7 @@ using api.Models.Ai;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using System.Text.RegularExpressions;
 
 namespace api.Services
 {
@@ -37,10 +38,22 @@ namespace api.Services
                 .Include(ffv => ffv.DimAffiliation)
                     .ThenInclude(affiliation => affiliation.EndDateNavigation)
                 .Include(ffv => ffv.DimEducation)
+                // DimPublication
+                .Include(ffv => ffv.DimPublication)
+                    .ThenInclude(pub => pub.DimKeywords)
                 .Include(ffv => ffv.DimPublication)
                     .ThenInclude(pub => pub.DimDescriptiveItems)
+                .Include(ffv => ffv.DimPublication)
+                    .ThenInclude(pub => pub.FactDimReferencedataFieldOfSciences)
+                        .ThenInclude(fdrfs => fdrfs.DimReferencedata)
+                .Include(ffv => ffv.DimPublication)
+                    .ThenInclude(pub => pub.PublicationTypeCodeNavigation)
+                .Include(ffv => ffv.DimPublication)
+                    .ThenInclude(pub => pub.TargetAudienceCodeNavigation)
+                // DimProfileOnlyPublication
                 .Include(ffv => ffv.DimProfileOnlyPublication)
                 .Include(ffv => ffv.DimResearchDataset)
+                    .ThenInclude(rd => rd.DimKeywords)
                 .Where(ffv => ffv.DimUserProfile != null && ffv.DimUserProfile.OrcidId == orcidId && ffv.Show == true)
                 .AsNoTracking().AsSplitQuery().ToListAsync();
 
@@ -99,18 +112,18 @@ namespace api.Services
                 if (publicationAbstract != null)
                 {
                     // Take only part of the abstract to keep the prompt size reasonable
-                    publicationAbstract = $"{publicationAbstract.Substring(0, Math.Min(200, publicationAbstract.Length))}";
+                    publicationAbstract = GetFirstNSentences(publicationAbstract, 1);
                 }
 
                 aittaModel.UserParticipatedPublication.Add(new AittaPublication
                 {
-                    PublicationName = !string.IsNullOrWhiteSpace(p.PublicationName) ? p.PublicationName : null,
-                    PublicationYear = p.PublicationYear > 0 ? p.PublicationYear : null,
-                    Abstract = publicationAbstract != null ? new AittaDescriptiveItem { DescriptiveContent = publicationAbstract } : null,
-                    Avainsana = p.DimKeywords.Select(kw => kw.Keyword).ToList(),
-                    Tieteenala2010 = p.FactDimReferencedataFieldOfSciences.Select(fdrfs => new AittaReferenceData { CodeName = fdrfs.DimReferencedata.CodeScheme, CodeValue = fdrfs.DimReferencedata.CodeValue }).ToList(),
-                    Julkaisutyyppiluokitus = p.PublicationTypeCodeNavigation != null ? new AittaReferenceData { CodeName = p.PublicationTypeCodeNavigation.CodeScheme, CodeValue = p.PublicationTypeCodeNavigation.CodeValue } : null,
-                    Julkaisunyleiso = p.TargetAudienceCodeNavigation != null ? new AittaReferenceData { CodeName = p.TargetAudienceCodeNavigation.CodeScheme, CodeValue = p.TargetAudienceCodeNavigation.CodeValue } : null
+                    Name = !string.IsNullOrWhiteSpace(p.PublicationName) ? p.PublicationName : null,
+                    Year = p.PublicationYear > 0 ? p.PublicationYear : null,
+                    Abstract = publicationAbstract != null ? publicationAbstract : null,
+                    Keywords = p.DimKeywords.Count > 0 ? p.DimKeywords.Select(kw => kw.Keyword).ToList() : null,
+                    FieldsOfScience = p.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList(),
+                    Type = p.PublicationTypeCodeNavigation != null ? p.PublicationTypeCodeNavigation.NameEn : null,
+                    TargetAudience = p.TargetAudienceCodeNavigation != null ? p.TargetAudienceCodeNavigation.NameEn : null
                 });
             }
 
@@ -119,31 +132,55 @@ namespace api.Services
             {
                 aittaModel.UserParticipatedPublication.Add(new AittaPublication
                 {
-                    PublicationName = !string.IsNullOrWhiteSpace(p.PublicationName) ? p.PublicationName : null,
-                    PublicationYear = p.PublicationYear > 0 ? p.PublicationYear : null,
+                    Name = !string.IsNullOrWhiteSpace(p.PublicationName) ? p.PublicationName : null,
+                    Year = p.PublicationYear > 0 ? p.PublicationYear : null,
                     Abstract = null,
-                    Avainsana = null,
-                    Tieteenala2010 = null,
-                    Julkaisutyyppiluokitus = null,
-                    Julkaisunyleiso = null
+                    Keywords = null,
+                    FieldsOfScience = null,
+                    Type = null,
+                    TargetAudience = null
                 });
             }
 
-            // Activities
+            // Datasets
             foreach (DimResearchDataset rd in factFieldValues.Where(ffv => ffv.DimResearchDatasetId > 0).Select(ffv => ffv.DimResearchDataset).ToList())
             {
                 aittaModel.UserParticipatedDataset.Add(new AittaResearchDataset
                 {
-                    DatasetTitle = !string.IsNullOrWhiteSpace(rd.NameEn) ? new AittaDescriptiveItem { DescriptiveContent = rd.NameEn } : null,
-                    DatasetDescription = !string.IsNullOrWhiteSpace(rd.DescriptionEn) ? new AittaDescriptiveItem { DescriptiveContent = rd.DescriptionEn } : null,
+                    DatasetTitle = !string.IsNullOrWhiteSpace(rd.NameEn) ? rd.NameEn : null,
+                    DatasetDescription = !string.IsNullOrWhiteSpace(rd.DescriptionEn) ? rd.DescriptionEn : null,
                     DatasetCreationDate = rd.DatasetCreated != null ? rd.DatasetCreated : null,
                     Theme = null,
-                    Avainsana = null,
-                    Tieteenala2010 = null
+                    Keywords = rd.DimKeywords.Count > 0 ? rd.DimKeywords.Select(kw => kw.Keyword).ToList() : null,
+                    FieldsOfScience = null
                 });
             }
 
             return aittaModel;
+        }
+        
+        /// <summary>
+        /// Returns the first *n* sentences (ending with '.') from <paramref name="input"/>.
+        /// Sentences that end with other punctuation (.!? etc.) are ignored.
+        /// </summary>
+        static string GetFirstNSentences(string input, int n)
+        {
+            if (string.IsNullOrWhiteSpace(input) || n <= 0)
+                return string.Empty;
+
+            // 1. Split the text on periods, but keep the delimiter with each piece.
+            //    The regex `(?<=[.])` is a zero‑width positive lookbehind that matches
+            //    the position immediately after every period.
+            var parts = Regex.Split(input, @"(?<=[.])");
+
+            // 2. Trim whitespace and discard empty fragments (e.g., trailing newlines).
+            var sentences = parts
+                .Select(p => p.Trim())
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Take(n);
+
+            // 3. Join them back together with a single space (or any separator you prefer).
+            return string.Join(" ", sentences);
         }
     }
 }

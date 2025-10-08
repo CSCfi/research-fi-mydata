@@ -43,13 +43,13 @@ namespace api.Models.Ai
 
     public class AittaPublication
     {
-        public List<AittaReferenceData>? Tieteenala2010 { get; set; } = null;
-        public int? PublicationYear { get; set; } = null;
-        public string PublicationName { get; set; } = string.Empty;
-        public AittaReferenceData? Julkaisutyyppiluokitus { get; set; } = null;
-        public AittaReferenceData? Julkaisunyleiso { get; set; } = null;
-        public List<string>? Avainsana { get; set; } = null;
-        public AittaDescriptiveItem? Abstract { get; set; } = null;
+        public List<string>? FieldsOfScience { get; set; } = null;
+        public int? Year { get; set; } = null;
+        public string Name { get; set; } = string.Empty;
+        public string? Type { get; set; } = null;
+        public string? TargetAudience { get; set; } = null;
+        public List<string>? Keywords { get; set; } = null;
+        public string? Abstract { get; set; } = null;
     }
 
     public class AittaResearchActivity
@@ -63,11 +63,11 @@ namespace api.Models.Ai
     }
     public class AittaResearchDataset
     {
-        public AittaDescriptiveItem? DatasetDescription { get; set; } = null;
-        public List<AittaReferenceData>? Tieteenala2010 { get; set; } = null;
+        public string? DatasetDescription { get; set; } = null;
+        public List<string>? FieldsOfScience { get; set; } = null;
         public List<AittaKeyword>? Theme { get; set; } = null;
-        public List<string>? Avainsana { get; set; } = null;
-        public AittaDescriptiveItem? DatasetTitle { get; set; } = null;
+        public List<string>? Keywords { get; set; } = null;
+        public string? DatasetTitle { get; set; } = null;
         public DateTime? DatasetCreationDate { get; set; } = null;
     }
 
@@ -75,10 +75,10 @@ namespace api.Models.Ai
     {
         public List<AittaKeyword>? TeemaAla { get; set; } = null;
         public AittaDate? EndsOn { get; set; } = null;
-        public List<AittaReferenceData>? Tieteenala2010 { get; set; } = null;
+        public List<string>? FieldsOfScience { get; set; } = null;
         public string? GrantedFundingDescription { get; set; } = null;
         public List<string>? Rahoitusmuoto24 { get; set; } = null;
-        public List<string>? Avainsana { get; set; } = null;
+        public List<string>? Keywords { get; set; } = null;
         public List<AittaKeyword>? Tutkimusala { get; set; } = null;
         public AittaDate? StartsOn { get; set; } = null;
         public AittaOrganization? HasFunder { get; set; } = null;
