@@ -24,10 +24,12 @@ namespace api.Models.Ai
         public string? KeywordContent { get; set; } = null;
     }
 
+    /*
     public class AittaDescriptiveItem
     {
         public string? DescriptiveContent { get; set; } = null;
     }
+    */
 
     public class AittaReferenceData
     {
@@ -65,7 +67,7 @@ namespace api.Models.Ai
     {
         public string? DatasetDescription { get; set; } = null;
         public List<string>? FieldsOfScience { get; set; } = null;
-        public List<AittaKeyword>? Theme { get; set; } = null;
+        public List<string>? Theme { get; set; } = null;
         public List<string>? Keywords { get; set; } = null;
         public string? DatasetTitle { get; set; } = null;
         public DateTime? DatasetCreationDate { get; set; } = null;
@@ -73,16 +75,16 @@ namespace api.Models.Ai
 
     public class AittaGrantedFunding
     {
-        public List<AittaKeyword>? TeemaAla { get; set; } = null;
+        public List<string>? TeemaAla { get; set; } = null;
         public AittaDate? EndsOn { get; set; } = null;
         public List<string>? FieldsOfScience { get; set; } = null;
-        public string? GrantedFundingDescription { get; set; } = null;
-        public List<string>? Rahoitusmuoto24 { get; set; } = null;
+        public string? Description { get; set; } = null;
+        public string? TypeOfFunding { get; set; } = null;
         public List<string>? Keywords { get; set; } = null;
         public List<AittaKeyword>? Tutkimusala { get; set; } = null;
         public AittaDate? StartsOn { get; set; } = null;
         public AittaOrganization? HasFunder { get; set; } = null;
-        public List<string>? GrantedFundingName { get; set; } = null;
+        public string? Name { get; set; } = null;
     }
 
     public class AittaEducation_DegreeGrantingInstitution
