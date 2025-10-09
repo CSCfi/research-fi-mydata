@@ -56,16 +56,16 @@ namespace api.Models.Ai
 
     public class AittaResearchActivity
     {
-        public List<string>? DescriptionLangVariant { get; set; } = null;
-        public List<AittaReferenceData>? ActivityRole { get; set; } = null;
+        public string? Description { get; set; } = null;
+        public string? Role { get; set; } = null;
         public AittaDate? EndsOn { get; set; } = null;
-        public List<AittaReferenceData>? ActivityType { get; set; } = null;
+        public string? Type { get; set; } = null;
         public AittaDate? StartsOn { get; set; } = null;
-        public List<string>? ActivityTitle { get; set; } = null;
+        public string? ActivityTitle { get; set; } = null;
     }
     public class AittaResearchDataset
     {
-        public string? DatasetDescription { get; set; } = null;
+        public string? Description { get; set; } = null;
         public List<string>? FieldsOfScience { get; set; } = null;
         public List<string>? Theme { get; set; } = null;
         public List<string>? Keywords { get; set; } = null;
