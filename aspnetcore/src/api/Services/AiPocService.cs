@@ -89,6 +89,7 @@ namespace api.Services
                         .ThenInclude(org => org.DimOrganizationBroaderNavigation)
                 .Include(ffv => ffv.DimProfileOnlyFundingDecision)
                     .ThenInclude(pofd => pofd.DimTypeOfFunding)
+/*
                 // DimResearchActivity
                 .Include(ffv => ffv.DimResearchActivity)
                     .ThenInclude(ra => ra.DimStartDateNavigation)
@@ -101,6 +102,7 @@ namespace api.Services
                     .ThenInclude(pora => pora.DimDateIdEndNavigation)
                 // DimreferencedataActorRole (for DimProfileOnlyResearchActivity)
                 .Include(ffv => ffv.DimReferencedataActorRole)
+*/
                 // Query execution
                 .AsNoTracking().AsSplitQuery().ToListAsync();
 
@@ -113,19 +115,19 @@ namespace api.Services
             }
 
             // DimName
-            foreach (DimName n in factFieldValues.Where(ffv => ffv.DimNameId > 0 && (!string.IsNullOrWhiteSpace(ffv.DimName.FirstNames) || !string.IsNullOrWhiteSpace(ffv.DimName.LastName))).Select(ffv => ffv.DimName).ToList())
+            foreach (DimName n in factFieldValues.Where(ffv => ffv.DimName != null && ffv.DimNameId > 0 && (!string.IsNullOrWhiteSpace(ffv.DimName.FirstNames) || !string.IsNullOrWhiteSpace(ffv.DimName.LastName))).Select(ffv => ffv.DimName).ToList())
             {
                 aittaModel.PersonName = $"{n.FirstNames} {n.LastName}";
             }
 
             // DimResearcherDescription
-            foreach (DimResearcherDescription rd in factFieldValues.Where(ffv => ffv.DimResearcherDescriptionId > 0).Select(ffv => ffv.DimResearcherDescription).ToList())
+            foreach (DimResearcherDescription rd in factFieldValues.Where(ffv => ffv.DimResearcherDescription != null && ffv.DimResearcherDescriptionId > 0).Select(ffv => ffv.DimResearcherDescription).ToList())
             {
                 aittaModel.ResearcherDescription.Add(rd.ResearchDescriptionEn);
             }
 
             // DimAffiliation
-            foreach (DimAffiliation a in factFieldValues.Where(ffv => ffv.DimAffiliationId > 0).Select(ffv => ffv.DimAffiliation).ToList())
+            foreach (DimAffiliation a in factFieldValues.Where(ffv => ffv.DimAffiliation != null && ffv.DimAffiliationId > 0).Select(ffv => ffv.DimAffiliation).ToList())
             {
                 aittaModel.HasAffiliation.Add(new AittaAffiliation
                 {
@@ -154,7 +156,7 @@ namespace api.Services
             }
 
             // DimEducation
-            foreach (DimEducation e in factFieldValues.Where(ffv => ffv.DimEducationId > 0).Select(ffv => ffv.DimEducation).ToList())
+            foreach (DimEducation e in factFieldValues.Where(ffv => ffv.DimEducation != null && ffv.DimEducationId > 0).Select(ffv => ffv.DimEducation).ToList())
             {
                 aittaModel.HasCompleted.Add(new AittaEducation
                 {
@@ -164,7 +166,7 @@ namespace api.Services
             }
 
             // DimPublication
-            foreach (DimPublication p in factFieldValues.Where(ffv => ffv.DimPublicationId > 0).Select(ffv => ffv.DimPublication).ToList())
+            foreach (DimPublication p in factFieldValues.Where(ffv => ffv.DimPublication != null && ffv.DimPublicationId > 0).Select(ffv => ffv.DimPublication).ToList())
             {
                 string? publicationAbstract = p.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "Abstract").Select(di => di.DescriptiveItem).FirstOrDefault();
                 if (publicationAbstract != null)
@@ -186,7 +188,7 @@ namespace api.Services
             }
 
             // DimProfileOnlyPublication
-            foreach (DimProfileOnlyPublication p in factFieldValues.Where(ffv => ffv.DimProfileOnlyPublicationId > 0).Select(ffv => ffv.DimProfileOnlyPublication).ToList())
+            foreach (DimProfileOnlyPublication p in factFieldValues.Where(ffv => ffv.DimProfileOnlyPublication != null && ffv.DimProfileOnlyPublicationId > 0).Select(ffv => ffv.DimProfileOnlyPublication).ToList())
             {
                 aittaModel.UserParticipatedPublication.Add(new AittaPublication
                 {
@@ -201,7 +203,7 @@ namespace api.Services
             }
 
             // DimResearchDataset
-            foreach (DimResearchDataset rd in factFieldValues.Where(ffv => ffv.DimResearchDatasetId > 0).Select(ffv => ffv.DimResearchDataset).ToList())
+            foreach (DimResearchDataset rd in factFieldValues.Where(ffv => ffv.DimResearchDataset != null && ffv.DimResearchDatasetId > 0).Select(ffv => ffv.DimResearchDataset).ToList())
             {
                 aittaModel.UserParticipatedDataset.Add(new AittaResearchDataset
                 {
@@ -221,7 +223,7 @@ namespace api.Services
             // TODO
 
             // DimFundingDecision
-            foreach (DimFundingDecision fd in factFieldValues.Where(ffv => ffv.DimFundingDecisionId > 0).Select(ffv => ffv.DimFundingDecision).ToList())
+            foreach (DimFundingDecision fd in factFieldValues.Where(ffv => ffv.DimFundingDecision != null && ffv.DimFundingDecisionId > 0).Select(ffv => ffv.DimFundingDecision).ToList())
             {
                 aittaModel.UserParticipatedGrantedFunding.Add(new AittaGrantedFunding
                 {
@@ -259,7 +261,7 @@ namespace api.Services
             }
 
             // DimProfileOnlyFundingDecision
-            foreach (DimProfileOnlyFundingDecision pofd in factFieldValues.Where(ffv => ffv.DimProfileOnlyFundingDecisionId > 0).Select(ffv => ffv.DimProfileOnlyFundingDecision).ToList())
+            foreach (DimProfileOnlyFundingDecision pofd in factFieldValues.Where(ffv => ffv.DimProfileOnlyFundingDecision != null && ffv.DimProfileOnlyFundingDecisionId > 0).Select(ffv => ffv.DimProfileOnlyFundingDecision).ToList())
             {
                 aittaModel.UserParticipatedGrantedFunding.Add(new AittaGrantedFunding
                 {
@@ -300,7 +302,7 @@ namespace api.Services
             }
 
             // DimResearchActivity
-            foreach (DimResearchActivity ra in factFieldValues.Where(ffv => ffv.DimResearchActivityId > 0).Select(ffv => ffv.DimResearchActivity).ToList())
+            foreach (DimResearchActivity ra in factFieldValues.Where(ffv => ffv.DimResearchActivity != null && ffv.DimResearchActivityId > 0).Select(ffv => ffv.DimResearchActivity).ToList())
             {
                 aittaModel.UserParticipatedActivity.Add(new AittaResearchActivity
                 {
@@ -316,7 +318,7 @@ namespace api.Services
             }
 
             // DimProfileOnlyResearchActivity
-            foreach (DimProfileOnlyResearchActivity pora in factFieldValues.Where(ffv => ffv.DimProfileOnlyResearchActivityId > 0).Select(ffv => ffv.DimProfileOnlyResearchActivity).ToList())
+            foreach (DimProfileOnlyResearchActivity pora in factFieldValues.Where(ffv => ffv.DimProfileOnlyResearchActivity != null && ffv.DimProfileOnlyResearchActivityId > 0).Select(ffv => ffv.DimProfileOnlyResearchActivity).ToList())
             {
                 aittaModel.UserParticipatedActivity.Add(new AittaResearchActivity
                 {
