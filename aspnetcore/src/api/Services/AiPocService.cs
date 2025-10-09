@@ -208,8 +208,8 @@ namespace api.Services
                     Keywords = fd.DimKeywords.Count > 0 ? fd.DimKeywords.Where(kw => kw.Scheme == "Avainsana").Select(kw => kw.Keyword).ToList() : null,
                     FieldsOfScience = fd.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList(),
                     TypeOfFunding = fd.DimTypeOfFunding != null && fd.DimTypeOfFundingId > 0 ? fd.DimTypeOfFunding.NameEn : null,
-                    Tutkimusala = null,
-                    TeemaAla = fd.DimKeywords.Count > 0 ? fd.DimKeywords.Where(kw => kw.Scheme == "Teema-ala").Select(kw => kw.Keyword).ToList() : null,
+                    FieldsOfResearch = fd.DimKeywords.Count > 0 ? fd.DimKeywords.Where(kw => kw.Scheme == "Tutkimusala").Select(kw => kw.Keyword).ToList() : null,
+                    Theme = fd.DimKeywords.Count > 0 ? fd.DimKeywords.Where(kw => kw.Scheme == "Teema-ala").Select(kw => kw.Keyword).ToList() : null,
                 });
             }
 
@@ -232,8 +232,8 @@ namespace api.Services
                     Keywords = null,
                     FieldsOfScience = null,
                     TypeOfFunding = pofd.DimTypeOfFunding != null && pofd.DimTypeOfFundingId > 0 ? pofd.DimTypeOfFunding.NameEn : null,
-                    Tutkimusala = null,
-                    TeemaAla = null
+                    FieldsOfResearch = null,
+                    Theme = null
                 });
             }
 
