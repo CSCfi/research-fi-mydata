@@ -30,19 +30,19 @@ namespace api.Services
             AittaModel aittaModel = new AittaModel();
 
             // DimName
-            aittaModel.PersonName = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimName != null && ffv.DimNameId > 0 && ffv.Show == true)
+            aittaModel.PersonName = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimName != null && ffv.DimNameId > 0 && ffv.Show == true)
                 .Include(ffv => ffv.DimName)
                 .Select(ffv => ffv.DimName.FirstNames + " " + ffv.DimName.LastName)
                 .AsNoTracking().FirstOrDefaultAsync();
 
             // DimResearcherDescription
-            aittaModel.ResearcherDescription = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimResearcherDescription != null && ffv.DimResearcherDescriptionId > 0 && ffv.Show == true)
+            aittaModel.ResearcherDescription = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimResearcherDescription != null && ffv.DimResearcherDescriptionId > 0 && ffv.Show == true)
                 .Include(ffv => ffv.DimResearcherDescription)
                 .Select(ffv => LanguageFilter(ffv.DimResearcherDescription.ResearchDescriptionEn, ffv.DimResearcherDescription.ResearchDescriptionFi, ffv.DimResearcherDescription.ResearchDescriptionSv))
                 .AsNoTracking().ToListAsync();
 
             // DimAffiliation
-            aittaModel.HasAffiliation = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimAffiliation != null && ffv.DimAffiliationId > 0 && ffv.Show == true)
+            aittaModel.HasAffiliation = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimAffiliation != null && ffv.DimAffiliationId > 0 && ffv.Show == true)
                 .Include(ffv => ffv.DimAffiliation)
                     .ThenInclude(affiliation => affiliation.DimOrganization)
                         .ThenInclude(aff_org => aff_org.DimOrganizationBroaderNavigation)
@@ -76,7 +76,7 @@ namespace api.Services
                 .AsNoTracking().ToListAsync();
 
             // DimEducation
-            aittaModel.HasCompleted = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimEducation != null && ffv.DimEducationId > 0 && ffv.Show == true)
+            aittaModel.HasCompleted = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimEducation != null && ffv.DimEducationId > 0 && ffv.Show == true)
                 .Include(ffv => ffv.DimEducation)
                 .Select(ffv => new AittaEducation
                 {
@@ -85,8 +85,8 @@ namespace api.Services
                 })
                 .AsNoTracking().ToListAsync();
 
-            // Dimpublication
-            aittaModel.UserParticipatedPublication = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimPublication != null && ffv.DimPublicationId > 0 && ffv.Show == true)
+            // DimPublication
+            aittaModel.UserParticipatedPublication = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimPublication != null && ffv.DimPublicationId > 0 && ffv.Show == true)
                 .Include(ffv => ffv.DimPublication)
                     .ThenInclude(pub => pub.DimKeywords)
                 .Include(ffv => ffv.DimPublication)
