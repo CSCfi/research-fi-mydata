@@ -44,7 +44,6 @@ namespace api.Services
                 .Include(ffv => ffv.DimAffiliation)
                     .ThenInclude(affiliation => affiliation.EndDateNavigation)
                 .Include(ffv => ffv.DimEducation)
-                /*
                 // DimPublication
                 .Include(ffv => ffv.DimPublication)
                     .ThenInclude(pub => pub.DimKeywords)
@@ -59,6 +58,7 @@ namespace api.Services
                     .ThenInclude(pub => pub.TargetAudienceCodeNavigation)
                 // DimProfileOnlyPublication
                 .Include(ffv => ffv.DimProfileOnlyPublication)
+                /*
                 // DimResearchDataset
                 .Include(ffv => ffv.DimResearchDataset)
                     .ThenInclude(rd => rd.DimKeywords)
