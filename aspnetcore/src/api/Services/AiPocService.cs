@@ -35,6 +35,7 @@ namespace api.Services
                 .Include(ffv => ffv.DimName)
                 // DimResearcherDescription
                 .Include(ffv => ffv.DimResearcherDescription)
+/*
                 // DimAffiliation
                 .Include(ffv => ffv.DimAffiliation)
                     .ThenInclude(affiliation => affiliation.DimOrganization)
@@ -89,7 +90,6 @@ namespace api.Services
                         .ThenInclude(org => org.DimOrganizationBroaderNavigation)
                 .Include(ffv => ffv.DimProfileOnlyFundingDecision)
                     .ThenInclude(pofd => pofd.DimTypeOfFunding)
-/*
                 // DimResearchActivity
                 .Include(ffv => ffv.DimResearchActivity)
                     .ThenInclude(ra => ra.DimStartDateNavigation)
