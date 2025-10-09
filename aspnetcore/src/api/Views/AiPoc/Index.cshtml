@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Name Input Form";
+    ViewData["Title"] = "TTV AI POC";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -30,9 +30,10 @@
 <form id="promptForm" class="mb-4">
     <div class="form-group mb-3">
         <label for="prompt" class="form-label">Model instructions:</label>
-        <textarea id="systemPrompt" name="systemPrompt" class="form-control" rows="5" placeholder="Enter prompt here..."></textarea>
+        <textarea id="systemPrompt" name="systemPrompt" class="form-control" rows="5" placeholder="Enter prompt here..."
+        >Create summarized researcher biography.</textarea>
         <label for="profileDataViewer" class="form-label mt-3">Profile Data:</label>
-        <div id="profileDataViewer" class="json-container border p-3" style="background-color: #f8f9fa; max-height: 400px; overflow-y: auto;"></div>
+        <div id="profileDataViewer" class="json-container border p-3" style="background-color: #f8f9fa; max-height: 600px; overflow-y: auto;"></div>
         <input type="hidden" id="profileData" name="profileData" />
     </div>
     <div class="form-text mb-3">Model instructions and profile data together form the prompt sent to the AI model.</div>
@@ -41,11 +42,9 @@
     </div>
 </form>
 
-<hr class="my-5" />
-
 @section RightColumn {
     <h2>Query result</h2>
-
+    <hr class="my-4" />
     <div id="result2" class="mt-4"></div>
 }
 

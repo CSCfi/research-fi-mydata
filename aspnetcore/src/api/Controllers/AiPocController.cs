@@ -62,6 +62,9 @@ namespace api.Controllers
                 return BadRequest(new { error = "Prompt cannot be empty." });
             }
 
+            // Append to system prompt
+            systemPrompt += "\nRespond in markdown format.";
+
             try
             {
                 ChatCompletionOptions options = new()
