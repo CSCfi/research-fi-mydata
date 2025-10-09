@@ -75,13 +75,13 @@ namespace api.Models.Ai
 
     public class AittaGrantedFunding
     {
-        public List<string>? TeemaAla { get; set; } = null;
+        public List<string>? Theme { get; set; } = null;
         public AittaDate? EndsOn { get; set; } = null;
         public List<string>? FieldsOfScience { get; set; } = null;
         public string? Description { get; set; } = null;
         public string? TypeOfFunding { get; set; } = null;
         public List<string>? Keywords { get; set; } = null;
-        public List<AittaKeyword>? Tutkimusala { get; set; } = null;
+        public List<string>? FieldsOfResearch { get; set; } = null;
         public AittaDate? StartsOn { get; set; } = null;
         public AittaOrganization? HasFunder { get; set; } = null;
         public string? Name { get; set; } = null;
