@@ -35,7 +35,6 @@ namespace api.Services
                 .Include(ffv => ffv.DimName)
                 // DimResearcherDescription
                 .Include(ffv => ffv.DimResearcherDescription)
-/*
                 // DimAffiliation
                 .Include(ffv => ffv.DimAffiliation)
                     .ThenInclude(affiliation => affiliation.DimOrganization)
@@ -45,6 +44,7 @@ namespace api.Services
                 .Include(ffv => ffv.DimAffiliation)
                     .ThenInclude(affiliation => affiliation.EndDateNavigation)
                 .Include(ffv => ffv.DimEducation)
+                /*
                 // DimPublication
                 .Include(ffv => ffv.DimPublication)
                     .ThenInclude(pub => pub.DimKeywords)
