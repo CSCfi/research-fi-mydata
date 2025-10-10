@@ -132,9 +132,9 @@ namespace api.Services
                     AffiliationType = LanguageFilter(ffv.DimAffiliation.AffiliationTypeEn, ffv.DimAffiliation.AffiliationTypeFi, ffv.DimAffiliation.AffiliationTypeSv),
                     PositionTitle = LanguageFilter(ffv.DimAffiliation.PositionNameEn, ffv.DimAffiliation.PositionNameFi, ffv.DimAffiliation.PositionNameSv),
                     Organization = affiliationOrganization,
-                    StartsOn = ffv.DimAffiliation.StartDateNavigation != null && ffv.DimAffiliation.StartDate > 0 ?
+                    StartsOn = ffv.DimAffiliation.StartDateNavigation != null && ffv.DimAffiliation.StartDate > 0 && ffv.DimAffiliation.StartDateNavigation.Year > 0 ?
                         new AittaDate { Year = ffv.DimAffiliation.StartDateNavigation.Year, Month = ffv.DimAffiliation.StartDateNavigation.Month } : null,
-                    EndsOn = ffv.DimAffiliation.EndDateNavigation != null && ffv.DimAffiliation.EndDate > 0 ?
+                    EndsOn = ffv.DimAffiliation.EndDateNavigation != null && ffv.DimAffiliation.EndDate > 0 && ffv.DimAffiliation.EndDateNavigation.Year > 0 ?
                         new AittaDate { Year = ffv.DimAffiliation.EndDateNavigation.Year, Month = ffv.DimAffiliation.EndDateNavigation.Month } : null
                 });
             }
@@ -175,6 +175,24 @@ namespace api.Services
                     TargetAudience = ffv.DimPublication.TargetAudienceCodeNavigation != null ? ffv.DimPublication.TargetAudienceCodeNavigation.NameEn : null
                 })
                 .AsNoTracking().ToListAsync();
+
+            // DimProfileOnlyPublication
+            aittaModel.UserParticipatedPublication.AddRange(
+                await _ttvContext.FactFieldValues
+                    .Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimProfileOnlyPublication != null && ffv.DimProfileOnlyPublicationId > 0 && ffv.Show == true)
+                    .Include(ffv => ffv.DimProfileOnlyPublication)
+                    .Select(ffv => new AittaPublication
+                    {
+                        Name = !string.IsNullOrWhiteSpace(ffv.DimProfileOnlyPublication.PublicationName) ? ffv.DimProfileOnlyPublication.PublicationName : null,
+                        Year = ffv.DimProfileOnlyPublication.PublicationYear > 0 ? ffv.DimProfileOnlyPublication.PublicationYear : null,
+                        Abstract = null,
+                        Keywords = null,
+                        FieldsOfScience = null,
+                        Type = null,
+                        TargetAudience = null
+                    })
+                    .AsNoTracking().ToListAsync()
+            );
 
 
 /*
