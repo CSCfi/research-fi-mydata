@@ -20,6 +20,7 @@ using Serilog;
 using OpenAI;
 using OpenAI.Chat;
 using System.ClientModel;
+using System.Net.Http;
 
 namespace api
 {
@@ -276,8 +277,7 @@ namespace api
                     credential: new ApiKeyCredential(Configuration["OpenAIOptions:ApiKey"]),
                     options: new OpenAIClientOptions()
                     {
-                        Endpoint = new Uri(Configuration["OpenAIOptions:BaseUrl"]),
-                        NetworkTimeout = TimeSpan.FromSeconds(60)
+                        Endpoint = new Uri(Configuration["OpenAIOptions:BaseUrl"])
                     }
                 );
             });
