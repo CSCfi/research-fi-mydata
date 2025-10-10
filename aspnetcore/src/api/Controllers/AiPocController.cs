@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using OpenAI.Chat;
 using api.Models.Ai;
 using System.Text.Json;
+using System.Threading;
 
 namespace api.Controllers
 {
@@ -80,7 +81,8 @@ namespace api.Controllers
                     new UserChatMessage(profileData)
                 };
 
-                ChatCompletion completion = await _chatClient.CompleteChatAsync(chatMessages, options);
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+                ChatCompletion completion = await _chatClient.CompleteChatAsync(chatMessages, options, cancellationToken: cts.Token);
                 return Content(completion.Content[0].Text);
             }
             catch (ArgumentException ex)
