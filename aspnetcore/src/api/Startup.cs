@@ -274,9 +274,10 @@ namespace api
                 return new ChatClient(
                     model: Configuration["OpenAIOptions:Model"],
                     credential: new ApiKeyCredential(Configuration["OpenAIOptions:ApiKey"]),
-                    options: new OpenAIClientOptions() 
-                    { 
-                        Endpoint = new Uri(Configuration["OpenAIOptions:BaseUrl"])
+                    options: new OpenAIClientOptions()
+                    {
+                        Endpoint = new Uri(Configuration["OpenAIOptions:BaseUrl"]),
+                        NetworkTimeout = TimeSpan.FromSeconds(60)
                     }
                 );
             });

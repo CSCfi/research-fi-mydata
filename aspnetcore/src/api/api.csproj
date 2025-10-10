@@ -17,7 +17,7 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="OpenAI" Version="2.4.0" />
+    <PackageReference Include="OpenAI" Version="2.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
