@@ -93,38 +93,7 @@ namespace api.Services
                 else if (ffv.DimIdentifierlessData != null && ffv.DimIdentifierlessDataId > 0)
                 {
                     // Organization from fact_field_values.dim_identifierless_data_id
-                    string? organizationName = null;
-                    string? organizationUnit = null;
-                    if (ffv.DimIdentifierlessData.Type == "organization_name")
-                    {
-                        organizationName = LanguageFilter(
-                            en: ffv.DimIdentifierlessData.ValueEn,
-                            fi: ffv.DimIdentifierlessData.ValueFi,
-                            sv: ffv.DimIdentifierlessData.ValueSv
-                        );
-
-                        if (ffv.DimIdentifierlessData.InverseDimIdentifierlessData != null)
-                        {
-                            organizationUnit = LanguageFilter(
-                                en: ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueEn,
-                                fi: ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueFi,
-                                sv: ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueSv
-                            );
-                        }
-                    }
-                    if (organizationUnit != null)
-                    {
-                        affiliationOrganization.OrganizationName = organizationUnit;
-                        affiliationOrganization.IsPartOfOrganization = new AittaOrganization
-                        {
-                            OrganizationName = organizationName
-                        };
-                    }
-                    else
-                    {
-                        affiliationOrganization.OrganizationName = organizationName;
-                        affiliationOrganization.IsPartOfOrganization = null;
-                    }
+                    affiliationOrganization = AittaOrganizationFromIdentifierlessData(ffv.DimIdentifierlessData);
                 }
 
                 aittaModel.HasAffiliation.Add(new AittaAffiliation
@@ -252,336 +221,161 @@ namespace api.Services
                     .AsNoTracking().ToListAsync()
             );
 
-            /*
-                            List <FactFieldValue> factFieldValues = await _ttvContext.FactFieldValues
-                            // DimUserProfile
-                            .Include(ffv => ffv.DimUserProfile)
-                                .Where(ffv => ffv.DimUserProfile != null && ffv.DimUserProfile.OrcidId == orcidId && ffv.Show == true)
-                            // DimName
-                            //.Include(ffv => ffv.DimName)
-                            // DimResearcherDescription
-                            //.Include(ffv => ffv.DimResearcherDescription)
-                            // DimAffiliation
-                            //.Include(ffv => ffv.DimAffiliation)
-                            //    .ThenInclude(affiliation => affiliation.DimOrganization)
-                            //        .ThenInclude(aff_org => aff_org.DimOrganizationBroaderNavigation)
-                            //.Include(ffv => ffv.DimAffiliation)
-                            //    .ThenInclude(affiliation => affiliation.StartDateNavigation)
-                            //.Include(ffv => ffv.DimAffiliation)
-                            //    .ThenInclude(affiliation => affiliation.EndDateNavigation)
-                            //.Include(ffv => ffv.DimEducation)
-                            // DimPublication
-                            //.Include(ffv => ffv.DimPublication)
-                            //    .ThenInclude(pub => pub.DimKeywords)
-                            //.Include(ffv => ffv.DimPublication)
-                            //    .ThenInclude(pub => pub.DimDescriptiveItems)
-                            //.Include(ffv => ffv.DimPublication)
-                            //    .ThenInclude(pub => pub.FactDimReferencedataFieldOfSciences)
-                            //        .ThenInclude(fdrfs => fdrfs.DimReferencedata)
-                            //.Include(ffv => ffv.DimPublication)
-                            //    .ThenInclude(pub => pub.PublicationTypeCodeNavigation)
-                            //.Include(ffv => ffv.DimPublication)
-                            //    .ThenInclude(pub => pub.TargetAudienceCodeNavigation)
-                            // DimProfileOnlyPublication
-                            .Include(ffv => ffv.DimProfileOnlyPublication)
-
-                            // DimResearchDataset
-                            .Include(ffv => ffv.DimResearchDataset)
-                                .ThenInclude(rd => rd.DimKeywords)
-                            .Include(ffv => ffv.DimResearchDataset)
-                                .ThenInclude(rd => rd.FactDimReferencedataFieldOfSciences)
-                                    .ThenInclude(fdrfs => fdrfs.DimReferencedata)
-                            // DimFundingDecision
-                            .Include(ffv => ffv.DimFundingDecision)
-                                .ThenInclude(fd => fd.DimDateIdStartNavigation)
-                            .Include(ffv => ffv.DimFundingDecision)
-                                .ThenInclude(fd => fd.DimDateIdEndNavigation)
-                            .Include(ffv => ffv.DimFundingDecision)
-                                .ThenInclude(fd => fd.DimOrganizationIdFunderNavigation)
-                                    .ThenInclude(org => org.DimOrganizationBroaderNavigation)
-                            .Include(ffv => ffv.DimFundingDecision)
-                                .ThenInclude(fd => fd.DimKeywords)
-                            .Include(ffv => ffv.DimFundingDecision)
-                                .ThenInclude(fd => fd.FactDimReferencedataFieldOfSciences)
-                                    .ThenInclude(fdrfs => fdrfs.DimReferencedata)
-                            .Include(ffv => ffv.DimFundingDecision)
-                                .ThenInclude(fd => fd.DimTypeOfFunding)
-                            // DimProfileOnlyFundingDecision
-                            .Include(ffv => ffv.DimProfileOnlyFundingDecision)
-                                .ThenInclude(pofd => pofd.DimDateIdStartNavigation)
-                            .Include(ffv => ffv.DimProfileOnlyFundingDecision)
-                                .ThenInclude(pofd => pofd.DimDateIdEndNavigation)
-                            .Include(ffv => ffv.DimFundingDecision)
-                                .ThenInclude(pofd => pofd.DimOrganizationIdFunderNavigation)
-                                    .ThenInclude(org => org.DimOrganizationBroaderNavigation)
-                            .Include(ffv => ffv.DimProfileOnlyFundingDecision)
-                                .ThenInclude(pofd => pofd.DimTypeOfFunding)
-                            // DimResearchActivity
-                            .Include(ffv => ffv.DimResearchActivity)
-                                .ThenInclude(ra => ra.DimStartDateNavigation)
-                            .Include(ffv => ffv.DimResearchActivity)
-                                .ThenInclude(ra => ra.DimEndDateNavigation)
-                            // DimProfileOnlyResearchActivity
-                            .Include(ffv => ffv.DimProfileOnlyResearchActivity)
-                                .ThenInclude(pora => pora.DimDateIdStartNavigation)
-                            .Include(ffv => ffv.DimProfileOnlyResearchActivity)
-                                .ThenInclude(pora => pora.DimDateIdEndNavigation)
-                            // DimreferencedataActorRole (for DimProfileOnlyResearchActivity)
-                            .Include(ffv => ffv.DimReferencedataActorRole)
-
-                            // Query execution
-                            .AsNoTracking().AsSplitQuery().ToListAsync();
-
-                        if (factFieldValues.Count == 0)
-                        {
-                            _logger.LogWarning("No data found for ORCID {orcidId}", orcidId);
-                            return null;
-                        }
-
-                        // DimName
-                        /*
-                        foreach (DimName n in factFieldValues.Where(ffv => ffv.DimName != null && ffv.DimNameId > 0 && (!string.IsNullOrWhiteSpace(ffv.DimName.FirstNames) || !string.IsNullOrWhiteSpace(ffv.DimName.LastName))).Select(ffv => ffv.DimName).ToList())
-                        {
-                            aittaModel.PersonName = $"{n.FirstNames} {n.LastName}";
-                        }
-                        */
-
-            // DimResearcherDescription
-            /*
-            foreach (DimResearcherDescription rd in factFieldValues.Where(ffv => ffv.DimResearcherDescription != null && ffv.DimResearcherDescriptionId > 0).Select(ffv => ffv.DimResearcherDescription).ToList())
-            {
-                aittaModel.ResearcherDescription.Add(rd.ResearchDescriptionEn);
-            }
-            */
-
-            // DimAffiliation
-            /*
-            foreach (DimAffiliation a in factFieldValues.Where(ffv => ffv.DimAffiliation != null && ffv.DimAffiliationId > 0).Select(ffv => ffv.DimAffiliation).ToList())
-            {
-                aittaModel.HasAffiliation.Add(new AittaAffiliation
-                {
-                    AffiliationType = LanguageFilter(en: a.AffiliationTypeEn, fi: a.AffiliationTypeFi, sv: a.AffiliationTypeSv),
-                    PositionTitle = LanguageFilter(en: a.PositionNameEn, fi: a.PositionNameFi, sv: a.PositionNameSv),
-                    Organization = new AittaOrganization
-                    {
-                        OrganizationName = LanguageFilter(en: a.DimOrganization.NameEn, fi: a.DimOrganization.NameFi, sv: a.DimOrganization.NameSv),
-                        IsPartOfOrganization = a.DimOrganization.DimOrganizationBroader != null ?
-                            new AittaOrganization
-                            {
-                                OrganizationName = LanguageFilter(
-                                    en: a.DimOrganization.DimOrganizationBroaderNavigation.NameEn,
-                                    fi: a.DimOrganization.DimOrganizationBroaderNavigation.NameFi,
-                                    sv: a.DimOrganization.DimOrganizationBroaderNavigation.NameSv
-                                )
-                            }
-                            : null
-                    },
-                    StartsOn = a.StartDateNavigation != null && a.StartDate > 0 ?
-                        new AittaDate { Year = a.StartDateNavigation.Year, Month = a.StartDateNavigation.Month } : null,
-                    EndsOn = a.EndDateNavigation != null && a.EndDate > 0 ?
-                        new AittaDate { Year = a.EndDateNavigation.Year, Month = a.EndDateNavigation.Month } : null
-                });
-            }
-            */
-
-            // DimEducation
-            /*
-            foreach (DimEducation e in factFieldValues.Where(ffv => ffv.DimEducation != null && ffv.DimEducationId > 0).Select(ffv => ffv.DimEducation).ToList())
-            {
-                aittaModel.HasCompleted.Add(new AittaEducation
-                {
-                    EducationName = LanguageFilter(en: e.NameEn, fi: e.NameFi, sv: e.NameSv),
-                    DegreeGrantingInstitution = !string.IsNullOrWhiteSpace(e.DegreeGrantingInstitutionName) ? e.DegreeGrantingInstitutionName : null
-                });
-            }
-            */
-
-            // DimPublication
-            /*
-            foreach (DimPublication p in factFieldValues.Where(ffv => ffv.DimPublication != null && ffv.DimPublicationId > 0).Select(ffv => ffv.DimPublication).ToList())
-            {
-                string? publicationAbstract = p.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "Abstract").Select(di => di.DescriptiveItem).FirstOrDefault();
-                if (publicationAbstract != null)
-                {
-                    // Take only part of the abstract to keep the prompt size reasonable
-                    publicationAbstract = GetFirstNSentences(publicationAbstract, 1);
-                }
-
-                aittaModel.UserParticipatedPublication.Add(new AittaPublication
-                {
-                    Name = !string.IsNullOrWhiteSpace(p.PublicationName) ? p.PublicationName : null,
-                    Year = p.PublicationYear > 0 ? p.PublicationYear : null,
-                    Abstract = publicationAbstract != null ? publicationAbstract : null,
-                    Keywords = p.DimKeywords.Count > 0 ? p.DimKeywords.Select(kw => kw.Keyword).ToList() : null,
-                    FieldsOfScience = p.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList(),
-                    Type = p.PublicationTypeCodeNavigation != null ? p.PublicationTypeCodeNavigation.NameEn : null,
-                    TargetAudience = p.TargetAudienceCodeNavigation != null ? p.TargetAudienceCodeNavigation.NameEn : null
-                });
-            }
-            */
-
-            // DimProfileOnlyPublication
-            /*
-            foreach (DimProfileOnlyPublication p in factFieldValues.Where(ffv => ffv.DimProfileOnlyPublication != null && ffv.DimProfileOnlyPublicationId > 0).Select(ffv => ffv.DimProfileOnlyPublication).ToList())
-            {
-                aittaModel.UserParticipatedPublication.Add(new AittaPublication
-                {
-                    Name = !string.IsNullOrWhiteSpace(p.PublicationName) ? p.PublicationName : null,
-                    Year = p.PublicationYear > 0 ? p.PublicationYear : null,
-                    Abstract = null,
-                    Keywords = null,
-                    FieldsOfScience = null,
-                    Type = null,
-                    TargetAudience = null
-                });
-            }
-            */
-
-            // DimResearchDataset
-            /*
-            foreach (DimResearchDataset rd in factFieldValues.Where(ffv => ffv.DimResearchDataset != null && ffv.DimResearchDatasetId > 0).Select(ffv => ffv.DimResearchDataset).ToList())
-            {
-                aittaModel.UserParticipatedDataset.Add(new AittaResearchDataset
-                {
-                    DatasetTitle = LanguageFilter(en: rd.NameEn, fi: rd.NameFi, sv: rd.NameSv),
-                    Description = GetFirstNSentences(
-                        LanguageFilter(en: rd.DescriptionEn, fi: rd.DescriptionFi, sv: rd.DescriptionSv),
-                        1
-                    ),
-                    DatasetCreationDate = rd.DatasetCreated != null ? rd.DatasetCreated : null,
-                    Theme = rd.DimKeywords.Count > 0 ? rd.DimKeywords.Where(kw => kw.Scheme == "Theme").Select(kw => kw.Keyword).ToList() : null,
-                    Keywords = rd.DimKeywords.Count > 0 ? rd.DimKeywords.Where(kw => kw.Scheme == "Avainsana").Select(kw => kw.Keyword).ToList() : null,
-                    FieldsOfScience = rd.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList()
-                });
-            }
-            */
-            // DimProfileOnlyResearchDataset
-            // TODO
-
             // DimFundingDecision
-            /*
-            foreach (DimFundingDecision fd in factFieldValues.Where(ffv => ffv.DimFundingDecision != null && ffv.DimFundingDecisionId > 0).Select(ffv => ffv.DimFundingDecision).ToList())
-            {
-                aittaModel.UserParticipatedGrantedFunding.Add(new AittaGrantedFunding
+            aittaModel.UserParticipatedGrantedFunding = await _ttvContext.FactFieldValues
+                .Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimFundingDecision != null && ffv.DimFundingDecisionId > 0 && ffv.Show == true)
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(fd => fd.DimDateIdStartNavigation)
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(fd => fd.DimDateIdEndNavigation)
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(fd => fd.DimOrganizationIdFunderNavigation)
+                        .ThenInclude(org => org.DimOrganizationBroaderNavigation)
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(fd => fd.DimKeywords)
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(fd => fd.FactDimReferencedataFieldOfSciences)
+                        .ThenInclude(fdrfs => fdrfs.DimReferencedata)
+                .Include(ffv => ffv.DimFundingDecision)
+                    .ThenInclude(fd => fd.DimTypeOfFunding)
+                .Select(ffv => new AittaGrantedFunding
                 {
-                    Name = LanguageFilter(en: fd.NameEn, fi: fd.NameFi, sv: fd.NameSv),
+                    Name = LanguageFilter(ffv.DimFundingDecision.NameEn, ffv.DimFundingDecision.NameFi, ffv.DimFundingDecision.NameSv),
                     Description = GetFirstNSentences(
-                        LanguageFilter(en: fd.DescriptionEn, fi: fd.DescriptionFi, sv: fd.DescriptionSv),
+                        LanguageFilter(ffv.DimFundingDecision.DescriptionEn, ffv.DimFundingDecision.DescriptionFi, ffv.DimFundingDecision.DescriptionSv),
                         1
                     ),
-                    StartsOn = fd.DimDateIdStartNavigation != null && fd.DimDateIdStart > 0 ?
-                        new AittaDate { Year = fd.DimDateIdStartNavigation.Year, Month = fd.DimDateIdStartNavigation.Month } : null,
-                    EndsOn = fd.DimDateIdEndNavigation != null && fd.DimDateIdEnd > 0 ?
-                        new AittaDate { Year = fd.DimDateIdEndNavigation.Year, Month = fd.DimDateIdEndNavigation.Month } : null,
-                    HasFunder = fd.DimOrganizationIdFunderNavigation != null ? new AittaOrganization
+                    StartsOn = ffv.DimFundingDecision.DimDateIdStartNavigation != null && ffv.DimFundingDecision.DimDateIdStart > 0 && ffv.DimFundingDecision.DimDateIdStartNavigation.Year > 0 ?
+                        new AittaDate { Year = ffv.DimFundingDecision.DimDateIdStartNavigation.Year, Month = ffv.DimFundingDecision.DimDateIdStartNavigation.Month } : null,
+                    EndsOn = ffv.DimFundingDecision.DimDateIdEndNavigation != null && ffv.DimFundingDecision.DimDateIdEnd > 0 && ffv.DimFundingDecision.DimDateIdEndNavigation.Year > 0 ?
+                        new AittaDate { Year = ffv.DimFundingDecision.DimDateIdEndNavigation.Year, Month = ffv.DimFundingDecision.DimDateIdEndNavigation.Month } : null,
+                    HasFunder = ffv.DimFundingDecision.DimOrganizationIdFunderNavigation != null ? new AittaOrganization
                     {
                         OrganizationName = LanguageFilter(
-                            en: fd.DimOrganizationIdFunderNavigation.NameEn, fi: fd.DimOrganizationIdFunderNavigation.NameFi, sv: fd.DimOrganizationIdFunderNavigation.NameSv
+                            ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameEn,
+                            ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameFi,
+                            ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.NameSv
                         ),
-                        IsPartOfOrganization = fd.DimOrganizationIdFunderNavigation.DimOrganizationBroader != null ?
+                        IsPartOfOrganization = ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.DimOrganizationBroader != null ?
                             new AittaOrganization
                             {
                                 OrganizationName = LanguageFilter(
-                                    en: fd.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameEn,
-                                    fi: fd.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameFi,
-                                    sv: fd.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameSv
+                                    ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameEn,
+                                    ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameFi,
+                                    ffv.DimFundingDecision.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameSv
                                 )
                             }
                             : null
                     } : null,
-                    Keywords = fd.DimKeywords.Count > 0 ? fd.DimKeywords.Where(kw => kw.Scheme == "Avainsana").Select(kw => kw.Keyword).ToList() : null,
-                    FieldsOfScience = fd.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList(),
-                    TypeOfFunding = fd.DimTypeOfFunding != null && fd.DimTypeOfFundingId > 0 ? fd.DimTypeOfFunding.NameEn : null,
-                    FieldsOfResearch = fd.DimKeywords.Count > 0 ? fd.DimKeywords.Where(kw => kw.Scheme == "Tutkimusala").Select(kw => kw.Keyword).ToList() : null,
-                    Theme = fd.DimKeywords.Count > 0 ? fd.DimKeywords.Where(kw => kw.Scheme == "Teema-ala").Select(kw => kw.Keyword).ToList() : null,
-                });
-            }
-            */
+                    Keywords = ffv.DimFundingDecision.DimKeywords.Count > 0 ? ffv.DimFundingDecision.DimKeywords.Where(kw => kw.Scheme == "Avainsana").Select(kw => kw.Keyword).ToList() : null,
+                    FieldsOfScience = ffv.DimFundingDecision.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList(),
+                    TypeOfFunding = ffv.DimFundingDecision.DimTypeOfFunding != null && ffv.DimFundingDecision.DimTypeOfFundingId > 0 ? ffv.DimFundingDecision.DimTypeOfFunding.NameEn : null,
+                    FieldsOfResearch = ffv.DimFundingDecision.DimKeywords.Count > 0 ? ffv.DimFundingDecision.DimKeywords.Where(kw => kw.Scheme == "Tutkimusala").Select(kw => kw.Keyword).ToList() : null,
+                    Theme = ffv.DimFundingDecision.DimKeywords.Count > 0 ? ffv.DimFundingDecision.DimKeywords.Where(kw => kw.Scheme == "Teema-ala").Select(kw => kw.Keyword).ToList() : null
+                }).AsNoTracking().ToListAsync();
 
             // DimProfileOnlyFundingDecision
-            /*
-            foreach (DimProfileOnlyFundingDecision pofd in factFieldValues.Where(ffv => ffv.DimProfileOnlyFundingDecision != null && ffv.DimProfileOnlyFundingDecisionId > 0).Select(ffv => ffv.DimProfileOnlyFundingDecision).ToList())
-            {
-                aittaModel.UserParticipatedGrantedFunding.Add(new AittaGrantedFunding
-                {
-                    Name = LanguageFilter(pofd.NameEn, pofd.NameFi, pofd.NameSv),
-                    Description = GetFirstNSentences(
-                        LanguageFilter(pofd.DescriptionEn, pofd.DescriptionFi, pofd.DescriptionSv),
-                        1
-                    ),
-                    StartsOn = pofd.DimDateIdStartNavigation != null && pofd.DimDateIdStart > 0 ?
-                        new AittaDate { Year = pofd.DimDateIdStartNavigation.Year, Month = pofd.DimDateIdStartNavigation.Month } : null,
-                    EndsOn = pofd.DimDateIdEndNavigation != null && pofd.DimDateIdEnd > 0 ?
-                        new AittaDate { Year = pofd.DimDateIdEndNavigation.Year, Month = pofd.DimDateIdEndNavigation.Month } : null,
-                    HasFunder = pofd.DimOrganizationIdFunderNavigation != null ? new AittaOrganization
+            aittaModel.UserParticipatedGrantedFunding.AddRange(
+                await _ttvContext.FactFieldValues
+                    .Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimProfileOnlyFundingDecision != null && ffv.DimProfileOnlyFundingDecisionId > 0 && ffv.Show == true)
+                    .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                        .ThenInclude(pofd => pofd.DimDateIdStartNavigation)
+                    .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                        .ThenInclude(pofd => pofd.DimDateIdEndNavigation)
+                    .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                        .ThenInclude(pofd => pofd.DimOrganizationIdFunderNavigation)
+                            .ThenInclude(org => org.DimOrganizationBroaderNavigation)
+                    .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                        .ThenInclude(pofd => pofd.DimTypeOfFunding)
+                    .Select(ffv => new AittaGrantedFunding
                     {
-                        OrganizationName = LanguageFilter(
-                            en: pofd.DimOrganizationIdFunderNavigation.NameEn,
-                            fi: pofd.DimOrganizationIdFunderNavigation.NameFi,
-                            sv: pofd.DimOrganizationIdFunderNavigation.NameSv
+                        Name = LanguageFilter(ffv.DimProfileOnlyFundingDecision.NameEn, ffv.DimProfileOnlyFundingDecision.NameFi, ffv.DimProfileOnlyFundingDecision.NameSv),
+                        Description = GetFirstNSentences(
+                            LanguageFilter(ffv.DimProfileOnlyFundingDecision.DescriptionEn, ffv.DimProfileOnlyFundingDecision.DescriptionFi, ffv.DimProfileOnlyFundingDecision.DescriptionSv),
+                            1
                         ),
-                        IsPartOfOrganization = pofd.DimOrganizationIdFunderNavigation.DimOrganizationBroader != null ?
-                            new AittaOrganization {
+                        StartsOn = ffv.DimProfileOnlyFundingDecision.DimDateIdStartNavigation != null && ffv.DimProfileOnlyFundingDecision.DimDateIdStart > 0 && ffv.DimProfileOnlyFundingDecision.DimDateIdStartNavigation.Year > 0 ?
+                            new AittaDate { Year = ffv.DimProfileOnlyFundingDecision.DimDateIdStartNavigation.Year, Month = ffv.DimProfileOnlyFundingDecision.DimDateIdStartNavigation.Month } : null,
+                        EndsOn = ffv.DimProfileOnlyFundingDecision.DimDateIdEndNavigation != null && ffv.DimProfileOnlyFundingDecision.DimDateIdEnd > 0 && ffv.DimProfileOnlyFundingDecision.DimDateIdEndNavigation.Year > 0 ?
+                            new AittaDate { Year = ffv.DimProfileOnlyFundingDecision.DimDateIdEndNavigation.Year, Month = ffv.DimProfileOnlyFundingDecision.DimDateIdEndNavigation.Month } : null,
+                        HasFunder = ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation != null ?
+                            // DimProfileOnlyFundingDecision has relation to DimOrganization
+                            new AittaOrganization
+                            {
                                 OrganizationName = LanguageFilter(
-                                    en: pofd.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameEn,
-                                    fi: pofd.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameFi,
-                                    sv: pofd.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameSv
-                                )
-                            }
-                            : null
-                    } : null,
-                    Keywords = null,
-                    FieldsOfScience = null,
-                    TypeOfFunding = pofd.DimTypeOfFunding != null && pofd.DimTypeOfFundingId > 0 ?
-                        LanguageFilter(en: pofd.DimTypeOfFunding.NameEn, fi: pofd.DimTypeOfFunding.NameFi, sv: pofd.DimTypeOfFunding.NameSv)
-                        : null,
-                    FieldsOfResearch = null,
-                    Theme = null
-                });
-            }
-            */
+                                    ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.NameEn,
+                                    ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.NameFi,
+                                    ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.NameSv
+                                ),
+                                IsPartOfOrganization = ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.DimOrganizationBroader != null ?
+                                    new AittaOrganization
+                                    {
+                                        OrganizationName = LanguageFilter(
+                                            ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameEn,
+                                            ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameFi,
+                                            ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.DimOrganizationBroaderNavigation.NameSv
+                                        )
+                                    }
+                                    : null
+                            } :
+                                // DimProfileOnlyFundingDecision has no relation to DimOrganization -> try to get organization from DimIdentifierlessData
+                                ffv.DimIdentifierlessData != null && ffv.DimIdentifierlessDataId > 0 ? AittaOrganizationFromIdentifierlessData(ffv.DimIdentifierlessData) : null,
+                        Keywords = null,
+                        FieldsOfScience = null,
+                        TypeOfFunding = ffv.DimProfileOnlyFundingDecision.DimTypeOfFunding != null && ffv.DimProfileOnlyFundingDecision.DimTypeOfFundingId > 0 ? ffv.DimProfileOnlyFundingDecision.DimTypeOfFunding.NameEn : null,
+                        FieldsOfResearch = null,
+                        Theme = null
+                    }).AsNoTracking().ToListAsync()
+            );
 
             // DimResearchActivity
-            /*
-            foreach (DimResearchActivity ra in factFieldValues.Where(ffv => ffv.DimResearchActivity != null && ffv.DimResearchActivityId > 0).Select(ffv => ffv.DimResearchActivity).ToList())
-            {
-                aittaModel.UserParticipatedActivity.Add(new AittaResearchActivity
+            aittaModel.UserParticipatedActivity = await _ttvContext.FactFieldValues
+                .Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimResearchActivity != null && ffv.DimResearchActivityId > 0 && ffv.Show == true)
+                .Include(ffv => ffv.DimResearchActivity)
+                    .ThenInclude(ra => ra.DimStartDateNavigation)
+                .Include(ffv => ffv.DimResearchActivity)
+                    .ThenInclude(ra => ra.DimEndDateNavigation)
+                .Select(ffv => new AittaResearchActivity
                 {
-                    ActivityTitle = LanguageFilter(en: ra.NameEn, fi: ra.NameFi, sv: ra.NameSv),
-                    Description = LanguageFilter(en: ra.DescriptionEn, fi: ra.DescriptionFi, sv: ra.DescriptionSv),
-                    StartsOn = ra.DimStartDateNavigation != null && ra.DimStartDate > 0 ?
-                        new AittaDate { Year = ra.DimStartDateNavigation.Year, Month = ra.DimStartDateNavigation.Month } : null,
-                    EndsOn = ra.DimEndDateNavigation != null && ra.DimEndDate > 0 ?
-                        new AittaDate { Year = ra.DimEndDateNavigation.Year, Month = ra.DimEndDateNavigation.Month } : null,
+                    ActivityTitle = LanguageFilter(ffv.DimResearchActivity.NameEn, ffv.DimResearchActivity.NameFi, ffv.DimResearchActivity.NameSv),
+                    Description = GetFirstNSentences(
+                        LanguageFilter(ffv.DimResearchActivity.DescriptionEn, ffv.DimResearchActivity.DescriptionFi, ffv.DimResearchActivity.DescriptionSv),
+                        1
+                    ),
                     Role = null,
-                    Type = null
-                });
-            }
-            */
-
+                    Type = null,
+                    StartsOn = ffv.DimResearchActivity.DimStartDateNavigation != null && ffv.DimResearchActivity.DimStartDate > 0 && ffv.DimResearchActivity.DimStartDateNavigation.Year > 0 ?
+                        new AittaDate { Year = ffv.DimResearchActivity.DimStartDateNavigation.Year, Month = ffv.DimResearchActivity.DimStartDateNavigation.Month } : null,
+                    EndsOn = ffv.DimResearchActivity.DimEndDateNavigation != null && ffv.DimResearchActivity.DimEndDate > 0 && ffv.DimResearchActivity.DimEndDateNavigation.Year > 0 ?
+                        new AittaDate { Year = ffv.DimResearchActivity.DimEndDateNavigation.Year, Month = ffv.DimResearchActivity.DimEndDateNavigation.Month } : null
+                })
+                .AsNoTracking().ToListAsync();
+                
             // DimProfileOnlyResearchActivity
-            /*
-            foreach (DimProfileOnlyResearchActivity pora in factFieldValues.Where(ffv => ffv.DimProfileOnlyResearchActivity != null && ffv.DimProfileOnlyResearchActivityId > 0).Select(ffv => ffv.DimProfileOnlyResearchActivity).ToList())
-            {
-                aittaModel.UserParticipatedActivity.Add(new AittaResearchActivity
-                {
-                    ActivityTitle = LanguageFilter(en: pora.NameEn, fi: pora.NameFi, sv: pora.NameSv),
-                    Description = LanguageFilter(en: pora.DescriptionEn, fi: pora.DescriptionFi, sv: pora.DescriptionSv),
-                    StartsOn = pora.DimDateIdStartNavigation != null && pora.DimDateIdStart > 0 ?
-                        new AittaDate { Year = pora.DimDateIdStartNavigation.Year, Month = pora.DimDateIdStartNavigation.Month } : null,
-                    EndsOn = pora.DimDateIdEndNavigation != null && pora.DimDateIdEnd > 0 ?
-                        new AittaDate { Year = pora.DimDateIdEndNavigation.Year, Month = pora.DimDateIdEndNavigation.Month } : null,
-                    Role = pora.FactFieldValues.FirstOrDefault().DimReferencedataActorRole != null && pora.FactFieldValues.FirstOrDefault().DimReferencedataActorRoleId > 0 ?
-                        LanguageFilter(
-                            en: pora.FactFieldValues.FirstOrDefault().DimReferencedataActorRole.NameEn,
-                            fi: pora.FactFieldValues.FirstOrDefault().DimReferencedataActorRole.NameFi,
-                            sv: pora.FactFieldValues.FirstOrDefault().DimReferencedataActorRole.NameSv
-                        )
-                        : null,
-                    Type = null
-                });
-            }
-            */
+            aittaModel.UserParticipatedActivity.AddRange(
+                await _ttvContext.FactFieldValues
+                    .Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimProfileOnlyResearchActivity != null && ffv.DimProfileOnlyResearchActivityId > 0 && ffv.Show == true)
+                    .Include(ffv => ffv.DimProfileOnlyResearchActivity)
+                        .ThenInclude(pora => pora.DimDateIdStartNavigation)
+                    .Include(ffv => ffv.DimProfileOnlyResearchActivity)
+                        .ThenInclude(pora => pora.DimDateIdEndNavigation)
+                    .Include(ffv => ffv.DimReferencedataActorRole)
+                    .Select(ffv => new AittaResearchActivity
+                    {
+                        ActivityTitle = LanguageFilter(ffv.DimProfileOnlyResearchActivity.NameEn, ffv.DimProfileOnlyResearchActivity.NameFi, ffv.DimProfileOnlyResearchActivity.NameSv),
+                        Description = GetFirstNSentences(
+                            LanguageFilter(ffv.DimProfileOnlyResearchActivity.DescriptionEn, ffv.DimProfileOnlyResearchActivity.DescriptionFi, ffv.DimProfileOnlyResearchActivity.DescriptionSv),
+                            1
+                        ),
+                        Role = ffv.DimReferencedataActorRole != null && ffv.DimReferencedataActorRoleId > 0 ? LanguageFilter(ffv.DimReferencedataActorRole.NameEn, ffv.DimReferencedataActorRole.NameFi, ffv.DimReferencedataActorRole.NameSv) : null,
+                        Type = null,
+                        StartsOn = ffv.DimProfileOnlyResearchActivity.DimDateIdStartNavigation != null && ffv.DimProfileOnlyResearchActivity.DimDateIdStart > 0 && ffv.DimProfileOnlyResearchActivity.DimDateIdStartNavigation.Year > 0 ?
+                            new AittaDate { Year = ffv.DimProfileOnlyResearchActivity.DimDateIdStartNavigation.Year, Month = ffv.DimProfileOnlyResearchActivity.DimDateIdStartNavigation.Month } : null,
+                        EndsOn = ffv.DimProfileOnlyResearchActivity.DimDateIdEndNavigation != null && ffv.DimProfileOnlyResearchActivity.DimDateIdEnd > 0 && ffv.DimProfileOnlyResearchActivity.DimDateIdEndNavigation.Year > 0 ?
+                            new AittaDate { Year = ffv.DimProfileOnlyResearchActivity.DimDateIdEndNavigation.Year, Month = ffv.DimProfileOnlyResearchActivity.DimDateIdEndNavigation.Month } : null
+                    })
+                    .AsNoTracking().ToListAsync()
+            );
 
             return aittaModel;
         }
@@ -609,7 +403,7 @@ namespace api.Services
             // 3. Join them back together with a single space (or any separator you prefer).
             return string.Join(" ", sentences);
         }
-        
+
         static string? LanguageFilter(string? en, string? fi, string? sv)
         {
             if (!string.IsNullOrWhiteSpace(en))
@@ -629,5 +423,50 @@ namespace api.Services
                 return null;
             }
         }
+        
+        static AittaOrganization? AittaOrganizationFromIdentifierlessData(DimIdentifierlessDatum identifierlessData)
+        {
+            string? organizationName = null;
+            string? organizationUnit = null;
+
+            if (identifierlessData.Type == "organization_name")
+            {
+                organizationName = LanguageFilter(
+                    en: identifierlessData.ValueEn,
+                    fi: identifierlessData.ValueFi,
+                    sv: identifierlessData.ValueSv
+                );
+
+                if (identifierlessData.InverseDimIdentifierlessData != null && identifierlessData.InverseDimIdentifierlessData.Count > 0)
+                {
+                    organizationUnit = LanguageFilter(
+                        en: identifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueEn,
+                        fi: identifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueFi,
+                        sv: identifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueSv
+                    );
+                }
+            }
+            if (organizationName != null && organizationUnit != null)
+            {
+                return new AittaOrganization
+                {
+                    OrganizationName = organizationUnit,
+                    IsPartOfOrganization = new AittaOrganization
+                    {
+                        OrganizationName = organizationName
+                    }
+                };
+            }
+            else if (organizationName != null)
+            {
+                return new AittaOrganization
+                {
+                    OrganizationName = organizationName,
+                    IsPartOfOrganization = null
+                };
+            }
+            return null;
+        }
+
     }
 }
