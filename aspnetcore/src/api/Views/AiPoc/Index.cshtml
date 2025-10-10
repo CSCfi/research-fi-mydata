@@ -30,11 +30,21 @@
 <form id="promptForm" class="mb-4">
     <div class="form-group mb-3">
         <label for="prompt" class="form-label">Model instructions:</label>
+
+        <!-- System prompt -->
         <textarea id="systemPrompt" name="systemPrompt" class="form-control" rows="5" placeholder="Enter prompt here..."
         >Create summarized researcher biography.</textarea>
+
+        <!-- Profile data viewer -->
         <label for="profileDataViewer" class="form-label mt-3">Profile Data:</label>
         <div id="profileDataViewer" class="json-container border p-3" style="background-color: #f8f9fa; max-height: 600px; overflow-y: auto;"></div>
+
+        <!-- Profile data parameter -->
         <input type="hidden" id="profileData" name="profileData" />
+
+        <!-- Max output token count -->
+        <label for="maxOutputTokenCount" class="form-label mt-3">Max output token count:</label>
+        <input type="number" id="maxOutputTokenCount" name="maxOutputTokenCount" class="form-control" value="500" min="1" max="4000" />
     </div>
     <div class="form-text mb-3">Model instructions and profile data together form the prompt sent to the AI model.</div>
     <div class="form-group">

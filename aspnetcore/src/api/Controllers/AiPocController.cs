@@ -56,7 +56,7 @@ namespace api.Controllers
         /// Query AI model
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> QueryAiModel(string systemPrompt, string profileData)
+        public async Task<IActionResult> QueryAiModel(string systemPrompt, string profileData, int maxOutputTokenCount)
         {
             if (string.IsNullOrWhiteSpace(systemPrompt) && string.IsNullOrWhiteSpace(profileData))
             {
@@ -70,7 +70,7 @@ namespace api.Controllers
             {
                 ChatCompletionOptions options = new()
                 {
-                    MaxOutputTokenCount = 500
+                    MaxOutputTokenCount = maxOutputTokenCount > 0 ? maxOutputTokenCount : 200,
                     // Temperature = 0.5f,
                     // TopP = 0.9f
                 };
@@ -81,8 +81,7 @@ namespace api.Controllers
                     new UserChatMessage(profileData)
                 };
 
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-                ChatCompletion completion = await _chatClient.CompleteChatAsync(chatMessages, options, cancellationToken: cts.Token);
+                ChatCompletion completion = await _chatClient.CompleteChatAsync(chatMessages, options);
                 return Content(completion.Content[0].Text);
             }
             catch (ArgumentException ex)
