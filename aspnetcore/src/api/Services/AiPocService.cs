@@ -194,100 +194,157 @@ namespace api.Services
                     .AsNoTracking().ToListAsync()
             );
 
-
-/*
-                List <FactFieldValue> factFieldValues = await _ttvContext.FactFieldValues
-                // DimUserProfile
-                .Include(ffv => ffv.DimUserProfile)
-                    .Where(ffv => ffv.DimUserProfile != null && ffv.DimUserProfile.OrcidId == orcidId && ffv.Show == true)
-                // DimName
-                //.Include(ffv => ffv.DimName)
-                // DimResearcherDescription
-                //.Include(ffv => ffv.DimResearcherDescription)
-                // DimAffiliation
-                //.Include(ffv => ffv.DimAffiliation)
-                //    .ThenInclude(affiliation => affiliation.DimOrganization)
-                //        .ThenInclude(aff_org => aff_org.DimOrganizationBroaderNavigation)
-                //.Include(ffv => ffv.DimAffiliation)
-                //    .ThenInclude(affiliation => affiliation.StartDateNavigation)
-                //.Include(ffv => ffv.DimAffiliation)
-                //    .ThenInclude(affiliation => affiliation.EndDateNavigation)
-                //.Include(ffv => ffv.DimEducation)
-                // DimPublication
-                //.Include(ffv => ffv.DimPublication)
-                //    .ThenInclude(pub => pub.DimKeywords)
-                //.Include(ffv => ffv.DimPublication)
-                //    .ThenInclude(pub => pub.DimDescriptiveItems)
-                //.Include(ffv => ffv.DimPublication)
-                //    .ThenInclude(pub => pub.FactDimReferencedataFieldOfSciences)
-                //        .ThenInclude(fdrfs => fdrfs.DimReferencedata)
-                //.Include(ffv => ffv.DimPublication)
-                //    .ThenInclude(pub => pub.PublicationTypeCodeNavigation)
-                //.Include(ffv => ffv.DimPublication)
-                //    .ThenInclude(pub => pub.TargetAudienceCodeNavigation)
-                // DimProfileOnlyPublication
-                .Include(ffv => ffv.DimProfileOnlyPublication)
-
-                // DimResearchDataset
+            // DimResearchDataset
+            aittaModel.UserParticipatedDataset = await _ttvContext.FactFieldValues
+                .Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimResearchDataset != null && ffv.DimResearchDatasetId > 0 && ffv.Show == true)
                 .Include(ffv => ffv.DimResearchDataset)
                     .ThenInclude(rd => rd.DimKeywords)
                 .Include(ffv => ffv.DimResearchDataset)
                     .ThenInclude(rd => rd.FactDimReferencedataFieldOfSciences)
                         .ThenInclude(fdrfs => fdrfs.DimReferencedata)
-                // DimFundingDecision
-                .Include(ffv => ffv.DimFundingDecision)
-                    .ThenInclude(fd => fd.DimDateIdStartNavigation)
-                .Include(ffv => ffv.DimFundingDecision)
-                    .ThenInclude(fd => fd.DimDateIdEndNavigation)
-                .Include(ffv => ffv.DimFundingDecision)
-                    .ThenInclude(fd => fd.DimOrganizationIdFunderNavigation)
-                        .ThenInclude(org => org.DimOrganizationBroaderNavigation)
-                .Include(ffv => ffv.DimFundingDecision)
-                    .ThenInclude(fd => fd.DimKeywords)
-                .Include(ffv => ffv.DimFundingDecision)
-                    .ThenInclude(fd => fd.FactDimReferencedataFieldOfSciences)
-                        .ThenInclude(fdrfs => fdrfs.DimReferencedata)
-                .Include(ffv => ffv.DimFundingDecision)
-                    .ThenInclude(fd => fd.DimTypeOfFunding)
-                // DimProfileOnlyFundingDecision
-                .Include(ffv => ffv.DimProfileOnlyFundingDecision)
-                    .ThenInclude(pofd => pofd.DimDateIdStartNavigation)
-                .Include(ffv => ffv.DimProfileOnlyFundingDecision)
-                    .ThenInclude(pofd => pofd.DimDateIdEndNavigation)
-                .Include(ffv => ffv.DimFundingDecision)
-                    .ThenInclude(pofd => pofd.DimOrganizationIdFunderNavigation)
-                        .ThenInclude(org => org.DimOrganizationBroaderNavigation)
-                .Include(ffv => ffv.DimProfileOnlyFundingDecision)
-                    .ThenInclude(pofd => pofd.DimTypeOfFunding)
-                // DimResearchActivity
-                .Include(ffv => ffv.DimResearchActivity)
-                    .ThenInclude(ra => ra.DimStartDateNavigation)
-                .Include(ffv => ffv.DimResearchActivity)
-                    .ThenInclude(ra => ra.DimEndDateNavigation)
-                // DimProfileOnlyResearchActivity
-                .Include(ffv => ffv.DimProfileOnlyResearchActivity)
-                    .ThenInclude(pora => pora.DimDateIdStartNavigation)
-                .Include(ffv => ffv.DimProfileOnlyResearchActivity)
-                    .ThenInclude(pora => pora.DimDateIdEndNavigation)
-                // DimreferencedataActorRole (for DimProfileOnlyResearchActivity)
-                .Include(ffv => ffv.DimReferencedataActorRole)
+                .Select(ffv => new AittaResearchDataset
+                {
+                    DatasetTitle = LanguageFilter(
+                        ffv.DimResearchDataset.NameEn,
+                        ffv.DimResearchDataset.NameFi,
+                        ffv.DimResearchDataset.NameSv
+                    ),
+                    Description = GetFirstNSentences(
+                        LanguageFilter(
+                            ffv.DimResearchDataset.DescriptionEn,
+                            ffv.DimResearchDataset.DescriptionFi,
+                            ffv.DimResearchDataset.DescriptionSv
+                        ),
+                        1
+                    ),
+                    DatasetCreationDate = ffv.DimResearchDataset.DatasetCreated != null ? ffv.DimResearchDataset.DatasetCreated : null,
+                    Theme = ffv.DimResearchDataset.DimKeywords.Count > 0 ? ffv.DimResearchDataset.DimKeywords.Where(kw => kw.Scheme == "Theme").Select(kw => kw.Keyword).ToList() : null,
+                    Keywords = ffv.DimResearchDataset.DimKeywords.Count > 0 ? ffv.DimResearchDataset.DimKeywords.Where(kw => kw.Scheme == "Avainsana").Select(kw => kw.Keyword).ToList() : null,
+                    FieldsOfScience = ffv.DimResearchDataset.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList()
+                })
+                .AsNoTracking().ToListAsync();
 
-                // Query execution
-                .AsNoTracking().AsSplitQuery().ToListAsync();
+            // DimProfileOnlyResearchDataset
+            aittaModel.UserParticipatedDataset.AddRange(
+                await _ttvContext.FactFieldValues
+                    .Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimProfileOnlyDataset != null && ffv.DimProfileOnlyDatasetId > 0 && ffv.Show == true)
+                    .Include(ffv => ffv.DimProfileOnlyDataset)
+                    .Select(ffv => new AittaResearchDataset
+                    {
+                        DatasetTitle = LanguageFilter(
+                            ffv.DimProfileOnlyDataset.NameEn,
+                            ffv.DimProfileOnlyDataset.NameFi,
+                            ffv.DimProfileOnlyDataset.NameSv
+                        ),
+                        Description = GetFirstNSentences(
+                            LanguageFilter(
+                                ffv.DimProfileOnlyDataset.DescriptionEn,
+                                ffv.DimProfileOnlyDataset.DescriptionFi,
+                                ffv.DimProfileOnlyDataset.DescriptionSv
+                            ),
+                            1
+                        ),
+                        DatasetCreationDate = ffv.DimProfileOnlyDataset.DatasetCreated != null ? ffv.DimProfileOnlyDataset.DatasetCreated : null,
+                        Theme = null,
+                        Keywords = null,
+                        FieldsOfScience = null
+                    })
+                    .AsNoTracking().ToListAsync()
+            );
 
-            if (factFieldValues.Count == 0)
-            {
-                _logger.LogWarning("No data found for ORCID {orcidId}", orcidId);
-                return null;
-            }
-
-            // DimName
             /*
-            foreach (DimName n in factFieldValues.Where(ffv => ffv.DimName != null && ffv.DimNameId > 0 && (!string.IsNullOrWhiteSpace(ffv.DimName.FirstNames) || !string.IsNullOrWhiteSpace(ffv.DimName.LastName))).Select(ffv => ffv.DimName).ToList())
-            {
-                aittaModel.PersonName = $"{n.FirstNames} {n.LastName}";
-            }
-            */
+                            List <FactFieldValue> factFieldValues = await _ttvContext.FactFieldValues
+                            // DimUserProfile
+                            .Include(ffv => ffv.DimUserProfile)
+                                .Where(ffv => ffv.DimUserProfile != null && ffv.DimUserProfile.OrcidId == orcidId && ffv.Show == true)
+                            // DimName
+                            //.Include(ffv => ffv.DimName)
+                            // DimResearcherDescription
+                            //.Include(ffv => ffv.DimResearcherDescription)
+                            // DimAffiliation
+                            //.Include(ffv => ffv.DimAffiliation)
+                            //    .ThenInclude(affiliation => affiliation.DimOrganization)
+                            //        .ThenInclude(aff_org => aff_org.DimOrganizationBroaderNavigation)
+                            //.Include(ffv => ffv.DimAffiliation)
+                            //    .ThenInclude(affiliation => affiliation.StartDateNavigation)
+                            //.Include(ffv => ffv.DimAffiliation)
+                            //    .ThenInclude(affiliation => affiliation.EndDateNavigation)
+                            //.Include(ffv => ffv.DimEducation)
+                            // DimPublication
+                            //.Include(ffv => ffv.DimPublication)
+                            //    .ThenInclude(pub => pub.DimKeywords)
+                            //.Include(ffv => ffv.DimPublication)
+                            //    .ThenInclude(pub => pub.DimDescriptiveItems)
+                            //.Include(ffv => ffv.DimPublication)
+                            //    .ThenInclude(pub => pub.FactDimReferencedataFieldOfSciences)
+                            //        .ThenInclude(fdrfs => fdrfs.DimReferencedata)
+                            //.Include(ffv => ffv.DimPublication)
+                            //    .ThenInclude(pub => pub.PublicationTypeCodeNavigation)
+                            //.Include(ffv => ffv.DimPublication)
+                            //    .ThenInclude(pub => pub.TargetAudienceCodeNavigation)
+                            // DimProfileOnlyPublication
+                            .Include(ffv => ffv.DimProfileOnlyPublication)
+
+                            // DimResearchDataset
+                            .Include(ffv => ffv.DimResearchDataset)
+                                .ThenInclude(rd => rd.DimKeywords)
+                            .Include(ffv => ffv.DimResearchDataset)
+                                .ThenInclude(rd => rd.FactDimReferencedataFieldOfSciences)
+                                    .ThenInclude(fdrfs => fdrfs.DimReferencedata)
+                            // DimFundingDecision
+                            .Include(ffv => ffv.DimFundingDecision)
+                                .ThenInclude(fd => fd.DimDateIdStartNavigation)
+                            .Include(ffv => ffv.DimFundingDecision)
+                                .ThenInclude(fd => fd.DimDateIdEndNavigation)
+                            .Include(ffv => ffv.DimFundingDecision)
+                                .ThenInclude(fd => fd.DimOrganizationIdFunderNavigation)
+                                    .ThenInclude(org => org.DimOrganizationBroaderNavigation)
+                            .Include(ffv => ffv.DimFundingDecision)
+                                .ThenInclude(fd => fd.DimKeywords)
+                            .Include(ffv => ffv.DimFundingDecision)
+                                .ThenInclude(fd => fd.FactDimReferencedataFieldOfSciences)
+                                    .ThenInclude(fdrfs => fdrfs.DimReferencedata)
+                            .Include(ffv => ffv.DimFundingDecision)
+                                .ThenInclude(fd => fd.DimTypeOfFunding)
+                            // DimProfileOnlyFundingDecision
+                            .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                                .ThenInclude(pofd => pofd.DimDateIdStartNavigation)
+                            .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                                .ThenInclude(pofd => pofd.DimDateIdEndNavigation)
+                            .Include(ffv => ffv.DimFundingDecision)
+                                .ThenInclude(pofd => pofd.DimOrganizationIdFunderNavigation)
+                                    .ThenInclude(org => org.DimOrganizationBroaderNavigation)
+                            .Include(ffv => ffv.DimProfileOnlyFundingDecision)
+                                .ThenInclude(pofd => pofd.DimTypeOfFunding)
+                            // DimResearchActivity
+                            .Include(ffv => ffv.DimResearchActivity)
+                                .ThenInclude(ra => ra.DimStartDateNavigation)
+                            .Include(ffv => ffv.DimResearchActivity)
+                                .ThenInclude(ra => ra.DimEndDateNavigation)
+                            // DimProfileOnlyResearchActivity
+                            .Include(ffv => ffv.DimProfileOnlyResearchActivity)
+                                .ThenInclude(pora => pora.DimDateIdStartNavigation)
+                            .Include(ffv => ffv.DimProfileOnlyResearchActivity)
+                                .ThenInclude(pora => pora.DimDateIdEndNavigation)
+                            // DimreferencedataActorRole (for DimProfileOnlyResearchActivity)
+                            .Include(ffv => ffv.DimReferencedataActorRole)
+
+                            // Query execution
+                            .AsNoTracking().AsSplitQuery().ToListAsync();
+
+                        if (factFieldValues.Count == 0)
+                        {
+                            _logger.LogWarning("No data found for ORCID {orcidId}", orcidId);
+                            return null;
+                        }
+
+                        // DimName
+                        /*
+                        foreach (DimName n in factFieldValues.Where(ffv => ffv.DimName != null && ffv.DimNameId > 0 && (!string.IsNullOrWhiteSpace(ffv.DimName.FirstNames) || !string.IsNullOrWhiteSpace(ffv.DimName.LastName))).Select(ffv => ffv.DimName).ToList())
+                        {
+                            aittaModel.PersonName = $"{n.FirstNames} {n.LastName}";
+                        }
+                        */
 
             // DimResearcherDescription
             /*
