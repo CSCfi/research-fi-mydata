@@ -109,6 +109,8 @@ public partial class DimFundingDecision
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
 
+    public virtual ICollection<FactReferencedatum> FactReferencedata { get; set; } = new List<FactReferencedatum>();
+
     public virtual ICollection<DimFundingDecision> InverseDimFundingDecisionIdParentDecisionNavigation { get; set; } = new List<DimFundingDecision>();
 
     public virtual ICollection<DimFundingDecision> DimFundingDecisionFroms { get; set; } = new List<DimFundingDecision>();

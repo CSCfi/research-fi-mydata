@@ -404,12 +404,12 @@ namespace api.Services
                     dim_profile_only_funding_decision_web_link.url AS 'DimProfileOnlyFundingDecision_DimWebLink_Url',
 
                     dim_research_dataset.local_identifier AS 'DimResearchDataset_LocalIdentifier',
-                    dim_research_dataset.name_fi AS 'DimResearchDataset_NameFi',
-                    dim_research_dataset.name_en AS 'DimResearchDataset_NameEn',
-                    dim_research_dataset.name_sv AS 'DimResearchDataset_NameSv',
-                    dim_research_dataset.description_fi AS 'DimResearchDataset_DescriptionFi',
-                    dim_research_dataset.description_en AS 'DimResearchDataset_DescriptionEn',
-                    dim_research_dataset.description_sv AS 'DimResearchDataset_DescriptionSv',
+                    dim_research_dataset_descriptive_item_name_fi.descriptive_item AS 'DimResearchDataset_NameFi',
+                    dim_research_dataset_descriptive_item_name_en.descriptive_item AS 'DimResearchDataset_NameEn',
+                    dim_research_dataset_descriptive_item_name_sv.descriptive_item AS 'DimResearchDataset_NameSv',
+                    dim_research_dataset_descriptive_item_description_fi.descriptive_item AS 'DimResearchDataset_DescriptionFi',
+                    dim_research_dataset_descriptive_item_description_en.descriptive_item AS 'DimResearchDataset_DescriptionEn',
+                    dim_research_dataset_descriptive_item_description_sv.descriptive_item AS 'DimResearchDataset_DescriptionSv',
                     dim_research_dataset.dataset_created AS 'DimResearchDataset_DatasetCreated',
                     dim_research_dataset_referencedata_availability.code_value AS 'DimResearchDataset_AccessType',
 
@@ -511,6 +511,12 @@ namespace api.Services
                 LEFT JOIN dim_web_link AS dim_profile_only_funding_decision_web_link ON dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id=dpofd.id AND dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id!=-1
 
                 JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_name_fi ON dim_research_dataset_descriptive_item_name_fi.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_name_fi.descriptive_item_type='name' AND dim_research_dataset_descriptive_item_name_fi.descriptive_item_language='fi' AND dim_research_dataset_descriptive_item_name_fi.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_name_en ON dim_research_dataset_descriptive_item_name_en.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_name_en.descriptive_item_type='name' AND dim_research_dataset_descriptive_item_name_en.descriptive_item_language='en' AND dim_research_dataset_descriptive_item_name_en.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_name_sv ON dim_research_dataset_descriptive_item_name_sv.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_name_sv.descriptive_item_type='name' AND dim_research_dataset_descriptive_item_name_sv.descriptive_item_language='sv' AND dim_research_dataset_descriptive_item_name_sv.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_description_fi ON dim_research_dataset_descriptive_item_description_fi.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_description_fi.descriptive_item_type='description' AND dim_research_dataset_descriptive_item_description_fi.descriptive_item_language='fi' AND dim_research_dataset_descriptive_item_description_fi.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_description_en ON dim_research_dataset_descriptive_item_description_en.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_description_en.descriptive_item_type='description' AND dim_research_dataset_descriptive_item_description_en.descriptive_item_language='en' AND dim_research_dataset_descriptive_item_description_en.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_description_sv ON dim_research_dataset_descriptive_item_description_sv.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_description_sv.descriptive_item_type='description' AND dim_research_dataset_descriptive_item_description_sv.descriptive_item_language='sv' AND dim_research_dataset_descriptive_item_description_sv.dim_research_dataset_id!=-1
                 LEFT JOIN dim_referencedata AS dim_research_dataset_referencedata_availability ON dim_research_dataset.dim_referencedata_availability=dim_research_dataset_referencedata_availability.id AND dim_research_dataset.dim_referencedata_availability!=-1
 
                 JOIN dim_profile_only_dataset ON ffv.dim_profile_only_dataset_id=dim_profile_only_dataset.id
@@ -603,12 +609,6 @@ namespace api.Services
             return $"DELETE FROM dim_field_of_science WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimFieldOfScienceIds)})";
         }
 
-        // Return SQL DELETE statement for dim_funding_decision
-        public string GetSqlQuery_Delete_DimFundingDecisions(List<int> dimFundingDecisionIds)
-        {
-            return $"DELETE FROM dim_funding_decision WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimFundingDecisionIds)})";
-        }
-
         // Return SQL DELETE statement for dim_keyword
         public string GetSqlQuery_Delete_DimKeyword(List<int> dimKeywordIds)
         {
@@ -661,12 +661,6 @@ namespace api.Services
         public string GetSqlQuery_Delete_DimResearchCommunities(List<int> dimResearchCommunityIds)
         {
             return $"DELETE FROM dim_research_community WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimResearchCommunityIds)})";
-        }
-
-        // Return SQL DELETE statement for dim_research_dataset
-        public string GetSqlQuery_Delete_DimResearchDatasets(List<int> dimResearchDatasetIds)
-        {
-            return $"DELETE FROM dim_research_dataset WHERE id IN ({ConvertListOfIntsToCommaSeparatedString(dimResearchDatasetIds)})";
         }
 
         // Return SQL DELETE statement for dim_researcher_description
