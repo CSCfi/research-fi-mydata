@@ -16,4 +16,8 @@ public partial class FactKeyword
     public DateTime? Created { get; set; }
 
     public DateTime? Modified { get; set; }
+
+    public int DimResearchDatasetId { get; set; }
+
+    public virtual DimResearchDataset DimResearchDataset { get; set; }
 }

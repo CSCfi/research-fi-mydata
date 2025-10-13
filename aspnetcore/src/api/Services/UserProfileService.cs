@@ -2343,7 +2343,6 @@ namespace api.Services
                 List<int> dimEmailAddrressIds = new();
                 List<int> dimEventIds = new();
                 List<int> dimFieldOfScienceIds = new();
-                List<int> dimFundingDecisionIds = new();
                 List<int> dimKeywordIds = new();
                 List<long> dimNameIds = new();
                 List<int> dimProfileOnlyDatasetIds = new();
@@ -2353,7 +2352,6 @@ namespace api.Services
                 List<int> dimPidIds = new();
                 List<int> dimResearchActivityIds = new();
                 List<int> dimResearchCommunityIds = new();
-                List<int> dimResearchDatasetIds = new();
                 List<int> dimResearcherDescriptionIds = new();
                 List<int> dimResearcherToResearchCommunityIds = new();
                 List<int> dimTelephoneNumberIds = new();
@@ -2383,7 +2381,6 @@ namespace api.Services
                             if (factFieldValue.DimEmailAddrressId != -1) dimEmailAddrressIds.Add(factFieldValue.DimEmailAddrressId);
                             if (factFieldValue.DimEventId != -1) dimEventIds.Add(factFieldValue.DimEventId);
                             if (factFieldValue.DimReferencedataFieldOfScienceId != -1) dimFieldOfScienceIds.Add(factFieldValue.DimReferencedataFieldOfScienceId);
-                            if (factFieldValue.DimFundingDecisionId != -1) dimFundingDecisionIds.Add(factFieldValue.DimFundingDecisionId);
                             if (factFieldValue.DimKeywordId != -1) dimKeywordIds.Add(factFieldValue.DimKeywordId);
                             if (factFieldValue.DimNameId != -1) dimNameIds.Add(factFieldValue.DimNameId);
                             if (factFieldValue.DimIdentifierlessDataId != -1) dimIdentifierlessDataIds.Add(factFieldValue.DimIdentifierlessDataId);
@@ -2419,7 +2416,6 @@ namespace api.Services
                             if (factFieldValue.DimPidIdOrcidPutCode != -1) dimPidIds.Add(factFieldValue.DimPidIdOrcidPutCode);
                             if (factFieldValue.DimResearchActivityId != -1) dimResearchActivityIds.Add(factFieldValue.DimResearchActivityId);
                             if (factFieldValue.DimResearchCommunityId != -1) dimResearchCommunityIds.Add(factFieldValue.DimResearchCommunityId);
-                            if (factFieldValue.DimResearchDatasetId != -1) dimResearchDatasetIds.Add(factFieldValue.DimResearchDatasetId);
                             if (factFieldValue.DimResearcherDescriptionId != -1) dimResearcherDescriptionIds.Add(factFieldValue.DimResearcherDescriptionId);
                             if (factFieldValue.DimResearcherToResearchCommunityId != -1) dimResearcherToResearchCommunityIds.Add(factFieldValue.DimResearcherToResearchCommunityId);
                             if (factFieldValue.DimTelephoneNumberId != -1) dimTelephoneNumberIds.Add(factFieldValue.DimTelephoneNumberId);
@@ -2474,13 +2470,6 @@ namespace api.Services
                     {
                         await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimFieldsOfScience(dimFieldOfScienceIds)
-                        );
-                    }
-                    // Delete funding decisions
-                    if (dimFundingDecisionIds.Count > 0)
-                    {
-                        await ExecuteSqlQueryWithProfiling(
-                            sql: _ttvSqlService.GetSqlQuery_Delete_DimFundingDecisions(dimFundingDecisionIds)
                         );
                     }
                     // Delete Keywords
@@ -2556,13 +2545,6 @@ namespace api.Services
                     {
                         await ExecuteSqlQueryWithProfiling(
                             sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchCommunities(dimResearchCommunityIds)
-                        );
-                    }
-                    // Delete research datasets
-                    if (dimResearchDatasetIds.Count > 0)
-                    {
-                        await ExecuteSqlQueryWithProfiling(
-                            sql: _ttvSqlService.GetSqlQuery_Delete_DimResearchDatasets(dimResearchDatasetIds)
                         );
                     }
                     // Delete researcher descriptions

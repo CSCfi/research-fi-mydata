@@ -54,6 +54,4 @@ public partial class DimKeyword
     public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; } = new List<DimFundingDecision>();
 
     public virtual ICollection<DimPublication> DimPublications { get; set; } = new List<DimPublication>();
-
-    public virtual ICollection<DimResearchDataset> DimResearchDatasets { get; set; } = new List<DimResearchDataset>();
 }
