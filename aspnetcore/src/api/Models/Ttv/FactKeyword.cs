@@ -19,5 +19,9 @@ public partial class FactKeyword
 
     public int DimResearchDatasetId { get; set; }
 
+    public virtual DimKeyword DimKeyword { get; set; }
+
     public virtual DimResearchDataset DimResearchDataset { get; set; }
+
+    public virtual DimResearchProject DimResearchProject { get; set; }
 }

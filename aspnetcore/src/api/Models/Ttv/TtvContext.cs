@@ -4246,10 +4246,20 @@ public partial class TtvContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("source_id");
 
+            entity.HasOne(d => d.DimKeyword).WithMany(p => p.FactKeywords)
+                .HasForeignKey(d => d.DimKeywordId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FKfact_keywo738006");
+
             entity.HasOne(d => d.DimResearchDataset).WithMany(p => p.FactKeywords)
                 .HasForeignKey(d => d.DimResearchDatasetId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("dataset-keywords");
+
+            entity.HasOne(d => d.DimResearchProject).WithMany(p => p.FactKeywords)
+                .HasForeignKey(d => d.DimResearchProjectId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FKfact_keywo171431");
         });
 
         modelBuilder.Entity<FactReferencedatum>(entity =>
