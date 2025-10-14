@@ -45,6 +45,8 @@ public partial class DimKeyword
 
     public virtual ICollection<FactInfraKeyword> FactInfraKeywords { get; set; } = new List<FactInfraKeyword>();
 
+    public virtual ICollection<FactKeyword> FactKeywords { get; set; } = new List<FactKeyword>();
+
     public virtual ICollection<DimKeyword> InverseDimKeywordCloseMatchNavigation { get; set; } = new List<DimKeyword>();
 
     public virtual ICollection<DimKeyword> InverseDimKeywordLanguageVariantNavigation { get; set; } = new List<DimKeyword>();

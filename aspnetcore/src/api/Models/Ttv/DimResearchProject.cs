@@ -40,6 +40,8 @@ public partial class DimResearchProject
 
     public virtual DimDate EndDateNavigation { get; set; }
 
+    public virtual ICollection<FactKeyword> FactKeywords { get; set; } = new List<FactKeyword>();
+
     public virtual DimOrganization ResponsibleOrganizationNavigation { get; set; }
 
     public virtual DimName ResponsiblePersonNavigation { get; set; }
