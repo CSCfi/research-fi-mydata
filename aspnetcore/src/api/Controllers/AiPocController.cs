@@ -8,6 +8,8 @@ using OpenAI.Chat;
 using api.Models.Ai;
 using System.Text.Json;
 using System.Threading;
+using Microsoft.Extensions.Logging;
+using api.Models.Log;
 
 namespace api.Controllers
 {
@@ -18,11 +20,13 @@ namespace api.Controllers
     {
         private readonly ChatClient _chatClient;
         private readonly AiPocService _aiPocService;
+        private readonly ILogger<AiPocController> _logger;
 
-        public AiPocController(ChatClient chatClient, AiPocService aiPocService)
+        public AiPocController(ChatClient chatClient, AiPocService aiPocService, ILogger<AiPocController> logger)
         {
             _chatClient = chatClient;
             _aiPocService = aiPocService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -39,6 +43,18 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> GetProfileDataForPrompt(string orcid)
         {
+            LogUserIdentification logUserIdentification = new LogUserIdentification(
+                keycloakId: "",
+                orcid: "",
+                ip: HttpContext.Connection.RemoteIpAddress?.ToString()
+            );
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.AI_GET_PROFILE_DATA,
+                    state: LogContent.ActionState.START));
+
             AittaModel? profileDataForPromt = await _aiPocService.GetProfileDataForPromt(orcid);
             return Content(
                 JsonSerializer.Serialize(
@@ -58,6 +74,18 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> QueryAiModel(string systemPrompt, string profileData, int maxOutputTokenCount)
         {
+            LogUserIdentification logUserIdentification = new LogUserIdentification(
+                keycloakId: "",
+                orcid: "",
+                ip: HttpContext.Connection.RemoteIpAddress?.ToString()
+            );
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.AI_QUERY_MODEL,
+                    state: LogContent.ActionState.START));
+
             if (string.IsNullOrWhiteSpace(systemPrompt) && string.IsNullOrWhiteSpace(profileData))
             {
                 return BadRequest(new { error = "Prompt cannot be empty." });
