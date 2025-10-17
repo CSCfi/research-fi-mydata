@@ -53,7 +53,8 @@ namespace api.Controllers
                 logUserIdentification,
                 new LogApiInfo(
                     action: LogContent.Action.AI_GET_PROFILE_DATA,
-                    state: LogContent.ActionState.START));
+                    state: LogContent.ActionState.START,
+                    message: $"{orcid}"));
 
             AittaModel? profileDataForPromt = await _aiPocService.GetProfileDataForPromt(orcid);
             return Content(
@@ -84,7 +85,8 @@ namespace api.Controllers
                 logUserIdentification,
                 new LogApiInfo(
                     action: LogContent.Action.AI_QUERY_MODEL,
-                    state: LogContent.ActionState.START));
+                    state: LogContent.ActionState.START,
+                    message: $"max: {maxOutputTokenCount}, temperature: {temperature}, topP: {topP}"));
 
             if (string.IsNullOrWhiteSpace(systemPrompt) && string.IsNullOrWhiteSpace(profileData))
             {
