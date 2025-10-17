@@ -181,6 +181,7 @@ namespace api.Services
             if (IsElasticsearchSyncEnabled())
             {
                 // Elasticsearch sync is enabled, delete from index.
+                bool successfulDelete = false;
                 await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 {
                     _logger.LogInformation(
@@ -191,16 +192,19 @@ namespace api.Services
                             state: LogContent.ActionState.START));
 
                     // Delete entry from Elasticsearch person index.
-                    await DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification, logAction);
+                    successfulDelete = await DeleteEntryFromElasticsearchPersonIndex(orcidId, logUserIdentification, logAction);
 
-                    _logger.LogInformation(
-                        LogContent.MESSAGE_TEMPLATE,
-                        logUserIdentification,
-                        new LogApiInfo(
-                            action: logAction,
-                            state: LogContent.ActionState.COMPLETE));
+                    if (successfulDelete)
+                    {
+                        _logger.LogInformation(
+                            LogContent.MESSAGE_TEMPLATE,
+                            logUserIdentification,
+                            new LogApiInfo(
+                                action: logAction,
+                                state: LogContent.ActionState.COMPLETE));
+                    }
                 });
-                return true;
+                return successfulDelete;
             }
             else
             {
@@ -221,6 +225,14 @@ namespace api.Services
          */
         public async Task<bool> DeleteEntryFromElasticsearchPersonIndex(string orcidId, LogUserIdentification logUserIdentification, string logAction)
         {
+            // Check if entry exists
+            var getResponse = await ESclient.GetAsync<ElasticsearchPerson>(orcidId);
+            if (!getResponse.Found)
+            {
+                // Entry not found, consider delete successful.
+                return true;
+            }
+
             DeleteResponse asyncDeleteResponse = await ESclient.DeleteAsync<ElasticsearchPerson>(orcidId);
 
             if (asyncDeleteResponse.IsValid)
@@ -237,6 +249,10 @@ namespace api.Services
                 else if (asyncDeleteResponse.ServerError != null && asyncDeleteResponse.ServerError != null && asyncDeleteResponse.ServerError.Error != null && asyncDeleteResponse.ServerError.Error.Reason != null)
                 {
                     errormessage = asyncDeleteResponse.ServerError.Error.Reason;
+                }
+                else
+                {
+                    errormessage = asyncDeleteResponse.DebugInformation;
                 }
 
                 _logger.LogError(
