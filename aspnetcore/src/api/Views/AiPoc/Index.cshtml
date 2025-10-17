@@ -44,7 +44,18 @@
 
         <!-- Max output token count -->
         <label for="maxOutputTokenCount" class="form-label mt-3">Max output token count:</label>
-        <input type="number" id="maxOutputTokenCount" name="maxOutputTokenCount" class="form-control" value="500" min="1" max="4000" />
+        <span class="ms-2 text-muted" role="button" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="Limits the number of tokens in the response. Useful for controlling output length.">ℹ️</span>
+        <input type="number" id="maxOutputTokenCount" name="maxOutputTokenCount" class="form-control" value="500" min="1" max="10000" style="width:10ch;" />
+
+        <!-- Temperature -->
+        <label for="temperature" class="form-label mt-3">Temperature (0.0 - 2.0):</label>
+        <span class="ms-2 text-muted" role="button" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls randomness. Higher values (e.g., 1.0) make output more creative; lower values (e.g., 0.2) make it more focused and deterministic.">ℹ️</span>
+        <input type="number" id="temperature" name="temperature" class="form-control" value="0.2" min="0" max="2" step="0.1" style="width:10ch;" />
+
+        <!-- Top P -->
+        <label for="topP" class="form-label mt-3">Top P (0.0 - 1.0):</label>
+        <span class="ms-2 text-muted" role="button" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="An alternative to temperature. It uses nucleus sampling to limit the pool of possible tokens. For deterministic output, use low Temperature (e.g., 0.2) and leave TopP unset or set it to a high value (e.g., 1.0">ℹ️</span>
+        <input type="number" id="topP" name="topP" class="form-control" value="1" min="0" max="1" step="0.1" style="width:10ch;" />
     </div>
     <div class="form-text mb-3">Model instructions and profile data together form the prompt sent to the AI model.</div>
     <div class="form-group">

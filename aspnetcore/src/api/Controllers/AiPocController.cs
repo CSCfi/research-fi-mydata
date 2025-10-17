@@ -72,7 +72,7 @@ namespace api.Controllers
         /// Query AI model
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> QueryAiModel(string systemPrompt, string profileData, int maxOutputTokenCount)
+        public async Task<IActionResult> QueryAiModel(string systemPrompt, string profileData, int maxOutputTokenCount, float temperature, float topP)
         {
             LogUserIdentification logUserIdentification = new LogUserIdentification(
                 keycloakId: "",
@@ -99,8 +99,8 @@ namespace api.Controllers
                 ChatCompletionOptions options = new()
                 {
                     MaxOutputTokenCount = maxOutputTokenCount > 0 ? maxOutputTokenCount : 200,
-                    // Temperature = 0.5f,
-                    // TopP = 0.9f
+                    Temperature = temperature,
+                    TopP = topP
                 };
 
                 var chatMessages = new List<ChatMessage>
