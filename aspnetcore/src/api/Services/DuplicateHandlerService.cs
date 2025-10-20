@@ -110,13 +110,16 @@ namespace api.Services
                 publications.Add(
                     new ProfileEditorPublication()
                     {
+                        ArticleNumberText = profileData.DimPublication_ArticleNumberText,
                         AuthorsText = profileData.DimPublication_AuthorsText,
                         ConferenceName = profileData.DimPublication_ConferenceName,
                         DataSources = new List<ProfileEditorSource> { dataSource },
                         Doi = profileData.DimPublication_Doi,
+                        IssueNumber = profileData.DimPublication_IssueNumber,
                         JournalName = profileData.DimPublication_JournalName,
                         // Replicate OpenAccess behaviour from publication index. Unknown value is set to 9.
                         OpenAccess = profileData.DimPublication_DimReferenceData_Id_OpenAccessCode != -1 && int.TryParse(profileData.DimPublication_OpenAccessCodeValue, out int openAccessCodeValue) ? openAccessCodeValue : 9,
+                        PageNumberText = profileData.DimPublication_PageNumberText,
                         ParentPublicationName = profileData.DimPublication_ParentPublicationName,
                         PeerReviewed = new List<ProfileEditorPublicationPeerReviewed>()
                         {
@@ -132,8 +135,10 @@ namespace api.Services
                         PublicationName = profileData.DimPublication_PublicationName,
                         PublicationTypeCode = profileData.DimPublication_PublicationTypeCode,
                         PublicationYear = HandlePublicationYear(profileData.DimPublication_PublicationYear),
+                        PublisherName = profileData.DimPublication_PublisherName,
                         SelfArchivedAddress = profileData.DimPublication_SelfArchivedAddress,
                         SelfArchivedCode = (profileData.DimPublication_SelfArchivedCode != null && (bool)profileData.DimPublication_SelfArchivedCode) ? "1" : "0",
+                        Volume = profileData.DimPublication_Volume,
                         itemMeta = new ProfileEditorItemMeta(
                             id: profileData.FactFieldValues_DimPublicationId,
                             type: Constants.FieldIdentifiers.ACTIVITY_PUBLICATION,
