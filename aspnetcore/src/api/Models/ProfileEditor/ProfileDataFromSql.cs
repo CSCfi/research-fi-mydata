@@ -130,20 +130,25 @@ namespace api.Models.ProfileEditor
         public int DimEducation_EndDate_Month { get; set; }
         public int DimEducation_EndDate_Day { get; set; }
         // DimPublication
+        public string DimPublication_ArticleNumberText { get; set; }
+        public string DimPublication_AuthorsText { get; set; }
+        public string DimPublication_ConferenceName { get; set; }
+        public string DimPublication_Doi { get; set; }
+        public string DimPublication_IssueNumber { get; set; }
+        public string DimPublication_JournalName { get; set; }
+        public string DimPublication_PageNumberText { get; set; }
+        public string DimPublication_ParentPublicationName { get; set; }
+        public bool? DimPublication_PeerReviewed { get; set; }
         public string DimPublication_PublicationId { get; set; }
         public string DimPublication_PublicationName { get; set; }
         public int DimPublication_PublicationYear { get; set; }
-        public string DimPublication_Doi { get; set; }
-        public string DimPublication_AuthorsText { get; set; }
+        public string DimPublication_PublisherName { get; set; }
         public string DimPublication_PublicationTypeCode { get; set; }
-        public string DimPublication_JournalName { get; set; }
-        public string DimPublication_ConferenceName { get; set; }
-        public string DimPublication_ParentPublicationName { get; set; }
         public string DimPublication_SelfArchivedAddress { get; set; }
         public bool? DimPublication_SelfArchivedCode { get; set; }
         public int DimPublication_DimReferenceData_Id_OpenAccessCode { get; set; }
         public string DimPublication_OpenAccessCodeValue { get; set; }
-        public bool? DimPublication_PeerReviewed { get; set; }
+        public string DimPublication_Volume { get; set; }
         // DimProfileOnlyPublication
         public string DimProfileOnlyPublication_PublicationId { get; set; }
         public string DimProfileOnlyPublication_PublicationName { get; set; }
