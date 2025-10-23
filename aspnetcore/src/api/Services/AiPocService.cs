@@ -137,7 +137,7 @@ namespace api.Services
                 {
                     Name = !string.IsNullOrWhiteSpace(ffv.DimPublication.PublicationName) ? ffv.DimPublication.PublicationName : null,
                     Year = ffv.DimPublication.PublicationYear > 0 ? ffv.DimPublication.PublicationYear : null,
-                    Abstract = ffv.DimPublication.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "Abstract").Select(di => GetFirstNSentences(di.DescriptiveItem, 1)).FirstOrDefault(),
+                    //Abstract = ffv.DimPublication.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "Abstract").Select(di => GetFirstNSentences(di.DescriptiveItem, 1)).FirstOrDefault(),
                     Keywords = ffv.DimPublication.DimKeywords.Count > 0 ? ffv.DimPublication.DimKeywords.Select(kw => kw.Keyword).ToList() : null,
                     FieldsOfScience = ffv.DimPublication.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList(),
                     Type = ffv.DimPublication.PublicationTypeCodeNavigation != null ? ffv.DimPublication.PublicationTypeCodeNavigation.NameEn : null,
@@ -154,7 +154,7 @@ namespace api.Services
                     {
                         Name = !string.IsNullOrWhiteSpace(ffv.DimProfileOnlyPublication.PublicationName) ? ffv.DimProfileOnlyPublication.PublicationName : null,
                         Year = ffv.DimProfileOnlyPublication.PublicationYear > 0 ? ffv.DimProfileOnlyPublication.PublicationYear : null,
-                        Abstract = null,
+                        //Abstract = null,
                         Keywords = null,
                         FieldsOfScience = null,
                         Type = null,

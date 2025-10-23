@@ -51,7 +51,7 @@ namespace api.Models.Ai
         public string? Type { get; set; } = null;
         public string? TargetAudience { get; set; } = null;
         public List<string>? Keywords { get; set; } = null;
-        public string? Abstract { get; set; } = null;
+        // public string? Abstract { get; set; } = null;
     }
 
     public class AittaResearchActivity
