@@ -1053,7 +1053,7 @@ namespace api.Services
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
                         state: LogContent.ActionState.FAILED,
-                        message: $"DimUserProfile not found: dim_user_profile.id={dimUserProfileId}"
+                        message: $"profile not found: dim_user_profile.id={dimUserProfileId}"
                         ));
                 return;
             }
@@ -1061,11 +1061,23 @@ namespace api.Services
             // Get SQL statement for Doi matching
             string doiMatchingSql = _ttvSqlService.GetSqlQuery_Select_PublicationDoiMatching(dimUserProfileId);
 
-            // Execute SQL statement using Dapper
+            // Execute SQL statement
             List<PublicationDoiMatchingDTO> doiMatchingDTOs = new();
             try
             {
                 doiMatchingDTOs = (await _ttvContext.Database.GetDbConnection().QueryAsync<PublicationDoiMatchingDTO>(doiMatchingSql)).ToList();
+                if (doiMatchingDTOs.Count == 0)
+                {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
+                            state: LogContent.ActionState.COMPLETE,
+                            message: $"dim_user_profile.id={dimUserProfileId}, nothing to add"
+                            ));
+                    return;
+                }
             }
             catch (Exception ex)
             {
@@ -1076,7 +1088,7 @@ namespace api.Services
                         action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
                         state: LogContent.ActionState.FAILED,
                         error: true,
-                        message: $"dim_user_profile.id={dimUserProfileId}, DOI matching query: {ex.ToString()}"));
+                        message: $"dim_user_profile.id={dimUserProfileId}, exception: {ex.ToString()}"));
                 return;
             }
             
@@ -1096,7 +1108,6 @@ namespace api.Services
                     {
                         continue;
                     }
-
                     FactFieldValue factFieldValuePublication = this.GetEmptyFactFieldValue();
                     factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
                     factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting_publication.Id;
@@ -1117,7 +1128,8 @@ namespace api.Services
                             action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: $"Add TTV data publications by DOI save changes (dim_user_profile.id={dimUserProfileId}): {ex.ToString()}"));
+                            message: $"dim_user_profile.id={dimUserProfileId}), exception: {ex.ToString()}"));
+                return;
             }
 
             _logger.LogInformation(
@@ -1126,7 +1138,7 @@ namespace api.Services
                 new LogApiInfo(
                     action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
                     state: LogContent.ActionState.COMPLETE,
-                    message: $"dim_user_profile.id={dimUserProfileId}. Added publicationIds: {string.Join(",", addedPublicationIds)}"
+                    message: $"dim_user_profile.id={dimUserProfileId}, added {addedPublicationIds.Count} publications: {string.Join(",", addedPublicationIds)}"
                     ));
         }
 

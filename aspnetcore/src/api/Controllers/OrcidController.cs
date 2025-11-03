@@ -233,6 +233,12 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false));
             }
 
+            // Link TTV publications to user profile by matching DOIs from ORCID publications
+            if (importSuccess)
+            {
+                await _userProfileService.AddTtvPublicationsByDoiToUserProfile(userprofileId, logUserIdentification);
+            }
+
             // Import additional data in a background task
             // Get ORCID data in a background task.
             if (importSuccess)
