@@ -52,5 +52,6 @@ namespace api.Services
         string GetSqlQuery_Update_DimUserProfile_Modified(int dimUserProfileId);
         string GetSqlQuery_ProfileEditorCooperationItems(int userprofileId);
         string GetSqlQuery_ProfileSettings(int userprofileId);
+        string GetSqlQuery_Select_PublicationDoiMatching(int dimUserProfileId);
     }
 }

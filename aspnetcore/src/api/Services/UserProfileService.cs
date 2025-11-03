@@ -1025,36 +1025,10 @@ namespace api.Services
             }
         }
 
-
         /*
          * Add TTV publications to profile by matching DOIs from ORCID publications.
          * This is to cover the case where TTV publications are not linked to DimKnownPerson via FactContribution.
-         
-        select top(200)
-            pop.publication_name,
-            pop.doi_handle,
-            pub.id,
-            pub.publication_id,
-            pub.publication_name,
-            pid.pid_content,
-            type_code.code_value
-        from fact_field_values as ffv
-        join dim_user_profile as dup on dup.id=ffv.dim_user_profile_id
-        join dim_profile_only_publication as pop on pop.id=ffv.dim_profile_only_publication_id
-        join dim_pid as pid on pid.pid_type='doi' and pid.pid_content=pop.doi_handle
-        join dim_publication as pub on pub.id=pid.dim_publication_id
-        join dim_referencedata as type_code on type_code.id=pub.publication_type_code
-        where
-            dup.orcid_id='xyz' and
-            ffv.dim_profile_only_publication_id > 0 and
-            pop.doi_handle != '' and
-            pid.dim_publication_id>0 and
-            pub.doi_handle != ''
-            and pub.dim_publication_id<0
-    */
-
-
-
+         */
         public async Task AddTtvPublicationsByDoiToUserProfile(int dimUserProfileId, LogUserIdentification logUserIdentification)
         {
             _logger.LogInformation(
@@ -1084,54 +1058,55 @@ namespace api.Services
                 return;
             }
 
-            // Get list of ORCID publications names & DOIs
-            List<PublicationDoiNameDTO> orcidPublications = await _ttvContext.FactFieldValues.Where(
-                ffv => ffv.DimUserProfileId == dimUserProfileId &&
-                       ffv.DimProfileOnlyPublicationId == -1 &&
-                       !string.IsNullOrWhiteSpace(ffv.DimProfileOnlyPublication.PublicationName) &&
-                       !string.IsNullOrWhiteSpace(ffv.DimProfileOnlyPublication.DoiHandle))
-                .AsNoTracking()
-                .Select(ffv => new PublicationDoiNameDTO()
-                {
-                    Doi = ffv.DimProfileOnlyPublication.DoiHandle,
-                    Name = ffv.DimProfileOnlyPublication.PublicationName
-                }).ToListAsync();
+            // Get SQL statement for Doi matching
+            string doiMatchingSql = _ttvSqlService.GetSqlQuery_Select_PublicationDoiMatching(dimUserProfileId);
 
-            if (orcidPublications.Count == 0)
+            // Execute SQL statement using Dapper
+            List<PublicationDoiMatchingDTO> doiMatchingDTOs = new();
+            try
             {
-                _logger.LogInformation(
+                doiMatchingDTOs = (await _ttvContext.Database.GetDbConnection().QueryAsync<PublicationDoiMatchingDTO>(doiMatchingSql)).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
-                        state: LogContent.ActionState.COMPLETE,
-                        message: $"No ORCID publications with DOIs found: dim_user_profile.id={dimUserProfileId}"
-                        ));
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: $"dim_user_profile.id={dimUserProfileId}, DOI matching query: {ex.ToString()}"));
                 return;
             }
             
-            // Determine if added publications should be public by default
-            bool show = this.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, logUserIdentification);    
-
-            // Get list of existing TTV publication IDs
-            List<IntegerDTO> existingDimPublicationIds = await _ttvContext.FactFieldValues.Where(
-                ffv => ffv.DimUserProfileId == dimUserProfileId && ffv.DimPublicationId > 0).AsNoTracking()
-                    .Select(ffv => new IntegerDTO()
-                    {
-                        Value = ffv.DimPublicationId
-                    }).ToListAsync();
-
+            // Add publications to user profile
+            List<string> addedPublicationIds = new();
             try
             {
-                await _ttvContext.SaveChangesAsync();
+                DimFieldDisplaySetting dimFieldDisplaySetting_publication =
+                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION).FirstOrDefault();
+                foreach (PublicationDoiMatchingDTO dto in doiMatchingDTOs)
+                {
+                    // Skip if publication is actually different publication
+                    if (_duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                            publicationName: dto.DimProfileOnlyPublication_PublicationName,
+                            ttvPublicationName: dto.DimPublication_PublicationName,
+                            ttvPublicationTypeCode: dto.DimPublication_TypeCode))
+                    {
+                        continue;
+                    }
 
-                _logger.LogInformation(
-                    LogContent.MESSAGE_TEMPLATE,
-                    logUserIdentification,
-                    new LogApiInfo(
-                        action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
-                        state: LogContent.ActionState.COMPLETE,
-                        message: $"dim_user_profile.id={dimUserProfileId}"));
+                    FactFieldValue factFieldValuePublication = this.GetEmptyFactFieldValue();
+                    factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
+                    factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting_publication.Id;
+                    factFieldValuePublication.DimPublicationId = dto.DimPublication_Id;
+                    factFieldValuePublication.DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV; // Data source is TTV
+                    factFieldValuePublication.Show = dto.FactFieldValues_Show; // Copy from ORCID publication
+                    _ttvContext.FactFieldValues.Add(factFieldValuePublication);
+                    addedPublicationIds.Add(dto.DimPublication_PublicationId);
+                }
+                await _ttvContext.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -1144,6 +1119,15 @@ namespace api.Services
                             error: true,
                             message: $"Add TTV data publications by DOI save changes (dim_user_profile.id={dimUserProfileId}): {ex.ToString()}"));
             }
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"dim_user_profile.id={dimUserProfileId}. Added publicationIds: {string.Join(",", addedPublicationIds)}"
+                    ));
         }
 
 
