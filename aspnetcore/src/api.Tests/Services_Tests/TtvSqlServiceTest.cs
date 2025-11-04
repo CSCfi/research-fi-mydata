@@ -1017,7 +1017,7 @@ namespace api.Tests
                         ffv.dim_profile_only_publication_id > 0 AND
                         pop.doi_handle IS NOT NULL AND pop.doi_handle <> '' AND
                         pid.dim_publication_id>0 AND
-                        pub.dim_publication_id<0 AND
+                        (pub.dim_publication_id<0 OR pub.dim_publication_id IS NULL) AND
                         NOT EXISTS (
                             SELECT 1
                             FROM fact_field_values ffv2

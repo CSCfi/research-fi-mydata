@@ -1031,6 +1031,8 @@ namespace api.Services
          */
         public async Task AddTtvPublicationsByDoiToUserProfile(int dimUserProfileId, LogUserIdentification logUserIdentification)
         {
+            var doiMatchingStopwatch = Stopwatch.StartNew();
+
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
                 logUserIdentification,
@@ -1039,24 +1041,6 @@ namespace api.Services
                     state: LogContent.ActionState.START,
                     message: $"dim_user_profile.id={dimUserProfileId}"
                     ));
-
-            // Get user profile
-            DimUserProfile dimUserProfile = await _ttvContext.DimUserProfiles
-                .Include(dup => dup.DimFieldDisplaySettings)
-                .FirstOrDefaultAsync(dup => dup.Id == dimUserProfileId);
-
-            if (dimUserProfile == null)
-            {
-                _logger.LogInformation(
-                    LogContent.MESSAGE_TEMPLATE,
-                    logUserIdentification,
-                    new LogApiInfo(
-                        action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
-                        state: LogContent.ActionState.FAILED,
-                        message: $"profile not found: dim_user_profile.id={dimUserProfileId}"
-                        ));
-                return;
-            }
 
             // Get SQL statement for Doi matching
             string doiMatchingSql = _ttvSqlService.GetSqlQuery_Select_PublicationDoiMatching(dimUserProfileId);
@@ -1096,8 +1080,11 @@ namespace api.Services
             List<string> addedPublicationIds = new();
             try
             {
-                DimFieldDisplaySetting dimFieldDisplaySetting_publication =
-                    dimUserProfile.DimFieldDisplaySettings.Where(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION).FirstOrDefault();
+                // Get DimfieldDisplaySetting for publication
+                int dimFieldDisplaySettingsId_publication = _ttvContext.DimFieldDisplaySettings.Where(
+                    dfds => dfds.DimUserProfileId == dimUserProfileId && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
+                ).Select(dfds => dfds.Id).First();
+
                 foreach (PublicationDoiMatchingDTO dto in doiMatchingDTOs)
                 {
                     // Skip if publication is actually different publication
@@ -1109,8 +1096,8 @@ namespace api.Services
                         continue;
                     }
                     FactFieldValue factFieldValuePublication = this.GetEmptyFactFieldValue();
-                    factFieldValuePublication.DimUserProfileId = dimUserProfile.Id;
-                    factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySetting_publication.Id;
+                    factFieldValuePublication.DimUserProfileId = dimUserProfileId;
+                    factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsId_publication;
                     factFieldValuePublication.DimPublicationId = dto.DimPublication_Id;
                     factFieldValuePublication.DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV; // Data source is TTV
                     factFieldValuePublication.Show = dto.FactFieldValues_Show; // Copy from ORCID publication
@@ -1132,13 +1119,15 @@ namespace api.Services
                 return;
             }
 
+            doiMatchingStopwatch.Stop();
+
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
                 logUserIdentification,
                 new LogApiInfo(
                     action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
                     state: LogContent.ActionState.COMPLETE,
-                    message: $"dim_user_profile.id={dimUserProfileId}, added {addedPublicationIds.Count} publications: {string.Join(",", addedPublicationIds)}"
+                    message: $"dim_user_profile.id={dimUserProfileId}, took {doiMatchingStopwatch.ElapsedMilliseconds}ms, added {addedPublicationIds.Count}: {string.Join(",", addedPublicationIds)}"
                     ));
         }
 

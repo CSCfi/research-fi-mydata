@@ -232,7 +232,7 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_DELETE_DATABASE,
                         state: LogContent.ActionState.COMPLETE,
-                        message: $"took {deleteProfileDataStopwatch.ElapsedMilliseconds} ms"));
+                        message: $"took {deleteProfileDataStopwatch.ElapsedMilliseconds}ms"));
 
                 // Remove cached profile data response. Cache key is ORCID ID.
                 _cache.Remove(orcidId);
