@@ -123,7 +123,8 @@ namespace api.Services
                 SourceDescription = Constants.SourceDescriptions.ORCID,
                 Created = currentDateTime,
                 Modified = currentDateTime,
-                UnlinkedIdentifier = (string.IsNullOrWhiteSpace(unlinkedIdentifier) ? null : unlinkedIdentifier)
+                UnlinkedIdentifier = (string.IsNullOrWhiteSpace(unlinkedIdentifier) ? null : unlinkedIdentifier),
+                DimOrganizationId = -1
             };
         }
 
@@ -144,7 +145,8 @@ namespace api.Services
                 SourceDescription = Constants.SourceDescriptions.ORCID,
                 Created = currentDateTime,
                 Modified = currentDateTime,
-                UnlinkedIdentifier = null
+                UnlinkedIdentifier = null,
+                DimOrganizationId = -1
             };
         }
 
