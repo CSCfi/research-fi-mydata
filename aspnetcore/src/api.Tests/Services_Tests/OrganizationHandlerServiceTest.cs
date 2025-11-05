@@ -39,7 +39,7 @@ namespace api.Tests
             Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, dimIdentifierlessDatum.SourceId);
             Assert.Equal(Constants.SourceDescriptions.ORCID, dimIdentifierlessDatum.SourceDescription);
             Assert.Equal("foo=bar", dimIdentifierlessDatum.UnlinkedIdentifier);
-            Assert.Equal(-2, dimIdentifierlessDatum.DimOrganizationId);
+            Assert.Equal(-1, dimIdentifierlessDatum.DimOrganizationId);
         }
 
         [Fact(DisplayName = "Get new DimIdentifierlessDatum for organization unit")]
@@ -66,7 +66,7 @@ namespace api.Tests
             Assert.Equal(Constants.SourceIdentifiers.PROFILE_API, dimIdentifierlessDatum.SourceId);
             Assert.Equal(Constants.SourceDescriptions.ORCID, dimIdentifierlessDatum.SourceDescription);
             Assert.Null(dimIdentifierlessDatum.UnlinkedIdentifier);
-            Assert.Equal(-3, dimIdentifierlessDatum.DimOrganizationId);
+            Assert.Equal(-1, dimIdentifierlessDatum.DimOrganizationId);
         }
 
         [Fact(DisplayName = "Normalize RORID, ID only")]
