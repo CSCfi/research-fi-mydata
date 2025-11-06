@@ -1360,6 +1360,9 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.ValueSv)
                 .HasMaxLength(4000)
                 .HasColumnName("value_sv");
+            entity.Property(e => e.ValueUnd)
+                .HasMaxLength(4000)
+                .HasColumnName("value_und");
 
             entity.HasOne(d => d.DimIdentifierlessData).WithMany(p => p.InverseDimIdentifierlessData)
                 .HasForeignKey(d => d.DimIdentifierlessDataId)
