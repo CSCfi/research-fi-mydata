@@ -1108,6 +1108,12 @@ namespace api.Services
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidEmployment employment in employments)
             {
+                // Trim position name to max 255 characters to prevent DB error
+                if (employment.RoleTitle != null && employment.RoleTitle.Length > 255)
+                {
+                    employment.RoleTitle = employment.RoleTitle.Substring(0, 255);
+                }
+
                 /*
                  * Organization handling.
                  * Search organization identifier from DimPid based on ORCID's disambiguated-organization-identifier data.
