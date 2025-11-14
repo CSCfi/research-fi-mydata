@@ -191,7 +191,7 @@ namespace api.Controllers
                 // Link TTV publications to user profile by matching DOIs from ORCID publications
                 if (importSuccess)
                 {
-                    await _userProfileService.AddTtvPublicationsByDoiToUserProfile(dimUserprofileId, logUserIdentification);
+                    await localUserProfileService.AddTtvPublicationsByDoiToUserProfile(dimUserprofileId, logUserIdentification);
                 }
 
                 // Import additional data
