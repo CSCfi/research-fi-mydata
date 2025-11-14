@@ -469,5 +469,146 @@ namespace api.Tests
             // Publication year null
             Assert.Null(duplicateHandlerService.HandlePublicationYear(null));
         }
+
+        [Fact(DisplayName = "TestAddDataSource_NewDataSourceAddedToPublication")]
+        public void testAddNewDataSource()
+        {
+            DuplicateHandlerService duplicateHandlerService = new();
+
+            ProfileEditorPublication publication = new()
+            {
+                DataSources = new List<ProfileEditorSource>()
+                {
+                    new ProfileEditorSource()
+                    {
+                        Id = 1,
+                        RegisteredDataSource = "Source A",
+                        Organization = new Organization() { NameEn = "Organization name A" }
+                    },
+                    new ProfileEditorSource()
+                    {
+                        Id = 2,
+                        RegisteredDataSource = "Source B",
+                        Organization = new Organization() { NameEn = "Organization name B" }
+                    }
+                }
+            };
+
+            ProfileEditorSource newSource = new()
+            {
+                Id = 3,
+                RegisteredDataSource = "Source C",
+                Organization = new Organization() { NameEn = "Organization name C" }
+            };
+
+            List<ProfileEditorSource> expectedDataSources = new()
+            {
+                new ProfileEditorSource()
+                {
+                    Id = 1,
+                    RegisteredDataSource = "Source A",
+                    Organization = new Organization() { NameEn = "Organization name A" }
+                },
+                new ProfileEditorSource()
+                {
+                    Id = 2,
+                    RegisteredDataSource = "Source B",
+                    Organization = new Organization() { NameEn = "Organization name B" }
+                },
+                new ProfileEditorSource()
+                {
+                    Id = 3,
+                    RegisteredDataSource = "Source C",
+                    Organization = new Organization() { NameEn = "Organization name C" }
+                }
+            };
+
+            List<ProfileEditorSource> actualDataSources = duplicateHandlerService.AddDataSource(
+                publication: publication,
+                dataSource: newSource
+            );
+
+            Assert.Equal(expectedDataSources.Count, actualDataSources.Count);
+            for (int i = 0; i < expectedDataSources.Count; i++)
+            {
+                Assert.Equal(expectedDataSources[i].Id, actualDataSources[i].Id);
+                Assert.Equal(expectedDataSources[i].RegisteredDataSource, actualDataSources[i].RegisteredDataSource);
+                Assert.Equal(expectedDataSources[i].Organization.NameEn, actualDataSources[i].Organization.NameEn);
+            }
+        }
+
+
+        [Fact(DisplayName = "TestAddDataSource_ExistingDataSourceAddedToPublication")]
+        public void testAddExistingDataSource()
+        {
+            DuplicateHandlerService duplicateHandlerService = new();
+
+            ProfileEditorPublication publication = new()
+            {
+                DataSources = new List<ProfileEditorSource>()
+                {
+                    new ProfileEditorSource()
+                    {
+                        Id = 1,
+                        RegisteredDataSource = "Source A",
+                        Organization = new Organization() { NameEn = "Organization name A" }
+                    },
+                    new ProfileEditorSource()
+                    {
+                        Id = 2,
+                        RegisteredDataSource = "Source B",
+                        Organization = new Organization() { NameEn = "Organization name B" }
+                    },
+                    new ProfileEditorSource()
+                    {
+                        Id = 3,
+                        RegisteredDataSource = "Source C",
+                        Organization = new Organization() { NameEn = "Organization name C" }
+                    }
+                }
+            };
+
+            ProfileEditorSource newSource = new()
+            {
+                Id = 2,
+                RegisteredDataSource = "Source B",
+                Organization = new Organization() { NameEn = "Organization name B" }
+            };
+
+            List<ProfileEditorSource> expectedDataSources = new()
+            {
+                new ProfileEditorSource()
+                {
+                    Id = 1,
+                    RegisteredDataSource = "Source A",
+                    Organization = new Organization() { NameEn = "Organization name A" }
+                },
+                new ProfileEditorSource()
+                {
+                    Id = 2,
+                    RegisteredDataSource = "Source B",
+                    Organization = new Organization() { NameEn = "Organization name B" }
+                },
+                new ProfileEditorSource()
+                {
+                    Id = 3,
+                    RegisteredDataSource = "Source C",
+                    Organization = new Organization() { NameEn = "Organization name C" }
+                }
+            };
+
+            List<ProfileEditorSource> actualDataSources = duplicateHandlerService.AddDataSource(
+                publication: publication,
+                dataSource: newSource
+            );
+
+            Assert.Equal(expectedDataSources.Count, actualDataSources.Count);
+            for (int i = 0; i < expectedDataSources.Count; i++)
+            {
+                Assert.Equal(expectedDataSources[i].Id, actualDataSources[i].Id);
+                Assert.Equal(expectedDataSources[i].RegisteredDataSource, actualDataSources[i].RegisteredDataSource);
+                Assert.Equal(expectedDataSources[i].Organization.NameEn, actualDataSources[i].Organization.NameEn);
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Linq;
 using api.Models.Common;
 using api.Models.ProfileEditor;
 using api.Models.ProfileEditor.Items;
@@ -63,7 +64,8 @@ namespace api.Services
          */
         public List<ProfileEditorSource> AddDataSource(ProfileEditorPublication publication, ProfileEditorSource dataSource)
         {
-            if (!publication.DataSources.Contains(dataSource))
+            // Check for duplicates based on properties of ProfileEditorSource
+            if (!publication.DataSources.Any(ds => ds.Id == dataSource.Id && ds.RegisteredDataSource == dataSource.RegisteredDataSource))
             {
                 publication.DataSources.Add(dataSource);
             }
