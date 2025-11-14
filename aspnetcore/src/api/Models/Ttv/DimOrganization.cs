@@ -73,6 +73,8 @@ public partial class DimOrganization
 
     public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; } = new List<DimFundingDecision>();
 
+    public virtual ICollection<DimIdentifierlessDatum> DimIdentifierlessData { get; set; } = new List<DimIdentifierlessDatum>();
+
     public virtual DimOrganization DimOrganizationBroaderNavigation { get; set; }
 
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();

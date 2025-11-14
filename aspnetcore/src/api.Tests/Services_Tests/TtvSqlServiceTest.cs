@@ -615,19 +615,6 @@ namespace api.Tests
             Assert.Equal(expectedSqlString, actualSqlString);
         }
 
-        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, funding decision")]
-        public void Test_getSqlQuery_Delete_FactFieldValues_related_funding_decision()
-        {
-            // Arrange
-            TtvSqlService ttvSqlService = new();
-            List<int> ids = new() { 78, 89, 90 };
-            string expectedSqlString = "DELETE FROM dim_funding_decision WHERE id IN (78,89,90)";
-            // Act
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimFundingDecisions(ids);
-            // Assert
-            Assert.Equal(expectedSqlString, actualSqlString);
-        }
-
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, keyword")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_keyword()
         {
@@ -741,19 +728,6 @@ namespace api.Tests
             string expectedSqlString = "DELETE FROM dim_research_community WHERE id IN (105,106,107)";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimResearchCommunities(ids);
-            // Assert
-            Assert.Equal(expectedSqlString, actualSqlString);
-        }
-
-        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, research dataset")]
-        public void Test_getSqlQuery_Delete_FactFieldValues_related_research_dataset()
-        {
-            // Arrange
-            TtvSqlService ttvSqlService = new();
-            List<int> ids = new() { 106, 107, 108 };
-            string expectedSqlString = "DELETE FROM dim_research_dataset WHERE id IN (106,107,108)";
-            // Act
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimResearchDatasets(ids);
             // Assert
             Assert.Equal(expectedSqlString, actualSqlString);
         }

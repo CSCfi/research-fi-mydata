@@ -72,4 +72,6 @@ public partial class DimResearchActivity
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
+
+    public virtual ICollection<FactReferencedatum> FactReferencedata { get; set; } = new List<FactReferencedatum>();
 }
