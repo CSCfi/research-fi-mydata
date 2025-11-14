@@ -672,7 +672,7 @@ namespace api.Services
             }
 
             using (var connection = _ttvContext.Database.GetDbConnection())
-            {                
+            {
 
                 // email
                 try
@@ -1025,6 +1025,111 @@ namespace api.Services
             }
         }
 
+        /*
+         * Add TTV publications to profile by matching DOIs from ORCID publications.
+         * This is to cover the case where TTV publications are not linked to DimKnownPerson via FactContribution.
+         */
+        public async Task AddTtvPublicationsByDoiToUserProfile(int dimUserProfileId, LogUserIdentification logUserIdentification)
+        {
+            var doiMatchingStopwatch = Stopwatch.StartNew();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
+                    state: LogContent.ActionState.START,
+                    message: $"dim_user_profile.id={dimUserProfileId}"
+                    ));
+
+            // Get SQL statement for Doi matching
+            string doiMatchingSql = _ttvSqlService.GetSqlQuery_Select_PublicationDoiMatching(dimUserProfileId);
+
+            // Execute SQL statement
+            List<PublicationDoiMatchingDTO> doiMatchingDTOs = new();
+            try
+            {
+                doiMatchingDTOs = (await _ttvContext.Database.GetDbConnection().QueryAsync<PublicationDoiMatchingDTO>(doiMatchingSql)).ToList();
+                if (doiMatchingDTOs.Count == 0)
+                {
+                    _logger.LogInformation(
+                        LogContent.MESSAGE_TEMPLATE,
+                        logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
+                            state: LogContent.ActionState.COMPLETE,
+                            message: $"dim_user_profile.id={dimUserProfileId}, nothing to add"
+                            ));
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: $"dim_user_profile.id={dimUserProfileId}, exception: {ex.ToString()}"));
+                return;
+            }
+            
+            // Add publications to user profile
+            List<string> addedPublicationIds = new();
+            try
+            {
+                // Get DimfieldDisplaySetting for publication
+                int dimFieldDisplaySettingsId_publication = _ttvContext.DimFieldDisplaySettings.Where(
+                    dfds => dfds.DimUserProfileId == dimUserProfileId && dfds.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
+                ).Select(dfds => dfds.Id).First();
+
+                foreach (PublicationDoiMatchingDTO dto in doiMatchingDTOs)
+                {
+                    // Skip if publication is actually different publication
+                    if (_duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                            publicationName: dto.DimProfileOnlyPublication_PublicationName,
+                            ttvPublicationName: dto.DimPublication_PublicationName,
+                            ttvPublicationTypeCode: dto.DimPublication_TypeCode))
+                    {
+                        continue;
+                    }
+                    FactFieldValue factFieldValuePublication = this.GetEmptyFactFieldValue();
+                    factFieldValuePublication.DimUserProfileId = dimUserProfileId;
+                    factFieldValuePublication.DimFieldDisplaySettingsId = dimFieldDisplaySettingsId_publication;
+                    factFieldValuePublication.DimPublicationId = dto.DimPublication_Id;
+                    factFieldValuePublication.DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV; // Data source is TTV
+                    factFieldValuePublication.Show = dto.FactFieldValues_Show; // Copy from ORCID publication
+                    _ttvContext.FactFieldValues.Add(factFieldValuePublication);
+                    addedPublicationIds.Add(dto.DimPublication_PublicationId);
+                }
+                await _ttvContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                        new LogApiInfo(
+                            action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
+                            state: LogContent.ActionState.FAILED,
+                            error: true,
+                            message: $"dim_user_profile.id={dimUserProfileId}), exception: {ex.ToString()}"));
+                return;
+            }
+
+            doiMatchingStopwatch.Stop();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_ADD_TTV_DATA_PUBLICATIONS_BY_DOI,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"dim_user_profile.id={dimUserProfileId}, took {doiMatchingStopwatch.ElapsedMilliseconds}ms, added {addedPublicationIds.Count}: {string.Join(",", addedPublicationIds)}"
+                    ));
+        }
 
 
         /*
@@ -1146,7 +1251,7 @@ namespace api.Services
                     Created = _utilityService.GetCurrentDateTime(),
                     Modified = _utilityService.GetCurrentDateTime()
                 };
-                _ttvContext.DimUserChoices.Add(dimUserChoice);   
+                _ttvContext.DimUserChoices.Add(dimUserChoice);
             }
             await _ttvContext.SaveChangesAsync();
 

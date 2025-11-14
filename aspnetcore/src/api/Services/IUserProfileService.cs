@@ -49,5 +49,6 @@ namespace api.Services
         string GetCMemoryCacheKey_GivenPermissions(string orcidId);
         Task SetModifiedTimestampInUserProfile(int Id);
         bool SetFactFieldValuesShow(DimUserProfile dimUserProfile, int fieldIdentifier, LogUserIdentification logUserIdentification);
+        Task AddTtvPublicationsByDoiToUserProfile(int dimUserProfileId, LogUserIdentification logUserIdentification);
     }
 }

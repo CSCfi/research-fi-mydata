@@ -50,12 +50,12 @@ namespace api.Services
 
         /*
          * When two publications have the same DOI, they will be considered as DIFFERENT publications if:
-         *     - Virta publication code is A3, A4, B2, B3, D2, D3 or E1
+         *     - TTV (virta) publication code is A3, A4, B2, B3, D2, D3 or E1
          *     - AND the publication names differ
          */
-        public bool HasSameDoiButIsDifferentPublication(string orcidPublicationName, ProfileEditorPublication publication)
+        public bool HasSameDoiButIsDifferentPublication(string publicationName, string ttvPublicationName, string ttvPublicationTypeCode)
         {
-            return this.typeCodes.Contains(publication.PublicationTypeCode) && orcidPublicationName != publication.PublicationName;
+            return this.typeCodes.Contains(ttvPublicationTypeCode) && publicationName != ttvPublicationName;
         }
 
         /*
@@ -95,7 +95,11 @@ namespace api.Services
                     IsOrcidPublication(profileData) &&
                     !string.IsNullOrWhiteSpace(profileData.DimProfileOnlyPublication_Doi) && !string.IsNullOrWhiteSpace(publication.Doi) &&
                     profileData.DimProfileOnlyPublication_Doi.ToLower() == publication.Doi.ToLower() &&
-                    !HasSameDoiButIsDifferentPublication(profileData.DimProfileOnlyPublication_PublicationName, publication)
+                    !HasSameDoiButIsDifferentPublication(
+                        publicationName: profileData.DimProfileOnlyPublication_PublicationName,
+                        ttvPublicationName: publication.PublicationName,
+                        ttvPublicationTypeCode: publication.PublicationTypeCode
+                    )
                 )
                 {
                     AddDataSource(publication, dataSource);

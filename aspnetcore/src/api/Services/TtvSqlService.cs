@@ -1,8 +1,6 @@
 ﻿using api.Models.ProfileEditor.Items;
 using api.Models.Common;
-using api.Models.Ttv;
 using System.Collections.Generic;
-using Nest;
 
 namespace api.Services
 {
@@ -806,6 +804,39 @@ namespace api.Services
                         FROM fact_field_values AS ffv
                         JOIN dim_user_profile AS dup ON ffv.dim_user_profile_id=dup.id
                         WHERE dup.id={dimUserProfileId} AND ffv.show=1";
+        }
+
+        // Return SQL SELECT statement for matching ORCID and TTV publications by Doi
+        public string GetSqlQuery_Select_PublicationDoiMatching(int dimUserProfileId)
+        {
+            return $@"SELECT
+                        pop.doi_handle AS DimProfileOnlyPublication_Doi,
+                        pop.publication_name AS DimProfileOnlyPublication_PublicationName,
+                        pub.id AS DimPublication_Id,
+                        pub.publication_id AS DimPublication_PublicationId,
+                        pub.publication_name AS DimPublication_PublicationName,
+                        pid.pid_content AS DimPublication_Doi,
+                        type_code.code_value AS DimPublication_TypeCode,
+                        ffv.show AS FactFieldValues_Show
+                    FROM fact_field_values AS ffv
+                    INNER JOIN dim_user_profile AS dup ON dup.id=ffv.dim_user_profile_id
+                    INNER JOIN dim_profile_only_publication AS pop ON pop.id=ffv.dim_profile_only_publication_id
+                    INNER JOIN dim_pid AS pid ON pid.pid_type='doi' AND pid.pid_content=pop.doi_handle
+                    INNER JOIN dim_publication AS pub ON pub.id=pid.dim_publication_id
+                    INNER JOIN dim_referencedata AS type_code ON type_code.id=pub.publication_type_code
+                    WHERE
+                        dup.id={dimUserProfileId} AND
+                        ffv.dim_profile_only_publication_id > 0 AND
+                        pop.doi_handle IS NOT NULL AND pop.doi_handle <> '' AND
+                        pid.dim_publication_id>0 AND
+                        (pub.dim_publication_id<0 OR pub.dim_publication_id IS NULL) AND
+                        NOT EXISTS (
+                            SELECT 1
+                            FROM fact_field_values ffv2
+                            WHERE
+                                ffv2.dim_user_profile_id={dimUserProfileId} AND
+                                ffv2.dim_publication_id = pub.id
+                        )";
         }
     }
 }

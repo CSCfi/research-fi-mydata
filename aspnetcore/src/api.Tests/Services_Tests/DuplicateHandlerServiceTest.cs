@@ -18,7 +18,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "code123" };
-            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as different publications: Virta publication has type code A3, names differ.")]
@@ -27,7 +30,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "A3" };
-            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as the same publications: Virta publication has type code A3, both have the same name.")]
@@ -36,7 +42,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "A3" };
-            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as different publications: Virta publication has type code A4, names differ.")]
@@ -45,7 +54,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "A4" };
-            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as the same publications: Virta publication has type code A4, both have the same name.")]
@@ -54,7 +66,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "A4" };
-            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as different publications: Virta publication has type code B2, names differ.")]
@@ -63,7 +78,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "B2" };
-            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as the same publications: Virta publication has type code B2, both have the same name.")]
@@ -72,7 +90,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "B2" };
-            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as different publications: Virta publication has type code B3, names differ.")]
@@ -81,7 +102,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "B3" };
-            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as the same publications: Virta publication has type code B3, both have the same name.")]
@@ -90,7 +114,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "B3" };
-            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as different publications: Virta publication has type code D2, names differ.")]
@@ -99,7 +126,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "D2" };
-            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as the same publications: Virta publication has type code D2, both have the same name.")]
@@ -108,7 +138,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "D2" };
-            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as different publications: Virta publication has type code D3, names differ.")]
@@ -117,7 +150,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "D3" };
-            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as the same publications: Virta publication has type code D3, both have the same name.")]
@@ -126,7 +162,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "D3" };
-            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as different publications: Virta publication has type code E1, names differ.")]
@@ -135,7 +174,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name456", PublicationTypeCode = "E1" };
-            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.True(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
         [Fact(DisplayName = "Virta and ORCID publication have the same DOI, they are considered as the same publications: Virta publication has type code E1, both have the same name.")]
@@ -144,7 +186,10 @@ namespace api.Tests
             DuplicateHandlerService duplicateHandlerService = new();
             DimProfileOnlyPublication dimProfileOnlyPublication = new() { DoiHandle = "doi123", PublicationName = "name123" };
             ProfileEditorPublication profileEditorPublication = new() { Doi = "doi123", PublicationName = "name123", PublicationTypeCode = "E1" };
-            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(dimProfileOnlyPublication.PublicationName, profileEditorPublication));
+            Assert.False(duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                publicationName: dimProfileOnlyPublication.PublicationName,
+                ttvPublicationName: profileEditorPublication.PublicationName,
+                ttvPublicationTypeCode: profileEditorPublication.PublicationTypeCode));
         }
 
 
