@@ -1,30 +1,30 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 using api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenAI.Chat;
 using api.Models.Ai;
-using System.Text.Json;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 using api.Models.Log;
 using System.Diagnostics;
-using System.Reflection.Metadata.Ecma335;
 
 namespace api.Controllers
 {
     /*
-     * AiController implements experimental MVC functionality for testin AI feature
+     * BiographyController implements AI assisted biography generation API commands
      */
-    public class AiController : TtvControllerBase
+    [Route("api/profiledata")]
+    [ApiController]
+    [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
+    public class BiographyController : TtvControllerBase
     {
         private readonly ChatClient _chatClient;
         private readonly AiService _aiService;
-        private readonly ILogger<AiController> _logger;
+        private readonly ILogger<BiographyController> _logger;
 
-        public AiController(ChatClient chatClient, AiService aiService, ILogger<AiController> logger)
+        public BiographyController(ChatClient chatClient, AiService aiService, ILogger<BiographyController> logger)
         {
             _chatClient = chatClient;
             _aiService = aiService;
