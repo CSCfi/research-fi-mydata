@@ -15,7 +15,7 @@ namespace api.Controllers
     /*
      * BiographyController implements AI assisted biography generation API commands
      */
-    [Route("api/profiledata")]
+    [Route("api/biography")]
     [ApiController]
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
     public class BiographyController : TtvControllerBase
