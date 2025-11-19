@@ -9,6 +9,11 @@ using api.Models.Ai;
 using Microsoft.Extensions.Logging;
 using api.Models.Log;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using api.Models.Api;
+using api.Models.Common;
+using api.Models.Ttv;
+using Elasticsearch.Net;
 
 namespace api.Controllers
 {
@@ -21,20 +26,25 @@ namespace api.Controllers
     public class BiographyController : TtvControllerBase
     {
         private readonly ChatClient _chatClient;
-        private readonly AiService _aiService;
+        private readonly IAiService _aiService;
         private readonly ILogger<BiographyController> _logger;
+        private readonly IUserProfileService _userProfileService;
 
-        public BiographyController(ChatClient chatClient, AiService aiService, ILogger<BiographyController> logger)
+        public BiographyController(ChatClient chatClient, IAiService aiService, ILogger<BiographyController> logger, IUserProfileService userProfileService)
         {
             _chatClient = chatClient;
             _aiService = aiService;
             _logger = logger;
+            _userProfileService = userProfileService;
         }
 
         /// <summary>
-        /// Query AI model
+        /// Generate biography.
         /// </summary>
         [HttpGet]
+        [Route("generate")]
+        [ProducesResponseType(typeof(BiographyGenerated), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> QueryAiModel()
         {
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
@@ -48,7 +58,7 @@ namespace api.Controllers
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
                     new LogApiInfo(
-                        action: LogContent.Action.AI_GET_PROFILE_DATA,
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_GET_PROFILEDATA,
                         state: LogContent.ActionState.START));
 
                 var profileDataStopwatch = Stopwatch.StartNew();
@@ -59,7 +69,7 @@ namespace api.Controllers
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
                     new LogApiInfo(
-                        action: LogContent.Action.AI_GET_PROFILE_DATA,
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_GET_PROFILEDATA,
                         state: LogContent.ActionState.COMPLETE,
                         message: $"took {profileDataStopwatch.ElapsedMilliseconds}ms"));
             }
@@ -69,10 +79,10 @@ namespace api.Controllers
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
                     new LogApiInfo(
-                        action: LogContent.Action.AI_GET_PROFILE_DATA,
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_GET_PROFILEDATA,
                         state: LogContent.ActionState.FAILED,
                         message: ex.Message));
-                return StatusCode(500, new { error = "An unexpected error occurred while retrieving profile data." });
+                return StatusCode(500);
             }
 
             string systemPrompt =
@@ -91,7 +101,7 @@ namespace api.Controllers
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
                     new LogApiInfo(
-                        action: LogContent.Action.AI_QUERY_MODEL,
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.START));
 
                 ChatCompletionOptions options = new()
@@ -115,17 +125,192 @@ namespace api.Controllers
                     LogContent.MESSAGE_TEMPLATE,
                     logUserIdentification,
                     new LogApiInfo(
-                        action: LogContent.Action.AI_QUERY_MODEL,
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.COMPLETE,
                         message: $"took {chatCompletionStopwatch.ElapsedMilliseconds}ms"));
 
-                return Ok(new BiographyFromAi { Biography = completion.Content[0].Text });
+                return Ok(new BiographyGenerated { ContentText = completion.Content[0].Text });
             }
             catch (Exception ex)
             {
-                // Handle any other unexpected errors
-                return StatusCode(500, new { error = "An unexpected error occurred.", details = ex.Message });
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
+                        state: LogContent.ActionState.COMPLETE,
+                        message: ex.Message));
+                return StatusCode(500);
             }
+        }
+
+        /// <summary>
+        /// Get biography.
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(Biography), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetBiography()
+        {
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            // Get ORCID id
+            string orcidId = GetOrcidId();
+
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
+            {
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
+            }
+
+            // Get Biography
+            Biography? biography = null;
+            try
+            {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GET,
+                        state: LogContent.ActionState.START));
+
+                var getBiographyStopwatch = Stopwatch.StartNew();
+                biography = await _aiService.GetBiography(userprofileId);
+                getBiographyStopwatch.Stop();
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GET,
+                        state: LogContent.ActionState.COMPLETE,
+                        message: $"took {getBiographyStopwatch.ElapsedMilliseconds}ms"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GET,
+                        state: LogContent.ActionState.FAILED,
+                        message: ex.Message));
+                return StatusCode(500);
+            }
+
+            return Ok(biography);
+        }
+
+        /// <summary>
+        /// Create or update biography.
+        /// </summary>
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SetBiography([FromBody] Biography biography)
+        {
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            // Get ORCID id
+            string orcidId = GetOrcidId();
+
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
+            {
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
+            }
+
+            // Set Biography
+            try
+            {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_SET,
+                        state: LogContent.ActionState.START));
+
+                var setBiographyStopwatch = Stopwatch.StartNew();
+                bool success = await _aiService.CreateOrUpdateBiography(userprofileId, biography);
+                setBiographyStopwatch.Stop();
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_SET,
+                        state: LogContent.ActionState.COMPLETE,
+                        message: $"took {setBiographyStopwatch.ElapsedMilliseconds}ms"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_SET,
+                        state: LogContent.ActionState.FAILED,
+                        message: ex.Message));
+                return StatusCode(500);
+            }
+
+            return Created();
+        }
+
+        /// <summary>
+        /// Delete Biography.
+        /// </summary>
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteBiography()
+        {
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            // Get ORCID id
+            string orcidId = GetOrcidId();
+
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
+            {
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
+            }
+
+            // Delete Biography by setting empty strings
+            try
+            {
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_DELETE,
+                        state: LogContent.ActionState.START));
+
+                var deleteBiographyStopwatch = Stopwatch.StartNew();
+                bool success = await _aiService.DeleteBiography(userprofileId);
+                deleteBiographyStopwatch.Stop();
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_DELETE,
+                        state: LogContent.ActionState.COMPLETE,
+                        message: $"took {deleteBiographyStopwatch.ElapsedMilliseconds}ms"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_DELETE,
+                        state: LogContent.ActionState.FAILED,
+                        message: ex.Message));
+                return StatusCode(500);
+            }
+
+            return NoContent();
         }
     }
 }

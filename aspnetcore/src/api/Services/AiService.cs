@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,25 +5,41 @@ using api.Models.Ttv;
 using api.Models.Ai;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Text.Json;
+using Dapper;
+using api.Models.Common;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace api.Services
 {
-    public class AiService
+    public class AiService : IAiService
     {
         private readonly TtvContext _ttvContext;
         private readonly ILogger<UserProfileService> _logger;
+        private readonly ITtvSqlService _ttvSqlService;
+        private readonly IDataSourceHelperService _dataSourceHelperService;
+        private readonly IUtilityService _utilityService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly IMemoryCache _cache;
 
 
         public AiService(
             TtvContext ttvContext,
-            ILogger<UserProfileService> logger)
+            ILogger<UserProfileService> logger,
+            ITtvSqlService ttvSqlService,
+            IDataSourceHelperService dataSourceHelperService,
+            IUtilityService utilityService,
+            IUserProfileService userProfileService,
+            IMemoryCache cache)
         {
             _ttvContext = ttvContext;
             _logger = logger;
+            _ttvSqlService = ttvSqlService;
+            _dataSourceHelperService = dataSourceHelperService;
+            _utilityService = utilityService;
+            _userProfileService = userProfileService;
+            _cache = cache;
         }
 
         public async Task<string?> GetProfileDataForPromt(string orcidId)
@@ -476,5 +491,141 @@ namespace api.Services
             return null;
         }
 
+        public async Task<Biography?> GetBiography(int userprofileId)
+        {
+            // var connection = _ttvContext.Database.GetDbConnection();
+            // Biography biography = (await connection.QueryAsync<Biography>(
+            //     _ttvSqlService.GetSqlQuery_Select_Biography(userprofileId, _dataSourceHelperService.DimRegisteredDataSourceId_TTV))).FirstOrDefault();
+
+            FactFieldValue? ffv = await _ttvContext.FactFieldValues
+                .Where(ffv =>
+                    ffv.DimUserProfileId == userprofileId &&
+                    ffv.DimResearcherDescriptionId > 0 &&
+                    ffv.DimRegisteredDataSourceId == _dataSourceHelperService.DimRegisteredDataSourceId_TTV)
+                .Include(ffv => ffv.DimResearcherDescription)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            if (ffv != null && ffv.DimResearcherDescription != null)
+            {
+                return new Biography
+                {
+                    Fi = ffv.DimResearcherDescription.ResearchDescriptionFi,
+                    En = ffv.DimResearcherDescription.ResearchDescriptionEn,
+                    Sv = ffv.DimResearcherDescription.ResearchDescriptionSv
+                };
+            }
+            return null;
+        }
+
+        public async Task<bool> DeleteBiography(int userprofileId)
+        {
+            bool success = false;
+
+            FactFieldValue? removableFfv = await _ttvContext.FactFieldValues
+                .Where(ffv =>
+                    ffv.DimUserProfileId == userprofileId &&
+                    ffv.DimResearcherDescriptionId > 0 &&
+                    ffv.DimRegisteredDataSourceId == _dataSourceHelperService.DimRegisteredDataSourceId_TTV)
+                .Include(ffv => ffv.DimResearcherDescription)
+                .Include(ffv => ffv.DimUserProfile)
+                .FirstOrDefaultAsync();
+
+            if (removableFfv != null)
+            {
+                // Remove FactFieldValue
+                _ttvContext.FactFieldValues.Remove(removableFfv);
+                // Remove DimResearcherDescription
+                _ttvContext.DimResearcherDescriptions.Remove(removableFfv.DimResearcherDescription!);
+                await _ttvContext.SaveChangesAsync();
+                success = true;
+            }
+
+            // Remove cached profile data response. Cache key is ORCID ID.
+            if (success && removableFfv != null)
+            {
+                string orcidId = removableFfv.DimUserProfile.OrcidId;
+                _cache.Remove(orcidId);
+            }
+
+            return success;
+        }
+
+        public async Task<bool> CreateOrUpdateBiography(int userprofileId, Biography biography)
+        {
+            bool success = false;
+
+            DimUserProfile? dimUserProfile = await _ttvContext.DimUserProfiles
+                .Where(dup => dup.Id == userprofileId)
+                .Include(dup => dup.DimFieldDisplaySettings)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            FactFieldValue? existingFfv = await _ttvContext.FactFieldValues
+                .Where(ffv =>
+                    ffv.DimUserProfileId == userprofileId &&
+                    ffv.DimResearcherDescriptionId > 0 &&
+                    ffv.DimRegisteredDataSourceId == _dataSourceHelperService.DimRegisteredDataSourceId_TTV)
+                .Include(ffv => ffv.DimResearcherDescription)
+                .FirstOrDefaultAsync();
+
+            if (existingFfv != null)
+            {
+                // Update existing DimResearcherDescription
+                existingFfv.DimResearcherDescription.ResearchDescriptionFi = biography.Fi;
+                existingFfv.DimResearcherDescription.ResearchDescriptionEn = biography.En;
+                existingFfv.DimResearcherDescription.ResearchDescriptionSv = biography.Sv;
+                // Update existing FactFieldValue
+                existingFfv.Modified = _utilityService.GetCurrentDateTime();
+                await _ttvContext.SaveChangesAsync();
+                success = true;
+            }
+            else
+            {
+                // Get DimFieldDisplaySetting for researcher description
+                DimFieldDisplaySetting dimFieldDisplaySettingsResearcherDescription =
+                    dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfds => dfds.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION);
+
+                // Create new DimResearcherDescription
+                DimResearcherDescription newResearcherDescription = new ()
+                {
+                    ResearchDescriptionFi = biography.Fi,
+                    ResearchDescriptionEn = biography.En,
+                    ResearchDescriptionSv = biography.Sv,
+                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                    Created = _utilityService.GetCurrentDateTime(),
+                    Modified = null,
+                    DimKnownPersonId = dimUserProfile.DimKnownPersonId,
+                    DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV
+                };
+                _ttvContext.DimResearcherDescriptions.Add(newResearcherDescription);
+
+                // Create new FactFieldValue
+                FactFieldValue newFfv = _userProfileService.GetEmptyFactFieldValue();
+                newFfv.DimUserProfileId = dimUserProfile.Id;
+                newFfv.DimResearcherDescription = newResearcherDescription;
+                newFfv.DimFieldDisplaySettingsId = dimFieldDisplaySettingsResearcherDescription.Id;
+                newFfv.DimRegisteredDataSourceId = _dataSourceHelperService.DimRegisteredDataSourceId_TTV;
+                newFfv.Show = false;
+                newFfv.PrimaryValue = false;
+                newFfv.SourceId = Constants.SourceIdentifiers.PROFILE_API;
+                newFfv.SourceDescription = Constants.SourceDescriptions.PROFILE_API;
+                newFfv.Created = _utilityService.GetCurrentDateTime();
+                newFfv.Modified = null;
+                _ttvContext.FactFieldValues.Add(newFfv);
+                await _ttvContext.SaveChangesAsync();
+                success = true;
+            }
+
+            // Remove cached profile data response. Cache key is ORCID ID.
+            if (success)
+            {
+                string orcidId = dimUserProfile.OrcidId;
+                _cache.Remove(orcidId);
+            }
+
+            return success;
+        }
     }
 }
