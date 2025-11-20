@@ -13,7 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace api.Services
 {
-    public class AiService : IAiService
+    public class BiographyService : IBiographyService
     {
         private readonly TtvContext _ttvContext;
         private readonly ILogger<UserProfileService> _logger;
@@ -24,7 +24,7 @@ namespace api.Services
         private readonly IMemoryCache _cache;
 
 
-        public AiService(
+        public BiographyService(
             TtvContext ttvContext,
             ILogger<UserProfileService> logger,
             ITtvSqlService ttvSqlService,
@@ -491,12 +491,8 @@ namespace api.Services
             return null;
         }
 
-        public async Task<Biography?> GetBiography(int userprofileId)
+        public async Task<Biography> GetBiography(int userprofileId)
         {
-            // var connection = _ttvContext.Database.GetDbConnection();
-            // Biography biography = (await connection.QueryAsync<Biography>(
-            //     _ttvSqlService.GetSqlQuery_Select_Biography(userprofileId, _dataSourceHelperService.DimRegisteredDataSourceId_TTV))).FirstOrDefault();
-
             FactFieldValue? ffv = await _ttvContext.FactFieldValues
                 .Where(ffv =>
                     ffv.DimUserProfileId == userprofileId &&
@@ -515,7 +511,10 @@ namespace api.Services
                     Sv = ffv.DimResearcherDescription.ResearchDescriptionSv
                 };
             }
-            return null;
+            else 
+            {
+                return new Biography();
+            }
         }
 
         public async Task<bool> DeleteBiography(int userprofileId)

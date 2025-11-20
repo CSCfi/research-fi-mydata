@@ -26,14 +26,14 @@ namespace api.Controllers
     public class BiographyController : TtvControllerBase
     {
         private readonly ChatClient _chatClient;
-        private readonly IAiService _aiService;
+        private readonly IBiographyService _biographyService;
         private readonly ILogger<BiographyController> _logger;
         private readonly IUserProfileService _userProfileService;
 
-        public BiographyController(ChatClient chatClient, IAiService aiService, ILogger<BiographyController> logger, IUserProfileService userProfileService)
+        public BiographyController(ChatClient chatClient, IBiographyService biographyService, ILogger<BiographyController> logger, IUserProfileService userProfileService)
         {
             _chatClient = chatClient;
-            _aiService = aiService;
+            _biographyService = biographyService;
             _logger = logger;
             _userProfileService = userProfileService;
         }
@@ -62,7 +62,7 @@ namespace api.Controllers
                         state: LogContent.ActionState.START));
 
                 var profileDataStopwatch = Stopwatch.StartNew();
-                profileDataForPromt = await _aiService.GetProfileDataForPromt(orcidId);
+                profileDataForPromt = await _biographyService.GetProfileDataForPromt(orcidId);
                 profileDataStopwatch.Stop();
 
                 _logger.LogInformation(
@@ -146,6 +146,7 @@ namespace api.Controllers
 
         /// <summary>
         /// Get biography.
+        /// Returns always a Biography object. Object properties are empty, if values are not found in the database..
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(Biography), StatusCodes.Status200OK)]
@@ -164,7 +165,6 @@ namespace api.Controllers
             }
 
             // Get Biography
-            Biography? biography = null;
             try
             {
                 _logger.LogInformation(
@@ -175,7 +175,7 @@ namespace api.Controllers
                         state: LogContent.ActionState.START));
 
                 var getBiographyStopwatch = Stopwatch.StartNew();
-                biography = await _aiService.GetBiography(userprofileId);
+                Biography biography = await _biographyService.GetBiography(userprofileId);
                 getBiographyStopwatch.Stop();
 
                 _logger.LogInformation(
@@ -185,6 +185,8 @@ namespace api.Controllers
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GET,
                         state: LogContent.ActionState.COMPLETE,
                         message: $"took {getBiographyStopwatch.ElapsedMilliseconds}ms"));
+
+                return Ok(biography);
             }
             catch (Exception ex)
             {
@@ -197,15 +199,13 @@ namespace api.Controllers
                         message: ex.Message));
                 return StatusCode(500);
             }
-
-            return Ok(biography);
         }
 
         /// <summary>
         /// Create or update biography.
         /// </summary>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SetBiography([FromBody] Biography biography)
         {
@@ -231,7 +231,7 @@ namespace api.Controllers
                         state: LogContent.ActionState.START));
 
                 var setBiographyStopwatch = Stopwatch.StartNew();
-                bool success = await _aiService.CreateOrUpdateBiography(userprofileId, biography);
+                bool success = await _biographyService.CreateOrUpdateBiography(userprofileId, biography);
                 setBiographyStopwatch.Stop();
 
                 _logger.LogInformation(
@@ -254,7 +254,7 @@ namespace api.Controllers
                 return StatusCode(500);
             }
 
-            return Created();
+            return NoContent();
         }
 
         /// <summary>
@@ -287,7 +287,7 @@ namespace api.Controllers
                         state: LogContent.ActionState.START));
 
                 var deleteBiographyStopwatch = Stopwatch.StartNew();
-                bool success = await _aiService.DeleteBiography(userprofileId);
+                bool success = await _biographyService.DeleteBiography(userprofileId);
                 deleteBiographyStopwatch.Stop();
 
                 _logger.LogInformation(

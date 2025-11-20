@@ -3,10 +3,10 @@ using api.Models.Ai;
 
 namespace api.Services
 {
-    public interface IAiService
+    public interface IBiographyService
     {
         Task<string?> GetProfileDataForPromt(string orcidId);
-        Task<Biography?> GetBiography(int userprofileId);
+        Task<Biography> GetBiography(int userprofileId);
         Task<bool> CreateOrUpdateBiography(int userprofileId, Biography biography);
         Task<bool> DeleteBiography(int userprofileId);
     }

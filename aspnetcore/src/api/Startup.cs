@@ -300,7 +300,7 @@ namespace api
             services.AddSingleton<IUtilityService, UtilityService>();    
             services.AddSingleton<IDataSourceHelperService, DataSourceHelperService>();
             services.AddScoped<AiPocService, AiPocService>();
-            services.AddScoped<IAiService, AiService>();
+            services.AddScoped<IBiographyService, BiographyService>();
             services.AddMemoryCache();
 
             // Background processing related services.
