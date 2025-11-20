@@ -86,14 +86,18 @@ namespace api.Controllers
             }
 
             string systemPrompt =
-                @"Act as an expert in RDI and create a max 400 word profile description of your activities and interests.
-                Write in an approachable and understandable manner in a semi formal language. Write in the first person and in present tense. Do not include listings or headers, just prose.
-                Description should include: Information on whether you are a researcher or some other expert, based on your current affiliations.
-                Highlight your areas of expertise, based on other descriptions and keywords provided and recent publications, datasets and granted funding.
-                What you are passionate about based on other descriptions provided. What kind of activities you have been performing.
-                Information about awards. Do not imagine any information about your career that is not provided.
-                Respond in plain text format.
-                Use the following profile data as your only source of information:";
+                @"Act as an expert in RDI and create a max 300 word profile description of your activities and interests.
+                    Write in an approachable and understandable manner in a semi formal language. Write in the first person and in present tense. Do not include listings or headers, just prose.
+                    Description should include:
+                    Information on whether you are a researcher or some other expert, based on your current affiliations.
+                    Highlight your areas of expertise, based on other descriptions and keywords provided and recent publications, datasets and granted funding.
+                    Do not list past publications and datasets.
+                    What you are passionate about based on other descriptions provided.
+                    What kind of activities you have been performing.
+                    Information about awards if you have received any. Do not mention about awards if I have not received any.
+                    An explanation of how your research is situated within the broader field of study, the academic community or society at large  
+                    Do not imagine any information about career that is not provided. Do not mention things that you have not done or taken part in. Respond in plain text format.
+                    Create the description based on following information as instructed:";
 
             try
             {
@@ -107,8 +111,8 @@ namespace api.Controllers
                 ChatCompletionOptions options = new()
                 {
                     MaxOutputTokenCount = 500,
-                    Temperature = 0.2f,
-                    TopP = 1.0f
+                    Temperature = 1.0f,
+                    TopP = 0.5f
                 };
 
                 var chatMessages = new List<ChatMessage>
