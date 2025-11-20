@@ -32,7 +32,7 @@
             public const string PROFILE_BIOGRAPHY_GENERATE = "Profile: biography: generate";
             public const string PROFILE_BIOGRAPHY_GENERATE_GET_PROFILEDATA = "Profile: biography: generate: get profile data";
             public const string PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL = "Profile: biography: generate: query model";
-            public const string PROFILE_BIOGRAPHY_GET = "Profile: biography";
+            public const string PROFILE_BIOGRAPHY_GET = "Profile: biography: get";
             public const string PROFILE_BIOGRAPHY_SET = "Profile: biography: set";
             public const string PROFILE_BIOGRAPHY_DELETE = "Profile: biography: delete";
             public const string PROFILE_CREATE = "Profile: create";
