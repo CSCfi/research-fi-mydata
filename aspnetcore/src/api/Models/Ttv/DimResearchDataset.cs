@@ -27,7 +27,7 @@ public partial class DimResearchDataset
 
     public int DimRegisteredDataSourceId { get; set; }
 
-    public string VersionInfo { get; set; }
+    public int VersionInfo { get; set; }
 
     public virtual ICollection<BrDatasetDatasetRelationship> BrDatasetDatasetRelationshipDimResearchDatasetId2Navigations { get; set; } = new List<BrDatasetDatasetRelationship>();
 

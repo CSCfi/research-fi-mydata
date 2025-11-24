@@ -3153,9 +3153,7 @@ public partial class TtvContext : DbContext
                 .IsRequired()
                 .HasMaxLength(255)
                 .HasColumnName("source_id");
-            entity.Property(e => e.VersionInfo)
-                .HasMaxLength(255)
-                .HasColumnName("version_info");
+            entity.Property(e => e.VersionInfo).HasColumnName("version_info");
 
             entity.HasOne(d => d.DimReferencedataAvailabilityNavigation).WithMany(p => p.DimResearchDatasets)
                 .HasForeignKey(d => d.DimReferencedataAvailability)
