@@ -1840,6 +1840,11 @@ namespace api.Services
                                 nameEn: p.DimResearchActivity_Role_NameEn,
                                 nameSv: p.DimResearchActivity_Role_NameSv
                             );
+                            NameTranslation nameTraslationResearchActivityRoleParentName = _languageService.GetNameTranslation(
+                                nameFi: p.DimResearchActivity_Role_Parent_NameFi,
+                                nameEn: p.DimResearchActivity_Role_Parent_NameEn,
+                                nameSv: p.DimResearchActivity_Role_Parent_NameSv
+                            );
 
                             ProfileEditorActivityAndReward activityAndReward = new()
                             {
@@ -1868,10 +1873,19 @@ namespace api.Services
                                     show: p.FactFieldValues_Show,
                                     primaryValue: p.FactFieldValues_PrimaryValue
                                 ),
-                                ActivityTypeCode = p.DimResearchActivity_ActivityType_CodeValue,
-                                ActivityTypeNameFi = nameTraslationResearchActivityTypeName.NameFi,
-                                ActivityTypeNameEn = nameTraslationResearchActivityTypeName.NameEn,
-                                ActivityTypeNameSv = nameTraslationResearchActivityTypeName.NameSv,
+                                // If activity type is not defined, use values from role parent
+                                ActivityTypeCode = !string.IsNullOrWhiteSpace(p.DimResearchActivity_ActivityType_CodeValue)
+                                    ? p.DimResearchActivity_ActivityType_CodeValue
+                                    : p.DimResearchActivity_Role_Parent_CodeValue,
+                                ActivityTypeNameFi = !string.IsNullOrWhiteSpace(nameTraslationResearchActivityTypeName.NameFi)
+                                    ? nameTraslationResearchActivityTypeName.NameFi
+                                    : nameTraslationResearchActivityRoleParentName.NameFi,
+                                ActivityTypeNameEn = !string.IsNullOrWhiteSpace(nameTraslationResearchActivityTypeName.NameEn)
+                                    ? nameTraslationResearchActivityTypeName.NameEn
+                                    : nameTraslationResearchActivityRoleParentName.NameEn,
+                                ActivityTypeNameSv = !string.IsNullOrWhiteSpace(nameTraslationResearchActivityTypeName.NameSv)
+                                    ? nameTraslationResearchActivityTypeName.NameSv
+                                    : nameTraslationResearchActivityRoleParentName.NameSv,
                                 RoleCode = p.DimResearchActivity_Role_CodeValue,
                                 RoleNameFi = nameTraslationResearchActivityRoleName.NameFi,
                                 RoleNameEn = nameTraslationResearchActivityRoleName.NameEn,

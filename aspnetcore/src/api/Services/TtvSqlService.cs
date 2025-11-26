@@ -352,6 +352,10 @@ namespace api.Services
 					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.name_fi AS 'DimResearchActivity_Role_NameFi',
 					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.name_en AS 'DimResearchActivity_Role_NameEn',
 					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.name_sv AS 'DimResearchActivity_Role_NameSv',
+                    research_activity_fact_contribution_researcher_name_activity_dim_referencedata_parent.code_value AS 'DimResearchActivity_Role_Parent_CodeValue',
+					research_activity_fact_contribution_researcher_name_activity_dim_referencedata_parent.name_fi AS 'DimResearchActivity_Role_Parent_NameFi',
+					research_activity_fact_contribution_researcher_name_activity_dim_referencedata_parent.name_en AS 'DimResearchActivity_Role_Parent_NameEn',
+                    research_activity_fact_contribution_researcher_name_activity_dim_referencedata_parent.name_sv AS 'DimResearchActivity_Role_Parent_NameSv',
 
                     dfd.acronym AS 'DimFundingDecision_Acronym',
                     dfd.funder_project_number AS 'DimFundingDecision_FunderProjectNumber',
@@ -485,6 +489,9 @@ namespace api.Services
 				LEFT JOIN dim_referencedata AS research_activity_fact_contribution_researcher_name_activity_dim_referencedata ON
 					research_activity_fact_contribution_researcher_name_activity.dim_referencedata_actor_role_id=research_activity_fact_contribution_researcher_name_activity_dim_referencedata.id AND
 					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.id!=-1
+				LEFT JOIN dim_referencedata AS research_activity_fact_contribution_researcher_name_activity_dim_referencedata_parent ON
+					research_activity_fact_contribution_researcher_name_activity_dim_referencedata_parent.id=research_activity_fact_contribution_researcher_name_activity_dim_referencedata.dim_referencedata_id AND
+					research_activity_fact_contribution_researcher_name_activity_dim_referencedata.dim_referencedata_id!=-1
               
 				JOIN dim_funding_decision AS dfd ON ffv.dim_funding_decision_id=dfd.id
                 LEFT JOIN dim_date AS funding_decision_start_date ON dfd.dim_date_id_start=funding_decision_start_date.id AND funding_decision_start_date.id!=-1
