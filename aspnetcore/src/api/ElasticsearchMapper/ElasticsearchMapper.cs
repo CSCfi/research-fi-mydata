@@ -376,6 +376,7 @@ public static class ElasticsearchMapper
                 DepartmentNameSv = ar.DepartmentNameSv,
                 DepartmentNameEn = ar.DepartmentNameEn,
                 Url = ar.Url,
+                WebLinks = MapToElasticsearchWebLink_WithoutItemMeta(ar.WebLinks),
                 sector = MapToElasticsearchSector(ar.sector),
                 itemMeta = MapToElasticsearchItemMeta(ar.itemMeta),
                 DataSources = MapToElasticsearchSource(ar.DataSources)
@@ -438,5 +439,16 @@ public static class ElasticsearchMapper
             PidContent = item.PidContent,
             PidType = item.PidType
         }).ToList();
+    }
+
+    public static List<ElasticsearchWebLink_WithoutItemMeta> MapToElasticsearchWebLink_WithoutItemMeta(List<ProfileEditorWebLink_WithoutItemMeta> src)
+    {
+        return src?
+            .Select(link => new ElasticsearchWebLink_WithoutItemMeta
+            {
+                Url = link.Url,
+                LinkLabel = link.LinkLabel,
+                LinkType = link.LinkType
+            }).ToList();
     }
 }

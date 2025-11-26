@@ -30,6 +30,7 @@ namespace api.Models.ProfileEditor.Items
             DepartmentNameSv = "";
             DepartmentNameEn = "";
             Url = "";
+            WebLinks = new();
             sector = new List<ProfileEditorSector> { };
         }
 
@@ -57,6 +58,7 @@ namespace api.Models.ProfileEditor.Items
         public string DepartmentNameSv { get; set; }
         public string DepartmentNameEn { get; set; }
         public string Url { get; set; }
+        public List<ProfileEditorWebLink_WithoutItemMeta> WebLinks { get; set; }
 
         // Fields required in Elasticsearch person index. Elasticsearch model is mapped from ProfileEditor model.
         public List<ProfileEditorSector> sector { get; set; }

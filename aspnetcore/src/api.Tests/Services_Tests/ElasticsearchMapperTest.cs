@@ -746,6 +746,21 @@ namespace api.Tests
                             DepartmentNameSv = "activityAndReward 1 - department-name-sv",
                             DepartmentNameEn = "activityAndReward 1 - department-name-en",
                             Url = "activityAndReward 1 - url",
+                            WebLinks = new List<ProfileEditorWebLink_WithoutItemMeta>()
+                            {
+                                new ProfileEditorWebLink_WithoutItemMeta
+                                {
+                                    Url = "https://example.org/activityAndReward1/weblink1",
+                                    LinkLabel = "activityAndReward 1 - weblink1 - nameFi",
+                                    LinkType = "activityAndReward 1 - weblink1 - type"
+                                },
+                                new ProfileEditorWebLink_WithoutItemMeta
+                                {
+                                    Url = "https://example.org/activityAndReward1/weblink2",
+                                    LinkLabel = "activityAndReward 1 - weblink2 - nameFi",
+                                    LinkType = "activityAndReward 1 - weblink2 - type"
+                                }
+                            },
                             sector = new List<ProfileEditorSector> {
                                 new ProfileEditorSector
                                 {
@@ -807,6 +822,7 @@ namespace api.Tests
                             DepartmentNameSv = "activityAndReward 3 - department-name-sv",
                             DepartmentNameEn = "activityAndReward 3 - department-name-en",
                             Url = "activityAndReward 3 - url",
+                            WebLinks = new List<ProfileEditorWebLink_WithoutItemMeta>(),
                             sector = new List<ProfileEditorSector> {
                                 new ProfileEditorSector
                                 {
@@ -971,12 +987,14 @@ namespace api.Tests
                         new ElasticsearchWebLink {
                             Url = "https://example1.org",
                             LinkLabel = "Example 1",
+                            LinkType = "Type 1",
                             itemMeta = new ElasticsearchItemMeta { PrimaryValue = true },
                             DataSources = new List<ElasticsearchSource> { elasticsearchSource1 }
                         },
                         new ElasticsearchWebLink {
                             Url = "https://example3.org",
                             LinkLabel = "Example 3",
+                            LinkType = "Type 3",
                             itemMeta = new ElasticsearchItemMeta { PrimaryValue = false },
                             DataSources = new List<ElasticsearchSource> { elasticsearchSource3 }
                         }
@@ -1472,6 +1490,21 @@ namespace api.Tests
                             DepartmentNameSv = "activityAndReward 1 - department-name-sv",
                             DepartmentNameEn = "activityAndReward 1 - department-name-en",
                             Url = "activityAndReward 1 - url",
+                            WebLinks = new List<ElasticsearchWebLink_WithoutItemMeta>()
+                            {
+                                new ElasticsearchWebLink_WithoutItemMeta
+                                {
+                                    Url = "https://example.org/activityAndReward1/weblink1",
+                                    LinkLabel = "activityAndReward 1 - weblink1 - nameFi",
+                                    LinkType = "activityAndReward 1 - weblink1 - type"
+                                },
+                                new ElasticsearchWebLink_WithoutItemMeta
+                                {
+                                    Url = "https://example.org/activityAndReward1/weblink2",
+                                    LinkLabel = "activityAndReward 1 - weblink2 - nameFi",
+                                    LinkType = "activityAndReward 1 - weblink2 - type"
+                                }
+                            },
                             sector = new List<ElasticsearchSector> {
                                 new ElasticsearchSector
                                 {
@@ -2113,6 +2146,12 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].DepartmentNameSv, actualObject.activity.activitiesAndRewards[0].DepartmentNameSv);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].DepartmentNameEn, actualObject.activity.activitiesAndRewards[0].DepartmentNameEn);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].Url, actualObject.activity.activitiesAndRewards[0].Url);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].WebLinks[0].Url, actualObject.activity.activitiesAndRewards[0].WebLinks[0].Url);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].WebLinks[0].LinkLabel, actualObject.activity.activitiesAndRewards[0].WebLinks[0].LinkLabel);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].WebLinks[0].LinkType, actualObject.activity.activitiesAndRewards[0].WebLinks[0].LinkType);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].WebLinks[1].Url, actualObject.activity.activitiesAndRewards[0].WebLinks[1].Url);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].WebLinks[1].LinkLabel, actualObject.activity.activitiesAndRewards[0].WebLinks[1].LinkLabel);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[0].WebLinks[1].LinkType, actualObject.activity.activitiesAndRewards[0].WebLinks[1].LinkType);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].sector.Count, actualObject.activity.activitiesAndRewards[0].sector.Count);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].sector[0].sectorId, actualObject.activity.activitiesAndRewards[0].sector[0].sectorId);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[0].sector[0].nameFiSector, actualObject.activity.activitiesAndRewards[0].sector[0].nameFiSector);
@@ -2157,6 +2196,7 @@ namespace api.Tests
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].DepartmentNameSv, actualObject.activity.activitiesAndRewards[1].DepartmentNameSv);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].DepartmentNameEn, actualObject.activity.activitiesAndRewards[1].DepartmentNameEn);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].Url, actualObject.activity.activitiesAndRewards[1].Url);
+            Assert.Equal(expectedObject.activity.activitiesAndRewards[1].WebLinks.Count, actualObject.activity.activitiesAndRewards[1].WebLinks.Count);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].sector.Count, actualObject.activity.activitiesAndRewards[1].sector.Count);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].sector[0].sectorId, actualObject.activity.activitiesAndRewards[1].sector[0].sectorId);
             Assert.Equal(expectedObject.activity.activitiesAndRewards[1].sector[0].nameFiSector, actualObject.activity.activitiesAndRewards[1].sector[0].nameFiSector);

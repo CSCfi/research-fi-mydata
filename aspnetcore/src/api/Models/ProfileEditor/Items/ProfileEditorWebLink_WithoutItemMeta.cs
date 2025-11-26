@@ -1,8 +1,8 @@
 ﻿namespace api.Models.ProfileEditor.Items
 {
-    public partial class ProfileEditorWebLink : ProfileEditorItem
+    public partial class ProfileEditorWebLink_WithoutItemMeta
     {
-        public ProfileEditorWebLink()
+        public ProfileEditorWebLink_WithoutItemMeta()
         {
             Url = "";
             LinkLabel = "";

@@ -8,9 +8,11 @@ namespace api.Models.Elasticsearch
         {
             Url = "";
             LinkLabel = "";
+            LinkType = "";
         }
 
         public string Url { get; set; }
         public string LinkLabel { get; set; }
+        public string LinkType { get; set; }
     }
 }

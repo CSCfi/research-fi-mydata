@@ -61,6 +61,7 @@ namespace api.Models.ProfileEditor
         // DimWebLink
         public string DimWebLink_Url { get; set; }
         public string DimWebLink_LinkLabel { get; set; }
+        public string DimWebLink_LinkType { get; set; }
         // DimResearcherDescription
         public string DimResearcherDescription_ResearchDescriptionFi { get; set; }
         public string DimResearcherDescription_ResearchDescriptionEn { get; set; }
@@ -236,6 +237,7 @@ namespace api.Models.ProfileEditor
         public string DimResearchActivity_ActivityType_From_Role_Parent_NameFi { get; set; }
         public string DimResearchActivity_ActivityType_From_Role_Parent_NameEn { get; set; }
         public string DimResearchActivity_ActivityType_From_Role_Parent_NameSv { get; set; }
+        public string DimResearchActivity_DimWebLink_Url { get; set; }
         // DimFundingDecision
         public string DimFundingDecision_Acronym { get; set; }
         public string DimFundingDecision_FunderProjectNumber { get; set; }

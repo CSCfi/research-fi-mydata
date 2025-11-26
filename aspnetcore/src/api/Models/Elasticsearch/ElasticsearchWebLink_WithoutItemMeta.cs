@@ -1,8 +1,10 @@
-﻿namespace api.Models.ProfileEditor.Items
+﻿using System.Collections.Generic;
+
+namespace api.Models.Elasticsearch
 {
-    public partial class ProfileEditorWebLink : ProfileEditorItem
+    public partial class ElasticsearchWebLink_WithoutItemMeta
     {
-        public ProfileEditorWebLink()
+        public ElasticsearchWebLink_WithoutItemMeta()
         {
             Url = "";
             LinkLabel = "";

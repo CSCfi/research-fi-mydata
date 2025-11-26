@@ -190,6 +190,7 @@ namespace api.Services
                     dim_name.full_name AS 'DimName_FullName',
                     dim_web_link.url AS 'DimWebLink_Url',
                     dim_web_link.link_label AS 'DimWebLink_LinkLabel',
+                    dim_web_link.link_type AS 'DimWebLink_LinkType',
                     dim_researcher_description.research_description_fi AS 'DimResearcherDescription_ResearchDescriptionFi',
                     dim_researcher_description.research_description_en AS 'DimResearcherDescription_ResearchDescriptionEn',
                     dim_researcher_description.research_description_sv AS 'DimResearcherDescription_ResearchDescriptionSv',
@@ -356,6 +357,7 @@ namespace api.Services
 					research_activity_fact_contribution_researcher_name_activity_dim_referencedata_parent.name_fi AS 'DimResearchActivity_ActivityType_From_Role_Parent_NameFi',
 					research_activity_fact_contribution_researcher_name_activity_dim_referencedata_parent.name_en AS 'DimResearchActivity_ActivityType_From_Role_Parent_NameEn',
                     research_activity_fact_contribution_researcher_name_activity_dim_referencedata_parent.name_sv AS 'DimResearchActivity_ActivityType_From_Role_Parent_NameSv',
+                    dim_research_activity_web_link.url AS 'DimResearchActivity_DimWebLink_Url',
 
                     dfd.acronym AS 'DimFundingDecision_Acronym',
                     dfd.funder_project_number AS 'DimFundingDecision_FunderProjectNumber',
@@ -475,6 +477,7 @@ namespace api.Services
                 LEFT JOIN dim_sector AS research_activity_organization_broader_sector ON research_activity_organization_broader.dim_sectorid=research_activity_organization_broader_sector.id
                 LEFT JOIN dim_date AS research_activity_start_date ON dim_research_activity.dim_start_date=research_activity_start_date.id AND research_activity_start_date.id!=-1
                 LEFT JOIN dim_date AS research_activity_end_date ON dim_research_activity.dim_end_date=research_activity_end_date.id AND research_activity_end_date.id!=-1
+                LEFT JOIN dim_web_link AS dim_research_activity_web_link ON dim_research_activity_web_link.dim_research_activity_id=dim_research_activity.id AND dim_research_activity_web_link.dim_research_activity_id!=-1
 				
 				LEFT JOIN fact_contribution AS research_activity_fact_contribution_activity_type ON dim_research_activity.id=research_activity_fact_contribution_activity_type.dim_research_activity_id AND
 					dim_research_activity.id!=-1 AND

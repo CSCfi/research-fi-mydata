@@ -1385,6 +1385,7 @@ namespace api.Services
                             {
                                 Url = p.DimWebLink_Url,
                                 LinkLabel = p.DimWebLink_LinkLabel,
+                                LinkType = p.DimWebLink_LinkType,
                                 itemMeta = new ProfileEditorItemMeta(
                                     id: p.FactFieldValues_DimWebLinkId,
                                     type: Constants.ItemMetaTypes.PERSON_WEB_LINK,
@@ -1896,7 +1897,12 @@ namespace api.Services
                                 DepartmentNameFi = nameTranslationResearchActivityDepartment.NameFi,
                                 DepartmentNameEn = nameTranslationResearchActivityDepartment.NameEn,
                                 DepartmentNameSv = nameTranslationResearchActivityDepartment.NameSv,
-                                DataSources = new List<ProfileEditorSource> { profileEditorSource }
+                                DataSources = new List<ProfileEditorSource> { profileEditorSource },
+                                Url = p.DimResearchActivity_DimWebLink_Url,
+                                WebLinks = 
+                                    (await connection.QueryAsync<ProfileEditorWebLink_WithoutItemMeta>(
+                                        $"SELECT url AS 'Url', link_label AS 'LinkLabel', link_type AS 'LinkType' FROM dim_web_link WHERE dim_research_activity_id={p.FactFieldValues_DimResearchActivityId}"
+                                    )).ToList(),
                             };
 
                             // Add Elasticsearch person index related data.
@@ -2389,6 +2395,10 @@ namespace api.Services
                         DepartmentNameEn = nameTranslationProfileOnlyResearchActivityDepartment.NameEn,
                         DepartmentNameSv = nameTranslationProfileOnlyResearchActivityDepartment.NameSv,
                         Url = p.DimProfileOnlyResearchActivity_DimWebLink_Url,
+                        WebLinks = 
+                            (await connection.QueryAsync<ProfileEditorWebLink_WithoutItemMeta>(
+                                $"SELECT url AS 'Url', link_label AS 'LinkLabel', link_type AS 'LinkType' FROM dim_web_link WHERE dim_profile_only_research_activity_id={p.FactFieldValues_DimProfileOnlyResearchActivityId}"
+                            )).ToList(),
                         DataSources = new List<ProfileEditorSource> { profileEditorSource }
                     };
 
