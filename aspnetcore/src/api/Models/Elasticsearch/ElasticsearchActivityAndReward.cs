@@ -34,6 +34,7 @@ namespace api.Models.Elasticsearch
             DepartmentNameSv = "";
             DepartmentNameEn = "";
             Url = "";
+            WebLinks = new();
             sector = new List<ElasticsearchSector> { };
         }
 
@@ -61,6 +62,7 @@ namespace api.Models.Elasticsearch
         public string DepartmentNameSv { get; set; }
         public string DepartmentNameEn { get; set; }
         public string Url { get; set; }
+        public List<ElasticsearchWebLink_WithoutItemMeta> WebLinks { get; set; }
 
         [Nested]
         [PropertyName("sector")]
