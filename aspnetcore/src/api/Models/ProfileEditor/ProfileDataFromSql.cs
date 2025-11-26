@@ -232,10 +232,10 @@ namespace api.Models.ProfileEditor
         public string DimResearchActivity_Role_NameFi { get; set; }
         public string DimResearchActivity_Role_NameEn { get; set; }
         public string DimResearchActivity_Role_NameSv { get; set; }
-        public string DimResearchActivity_Role_Parent_CodeValue { get; set; }
-        public string DimResearchActivity_Role_Parent_NameFi { get; set; }
-        public string DimResearchActivity_Role_Parent_NameEn { get; set; }
-        public string DimResearchActivity_Role_Parent_NameSv { get; set; }
+        public string DimResearchActivity_ActivityType_From_Role_Parent_CodeValue { get; set; }
+        public string DimResearchActivity_ActivityType_From_Role_Parent_NameFi { get; set; }
+        public string DimResearchActivity_ActivityType_From_Role_Parent_NameEn { get; set; }
+        public string DimResearchActivity_ActivityType_From_Role_Parent_NameSv { get; set; }
         // DimFundingDecision
         public string DimFundingDecision_Acronym { get; set; }
         public string DimFundingDecision_FunderProjectNumber { get; set; }
