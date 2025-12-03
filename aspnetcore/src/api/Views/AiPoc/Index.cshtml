@@ -67,6 +67,35 @@
     <h2>Query result</h2>
     <hr class="my-4" />
     <div id="result2" class="mt-4"></div>
+
+    <hr />
+
+    <h2>Translation</h2>
+
+    <form id="translationForm" class="mb-4">
+        <div class="form-group mb-3">
+            <label for="textToTranslate" class="form-label">Text to translate:</label>
+            <textarea id="textToTranslate" name="textToTranslate" class="form-control" rows="5" placeholder="Enter text to translate..."></textarea>
+        </div>
+        <div class="form-group mb-3">
+            <label for="targetLanguage" class="form-label">Target language:</label>
+            <select id="targetLanguage" name="targetLanguage" class="form-control">
+                <option value="Finnish">Finnish</option>
+                <option value="Swedish">Swedish</option>
+                <option value="English">English</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <label for="maxOutputTokenCount" class="form-label">Max output token count:</label>
+            <span class="ms-2 text-muted" role="button" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="Limits the number of tokens in the response. Useful for controlling output length.">ℹ️</span>
+            <input type="number" id="maxOutputTokenCount" name="maxOutputTokenCount" class="form-control" value="500" min="1" max="10000" style="width:10ch;" />
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Translate</button>
+        </div>
+    </form>
+
+    <div id="translationresult" class="mt-4"></div>
 }
 
 
@@ -135,6 +164,30 @@
                 resultContainer.innerHTML = htmlResult;
             } catch (error) {
                 resultContainer.innerHTML = `<div class='alert alert-danger'>Error: ${error.message}</div>`;
+            }
+        });
+
+        document.getElementById("translationForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const translationResultContainer = document.getElementById("translationresult");
+            const translationFormData = new FormData(this);
+
+            // Show loading indicator
+            translationResultContainer.innerHTML = "<div class='spinner-border text-primary' role='status'><span class='visually-hidden'>Loading...</span></div>";
+            try {
+                const response = await fetch("/AiPoc/TranslateUsingAiModel", {
+                    method: "POST",
+                    body: translationFormData
+                });
+
+                const markdownResult = await response.text();
+
+                // Convert Markdown to HTML and render it
+                const htmlResult = marked.parse(markdownResult);
+                translationResultContainer.innerHTML = htmlResult;
+            } catch (error) {
+                translationResultContainer.innerHTML = `<div class='alert alert-danger'>Error: ${error.message}</div>`;
             }
         });
     </script>

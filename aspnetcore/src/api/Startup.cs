@@ -21,6 +21,7 @@ using OpenAI;
 using OpenAI.Chat;
 using System.ClientModel;
 using System.Net.Http;
+using Azure.Core.Pipeline;
 
 namespace api
 {
@@ -277,7 +278,8 @@ namespace api
                     credential: new ApiKeyCredential(Configuration["OpenAIOptions:ApiKey"]),
                     options: new OpenAIClientOptions()
                     {
-                        Endpoint = new Uri(Configuration["OpenAIOptions:BaseUrl"])
+                        Endpoint = new Uri(Configuration["OpenAIOptions:BaseUrl"]),
+                        RetryPolicy = new System.ClientModel.Primitives.ClientRetryPolicy(maxRetries: 0)
                     }
                 );
             });
