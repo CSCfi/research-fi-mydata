@@ -1,7 +1,7 @@
 namespace api.Models.Ai
 {
-    public class BiographyGenerated  {
-        public BiographyGenerated()
+    public class BiographyContent  {
+        public BiographyContent()
         {
             ContentText = "";
         }

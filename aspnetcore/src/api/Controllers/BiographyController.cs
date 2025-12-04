@@ -14,6 +14,7 @@ using api.Models.Api;
 using api.Models.Common;
 using api.Models.Ttv;
 using Elasticsearch.Net;
+using System.Net.Http;
 
 namespace api.Controllers
 {
@@ -43,7 +44,7 @@ namespace api.Controllers
         /// </summary>
         [HttpGet]
         [Route("generate")]
-        [ProducesResponseType(typeof(BiographyGenerated), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BiographyContent), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> QueryAiModel()
         {
@@ -133,7 +134,7 @@ namespace api.Controllers
                         state: LogContent.ActionState.COMPLETE,
                         message: $"took {chatCompletionStopwatch.ElapsedMilliseconds}ms"));
 
-                return Ok(new BiographyGenerated { ContentText = completion.Content[0].Text });
+                return Ok(new BiographyContent { ContentText = completion.Content[0].Text });
             }
             catch (Exception ex)
             {
@@ -142,7 +143,7 @@ namespace api.Controllers
                     logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
-                        state: LogContent.ActionState.COMPLETE,
+                        state: LogContent.ActionState.FAILED,
                         message: ex.Message));
                 return StatusCode(500);
             }
@@ -213,6 +214,12 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SetBiography([FromBody] Biography biography)
         {
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
             // Get ORCID id
             string orcidId = GetOrcidId();
@@ -315,6 +322,80 @@ namespace api.Controllers
             }
 
             return NoContent();
+        }
+
+
+        /// <summary>
+        /// Translate biography
+        /// </summary>
+        [HttpPost]
+        [Route("translate")]
+        [ProducesResponseType(typeof(BiographyContent), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        public async Task<IActionResult> TranslateUsingAiModel([FromBody] TranslateRequest translateRequest)
+        {
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.AI_TRANSLATE_TEXT,
+                    state: LogContent.ActionState.START));
+
+            // Append to system prompt
+            string systemChatMessage = $@"You are an expert, professional translator specializing in academic and biographical content. Your task includes first identifying the source language, which is guaranteed to be one of: **Finnish, Swedish, or English**.
+                                    The translation must be performed with absolute fidelity to the original text. You must ensure that the meaning, tone (professional/academic), and factual content of the source text are preserved strictly and completely.
+                                    **Output Rule: Your entire response must consist ONLY of the final translated text. Do not include section headings, labels, or any text other than the complete, high-fidelity translation itself.**
+                                    **Target Language:** {translateRequest.TargetLanguage}]";
+
+            string userChatMessage = $@"Please perform the translation task now on the following researcher biography:
+                                        **Source Text:**
+                                        {translateRequest.TextToTranslate}";
+            try
+            {
+                ChatCompletionOptions options = new()
+                {
+                    MaxOutputTokenCount = 500,
+                    Temperature = 0.0f,
+                    TopP = 0.1f
+                };
+
+                var chatMessages = new List<ChatMessage>
+                {
+                    new SystemChatMessage(systemChatMessage),
+                    new UserChatMessage(userChatMessage)
+                };
+
+                ChatCompletion completion = await _chatClient.CompleteChatAsync(chatMessages, options);
+
+                _logger.LogInformation(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.AI_TRANSLATE_TEXT,
+                        state: LogContent.ActionState.COMPLETE));
+
+                return Ok(new BiographyContent { ContentText = completion.Content[0].Text });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.AI_TRANSLATE_TEXT,
+                        state: LogContent.ActionState.FAILED,
+                        message: ex.Message));
+                return StatusCode(500);
+            }
         }
     }
 }
