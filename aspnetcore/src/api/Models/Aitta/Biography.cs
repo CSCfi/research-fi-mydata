@@ -10,11 +10,8 @@ namespace api.Models.Ai
             Sv = "";
         }
 
-        [Required]
         public string Fi { get; set; }
-        [Required]
         public string En { get; set; }
-        [Required]
         public string Sv { get; set; }
     }
 }
