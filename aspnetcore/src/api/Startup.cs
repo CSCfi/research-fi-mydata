@@ -17,6 +17,11 @@ using IdentityModel.Client;
 using Microsoft.Net.Http.Headers;
 using System.Linq;
 using Serilog;
+using OpenAI;
+using OpenAI.Chat;
+using System.ClientModel;
+using System.Net.Http;
+using Azure.Core.Pipeline;
 
 namespace api
 {
@@ -260,6 +265,22 @@ namespace api
                 httpClient.DefaultRequestHeaders.Add("ADMINTOKEN", Configuration["ADMINTOKEN"]);
             });
 
+            /*
+             * OpenAI client for AI features.
+             */
+            services.AddSingleton<ChatClient>(sp =>
+            {
+                return new ChatClient(
+                    model: Configuration["OpenAIOptions:Model"],
+                    credential: new ApiKeyCredential(Configuration["OpenAIOptions:ApiKey"]),
+                    options: new OpenAIClientOptions()
+                    {
+                        Endpoint = new Uri(Configuration["OpenAIOptions:BaseUrl"]),
+                        RetryPolicy = new System.ClientModel.Primitives.ClientRetryPolicy(maxRetries: 0)
+                    }
+                );
+            });
+
             services.AddResponseCompression();
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IOrcidApiService, OrcidApiService>();
@@ -277,6 +298,7 @@ namespace api
             services.AddSingleton<IElasticsearchService, ElasticsearchService>();
             services.AddSingleton<IUtilityService, UtilityService>();    
             services.AddSingleton<IDataSourceHelperService, DataSourceHelperService>();
+            services.AddScoped<IBiographyService, BiographyService>();
             services.AddMemoryCache();
 
             // Background processing related services.
