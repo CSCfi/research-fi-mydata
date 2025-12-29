@@ -183,28 +183,31 @@ namespace api.Services
             aittaModel.UserParticipatedDataset = await _ttvContext.FactFieldValues
                 .Where(ffv => ffv.DimUserProfile.OrcidId == orcidId && ffv.DimResearchDataset != null && ffv.DimResearchDatasetId > 0 && ffv.Show == true)
                 .Include(ffv => ffv.DimResearchDataset)
-                    .ThenInclude(rd => rd.DimKeywords)
+                    .ThenInclude(rd => rd.FactKeywords)
+                        .ThenInclude(kw => kw.DimKeyword)
+                .Include(ffv => ffv.DimResearchDataset)
+                    .ThenInclude(rd => rd.DimDescriptiveItems)
                 .Include(ffv => ffv.DimResearchDataset)
                     .ThenInclude(rd => rd.FactDimReferencedataFieldOfSciences)
                         .ThenInclude(fdrfs => fdrfs.DimReferencedata)
                 .Select(ffv => new AittaResearchDataset
                 {
                     DatasetTitle = LanguageFilter(
-                        ffv.DimResearchDataset.NameEn,
-                        ffv.DimResearchDataset.NameFi,
-                        ffv.DimResearchDataset.NameSv
+                        ffv.DimResearchDataset.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "name" && di.DescriptiveItemLanguage == "en").Select(di => di.DescriptiveItem).FirstOrDefault(),
+                        ffv.DimResearchDataset.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "name" && di.DescriptiveItemLanguage == "fi").Select(di => di.DescriptiveItem).FirstOrDefault(),
+                        ffv.DimResearchDataset.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "name" && di.DescriptiveItemLanguage == "sv").Select(di => di.DescriptiveItem).FirstOrDefault()
                     ),
                     Description = GetFirstNSentences(
                         LanguageFilter(
-                            ffv.DimResearchDataset.DescriptionEn,
-                            ffv.DimResearchDataset.DescriptionFi,
-                            ffv.DimResearchDataset.DescriptionSv
+                            ffv.DimResearchDataset.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "description" && di.DescriptiveItemLanguage == "en").Select(di => di.DescriptiveItem).FirstOrDefault(),
+                            ffv.DimResearchDataset.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "description" && di.DescriptiveItemLanguage == "fi").Select(di => di.DescriptiveItem).FirstOrDefault(),
+                            ffv.DimResearchDataset.DimDescriptiveItems.Where(di => di.DescriptiveItemType == "description" && di.DescriptiveItemLanguage == "sv").Select(di => di.DescriptiveItem).FirstOrDefault()
                         ),
                         1
                     ),
-                    DatasetCreationDate = ffv.DimResearchDataset.DatasetCreated != null ? ffv.DimResearchDataset.DatasetCreated : null,
-                    Theme = ffv.DimResearchDataset.DimKeywords.Count > 0 ? ffv.DimResearchDataset.DimKeywords.Where(kw => kw.Scheme == "Theme").Select(kw => kw.Keyword).ToList() : null,
-                    Keywords = ffv.DimResearchDataset.DimKeywords.Count > 0 ? ffv.DimResearchDataset.DimKeywords.Where(kw => kw.Scheme == "Avainsana").Select(kw => kw.Keyword).ToList() : null,
+                    DatasetCreationDate = ffv.DimResearchDataset.DatasetCreated != null ? ffv.DimResearchDataset.DatasetCreated : null, 
+                    Theme = ffv.DimResearchDataset.FactKeywords.Count > 0 ? ffv.DimResearchDataset.FactKeywords.Where(fk => fk.DimKeyword.Scheme == "Theme").Select(fk => fk.DimKeyword.Keyword).ToList() : null,
+                    Keywords = ffv.DimResearchDataset.FactKeywords.Count > 0 ? ffv.DimResearchDataset.FactKeywords.Where(fk => fk.DimKeyword.Scheme == "Avainsana").Select(fk => fk.DimKeyword.Keyword).ToList() : null,
                     FieldsOfScience = ffv.DimResearchDataset.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList()
                 })
                 .AsNoTracking().ToListAsync();

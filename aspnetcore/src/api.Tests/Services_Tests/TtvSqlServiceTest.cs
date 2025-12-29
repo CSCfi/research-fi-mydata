@@ -619,19 +619,6 @@ namespace api.Tests
             Assert.Equal(NormalizeSql(expectedSqlString), NormalizeSql(actualSqlString));
         }
 
-        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, funding decision")]
-        public void Test_getSqlQuery_Delete_FactFieldValues_related_funding_decision()
-        {
-            // Arrange
-            TtvSqlService ttvSqlService = new();
-            List<int> ids = new() { 78, 89, 90 };
-            string expectedSqlString = "DELETE FROM dim_funding_decision WHERE id IN (78,89,90)";
-            // Act
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimFundingDecisions(ids);
-            // Assert
-            Assert.Equal(NormalizeSql(expectedSqlString), NormalizeSql(actualSqlString));
-        }
-
         [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, keyword")]
         public void Test_getSqlQuery_Delete_FactFieldValues_related_keyword()
         {
@@ -745,19 +732,6 @@ namespace api.Tests
             string expectedSqlString = "DELETE FROM dim_research_community WHERE id IN (105,106,107)";
             // Act
             string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimResearchCommunities(ids);
-            // Assert
-            Assert.Equal(NormalizeSql(expectedSqlString), NormalizeSql(actualSqlString));
-        }
-
-        [Fact(DisplayName = "Get SQL query for deleting FactFieldValues related data, research dataset")]
-        public void Test_getSqlQuery_Delete_FactFieldValues_related_research_dataset()
-        {
-            // Arrange
-            TtvSqlService ttvSqlService = new();
-            List<int> ids = new() { 106, 107, 108 };
-            string expectedSqlString = "DELETE FROM dim_research_dataset WHERE id IN (106,107,108)";
-            // Act
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_DimResearchDatasets(ids);
             // Assert
             Assert.Equal(NormalizeSql(expectedSqlString), NormalizeSql(actualSqlString));
         }
@@ -1288,12 +1262,12 @@ namespace api.Tests
                     dim_profile_only_funding_decision_web_link.url AS 'DimProfileOnlyFundingDecision_DimWebLink_Url',
 
                     dim_research_dataset.local_identifier AS 'DimResearchDataset_LocalIdentifier',
-                    dim_research_dataset.name_fi AS 'DimResearchDataset_NameFi',
-                    dim_research_dataset.name_en AS 'DimResearchDataset_NameEn',
-                    dim_research_dataset.name_sv AS 'DimResearchDataset_NameSv',
-                    dim_research_dataset.description_fi AS 'DimResearchDataset_DescriptionFi',
-                    dim_research_dataset.description_en AS 'DimResearchDataset_DescriptionEn',
-                    dim_research_dataset.description_sv AS 'DimResearchDataset_DescriptionSv',
+                    dim_research_dataset_descriptive_item_name_fi.descriptive_item AS 'DimResearchDataset_NameFi',
+                    dim_research_dataset_descriptive_item_name_en.descriptive_item AS 'DimResearchDataset_NameEn',
+                    dim_research_dataset_descriptive_item_name_sv.descriptive_item AS 'DimResearchDataset_NameSv',
+                    dim_research_dataset_descriptive_item_description_fi.descriptive_item AS 'DimResearchDataset_DescriptionFi',
+                    dim_research_dataset_descriptive_item_description_en.descriptive_item AS 'DimResearchDataset_DescriptionEn',
+                    dim_research_dataset_descriptive_item_description_sv.descriptive_item AS 'DimResearchDataset_DescriptionSv',
                     dim_research_dataset.dataset_created AS 'DimResearchDataset_DatasetCreated',
                     dim_research_dataset_referencedata_availability.code_value AS 'DimResearchDataset_AccessType',
 
@@ -1395,6 +1369,12 @@ namespace api.Tests
                 LEFT JOIN dim_web_link AS dim_profile_only_funding_decision_web_link ON dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id=dpofd.id AND dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id!=-1
 
                 JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_name_fi ON dim_research_dataset_descriptive_item_name_fi.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_name_fi.descriptive_item_type='name' AND dim_research_dataset_descriptive_item_name_fi.descriptive_item_language='fi' AND dim_research_dataset_descriptive_item_name_fi.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_name_en ON dim_research_dataset_descriptive_item_name_en.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_name_en.descriptive_item_type='name' AND dim_research_dataset_descriptive_item_name_en.descriptive_item_language='en' AND dim_research_dataset_descriptive_item_name_en.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_name_sv ON dim_research_dataset_descriptive_item_name_sv.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_name_sv.descriptive_item_type='name' AND dim_research_dataset_descriptive_item_name_sv.descriptive_item_language='sv' AND dim_research_dataset_descriptive_item_name_sv.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_description_fi ON dim_research_dataset_descriptive_item_description_fi.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_description_fi.descriptive_item_type='description' AND dim_research_dataset_descriptive_item_description_fi.descriptive_item_language='fi' AND dim_research_dataset_descriptive_item_description_fi.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_description_en ON dim_research_dataset_descriptive_item_description_en.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_description_en.descriptive_item_type='description' AND dim_research_dataset_descriptive_item_description_en.descriptive_item_language='en' AND dim_research_dataset_descriptive_item_description_en.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_description_sv ON dim_research_dataset_descriptive_item_description_sv.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_description_sv.descriptive_item_type='description' AND dim_research_dataset_descriptive_item_description_sv.descriptive_item_language='sv' AND dim_research_dataset_descriptive_item_description_sv.dim_research_dataset_id!=-1
                 LEFT JOIN dim_referencedata AS dim_research_dataset_referencedata_availability ON dim_research_dataset.dim_referencedata_availability=dim_research_dataset_referencedata_availability.id AND dim_research_dataset.dim_referencedata_availability!=-1
 
                 JOIN dim_profile_only_dataset ON ffv.dim_profile_only_dataset_id=dim_profile_only_dataset.id
@@ -1689,12 +1669,12 @@ namespace api.Tests
                     dim_profile_only_funding_decision_web_link.url AS 'DimProfileOnlyFundingDecision_DimWebLink_Url',
 
                     dim_research_dataset.local_identifier AS 'DimResearchDataset_LocalIdentifier',
-                    dim_research_dataset.name_fi AS 'DimResearchDataset_NameFi',
-                    dim_research_dataset.name_en AS 'DimResearchDataset_NameEn',
-                    dim_research_dataset.name_sv AS 'DimResearchDataset_NameSv',
-                    dim_research_dataset.description_fi AS 'DimResearchDataset_DescriptionFi',
-                    dim_research_dataset.description_en AS 'DimResearchDataset_DescriptionEn',
-                    dim_research_dataset.description_sv AS 'DimResearchDataset_DescriptionSv',
+                    dim_research_dataset_descriptive_item_name_fi.descriptive_item AS 'DimResearchDataset_NameFi',
+                    dim_research_dataset_descriptive_item_name_en.descriptive_item AS 'DimResearchDataset_NameEn',
+                    dim_research_dataset_descriptive_item_name_sv.descriptive_item AS 'DimResearchDataset_NameSv',
+                    dim_research_dataset_descriptive_item_description_fi.descriptive_item AS 'DimResearchDataset_DescriptionFi',
+                    dim_research_dataset_descriptive_item_description_en.descriptive_item AS 'DimResearchDataset_DescriptionEn',
+                    dim_research_dataset_descriptive_item_description_sv.descriptive_item AS 'DimResearchDataset_DescriptionSv',
                     dim_research_dataset.dataset_created AS 'DimResearchDataset_DatasetCreated',
                     dim_research_dataset_referencedata_availability.code_value AS 'DimResearchDataset_AccessType',
 
@@ -1796,6 +1776,12 @@ namespace api.Tests
                 LEFT JOIN dim_web_link AS dim_profile_only_funding_decision_web_link ON dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id=dpofd.id AND dim_profile_only_funding_decision_web_link.dim_profile_only_funding_decision_id!=-1
 
                 JOIN dim_research_dataset ON ffv.dim_research_dataset_id=dim_research_dataset.id
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_name_fi ON dim_research_dataset_descriptive_item_name_fi.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_name_fi.descriptive_item_type='name' AND dim_research_dataset_descriptive_item_name_fi.descriptive_item_language='fi' AND dim_research_dataset_descriptive_item_name_fi.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_name_en ON dim_research_dataset_descriptive_item_name_en.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_name_en.descriptive_item_type='name' AND dim_research_dataset_descriptive_item_name_en.descriptive_item_language='en' AND dim_research_dataset_descriptive_item_name_en.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_name_sv ON dim_research_dataset_descriptive_item_name_sv.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_name_sv.descriptive_item_type='name' AND dim_research_dataset_descriptive_item_name_sv.descriptive_item_language='sv' AND dim_research_dataset_descriptive_item_name_sv.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_description_fi ON dim_research_dataset_descriptive_item_description_fi.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_description_fi.descriptive_item_type='description' AND dim_research_dataset_descriptive_item_description_fi.descriptive_item_language='fi' AND dim_research_dataset_descriptive_item_description_fi.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_description_en ON dim_research_dataset_descriptive_item_description_en.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_description_en.descriptive_item_type='description' AND dim_research_dataset_descriptive_item_description_en.descriptive_item_language='en' AND dim_research_dataset_descriptive_item_description_en.dim_research_dataset_id!=-1
+                LEFT JOIN dim_descriptive_item AS dim_research_dataset_descriptive_item_description_sv ON dim_research_dataset_descriptive_item_description_sv.dim_research_dataset_id=dim_research_dataset.id AND dim_research_dataset_descriptive_item_description_sv.descriptive_item_type='description' AND dim_research_dataset_descriptive_item_description_sv.descriptive_item_language='sv' AND dim_research_dataset_descriptive_item_description_sv.dim_research_dataset_id!=-1
                 LEFT JOIN dim_referencedata AS dim_research_dataset_referencedata_availability ON dim_research_dataset.dim_referencedata_availability=dim_research_dataset_referencedata_availability.id AND dim_research_dataset.dim_referencedata_availability!=-1
 
                 JOIN dim_profile_only_dataset ON ffv.dim_profile_only_dataset_id=dim_profile_only_dataset.id
