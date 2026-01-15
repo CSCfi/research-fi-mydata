@@ -1399,18 +1399,28 @@ namespace api.Services
 
                     // Researcher description
                     case Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION:
-                        // Researcher description name translation
-                        NameTranslation nameTranslationResearcherDescription = _languageService.GetNameTranslation(
-                            nameFi: p.DimResearcherDescription_ResearchDescriptionFi,
-                            nameEn: p.DimResearcherDescription_ResearchDescriptionEn,
-                            nameSv: p.DimResearcherDescription_ResearchDescriptionSv
-                        );
+                        // Researcher description name translation must be skipped when data source is tiedejatutkimus.fi.
+                        // That indicates user generated value, which is handled in the frontend.
+                        string valueFi = p.DimResearcherDescription_ResearchDescriptionFi;
+                        string valueEn = p.DimResearcherDescription_ResearchDescriptionEn;
+                        string valueSv = p.DimResearcherDescription_ResearchDescriptionSv;
+                        if (profileEditorSource.RegisteredDataSource != _dataSourceHelperService.DimRegisteredDataSourceName_TTV)
+                        {
+                            NameTranslation nameTranslationResearcherDescription = _languageService.GetNameTranslation(
+                                nameFi: p.DimResearcherDescription_ResearchDescriptionFi,
+                                nameEn: p.DimResearcherDescription_ResearchDescriptionEn,
+                                nameSv: p.DimResearcherDescription_ResearchDescriptionSv
+                            );
+                            valueFi = nameTranslationResearcherDescription.NameFi;
+                            valueEn = nameTranslationResearcherDescription.NameEn;
+                            valueSv = nameTranslationResearcherDescription.NameSv;
+                        }
                         profileDataResponse.personal.researcherDescriptions.Add(
                             new ProfileEditorResearcherDescription()
                             {
-                                ResearchDescriptionFi = nameTranslationResearcherDescription.NameFi,
-                                ResearchDescriptionEn = nameTranslationResearcherDescription.NameEn,
-                                ResearchDescriptionSv = nameTranslationResearcherDescription.NameSv,
+                                ResearchDescriptionFi = valueFi,
+                                ResearchDescriptionEn = valueEn,
+                                ResearchDescriptionSv = valueSv,
                                 itemMeta = new ProfileEditorItemMeta(
                                     id: p.FactFieldValues_DimResearcherDescriptionId,
                                     type: Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION,
