@@ -83,6 +83,8 @@ public partial class DimCallProgramme
 
     public virtual ICollection<DimWebLink> DimWebLinks { get; set; } = new List<DimWebLink>();
 
+    public virtual ICollection<FactReferencedatum> FactReferencedata { get; set; } = new List<FactReferencedatum>();
+
     public virtual ICollection<DimCallProgramme> InverseDimCallProgrammeNavigation { get; set; } = new List<DimCallProgramme>();
 
     public virtual DimReferencedatum TypeOfFundingNavigation { get; set; }

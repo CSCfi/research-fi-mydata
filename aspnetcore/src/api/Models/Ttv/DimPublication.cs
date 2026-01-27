@@ -127,6 +127,8 @@ public partial class DimPublication
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
 
+    public virtual ICollection<FactReferencedatum> FactReferencedata { get; set; } = new List<FactReferencedatum>();
+
     public virtual ICollection<FactRelation> FactRelationFromPublications { get; set; } = new List<FactRelation>();
 
     public virtual ICollection<FactRelation> FactRelationToPublications { get; set; } = new List<FactRelation>();

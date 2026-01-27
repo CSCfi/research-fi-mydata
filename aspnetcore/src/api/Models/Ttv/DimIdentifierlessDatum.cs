@@ -27,7 +27,13 @@ public partial class DimIdentifierlessDatum
 
     public string UnlinkedIdentifier { get; set; }
 
+    public int DimOrganizationId { get; set; }
+
+    public string ValueUnd { get; set; }
+
     public virtual DimIdentifierlessDatum DimIdentifierlessData { get; set; }
+
+    public virtual DimOrganization DimOrganization { get; set; }
 
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
 

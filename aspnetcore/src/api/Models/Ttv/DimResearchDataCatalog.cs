@@ -27,6 +27,8 @@ public partial class DimResearchDataCatalog
 
     public DateTime? Modified { get; set; }
 
+    public virtual ICollection<DimDescriptiveItem> DimDescriptiveItems { get; set; } = new List<DimDescriptiveItem>();
+
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
 
     public virtual ICollection<DimResearchDataset> DimResearchDatasets { get; set; } = new List<DimResearchDataset>();

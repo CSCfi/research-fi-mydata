@@ -74,11 +74,15 @@ public partial class DimDescriptiveItem
 
     public int DimResearchDatasetId { get; set; }
 
+    public int DimResearchDataCatalogId { get; set; }
+
     public virtual DimDate DimEndDateNavigation { get; set; }
 
     public virtual DimPublication DimPublication { get; set; }
 
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
+
+    public virtual DimResearchDataCatalog DimResearchDataCatalog { get; set; }
 
     public virtual DimResearchDataset DimResearchDataset { get; set; }
 
