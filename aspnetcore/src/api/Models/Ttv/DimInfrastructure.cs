@@ -7,27 +7,9 @@ public partial class DimInfrastructure
 {
     public int Id { get; set; }
 
-    public int NextInfastructureId { get; set; }
-
-    public string NameFi { get; set; }
-
-    public string NameSv { get; set; }
-
-    public string NameEn { get; set; }
-
-    public string DescriptionFi { get; set; }
-
-    public string DescriptionSv { get; set; }
-
-    public string DescriptionEn { get; set; }
-
-    public int? StartYear { get; set; }
-
-    public int? EndYear { get; set; }
-
     public string Acronym { get; set; }
 
-    public bool FinlandRoadmap { get; set; }
+    public bool? FinlandRoadmap { get; set; }
 
     public string SourceId { get; set; }
 
@@ -37,15 +19,29 @@ public partial class DimInfrastructure
 
     public DateTime? Modified { get; set; }
 
-    public string Urn { get; set; }
+    public int DimRegisteredDataSourceId { get; set; }
 
-    public string ScientificDescriptionFi { get; set; }
+    public int ResponsibleOrganizationId { get; set; }
 
-    public string ScientificDescriptionSv { get; set; }
+    public int DimStartDate { get; set; }
 
-    public string ScientificDescriptionEn { get; set; }
+    public int DimEndDate { get; set; }
+
+    public string LocalIdentifier { get; set; }
+
+    public virtual ICollection<DimContactInformation> DimContactInformations { get; set; } = new List<DimContactInformation>();
+
+    public virtual ICollection<DimDescriptiveItem> DimDescriptiveItems { get; set; } = new List<DimDescriptiveItem>();
+
+    public virtual DimDate DimEndDateNavigation { get; set; }
 
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
+
+    public virtual ICollection<DimService> DimServices { get; set; } = new List<DimService>();
+
+    public virtual DimDate DimStartDateNavigation { get; set; }
+
+    public virtual ICollection<DimWebLink> DimWebLinks { get; set; } = new List<DimWebLink>();
 
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
 
@@ -61,9 +57,7 @@ public partial class DimInfrastructure
 
     public virtual ICollection<FactUpkeep> FactUpkeeps { get; set; } = new List<FactUpkeep>();
 
-    public virtual ICollection<DimInfrastructure> InverseNextInfastructure { get; set; } = new List<DimInfrastructure>();
-
-    public virtual DimInfrastructure NextInfastructure { get; set; }
+    public virtual DimOrganization ResponsibleOrganization { get; set; }
 
     public virtual ICollection<DimEsfri> DimEsfris { get; set; } = new List<DimEsfri>();
 

@@ -33,6 +33,8 @@ public partial class DimReferencedatum
 
     public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; } = new List<BrGrantedPermission>();
 
+    public virtual ICollection<DimAddress> DimAddresses { get; set; } = new List<DimAddress>();
+
     public virtual ICollection<DimAffiliation> DimAffiliations { get; set; } = new List<DimAffiliation>();
 
     public virtual ICollection<DimCallDecision> DimCallDecisions { get; set; } = new List<DimCallDecision>();

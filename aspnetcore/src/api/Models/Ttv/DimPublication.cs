@@ -133,6 +133,8 @@ public partial class DimPublication
 
     public virtual ICollection<FactRelation> FactRelationToPublications { get; set; } = new List<FactRelation>();
 
+    public virtual ICollection<FactWordClusterToDomain> FactWordClusterToDomains { get; set; } = new List<FactWordClusterToDomain>();
+
     public virtual ICollection<DimPublication> InverseDimPublicationNavigation { get; set; } = new List<DimPublication>();
 
     public virtual DimReferencedatum JufoClassCodeFrozenNavigation { get; set; }

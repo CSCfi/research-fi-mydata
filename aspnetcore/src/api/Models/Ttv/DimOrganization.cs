@@ -75,6 +75,8 @@ public partial class DimOrganization
 
     public virtual ICollection<DimIdentifierlessDatum> DimIdentifierlessData { get; set; } = new List<DimIdentifierlessDatum>();
 
+    public virtual ICollection<DimInfrastructure> DimInfrastructures { get; set; } = new List<DimInfrastructure>();
+
     public virtual DimOrganization DimOrganizationBroaderNavigation { get; set; }
 
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();

@@ -111,6 +111,8 @@ public partial class DimFundingDecision
 
     public virtual ICollection<FactReferencedatum> FactReferencedata { get; set; } = new List<FactReferencedatum>();
 
+    public virtual ICollection<FactWordClusterToDomain> FactWordClusterToDomains { get; set; } = new List<FactWordClusterToDomain>();
+
     public virtual ICollection<DimFundingDecision> InverseDimFundingDecisionIdParentDecisionNavigation { get; set; } = new List<DimFundingDecision>();
 
     public virtual ICollection<DimFundingDecision> DimFundingDecisionFroms { get; set; } = new List<DimFundingDecision>();

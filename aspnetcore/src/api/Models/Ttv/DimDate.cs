@@ -49,6 +49,10 @@ public partial class DimDate
 
     public virtual ICollection<DimFundingDecision> DimFundingDecisionDimDateIdStartNavigations { get; set; } = new List<DimFundingDecision>();
 
+    public virtual ICollection<DimInfrastructure> DimInfrastructureDimEndDateNavigations { get; set; } = new List<DimInfrastructure>();
+
+    public virtual ICollection<DimInfrastructure> DimInfrastructureDimStartDateNavigations { get; set; } = new List<DimInfrastructure>();
+
     public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdApprovalNavigations { get; set; } = new List<DimProfileOnlyFundingDecision>();
 
     public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisionDimDateIdEndNavigations { get; set; } = new List<DimProfileOnlyFundingDecision>();
@@ -70,6 +74,10 @@ public partial class DimDate
     public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityEndDateNavigations { get; set; } = new List<DimResearcherToResearchCommunity>();
 
     public virtual ICollection<DimResearcherToResearchCommunity> DimResearcherToResearchCommunityStartDateNavigations { get; set; } = new List<DimResearcherToResearchCommunity>();
+
+    public virtual ICollection<DimService> DimServiceEndDateNavigations { get; set; } = new List<DimService>();
+
+    public virtual ICollection<DimService> DimServiceStartDateNavigations { get; set; } = new List<DimService>();
 
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
 

@@ -49,9 +49,15 @@ public partial class DimWebLink
 
     public int? DimResearchProjectId { get; set; }
 
+    public int? DimServiceId { get; set; }
+
+    public int? DimInfrastructureId { get; set; }
+
     public virtual DimCallProgramme DimCallProgramme { get; set; }
 
     public virtual DimFundingDecision DimFundingDecision { get; set; }
+
+    public virtual DimInfrastructure DimInfrastructure { get; set; }
 
     public virtual DimKnownPerson DimKnownPerson { get; set; }
 
@@ -72,6 +78,8 @@ public partial class DimWebLink
     public virtual DimResearchDataCatalog DimResearchDataCatalog { get; set; }
 
     public virtual DimResearchDataset DimResearchDataset { get; set; }
+
+    public virtual DimService DimService { get; set; }
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
 }

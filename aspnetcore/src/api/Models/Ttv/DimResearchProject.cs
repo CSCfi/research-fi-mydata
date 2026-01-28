@@ -36,6 +36,8 @@ public partial class DimResearchProject
 
     public virtual ICollection<DimDescriptiveItem> DimDescriptiveItems { get; set; } = new List<DimDescriptiveItem>();
 
+    public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
+
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 
     public virtual DimDate EndDateNavigation { get; set; }
