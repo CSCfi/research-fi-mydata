@@ -358,7 +358,7 @@ namespace api.Services
         {
             return new DimWebLink()
             {
-                Url = url,
+                Url = url.Length > 511 ? url.Substring(0, 511) : url, // nvarchar(511) in the DB
                 LinkLabel = label,
                 DimKnownPerson = dimKnownPerson,
                 DimProfileOnlyDataset = dimProfileOnlyDataset,
