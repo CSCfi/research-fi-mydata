@@ -27,6 +27,8 @@ public partial class FactReferencedatum
 
     public DateTime? Modified { get; set; }
 
+    public int DimServiceId { get; set; }
+
     public virtual DimCallProgramme DimCallProgramme { get; set; }
 
     public virtual DimFundingDecision DimFundingDecision { get; set; }
@@ -40,4 +42,6 @@ public partial class FactReferencedatum
     public virtual DimResearchActivity DimResearchActivity { get; set; }
 
     public virtual DimResearchDataset DimResearchDataset { get; set; }
+
+    public virtual DimService DimService { get; set; }
 }

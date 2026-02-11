@@ -21,6 +21,10 @@ public partial class DimEmailAddrress
 
     public int DimKnownPersonId { get; set; }
 
+    public int DimContactInformationId { get; set; }
+
+    public virtual DimContactInformation DimContactInformation { get; set; }
+
     public virtual DimKnownPerson DimKnownPerson { get; set; }
 
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }

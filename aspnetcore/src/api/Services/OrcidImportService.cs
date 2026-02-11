@@ -799,7 +799,8 @@ namespace api.Services
                         Created = currentDateTime,
                         Modified = currentDateTime,
                         DimKnownPersonId = dimUserProfile.DimKnownPersonId,
-                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId
+                        DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
+                        DimContactInformationId = -1
                     };
                     _ttvContext.DimEmailAddrresses.Add(dimEmailAddress);
 

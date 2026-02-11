@@ -75,6 +75,8 @@ public partial class DimPid
 
     public virtual DimResearchDataset DimResearchDataset { get; set; }
 
+    public virtual DimResearchProject DimResearchProject { get; set; }
+
     public virtual DimService DimService { get; set; }
 
     public virtual ICollection<FactFieldValue> FactFieldValueDimPidIdOrcidPutCodeNavigations { get; set; } = new List<FactFieldValue>();
