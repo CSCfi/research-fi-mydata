@@ -61,6 +61,7 @@ namespace api
             }
 
             services.AddControllers();
+            services.AddControllersWithViews(); // Add MVC services for views and forms (AiPoc)
 
             // OpenAPI documentation
             if (Environment.IsDevelopment())
@@ -342,6 +343,11 @@ namespace api
 
             app.UseEndpoints(endpoints =>
             {
+                // Add MVC routing for AiPoc experimental features
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    
                 endpoints.MapControllers();
                 if (Environment.IsDevelopment())
                 {
