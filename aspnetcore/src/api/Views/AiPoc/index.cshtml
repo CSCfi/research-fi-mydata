@@ -1,0 +1,194 @@
+@{
+    ViewData["Title"] = "TTV AI POC";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>AI POC</h1>
+<h2>Get profile data</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<form id="orcidForm" class="mb-4">
+    <div class="form-group mb-3">
+        <label for="orcid" class="form-label">ORCID:</label>
+        <input type="text" id="orcid" name="orcid" class="form-control" placeholder="Enter ORCID here..." />
+    </div>
+    <div class="form-group">
+        <button type="submit" id="submitOrcid" class="btn btn-primary" disabled>Get profile data</button>
+    </div>
+</form>
+
+<hr class="my-5" />
+
+<h2>Query AI model</h2>
+
+<form id="promptForm" class="mb-4">
+    <div class="form-group mb-3">
+        <label for="prompt" class="form-label">Model instructions:</label>
+
+        <!-- System prompt -->
+        <textarea id="systemPrompt" name="systemPrompt" class="form-control" rows="5" placeholder="Enter prompt here..."
+        >Create summarized researcher biography.</textarea>
+
+        <!-- Profile data viewer -->
+        <label for="profileDataViewer" class="form-label mt-3">Profile Data:</label>
+        <div id="profileDataViewer" class="json-container border p-3" style="background-color: #f8f9fa; max-height: 600px; overflow-y: auto;"></div>
+
+        <!-- Profile data parameter -->
+        <input type="hidden" id="profileData" name="profileData" />
+
+        <!-- Max output token count -->
+        <label for="maxOutputTokenCount" class="form-label mt-3">Max output token count:</label>
+        <span class="ms-2 text-muted" role="button" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="Limits the number of tokens in the response. Useful for controlling output length.">ℹ️</span>
+        <input type="number" id="maxOutputTokenCount" name="maxOutputTokenCount" class="form-control" value="500" min="1" max="10000" style="width:10ch;" />
+
+        <!-- Temperature -->
+        <label for="temperature" class="form-label mt-3">Temperature (0.0 - 2.0):</label>
+        <span class="ms-2 text-muted" role="button" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls randomness. Higher values (e.g., 1.0) make output more creative; lower values (e.g., 0.2) make it more focused and deterministic.">ℹ️</span>
+        <input type="number" id="temperature" name="temperature" class="form-control" value="0.2" min="0" max="2" step="0.1" style="width:10ch;" />
+
+        <!-- Top P -->
+        <label for="topP" class="form-label mt-3">Top P (0.0 - 1.0):</label>
+        <span class="ms-2 text-muted" role="button" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="An alternative to temperature. It uses nucleus sampling to limit the pool of possible tokens. For deterministic output, use low Temperature (e.g., 0.2) and leave TopP unset or set it to a high value (e.g., 1.0">ℹ️</span>
+        <input type="number" id="topP" name="topP" class="form-control" value="1" min="0" max="1" step="0.1" style="width:10ch;" />
+    </div>
+    <div class="form-text mb-3">Model instructions and profile data together form the prompt sent to the AI model.</div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Query AI model</button>
+    </div>
+</form>
+
+@section RightColumn {
+    <h2>Query result</h2>
+    <hr class="my-4" />
+    <div id="result2" class="mt-4"></div>
+
+    <hr />
+
+    <h2>Translation</h2>
+
+    <form id="translationForm" class="mb-4">
+        <div class="form-group mb-3">
+            <label for="textToTranslate" class="form-label">Text to translate:</label>
+            <textarea id="textToTranslate" name="textToTranslate" class="form-control" rows="5" placeholder="Enter text to translate..."></textarea>
+        </div>
+        <div class="form-group mb-3">
+            <label for="targetLanguage" class="form-label">Target language:</label>
+            <select id="targetLanguage" name="targetLanguage" class="form-control">
+                <option value="Finnish">Finnish</option>
+                <option value="Swedish">Swedish</option>
+                <option value="English">English</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <label for="maxOutputTokenCount" class="form-label">Max output token count:</label>
+            <span class="ms-2 text-muted" role="button" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="Limits the number of tokens in the response. Useful for controlling output length.">ℹ️</span>
+            <input type="number" id="maxOutputTokenCount" name="maxOutputTokenCount" class="form-control" value="500" min="1" max="10000" style="width:10ch;" />
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Translate</button>
+        </div>
+    </form>
+
+    <div id="translationresult" class="mt-4"></div>
+}
+
+
+
+
+@section Scripts {
+    <script>
+        const orcidInput = document.getElementById("orcid");
+        const submitButton = document.getElementById("submitOrcid");
+
+        // Enable/disable the submit button based on input value
+        orcidInput.addEventListener("input", function () {
+            submitButton.disabled = !orcidInput.value.trim();
+        });
+
+        document.getElementById("orcidForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // Clear previous profile data
+            const profileDataContainer = document.getElementById("profileDataViewer");
+            profileDataContainer.innerHTML = "";
+
+            // Get profile data for the given ORCID
+            const formData = new FormData(this);
+            const profileDataResponse = await fetch("/AiPoc/GetProfileDataForPrompt", {
+                method: "POST",
+                body: formData
+            });
+
+            
+            const profileDataResult = await profileDataResponse.text();
+
+            // Set profile data in hidden input for form submission
+            document.getElementById("profileData").value = profileDataResult;
+
+            // Set profile data in the JSON viewer
+            try {
+                // Attempt to pretty-print JSON
+                const jsonData = JSON.parse(profileDataResult);
+                $(profileDataContainer).jsonViewer(jsonData, { collapsed: true }); // Collapsed by default
+            } catch (error) {
+                // If not valid JSON, display raw text
+                profileDataContainer.textContent = profileDataResult;
+            }
+        });
+
+        document.getElementById("promptForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const resultContainer = document.getElementById("result2");
+            const promptFormData = new FormData(this);
+
+            // Show loading indicator
+            resultContainer.innerHTML = "<div class='spinner-border text-primary' role='status'><span class='visually-hidden'>Loading...</span></div>";
+
+            try {
+                const response = await fetch("/AiPoc/QueryAiModel", {
+                    method: "POST",
+                    body: promptFormData
+                });
+
+                const markdownResult = await response.text();
+
+                // Convert Markdown to HTML and render it
+                const htmlResult = marked.parse(markdownResult);
+                resultContainer.innerHTML = htmlResult;
+            } catch (error) {
+                resultContainer.innerHTML = `<div class='alert alert-danger'>Error: ${error.message}</div>`;
+            }
+        });
+
+        document.getElementById("translationForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const translationResultContainer = document.getElementById("translationresult");
+            const translationFormData = new FormData(this);
+
+            // Show loading indicator
+            translationResultContainer.innerHTML = "<div class='spinner-border text-primary' role='status'><span class='visually-hidden'>Loading...</span></div>";
+            try {
+                const response = await fetch("/AiPoc/TranslateUsingAiModel", {
+                    method: "POST",
+                    body: translationFormData
+                });
+
+                const markdownResult = await response.text();
+
+                // Convert Markdown to HTML and render it
+                const htmlResult = marked.parse(markdownResult);
+                translationResultContainer.innerHTML = htmlResult;
+            } catch (error) {
+                translationResultContainer.innerHTML = `<div class='alert alert-danger'>Error: ${error.message}</div>`;
+            }
+        });
+    </script>
+}
