@@ -9,5 +9,6 @@ namespace api.Services
         string GetDatasourceOrganizationName_TTV();
         string GetOrganizationId_OKM();
         decimal? StringToNullableDecimal(string s);
+        string CapitalizeFirstLetter(string s);
     }
 }
