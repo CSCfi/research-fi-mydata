@@ -34,5 +34,16 @@ namespace api.Tests
             Assert.Null(utilityService.StringToNullableDecimal(""));
             Assert.Equal<decimal?>(123.45m, utilityService.StringToNullableDecimal("123.45"));
         }
+
+        [Fact(DisplayName = "Capitalize first letter of string")]
+        public void capitalizeFirstLetter_01()
+        {
+            var utilityService = new UtilityService();
+            Assert.Equal("Hello world <1234!?", utilityService.CapitalizeFirstLetter("hello world <1234!?"));
+            Assert.Equal("Hello world", utilityService.CapitalizeFirstLetter("HELLO WORLD"));
+            Assert.Equal("Hello world", utilityService.CapitalizeFirstLetter("hELLO wORLD"));
+            Assert.Equal("", utilityService.CapitalizeFirstLetter(""));
+            Assert.Null(utilityService.CapitalizeFirstLetter(null));
+        }
     }
 }

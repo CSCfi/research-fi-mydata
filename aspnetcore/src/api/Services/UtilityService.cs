@@ -55,5 +55,16 @@ namespace api.Services
             }
             return null;
         }
+
+        /*
+         * Convert string. The first character is capitalized and the rest are lower case.
+         */
+        public string CapitalizeFirstLetter(string s)        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return s;
+            }
+            return char.ToUpper(s[0]) + s[1..].ToLower();
+        }
     }
 }
