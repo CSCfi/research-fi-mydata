@@ -299,6 +299,7 @@ namespace api
             services.AddSingleton<IUtilityService, UtilityService>();    
             services.AddSingleton<IDataSourceHelperService, DataSourceHelperService>();
             services.AddScoped<IBiographyService, BiographyService>();
+            services.AddScoped<IProfileDataService, ProfileDataService>();
             services.AddMemoryCache();
 
             // Background processing related services.
