@@ -21,6 +21,7 @@ namespace api.Services
     public class UserProfileService : IUserProfileService
     {
         private readonly TtvContext _ttvContext;
+        private readonly IProfileDataService _profileDataService;
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly IUtilityService _utilityService;
         private readonly ILanguageService _languageService;
@@ -32,6 +33,7 @@ namespace api.Services
 
         public UserProfileService(
             TtvContext ttvContext,
+            IProfileDataService profileDataService,
             IDataSourceHelperService dataSourceHelperService,
             IUtilityService utilityService,
             ILanguageService languageService,
@@ -42,6 +44,7 @@ namespace api.Services
             IElasticsearchService elasticsearchService)
         {
             _ttvContext = ttvContext;
+            _profileDataService = profileDataService;
             _dataSourceHelperService = dataSourceHelperService;
             _utilityService = utilityService;
             _languageService = languageService;
@@ -1292,6 +1295,77 @@ namespace api.Services
             return profileEditorSource;
         }
 
+        public async Task<List<ProfileEditorEmail>> GetProfileEditorEmails(int userprofileId)
+        {
+            List<ProfileEditorEmail> emails = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS)
+                .Select(ffv => new ProfileEditorEmail()
+                {
+                    Value = ffv.DimEmailAddrress.Email,
+                    itemMeta = new ProfileEditorItemMeta(
+                        ffv.DimEmailAddrressId,
+                        Constants.ItemMetaTypes.PERSON_EMAIL_ADDRESS,
+                        ffv.Show,
+                        ffv.PrimaryValue
+                    ),
+                    DataSources = new List<ProfileEditorSource> {
+                        new ProfileEditorSource() {
+                            Id = ffv.DimRegisteredDataSourceId,
+                            RegisteredDataSource = ffv.DimRegisteredDataSource.Name,
+                            Organization = new Organization() {
+                                NameFi = ffv.DimRegisteredDataSource.DimOrganization.NameFi,
+                                NameEn = ffv.DimRegisteredDataSource.DimOrganization.NameEn,
+                                NameSv = ffv.DimRegisteredDataSource.DimOrganization.NameSv,
+                                SectorId = ffv.DimRegisteredDataSource.DimOrganization.DimSector.SectorId
+                            }
+                        }
+                    }
+                }).AsNoTracking().ToListAsync();
+            return emails;
+        }
+
+         /*
+         * Get profile data. This is older version of the method, which is still used in some places. The newer version is GetProfileDataAsync.
+         */
+
+        public async Task<ProfileEditorDataResponse> GetProfileData2(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
+        {
+            var connection = _ttvContext.Database.GetDbConnection();
+
+            List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId).ToListAsync();
+
+            ProfileEditorDataResponse profileDataResponse = new()
+            {
+                personal = new ProfileEditorDataPersonal()
+                {
+                    names = await _profileDataService.GetProfileEditorNames(userprofileId),
+                    otherNames = await _profileDataService.GetProfileEditorOtherNames(userprofileId),
+                    emails = await GetProfileEditorEmails(userprofileId),
+                    telephoneNumbers = new(),
+                    webLinks = new(),
+                    keywords = new(),
+                    fieldOfSciences = new(),
+                    researcherDescriptions = new(),
+                    externalIdentifiers = new()
+                },
+                activity = new(),
+                settings = new(),
+                cooperation = new(),
+                uniqueDataSources = new()
+            };
+
+            // Add settings
+            ProfileSettings profileSettings = (await connection.QueryAsync<ProfileSettings>(
+                _ttvSqlService.GetSqlQuery_ProfileSettings(userprofileId))).FirstOrDefault();
+            profileDataResponse.settings = profileSettings;
+
+            // Add cooperation choices
+            List<ProfileEditorCooperationItem> cooperationItems = (await connection.QueryAsync<ProfileEditorCooperationItem>(
+                _ttvSqlService.GetSqlQuery_ProfileEditorCooperationItems(userprofileId))).ToList();
+            profileDataResponse.cooperation.AddRange(cooperationItems);
+
+            return profileDataResponse;
+        }
 
         /*
          *  Get profile data.
