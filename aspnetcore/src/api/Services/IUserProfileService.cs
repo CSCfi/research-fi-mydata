@@ -29,6 +29,7 @@ namespace api.Services
         List<int> GetFieldIdentifiers();
         DimKnownPerson GetNewDimKnownPerson(string orcidId, DateTime currentDateTime);
         Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false);
+        Task<ProfileEditorDataResponse> GetProfileData2(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false);
         Task<DimUserProfile> GetUserprofile(string orcidId);
         Task<DimUserProfile> GetUserprofileTracking(string orcidId);
         Task<DimUserProfile> GetUserprofileById(int Id);
