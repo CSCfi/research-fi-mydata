@@ -40,7 +40,7 @@ namespace api.Controllers
             _ttvSqlService = ttvSqlService;
             _logger = logger;
         }
-
+/*
         /// <summary>
         /// Get profile data. New version using different data structure.
         /// </summary>
@@ -78,8 +78,29 @@ namespace api.Controllers
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
+*/
+        /// <summary>
+        /// Get profile data - experimental version
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Get2()
+        {
+            // Get ORCID id
+            string orcidId = GetOrcidId();
 
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
+            {
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
+            }
 
+            // Get profile data
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData2(userprofileId: userprofileId, logUserIdentification: this.GetLogUserIdentification());
+
+            return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
+        }
 
         /// <summary>
         /// Modify profile data.
