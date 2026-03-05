@@ -5,6 +5,7 @@ using api.Models.Ttv;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Threading.Tasks;
 using api.Models.Common;
+using api.Models.ProfileEditor.Items;
 
 namespace api.Tests
 {
@@ -21,7 +22,9 @@ namespace api.Tests
 
         private ProfileDataService CreateService(TtvContext context)
         {
-            return new ProfileDataService(context, new NullLogger<ProfileDataService>());
+            DataSourceHelperService dataSourceHelperService = new DataSourceHelperService();
+            LanguageService languageService = new LanguageService();
+            return new ProfileDataService(context, dataSourceHelperService, languageService,new NullLogger<ProfileDataService>());
         }
 
         [Fact]
@@ -68,11 +71,11 @@ namespace api.Tests
             Assert.False(result[1].itemMeta.Show);
             Assert.False(result[1].itemMeta.PrimaryValue);
             Assert.Single(result[1].DataSources);
-            Assert.Equal(1, result[1].DataSources[0].Id);
-            Assert.Equal("DataSource1", result[1].DataSources[0].RegisteredDataSource);
-            Assert.Equal("Org name Fi", result[1].DataSources[0].Organization.NameFi);
-            Assert.Equal("Org name En", result[1].DataSources[0].Organization.NameEn);
-            Assert.Equal("Org name Sv", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(2, result[1].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
         }
 
@@ -81,9 +84,7 @@ namespace api.Tests
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorOtherNames_ReturnsEmpty_WhenNoMatchingUserProfile));
             var service = CreateService(context);
-
             var result = await service.GetProfileEditorOtherNames(userprofileId: 999);
-
             Assert.Empty(result);
         }
 
@@ -120,11 +121,358 @@ namespace api.Tests
             Assert.False(result[1].itemMeta.Show);
             Assert.False(result[1].itemMeta.PrimaryValue);
             Assert.Single(result[1].DataSources);
-            Assert.Equal(1, result[1].DataSources[0].Id);
-            Assert.Equal("DataSource1", result[1].DataSources[0].RegisteredDataSource);
-            Assert.Equal("Org name Fi", result[1].DataSources[0].Organization.NameFi);
-            Assert.Equal("Org name En", result[1].DataSources[0].Organization.NameEn);
-            Assert.Equal("Org name Sv", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal(2, result[1].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorEmails_ReturnsEmpty_WhenNoMatchingUserProfile()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorEmails_ReturnsEmpty_WhenNoMatchingUserProfile));
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorEmails(userprofileId: 999);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorEmails_ReturnsEmails_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorEmails_ReturnsEmails_WhenMatchingUserProfileExists));
+            var testData = ProfileDataServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorEmails(userprofileId: 1);
+
+            Assert.Equal("test1@example.com", result[0].Value);
+            Assert.Equal(1, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_EMAIL_ADDRESS, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            Assert.Single(result[0].DataSources);
+            Assert.Equal(1, result[0].DataSources[0].Id);
+            Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+
+            Assert.Equal("test2@example.com", result[1].Value);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_EMAIL_ADDRESS, result[1].itemMeta.Type);
+            Assert.False(result[1].itemMeta.Show);
+            Assert.False(result[1].itemMeta.PrimaryValue);
+            Assert.Single(result[1].DataSources);
+            Assert.Equal(2, result[1].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorTelephoneNumbers_ReturnsEmpty_WhenNoMatchingUserProfile()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorTelephoneNumbers_ReturnsEmpty_WhenNoMatchingUserProfile));
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorTelephoneNumbers(userprofileId: 999);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorTelephoneNumbers_ReturnsTelephoneNumbers_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorTelephoneNumbers_ReturnsTelephoneNumbers_WhenMatchingUserProfileExists));
+            var testData = ProfileDataServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorTelephoneNumbers(userprofileId: 1);
+
+            Assert.Equal("+358501234567", result[0].Value);
+            Assert.Equal(1, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_TELEPHONE_NUMBER, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            Assert.Single(result[0].DataSources);
+            Assert.Equal(1, result[0].DataSources[0].Id);
+            Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+
+            Assert.Equal("+358501234568", result[1].Value);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_TELEPHONE_NUMBER, result[1].itemMeta.Type);
+            Assert.False(result[1].itemMeta.Show);
+            Assert.False(result[1].itemMeta.PrimaryValue);
+            Assert.Single(result[1].DataSources);
+            Assert.Equal(2, result[1].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorWebLinks_ReturnsEmpty_WhenNoMatchingUserProfile()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorWebLinks_ReturnsEmpty_WhenNoMatchingUserProfile));
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorWebLinks(userprofileId: 999);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorWebLinks_ReturnsWebLinks_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorWebLinks_ReturnsWebLinks_WhenMatchingUserProfileExists));
+            var testData = ProfileDataServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorWebLinks(userprofileId: 1);
+
+            Assert.Equal("https://example1.com", result[0].Url);
+            Assert.Equal("Example1", result[0].LinkLabel);
+            Assert.Equal("Website1", result[0].LinkType);
+            Assert.Equal(1, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_WEB_LINK, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            Assert.Single(result[0].DataSources);
+            Assert.Equal(1, result[0].DataSources[0].Id);
+            Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+
+            Assert.Equal("https://example2.org", result[1].Url);
+            Assert.Equal("Example2", result[1].LinkLabel);
+            Assert.Equal("Website2", result[1].LinkType);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_WEB_LINK, result[1].itemMeta.Type);
+            Assert.False(result[1].itemMeta.Show);
+            Assert.False(result[1].itemMeta.PrimaryValue);
+            Assert.Single(result[1].DataSources);
+            Assert.Equal(2, result[1].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorKeywords_ReturnsEmpty_WhenNoMatchingUserProfile()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorKeywords_ReturnsEmpty_WhenNoMatchingUserProfile));
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorKeywords(userprofileId: 999);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorKeywords_ReturnsKeywords_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorKeywords_ReturnsKeywords_WhenMatchingUserProfileExists));
+            var testData = ProfileDataServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorKeywords(userprofileId: 1);
+
+            Assert.Equal("Keyword1", result[0].Value);
+            Assert.Equal(1, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_KEYWORD, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            Assert.Single(result[0].DataSources);
+            Assert.Equal(1, result[0].DataSources[0].Id);
+            Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+
+            Assert.Equal("Keyword2", result[1].Value);
+            Assert.Equal(2, result[1].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_KEYWORD, result[1].itemMeta.Type);
+            Assert.False(result[1].itemMeta.Show);
+            Assert.False(result[1].itemMeta.PrimaryValue);
+            Assert.Single(result[1].DataSources);
+            Assert.Equal(2, result[1].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorResearcherDescriptions_ReturnsEmpty_WhenNoMatchingUserProfile()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorResearcherDescriptions_ReturnsEmpty_WhenNoMatchingUserProfile));
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorResearcherDescriptions(userprofileId: 999);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorResearcherDescriptions_ReturnsResearcherDescriptions_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorResearcherDescriptions_ReturnsResearcherDescriptions_WhenMatchingUserProfileExists));
+            var testData = ProfileDataServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorResearcherDescriptions(userprofileId: 1);
+
+            Assert.Equal("Researcher description 1", result[0].ResearchDescriptionFi);
+            Assert.Equal("Researcher description 1", result[0].ResearchDescriptionEn);
+            Assert.Equal("Researcher description 1", result[0].ResearchDescriptionSv);
+            Assert.Equal(1, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            Assert.Single(result[0].DataSources);
+            Assert.Equal(2, result[0].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[0].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[0].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[0].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+
+            Assert.Equal("Tutkijakuvaus 2 Fi", result[1].ResearchDescriptionFi);
+            Assert.Equal("Researcher description 2 En", result[1].ResearchDescriptionEn);
+            Assert.Equal("Forskarbeskrivning 2 Sv", result[1].ResearchDescriptionSv);
+            Assert.Equal(2, result[1].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION, result[1].itemMeta.Type);
+            Assert.False(result[1].itemMeta.Show);
+            Assert.False(result[1].itemMeta.PrimaryValue);
+            Assert.Single(result[1].DataSources);
+            Assert.Equal(3, result[1].DataSources[0].Id);
+            Assert.Equal("TTV", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("TTV Fi", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("TTV En", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("TTV Sv", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorExternalIdentifiers_ReturnsEmpty_WhenNoMatchingUserProfile()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorExternalIdentifiers_ReturnsEmpty_WhenNoMatchingUserProfile));
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorExternalIdentifiers(userprofileId: 999);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorExternalIdentifiers_ReturnsExternalIdentifiers_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorExternalIdentifiers_ReturnsExternalIdentifiers_WhenMatchingUserProfileExists));
+            var testData = ProfileDataServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorExternalIdentifiers(userprofileId: 1);
+
+            Assert.Equal("test-pid-content-1", result[0].PidContent);
+            Assert.Equal("test-pid-type-1", result[0].PidType);
+            Assert.Equal(1, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_EXTERNAL_IDENTIFIER, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            Assert.Single(result[0].DataSources);
+            Assert.Equal(1, result[0].DataSources[0].Id);
+            Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+
+            Assert.Equal("test-pid-content-2", result[1].PidContent);
+            Assert.Equal("test-pid-type-2", result[1].PidType);
+            Assert.Equal(2, result[1].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.PERSON_EXTERNAL_IDENTIFIER, result[1].itemMeta.Type);
+            Assert.False(result[1].itemMeta.Show);
+            Assert.False(result[1].itemMeta.PrimaryValue);
+            Assert.Single(result[1].DataSources);
+            Assert.Equal(2, result[1].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorEducations_ReturnsEmpty_WhenNoMatchingUserProfile()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorEducations_ReturnsEmpty_WhenNoMatchingUserProfile));
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorEducations(userprofileId: 999);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorEducations_ReturnsEducations_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorEducations_ReturnsEducations_WhenMatchingUserProfileExists));
+            var testData = ProfileDataServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorEducations(userprofileId: 1);
+
+            Assert.Equal("Education 1 name Fi", result[0].NameFi);
+            Assert.Equal("Education 1 name En", result[0].NameEn);
+            Assert.Equal("Education 1 name Sv", result[0].NameSv);
+            Assert.Equal("Test institution name 1", result[0].DegreeGrantingInstitutionName);
+            Assert.Equal(2020, result[0].StartDate.Year);
+            Assert.Equal(1, result[0].StartDate.Month);
+            Assert.Equal(15, result[0].StartDate.Day);
+            Assert.Equal(2022, result[0].EndDate.Year);
+            Assert.Equal(6, result[0].EndDate.Month);
+            Assert.Equal(30, result[0].EndDate.Day);
+            Assert.Equal(1, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_EDUCATION, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            Assert.Single(result[0].DataSources);
+            Assert.Equal(1, result[0].DataSources[0].Id);
+            Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+
+            Assert.Equal("Education 2 name", result[1].NameFi);
+            Assert.Equal("Education 2 name", result[1].NameEn);
+            Assert.Equal("Education 2 name", result[1].NameSv);
+            Assert.Equal("Test institution name 2", result[1].DegreeGrantingInstitutionName);
+            Assert.Equal(2018, result[1].StartDate.Year);
+            Assert.Equal(9, result[1].StartDate.Month);
+            Assert.Equal(1, result[1].StartDate.Day);
+            Assert.Equal(2020, result[1].EndDate.Year);
+            Assert.Equal(5, result[1].EndDate.Month);
+            Assert.Equal(31, result[1].EndDate.Day);
+            Assert.Equal(2, result[1].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_EDUCATION, result[1].itemMeta.Type);
+            Assert.False(result[1].itemMeta.Show);
+            Assert.False(result[1].itemMeta.PrimaryValue);
+            Assert.Single(result[1].DataSources);
+            Assert.Equal(2, result[1].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
         }
     }

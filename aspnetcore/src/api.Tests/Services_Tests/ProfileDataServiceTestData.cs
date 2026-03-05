@@ -13,6 +13,13 @@ namespace api.Tests
         public List<DimRegisteredDataSource> DimRegisteredDataSources { get; private set; }
         public List<DimFieldDisplaySetting> FieldDisplaySettings { get; private set; }
         public List<DimName> DimNames { get; private set; }
+        public List<DimEmailAddrress> DimEmailAddresses { get; private set; }
+        public List<DimTelephoneNumber> DimTelephoneNumbers { get; private set; }
+        public List<DimWebLink> DimWebLinks { get; private set; }
+        public List<DimKeyword> DimKeywords { get; private set; }
+        public List<DimResearcherDescription> DimResearcherDescriptions { get; private set; }
+        public List<DimPid> DimPids { get; private set; }
+        public List<DimEducation> DimEducations { get; private set; }
         public DimUserProfile UserProfile { get; private set; }
         public List<FactFieldValue> FactFieldValues { get; private set; }
 
@@ -20,6 +27,8 @@ namespace api.Tests
         {
             var data = new ProfileDataServiceTestData();
             UtilityService utilityService = new UtilityService();
+            DataSourceHelperService dataSourceHelperService = new DataSourceHelperService();
+            
             UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
 
             data.UserProfile = new DimUserProfile { Id = 1, SourceId = "Source1" };
@@ -28,7 +37,11 @@ namespace api.Tests
             data.DimRegisteredDataSources = new List<DimRegisteredDataSource>();
             data.DimSectors.Add(new DimSector { Id = 1, SectorId = "S1", NameFi = "Sector Fi", NameSv = "Sector Sv", NameEn = "Sector En", SourceId = "Source1" });
             data.DimOrganizations.Add(new DimOrganization { Id = 1, NameFi = "Org name Fi", NameEn = "Org name En", NameSv = "Org name Sv", DimSector = data.DimSectors[0], SourceId = "Source1" });
+            data.DimOrganizations.Add(new DimOrganization { Id = 2, NameFi = "Org name", NameEn = "", NameSv = "", DimSector = data.DimSectors[0], SourceId = "Source1" });
+            data.DimOrganizations.Add(new DimOrganization { Id = 3, NameFi = "TTV Fi", NameEn = "TTV En", NameSv = "TTV Sv", DimSector = data.DimSectors[0], SourceId = "Source1" });
             data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 1, Name = "DataSource1", DimOrganization = data.DimOrganizations[0], SourceId = "Source1"});
+            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 2, Name = "DataSource2", DimOrganization = data.DimOrganizations[1], SourceId = "Source1"});
+            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 3, Name = "TTV" , DimOrganization = data.DimOrganizations[2], SourceId = "Source1"});
             data.FactFieldValues = new List<FactFieldValue>();
             DimFieldDisplaySetting dfdsPersonName = new DimFieldDisplaySetting { Id = 1, FieldIdentifier = Constants.FieldIdentifiers.PERSON_NAME, SourceId = "Source1"};
             DimFieldDisplaySetting dfdsPersonOtherNames = new DimFieldDisplaySetting { Id = 2, FieldIdentifier = Constants.FieldIdentifiers.PERSON_OTHER_NAMES, SourceId = "Source1"};
@@ -71,7 +84,9 @@ namespace api.Tests
             };
     
 
-            // DimNames
+            /*
+             * DimNames
+             */
             data.DimNames = new List<DimName>
             {
                 new DimName { Id = 1, FirstNames = "John", LastName = "Doe", FullName = "", SourceId = "Source1" },
@@ -79,6 +94,7 @@ namespace api.Tests
                 new DimName { Id = 3, FirstNames = "", LastName = "", FullName = "John Doe 2", SourceId = "Source1" },
                 new DimName { Id = 4, FirstNames = "", LastName = "", FullName = "Jack Smith 2       ", SourceId = "Source1" }
             };
+            // FactFieldValue - Name 1
             FactFieldValue ffvName1 = userProfileService.GetEmptyFactFieldValue();
             ffvName1.DimUserProfileId = data.UserProfile.Id;
             ffvName1.DimUserProfile = data.UserProfile;
@@ -91,7 +107,7 @@ namespace api.Tests
             ffvName1.Show = true;
             ffvName1.PrimaryValue = true;
             data.FactFieldValues.Add(ffvName1);
-
+            // FactFieldValue - Name 2
             FactFieldValue ffvName2 = userProfileService.GetEmptyFactFieldValue();
             ffvName2.DimUserProfileId = data.UserProfile.Id;
             ffvName2.DimUserProfile = data.UserProfile;
@@ -99,12 +115,12 @@ namespace api.Tests
             ffvName2.DimFieldDisplaySettings = dfdsPersonName;
             ffvName2.DimNameId = data.DimNames[1].Id;
             ffvName2.DimName = data.DimNames[1];
-            ffvName2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
-            ffvName2.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvName2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id; // This data source has only FI name. This tests that datasource name translation is working.
+            ffvName2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
             ffvName2.Show = false;
             ffvName2.PrimaryValue = false;
             data.FactFieldValues.Add(ffvName2);
-
+            // FactFieldValue - Other name 1
             FactFieldValue ffvOtherName1 = userProfileService.GetEmptyFactFieldValue();
             ffvOtherName1.DimUserProfileId = data.UserProfile.Id;
             ffvOtherName1.DimUserProfile = data.UserProfile;
@@ -117,7 +133,7 @@ namespace api.Tests
             ffvOtherName1.Show = true;
             ffvOtherName1.PrimaryValue = true;
             data.FactFieldValues.Add(ffvOtherName1);
-
+            // FactFieldValue - Other name 2
             FactFieldValue ffvOtherName2 = userProfileService.GetEmptyFactFieldValue();
             ffvOtherName2.DimUserProfileId = data.UserProfile.Id;
             ffvOtherName2.DimUserProfile = data.UserProfile;
@@ -125,14 +141,282 @@ namespace api.Tests
             ffvOtherName2.DimFieldDisplaySettings = dfdsPersonOtherNames;
             ffvOtherName2.DimNameId = data.DimNames[3].Id;
             ffvOtherName2.DimName = data.DimNames[3];
-            ffvOtherName2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
-            ffvOtherName2.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvOtherName2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvOtherName2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
             ffvOtherName2.Show = false;
             ffvOtherName2.PrimaryValue = false;
             data.FactFieldValues.Add(ffvOtherName2);
 
+            /*
+             * DimEmailAddresses
+             */
+            data.DimEmailAddresses = new List<DimEmailAddrress>
+            {
+                new DimEmailAddrress { Id = 1, Email = "test1@example.com", SourceId = "Source1" },
+                new DimEmailAddrress { Id = 2, Email = "test2@example.com", SourceId = "Source1" }
+            };
+            // FactFieldValue - Email 1 
+            FactFieldValue ffvEmail1 = userProfileService.GetEmptyFactFieldValue();
+            ffvEmail1.DimUserProfileId = data.UserProfile.Id;
+            ffvEmail1.DimUserProfile = data.UserProfile;
+            ffvEmail1.DimFieldDisplaySettingsId = dfdsPersonEmailAddress.Id; // PERSON_EMAIL_ADDRESS
+            ffvEmail1.DimFieldDisplaySettings = dfdsPersonEmailAddress;
+            ffvEmail1.DimEmailAddrressId = data.DimEmailAddresses[0].Id;
+            ffvEmail1.DimEmailAddrress = data.DimEmailAddresses[0];
+            ffvEmail1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvEmail1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvEmail1.Show = true;
+            ffvEmail1.PrimaryValue = true;
+            data.FactFieldValues.Add(ffvEmail1);
+            // FactFieldValue - Email 2
+            FactFieldValue ffvEmail2 = userProfileService.GetEmptyFactFieldValue();
+            ffvEmail2.DimUserProfileId = data.UserProfile.Id;
+            ffvEmail2.DimUserProfile = data.UserProfile;
+            ffvEmail2.DimFieldDisplaySettingsId = dfdsPersonEmailAddress.Id; // PERSON_EMAIL_ADDRESS
+            ffvEmail2.DimFieldDisplaySettings = dfdsPersonEmailAddress;
+            ffvEmail2.DimEmailAddrressId = data.DimEmailAddresses[1].Id;
+            ffvEmail2.DimEmailAddrress = data.DimEmailAddresses[1];
+            ffvEmail2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvEmail2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvEmail2.Show = false;
+            ffvEmail2.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvEmail2);
+
+            /*
+             * DimTelephoneNumbers
+             */
+            data.DimTelephoneNumbers = new List<DimTelephoneNumber>
+            {
+                new DimTelephoneNumber { Id = 1, TelephoneNumber = "+358501234567", SourceId = "Source1" },
+                new DimTelephoneNumber { Id = 2, TelephoneNumber = "+358501234568", SourceId = "Source1" }
+            };
+            // FactFieldValue - Telephone 1
+            FactFieldValue ffvTelephone1 = userProfileService.GetEmptyFactFieldValue();
+            ffvTelephone1.DimUserProfileId = data.UserProfile.Id;
+            ffvTelephone1.DimUserProfile = data.UserProfile;
+            ffvTelephone1.DimFieldDisplaySettingsId = dfdsPersonTelephoneNumber.Id; // PERSON_TELEPHONE_NUMBER
+            ffvTelephone1.DimFieldDisplaySettings = dfdsPersonTelephoneNumber;
+            ffvTelephone1.DimTelephoneNumberId = data.DimTelephoneNumbers[0].Id;
+            ffvTelephone1.DimTelephoneNumber = data.DimTelephoneNumbers[0];
+            ffvTelephone1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvTelephone1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvTelephone1.Show = true;
+            ffvTelephone1.PrimaryValue = true;
+            data.FactFieldValues.Add(ffvTelephone1);
+            // FactFieldValue - Telephone 2
+            FactFieldValue ffvTelephone2 = userProfileService.GetEmptyFactFieldValue();
+            ffvTelephone2.DimUserProfileId = data.UserProfile.Id;
+            ffvTelephone2.DimUserProfile = data.UserProfile;
+            ffvTelephone2.DimFieldDisplaySettingsId = dfdsPersonTelephoneNumber.Id; // PERSON_TELEPHONE_NUMBER
+            ffvTelephone2.DimFieldDisplaySettings = dfdsPersonTelephoneNumber;
+            ffvTelephone2.DimTelephoneNumberId = data.DimTelephoneNumbers[1].Id;
+            ffvTelephone2.DimTelephoneNumber = data.DimTelephoneNumbers[1];
+            ffvTelephone2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvTelephone2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvTelephone2.Show = false;
+            ffvTelephone2.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvTelephone2);
+
+            /*
+             * DimWebLinks
+             */
+            data.DimWebLinks = new List<DimWebLink>
+            {
+                new DimWebLink { Id = 1, Url = "https://example1.com", LinkLabel = "Example1", LinkType = "Website1", SourceId = "Source1" },
+                new DimWebLink { Id = 2, Url = "https://example2.org", LinkLabel = "Example2", LinkType = "Website2", SourceId = "Source1" } 
+            };
+            // FactFieldValue - Web link 1
+            FactFieldValue ffvWebLink1 = userProfileService.GetEmptyFactFieldValue();
+            ffvWebLink1.DimUserProfileId = data.UserProfile.Id;
+            ffvWebLink1.DimUserProfile = data.UserProfile;
+            ffvWebLink1.DimFieldDisplaySettingsId = dfdsPersonWebLink.Id; // PERSON_WEB_LINK
+            ffvWebLink1.DimFieldDisplaySettings = dfdsPersonWebLink;
+            ffvWebLink1.DimWebLinkId = data.DimWebLinks[0].Id;
+            ffvWebLink1.DimWebLink = data.DimWebLinks[0];
+            ffvWebLink1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvWebLink1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvWebLink1.Show = true;
+            ffvWebLink1.PrimaryValue = true;
+            data.FactFieldValues.Add(ffvWebLink1);
+            // FactFieldValue - Web link 2
+            FactFieldValue ffvWebLink2 = userProfileService.GetEmptyFactFieldValue();
+            ffvWebLink2.DimUserProfileId = data.UserProfile.Id;
+            ffvWebLink2.DimUserProfile = data.UserProfile;
+            ffvWebLink2.DimFieldDisplaySettingsId = dfdsPersonWebLink.Id; // PERSON_WEB_LINK
+            ffvWebLink2.DimFieldDisplaySettings = dfdsPersonWebLink;
+            ffvWebLink2.DimWebLinkId = data.DimWebLinks[1].Id;
+            ffvWebLink2.DimWebLink = data.DimWebLinks[1];
+            ffvWebLink2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvWebLink2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvWebLink2.Show = false;
+            ffvWebLink2.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvWebLink2);
+
+            /*
+             * DimKeywords
+             */
+            data.DimKeywords = new List<DimKeyword>
+            {
+                new DimKeyword { Id = 1, Keyword = "Keyword1", SourceId = "Source1" },
+                new DimKeyword { Id = 2, Keyword = "Keyword2", SourceId = "Source1" }
+            };
+            // FactFieldValue - Keyword 1
+            FactFieldValue ffvKeyword1 = userProfileService.GetEmptyFactFieldValue();
+            ffvKeyword1.DimUserProfileId = data.UserProfile.Id;
+            ffvKeyword1.DimUserProfile = data.UserProfile;
+            ffvKeyword1.DimFieldDisplaySettingsId = dfdsPersonKeyword.Id; // PERSON_KEYWORD
+            ffvKeyword1.DimFieldDisplaySettings = dfdsPersonKeyword;
+            ffvKeyword1.DimKeywordId = data.DimKeywords[0].Id;
+            ffvKeyword1.DimKeyword = data.DimKeywords[0];
+            ffvKeyword1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvKeyword1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvKeyword1.Show = true;
+            ffvKeyword1.PrimaryValue = true;
+            data.FactFieldValues.Add(ffvKeyword1);
+            // FactFieldValue - Keyword 2
+            FactFieldValue ffvKeyword2 = userProfileService.GetEmptyFactFieldValue();
+            ffvKeyword2.DimUserProfileId = data.UserProfile.Id;
+            ffvKeyword2.DimUserProfile = data.UserProfile;
+            ffvKeyword2.DimFieldDisplaySettingsId = dfdsPersonKeyword.Id; // PERSON_KEYWORD
+            ffvKeyword2.DimFieldDisplaySettings = dfdsPersonKeyword;
+            ffvKeyword2.DimKeywordId = data.DimKeywords[1].Id;
+            ffvKeyword2.DimKeyword = data.DimKeywords[1];
+            ffvKeyword2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvKeyword2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvKeyword2.Show = false;
+            ffvKeyword2.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvKeyword2);
+
+            /*
+             * DimResearcherDescriptions
+             */
+            data.DimResearcherDescriptions = new List<DimResearcherDescription>
+            {
+                new DimResearcherDescription { Id = 1, ResearchDescriptionFi = "", ResearchDescriptionEn = "Researcher description 1", ResearchDescriptionSv = "", SourceId = "Source1" },
+                new DimResearcherDescription { Id = 2, ResearchDescriptionFi = "Tutkijakuvaus 2 Fi", ResearchDescriptionEn = "Researcher description 2 En", ResearchDescriptionSv = "Forskarbeskrivning 2 Sv", SourceId = "Source1" }
+            };
+            // FactFieldValue - Researcher description 1
+            FactFieldValue ffvResearcherDescription1 = userProfileService.GetEmptyFactFieldValue();
+            ffvResearcherDescription1.DimUserProfileId = data.UserProfile.Id;
+            ffvResearcherDescription1.DimUserProfile = data.UserProfile;
+            ffvResearcherDescription1.DimFieldDisplaySettingsId = dfdsPersonResearcherDescription.Id; // PERSON_RESEARCHER_DESCRIPTION
+            ffvResearcherDescription1.DimFieldDisplaySettings = dfdsPersonResearcherDescription;
+            ffvResearcherDescription1.DimResearcherDescriptionId = data.DimResearcherDescriptions[0].Id;
+            ffvResearcherDescription1.DimResearcherDescription = data.DimResearcherDescriptions[0];
+            ffvResearcherDescription1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvResearcherDescription1.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvResearcherDescription1.Show = true;
+            ffvResearcherDescription1.PrimaryValue = true;
+            data.FactFieldValues.Add(ffvResearcherDescription1);
+            // FactFieldValue - Researcher description 2
+            FactFieldValue ffvResearcherDescription2 = userProfileService.GetEmptyFactFieldValue();
+            ffvResearcherDescription2.DimUserProfileId = data.UserProfile.Id;
+            ffvResearcherDescription2.DimUserProfile = data.UserProfile;
+            ffvResearcherDescription2.DimFieldDisplaySettingsId = dfdsPersonResearcherDescription.Id; // PERSON_RESEARCHER_DESCRIPTION
+            ffvResearcherDescription2.DimFieldDisplaySettings = dfdsPersonResearcherDescription;
+            ffvResearcherDescription2.DimResearcherDescriptionId = data.DimResearcherDescriptions[1].Id;
+            ffvResearcherDescription2.DimResearcherDescription = data.DimResearcherDescriptions[1];
+            ffvResearcherDescription2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[2].Id; // TTV data source. This test that researcher description from TTV data source is handled correctly.
+            ffvResearcherDescription2.DimRegisteredDataSource = data.DimRegisteredDataSources[2];
+            ffvResearcherDescription2.Show = false;
+            ffvResearcherDescription2.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvResearcherDescription2);
+
+            /*
+             * DimPids
+             */
+            data.DimPids = new List<DimPid>
+            {
+                new DimPid { Id = 1, PidContent = "test-pid-content-1", PidType = "test-pid-type-1", SourceId = "Source1" },
+                new DimPid { Id = 2, PidContent = "test-pid-content-2", PidType = "test-pid-type-2", SourceId = "Source2" }
+            };
+            // FactFieldValue - PID 1
+            FactFieldValue ffvPid1 = userProfileService.GetEmptyFactFieldValue();
+            ffvPid1.DimUserProfileId = data.UserProfile.Id;
+            ffvPid1.DimUserProfile = data.UserProfile;
+            ffvPid1.DimFieldDisplaySettingsId = dfdsPersonExternalIdentifier.Id; // PERSON_EXTERNAL_IDENTIFIER
+            ffvPid1.DimFieldDisplaySettings = dfdsPersonExternalIdentifier;
+            ffvPid1.DimPidId = data.DimPids[0].Id;
+            ffvPid1.DimPid = data.DimPids[0];
+            ffvPid1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvPid1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvPid1.Show = true;
+            ffvPid1.PrimaryValue = true;
+            data.FactFieldValues.Add(ffvPid1);
+            // FactFieldValue - PID 2
+            FactFieldValue ffvPid2 = userProfileService.GetEmptyFactFieldValue();
+            ffvPid2.DimUserProfileId = data.UserProfile.Id;
+            ffvPid2.DimUserProfile = data.UserProfile;
+            ffvPid2.DimFieldDisplaySettingsId = dfdsPersonExternalIdentifier.Id; // PERSON_EXTERNAL_IDENTIFIER
+            ffvPid2.DimFieldDisplaySettings = dfdsPersonExternalIdentifier;
+            ffvPid2.DimPidId = data.DimPids[1].Id;
+            ffvPid2.DimPid = data.DimPids[1];
+            ffvPid2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvPid2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvPid2.Show = false;
+            ffvPid2.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvPid2);
+
+            /*
+             * DimEducations
+             */
+            data.DimEducations = new List<DimEducation>
+            {
+                new DimEducation {
+                    Id = 1,
+                    NameFi = "Education 1 name Fi",
+                    NameEn = "Education 1 name En",
+                    NameSv = "Education 1 name Sv",
+                    DegreeGrantingInstitutionName = "Test institution name 1",
+                    DimStartDate = 1,
+                    DimStartDateNavigation = new DimDate { Id = 1, Year = 2020, Month = 1, Day = 15, SourceId = "Source1" },
+                    DimEndDate = 2,
+                    DimEndDateNavigation = new DimDate { Id = 2, Year = 2022, Month = 6, Day = 30, SourceId = "Source1" },
+                    SourceId = "Source1"
+                },
+                new DimEducation {
+                    Id = 2,
+                    NameFi = "",
+                    NameEn = "Education 2 name", // Test that education name translation is working.
+                    NameSv = "",
+                    DegreeGrantingInstitutionName = "Test institution name 2",
+                    DimStartDate = 3,
+                    DimStartDateNavigation = new DimDate { Id = 3, Year = 2018, Month = 9, Day = 1, SourceId = "Source1" },
+                    DimEndDate = 4,
+                    DimEndDateNavigation = new DimDate { Id = 4, Year = 2020, Month = 5, Day = 31, SourceId = "Source1" },
+                    SourceId = "Source1"
+                }
+            };
+            // FactFieldValue - Education 1
+            FactFieldValue ffvEducation1 = userProfileService.GetEmptyFactFieldValue();
+            ffvEducation1.DimUserProfileId = data.UserProfile.Id;
+            ffvEducation1.DimUserProfile = data.UserProfile;
+            ffvEducation1.DimFieldDisplaySettingsId = dfdsActivityEducation.Id; // ACTIVITY_EDUCATION
+            ffvEducation1.DimFieldDisplaySettings = dfdsActivityEducation;
+            ffvEducation1.DimEducationId = data.DimEducations[0].Id;
+            ffvEducation1.DimEducation = data.DimEducations[0];
+            ffvEducation1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvEducation1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvEducation1.Show = true;
+            ffvEducation1.PrimaryValue = true;
+            data.FactFieldValues.Add(ffvEducation1);
+            // FactFieldValue - Education 2
+            FactFieldValue ffvEducation2 = userProfileService.GetEmptyFactFieldValue();
+            ffvEducation2.DimUserProfileId = data.UserProfile.Id;
+            ffvEducation2.DimUserProfile = data.UserProfile;
+            ffvEducation2.DimFieldDisplaySettingsId = dfdsActivityEducation.Id; // ACTIVITY_EDUCATION
+            ffvEducation2.DimFieldDisplaySettings = dfdsActivityEducation;
+            ffvEducation2.DimEducationId = data.DimEducations[1].Id;
+            ffvEducation2.DimEducation = data.DimEducations[1];
+            ffvEducation2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvEducation2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvEducation2.Show = false;
+            ffvEducation2.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvEducation2);
+
             return data;
         }
+
 
         public async Task SeedAsync(TtvContext context)
         {
