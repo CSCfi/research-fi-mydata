@@ -1304,37 +1304,8 @@ namespace api.Services
             return profileEditorSource;
         }
 
-        public async Task<List<ProfileEditorEmail>> GetProfileEditorEmails(int userprofileId)
-        {
-            List<ProfileEditorEmail> emails = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS)
-                .Select(ffv => new ProfileEditorEmail()
-                {
-                    Value = ffv.DimEmailAddrress.Email,
-                    itemMeta = new ProfileEditorItemMeta(
-                        ffv.DimEmailAddrressId,
-                        Constants.ItemMetaTypes.PERSON_EMAIL_ADDRESS,
-                        ffv.Show,
-                        ffv.PrimaryValue
-                    ),
-                    DataSources = new List<ProfileEditorSource> {
-                        new ProfileEditorSource() {
-                            Id = ffv.DimRegisteredDataSourceId,
-                            RegisteredDataSource = ffv.DimRegisteredDataSource.Name,
-                            Organization = new Organization() {
-                                NameFi = ffv.DimRegisteredDataSource.DimOrganization.NameFi,
-                                NameEn = ffv.DimRegisteredDataSource.DimOrganization.NameEn,
-                                NameSv = ffv.DimRegisteredDataSource.DimOrganization.NameSv,
-                                SectorId = ffv.DimRegisteredDataSource.DimOrganization.DimSector.SectorId
-                            }
-                        }
-                    }
-                }).AsNoTracking().ToListAsync();
-            return emails;
-        }
-
-         /*
-         * Get profile data. This is older version of the method, which is still used in some places. The newer version is GetProfileDataAsync.
+        /*
+         * Get profile data - refactored
          */
 
         public async Task<ProfileEditorDataResponse> GetProfileData2(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
@@ -1349,15 +1320,23 @@ namespace api.Services
                 {
                     names = await _profileDataService.GetProfileEditorNames(userprofileId),
                     otherNames = await _profileDataService.GetProfileEditorOtherNames(userprofileId),
-                    emails = await GetProfileEditorEmails(userprofileId),
-                    telephoneNumbers = new(),
-                    webLinks = new(),
-                    keywords = new(),
-                    fieldOfSciences = new(),
-                    researcherDescriptions = new(),
-                    externalIdentifiers = new()
+                    emails = await _profileDataService.GetProfileEditorEmails(userprofileId),
+                    telephoneNumbers = await _profileDataService.GetProfileEditorTelephoneNumbers(userprofileId),
+                    webLinks = await _profileDataService.GetProfileEditorWebLinks(userprofileId),
+                    keywords = await _profileDataService.GetProfileEditorKeywords(userprofileId),
+                    fieldOfSciences = new(), // These are currently not included in the profile data response.
+                    researcherDescriptions = await _profileDataService.GetProfileEditorResearcherDescriptions(userprofileId),
+                    externalIdentifiers = await _profileDataService.GetProfileEditorExternalIdentifiers(userprofileId)
                 },
-                activity = new(),
+                activity = new ProfileEditorDataActivity()
+                {
+                    educations = await _profileDataService.GetProfileEditorEducations(userprofileId),
+                    affiliations = new(),
+                    publications = new(),
+                    fundingDecisions = new(),
+                    researchDatasets = new(),
+                    activitiesAndRewards = new()
+                },
                 settings = new(),
                 cooperation = new(),
                 uniqueDataSources = new()
@@ -1377,7 +1356,7 @@ namespace api.Services
         }
 
         /*
-         *  Get profile data.
+         * Get profile data.
          */
         public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
         {
