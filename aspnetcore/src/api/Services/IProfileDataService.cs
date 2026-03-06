@@ -15,5 +15,6 @@ namespace api.Services
         Task<List<ProfileEditorResearcherDescription>> GetProfileEditorResearcherDescriptions(int userprofileId);
         Task<List<ProfileEditorExternalIdentifier>> GetProfileEditorExternalIdentifiers(int userprofileId);
         Task<List<ProfileEditorEducation>> GetProfileEditorEducations(int userprofileId);
+        Task<List<ProfileEditorAffiliation>> GetProfileEditorAffiliations(int userprofileId, bool forElasticsearch = false);
     }
 }
