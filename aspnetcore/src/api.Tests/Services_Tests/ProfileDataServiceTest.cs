@@ -24,7 +24,13 @@ namespace api.Tests
         {
             DataSourceHelperService dataSourceHelperService = new DataSourceHelperService();
             LanguageService languageService = new LanguageService();
-            return new ProfileDataService(context, dataSourceHelperService, languageService,new NullLogger<ProfileDataService>());
+            UtilityService utilityService = new UtilityService();
+            return new ProfileDataService(
+                ttvContext: context,
+                dataSourceHelperService: dataSourceHelperService,
+                languageService: languageService,
+                utilityService: utilityService,
+                logger: new NullLogger<ProfileDataService>());
         }
 
         [Fact]

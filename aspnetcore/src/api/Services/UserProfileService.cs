@@ -1322,7 +1322,7 @@ namespace api.Services
                 activity = new ProfileEditorDataActivity()
                 {
                     educations = await _profileDataService.GetProfileEditorEducations(userprofileId),
-                    affiliations = new(),
+                    affiliations = await _profileDataService.GetProfileEditorAffiliations(userprofileId),
                     publications = new(),
                     fundingDecisions = new(),
                     researchDatasets = new(),
