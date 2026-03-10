@@ -47,7 +47,7 @@ namespace api.Controllers
         /// <summary>
         /// Check if user profile exists.
         /// </summary>
-        [HttpGet]
+        [HttpGet("exists")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get()
         {
