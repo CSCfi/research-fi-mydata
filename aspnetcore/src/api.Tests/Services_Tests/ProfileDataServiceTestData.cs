@@ -37,13 +37,15 @@ namespace api.Tests
             data.DimSectors = new List<DimSector>();
             data.DimOrganizations = new List<DimOrganization>();
             data.DimRegisteredDataSources = new List<DimRegisteredDataSource>();
+            data.DimSectors.Add(new DimSector { Id = -1, SectorId = "", NameFi = "", NameSv = "", NameEn = "", SourceId = "Source1" });
             data.DimSectors.Add(new DimSector { Id = 1, SectorId = "S1", NameFi = "Sector Fi", NameSv = "Sector Sv", NameEn = "Sector En", SourceId = "Source1" });
-            data.DimOrganizations.Add(new DimOrganization { Id = 1, NameFi = "Org name Fi", NameEn = "Org name En", NameSv = "Org name Sv", DimSector = data.DimSectors[0], SourceId = "Source1" });
-            data.DimOrganizations.Add(new DimOrganization { Id = 2, NameFi = "Org name", NameEn = "", NameSv = "", DimSector = data.DimSectors[0], SourceId = "Source1" });
-            data.DimOrganizations.Add(new DimOrganization { Id = 3, NameFi = "TTV Fi", NameEn = "TTV En", NameSv = "TTV Sv", DimSector = data.DimSectors[0], SourceId = "Source1" });
-            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 1, Name = "DataSource1", DimOrganization = data.DimOrganizations[0], SourceId = "Source1"});
-            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 2, Name = "DataSource2", DimOrganization = data.DimOrganizations[1], SourceId = "Source1"});
-            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 3, Name = "TTV" , DimOrganization = data.DimOrganizations[2], SourceId = "Source1"});
+            data.DimOrganizations.Add(new DimOrganization { Id = -1, NameFi = "", NameEn = "", NameSv = "", DimSector = data.DimSectors[0], SourceId = "Source1" });
+            data.DimOrganizations.Add(new DimOrganization { Id = 1, NameFi = "Org name Fi", NameEn = "Org name En", NameSv = "Org name Sv", DimSector = data.DimSectors[1], SourceId = "Source1" });
+            data.DimOrganizations.Add(new DimOrganization { Id = 2, NameFi = "Org name", NameEn = "", NameSv = "", DimSector = data.DimSectors[1], SourceId = "Source1" });
+            data.DimOrganizations.Add(new DimOrganization { Id = 3, NameFi = "TTV Fi", NameEn = "TTV En", NameSv = "TTV Sv", DimSector = data.DimSectors[1], SourceId = "Source1" });
+            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 1, Name = "DataSource1", DimOrganization = data.DimOrganizations[1], SourceId = "Source1"});
+            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 2, Name = "DataSource2", DimOrganization = data.DimOrganizations[2], SourceId = "Source1"});
+            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 3, Name = "TTV" , DimOrganization = data.DimOrganizations[3], SourceId = "Source1"});
             data.FactFieldValues = new List<FactFieldValue>();
             DimFieldDisplaySetting dfdsPersonName = new DimFieldDisplaySetting { Id = 1, FieldIdentifier = Constants.FieldIdentifiers.PERSON_NAME, SourceId = "Source1"};
             DimFieldDisplaySetting dfdsPersonOtherNames = new DimFieldDisplaySetting { Id = 2, FieldIdentifier = Constants.FieldIdentifiers.PERSON_OTHER_NAMES, SourceId = "Source1"};
@@ -464,12 +466,12 @@ namespace api.Tests
                 },
                 new DimAffiliation {
                     Id = 1001,
-                    PositionNameFi = "Affiliation 2 position name Fi",
+                    PositionNameFi = "",
                     PositionNameEn = "Affiliation 2 position name En",
-                    PositionNameSv = "Affiliation 2 position name Sv",
-                    AffiliationTypeFi = "Affiliation 2 type Fi",
+                    PositionNameSv = "",
+                    AffiliationTypeFi = "",
                     AffiliationTypeEn = "Affiliation 2 type En",
-                    AffiliationTypeSv = "Affiliation 2 type Sv",
+                    AffiliationTypeSv = "",
                     StartDate = 1002,
                     StartDateNavigation = new DimDate { Id = 1002, Year = 2020, Month = 3, Day = 13, SourceId = "Source1" },
                     EndDate = 1003,
@@ -488,16 +490,18 @@ namespace api.Tests
                 },
                 new DimAffiliation {
                     Id = 1002,
-                    PositionNameFi = "Affiliation 2 position name Fi",
-                    PositionNameEn = "Affiliation 2 position name En",
-                    PositionNameSv = "Affiliation 2 position name Sv",
-                    AffiliationTypeFi = "Affiliation 2 type Fi",
-                    AffiliationTypeEn = "Affiliation 2 type En",
-                    AffiliationTypeSv = "Affiliation 2 type Sv",
+                    PositionNameFi = "Affiliation 3 position name Fi",
+                    PositionNameEn = "Affiliation 3 position name En",
+                    PositionNameSv = "Affiliation 3 position name Sv",
+                    AffiliationTypeFi = "Affiliation 3 type Fi",
+                    AffiliationTypeEn = "Affiliation 3 type En",
+                    AffiliationTypeSv = "Affiliation 3 type Sv",
                     StartDate = 1004,
                     StartDateNavigation = new DimDate { Id = 1004, Year = 2020, Month = 3, Day = 13, SourceId = "Source1" },
                     EndDate = 1005,
                     EndDateNavigation = new DimDate { Id = 1005, Year = 2022, Month = 2, Day = 30, SourceId = "Source1" },
+                    DimOrganizationId = -1,
+                    DimOrganization = data.DimOrganizations[0],
                     SourceId = "Source1"
                 }
             };
@@ -510,6 +514,8 @@ namespace api.Tests
             ffvAffiliation1.DimFieldDisplaySettings = dfdsActivityAffiliation;
             ffvAffiliation1.DimAffiliationId = data.DimAffiliations[0].Id;
             ffvAffiliation1.DimAffiliation = data.DimAffiliations[0];
+            ffvAffiliation1.DimIdentifierlessDataId = -1;
+            ffvAffiliation1.DimIdentifierlessData = new DimIdentifierlessDatum { Id = -1, SourceId = "Source1" };
             ffvAffiliation1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
             ffvAffiliation1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
             ffvAffiliation1.Show = true;
@@ -523,6 +529,8 @@ namespace api.Tests
             ffvAffiliation2.DimFieldDisplaySettings = dfdsActivityAffiliation;
             ffvAffiliation2.DimAffiliationId = data.DimAffiliations[1].Id;
             ffvAffiliation2.DimAffiliation = data.DimAffiliations[1];
+            ffvAffiliation1.DimIdentifierlessDataId = -1;
+            ffvAffiliation1.DimIdentifierlessData = new DimIdentifierlessDatum { Id = -1, SourceId = "Source1" };
             ffvAffiliation2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
             ffvAffiliation2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
             ffvAffiliation2.Show = false;
@@ -544,16 +552,16 @@ namespace api.Tests
             ffvAffiliation3.DimIdentifierlessData = new DimIdentifierlessDatum {
                 Id = 1000,
                 Type = Constants.IdentifierlessDataTypes.ORGANIZATION_NAME,
-                ValueFi = "Affiliation 3 identifierless data value FI",
-                ValueEn = "Affiliation 3 identifierless data value EN",
-                ValueSv = "Affiliation 3 identifierless data value SV",
+                ValueFi = "Affiliation 3 identifierless data value Fi",
+                ValueEn = "Affiliation 3 identifierless data value En",
+                ValueSv = "Affiliation 3 identifierless data value Sv",
                 DimIdentifierlessDataId = 1001,
                 DimIdentifierlessData = new DimIdentifierlessDatum {
                     Id = 1001,
                     Type = Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT,
-                    ValueFi = "Affiliation 3 identifierless data child value FI",
-                    ValueEn = "Affiliation 3 identifierless data child value EN",
-                    ValueSv = "Affiliation 3 identifierless data child value SV",
+                    ValueFi = "Affiliation 3 identifierless data child value Fi",
+                    ValueEn = "Affiliation 3 identifierless data child value En",
+                    ValueSv = "Affiliation 3 identifierless data child value Sv",
                     SourceId = "Source1"
                 },
                 SourceId = "Source1"
