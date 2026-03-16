@@ -1236,22 +1236,31 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
 
             // DimUserChoices
-            List<DimReferencedatum> dimReferenceDataUserChoices =
+            // Get available choices from DimReferencedata
+            List<DimReferencedatum> userChoicesInDimReferenceData =
                 await _ttvContext.DimReferencedata.Where(dr =>
                     dr.CodeScheme == Constants.ReferenceDataCodeSchemes.USER_CHOICES).ToListAsync();
-            foreach (DimReferencedatum dimReferenceDataUserChoice in dimReferenceDataUserChoices)
+            // To prevent duplicates, check what user choices already exist in the database for the user profile and only add missing ones.
+            // Duplicates could be introduced if this method is called multiple times, for example, because of retries or error scenarios in the frontend.
+            List<int> existingDimUserChoices_dimReferenceDataIds = await _ttvContext.DimUserChoices.Where(duc => duc.DimUserProfileId == dimUserProfile.Id)
+                .Select(duc => duc.DimReferencedataIdAsUserChoiceLabelNavigation.Id).ToListAsync();
+
+            foreach (DimReferencedatum userChoiceInDimReferenceData in userChoicesInDimReferenceData)
             {
-                DimUserChoice dimUserChoice = new DimUserChoice()
+                if (!existingDimUserChoices_dimReferenceDataIds.Contains(userChoiceInDimReferenceData.Id))
                 {
-                    UserChoiceValue = false,
-                    DimUserProfileId = dimUserProfile.Id,
-                    DimReferencedataIdAsUserChoiceLabelNavigation = dimReferenceDataUserChoice,
-                    SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                    SourceDescription = Constants.SourceDescriptions.PROFILE_API,
-                    Created = _utilityService.GetCurrentDateTime(),
-                    Modified = _utilityService.GetCurrentDateTime()
-                };
-                _ttvContext.DimUserChoices.Add(dimUserChoice);
+                    DimUserChoice dimUserChoice = new()
+                    {
+                        UserChoiceValue = false,
+                        DimUserProfileId = dimUserProfile.Id,
+                        DimReferencedataIdAsUserChoiceLabelNavigation = userChoiceInDimReferenceData,
+                        SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                        SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                        Created = _utilityService.GetCurrentDateTime(),
+                        Modified = _utilityService.GetCurrentDateTime()
+                    };
+                    _ttvContext.DimUserChoices.Add(dimUserChoice);
+                }
             }
             await _ttvContext.SaveChangesAsync();
 
