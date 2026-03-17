@@ -445,6 +445,7 @@ namespace api.Tests
                     DimOrganizationId = 1000,
                     DimOrganization = new DimOrganization {
                         Id = 1000,
+                        OrganizationId = "Affiliation 1 organization organizationId",
                         NameFi = "Affiliation 1 organization name Fi",
                         NameEn = "Affiliation 1 organization name En",
                         NameSv = "Affiliation 1 organization name Sv",
@@ -454,6 +455,7 @@ namespace api.Tests
                         DimOrganizationBroader = 1001,
                         DimOrganizationBroaderNavigation = new DimOrganization {
                             Id = 1001,
+                            OrganizationId = "Affiliation 1 organization broader organizationId",
                             NameFi = "Affiliation 1 organization broader name Fi",
                             NameEn = "Affiliation 1 organization broader name En",
                             NameSv = "Affiliation 1 organization broader name Sv",
@@ -479,6 +481,7 @@ namespace api.Tests
                     DimOrganizationId = 1002,
                     DimOrganization = new DimOrganization {
                         Id = 1002,
+                        OrganizationId = "Affiliation 2 organization organizationId",
                         NameFi = "Affiliation 2 organization name Fi",
                         NameEn = "Affiliation 2 organization name En",
                         NameSv = "Affiliation 2 organization name Sv",

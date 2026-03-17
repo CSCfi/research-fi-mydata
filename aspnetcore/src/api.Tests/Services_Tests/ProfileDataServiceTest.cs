@@ -516,7 +516,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorAffiliations(userprofileId: 1, forElasticsearch: true);
+            var result = await service.GetProfileEditorAffiliations(
+                userprofileId: 1,
+                forElasticsearch: false // Property "sector" should be empty in the result when forElasticsearch is false.
+            );
 
             Assert.NotEmpty(result);
             Assert.Equal(3, result.Count);
@@ -538,6 +541,7 @@ namespace api.Tests
             Assert.Equal(2023, result[0].EndDate.Year);
             Assert.Equal(1, result[0].EndDate.Month);
             Assert.Equal(31, result[0].EndDate.Day);
+            Assert.Empty(result[0].sector);
     
             Assert.Equal("Affiliation 2 organization name Fi", result[1].OrganizationNameFi);
             Assert.Equal("Affiliation 2 organization name En", result[1].OrganizationNameEn);
@@ -557,6 +561,7 @@ namespace api.Tests
             Assert.Equal(2022, result[1].EndDate.Year);
             Assert.Equal(2, result[1].EndDate.Month);
             Assert.Equal(30, result[1].EndDate.Day);
+            Assert.Empty(result[1].sector);
 
             Assert.Equal("Affiliation 3 identifierless data value Fi", result[2].OrganizationNameFi);
             Assert.Equal("Affiliation 3 identifierless data value En", result[2].OrganizationNameEn);
@@ -576,6 +581,54 @@ namespace api.Tests
             Assert.Equal(2022, result[2].EndDate.Year);
             Assert.Equal(2, result[2].EndDate.Month);
             Assert.Equal(30, result[2].EndDate.Day);
+            Assert.Empty(result[2].sector);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorAffiliations_ReturnsAffiliations_WithSectors_WhenForElasticsearchIsTrue()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorAffiliations_ReturnsAffiliations_WithSectors_WhenForElasticsearchIsTrue));
+            var testData = ProfileDataServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorAffiliations(
+                userprofileId: 1,
+                forElasticsearch: true // Property "sector" should be populated in the result when forElasticsearch is true.
+            );
+
+            Assert.NotEmpty(result);
+            Assert.Equal(3, result.Count);
+
+            Assert.NotEmpty(result[0].sector);
+            Assert.Equal(1, result[0].sector.Count);
+            Assert.Equal("S2", result[0].sector[0].sectorId);
+            Assert.Equal("Sector 3 Fi", result[0].sector[0].nameFiSector);
+            Assert.Equal("Sector 3 En", result[0].sector[0].nameEnSector);
+            Assert.Equal("Sector 3 Sv", result[0].sector[0].nameSvSector);
+            Assert.NotEmpty(result[1].sector[0].organization);
+            Assert.Equal(1, result[1].sector[0].organization.Count);
+            Assert.Equal("Affiliation 1 organization organizationId", result[0].sector[0].organization[0].organizationId);
+            Assert.Equal("Affiliation 1 organization broader name Fi", result[0].sector[0].organization[0].OrganizationNameFi);
+            Assert.Equal("Affiliation 1 organization broader name En", result[0].sector[0].organization[0].OrganizationNameEn);
+            Assert.Equal("Affiliation 1 organization broader name Sv", result[0].sector[0].organization[0].OrganizationNameSv);
+
+
+            Assert.NotEmpty(result[1].sector);
+            Assert.Equal(1, result[1].sector.Count);
+            Assert.Equal("S2", result[1].sector[0].sectorId);
+            Assert.Equal("Sector 2 Fi", result[1].sector[0].nameFiSector);
+            Assert.Equal("Sector 2 En", result[1].sector[0].nameEnSector);
+            Assert.Equal("Sector 2 Sv", result[1].sector[0].nameSvSector);
+            Assert.NotEmpty(result[1].sector[0].organization);
+            Assert.Equal(1, result[1].sector[0].organization.Count);
+            Assert.Equal("Affiliation 2 organization organizationId", result[1].sector[0].organization[0].organizationId);
+            Assert.Equal("Affiliation 2 organization name Fi", result[1].sector[0].organization[0].OrganizationNameFi);
+            Assert.Equal("Affiliation 2 organization name En", result[1].sector[0].organization[0].OrganizationNameEn);
+            Assert.Equal("Affiliation 2 organization name Sv", result[1].sector[0].organization[0].OrganizationNameSv);
+
+            Assert.Empty(result[2].sector); // The third affiliation should have no "sector", since it has no related DimOrganization.
+            Assert.Equal(0, result[2].sector.Count);
         }
     }
 }
