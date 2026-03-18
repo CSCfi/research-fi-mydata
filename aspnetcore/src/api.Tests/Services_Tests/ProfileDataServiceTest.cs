@@ -601,13 +601,13 @@ namespace api.Tests
             Assert.Equal(3, result.Count);
 
             Assert.NotEmpty(result[0].sector);
-            Assert.Equal(1, result[0].sector.Count);
+            Assert.Single(result[0].sector);
             Assert.Equal("S2", result[0].sector[0].sectorId);
             Assert.Equal("Sector 3 Fi", result[0].sector[0].nameFiSector);
             Assert.Equal("Sector 3 En", result[0].sector[0].nameEnSector);
             Assert.Equal("Sector 3 Sv", result[0].sector[0].nameSvSector);
             Assert.NotEmpty(result[1].sector[0].organization);
-            Assert.Equal(1, result[1].sector[0].organization.Count);
+            Assert.Single(result[1].sector[0].organization);
             Assert.Equal("Affiliation 1 organization organizationId", result[0].sector[0].organization[0].organizationId);
             Assert.Equal("Affiliation 1 organization broader name Fi", result[0].sector[0].organization[0].OrganizationNameFi);
             Assert.Equal("Affiliation 1 organization broader name En", result[0].sector[0].organization[0].OrganizationNameEn);
@@ -615,20 +615,20 @@ namespace api.Tests
 
 
             Assert.NotEmpty(result[1].sector);
-            Assert.Equal(1, result[1].sector.Count);
+            Assert.Single(result[1].sector);
             Assert.Equal("S2", result[1].sector[0].sectorId);
             Assert.Equal("Sector 2 Fi", result[1].sector[0].nameFiSector);
             Assert.Equal("Sector 2 En", result[1].sector[0].nameEnSector);
             Assert.Equal("Sector 2 Sv", result[1].sector[0].nameSvSector);
             Assert.NotEmpty(result[1].sector[0].organization);
-            Assert.Equal(1, result[1].sector[0].organization.Count);
+            Assert.Single(result[1].sector[0].organization);
             Assert.Equal("Affiliation 2 organization organizationId", result[1].sector[0].organization[0].organizationId);
             Assert.Equal("Affiliation 2 organization name Fi", result[1].sector[0].organization[0].OrganizationNameFi);
             Assert.Equal("Affiliation 2 organization name En", result[1].sector[0].organization[0].OrganizationNameEn);
             Assert.Equal("Affiliation 2 organization name Sv", result[1].sector[0].organization[0].OrganizationNameSv);
 
             Assert.Empty(result[2].sector); // The third affiliation should have no "sector", since it has no related DimOrganization.
-            Assert.Equal(0, result[2].sector.Count);
+            Assert.Empty(result[2].sector);
         }
     }
 }

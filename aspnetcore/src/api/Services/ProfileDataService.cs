@@ -816,5 +816,44 @@ namespace api.Services
 
             return affiliations;
         }
+
+        // Publication query DTO class
+        public class PublicationDto
+        {
+        }
+
+        // ProfileOnlyPublication query DTO class
+        public class ProfileOnlyPublicationDto
+        {
+        }
+
+        /*
+         * Publications
+         */
+        public async Task<List<ProfileEditorPublication>> GetProfileEditorPublications(int userprofileId)
+        {
+            // DimPublication DTOs
+            List<PublicationDto> publicationDtos = await _ttvContext.FactFieldValues
+                .Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId > 0
+                    && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION)
+                .Select(ffv => new PublicationDto()
+                {
+                }).AsNoTracking().ToListAsync();
+
+            // DimProfileOnlyPublication DTOs
+            List<ProfileOnlyPublicationDto> profileOnlyPublicationsDtos = await _ttvContext.FactFieldValues
+                .Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimProfileOnlyPublicationId > 0
+                    && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY)
+                .Select(ffv => new ProfileOnlyPublicationDto()
+                {
+                }).AsNoTracking().ToListAsync();
+
+
+            // Postprocessing.
+
+            List<ProfileEditorPublication> publications = new List<ProfileEditorPublication>();
+
+            return publications;
+        }
     }
 }
