@@ -30,6 +30,7 @@ namespace api.Tests
                 dataSourceHelperService: dataSourceHelperService,
                 languageService: languageService,
                 utilityService: utilityService,
+                duplicateHandlerService: new DuplicateHandlerService(),
                 logger: new NullLogger<ProfileDataService>());
         }
 
@@ -52,7 +53,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorNames(userprofileId: 1);
+            var result = await service.GetProfileEditorNames(
+                userprofileId: 1,
+                forElasticsearch: false
+            );
 
             Assert.NotEmpty(result);
             Assert.Equal(2, result.Count);
@@ -85,6 +89,14 @@ namespace api.Tests
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorNames(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -104,7 +116,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorOtherNames(userprofileId: 1);
+            var result = await service.GetProfileEditorOtherNames(
+                userprofileId: 1,
+                forElasticsearch: false
+            );
 
             Assert.NotEmpty(result);
             Assert.Equal(2, result.Count);
@@ -137,6 +152,14 @@ namespace api.Tests
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorOtherNames(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -156,7 +179,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorEmails(userprofileId: 1);
+            var result = await service.GetProfileEditorEmails(
+                userprofileId: 1,
+                forElasticsearch: false
+            );
 
             Assert.NotEmpty(result);
             Assert.Equal(2, result.Count);
@@ -184,6 +210,14 @@ namespace api.Tests
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorEmails(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -203,7 +237,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorTelephoneNumbers(userprofileId: 1);
+            var result = await service.GetProfileEditorTelephoneNumbers(
+                userprofileId: 1,
+                forElasticsearch: false
+            );
 
             Assert.NotEmpty(result);
             Assert.Equal(2, result.Count);
@@ -231,6 +268,14 @@ namespace api.Tests
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorTelephoneNumbers(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -250,7 +295,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorWebLinks(userprofileId: 1);
+            var result = await service.GetProfileEditorWebLinks(
+                userprofileId: 1,
+                forElasticsearch: false
+            );
 
             Assert.NotEmpty(result);
             Assert.Equal(2, result.Count);
@@ -282,6 +330,14 @@ namespace api.Tests
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorWebLinks(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -301,7 +357,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorKeywords(userprofileId: 1);
+            var result = await service.GetProfileEditorKeywords(
+                userprofileId: 1,
+                forElasticsearch: false
+            );
 
             Assert.NotEmpty(result);
             Assert.Equal(2, result.Count);
@@ -330,6 +389,14 @@ namespace api.Tests
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorKeywords(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -349,7 +416,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorResearcherDescriptions(userprofileId: 1);
+            var result = await service.GetProfileEditorResearcherDescriptions(
+                userprofileId: 1,
+                forElasticsearch: false
+            );
 
             Assert.NotEmpty(result);
             Assert.Equal(2, result.Count);
@@ -382,6 +452,14 @@ namespace api.Tests
             Assert.Equal("TTV En", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("TTV Sv", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorResearcherDescriptions(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -401,7 +479,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorExternalIdentifiers(userprofileId: 1);
+            var result = await service.GetProfileEditorExternalIdentifiers(
+                userprofileId: 1,
+                forElasticsearch: false
+            );
 
             Assert.NotEmpty(result);
             Assert.Equal(2, result.Count);
@@ -432,6 +513,14 @@ namespace api.Tests
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorExternalIdentifiers(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -451,7 +540,10 @@ namespace api.Tests
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
-            var result = await service.GetProfileEditorEducations(userprofileId: 1);
+            var result = await service.GetProfileEditorEducations(
+                userprofileId: 1,
+                forElasticsearch: false
+            );
             Assert.Equal(2, result.Count);
 
             Assert.Equal("Education 1 name Fi", result[0].NameFi);
@@ -497,6 +589,14 @@ namespace api.Tests
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorEducations(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -582,6 +682,14 @@ namespace api.Tests
             Assert.Equal(2, result[2].EndDate.Month);
             Assert.Equal(30, result[2].EndDate.Day);
             Assert.Empty(result[2].sector);
+
+            // When forElasticsearch is true, only the name with Show = true should be returned
+            result = await service.GetProfileEditorAffiliations(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -598,7 +706,7 @@ namespace api.Tests
             );
 
             Assert.NotEmpty(result);
-            Assert.Equal(3, result.Count);
+            Assert.Single(result);
 
             Assert.NotEmpty(result[0].sector);
             Assert.Single(result[0].sector);
@@ -606,29 +714,12 @@ namespace api.Tests
             Assert.Equal("Sector 3 Fi", result[0].sector[0].nameFiSector);
             Assert.Equal("Sector 3 En", result[0].sector[0].nameEnSector);
             Assert.Equal("Sector 3 Sv", result[0].sector[0].nameSvSector);
-            Assert.NotEmpty(result[1].sector[0].organization);
-            Assert.Single(result[1].sector[0].organization);
+            Assert.NotEmpty(result[0].sector[0].organization);
+            Assert.Single(result[0].sector[0].organization);
             Assert.Equal("Affiliation 1 organization organizationId", result[0].sector[0].organization[0].organizationId);
             Assert.Equal("Affiliation 1 organization broader name Fi", result[0].sector[0].organization[0].OrganizationNameFi);
             Assert.Equal("Affiliation 1 organization broader name En", result[0].sector[0].organization[0].OrganizationNameEn);
             Assert.Equal("Affiliation 1 organization broader name Sv", result[0].sector[0].organization[0].OrganizationNameSv);
-
-
-            Assert.NotEmpty(result[1].sector);
-            Assert.Single(result[1].sector);
-            Assert.Equal("S2", result[1].sector[0].sectorId);
-            Assert.Equal("Sector 2 Fi", result[1].sector[0].nameFiSector);
-            Assert.Equal("Sector 2 En", result[1].sector[0].nameEnSector);
-            Assert.Equal("Sector 2 Sv", result[1].sector[0].nameSvSector);
-            Assert.NotEmpty(result[1].sector[0].organization);
-            Assert.Single(result[1].sector[0].organization);
-            Assert.Equal("Affiliation 2 organization organizationId", result[1].sector[0].organization[0].organizationId);
-            Assert.Equal("Affiliation 2 organization name Fi", result[1].sector[0].organization[0].OrganizationNameFi);
-            Assert.Equal("Affiliation 2 organization name En", result[1].sector[0].organization[0].OrganizationNameEn);
-            Assert.Equal("Affiliation 2 organization name Sv", result[1].sector[0].organization[0].OrganizationNameSv);
-
-            Assert.Empty(result[2].sector); // The third affiliation should have no "sector", since it has no related DimOrganization.
-            Assert.Empty(result[2].sector);
         }
     }
 }

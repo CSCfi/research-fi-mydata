@@ -17,6 +17,7 @@ namespace api.Services
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly ILanguageService _languageService;
         private readonly IUtilityService _utilityService;
+        private readonly IDuplicateHandlerService _duplicateHandlerService;
         private readonly ILogger<ProfileDataService> _logger;
 
 
@@ -25,23 +26,26 @@ namespace api.Services
             IDataSourceHelperService dataSourceHelperService,
             ILanguageService languageService,
             IUtilityService utilityService,
+            IDuplicateHandlerService duplicateHandlerService,
             ILogger<ProfileDataService> logger)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
             _languageService = languageService;
             _utilityService = utilityService;
+            _duplicateHandlerService = duplicateHandlerService;
             _logger = logger;
         }
 
         /*
          * Names
          */
-        public async Task<List<ProfileEditorName>> GetProfileEditorNames(int userprofileId)
+        public async Task<List<ProfileEditorName>> GetProfileEditorNames(int userprofileId, bool forElasticsearch = false)
         {
             List<ProfileEditorName> names = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimNameId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new ProfileEditorName()
                 {
                     FirstNames = ffv.DimName.FirstNames.Trim(),
@@ -89,11 +93,12 @@ namespace api.Services
         /*
          * Other Names
          */
-        public async Task<List<ProfileEditorName>> GetProfileEditorOtherNames(int userprofileId)
+        public async Task<List<ProfileEditorName>> GetProfileEditorOtherNames(int userprofileId, bool forElasticsearch = false)
         {
             List<ProfileEditorName> otherNames = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimNameId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new ProfileEditorName()
                 {
                     FirstNames = "",
@@ -141,11 +146,12 @@ namespace api.Services
         /*
          * Emails
          */
-        public async Task<List<ProfileEditorEmail>> GetProfileEditorEmails(int userprofileId)
+        public async Task<List<ProfileEditorEmail>> GetProfileEditorEmails(int userprofileId, bool forElasticsearch = false)
         {
             List<ProfileEditorEmail> emails = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimEmailAddrressId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EMAIL_ADDRESS
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new ProfileEditorEmail()
                 {
                     Value = ffv.DimEmailAddrress.Email,
@@ -191,11 +197,12 @@ namespace api.Services
         /*
          * Telephone Numbers
          */
-        public async Task<List<ProfileEditorTelephoneNumber>> GetProfileEditorTelephoneNumbers(int userprofileId)
+        public async Task<List<ProfileEditorTelephoneNumber>> GetProfileEditorTelephoneNumbers(int userprofileId, bool forElasticsearch = false)
         {
             List<ProfileEditorTelephoneNumber> telephoneNumbers = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimTelephoneNumberId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_TELEPHONE_NUMBER
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new ProfileEditorTelephoneNumber()
                 {
                     Value = ffv.DimTelephoneNumber.TelephoneNumber,
@@ -241,11 +248,12 @@ namespace api.Services
         /*
          * Web links
          */
-        public async Task<List<ProfileEditorWebLink>> GetProfileEditorWebLinks(int userprofileId)
+        public async Task<List<ProfileEditorWebLink>> GetProfileEditorWebLinks(int userprofileId, bool forElasticsearch = false)
         {
             List<ProfileEditorWebLink> webLinks = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimWebLinkId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new ProfileEditorWebLink()
                 {
                     Url = ffv.DimWebLink.Url,
@@ -293,11 +301,12 @@ namespace api.Services
         /*
          * Keywords
          */
-        public async Task<List<ProfileEditorKeyword>> GetProfileEditorKeywords(int userprofileId)
+        public async Task<List<ProfileEditorKeyword>> GetProfileEditorKeywords(int userprofileId, bool forElasticsearch = false)
         {
             List<ProfileEditorKeyword> keywords = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimKeywordId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new ProfileEditorKeyword()
                 {
                     Value = ffv.DimKeyword.Keyword,
@@ -343,11 +352,12 @@ namespace api.Services
         /*
          * Researcher descriptions
          */
-        public async Task<List<ProfileEditorResearcherDescription>> GetProfileEditorResearcherDescriptions(int userprofileId)
+        public async Task<List<ProfileEditorResearcherDescription>> GetProfileEditorResearcherDescriptions(int userprofileId, bool forElasticsearch = false)
         {
             List<ProfileEditorResearcherDescription> researcherDescriptions = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimResearcherDescriptionId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new ProfileEditorResearcherDescription()
                 {
                     ResearchDescriptionFi = ffv.DimResearcherDescription.ResearchDescriptionFi,
@@ -412,11 +422,12 @@ namespace api.Services
         /*
          * External identifiers
          */
-         public async Task<List<ProfileEditorExternalIdentifier>> GetProfileEditorExternalIdentifiers(int userprofileId)
+         public async Task<List<ProfileEditorExternalIdentifier>> GetProfileEditorExternalIdentifiers(int userprofileId, bool forElasticsearch = false)
          {
              List<ProfileEditorExternalIdentifier> externalIdentifiers = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimPidId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new ProfileEditorExternalIdentifier()
                 {
                     PidContent = ffv.DimPid.PidContent,
@@ -463,11 +474,12 @@ namespace api.Services
         /*
          * Educations
          */
-        public async Task<List<ProfileEditorEducation>> GetProfileEditorEducations(int userprofileId)
+        public async Task<List<ProfileEditorEducation>> GetProfileEditorEducations(int userprofileId, bool forElasticsearch = false)
         {
             List<ProfileEditorEducation> educations = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimEducationId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new ProfileEditorEducation()
                 {
                     NameFi = ffv.DimEducation.NameFi,
@@ -591,7 +603,8 @@ namespace api.Services
         {
             List<AffiliationDto> affiliationDtos = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimAffiliationId > 0
-                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION)
+                && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION
+                && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new AffiliationDto()
                 {
                     DimAffiliationId = ffv.DimAffiliationId,
@@ -817,41 +830,236 @@ namespace api.Services
             return affiliations;
         }
 
-        // Publication query DTO class
-        public class PublicationDto
+        // DataSource DTO class.
+        public class DataSourceDto
         {
+            public int DimRegisteredDatasource_Id { get; set; }
+            public string? DimRegisteredDatasource_Name { get; set; }
+            public string? DimRegisteredDatasource_DimOrganization_NameFi { get; set; }
+            public string? DimRegisteredDatasource_DimOrganization_NameEn { get; set; }
+            public string? DimRegisteredDatasource_DimOrganization_NameSv { get; set; }
+            public string? DimregisteredDatasource_DimOrganization_DimSector_SectorId { get; set; }
         }
 
-        // ProfileOnlyPublication query DTO class
-        public class ProfileOnlyPublicationDto
+        // Publication query DTO class.
+        // This should have properties to store values from both DimPublication and DimProfileOnlyPublication.
+        public class PublicationDto
         {
+            public bool IsProfileOnlyPublication { get; set; }
+            public List<DataSourceDto> DataSources { get; set; }
+            public string ArticleNumberText { get; set; }
+            public string AuthorsText { get; set; }
+            public string ConferenceName { get; set; }
+            public string Doi { get; set; }
+            public string DoiDictionaryKey { get; set; }
+            public string IssueNumber { get; set; }
+            public string JournalName { get; set; }
+            public string PageNumberText { get; set; }
+            public string ParentPublicationName { get; set; }
+            public bool? PeerReviewed { get; set; }
+            public string PublicationId { get; set; }
+            public string PublicationIdDictionaryKey { get; set; }
+            public string PublicationName { get; set; }
+            public int? PublicationYear { get; set; }
+            public string PublisherName { get; set; }
+            public string PublicationTypeCode { get; set; }
+            public string SelfArchivedAddress { get; set; }
+            public bool? SelfArchivedCode { get; set; }
+            public string OpenAccessCodeUnprocessed { get; set; }
+            public int OpenAccessCode { get; set; }
+            public string Volume { get; set; }
         }
 
         /*
          * Publications
          */
-        public async Task<List<ProfileEditorPublication>> GetProfileEditorPublications(int userprofileId)
+        public async Task<List<ProfileEditorPublication>> GetProfileEditorPublications(int userprofileId, bool forElasticsearch = false)
         {
-            // DimPublication DTOs
-            List<PublicationDto> publicationDtos = await _ttvContext.FactFieldValues
+            
+            // Task for retrieving DimPublication DTOs
+            var taskGetPublicationDTOs = _ttvContext.FactFieldValues
                 .Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId > 0
-                    && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION)
+                    && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
+                    && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new PublicationDto()
                 {
+                    IsProfileOnlyPublication = false,
+                    DataSources = new List<DataSourceDto> {
+                        new DataSourceDto() {
+                            DimRegisteredDatasource_Id = ffv.DimRegisteredDataSourceId,
+                            DimRegisteredDatasource_Name = ffv.DimRegisteredDataSource.Name,
+                            DimRegisteredDatasource_DimOrganization_NameFi = ffv.DimRegisteredDataSource.DimOrganization.NameFi,
+                            DimRegisteredDatasource_DimOrganization_NameEn = ffv.DimRegisteredDataSource.DimOrganization.NameEn,
+                            DimRegisteredDatasource_DimOrganization_NameSv = ffv.DimRegisteredDataSource.DimOrganization.NameSv,
+                            DimregisteredDatasource_DimOrganization_DimSector_SectorId = ffv.DimRegisteredDataSource.DimOrganization.DimSector.SectorId
+                        }
+                    },
+                    Doi = ffv.DimPublication.DoiHandle,
+                    DoiDictionaryKey = ffv.DimPublication.DoiHandle != null ? ffv.DimPublication.DoiHandle.Trim().ToLower() : null,
+                    ArticleNumberText = ffv.DimPublication.ArticleNumberText,
+                    AuthorsText = ffv.DimPublication.AuthorsText,
+                    ConferenceName = ffv.DimPublication.ConferenceName,
+                    IssueNumber = ffv.DimPublication.IssueNumber,
+                    JournalName = ffv.DimPublication.JournalName,
+                    PageNumberText = ffv.DimPublication.PageNumberText,
+                    ParentPublicationName = ffv.DimPublication.ParentPublicationName,
+                    PeerReviewed = ffv.DimPublication.PeerReviewed,
+                    PublicationId = ffv.DimPublication.PublicationId,
+                    PublicationIdDictionaryKey = ffv.DimPublication.PublicationId != null ? ffv.DimPublication.PublicationId.Trim().ToLower() : null,
+                    PublicationName = ffv.DimPublication.PublicationName,
+                    PublicationYear = ffv.DimPublication.PublicationYear,
+                    PublisherName = ffv.DimPublication.PublisherName,
+                    PublicationTypeCode = ffv.DimPublication.PublicationTypeCodeNavigation.CodeValue,
+                    SelfArchivedAddress = ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault() != null ? ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault().SelfArchivedUrl : null,
+                    SelfArchivedCode = ffv.DimPublication.SelfArchivedCode,
+                    OpenAccessCodeUnprocessed = ffv.DimPublication.OpenAccessCode != -1 ? ffv.DimPublication.OpenAccessCodeNavigation.CodeValue : "9", // Unknown value is set to 9
+                    Volume = ffv.DimPublication.Volume
                 }).AsNoTracking().ToListAsync();
 
-            // DimProfileOnlyPublication DTOs
-            List<ProfileOnlyPublicationDto> profileOnlyPublicationsDtos = await _ttvContext.FactFieldValues
+            // Task for retrieving DimProfileOnlyPublication DTOs
+            var taskGetProfileOnlyPublicationDTOs = _ttvContext.FactFieldValues
                 .Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimProfileOnlyPublicationId > 0
                     && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY)
-                .Select(ffv => new ProfileOnlyPublicationDto()
+                .Select(ffv => new PublicationDto()
                 {
+                    IsProfileOnlyPublication = true,
+                    Doi = ffv.DimProfileOnlyPublication.DoiHandle,
+                    DoiDictionaryKey = ffv.DimProfileOnlyPublication.DoiHandle != null ? ffv.DimProfileOnlyPublication.DoiHandle.Trim().ToLower() : null,
+                    PublicationId = ffv.DimProfileOnlyPublication.PublicationId,
+                    PublicationIdDictionaryKey = ffv.DimProfileOnlyPublication.PublicationId != null ? ffv.DimProfileOnlyPublication.PublicationId.Trim().ToLower() : null,
+                    PublicationName = ffv.DimProfileOnlyPublication.PublicationName,
+                    PublicationYear = ffv.DimProfileOnlyPublication.PublicationYear,
+                    PeerReviewed = ffv.DimProfileOnlyPublication.PeerReviewed,
+                    OpenAccessCodeUnprocessed = ffv.DimProfileOnlyPublication.OpenAccessCode
                 }).AsNoTracking().ToListAsync();
 
+            // Wait for both to finish. This should be faster than sequential execution.
+            await Task.WhenAll(taskGetPublicationDTOs, taskGetProfileOnlyPublicationDTOs);
+            List<PublicationDto> publicationDtos = await taskGetPublicationDTOs;
+            List<PublicationDto> profileOnlyPublicationDtos = await taskGetProfileOnlyPublicationDTOs;
 
-            // Postprocessing.
+            var publicationIdDict = new Dictionary<string, PublicationDto>();
+            var doiDict = new Dictionary<string, PublicationDto>();
 
-            List<ProfileEditorPublication> publications = new List<ProfileEditorPublication>();
+            // Local function for processing publications and adding them to the dictionaries with deduplication logic.
+            void ProcessItem(PublicationDto newPublication)
+            {
+                PublicationDto existingPublicationDto = null;
+
+                // CHECK 1: Match by PublicationId
+                if (!string.IsNullOrWhiteSpace(newPublication.PublicationIdDictionaryKey))
+                {
+                    publicationIdDict.TryGetValue(newPublication.PublicationIdDictionaryKey, out existingPublicationDto);
+                }
+
+                // CHECK 2: If not found by PublicationId and DOI is available, match by DOI. Only for profileOnlyPublications.
+                if (newPublication.IsProfileOnlyPublication && existingPublicationDto == null && !string.IsNullOrWhiteSpace(newPublication.DoiDictionaryKey))
+                {
+                    doiDict.TryGetValue(newPublication.DoiDictionaryKey, out existingPublicationDto);
+                }
+
+                // DEDUPLICATION LOGIC:
+                if (
+                    existingPublicationDto != null &&
+                    (
+                        !newPublication.IsProfileOnlyPublication
+                        ||
+                        (
+                            newPublication.IsProfileOnlyPublication &&
+                            !_duplicateHandlerService.HasSameDoiButIsDifferentPublication(
+                                publicationName: newPublication.PublicationName,
+                                ttvPublicationName: existingPublicationDto.PublicationName,
+                                ttvPublicationTypeCode: existingPublicationDto.PublicationTypeCode
+                            )
+                        )
+                    )
+                )                
+                {
+                    // DUPLICATE FOUND: Merge data sources. Ensure that data sources are unique after merging.
+                    existingPublicationDto.DataSources = existingPublicationDto.DataSources
+                        .Concat(newPublication.DataSources)
+                        .GroupBy(ds => ds.DimRegisteredDatasource_Id)
+                        .Select(g => g.First())
+                        .ToList();
+
+                    // Ensure both indexes point to the merged publication DTO
+                    if (!string.IsNullOrWhiteSpace(existingPublicationDto.PublicationIdDictionaryKey))
+                        publicationIdDict.TryAdd(existingPublicationDto.PublicationIdDictionaryKey, existingPublicationDto);
+
+                    if (!string.IsNullOrWhiteSpace(existingPublicationDto.DoiDictionaryKey))
+                        doiDict.TryAdd(existingPublicationDto.DoiDictionaryKey, existingPublicationDto);
+                }
+                else
+                {
+                    // NEW UNIQUE PUBLICATION: Add to indexes
+                    if (!string.IsNullOrWhiteSpace(newPublication.PublicationIdDictionaryKey))
+                        publicationIdDict.Add(newPublication.PublicationIdDictionaryKey, newPublication);
+                    
+                    if (!string.IsNullOrWhiteSpace(newPublication.DoiDictionaryKey))                 
+                        doiDict.Add(newPublication.DoiDictionaryKey, newPublication);        
+                }                
+            }
+
+            // Process publications (from DimPublication). These must be processed before profile-only publications, so that they take precedence in matching when both PublicationId and DOI are available.
+            foreach (PublicationDto publicationDto in publicationDtos) ProcessItem(publicationDto);
+
+            // Process profile-only publications (from DimProfileOnlyPublication)
+            foreach (PublicationDto profileOnlyPublicationDto in profileOnlyPublicationDtos) ProcessItem(profileOnlyPublicationDto);
+
+            // Extract unique publications
+            List<PublicationDto> uniquePublications = publicationIdDict.Values.Concat(doiDict.Values).Distinct().ToList();
+
+            // Hard coded values for translating publications peer review status.
+            string PeerReviewedCode = "1";
+            string NotPeerReviewedCode = "0";
+            string PeerReviewedFi = "Vertaisarvioitu";
+            string NotPeerReviewedFi = "Ei-vertaisarvioitu";
+            string PeerReviewedSv = "Kollegialt utvärderad";
+            string NotPeerReviewedSv = "Inte kollegialt utvärderad";
+            string PeerReviewedEn = "Peer-Reviewed";
+            string NotPeerReviewedEn = "Non Peer-Reviewed";
+            
+            List<ProfileEditorPublication> publications = uniquePublications.Select(publicationDto => new ProfileEditorPublication()
+            {
+                ArticleNumberText = publicationDto.ArticleNumberText,
+                AuthorsText = publicationDto.AuthorsText,
+                ConferenceName = publicationDto.ConferenceName,
+                Doi = publicationDto.Doi,
+                IssueNumber = publicationDto.IssueNumber,
+                JournalName = publicationDto.JournalName,
+                PageNumberText = publicationDto.PageNumberText,
+                ParentPublicationName = publicationDto.ParentPublicationName,
+                PeerReviewed = new List<ProfileEditorPublicationPeerReviewed> {
+                    new ProfileEditorPublicationPeerReviewed()
+                    {
+                        Id = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedCode : NotPeerReviewedCode,
+                        NameFiPeerReviewed = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedFi : NotPeerReviewedFi,
+                        NameSvPeerReviewed = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedSv : NotPeerReviewedSv,
+                        NameEnPeerReviewed = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedEn : NotPeerReviewedEn
+                    }
+                },
+                PublicationId = publicationDto.PublicationId,
+                PublicationName = publicationDto.PublicationName,
+                PublicationYear = publicationDto.PublicationYear == null || publicationDto.PublicationYear < 1 ? null : publicationDto.PublicationYear,
+                PublisherName = publicationDto.PublisherName,
+                PublicationTypeCode = publicationDto.PublicationTypeCode,
+                SelfArchivedAddress = publicationDto.SelfArchivedAddress,
+                SelfArchivedCode = (!publicationDto.IsProfileOnlyPublication && publicationDto.SelfArchivedCode != null && (bool)publicationDto.SelfArchivedCode) ? "1" : "0",
+                OpenAccess = publicationDto.OpenAccessCode,
+                Volume = publicationDto.Volume,
+                DataSources = publicationDto.DataSources.Select(dataSourceDto => new ProfileEditorSource()
+                {
+                    Id = dataSourceDto.DimRegisteredDatasource_Id,
+                    RegisteredDataSource = dataSourceDto.DimRegisteredDatasource_Name,
+                    Organization = new Organization()
+                    {
+                        NameFi = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameFi,
+                        NameEn = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameEn,
+                        NameSv = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameSv,
+                        SectorId = dataSourceDto.DimregisteredDatasource_DimOrganization_DimSector_SectorId
+                    }
+                }).ToList()
+            }).ToList();
 
             return publications;
         }

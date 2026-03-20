@@ -1318,20 +1318,20 @@ namespace api.Services
             {
                 personal = new ProfileEditorDataPersonal()
                 {
-                    names = await _profileDataService.GetProfileEditorNames(userprofileId),
-                    otherNames = await _profileDataService.GetProfileEditorOtherNames(userprofileId),
-                    emails = await _profileDataService.GetProfileEditorEmails(userprofileId),
-                    telephoneNumbers = await _profileDataService.GetProfileEditorTelephoneNumbers(userprofileId),
-                    webLinks = await _profileDataService.GetProfileEditorWebLinks(userprofileId),
-                    keywords = await _profileDataService.GetProfileEditorKeywords(userprofileId),
+                    names = await _profileDataService.GetProfileEditorNames(userprofileId, forElasticsearch),
+                    otherNames = await _profileDataService.GetProfileEditorOtherNames(userprofileId, forElasticsearch),
+                    emails = await _profileDataService.GetProfileEditorEmails(userprofileId, forElasticsearch),
+                    telephoneNumbers = await _profileDataService.GetProfileEditorTelephoneNumbers(userprofileId, forElasticsearch),
+                    webLinks = await _profileDataService.GetProfileEditorWebLinks(userprofileId, forElasticsearch),
+                    keywords = await _profileDataService.GetProfileEditorKeywords(userprofileId, forElasticsearch),
                     fieldOfSciences = new(), // These are currently not included in the profile data response.
-                    researcherDescriptions = await _profileDataService.GetProfileEditorResearcherDescriptions(userprofileId),
-                    externalIdentifiers = await _profileDataService.GetProfileEditorExternalIdentifiers(userprofileId)
+                    researcherDescriptions = await _profileDataService.GetProfileEditorResearcherDescriptions(userprofileId, forElasticsearch),
+                    externalIdentifiers = await _profileDataService.GetProfileEditorExternalIdentifiers(userprofileId, forElasticsearch)
                 },
                 activity = new ProfileEditorDataActivity()
                 {
-                    educations = await _profileDataService.GetProfileEditorEducations(userprofileId),
-                    affiliations = await _profileDataService.GetProfileEditorAffiliations(userprofileId),
+                    educations = await _profileDataService.GetProfileEditorEducations(userprofileId, forElasticsearch),
+                    affiliations = await _profileDataService.GetProfileEditorAffiliations(userprofileId, forElasticsearch),
                     publications = new(),
                     fundingDecisions = new(),
                     researchDatasets = new(),
