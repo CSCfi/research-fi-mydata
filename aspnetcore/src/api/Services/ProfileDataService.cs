@@ -876,8 +876,8 @@ namespace api.Services
         public async Task<List<ProfileEditorPublication>> GetProfileEditorPublications(int userprofileId, bool forElasticsearch = false)
         {
             
-            // Task for retrieving DimPublication DTOs
-            var taskGetPublicationDTOs = _ttvContext.FactFieldValues
+            // DimPublication => DTOs
+            List<PublicationDto> publicationDtos = await _ttvContext.FactFieldValues
                 .Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId > 0
                     && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION
                     && (forElasticsearch ? ffv.Show == true : true))
@@ -909,20 +909,31 @@ namespace api.Services
                     PublicationName = ffv.DimPublication.PublicationName,
                     PublicationYear = ffv.DimPublication.PublicationYear,
                     PublisherName = ffv.DimPublication.PublisherName,
-                    PublicationTypeCode = ffv.DimPublication.PublicationTypeCodeNavigation.CodeValue,
+                    //PublicationTypeCode = ffv.DimPublication.PublicationTypeCodeNavigation.CodeValue,
                     SelfArchivedAddress = ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault() != null ? ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault().SelfArchivedUrl : null,
                     SelfArchivedCode = ffv.DimPublication.SelfArchivedCode,
-                    OpenAccessCodeUnprocessed = ffv.DimPublication.OpenAccessCode != -1 ? ffv.DimPublication.OpenAccessCodeNavigation.CodeValue : "9", // Unknown value is set to 9
+                    //OpenAccessCodeUnprocessed = ffv.DimPublication.OpenAccessCode != -1 ? ffv.DimPublication.OpenAccessCodeNavigation.CodeValue : "9", // Unknown value is set to 9
                     Volume = ffv.DimPublication.Volume
                 }).AsNoTracking().ToListAsync();
 
-            // Task for retrieving DimProfileOnlyPublication DTOs
-            var taskGetProfileOnlyPublicationDTOs = _ttvContext.FactFieldValues
+            // DimProfileOnlyPublication => DTOs
+            List<PublicationDto> profileOnlyPublicationDtos = await _ttvContext.FactFieldValues
                 .Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimProfileOnlyPublicationId > 0
-                    && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY)
+                    && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY
+                    && (forElasticsearch ? ffv.Show == true : true))
                 .Select(ffv => new PublicationDto()
                 {
                     IsProfileOnlyPublication = true,
+                    DataSources = new List<DataSourceDto> {
+                        new DataSourceDto() {
+                            DimRegisteredDatasource_Id = ffv.DimRegisteredDataSourceId,
+                            DimRegisteredDatasource_Name = ffv.DimRegisteredDataSource.Name,
+                            DimRegisteredDatasource_DimOrganization_NameFi = ffv.DimRegisteredDataSource.DimOrganization.NameFi,
+                            DimRegisteredDatasource_DimOrganization_NameEn = ffv.DimRegisteredDataSource.DimOrganization.NameEn,
+                            DimRegisteredDatasource_DimOrganization_NameSv = ffv.DimRegisteredDataSource.DimOrganization.NameSv,
+                            DimregisteredDatasource_DimOrganization_DimSector_SectorId = ffv.DimRegisteredDataSource.DimOrganization.DimSector.SectorId
+                        }
+                    },
                     Doi = ffv.DimProfileOnlyPublication.DoiHandle,
                     DoiDictionaryKey = ffv.DimProfileOnlyPublication.DoiHandle != null ? ffv.DimProfileOnlyPublication.DoiHandle.Trim().ToLower() : null,
                     PublicationId = ffv.DimProfileOnlyPublication.PublicationId,
@@ -933,11 +944,6 @@ namespace api.Services
                     OpenAccessCodeUnprocessed = ffv.DimProfileOnlyPublication.OpenAccessCode
                 }).AsNoTracking().ToListAsync();
 
-            // Wait for both to finish. This should be faster than sequential execution.
-            await Task.WhenAll(taskGetPublicationDTOs, taskGetProfileOnlyPublicationDTOs);
-            List<PublicationDto> publicationDtos = await taskGetPublicationDTOs;
-            List<PublicationDto> profileOnlyPublicationDtos = await taskGetProfileOnlyPublicationDTOs;
-
             var publicationIdDict = new Dictionary<string, PublicationDto>();
             var doiDict = new Dictionary<string, PublicationDto>();
 
@@ -946,8 +952,8 @@ namespace api.Services
             {
                 PublicationDto existingPublicationDto = null;
 
-                // CHECK 1: Match by PublicationId
-                if (!string.IsNullOrWhiteSpace(newPublication.PublicationIdDictionaryKey))
+                // CHECK 1: Match by PublicationId. Not for profileOnlyPublications.
+                if (!newPublication.IsProfileOnlyPublication && !string.IsNullOrWhiteSpace(newPublication.PublicationIdDictionaryKey))
                 {
                     publicationIdDict.TryGetValue(newPublication.PublicationIdDictionaryKey, out existingPublicationDto);
                 }
@@ -982,21 +988,25 @@ namespace api.Services
                         .Select(g => g.First())
                         .ToList();
 
-                    // Ensure both indexes point to the merged publication DTO
-                    if (!string.IsNullOrWhiteSpace(existingPublicationDto.PublicationIdDictionaryKey))
-                        publicationIdDict.TryAdd(existingPublicationDto.PublicationIdDictionaryKey, existingPublicationDto);
+                    if (!existingPublicationDto.IsProfileOnlyPublication)
+                    {
+                        if (!string.IsNullOrWhiteSpace(existingPublicationDto.PublicationIdDictionaryKey))
+                            publicationIdDict.TryAdd(existingPublicationDto.PublicationIdDictionaryKey, existingPublicationDto);
 
-                    if (!string.IsNullOrWhiteSpace(existingPublicationDto.DoiDictionaryKey))
-                        doiDict.TryAdd(existingPublicationDto.DoiDictionaryKey, existingPublicationDto);
+                        if (!string.IsNullOrWhiteSpace(existingPublicationDto.DoiDictionaryKey))
+                            doiDict.TryAdd(existingPublicationDto.DoiDictionaryKey, existingPublicationDto);
+                    }
                 }
                 else
                 {
-                    // NEW UNIQUE PUBLICATION: Add to indexes
-                    if (!string.IsNullOrWhiteSpace(newPublication.PublicationIdDictionaryKey))
-                        publicationIdDict.Add(newPublication.PublicationIdDictionaryKey, newPublication);
-                    
-                    if (!string.IsNullOrWhiteSpace(newPublication.DoiDictionaryKey))                 
-                        doiDict.Add(newPublication.DoiDictionaryKey, newPublication);        
+                    if (!newPublication.IsProfileOnlyPublication)
+                    {
+                        if (!string.IsNullOrWhiteSpace(newPublication.PublicationIdDictionaryKey))
+                            publicationIdDict.Add(newPublication.PublicationIdDictionaryKey, newPublication);
+                        
+                        if (!string.IsNullOrWhiteSpace(newPublication.DoiDictionaryKey))                 
+                            doiDict.Add(newPublication.DoiDictionaryKey, newPublication);
+                    }
                 }                
             }
 

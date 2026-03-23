@@ -22,6 +22,8 @@ namespace api.Tests
         public List<DimPid> DimPids { get; private set; }
         public List<DimEducation> DimEducations { get; private set; }
         public List<DimAffiliation> DimAffiliations { get; private set; }
+        public List<DimPublication> DimPublications { get; private set; }
+        public List<DimProfileOnlyPublication> DimProfileOnlyPublications { get; private set; }
         public DimUserProfile UserProfile { get; private set; }
         public List<FactFieldValue> FactFieldValues { get; private set; }
 
@@ -570,6 +572,104 @@ namespace api.Tests
                 SourceId = "Source1"
             };
             data.FactFieldValues.Add(ffvAffiliation3);
+
+            /*
+             * DimPublications
+             */
+            data.DimPublications = new List<DimPublication>
+            {
+                new DimPublication {
+                    Id = 1, PublicationId = "DimPublication1 PublicationId",
+                    PublicationName = "DimPublication1 Publication name",
+                    PublicationYear = 2020,
+                    AuthorsText = "DimPublication1 Authors text",
+                    PublicationOrgId = "DimPublication1 Publication orgId",
+                    SourceId = "Source1"
+                },
+                new DimPublication {
+                    Id = 2, PublicationId = "DimPublication2 PublicationId",
+                    PublicationName = "DimPublication2 Publication name",
+                    PublicationYear = 2021,
+                    AuthorsText = "DimPublication2 Authors text",
+                    PublicationOrgId = "DimPublication2 Publication orgId",
+                    SourceId = "Source1"
+                }
+            };
+            // FactFieldValue - Publication 1
+            FactFieldValue ffvPublication1 = userProfileService.GetEmptyFactFieldValue();
+            ffvPublication1.DimUserProfileId = data.UserProfile.Id;
+            ffvPublication1.DimUserProfile = data.UserProfile;
+            ffvPublication1.DimFieldDisplaySettingsId = dfdsActivityPublication.Id; // ACTIVITY_PUBLICATION
+            ffvPublication1.DimFieldDisplaySettings = dfdsActivityPublication;
+            ffvPublication1.DimPublicationId = data.DimPublications[0].Id;
+            ffvPublication1.DimPublication = data.DimPublications[0];
+            ffvPublication1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvPublication1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvPublication1.Show = true;
+            ffvPublication1.PrimaryValue = true;
+            data.FactFieldValues.Add(ffvPublication1);
+            // FactFieldValue - Publication 2
+            FactFieldValue ffvPublication2 = userProfileService.GetEmptyFactFieldValue();
+            ffvPublication2.DimUserProfileId = data.UserProfile.Id;
+            ffvPublication2.DimUserProfile = data.UserProfile;
+            ffvPublication2.DimFieldDisplaySettingsId = dfdsActivityPublication.Id; // ACTIVITY_PUBLICATION
+            ffvPublication2.DimFieldDisplaySettings = dfdsActivityPublication;
+            ffvPublication2.DimPublicationId = data.DimPublications[1].Id;
+            ffvPublication2.DimPublication = data.DimPublications[1];
+            ffvPublication2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvPublication2.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvPublication2.Show = false;
+            ffvPublication2.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvPublication2);
+
+            /*
+             * DimProfileOnlyPublications
+             */
+            data.DimProfileOnlyPublications = new List<DimProfileOnlyPublication>
+            {
+                new DimProfileOnlyPublication {
+                    Id = 1,
+                    PublicationId = "DimProfileOnlyPublication1 PublicationId",
+                    PublicationName = "DimProfileOnlyPublication1 Publication name",
+                    PublicationYear = 2020,
+                    AuthorsText = "DimProfileOnlyPublication1 Authors text",
+                    SourceId = "Source1"
+                },
+                new DimProfileOnlyPublication {
+                    Id = 2,
+                    PublicationId = "DimProfileOnlyPublication2 PublicationId",
+                    PublicationName = "DimProfileOnlyPublication2 Publication name",
+                    PublicationYear = 2021,
+                    AuthorsText = "DimProfileOnlyPublication2 Authors text",
+                    SourceId = "Source1"
+                }
+            };
+            // FactFieldValue - profile only Publication 1
+            FactFieldValue ffvProfileOnlyPublication1 = userProfileService.GetEmptyFactFieldValue();
+            ffvProfileOnlyPublication1.DimUserProfileId = data.UserProfile.Id;
+            ffvProfileOnlyPublication1.DimUserProfile = data.UserProfile;
+            ffvProfileOnlyPublication1.DimFieldDisplaySettingsId = dfdsActivityPublicationProfileOnly.Id; // ACTIVITY_PUBLICATION_PROFILE_ONLY
+            ffvProfileOnlyPublication1.DimFieldDisplaySettings = dfdsActivityPublicationProfileOnly;
+            ffvProfileOnlyPublication1.DimProfileOnlyPublicationId = data.DimProfileOnlyPublications[0].Id;
+            ffvProfileOnlyPublication1.DimProfileOnlyPublication = data.DimProfileOnlyPublications[0];
+            ffvProfileOnlyPublication1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvProfileOnlyPublication1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvProfileOnlyPublication1.Show = true;
+            ffvProfileOnlyPublication1.PrimaryValue = true;
+            data.FactFieldValues.Add(ffvProfileOnlyPublication1);
+            // FactFieldValue - profile only Publication 2
+            FactFieldValue ffvProfileOnlyPublication2 = userProfileService.GetEmptyFactFieldValue();
+            ffvProfileOnlyPublication2.DimUserProfileId = data.UserProfile.Id;
+            ffvProfileOnlyPublication2.DimUserProfile = data.UserProfile;
+            ffvProfileOnlyPublication2.DimFieldDisplaySettingsId = dfdsActivityPublicationProfileOnly.Id; // ACTIVITY_PUBLICATION_PROFILE_ONLY
+            ffvProfileOnlyPublication2.DimFieldDisplaySettings = dfdsActivityPublicationProfileOnly;
+            ffvProfileOnlyPublication2.DimProfileOnlyPublicationId = data.DimProfileOnlyPublications[1].Id;
+            ffvProfileOnlyPublication2.DimProfileOnlyPublication = data.DimProfileOnlyPublications[1];
+            ffvProfileOnlyPublication2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvProfileOnlyPublication2.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvProfileOnlyPublication2.Show = false;
+            ffvProfileOnlyPublication2.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvProfileOnlyPublication2);
 
             return data;
         }

@@ -721,5 +721,40 @@ namespace api.Tests
             Assert.Equal("Affiliation 1 organization broader name En", result[0].sector[0].organization[0].OrganizationNameEn);
             Assert.Equal("Affiliation 1 organization broader name Sv", result[0].sector[0].organization[0].OrganizationNameSv);
         }
+
+        [Fact]
+        public async Task GetProfileEditorPublications_ReturnsEmpty_WhenNoMatchingUserProfile()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorPublications_ReturnsEmpty_WhenNoMatchingUserProfile));
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorPublications(userprofileId: 999);
+            Assert.Empty(result);
+        }
+
+        // [Fact]
+        // public async Task GetProfileEditorPublications_ReturnsPublications_WhenMatchingUserProfileExists()
+        // {
+        //     using var context = CreateInMemoryContext(nameof(GetProfileEditorPublications_ReturnsPublications_WhenMatchingUserProfileExists));
+        //     var testData = ProfileDataServiceTestData.Create();
+        //     await testData.SeedAsync(context);
+
+        //     var service = CreateService(context);
+        //     var result = await service.GetProfileEditorPublications(
+        //         userprofileId: 1,
+        //         forElasticsearch: false
+        //     );
+
+        //     Assert.NotEmpty(result);
+        //     Assert.Equal(4, result.Count);
+
+
+        //     // When forElasticsearch is true, only publications with Show = true should be returned
+        //     result = await service.GetProfileEditorPublications(
+        //         userprofileId: 1,
+        //         forElasticsearch: true
+        //     );
+        //     Assert.NotEmpty(result);
+        //     Assert.Equal(2, result.Count);
+        // }
     }
 }
