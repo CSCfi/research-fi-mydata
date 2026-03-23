@@ -19,15 +19,15 @@ public partial class FactDimReferencedataFieldOfScience
 
     public int DimInfrastructureId { get; set; }
 
+    public DateTime? Created { get; set; }
+
     public virtual DimFundingDecision DimFundingDecision { get; set; }
 
-    public virtual DimInfrastructure DimInfrastructure { get; set; }
+    public virtual DimInfrastructureOld DimInfrastructure { get; set; }
 
     public virtual DimKnownPerson DimKnownPerson { get; set; }
 
     public virtual DimPublication DimPublication { get; set; }
 
     public virtual DimReferencedatum DimReferencedata { get; set; }
-
-    public virtual DimResearchDataset DimResearchDataset { get; set; }
 }

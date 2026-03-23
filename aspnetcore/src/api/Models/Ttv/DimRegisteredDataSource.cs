@@ -35,6 +35,8 @@ public partial class DimRegisteredDataSource
 
     public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; } = new List<DimFundingDecision>();
 
+    public virtual ICollection<DimInfrastructure> DimInfrastructures { get; set; } = new List<DimInfrastructure>();
+
     public virtual ICollection<DimKeyword> DimKeywords { get; set; } = new List<DimKeyword>();
 
     public virtual ICollection<DimKnownPerson> DimKnownPeople { get; set; } = new List<DimKnownPerson>();

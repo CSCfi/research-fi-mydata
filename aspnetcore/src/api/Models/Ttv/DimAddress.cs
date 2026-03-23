@@ -17,26 +17,14 @@ public partial class DimAddress
 
     public string PostalCode { get; set; }
 
-    /// <summary>
-    /// https://iri.suomi.fi/model/researchfi_core/locality
-    /// </summary>
     public string LocalityFi { get; set; }
 
-    /// <summary>
-    /// https://iri.suomi.fi/model/researchfi_core/locality
-    /// </summary>
     public string LocalitySv { get; set; }
 
-    /// <summary>
-    /// https://iri.suomi.fi/model/researchfi_core/locality
-    /// </summary>
     public string LocalityEn { get; set; }
 
-    public int CountryCode { get; set; }
+    public int? CountryCode { get; set; }
 
-    /// <summary>
-    /// visiting_address
-    /// </summary>
     public string AddressType { get; set; }
 
     public string SourceId { get; set; }

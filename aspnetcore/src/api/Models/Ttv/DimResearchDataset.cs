@@ -29,10 +29,6 @@ public partial class DimResearchDataset
 
     public int VersionInfo { get; set; }
 
-    public virtual ICollection<BrDatasetDatasetRelationship> BrDatasetDatasetRelationshipDimResearchDatasetId2Navigations { get; set; } = new List<BrDatasetDatasetRelationship>();
-
-    public virtual ICollection<BrDatasetDatasetRelationship> BrDatasetDatasetRelationshipDimResearchDatasets { get; set; } = new List<BrDatasetDatasetRelationship>();
-
     public virtual ICollection<DimDescriptiveItem> DimDescriptiveItems { get; set; } = new List<DimDescriptiveItem>();
 
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
@@ -46,8 +42,6 @@ public partial class DimResearchDataset
     public virtual ICollection<DimWebLink> DimWebLinks { get; set; } = new List<DimWebLink>();
 
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
-
-    public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; } = new List<FactDimReferencedataFieldOfScience>();
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
 

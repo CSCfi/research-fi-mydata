@@ -11,24 +11,12 @@ public partial class DimProfileOnlyPublication
 
     public int ParentTypeClassificationCode { get; set; }
 
-    /// <summary>
-    /// code_schema = &apos;julkaisutyyppiluokitus&apos;
-    /// </summary>
     public int TypeClassificationCode { get; set; }
 
-    /// <summary>
-    /// code_scheme = &apos;julkaisumuoto&apos;
-    /// </summary>
     public int PublicationFormatCode { get; set; }
 
-    /// <summary>
-    /// code_scheme = &apos;Artikkelintyyppikoodi&apos;
-    /// </summary>
     public int ArticleTypeCode { get; set; }
 
-    /// <summary>
-    /// code_scheme = &apos;julkaisunyleiso&apos;
-    /// </summary>
     public int TargetAudienceCode { get; set; }
 
     public string OrcidWorkType { get; set; }

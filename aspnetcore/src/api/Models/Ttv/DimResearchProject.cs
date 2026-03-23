@@ -7,19 +7,10 @@ public partial class DimResearchProject
 {
     public int Id { get; set; }
 
-    /// <summary>
-    /// Hanke - vastuuorganisaatio
-    /// </summary>
     public int ResponsibleOrganization { get; set; }
 
-    /// <summary>
-    /// Hanke - alkamispäivämäärä
-    /// </summary>
     public int? StartDate { get; set; }
 
-    /// <summary>
-    /// Hanke - päättymispäivämäärä
-    /// </summary>
     public int? EndDate { get; set; }
 
     public string SourceId { get; set; }
@@ -39,6 +30,8 @@ public partial class DimResearchProject
     public virtual ICollection<DimPid> DimPids { get; set; } = new List<DimPid>();
 
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
+
+    public virtual ICollection<DimWebLink> DimWebLinks { get; set; } = new List<DimWebLink>();
 
     public virtual DimDate EndDateNavigation { get; set; }
 

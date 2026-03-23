@@ -188,7 +188,7 @@ namespace api.Services
                 .Include(ffv => ffv.DimResearchDataset)
                     .ThenInclude(rd => rd.DimDescriptiveItems)
                 .Include(ffv => ffv.DimResearchDataset)
-                    .ThenInclude(rd => rd.FactDimReferencedataFieldOfSciences)
+                    .ThenInclude(rd => rd.FactReferencedata)
                         .ThenInclude(fdrfs => fdrfs.DimReferencedata)
                 .Select(ffv => new AittaResearchDataset
                 {
@@ -208,7 +208,9 @@ namespace api.Services
                     DatasetCreationDate = ffv.DimResearchDataset.DatasetCreated != null ? ffv.DimResearchDataset.DatasetCreated : null, 
                     Theme = ffv.DimResearchDataset.FactKeywords.Count > 0 ? ffv.DimResearchDataset.FactKeywords.Where(fk => fk.DimKeyword.Scheme == "Theme").Select(fk => fk.DimKeyword.Keyword).ToList() : null,
                     Keywords = ffv.DimResearchDataset.FactKeywords.Count > 0 ? ffv.DimResearchDataset.FactKeywords.Where(fk => fk.DimKeyword.Scheme == "Avainsana").Select(fk => fk.DimKeyword.Keyword).ToList() : null,
-                    FieldsOfScience = ffv.DimResearchDataset.FactDimReferencedataFieldOfSciences.Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList()
+                    FieldsOfScience = ffv.DimResearchDataset.FactReferencedata
+                        .Where(fr => fr.DimReferencedata.CodeScheme == "Tieteenala2010")
+                        .Select(fdrfs => fdrfs.DimReferencedata.NameEn).ToList()
                 })
                 .AsNoTracking().ToListAsync();
 

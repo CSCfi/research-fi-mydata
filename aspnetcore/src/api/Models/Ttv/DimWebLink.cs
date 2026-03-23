@@ -79,6 +79,8 @@ public partial class DimWebLink
 
     public virtual DimResearchDataset DimResearchDataset { get; set; }
 
+    public virtual DimResearchProject DimResearchProject { get; set; }
+
     public virtual DimService DimService { get; set; }
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();

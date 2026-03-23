@@ -75,8 +75,6 @@ public partial class DimPublication
 
     public bool? PeerReviewed { get; set; }
 
-    public bool? Report { get; set; }
-
     public int ThesisTypeCode { get; set; }
 
     public bool? SelfArchivedCode { get; set; }
@@ -105,7 +103,17 @@ public partial class DimPublication
 
     public int OpenAccessCode { get; set; }
 
+    public int ReportSwitch { get; set; }
+
+    public int ArtTypeCode { get; set; }
+
+    public int AvApplicationTypeCode { get; set; }
+
+    public virtual DimReferencedatum ArtTypeCodeNavigation { get; set; }
+
     public virtual DimReferencedatum ArticleTypeCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum AvApplicationTypeCodeNavigation { get; set; }
 
     public virtual ICollection<DimDescriptiveItem> DimDescriptiveItems { get; set; } = new List<DimDescriptiveItem>();
 
@@ -158,6 +166,8 @@ public partial class DimPublication
     public virtual DimReferencedatum PublicationTypeCodeNavigation { get; set; }
 
     public virtual DimReferencedatum PublisherOpenAccessCodeNavigation { get; set; }
+
+    public virtual DimReferencedatum ReportSwitchNavigation { get; set; }
 
     public virtual DimReferencedatum TargetAudienceCodeNavigation { get; set; }
 

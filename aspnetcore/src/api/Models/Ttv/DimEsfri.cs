@@ -21,5 +21,5 @@ public partial class DimEsfri
 
     public DateTime? Created { get; set; }
 
-    public virtual ICollection<DimInfrastructure> DimInfrastructures { get; set; } = new List<DimInfrastructure>();
+    public virtual ICollection<DimInfrastructureOld> DimInfrastructures { get; set; } = new List<DimInfrastructureOld>();
 }

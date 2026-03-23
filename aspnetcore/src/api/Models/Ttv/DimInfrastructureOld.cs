@@ -44,4 +44,14 @@ public partial class DimInfrastructureOld
     public string ScientificDescriptionSv { get; set; }
 
     public string ScientificDescriptionEn { get; set; }
+
+    public virtual ICollection<FactDimReferencedataFieldOfScience> FactDimReferencedataFieldOfSciences { get; set; } = new List<FactDimReferencedataFieldOfScience>();
+
+    public virtual ICollection<FactInfraKeyword> FactInfraKeywords { get; set; } = new List<FactInfraKeyword>();
+
+    public virtual ICollection<FactUpkeep> FactUpkeeps { get; set; } = new List<FactUpkeep>();
+
+    public virtual ICollection<DimEsfri> DimEsfris { get; set; } = new List<DimEsfri>();
+
+    public virtual ICollection<DimMeril> DimMerils { get; set; } = new List<DimMeril>();
 }
