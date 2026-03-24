@@ -874,8 +874,7 @@ namespace api.Services
          * Publications
          */
         public async Task<List<ProfileEditorPublication>> GetProfileEditorPublications(int userprofileId, bool forElasticsearch = false)
-        {
-            
+        { 
             // DimPublication => DTOs
             List<PublicationDto> publicationDtos = await _ttvContext.FactFieldValues
                 .Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId > 0
@@ -884,6 +883,9 @@ namespace api.Services
                 .Select(ffv => new PublicationDto()
                 {
                     IsProfileOnlyPublication = false,
+                    ArticleNumberText = ffv.DimPublication.ArticleNumberText,
+                    AuthorsText = ffv.DimPublication.AuthorsText,
+                    ConferenceName = ffv.DimPublication.ConferenceName,
                     DataSources = new List<DataSourceDto> {
                         new DataSourceDto() {
                             DimRegisteredDatasource_Id = ffv.DimRegisteredDataSourceId,
@@ -896,23 +898,20 @@ namespace api.Services
                     },
                     Doi = ffv.DimPublication.DoiHandle,
                     DoiDictionaryKey = ffv.DimPublication.DoiHandle != null ? ffv.DimPublication.DoiHandle.Trim().ToLower() : null,
-                    ArticleNumberText = ffv.DimPublication.ArticleNumberText,
-                    AuthorsText = ffv.DimPublication.AuthorsText,
-                    ConferenceName = ffv.DimPublication.ConferenceName,
                     IssueNumber = ffv.DimPublication.IssueNumber,
                     JournalName = ffv.DimPublication.JournalName,
                     PageNumberText = ffv.DimPublication.PageNumberText,
                     ParentPublicationName = ffv.DimPublication.ParentPublicationName,
                     PeerReviewed = ffv.DimPublication.PeerReviewed,
+                    OpenAccessCodeUnprocessed = ffv.DimPublication.OpenAccessCode != -1 ? ffv.DimPublication.OpenAccessCodeNavigation.CodeValue : "9", // Unknown value is set to 9
                     PublicationId = ffv.DimPublication.PublicationId,
                     PublicationIdDictionaryKey = ffv.DimPublication.PublicationId != null ? ffv.DimPublication.PublicationId.Trim().ToLower() : null,
                     PublicationName = ffv.DimPublication.PublicationName,
                     PublicationYear = ffv.DimPublication.PublicationYear,
                     PublisherName = ffv.DimPublication.PublisherName,
                     //PublicationTypeCode = ffv.DimPublication.PublicationTypeCodeNavigation.CodeValue,
-                    SelfArchivedAddress = ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault() != null ? ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault().SelfArchivedUrl : null,
+                    SelfArchivedAddress = ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault() != null ? ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault().SelfArchivedUrl : "",
                     SelfArchivedCode = ffv.DimPublication.SelfArchivedCode,
-                    //OpenAccessCodeUnprocessed = ffv.DimPublication.OpenAccessCode != -1 ? ffv.DimPublication.OpenAccessCodeNavigation.CodeValue : "9", // Unknown value is set to 9
                     Volume = ffv.DimPublication.Volume
                 }).AsNoTracking().ToListAsync();
 
@@ -924,6 +923,9 @@ namespace api.Services
                 .Select(ffv => new PublicationDto()
                 {
                     IsProfileOnlyPublication = true,
+                    ArticleNumberText = ffv.DimProfileOnlyPublication.ArticleNumberText,
+                    AuthorsText = ffv.DimProfileOnlyPublication.AuthorsText,
+                    ConferenceName = ffv.DimProfileOnlyPublication.ConferenceName,
                     DataSources = new List<DataSourceDto> {
                         new DataSourceDto() {
                             DimRegisteredDatasource_Id = ffv.DimRegisteredDataSourceId,
@@ -936,16 +938,25 @@ namespace api.Services
                     },
                     Doi = ffv.DimProfileOnlyPublication.DoiHandle,
                     DoiDictionaryKey = ffv.DimProfileOnlyPublication.DoiHandle != null ? ffv.DimProfileOnlyPublication.DoiHandle.Trim().ToLower() : null,
+                    IssueNumber = ffv.DimProfileOnlyPublication.IssueNumber,
+                    JournalName = "",
+                    OpenAccessCodeUnprocessed = ffv.DimProfileOnlyPublication.OpenAccessCode,
+                    PageNumberText = ffv.DimProfileOnlyPublication.PageNumberText,
+                    ParentPublicationName = ffv.DimProfileOnlyPublication.ParentPublicationName,
+                    PeerReviewed = ffv.DimProfileOnlyPublication.PeerReviewed,
                     PublicationId = ffv.DimProfileOnlyPublication.PublicationId,
                     PublicationIdDictionaryKey = ffv.DimProfileOnlyPublication.PublicationId != null ? ffv.DimProfileOnlyPublication.PublicationId.Trim().ToLower() : null,
                     PublicationName = ffv.DimProfileOnlyPublication.PublicationName,
                     PublicationYear = ffv.DimProfileOnlyPublication.PublicationYear,
-                    PeerReviewed = ffv.DimProfileOnlyPublication.PeerReviewed,
-                    OpenAccessCodeUnprocessed = ffv.DimProfileOnlyPublication.OpenAccessCode
+                    PublisherName = ffv.DimProfileOnlyPublication.PublisherName,
+                    SelfArchivedAddress = "",
+                    SelfArchivedCode = false,
+                    Volume = ffv.DimProfileOnlyPublication.Volume
                 }).AsNoTracking().ToListAsync();
 
             var publicationIdDict = new Dictionary<string, PublicationDto>();
             var doiDict = new Dictionary<string, PublicationDto>();
+            List<PublicationDto> processedProfileOnlyPublications = new List<PublicationDto>();
 
             // Local function for processing publications and adding them to the dictionaries with deduplication logic.
             void ProcessItem(PublicationDto newPublication)
@@ -1007,6 +1018,8 @@ namespace api.Services
                         if (!string.IsNullOrWhiteSpace(newPublication.DoiDictionaryKey))                 
                             doiDict.Add(newPublication.DoiDictionaryKey, newPublication);
                     }
+                    else
+                        processedProfileOnlyPublications.Add(newPublication);
                 }                
             }
 
@@ -1017,7 +1030,7 @@ namespace api.Services
             foreach (PublicationDto profileOnlyPublicationDto in profileOnlyPublicationDtos) ProcessItem(profileOnlyPublicationDto);
 
             // Extract unique publications
-            List<PublicationDto> uniquePublications = publicationIdDict.Values.Concat(doiDict.Values).Distinct().ToList();
+            List<PublicationDto> uniquePublications = publicationIdDict.Values.Concat(processedProfileOnlyPublications).Distinct().ToList();
 
             // Hard coded values for translating publications peer review status.
             string PeerReviewedCode = "1";
@@ -1029,47 +1042,75 @@ namespace api.Services
             string PeerReviewedEn = "Peer-Reviewed";
             string NotPeerReviewedEn = "Non Peer-Reviewed";
             
-            List<ProfileEditorPublication> publications = uniquePublications.Select(publicationDto => new ProfileEditorPublication()
+            List<ProfileEditorPublication> publications = new List<ProfileEditorPublication>();
+            foreach (PublicationDto publicationDto in uniquePublications)
             {
-                ArticleNumberText = publicationDto.ArticleNumberText,
-                AuthorsText = publicationDto.AuthorsText,
-                ConferenceName = publicationDto.ConferenceName,
-                Doi = publicationDto.Doi,
-                IssueNumber = publicationDto.IssueNumber,
-                JournalName = publicationDto.JournalName,
-                PageNumberText = publicationDto.PageNumberText,
-                ParentPublicationName = publicationDto.ParentPublicationName,
-                PeerReviewed = new List<ProfileEditorPublicationPeerReviewed> {
-                    new ProfileEditorPublicationPeerReviewed()
-                    {
-                        Id = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedCode : NotPeerReviewedCode,
-                        NameFiPeerReviewed = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedFi : NotPeerReviewedFi,
-                        NameSvPeerReviewed = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedSv : NotPeerReviewedSv,
-                        NameEnPeerReviewed = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedEn : NotPeerReviewedEn
-                    }
-                },
-                PublicationId = publicationDto.PublicationId,
-                PublicationName = publicationDto.PublicationName,
-                PublicationYear = publicationDto.PublicationYear == null || publicationDto.PublicationYear < 1 ? null : publicationDto.PublicationYear,
-                PublisherName = publicationDto.PublisherName,
-                PublicationTypeCode = publicationDto.PublicationTypeCode,
-                SelfArchivedAddress = publicationDto.SelfArchivedAddress,
-                SelfArchivedCode = (!publicationDto.IsProfileOnlyPublication && publicationDto.SelfArchivedCode != null && (bool)publicationDto.SelfArchivedCode) ? "1" : "0",
-                OpenAccess = publicationDto.OpenAccessCode,
-                Volume = publicationDto.Volume,
-                DataSources = publicationDto.DataSources.Select(dataSourceDto => new ProfileEditorSource()
+                int openAccessCode =
+                    (
+                        !string.IsNullOrWhiteSpace(publicationDto.OpenAccessCodeUnprocessed) &&
+                        int.TryParse(publicationDto.OpenAccessCodeUnprocessed, out int openAccessCodeValue)
+                    )
+                    ? openAccessCodeValue : 9; // Unknown value is set to 9
+
+                publications.Add(new ProfileEditorPublication()
                 {
-                    Id = dataSourceDto.DimRegisteredDatasource_Id,
-                    RegisteredDataSource = dataSourceDto.DimRegisteredDatasource_Name,
-                    Organization = new Organization()
+                    ArticleNumberText = publicationDto.ArticleNumberText,
+                    AuthorsText = publicationDto.AuthorsText,
+                    ConferenceName = publicationDto.ConferenceName,
+                    Doi = publicationDto.Doi,
+                    IssueNumber = publicationDto.IssueNumber,
+                    JournalName = publicationDto.JournalName,
+                    OpenAccess = openAccessCode,
+                    PageNumberText = publicationDto.PageNumberText,
+                    ParentPublicationName = publicationDto.ParentPublicationName,
+                    PeerReviewed = new List<ProfileEditorPublicationPeerReviewed> {
+                        new ProfileEditorPublicationPeerReviewed()
+                        {
+                            Id = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedCode : NotPeerReviewedCode,
+                            NameFiPeerReviewed = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedFi : NotPeerReviewedFi,
+                            NameSvPeerReviewed = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedSv : NotPeerReviewedSv,
+                            NameEnPeerReviewed = publicationDto.PeerReviewed != null && publicationDto.PeerReviewed.Value ? PeerReviewedEn : NotPeerReviewedEn
+                        }
+                    },
+                    PublicationId = publicationDto.PublicationId,
+                    PublicationName = publicationDto.PublicationName,
+                    PublicationYear = publicationDto.PublicationYear == null || publicationDto.PublicationYear < 1 ? null : publicationDto.PublicationYear,
+                    PublisherName = publicationDto.PublisherName,
+                    PublicationTypeCode = publicationDto.PublicationTypeCode,
+                    SelfArchivedAddress = publicationDto.SelfArchivedAddress,
+                    SelfArchivedCode = (publicationDto.SelfArchivedCode != null && (bool)publicationDto.SelfArchivedCode) ? "1" : "0",
+                    Volume = publicationDto.Volume,
+                    DataSources = publicationDto.DataSources.Select(dataSourceDto => new ProfileEditorSource()
                     {
-                        NameFi = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameFi,
-                        NameEn = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameEn,
-                        NameSv = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameSv,
-                        SectorId = dataSourceDto.DimregisteredDatasource_DimOrganization_DimSector_SectorId
-                    }
-                }).ToList()
-            }).ToList();
+                        Id = dataSourceDto.DimRegisteredDatasource_Id,
+                        RegisteredDataSource = dataSourceDto.DimRegisteredDatasource_Name,
+                        Organization = new Organization()
+                        {
+                            NameFi = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameFi,
+                            NameEn = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameEn,
+                            NameSv = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameSv,
+                            SectorId = dataSourceDto.DimregisteredDatasource_DimOrganization_DimSector_SectorId
+                        }
+                    }).ToList()
+                });
+            }
+
+            // Postprocessing
+            foreach (ProfileEditorPublication publication in publications)
+            {
+                // Translate data source organizaton names.
+                foreach (ProfileEditorSource dataSource in publication.DataSources)
+                {
+                    NameTranslation dataSourceOrganizationName = _languageService.GetNameTranslation(
+                        nameFi: dataSource.Organization.NameFi,
+                        nameEn: dataSource.Organization.NameEn,
+                        nameSv: dataSource.Organization.NameSv
+                    );
+                    dataSource.Organization.NameFi = dataSourceOrganizationName.NameFi;
+                    dataSource.Organization.NameEn = dataSourceOrganizationName.NameEn;
+                    dataSource.Organization.NameSv = dataSourceOrganizationName.NameSv;
+                }
+            }
 
             return publications;
         }

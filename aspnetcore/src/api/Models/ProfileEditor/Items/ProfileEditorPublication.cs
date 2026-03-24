@@ -7,9 +7,9 @@ namespace api.Models.ProfileEditor.Items
         {
             ArticleNumberText = "";
             AuthorsText = "";
+            ConferenceName = "";
             Doi = "";
             IssueNumber = "";
-            ConferenceName = "";
             JournalName = "";
             OpenAccess = 0;
             PageNumberText = "";
