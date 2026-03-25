@@ -762,6 +762,7 @@ namespace api.Tests
             Assert.Equal("DimPublication1 Parent publication name", result[0].ParentPublicationName);
             Assert.Equal("DimPublication PublicationId to deduplicate", result[0].PublicationId);
             Assert.Equal("DimPublication1 Publication name", result[0].PublicationName);
+            //Assert.Equal("A1", result[0].PublicationTypeCode);
             Assert.Equal(2020, result[0].PublicationYear);
             Assert.Equal("DimPublication1 Publisher name", result[0].PublisherName);
             Assert.Equal("https://example.com/selfarchivedurl1", result[0].SelfArchivedAddress);
@@ -780,6 +781,7 @@ namespace api.Tests
             Assert.Equal("DimPublication3 Parent publication name", result[1].ParentPublicationName);
             Assert.Equal("DimPublication3 PublicationId", result[1].PublicationId);
             Assert.Equal("DimPublication3 Publication name", result[1].PublicationName);
+            Assert.Equal("", result[1].PublicationTypeCode);
             Assert.Equal(2022, result[1].PublicationYear);
             Assert.Equal("DimPublication3 Publisher name", result[1].PublisherName);
             Assert.Equal("", result[1].SelfArchivedAddress);
@@ -798,6 +800,7 @@ namespace api.Tests
             Assert.Equal("DimProfileOnlyPublication2 Parent publication name", result[2].ParentPublicationName);
             Assert.Equal("DimProfileOnlyPublication2 PublicationId", result[2].PublicationId);
             Assert.Equal("DimProfileOnlyPublication2 Publication name", result[2].PublicationName);
+            Assert.Equal("", result[2].PublicationTypeCode);
             Assert.Equal(2024, result[2].PublicationYear);
             Assert.Equal("DimProfileOnlyPublication2 Publisher name", result[2].PublisherName);
             Assert.Equal("", result[2].SelfArchivedAddress);
@@ -816,6 +819,7 @@ namespace api.Tests
             Assert.Equal("DimProfileOnlyPublication3 Parent publication name", result[3].ParentPublicationName);
             Assert.Equal("", result[3].PublicationId);
             Assert.Equal( "DimProfileOnlyPublication3 Publication name", result[3].PublicationName);
+            Assert.Equal("", result[3].PublicationTypeCode);
             Assert.Equal(2025, result[3].PublicationYear);
             Assert.Equal("DimProfileOnlyPublication3 Publisher name", result[3].PublisherName);
             Assert.Equal("DimProfileOnlyPublication3 Volume number", result[3].Volume);

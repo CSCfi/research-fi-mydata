@@ -909,7 +909,7 @@ namespace api.Services
                     PublicationName = ffv.DimPublication.PublicationName,
                     PublicationYear = ffv.DimPublication.PublicationYear,
                     PublisherName = ffv.DimPublication.PublisherName,
-                    //PublicationTypeCode = ffv.DimPublication.PublicationTypeCodeNavigation.CodeValue,
+                    PublicationTypeCode = ffv.DimPublication.PublicationTypeCode != -1 ? ffv.DimPublication.PublicationTypeCodeNavigation.CodeValue : "", // Unknown value is set to empty string
                     SelfArchivedAddress = ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault() != null ? ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault().SelfArchivedUrl : "",
                     SelfArchivedCode = ffv.DimPublication.SelfArchivedCode,
                     Volume = ffv.DimPublication.Volume
@@ -947,6 +947,7 @@ namespace api.Services
                     PublicationId = ffv.DimProfileOnlyPublication.PublicationId,
                     PublicationIdDictionaryKey = ffv.DimProfileOnlyPublication.PublicationId != null ? ffv.DimProfileOnlyPublication.PublicationId.Trim().ToLower() : null,
                     PublicationName = ffv.DimProfileOnlyPublication.PublicationName,
+                    PublicationTypeCode = "",
                     PublicationYear = ffv.DimProfileOnlyPublication.PublicationYear,
                     PublisherName = ffv.DimProfileOnlyPublication.PublisherName,
                     SelfArchivedAddress = "",

@@ -608,12 +608,20 @@ namespace api.Tests
                         CodeValue = "1",
                         CodeScheme = "AvoinSaatavuusKytkin",
                         SourceId = "Source1",
-                        SourceDescription = "Open access code source description 1"
+                        SourceDescription = ""
                     },
                     PageNumberText = "123",
                     ParentPublicationName = "DimPublication1 Parent publication name",
                     PublicationId = "DimPublication PublicationId to deduplicate", // Same PublicationId as DimPublication 2. Should be deduplicated based on PublicationId.
                     PublicationName = "DimPublication1 Publication name",
+                    PublicationTypeCode = 6000,
+                    PublicationTypeCodeNavigation = new DimReferencedatum {
+                        Id = 6000,
+                        CodeValue = "A1",
+                        CodeScheme = "julkaisutyyppiluokitus",
+                        SourceId = "Source1",
+                        SourceDescription = ""
+                    },
                     PublicationYear = 2020,
                     PublicationOrgId = "DimPublication1 Publication orgId",
                     PublisherName = "DimPublication1 Publisher name",
@@ -635,12 +643,20 @@ namespace api.Tests
                         CodeValue = "1",
                         CodeScheme = "AvoinSaatavuusKytkin",
                         SourceId = "Source1",
-                        SourceDescription = "Open access code source description 2"
+                        SourceDescription = ""
                     },
                     PageNumberText = "234",
                     ParentPublicationName = "DimPublication2 Parent publication name",
                     PublicationId = "DimPublication PublicationId to deduplicate", // Same PublicationId as DimPublication 1. Should be deduplicated based on PublicationId.
                     PublicationName = "DimPublication2 Publication name",
+                    PublicationTypeCode = 6001,
+                    PublicationTypeCodeNavigation = new DimReferencedatum {
+                        Id = 6001,
+                        CodeValue = "A2",
+                        CodeScheme = "julkaisutyyppiluokitus",
+                        SourceId = "Source1",
+                        SourceDescription = ""
+                    },
                     PublicationYear = 2021,
                     PublicationOrgId = "DimPublication2 Publication orgId",
                     PublisherName = "DimPublication2 Publisher name",
@@ -662,12 +678,20 @@ namespace api.Tests
                         CodeValue = "0",
                         CodeScheme = "AvoinSaatavuusKytkin",
                         SourceId = "Source1",
-                        SourceDescription = "Open access code source description 3"
+                        SourceDescription = ""
                     },
                     PageNumberText = "345",
                     ParentPublicationName = "DimPublication3 Parent publication name",
                     PublicationId = "DimPublication3 PublicationId", // Different PublicationId. Should not be deduplicated with DimPublication 1 or DimPublication 2.                 
                     PublicationName = "DimPublication3 Publication name",
+                    PublicationTypeCode = -1,
+                    PublicationTypeCodeNavigation = new DimReferencedatum {
+                        Id = -1,
+                        CodeValue = "",
+                        CodeScheme = "",
+                        SourceId = "Source1",
+                        SourceDescription = ""
+                    },
                     PublicationYear = 2022,
                     PublicationOrgId = "DimPublication3 Publication orgId",
                     PublisherName = "DimPublication3 Publisher name",
