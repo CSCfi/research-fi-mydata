@@ -19,6 +19,8 @@ public partial class FactReferencedatum
 
     public int DimCallProgrammeId { get; set; }
 
+    public int DimServiceId { get; set; }
+
     public string SourceId { get; set; }
 
     public string SourceDescription { get; set; }
@@ -26,8 +28,6 @@ public partial class FactReferencedatum
     public DateTime? Created { get; set; }
 
     public DateTime? Modified { get; set; }
-
-    public int DimServiceId { get; set; }
 
     public virtual DimCallProgramme DimCallProgramme { get; set; }
 

@@ -36,4 +36,8 @@ public partial class DimServiceOld
     public DateTime? Created { get; set; }
 
     public DateTime? Modified { get; set; }
+
+    public virtual ICollection<FactInfraKeyword> FactInfraKeywords { get; set; } = new List<FactInfraKeyword>();
+
+    public virtual ICollection<FactUpkeep> FactUpkeeps { get; set; } = new List<FactUpkeep>();
 }

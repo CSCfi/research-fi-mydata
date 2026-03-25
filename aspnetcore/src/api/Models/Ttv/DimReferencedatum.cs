@@ -69,7 +69,11 @@ public partial class DimReferencedatum
 
     public virtual ICollection<DimProfileOnlyPublication> DimProfileOnlyPublicationTypeClassificationCodeNavigations { get; set; } = new List<DimProfileOnlyPublication>();
 
+    public virtual ICollection<DimPublication> DimPublicationArtTypeCodeNavigations { get; set; } = new List<DimPublication>();
+
     public virtual ICollection<DimPublication> DimPublicationArticleTypeCodeNavigations { get; set; } = new List<DimPublication>();
+
+    public virtual ICollection<DimPublication> DimPublicationAvApplicationTypeCodeNavigations { get; set; } = new List<DimPublication>();
 
     public virtual ICollection<DimPublication> DimPublicationJufoClassCodeFrozenNavigations { get; set; } = new List<DimPublication>();
 
@@ -92,6 +96,8 @@ public partial class DimReferencedatum
     public virtual ICollection<DimPublication> DimPublicationPublicationTypeCodeNavigations { get; set; } = new List<DimPublication>();
 
     public virtual ICollection<DimPublication> DimPublicationPublisherOpenAccessCodeNavigations { get; set; } = new List<DimPublication>();
+
+    public virtual ICollection<DimPublication> DimPublicationReportSwitchNavigations { get; set; } = new List<DimPublication>();
 
     public virtual ICollection<DimPublication> DimPublicationTargetAudienceCodeNavigations { get; set; } = new List<DimPublication>();
 

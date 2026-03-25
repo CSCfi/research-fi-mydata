@@ -15,6 +15,8 @@ public partial class DimWordCluster
 
     public string SourceId { get; set; }
 
+    public string Content { get; set; }
+
     public virtual ICollection<BrWordClusterDimFundingDecision> BrWordClusterDimFundingDecisions { get; set; } = new List<BrWordClusterDimFundingDecision>();
 
     public virtual ICollection<BrWordsDefineACluster> BrWordsDefineAClusters { get; set; } = new List<BrWordsDefineACluster>();

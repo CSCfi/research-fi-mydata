@@ -9,6 +9,8 @@ public partial class FactKeyword
 
     public int DimResearchProjectId { get; set; }
 
+    public int DimResearchDatasetId { get; set; }
+
     public string SourceId { get; set; }
 
     public string SourceDescription { get; set; }
@@ -16,8 +18,6 @@ public partial class FactKeyword
     public DateTime? Created { get; set; }
 
     public DateTime? Modified { get; set; }
-
-    public int DimResearchDatasetId { get; set; }
 
     public virtual DimKeyword DimKeyword { get; set; }
 
