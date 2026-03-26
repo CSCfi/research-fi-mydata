@@ -22,6 +22,7 @@ using OpenAI.Chat;
 using System.ClientModel;
 using System.Net.Http;
 using Azure.Core.Pipeline;
+using api.Services.Profiledata;
 
 namespace api
 {
@@ -299,7 +300,16 @@ namespace api
             services.AddSingleton<IUtilityService, UtilityService>();    
             services.AddSingleton<IDataSourceHelperService, DataSourceHelperService>();
             services.AddScoped<IBiographyService, BiographyService>();
-            services.AddScoped<IProfileDataService, ProfileDataService>();
+            services.AddScoped<IAffiliationService, AffiliationService>();
+            services.AddScoped<IEducationService, EducationService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IExternalIdentifierService, ExternalIdentifierService>();
+            services.AddScoped<IKeywordService, KeywordService>();
+            services.AddScoped<INameService, NameService>();
+            services.AddScoped<IPublicationService, PublicationService>();
+            services.AddScoped<IResearcherDescriptionService, ResearcherDescriptionService>();
+            services.AddScoped<ITelephoneNumberService, TelephoneNumberService>();
+            services.AddScoped<IWebLinkService, WebLinkService>();
             services.AddMemoryCache();
 
             // Background processing related services.

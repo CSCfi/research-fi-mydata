@@ -3,12 +3,11 @@ using api.Models.Common;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using api.Services;
-using System;
 using System.Linq;
 
-namespace api.Tests
+namespace api.Tests.Profiledata
 {
-    public class ProfileDataServiceTestData
+    public class TestProfiledata
     {
         public List<DimSector> DimSectors { get; private set; }
         public List<DimOrganization> DimOrganizations { get; private set; }
@@ -28,9 +27,9 @@ namespace api.Tests
         public DimUserProfile UserProfile { get; private set; }
         public List<FactFieldValue> FactFieldValues { get; private set; }
 
-        public static ProfileDataServiceTestData Create()
+        public static TestProfiledata Create()
         {
-            var data = new ProfileDataServiceTestData();
+            var data = new TestProfiledata();
             UtilityService utilityService = new UtilityService();
             DataSourceHelperService dataSourceHelperService = new DataSourceHelperService();
             

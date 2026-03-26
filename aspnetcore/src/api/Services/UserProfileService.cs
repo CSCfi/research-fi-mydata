@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using api.Models.Common;
 using api.Models.Orcid;
 using api.Models.Log;
+using api.Services.Profiledata;
 using Dapper;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -21,7 +22,16 @@ namespace api.Services
     public class UserProfileService : IUserProfileService
     {
         private readonly TtvContext _ttvContext;
-        private readonly IProfileDataService _profileDataService;
+        private readonly IAffiliationService _affiliationService;
+        private readonly IEducationService _educationService;
+        private readonly IEmailService _emailService;
+        private readonly IExternalIdentifierService _externalIdentifierService;
+        private readonly IKeywordService _keywordService;
+        private readonly INameService _nameService;
+        private readonly IPublicationService _publicationService;
+        private readonly IResearcherDescriptionService _researcherDescriptionService;
+        private readonly ITelephoneNumberService _telephoneNumberService;
+        private readonly IWebLinkService _webLinkService;
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly IUtilityService _utilityService;
         private readonly ILanguageService _languageService;
@@ -33,7 +43,6 @@ namespace api.Services
 
         public UserProfileService(
             TtvContext ttvContext,
-            IProfileDataService profileDataService,
             IDataSourceHelperService dataSourceHelperService,
             IUtilityService utilityService,
             ILanguageService languageService,
@@ -41,10 +50,19 @@ namespace api.Services
             ISharingService sharingService,
             ITtvSqlService ttvSqlService,
             ILogger<UserProfileService> logger,
-            IElasticsearchService elasticsearchService)
+            IElasticsearchService elasticsearchService,
+            IAffiliationService affiliationService,
+            IEducationService educationService,
+            IEmailService emailService,
+            IExternalIdentifierService externalIdentifierService,
+            IKeywordService keywordService,
+            INameService nameService,
+            IPublicationService publicationService,
+            IResearcherDescriptionService researcherDescriptionService,
+            ITelephoneNumberService telephoneNumberService,
+            IWebLinkService webLinkService)
         {
             _ttvContext = ttvContext;
-            _profileDataService = profileDataService;
             _dataSourceHelperService = dataSourceHelperService;
             _utilityService = utilityService;
             _languageService = languageService;
@@ -53,6 +71,16 @@ namespace api.Services
             _ttvSqlService = ttvSqlService;
             _logger = logger;
             _elasticsearchService = elasticsearchService;
+            _affiliationService = affiliationService;
+            _educationService = educationService;
+            _emailService = emailService;
+            _externalIdentifierService = externalIdentifierService;
+            _keywordService = keywordService;
+            _nameService = nameService;
+            _publicationService = publicationService;
+            _researcherDescriptionService = researcherDescriptionService;
+            _telephoneNumberService = telephoneNumberService;
+            _webLinkService = webLinkService;
         }
 
         public UserProfileService(
@@ -1318,21 +1346,21 @@ namespace api.Services
             {
                 personal = new ProfileEditorDataPersonal()
                 {
-                    names = await _profileDataService.GetProfileEditorNames(userprofileId, forElasticsearch),
-                    otherNames = await _profileDataService.GetProfileEditorOtherNames(userprofileId, forElasticsearch),
-                    emails = await _profileDataService.GetProfileEditorEmails(userprofileId, forElasticsearch),
-                    telephoneNumbers = await _profileDataService.GetProfileEditorTelephoneNumbers(userprofileId, forElasticsearch),
-                    webLinks = await _profileDataService.GetProfileEditorWebLinks(userprofileId, forElasticsearch),
-                    keywords = await _profileDataService.GetProfileEditorKeywords(userprofileId, forElasticsearch),
+                    names = await _nameService.GetProfileEditorNames(userprofileId, forElasticsearch),
+                    otherNames = await _nameService.GetProfileEditorOtherNames(userprofileId, forElasticsearch),
+                    emails = await _emailService.GetProfileEditorEmails(userprofileId, forElasticsearch),
+                    telephoneNumbers = await _telephoneNumberService.GetProfileEditorTelephoneNumbers(userprofileId, forElasticsearch),
+                    webLinks = await _webLinkService.GetProfileEditorWebLinks(userprofileId, forElasticsearch),
+                    keywords = await _keywordService.GetProfileEditorKeywords(userprofileId, forElasticsearch),
                     fieldOfSciences = new(), // These are currently not included in the profile data response.
-                    researcherDescriptions = await _profileDataService.GetProfileEditorResearcherDescriptions(userprofileId, forElasticsearch),
-                    externalIdentifiers = await _profileDataService.GetProfileEditorExternalIdentifiers(userprofileId, forElasticsearch)
+                    researcherDescriptions = await _researcherDescriptionService.GetProfileEditorResearcherDescriptions(userprofileId, forElasticsearch),
+                    externalIdentifiers = await _externalIdentifierService.GetProfileEditorExternalIdentifiers(userprofileId, forElasticsearch)
                 },
                 activity = new ProfileEditorDataActivity()
                 {
-                    educations = await _profileDataService.GetProfileEditorEducations(userprofileId, forElasticsearch),
-                    affiliations = await _profileDataService.GetProfileEditorAffiliations(userprofileId, forElasticsearch),
-                    publications = new(),
+                    educations = await _educationService.GetProfileEditorEducations(userprofileId, forElasticsearch),
+                    affiliations = await _affiliationService.GetProfileEditorAffiliations(userprofileId, forElasticsearch),
+                    publications = await _publicationService.GetProfileEditorPublications(userprofileId, forElasticsearch),
                     fundingDecisions = new(),
                     researchDatasets = new(),
                     activitiesAndRewards = new()
