@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using api.Models.Ttv;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Threading.Tasks;
+using api.Models.Common;
 
 namespace api.Tests.Profiledata
 {
@@ -74,7 +75,26 @@ namespace api.Tests.Profiledata
             Assert.Equal("https://example.com/selfarchivedurl1", result[0].SelfArchivedAddress);
             Assert.Equal("1", result[0].SelfArchivedCode);
             Assert.Equal("DimPublication1 Volume number", result[0].Volume);
-            Assert.Equal(2, result[0].DataSources.Count); // After deduplication by PublicationId, the publication should have combined data sources of the deduplicated publications.
+            // // Item meta
+            // Assert.Equal(1, result[0].itemMeta.Id);
+            // Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION, result[0].itemMeta.Type);
+            // Assert.True(result[0].itemMeta.Show);
+            // Assert.True(result[0].itemMeta.PrimaryValue);
+            // // Data sources
+            // Assert.Equal(2, result[0].DataSources.Count); // After deduplication by PublicationId, the publication should have combined data sources of the deduplicated publications.
+            // Assert.Equal(1, result[0].DataSources[0].Id);
+            // Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            // Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            // Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            // Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            // Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+            // Assert.Single(result[0].DataSources);
+            // Assert.Equal(1, result[0].DataSources[0].Id);
+            // Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            // Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            // Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            // Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            // Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
 
             Assert.Equal("DimPublication3 Article number text", result[1].ArticleNumberText);
             Assert.Equal("DimPublication3 Authors text", result[1].AuthorsText);

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using api.Models.Ttv;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Threading.Tasks;
+using api.Models.Common;
 
 namespace api.Tests.Profiledata
 {
@@ -71,6 +72,17 @@ namespace api.Tests.Profiledata
             Assert.Equal(1, result[0].EndDate.Month);
             Assert.Equal(31, result[0].EndDate.Day);
             Assert.Empty(result[0].sector);
+            Assert.Equal(1000, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_AFFILIATION, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            Assert.Single(result[0].DataSources);
+            Assert.Equal(1, result[0].DataSources[0].Id);
+            Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
     
             Assert.Equal("Affiliation 2 organization name Fi", result[1].OrganizationNameFi);
             Assert.Equal("Affiliation 2 organization name En", result[1].OrganizationNameEn);
@@ -91,6 +103,17 @@ namespace api.Tests.Profiledata
             Assert.Equal(2, result[1].EndDate.Month);
             Assert.Equal(30, result[1].EndDate.Day);
             Assert.Empty(result[1].sector);
+            Assert.Equal(1001, result[1].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_AFFILIATION, result[1].itemMeta.Type);
+            Assert.False(result[1].itemMeta.Show);
+            Assert.False(result[1].itemMeta.PrimaryValue);
+            Assert.Single(result[1].DataSources);
+            Assert.Equal(2, result[1].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
 
             Assert.Equal("Affiliation 3 identifierless data value Fi", result[2].OrganizationNameFi);
             Assert.Equal("Affiliation 3 identifierless data value En", result[2].OrganizationNameEn);
@@ -111,6 +134,17 @@ namespace api.Tests.Profiledata
             Assert.Equal(2, result[2].EndDate.Month);
             Assert.Equal(30, result[2].EndDate.Day);
             Assert.Empty(result[2].sector);
+            Assert.Equal(1002, result[2].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_AFFILIATION, result[2].itemMeta.Type);
+            Assert.False(result[2].itemMeta.Show);
+            Assert.False(result[2].itemMeta.PrimaryValue);
+            Assert.Single(result[2].DataSources);
+            Assert.Equal(2, result[2].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[2].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[2].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[2].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[2].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[2].DataSources[0].Organization.SectorId);
 
             // When forElasticsearch is true, only the name with Show = true should be returned
             result = await service.GetProfileEditorAffiliations(
