@@ -34,7 +34,7 @@ namespace api.Tests.Profiledata
             data.DimOrganizations.Add(new DimOrganization { Id = 1, NameFi = "Org name Fi", NameEn = "Org name En", NameSv = "Org name Sv", DimSector = data.DimSectors[1], SourceId = "Source1" });
             data.DimOrganizations.Add(new DimOrganization { Id = 2, NameFi = "Org name", NameEn = "", NameSv = "", DimSector = data.DimSectors[1], SourceId = "Source1" });
             data.DimOrganizations.Add(new DimOrganization { Id = 3, NameFi = "TTV Fi", NameEn = "TTV En", NameSv = "TTV Sv", DimSector = data.DimSectors[1], SourceId = "Source1" });
-            data.DimOrganizations.Add(new DimOrganization { Id = 4, NameFi = "ORCID", NameEn = "ORCID", NameSv = "ORCID", DimSector = data.DimSectors[1], SourceId = "Source1" });
+            data.DimOrganizations.Add(new DimOrganization { Id = 4, NameFi = "", NameEn = "ORCID", NameSv = "", DimSector = data.DimSectors[1], SourceId = "Source1" });
             data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 1, Name = "DataSource1", DimOrganization = data.DimOrganizations[1], SourceId = "Source1"});
             data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 2, Name = "DataSource2", DimOrganization = data.DimOrganizations[2], SourceId = "Source1"});
             data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 3, Name = "TTV" , DimOrganization = data.DimOrganizations[3], SourceId = "Source1"});
@@ -206,7 +206,7 @@ namespace api.Tests.Profiledata
             };
             ffvPublication3.DimRegisteredDataSourceId = data.DimRegisteredDataSources[2].Id;
             ffvPublication3.DimRegisteredDataSource = data.DimRegisteredDataSources[2];
-            ffvPublication3.Show = true;
+            ffvPublication3.Show = false;
             ffvPublication3.PrimaryValue = false;
             data.FactFieldValues.Add(ffvPublication3);
 
@@ -230,7 +230,7 @@ namespace api.Tests.Profiledata
             ffvProfileOnlyPublication1.DimFieldDisplaySettings = dfdsActivityPublicationProfileOnly;
             ffvProfileOnlyPublication1.DimProfileOnlyPublicationId = 1;
             ffvProfileOnlyPublication1.DimProfileOnlyPublication = new DimProfileOnlyPublication {
-                Id = 1,
+                Id = 21,
                 ArticleNumberText = "DimProfileOnlyPublication1 Article number text",
                 AuthorsText = "DimProfileOnlyPublication1 Authors text",
                 ConferenceName = "DimProfileOnlyPublication1 Conference name",
@@ -260,7 +260,7 @@ namespace api.Tests.Profiledata
             ffvProfileOnlyPublication2.DimFieldDisplaySettings = dfdsActivityPublicationProfileOnly;
             ffvProfileOnlyPublication2.DimProfileOnlyPublicationId = 2;
             ffvProfileOnlyPublication2.DimProfileOnlyPublication = new DimProfileOnlyPublication {
-                Id = 2,
+                Id = 22,
                 ArticleNumberText = "DimProfileOnlyPublication2 Article number text",
                 AuthorsText = "DimProfileOnlyPublication2 Authors text",
                 ConferenceName = "DimProfileOnlyPublication2 Conference name",
@@ -290,7 +290,7 @@ namespace api.Tests.Profiledata
             ffvProfileOnlyPublication3.DimFieldDisplaySettings = dfdsActivityPublicationProfileOnly;
             ffvProfileOnlyPublication3.DimProfileOnlyPublicationId = 3;
             ffvProfileOnlyPublication3.DimProfileOnlyPublication = new DimProfileOnlyPublication {
-                Id = 3,
+                Id = 23,
                 ArticleNumberText = "DimProfileOnlyPublication3 Article number text",
                 AuthorsText = "DimProfileOnlyPublication3 Authors text",
                 ConferenceName = "DimProfileOnlyPublication3 Conference name",

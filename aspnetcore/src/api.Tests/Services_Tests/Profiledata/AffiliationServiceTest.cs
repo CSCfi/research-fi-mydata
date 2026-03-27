@@ -72,6 +72,7 @@ namespace api.Tests.Profiledata
             Assert.Equal(1, result[0].EndDate.Month);
             Assert.Equal(31, result[0].EndDate.Day);
             Assert.Empty(result[0].sector);
+            Assert.NotNull(result[0].itemMeta);
             Assert.Equal(1000, result[0].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_AFFILIATION, result[0].itemMeta.Type);
             Assert.True(result[0].itemMeta.Show);
@@ -103,6 +104,7 @@ namespace api.Tests.Profiledata
             Assert.Equal(2, result[1].EndDate.Month);
             Assert.Equal(30, result[1].EndDate.Day);
             Assert.Empty(result[1].sector);
+            Assert.NotNull(result[1].itemMeta);
             Assert.Equal(1001, result[1].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_AFFILIATION, result[1].itemMeta.Type);
             Assert.False(result[1].itemMeta.Show);
@@ -134,6 +136,7 @@ namespace api.Tests.Profiledata
             Assert.Equal(2, result[2].EndDate.Month);
             Assert.Equal(30, result[2].EndDate.Day);
             Assert.Empty(result[2].sector);
+            Assert.NotNull(result[2].itemMeta);
             Assert.Equal(1002, result[2].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_AFFILIATION, result[2].itemMeta.Type);
             Assert.False(result[2].itemMeta.Show);

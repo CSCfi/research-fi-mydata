@@ -61,6 +61,7 @@ namespace api.Tests.Profiledata
             Assert.Equal(2022, result[0].EndDate.Year);
             Assert.Equal(6, result[0].EndDate.Month);
             Assert.Equal(30, result[0].EndDate.Day);
+            Assert.NotNull(result[0].itemMeta);
             Assert.Equal(1, result[0].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_EDUCATION, result[0].itemMeta.Type);
             Assert.True(result[0].itemMeta.Show);
@@ -83,6 +84,7 @@ namespace api.Tests.Profiledata
             Assert.Equal(2020, result[1].EndDate.Year);
             Assert.Equal(5, result[1].EndDate.Month);
             Assert.Equal(31, result[1].EndDate.Day);
+            Assert.NotNull(result[1].itemMeta);
             Assert.Equal(2, result[1].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_EDUCATION, result[1].itemMeta.Type);
             Assert.False(result[1].itemMeta.Show);

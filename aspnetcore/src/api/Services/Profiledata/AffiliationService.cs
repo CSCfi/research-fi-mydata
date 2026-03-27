@@ -268,10 +268,10 @@ namespace api.Services.Profiledata
                         Day = affiliationDto.EndDate_Day
                     },
                     itemMeta = new ProfileEditorItemMeta(
-                        affiliationDto.DimAffiliationId,
-                        Constants.ItemMetaTypes.ACTIVITY_AFFILIATION,
-                        affiliationDto.Show,
-                        affiliationDto.PrimaryValue
+                        id: affiliationDto.DimAffiliationId,
+                        type: Constants.ItemMetaTypes.ACTIVITY_AFFILIATION,
+                        show: affiliationDto.Show,
+                        primaryValue: affiliationDto.PrimaryValue
                     ),
                     DataSources = new List<ProfileEditorSource> {
                         new ProfileEditorSource() {

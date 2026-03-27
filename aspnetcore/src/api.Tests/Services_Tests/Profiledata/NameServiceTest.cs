@@ -57,6 +57,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("John", result[0].FirstNames);
             Assert.Equal("Doe", result[0].LastName);
             Assert.Equal("Doe John", result[0].FullName);
+            Assert.NotNull(result[0].itemMeta);
             Assert.Equal(1, result[0].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_NAME, result[0].itemMeta.Type);
             Assert.True(result[0].itemMeta.Show);
@@ -72,6 +73,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("Jack", result[1].FirstNames);
             Assert.Equal("Smith", result[1].LastName);
             Assert.Equal("Smith Jack", result[1].FullName);
+            Assert.NotNull(result[1].itemMeta);
             Assert.Equal(2, result[1].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_NAME, result[1].itemMeta.Type);
             Assert.False(result[1].itemMeta.Show);
@@ -120,6 +122,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("", result[0].FirstNames);
             Assert.Equal("", result[0].LastName);
             Assert.Equal("John Doe 2", result[0].FullName);
+            Assert.NotNull(result[0].itemMeta);
             Assert.Equal(3, result[0].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_OTHER_NAMES, result[0].itemMeta.Type);
             Assert.True(result[0].itemMeta.Show);
@@ -135,6 +138,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("", result[1].FirstNames);
             Assert.Equal("", result[1].LastName);
             Assert.Equal("Jack Smith 2", result[1].FullName);
+            Assert.NotNull(result[1].itemMeta);
             Assert.Equal(4, result[1].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_OTHER_NAMES, result[1].itemMeta.Type);
             Assert.False(result[1].itemMeta.Show);

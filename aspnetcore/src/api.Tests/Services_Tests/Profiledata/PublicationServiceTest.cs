@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using api.Models.Ttv;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Threading.Tasks;
+using api.Models.Common;
 
 namespace api.Tests.Profiledata
 {
@@ -53,10 +54,12 @@ namespace api.Tests.Profiledata
             Assert.NotEmpty(result);
             // Expected count is 4.
             // Out of 3 DimPublications 2 of them should be deduplicated based on the same PublicationId. That leaves 2 DimPublications.
-            // Out of 3 DimProfileOnlyPublications 1 should be deduplicated with one of the DimPublications base on the same Doi. That leaves 2 DimProfileOnlyPublications.
-            // Combined count of deduplicated DimPublications and deduplicated DimProfileOnlyPublications should be 4.
+            // Out of 3 DimProfileOnlyPublications 1 should be deduplicated with one of the DimPublications based on the same Doi. That leaves 2 DimProfileOnlyPublications.
             Assert.Equal(4, result.Count);
 
+            /*
+             * result[0]
+             */
             Assert.Equal("DimPublication1 Article number text", result[0].ArticleNumberText);
             Assert.Equal("DimPublication1 Authors text", result[0].AuthorsText);
             Assert.Equal("DimPublication1 Conference name", result[0].ConferenceName);
@@ -74,27 +77,30 @@ namespace api.Tests.Profiledata
             Assert.Equal("https://example.com/selfarchivedurl1", result[0].SelfArchivedAddress);
             Assert.Equal("1", result[0].SelfArchivedCode);
             Assert.Equal("DimPublication1 Volume number", result[0].Volume);
-            // // Item meta
-            // Assert.Equal(1, result[0].itemMeta.Id);
-            // Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION, result[0].itemMeta.Type);
-            // Assert.True(result[0].itemMeta.Show);
-            // Assert.True(result[0].itemMeta.PrimaryValue);
-            // // Data sources
-            // Assert.Equal(2, result[0].DataSources.Count); // After deduplication by PublicationId, the publication should have combined data sources of the deduplicated publications.
-            // Assert.Equal(1, result[0].DataSources[0].Id);
-            // Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
-            // Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
-            // Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
-            // Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
-            // Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
-            // Assert.Single(result[0].DataSources);
-            // Assert.Equal(1, result[0].DataSources[0].Id);
-            // Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
-            // Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
-            // Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
-            // Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
-            // Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+            // Item meta
+            Assert.NotNull(result[0].itemMeta);
+            Assert.Equal(1, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            // Data sources
+            Assert.Equal(2, result[0].DataSources.Count); // After deduplication by PublicationId, the publication should have combined data sources of the deduplicated publications.
+            Assert.Equal(1, result[0].DataSources[0].Id);
+            Assert.Equal("DataSource1", result[0].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name Fi", result[0].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+            Assert.Equal(2, result[0].DataSources[1].Id);
+            Assert.Equal("DataSource2", result[0].DataSources[1].RegisteredDataSource);
+            Assert.Equal("Org name", result[0].DataSources[1].Organization.NameFi);
+            Assert.Equal("Org name", result[0].DataSources[1].Organization.NameEn);
+            Assert.Equal("Org name", result[0].DataSources[1].Organization.NameSv);
+            Assert.Equal("S1", result[0].DataSources[1].Organization.SectorId);
 
+            /*
+             * result[1]
+             */
             Assert.Equal("DimPublication3 Article number text", result[1].ArticleNumberText);
             Assert.Equal("DimPublication3 Authors text", result[1].AuthorsText);
             Assert.Equal("DimPublication3 Conference name", result[1].ConferenceName);
@@ -112,8 +118,30 @@ namespace api.Tests.Profiledata
             Assert.Equal("", result[1].SelfArchivedAddress);
             Assert.Equal("0", result[1].SelfArchivedCode);
             Assert.Equal("DimPublication3 Volume number", result[1].Volume);
+            // Item meta
+            Assert.NotNull(result[1].itemMeta);
+            Assert.Equal(3, result[1].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION, result[1].itemMeta.Type);
+            Assert.False(result[1].itemMeta.Show);
+            Assert.False(result[1].itemMeta.PrimaryValue);
+            // Data sources
             Assert.Equal(2, result[1].DataSources.Count); // After deduplication by Doi, the publication should have combined data sources of the deduplicated publications.
+            Assert.Equal(3, result[1].DataSources[0].Id);
+            Assert.Equal("TTV", result[1].DataSources[0].RegisteredDataSource);
+            Assert.Equal("TTV Fi", result[1].DataSources[0].Organization.NameFi);
+            Assert.Equal("TTV En", result[1].DataSources[0].Organization.NameEn);
+            Assert.Equal("TTV Sv", result[1].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+            Assert.Equal(4, result[1].DataSources[1].Id);
+            Assert.Equal("ORCID", result[1].DataSources[1].RegisteredDataSource);
+            Assert.Equal("ORCID", result[1].DataSources[1].Organization.NameFi);
+            Assert.Equal("ORCID", result[1].DataSources[1].Organization.NameEn);
+            Assert.Equal("ORCID", result[1].DataSources[1].Organization.NameSv);
+            Assert.Equal("S1", result[1].DataSources[1].Organization.SectorId);            
 
+            /*
+             * result[2]
+             */
             Assert.Equal("DimProfileOnlyPublication2 Article number text", result[2].ArticleNumberText);
             Assert.Equal("DimProfileOnlyPublication2 Authors text", result[2].AuthorsText);
             Assert.Equal("DimProfileOnlyPublication2 Conference name", result[2].ConferenceName);
@@ -131,8 +159,24 @@ namespace api.Tests.Profiledata
             Assert.Equal("", result[2].SelfArchivedAddress);
             Assert.Equal("0", result[2].SelfArchivedCode);
             Assert.Equal("DimProfileOnlyPublication2 Volume number", result[2].Volume);
+            // Item meta
+            Assert.NotNull(result[0].itemMeta);
+            Assert.Equal(1, result[0].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION, result[0].itemMeta.Type);
+            Assert.True(result[0].itemMeta.Show);
+            Assert.True(result[0].itemMeta.PrimaryValue);
+            // Data sources
             Assert.Single(result[2].DataSources);
+            Assert.Equal(4, result[2].DataSources[0].Id);
+            Assert.Equal("ORCID", result[2].DataSources[0].RegisteredDataSource);
+            Assert.Equal("ORCID", result[2].DataSources[0].Organization.NameFi);
+            Assert.Equal("ORCID", result[2].DataSources[0].Organization.NameEn);
+            Assert.Equal("ORCID", result[2].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[2].DataSources[0].Organization.SectorId);
 
+            /*
+             * result[3]
+             */
             Assert.Equal("DimProfileOnlyPublication3 Article number text", result[3].ArticleNumberText);
             Assert.Equal("DimProfileOnlyPublication3 Authors text", result[3].AuthorsText);
             Assert.Equal("DimProfileOnlyPublication3 Conference name", result[3].ConferenceName);
@@ -150,8 +194,20 @@ namespace api.Tests.Profiledata
             Assert.Equal("DimProfileOnlyPublication3 Volume number", result[3].Volume);
             Assert.Equal("", result[3].SelfArchivedAddress);
             Assert.Equal("0", result[3].SelfArchivedCode);
+            // Item meta
+            Assert.NotNull(result[3].itemMeta);
+            Assert.Equal(23, result[3].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION, result[3].itemMeta.Type);
+            Assert.False(result[3].itemMeta.Show);
+            Assert.False(result[3].itemMeta.PrimaryValue);
+            // Data sources
             Assert.Single(result[3].DataSources);
-
+            Assert.Equal(4, result[3].DataSources[0].Id);
+            Assert.Equal("ORCID", result[3].DataSources[0].RegisteredDataSource);
+            Assert.Equal("ORCID", result[3].DataSources[0].Organization.NameFi);
+            Assert.Equal("ORCID", result[3].DataSources[0].Organization.NameEn);
+            Assert.Equal("ORCID", result[3].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[3].DataSources[0].Organization.SectorId);
 
             // When forElasticsearch is true, only publications with Show = true should be returned
             result = await service.GetProfileEditorPublications(

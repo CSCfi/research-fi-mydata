@@ -55,6 +55,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("https://example1.com", result[0].Url);
             Assert.Equal("Example1", result[0].LinkLabel);
             Assert.Equal("Website1", result[0].LinkType);
+            Assert.NotNull(result[0].itemMeta);
             Assert.Equal(1, result[0].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_WEB_LINK, result[0].itemMeta.Type);
             Assert.True(result[0].itemMeta.Show);
@@ -70,6 +71,8 @@ namespace api.Tests.Profiledata
             Assert.Equal("https://example2.org", result[1].Url);
             Assert.Equal("Example2", result[1].LinkLabel);
             Assert.Equal("Website2", result[1].LinkType);
+            Assert.NotNull(result[1].itemMeta);
+            Assert.Equal(2, result[1].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_WEB_LINK, result[1].itemMeta.Type);
             Assert.False(result[1].itemMeta.Show);
             Assert.False(result[1].itemMeta.PrimaryValue);

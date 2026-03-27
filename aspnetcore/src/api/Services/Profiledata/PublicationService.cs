@@ -45,6 +45,11 @@ namespace api.Services.Profiledata
         public class PublicationDto
         {
             public bool IsProfileOnlyPublication { get; set; }
+            public int Id { get; set; }
+            public bool? Show { get; set; }
+            public bool? PrimaryValue { get; set; }
+            public int DimRegisteredDatasource_Id { get; set; }
+            public string? DimRegisteredDatasource_Name { get; set; }
             public List<DataSourceDto> DataSources { get; set; }
             public string ArticleNumberText { get; set; }
             public string AuthorsText { get; set; }
@@ -82,6 +87,9 @@ namespace api.Services.Profiledata
                 .Select(ffv => new PublicationDto()
                 {
                     IsProfileOnlyPublication = false,
+                    Id = ffv.DimPublicationId,
+                    Show = ffv.Show,
+                    PrimaryValue = ffv.PrimaryValue,
                     ArticleNumberText = ffv.DimPublication.ArticleNumberText,
                     AuthorsText = ffv.DimPublication.AuthorsText,
                     ConferenceName = ffv.DimPublication.ConferenceName,
@@ -122,6 +130,9 @@ namespace api.Services.Profiledata
                 .Select(ffv => new PublicationDto()
                 {
                     IsProfileOnlyPublication = true,
+                    Id = ffv.DimProfileOnlyPublicationId,
+                    Show = ffv.Show,
+                    PrimaryValue = ffv.PrimaryValue,
                     ArticleNumberText = ffv.DimProfileOnlyPublication.ArticleNumberText,
                     AuthorsText = ffv.DimProfileOnlyPublication.AuthorsText,
                     ConferenceName = ffv.DimProfileOnlyPublication.ConferenceName,
@@ -291,7 +302,13 @@ namespace api.Services.Profiledata
                             NameSv = dataSourceDto.DimRegisteredDatasource_DimOrganization_NameSv,
                             SectorId = dataSourceDto.DimregisteredDatasource_DimOrganization_DimSector_SectorId
                         }
-                    }).ToList()
+                    }).ToList(),
+                    itemMeta = new ProfileEditorItemMeta(
+                        id: publicationDto.Id,
+                        type:Constants.ItemMetaTypes.ACTIVITY_PUBLICATION,
+                        show: publicationDto.Show,
+                        publicationDto.PrimaryValue
+                    )
                 });
             }
 

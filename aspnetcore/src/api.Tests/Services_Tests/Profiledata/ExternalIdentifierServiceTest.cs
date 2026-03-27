@@ -55,6 +55,7 @@ namespace api.Tests.Profiledata
             Assert.Equal(2, result.Count);
             Assert.Equal("test-pid-content-1", result[0].PidContent);
             Assert.Equal("test-pid-type-1", result[0].PidType);
+            Assert.NotNull(result[0].itemMeta);
             Assert.Equal(1, result[0].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_EXTERNAL_IDENTIFIER, result[0].itemMeta.Type);
             Assert.True(result[0].itemMeta.Show);
@@ -69,6 +70,7 @@ namespace api.Tests.Profiledata
 
             Assert.Equal("test-pid-content-2", result[1].PidContent);
             Assert.Equal("test-pid-type-2", result[1].PidType);
+            Assert.NotNull(result[1].itemMeta);
             Assert.Equal(2, result[1].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_EXTERNAL_IDENTIFIER, result[1].itemMeta.Type);
             Assert.False(result[1].itemMeta.Show);

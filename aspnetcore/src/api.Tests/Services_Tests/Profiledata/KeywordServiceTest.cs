@@ -54,6 +54,7 @@ namespace api.Tests.Profiledata
             Assert.NotEmpty(result);
             Assert.Equal(2, result.Count);
             Assert.Equal("Keyword1", result[0].Value);
+            Assert.NotNull(result[0].itemMeta);
             Assert.Equal(1, result[0].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_KEYWORD, result[0].itemMeta.Type);
             Assert.True(result[0].itemMeta.Show);
@@ -67,6 +68,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
 
             Assert.Equal("Keyword2", result[1].Value);
+            Assert.NotNull(result[1].itemMeta);
             Assert.Equal(2, result[1].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_KEYWORD, result[1].itemMeta.Type);
             Assert.False(result[1].itemMeta.Show);

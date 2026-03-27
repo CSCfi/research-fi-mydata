@@ -56,6 +56,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("Researcher description 1", result[0].ResearchDescriptionFi);
             Assert.Equal("Researcher description 1", result[0].ResearchDescriptionEn);
             Assert.Equal("Researcher description 1", result[0].ResearchDescriptionSv);
+            Assert.NotNull(result[0].itemMeta);
             Assert.Equal(1, result[0].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION, result[0].itemMeta.Type);
             Assert.True(result[0].itemMeta.Show);
@@ -71,6 +72,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("Tutkijakuvaus 2 Fi", result[1].ResearchDescriptionFi);
             Assert.Equal("Researcher description 2 En", result[1].ResearchDescriptionEn);
             Assert.Equal("Forskarbeskrivning 2 Sv", result[1].ResearchDescriptionSv);
+            Assert.NotNull(result[1].itemMeta);
             Assert.Equal(2, result[1].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.PERSON_RESEARCHER_DESCRIPTION, result[1].itemMeta.Type);
             Assert.False(result[1].itemMeta.Show);
