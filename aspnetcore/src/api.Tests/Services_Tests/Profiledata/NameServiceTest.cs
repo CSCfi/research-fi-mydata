@@ -43,7 +43,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorNames_ReturnsNames_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorNames_ReturnsNames_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = NameServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
@@ -106,7 +106,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorOtherNames_ReturnsOtherNames_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorOtherNames_ReturnsOtherNames_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = NameServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);

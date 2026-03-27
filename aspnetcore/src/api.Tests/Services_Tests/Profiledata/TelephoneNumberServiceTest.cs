@@ -41,7 +41,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorTelephoneNumbers_ReturnsTelephoneNumbers_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorTelephoneNumbers_ReturnsTelephoneNumbers_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = TelephoneNumberServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);

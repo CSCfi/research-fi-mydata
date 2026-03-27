@@ -42,7 +42,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorResearcherDescriptions_ReturnsResearcherDescriptions_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorResearcherDescriptions_ReturnsResearcherDescriptions_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = ResearcherDescriptionServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);

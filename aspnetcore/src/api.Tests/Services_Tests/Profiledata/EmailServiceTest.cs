@@ -41,7 +41,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorEmails_ReturnsEmails_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorEmails_ReturnsEmails_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = EmailServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);

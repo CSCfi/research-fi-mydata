@@ -42,7 +42,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorExternalIdentifiers_ReturnsExternalIdentifiers_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorExternalIdentifiers_ReturnsExternalIdentifiers_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = ExternalIdentifierTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);

@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using api.Models.Ttv;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Threading.Tasks;
-using api.Models.Common;
 
 namespace api.Tests.Profiledata
 {
@@ -42,7 +41,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorPublications_ReturnsPublications_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorPublications_ReturnsPublications_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = PublicationServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);

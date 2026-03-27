@@ -42,7 +42,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorAffiliations_ReturnsAffiliations_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorAffiliations_ReturnsAffiliations_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = AffiliationServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
@@ -159,7 +159,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorAffiliations_ReturnsAffiliations_WithSectors_WhenForElasticsearchIsTrue()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorAffiliations_ReturnsAffiliations_WithSectors_WhenForElasticsearchIsTrue));
-            var testData = TestProfiledata.Create();
+            var testData = AffiliationServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);

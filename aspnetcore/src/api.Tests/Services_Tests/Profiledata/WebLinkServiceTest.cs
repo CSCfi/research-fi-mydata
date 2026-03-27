@@ -41,7 +41,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorWebLinks_ReturnsWebLinks_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorWebLinks_ReturnsWebLinks_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = WebLinkServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);

@@ -41,7 +41,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorEducations_ReturnsEducations_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorEducations_ReturnsEducations_WhenMatchingUserProfileExists));
-            var testData = TestProfiledata.Create();
+            var testData = EducationServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);
