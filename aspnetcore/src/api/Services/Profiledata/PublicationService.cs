@@ -305,7 +305,7 @@ namespace api.Services.Profiledata
                     }).ToList(),
                     itemMeta = new ProfileEditorItemMeta(
                         id: publicationDto.Id,
-                        type:Constants.ItemMetaTypes.ACTIVITY_PUBLICATION,
+                        type: publicationDto.IsProfileOnlyPublication ? Constants.ItemMetaTypes.ACTIVITY_PUBLICATION_PROFILE_ONLY : Constants.ItemMetaTypes.ACTIVITY_PUBLICATION,
                         show: publicationDto.Show,
                         publicationDto.PrimaryValue
                     )

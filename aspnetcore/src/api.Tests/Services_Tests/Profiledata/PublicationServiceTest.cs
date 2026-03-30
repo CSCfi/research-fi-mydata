@@ -162,7 +162,7 @@ namespace api.Tests.Profiledata
             // Item meta
             Assert.NotNull(result[0].itemMeta);
             Assert.Equal(1, result[0].itemMeta.Id);
-            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION, result[0].itemMeta.Type);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION_PROFILE_ONLY, result[2].itemMeta.Type);
             Assert.True(result[0].itemMeta.Show);
             Assert.True(result[0].itemMeta.PrimaryValue);
             // Data sources
@@ -197,7 +197,7 @@ namespace api.Tests.Profiledata
             // Item meta
             Assert.NotNull(result[3].itemMeta);
             Assert.Equal(23, result[3].itemMeta.Id);
-            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION, result[3].itemMeta.Type);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION_PROFILE_ONLY, result[3].itemMeta.Type);
             Assert.False(result[3].itemMeta.Show);
             Assert.False(result[3].itemMeta.PrimaryValue);
             // Data sources
