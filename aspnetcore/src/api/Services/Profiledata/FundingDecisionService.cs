@@ -66,6 +66,7 @@ namespace api.Services.Profiledata
             public string DimProfileOnlyFundingDecision_DimOrganization_NameEn { get; set; } = string.Empty;
             public string DimProfileOnlyFundingDecision_DimOrganization_NameSv { get; set; } = string.Empty;
             public int FactFieldValues_DimIdentifierlessDataId { get; set; } = -1;
+            public string FactFieldValues_DimIdentifierlessData_Type { get; set; } = string.Empty;
             public string FactFieldValues_DimIdentifierlessData_ValueFi { get; set; } = string.Empty;
             public string FactFieldValues_DimIdentifierlessData_ValueEn { get; set; } = string.Empty;
             public string FactFieldValues_DimIdentifierlessData_ValueSv { get; set; } = string.Empty;
@@ -158,6 +159,7 @@ namespace api.Services.Profiledata
                     DimProfileOnlyFundingDecision_DimOrganization_NameEn = ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder != null && ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder > 0 ? ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.NameEn : string.Empty,
                     DimProfileOnlyFundingDecision_DimOrganization_NameSv = ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder != null && ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder > 0 ? ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.NameSv : string.Empty,
                     FactFieldValues_DimIdentifierlessDataId = ffv.DimIdentifierlessDataId,
+                    FactFieldValues_DimIdentifierlessData_Type = ffv.DimIdentifierlessData.Type,
                     FactFieldValues_DimIdentifierlessData_ValueFi = ffv.DimIdentifierlessDataId > 0 ? ffv.DimIdentifierlessData.ValueFi : string.Empty,
                     FactFieldValues_DimIdentifierlessData_ValueEn = ffv.DimIdentifierlessDataId > 0 ? ffv.DimIdentifierlessData.ValueEn : string.Empty,
                     FactFieldValues_DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessDataId > 0 ? ffv.DimIdentifierlessData.ValueSv : string.Empty
@@ -270,24 +272,32 @@ namespace api.Services.Profiledata
                     nameEn: profileOnlyFundingDecisionDto.DescriptionEn,
                     nameSv: profileOnlyFundingDecisionDto.DescriptionSv
                 );
-                // Name translation: funder name
-                NameTranslation nameTranslationFunderName = _languageService.GetNameTranslation(
-                    nameFi: profileOnlyFundingDecisionDto.FunderNameFi,
-                    nameEn: profileOnlyFundingDecisionDto.FunderNameEn,
-                    nameSv: profileOnlyFundingDecisionDto.FunderNameSv
-                );
-                // Name translation: call programme
-                NameTranslation nameTranslationCallProgramme = _languageService.GetNameTranslation(
-                    nameFi: profileOnlyFundingDecisionDto.CallProgramNameFi,
-                    nameEn: profileOnlyFundingDecisionDto.CallProgramNameEn,
-                    nameSv: profileOnlyFundingDecisionDto.CallProgramNameSv
-                );
                 // Name translation: type of funding name
                 NameTranslation nameTranslationTypeOfFundingName = _languageService.GetNameTranslation(
                     nameFi: profileOnlyFundingDecisionDto.TypeOfFundingNameFi,
                     nameEn: profileOnlyFundingDecisionDto.TypeOfFundingNameEn,
                     nameSv: profileOnlyFundingDecisionDto.TypeOfFundingNameSv
                 );
+                // Name translation: funder name
+                NameTranslation nameTranslationFunderName = new();
+                // Taken from either related dim_organization or dim_identifierless_data
+                if (profileOnlyFundingDecisionDto.DimProfileOnlyFundingDecision_DimOrganization_Id != null && profileOnlyFundingDecisionDto.DimProfileOnlyFundingDecision_DimOrganization_Id > 0)
+                {
+                    nameTranslationFunderName = _languageService.GetNameTranslation(
+                        nameFi: profileOnlyFundingDecisionDto.DimProfileOnlyFundingDecision_DimOrganization_NameFi,
+                        nameEn: profileOnlyFundingDecisionDto.DimProfileOnlyFundingDecision_DimOrganization_NameEn,
+                        nameSv: profileOnlyFundingDecisionDto.DimProfileOnlyFundingDecision_DimOrganization_NameSv
+                    );
+                }
+                else if (profileOnlyFundingDecisionDto.FactFieldValues_DimIdentifierlessDataId > -1 &&
+                    profileOnlyFundingDecisionDto.FactFieldValues_DimIdentifierlessData_Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME)
+                {
+                    nameTranslationFunderName = _languageService.GetNameTranslation(
+                        nameFi: profileOnlyFundingDecisionDto.FactFieldValues_DimIdentifierlessData_ValueFi,
+                        nameEn: profileOnlyFundingDecisionDto.FactFieldValues_DimIdentifierlessData_ValueEn,
+                        nameSv: profileOnlyFundingDecisionDto.FactFieldValues_DimIdentifierlessData_ValueSv
+                    );
+                }
                 // Name translation: data source organization name
                 NameTranslation dataSourceOrganizationName = _languageService.GetNameTranslation(
                     nameFi: profileOnlyFundingDecisionDto.DimRegisteredDatasource_DimOrganization_NameFi,

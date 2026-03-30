@@ -19,62 +19,59 @@ namespace api.Services
 
         public NameTranslation GetNameTranslation(string nameFi, string nameEn, string nameSv)
         {
-            // Convert null to ""
-            if (nameFi == null)
-            {
-                nameFi = "";
-            }
+            // Coalesce nulls to empty strings
+            nameFi ??= "";
+            nameEn ??= "";
+            nameSv ??= "";
 
-            if (nameEn == null)
-            {
-                nameEn = "";
-            }
+            // Count how many fields have values
+            int filledCount =
+                (nameFi != "" ? 1 : 0) + 
+                (nameEn != "" ? 1 : 0) + 
+                (nameSv != "" ? 1 : 0);
 
-            if (nameSv == null)
+            // Apply logic based on state
+            if (filledCount == 1)
             {
-                nameSv = "";
+                // Exactly one field filled - copy it to the others
+                if (nameFi != "")
+                {
+                    // Only FI contains value => copy to EN and SV
+                    nameEn = nameSv = nameFi;
+                }
+                else if (nameEn != "")
+                {
+                    // Only EN contains value => copy to FI and SV
+                    nameFi = nameSv = nameEn;
+                }
+                else // nameSv must be filled
+                {
+                    // Only SV contains value => copy to FI and EN
+                    nameFi = nameEn = nameSv;
+                }
             }
-
-            // Only FI contains value => copy to EN and SV
-            if (nameFi != "" && nameEn == "" && nameSv == "")
+            else if (filledCount == 2)
             {
-                nameEn = nameFi;
-                nameSv = nameFi;
+                // Two fields filled - apply priority order (FI > SV > EN)
+                if (nameFi == "")
+                {
+                    // FI is empty, one of EN/SV is filled
+                    nameFi = nameSv != "" ? nameSv : nameEn;
+                }
+                else if (nameEn == "")
+                {
+                    // EN is empty, FI and SV are filled
+                    nameEn = nameFi;
+                }
+                else // nameSv == ""
+                {
+                    // SV is empty, FI and EN are filled
+                    nameSv = nameFi;
+                }
             }
+            // If filledCount == 0 or 3, all fields stay as-is
 
-            // Only EN contains value => copy to FI and SV
-            if (nameEn != "" && nameFi == "" && nameSv == "")
-            {
-                nameFi = nameEn;
-                nameSv = nameEn;
-            }
-
-            // Only SV contains value => copy to FI and EN
-            if (nameSv != "" && nameFi == "" && nameEn == "")
-            {
-                nameFi = nameSv;
-                nameEn = nameSv;
-            }
-
-            // FI and EN contain values => copy FI to SV
-            if (nameFi != "" && nameEn != "" && nameSv == "")
-            {
-                nameSv = nameFi;
-            }
-
-            // FI and SV contain values => copy FI to EN
-            if (nameFi != "" && nameSv != "" && nameEn == "")
-            {
-                nameEn = nameFi;
-            }
-
-            // EN and SV contain values => copy SV to FI
-            if (nameFi == "" && nameSv != "" && nameEn != "")
-            {
-                nameFi = nameSv;
-            }
-
-            return new NameTranslation()
+            return new NameTranslation
             {
                 NameFi = nameFi,
                 NameEn = nameEn,
