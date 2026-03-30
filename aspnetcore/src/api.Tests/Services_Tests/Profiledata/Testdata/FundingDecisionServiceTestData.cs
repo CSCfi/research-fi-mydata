@@ -33,12 +33,8 @@ namespace api.Tests.Profiledata
             data.DimOrganizations.Add(new DimOrganization { Id = -1, NameFi = "", NameEn = "", NameSv = "", DimSector = data.DimSectors[0], SourceId = "Source1" });
             data.DimOrganizations.Add(new DimOrganization { Id = 1, NameFi = "Org name Fi", NameEn = "Org name En", NameSv = "Org name Sv", DimSector = data.DimSectors[1], SourceId = "Source1" });
             data.DimOrganizations.Add(new DimOrganization { Id = 2, NameFi = "Org name", NameEn = "", NameSv = "", DimSector = data.DimSectors[1], SourceId = "Source1" });
-            data.DimOrganizations.Add(new DimOrganization { Id = 3, NameFi = "TTV Fi", NameEn = "TTV En", NameSv = "TTV Sv", DimSector = data.DimSectors[1], SourceId = "Source1" });
-            data.DimOrganizations.Add(new DimOrganization { Id = 4, NameFi = "", NameEn = "ORCID", NameSv = "", DimSector = data.DimSectors[1], SourceId = "Source1" });
             data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 1, Name = "DataSource1", DimOrganization = data.DimOrganizations[1], SourceId = "Source1"});
             data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 2, Name = "DataSource2", DimOrganization = data.DimOrganizations[2], SourceId = "Source1"});
-            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 3, Name = "TTV" , DimOrganization = data.DimOrganizations[3], SourceId = "Source1"});
-            data.DimRegisteredDataSources.Add(new DimRegisteredDataSource { Id = 4, Name = "ORCID" , DimOrganization = data.DimOrganizations[4], SourceId = "Source1"});
             data.FactFieldValues = new List<FactFieldValue>();
             DimFieldDisplaySetting dfdsFundingDecision = new DimFieldDisplaySetting { Id = 1, FieldIdentifier = Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION, SourceId = "Source1"};
             data.FieldDisplaySettings = new List<DimFieldDisplaySetting>
@@ -99,8 +95,8 @@ namespace api.Tests.Profiledata
                     SourceId = "Source1",
                     SourceDescription = "Source description"
                 },
-                DimOrganizationIdFunder = data.DimOrganizations[0].Id,
-                DimOrganizationIdFunderNavigation = data.DimOrganizations[0],
+                DimOrganizationIdFunder = data.DimOrganizations[1].Id,
+                DimOrganizationIdFunderNavigation = data.DimOrganizations[1],
                 SourceId = "Source1"
             };
             ffvDimFundingDecision1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
@@ -162,12 +158,12 @@ namespace api.Tests.Profiledata
                     SourceId = "Source1",
                     SourceDescription = "Source description"
                 },
-                DimOrganizationIdFunder = data.DimOrganizations[1].Id,
-                DimOrganizationIdFunderNavigation = data.DimOrganizations[1],
+                DimOrganizationIdFunder = data.DimOrganizations[2].Id,
+                DimOrganizationIdFunderNavigation = data.DimOrganizations[2],
                 SourceId = "Source1"
             };
-            ffvDimFundingDecision2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
-            ffvDimFundingDecision2.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
+            ffvDimFundingDecision2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvDimFundingDecision2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
             ffvDimFundingDecision2.Show = false;
             ffvDimFundingDecision2.PrimaryValue = false;
             data.FactFieldValues.Add(ffvDimFundingDecision2);
@@ -177,8 +173,6 @@ namespace api.Tests.Profiledata
              * DimProfileOnlyFundingDecisions
              */
 
-            // Use ORCID datasource for DimProfileOnlyFundingDecisions.
-            DimRegisteredDataSource registeredDataSource_Orcid = data.DimRegisteredDataSources.FirstOrDefault(r => r.Name == "ORCID");
             // DimProfileOnlyFundingDecision 1
             FactFieldValue ffvDimProfileOnlyFundingDecision1 = userProfileService.GetEmptyFactFieldValue();
             ffvDimProfileOnlyFundingDecision1.DimUserProfileId = data.UserProfile.Id;
@@ -190,6 +184,7 @@ namespace api.Tests.Profiledata
                 Id = 234,
                 Acronym = "dimProfileOnlyFundingDecision1 acronym",
                 AmountInEur = 234.56m,
+                AmountInFundingDecisionCurrency = 112233.44m,
                 DimCallProgrammeId = 100,
                 DimCallProgramme = new DimCallProgramme {
                     Id = 100,
@@ -218,11 +213,22 @@ namespace api.Tests.Profiledata
                 DescriptionEn = "",
                 DescriptionSv = "",
                 FunderProjectNumber = "dimProfileOnlyFundingDecision1 funder project number",
+                FundingDecisionCurrencyAbbreviation = "EUR",
                 NameFi = "dimProfileOnlyFundingDecision1 name",
                 NameEn = "",
                 NameSv = "",
                 DimOrganizationIdFunder = data.DimOrganizations[1].Id,
                 DimOrganizationIdFunderNavigation = data.DimOrganizations[1],
+                DimWebLinks = new List<DimWebLink>()
+                {
+                    new DimWebLink
+                    {
+                        Id = 1,
+                        Url = "https://example.com/profile_only_fundingdecision1",
+                        LinkLabel = "dimProfileOnlyFundingDecision1 weblink label",
+                        SourceId = "Source2"
+                    }
+                },
                 SourceId = "Source2"
             };
             ffvDimProfileOnlyFundingDecision1.DimReferencedataActorRoleId = 100;
@@ -236,8 +242,8 @@ namespace api.Tests.Profiledata
                 SourceId = "Source2",
                 SourceDescription = "Source description"
             };
-            ffvDimProfileOnlyFundingDecision1.DimRegisteredDataSourceId = registeredDataSource_Orcid.Id;
-            ffvDimProfileOnlyFundingDecision1.DimRegisteredDataSource = registeredDataSource_Orcid;
+            ffvDimProfileOnlyFundingDecision1.DimRegisteredDataSourceId = data.DimRegisteredDataSources[0].Id;
+            ffvDimProfileOnlyFundingDecision1.DimRegisteredDataSource = data.DimRegisteredDataSources[0];
             ffvDimProfileOnlyFundingDecision1.Show = true;
             ffvDimProfileOnlyFundingDecision1.PrimaryValue = true;
             ffvDimProfileOnlyFundingDecision1.DimIdentifierlessDataId = -1;
@@ -261,7 +267,8 @@ namespace api.Tests.Profiledata
             ffvDimProfileOnlyFundingDecision2.DimProfileOnlyFundingDecision = new DimProfileOnlyFundingDecision {
                 Id = 235,
                 Acronym = "dimProfileOnlyFundingDecision2 acronym",
-                AmountInEur = 234.56m,
+                AmountInEur = 345.67m,
+                AmountInFundingDecisionCurrency = 223344.55m,
                 DimCallProgrammeId = 101,
                 DimCallProgramme = new DimCallProgramme {
                     Id = 101,
@@ -273,7 +280,7 @@ namespace api.Tests.Profiledata
                 DimDateIdEnd = 102,
                 DimDateIdEndNavigation = new DimDate {
                     Id = 102,
-                    Year = 2021,
+                    Year = 2002,
                     Month = 12,
                     Day = 31,
                     SourceId = "Source2"
@@ -281,7 +288,7 @@ namespace api.Tests.Profiledata
                 DimDateIdStart = 103,
                 DimDateIdStartNavigation = new DimDate {
                     Id = 103,
-                    Year = 2020,
+                    Year = 2001,
                     Month = 1,
                     Day = 1,
                     SourceId = "Source2"
@@ -290,38 +297,39 @@ namespace api.Tests.Profiledata
                 DescriptionEn = "dimProfileOnlyFundingDecision2 description en",
                 DescriptionSv = "dimProfileOnlyFundingDecision2 description sv",
                 FunderProjectNumber = "dimProfileOnlyFundingDecision2 funder project number",
+                FundingDecisionCurrencyAbbreviation = "USD",
                 NameFi = "dimProfileOnlyFundingDecision2 name fi",
                 NameEn = "dimProfileOnlyFundingDecision2 name en",
                 NameSv = "dimProfileOnlyFundingDecision2 name sv",
-                DimTypeOfFundingId = 101,
-                DimTypeOfFunding = new DimTypeOfFunding {
-                    Id = 101,
-                    TypeId = "dimProfileOnlyFundingDecision2 type of funding type id",
-                    NameFi = "dimProfileOnlyFundingDecision2 type of funding name fi",
-                    NameEn = "dimProfileOnlyFundingDecision2 type of funding name en",
-                    NameSv = "dimProfileOnlyFundingDecision2 type of funding name sv",
-                    SourceId = "Source2",
-                    SourceDescription = "Source description"
-                },
                 DimOrganizationIdFunder = -1,
                 DimOrganizationIdFunderNavigation = null,
-                SourceId = "Source2"
+                SourceId = "Source2",
+                DimWebLinks = new List<DimWebLink>()
+                {
+                    new DimWebLink
+                    {
+                        Id = 2,
+                        Url = "https://example.com/profile_only_fundingdecision2",
+                        LinkLabel = "dimProfileOnlyFundingDecision2 weblink label",
+                        SourceId = "Source2"
+                    }
+                },
             };
             ffvDimProfileOnlyFundingDecision2.DimReferencedataActorRoleId = 101;
             ffvDimProfileOnlyFundingDecision2.DimReferencedataActorRole = new DimReferencedatum {
                 Id = 101,
                 CodeScheme = "dimProfileOnlyFundingDecision2 dimReferencedataActorRole code scheme",
                 CodeValue = "dimProfileOnlyFundingDecision2 dimReferencedataActorRole code value",
-                NameFi = "dimProfileOnlyFundingDecision2 dimReferencedataActorRole name fi",
-                NameEn = "dimProfileOnlyFundingDecision2 dimReferencedataActorRole name en",
-                NameSv = "dimProfileOnlyFundingDecision2 dimReferencedataActorRole name sv",
+                NameFi = "dimProfileOnlyFundingDecision2 dimReferencedataActorRole name",
+                NameEn = "",
+                NameSv = "",
                 SourceId = "Source2",
                 SourceDescription = "Source description"
             };
-            ffvDimProfileOnlyFundingDecision2.DimRegisteredDataSourceId = registeredDataSource_Orcid.Id;
-            ffvDimProfileOnlyFundingDecision2.DimRegisteredDataSource = registeredDataSource_Orcid;
-            ffvDimProfileOnlyFundingDecision2.Show = true;
-            ffvDimProfileOnlyFundingDecision2.PrimaryValue = true;
+            ffvDimProfileOnlyFundingDecision2.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvDimProfileOnlyFundingDecision2.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvDimProfileOnlyFundingDecision2.Show = false;
+            ffvDimProfileOnlyFundingDecision2.PrimaryValue = false;
             ffvDimProfileOnlyFundingDecision2.DimIdentifierlessDataId = 200;
             ffvDimProfileOnlyFundingDecision2.DimIdentifierlessData = new DimIdentifierlessDatum {
                 Id = 200,
