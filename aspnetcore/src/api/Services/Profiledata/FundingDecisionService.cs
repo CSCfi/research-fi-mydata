@@ -165,7 +165,7 @@ namespace api.Services.Profiledata
                     FactFieldValues_DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessDataId > 0 ? ffv.DimIdentifierlessData.ValueSv : string.Empty
                 }).AsNoTracking().ToListAsync();
 
-            List<ProfileEditorFundingDecision> fundingDecisions = new List<ProfileEditorFundingDecision>(); 
+            List<ProfileEditorFundingDecision> fundingDecisions = new(); 
 
             /*
              * Process DimFundingDecision DTOs

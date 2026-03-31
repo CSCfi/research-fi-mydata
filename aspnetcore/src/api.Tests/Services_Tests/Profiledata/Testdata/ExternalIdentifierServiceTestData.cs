@@ -6,7 +6,7 @@ using api.Services;
 
 namespace api.Tests.Profiledata
 {
-    public class ExternalIdentifierTestData
+    public class ExternalIdentifierServiceTestData
     {
         public List<DimSector> DimSectors { get; private set; }
         public List<DimOrganization> DimOrganizations { get; private set; }
@@ -15,9 +15,9 @@ namespace api.Tests.Profiledata
         public DimUserProfile UserProfile { get; private set; }
         public List<FactFieldValue> FactFieldValues { get; private set; }
 
-        public static ExternalIdentifierTestData Create()
+        public static ExternalIdentifierServiceTestData Create()
         {
-            var data = new ExternalIdentifierTestData();
+            var data = new ExternalIdentifierServiceTestData();
             UtilityService utilityService = new UtilityService();
             DataSourceHelperService dataSourceHelperService = new DataSourceHelperService();
             

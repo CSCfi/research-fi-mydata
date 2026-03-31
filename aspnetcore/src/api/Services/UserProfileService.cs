@@ -32,6 +32,8 @@ namespace api.Services
         private readonly IResearcherDescriptionService _researcherDescriptionService;
         private readonly ITelephoneNumberService _telephoneNumberService;
         private readonly IWebLinkService _webLinkService;
+        private readonly IFundingDecisionService _fundingDecisionService;
+        private readonly IResearchDatasetService _researchDatasetService;
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly IUtilityService _utilityService;
         private readonly ILanguageService _languageService;
@@ -60,7 +62,9 @@ namespace api.Services
             IPublicationService publicationService,
             IResearcherDescriptionService researcherDescriptionService,
             ITelephoneNumberService telephoneNumberService,
-            IWebLinkService webLinkService)
+            IWebLinkService webLinkService,
+            IFundingDecisionService fundingDecisionService,
+            IResearchDatasetService researchDatasetService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
@@ -81,6 +85,8 @@ namespace api.Services
             _researcherDescriptionService = researcherDescriptionService;
             _telephoneNumberService = telephoneNumberService;
             _webLinkService = webLinkService;
+            _fundingDecisionService = fundingDecisionService;
+            _researchDatasetService = researchDatasetService;
         }
 
         public UserProfileService(
@@ -1361,8 +1367,8 @@ namespace api.Services
                     educations = await _educationService.GetProfileEditorEducations(userprofileId, forElasticsearch),
                     affiliations = await _affiliationService.GetProfileEditorAffiliations(userprofileId, forElasticsearch),
                     publications = await _publicationService.GetProfileEditorPublications(userprofileId, forElasticsearch),
-                    fundingDecisions = new(),
-                    researchDatasets = new(),
+                    fundingDecisions = await _fundingDecisionService.GetProfileEditorFundingDecisions(userprofileId, forElasticsearch),
+                    researchDatasets = await _researchDatasetService.GetProfileEditorResearchDatasets(userprofileId, forElasticsearch),
                     activitiesAndRewards = new()
                 },
                 settings = new(),

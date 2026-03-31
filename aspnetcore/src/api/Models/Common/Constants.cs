@@ -177,5 +177,18 @@
             public const string NOTHING_TO_ADD = "nothing to add";
             public const string NOTHING_TO_REMOVE = "nothing to remove";
         }
+
+        public static class DescriptiveItemLanguages
+        {
+            public const string FI = "fi";
+            public const string EN = "en";
+            public const string SV = "sv";
+        }
+
+        public static class DescriptiveItemTypes
+        {
+            public const string DESCRIPTION = "description";
+            public const string NAME = "name";
+        }
     }
 }
