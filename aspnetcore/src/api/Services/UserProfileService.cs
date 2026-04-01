@@ -34,6 +34,7 @@ namespace api.Services
         private readonly IWebLinkService _webLinkService;
         private readonly IFundingDecisionService _fundingDecisionService;
         private readonly IResearchDatasetService _researchDatasetService;
+        private readonly IResearchActivityService _researchActivityService;
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly IUtilityService _utilityService;
         private readonly ILanguageService _languageService;
@@ -64,7 +65,8 @@ namespace api.Services
             ITelephoneNumberService telephoneNumberService,
             IWebLinkService webLinkService,
             IFundingDecisionService fundingDecisionService,
-            IResearchDatasetService researchDatasetService)
+            IResearchDatasetService researchDatasetService,
+            IResearchActivityService researchActivityService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
@@ -75,6 +77,7 @@ namespace api.Services
             _ttvSqlService = ttvSqlService;
             _logger = logger;
             _elasticsearchService = elasticsearchService;
+            _researchActivityService = researchActivityService;
             _affiliationService = affiliationService;
             _educationService = educationService;
             _emailService = emailService;
@@ -1369,7 +1372,7 @@ namespace api.Services
                     publications = await _publicationService.GetProfileEditorPublications(userprofileId, forElasticsearch),
                     fundingDecisions = await _fundingDecisionService.GetProfileEditorFundingDecisions(userprofileId, forElasticsearch),
                     researchDatasets = await _researchDatasetService.GetProfileEditorResearchDatasets(userprofileId, forElasticsearch),
-                    activitiesAndRewards = new()
+                    activitiesAndRewards = await _researchActivityService.GetProfileEditorActiviesAndRewards(userprofileId, forElasticsearch)
                 },
                 settings = new(),
                 cooperation = new(),

@@ -312,6 +312,7 @@ namespace api
             services.AddScoped<IWebLinkService, WebLinkService>();
             services.AddScoped<IFundingDecisionService, FundingDecisionService>();
             services.AddScoped<IResearchDatasetService, ResearchDatasetService>();
+            services.AddScoped<IResearchActivityService, ResearchActivityService>();
             services.AddMemoryCache();
 
             // Background processing related services.

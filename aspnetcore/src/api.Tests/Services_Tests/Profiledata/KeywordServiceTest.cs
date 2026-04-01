@@ -42,7 +42,7 @@ namespace api.Tests.Profiledata
         public async Task GetProfileEditorKeywords_ReturnsKeywords_WhenMatchingUserProfileExists()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileEditorKeywords_ReturnsKeywords_WhenMatchingUserProfileExists));
-            var testData = KeyworkServiceTestData.Create();
+            var testData = KeywordServiceTestData.Create();
             await testData.SeedAsync(context);
 
             var service = CreateService(context);

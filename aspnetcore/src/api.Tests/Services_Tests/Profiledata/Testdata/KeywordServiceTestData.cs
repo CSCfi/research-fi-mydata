@@ -6,7 +6,7 @@ using api.Services;
 
 namespace api.Tests.Profiledata
 {
-    public class KeyworkServiceTestData
+    public class KeywordServiceTestData
     {
         public List<DimSector> DimSectors { get; private set; }
         public List<DimOrganization> DimOrganizations { get; private set; }
@@ -15,9 +15,9 @@ namespace api.Tests.Profiledata
         public DimUserProfile UserProfile { get; private set; }
         public List<FactFieldValue> FactFieldValues { get; private set; }
 
-        public static KeyworkServiceTestData Create()
+        public static KeywordServiceTestData Create()
         {
-            var data = new KeyworkServiceTestData();
+            var data = new KeywordServiceTestData();
             UtilityService utilityService = new UtilityService();
             DataSourceHelperService dataSourceHelperService = new DataSourceHelperService();
             
