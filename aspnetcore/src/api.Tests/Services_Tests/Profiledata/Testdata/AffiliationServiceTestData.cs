@@ -43,8 +43,8 @@ namespace api.Tests.Profiledata
 
             /*
              * 1st affiliation
-             *   - has DimOrganization => OrganizationBroader
-             *   - has all language versions populated
+             *   - Has DimOrganization => OrganizationBroader.
+             *   - Has all language versions populated.
              */
             FactFieldValue ffvAffiliation1 = userProfileService.GetEmptyFactFieldValue();
             ffvAffiliation1.DimUserProfileId = data.UserProfile.Id;
@@ -98,7 +98,7 @@ namespace api.Tests.Profiledata
 
             /*
              * 2nd affiliation
-             *   - has DimOrganization, but that organization does not have OrganizationBroader.
+             *   - Has DimOrganization, but that organization does not have OrganizationBroader.
              */
             FactFieldValue ffvAffiliation2 = userProfileService.GetEmptyFactFieldValue();
             ffvAffiliation2.DimUserProfileId = data.UserProfile.Id;
@@ -141,7 +141,7 @@ namespace api.Tests.Profiledata
 
             /*
              * 3rd affiliation
-             *   - does not have related DimOrganization, but has related DimIdentifierlessData.
+             *   - Does not have related DimOrganization, but has related DimIdentifierlessData.
              */
             FactFieldValue ffvAffiliation3 = userProfileService.GetEmptyFactFieldValue();
             ffvAffiliation3.DimUserProfileId = data.UserProfile.Id;

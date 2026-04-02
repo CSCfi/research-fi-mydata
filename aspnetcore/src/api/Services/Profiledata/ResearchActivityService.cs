@@ -139,6 +139,7 @@ namespace api.Services.Profiledata
                     DimIdentifierlessData_Child_ValueFi = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueFi,
                     DimIdentifierlessData_Child_ValueEn = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueEn,
                     DimIdentifierlessData_Child_ValueSv = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueSv,
+                    DimResearchActivity_StartDate_Day = ffv.DimResearchActivity.DimStartDateNavigation != null ? ffv.DimResearchActivity.DimStartDateNavigation.Day : 0,
                     DimResearchActivity_StartDate_Month = ffv.DimResearchActivity.DimStartDateNavigation != null ? ffv.DimResearchActivity.DimStartDateNavigation.Month : 0,
                     DimResearchActivity_StartDate_Year = ffv.DimResearchActivity.DimStartDateNavigation != null ? ffv.DimResearchActivity.DimStartDateNavigation.Year : 0,
                     DimResearchActivity_EndDate_Day = ffv.DimResearchActivity.DimEndDateNavigation != null ? ffv.DimResearchActivity.DimEndDateNavigation.Day : 0,
@@ -290,6 +291,13 @@ namespace api.Services.Profiledata
                     nameSv: researchActivityDto.DimResearchActivity_ActivityType_From_Role_Parent_NameSv
                 );
 
+                // Name translation for registered data source organization name
+                NameTranslation nameTranslationRegisteredDataSourceOrganization = _languageService.GetNameTranslation(
+                    nameFi: researchActivityDto.DimRegisteredDatasource_DimOrganization_NameFi,
+                    nameEn: researchActivityDto.DimRegisteredDatasource_DimOrganization_NameEn,
+                    nameSv: researchActivityDto.DimRegisteredDatasource_DimOrganization_NameSv
+                );
+
                 ProfileEditorActivityAndReward activityAndReward = new()
                 {
                     NameFi = nameTraslationResearchActivityName.NameFi,
@@ -346,9 +354,9 @@ namespace api.Services.Profiledata
                             Id = researchActivityDto.DimRegisteredDatasource_Id,
                             RegisteredDataSource = researchActivityDto.DimRegisteredDatasource_Name,
                             Organization = new Organization() {
-                                NameFi = researchActivityDto.DimRegisteredDatasource_DimOrganization_NameFi,
-                                NameEn = researchActivityDto.DimRegisteredDatasource_DimOrganization_NameEn,
-                                NameSv = researchActivityDto.DimRegisteredDatasource_DimOrganization_NameSv,
+                                NameFi = nameTranslationRegisteredDataSourceOrganization.NameFi,
+                                NameEn = nameTranslationRegisteredDataSourceOrganization.NameEn,
+                                NameSv = nameTranslationRegisteredDataSourceOrganization.NameSv,
                                 SectorId = researchActivityDto.DimRegisteredDatasource_DimOrganization_DimSector_SectorId
                             }
                         }
