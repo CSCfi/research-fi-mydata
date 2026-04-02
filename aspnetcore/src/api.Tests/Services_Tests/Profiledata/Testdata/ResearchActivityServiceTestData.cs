@@ -90,7 +90,68 @@ namespace api.Tests.Profiledata
                 NameFi = "DimResearchActivity1 name fi",
                 NameSv = "DimResearchActivity1 name sv",
                 NameEn = "DimResearchActivity1 name en",
-                SourceId = "Source1"
+                SourceId = "Source1",
+                FactContributions = new List<FactContribution>()
+                {
+                    new FactContribution { // Activity type.
+                        ContributionType = Constants.FactContributionTypes.ACTIVITY_TYPE,
+                        DimDateId = -1,
+                        DimFundingDecisionId = -1,
+                        DimGeoId = -1,
+                        DimIdentifierlessDataId = -1,
+                        DimInfrastructureId = -1,
+                        DimNameId = -1,
+                        DimNewsFeedId = -1,
+                        DimOrganizationId = -1,
+                        DimPublicationId = -1,
+                        DimResearchActivityId = 100,
+                        DimResearchActivity = null,
+                        DimReferencedataActorRoleId = 1000,
+                        DimReferencedataActorRole = new DimReferencedatum {
+                            Id = 1000,
+                            CodeScheme = Constants.ReferenceDataCodeSchemes.ACTIVITIES_AND_ROLES,
+                            CodeValue = "DimResearchActivity1 FactContribution activity_type DimReferenceData CodeValue",
+                            NameFi = "DimResearchActivity1 FactContribution activity_type DimReferenceData NameFi",
+                            NameEn = "DimResearchActivity1 FactContribution activity_type DimReferenceData NameEn",
+                            NameSv = "DimResearchActivity1 FactContribution activity_type DimReferenceData NameSv",
+                            SourceId = "Source1",
+                            SourceDescription = ""
+                        },
+                        DimResearchDatasetId = -1,
+                        DimResearchDataCatalogId = -1,
+                        DimResearchCommunityId = -1,
+                        SourceId = "Source1"
+                    },
+                    new FactContribution { // Activity role.
+                        ContributionType = Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY,
+                        DimDateId = -1,
+                        DimFundingDecisionId = -1,
+                        DimGeoId = -1,
+                        DimIdentifierlessDataId = -1,
+                        DimInfrastructureId = -1,
+                        DimNameId = -1,
+                        DimNewsFeedId = -1,
+                        DimOrganizationId = -1,
+                        DimPublicationId = -1,
+                        DimResearchActivityId = 100,
+                        DimResearchActivity = null,
+                        DimReferencedataActorRoleId = 1001,
+                        DimReferencedataActorRole = new DimReferencedatum {
+                            Id = 1001,
+                            CodeScheme = Constants.ReferenceDataCodeSchemes.ACTIVITIES_AND_ROLES,
+                            CodeValue = "DimResearchActivity1 FactContribution researcher_name_activity DimReferenceData CodeValue",
+                            NameFi = "DimResearchActivity1 FactContribution researcher_name_activity DimReferenceData NameFi",
+                            NameEn = "DimResearchActivity1 FactContribution researcher_name_activity DimReferenceData NameEn",
+                            NameSv = "DimResearchActivity1 FactContribution researcher_name_activity DimReferenceData NameSv",
+                            SourceId = "Source1",
+                            SourceDescription = ""
+                        },
+                        DimResearchDatasetId = -1,
+                        DimResearchDataCatalogId = -1,
+                        DimResearchCommunityId = -1,
+                        SourceId = "Source1"
+                    }
+                }
             };
             ffvDimResearchActivity1.DimUserProfileId = data.UserProfile.Id;
             ffvDimResearchActivity1.DimUserProfile = data.UserProfile;
@@ -142,7 +203,50 @@ namespace api.Tests.Profiledata
                 NameFi = "DimResearchActivity2 name",
                 NameSv = "",
                 NameEn = "",
-                SourceId = "Source1"
+                SourceId = "Source1",
+                FactContributions = new List<FactContribution>()
+                {
+                    new FactContribution { // Activity role.
+                        ContributionType = Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY,
+                        DimDateId = -1,
+                        DimFundingDecisionId = -1,
+                        DimGeoId = -1,
+                        DimIdentifierlessDataId = -1,
+                        DimInfrastructureId = -1,
+                        DimNameId = -1,
+                        DimNewsFeedId = -1,
+                        DimOrganizationId = -1,
+                        DimPublicationId = -1,
+                        DimResearchActivityId = 100,
+                        DimResearchActivity = null,
+                        DimReferencedataActorRoleId = 1002,
+                        DimReferencedataActorRole = new DimReferencedatum {
+                            Id = 1002,
+                            CodeScheme = Constants.ReferenceDataCodeSchemes.ACTIVITIES_AND_ROLES,
+                            CodeValue = "DimResearchActivity2 FactContribution researcher_name_activity DimReferenceData CodeValue",
+                            NameFi = "DimResearchActivity2 FactContribution researcher_name_activity DimReferenceData NameFi",
+                            NameEn = "DimResearchActivity2 FactContribution researcher_name_activity DimReferenceData NameEn",
+                            NameSv = "DimResearchActivity2 FactContribution researcher_name_activity DimReferenceData NameSv",
+                            SourceId = "Source1",
+                            SourceDescription = "",
+                            DimReferencedataId = 10000,
+                            DimReferencedata = new DimReferencedatum { // Activity type is defined in the parent.
+                                Id = 10000,
+                                CodeScheme = Constants.ReferenceDataCodeSchemes.ACTIVITIES_AND_ROLES,
+                                CodeValue = "DimResearchActivity2 FactContribution activity_type DimReferenceData CodeValue",
+                                NameFi = "DimResearchActivity2 FactContribution activity_type DimReferenceData NameFi",
+                                NameEn = "DimResearchActivity2 FactContribution activity_type DimReferenceData NameEn",
+                                NameSv = "DimResearchActivity2 FactContribution activity_type DimReferenceData NameSv",
+                                SourceId = "Source1",
+                                SourceDescription = ""
+                            }
+                        },
+                        DimResearchDatasetId = -1,
+                        DimResearchDataCatalogId = -1,
+                        DimResearchCommunityId = -1,
+                        SourceId = "Source1"
+                    }
+                }
             };
             ffvDimResearchActivity2.DimUserProfileId = data.UserProfile.Id;
             ffvDimResearchActivity2.DimUserProfile = data.UserProfile;
@@ -184,7 +288,68 @@ namespace api.Tests.Profiledata
                 NameFi = "DimResearchActivity3 name fi",
                 NameSv = "DimResearchActivity3 name sv",
                 NameEn = "DimResearchActivity3 name en",
-                SourceId = "Source1"
+                SourceId = "Source1",
+                FactContributions = new List<FactContribution>()
+                {
+                    new FactContribution { // Activity type. Only FI name is populated.
+                        ContributionType = Constants.FactContributionTypes.ACTIVITY_TYPE,
+                        DimDateId = -1,
+                        DimFundingDecisionId = -1,
+                        DimGeoId = -1,
+                        DimIdentifierlessDataId = -1,
+                        DimInfrastructureId = -1,
+                        DimNameId = -1,
+                        DimNewsFeedId = -1,
+                        DimOrganizationId = -1,
+                        DimPublicationId = -1,
+                        DimResearchActivityId = 100,
+                        DimResearchActivity = null,
+                        DimReferencedataActorRoleId = 1005,
+                        DimReferencedataActorRole = new DimReferencedatum {
+                            Id = 1005,
+                            CodeScheme = Constants.ReferenceDataCodeSchemes.ACTIVITIES_AND_ROLES,
+                            CodeValue = "DimResearchActivity3 FactContribution activity_type DimReferenceData CodeValue",
+                            NameFi = "DimResearchActivity3 FactContribution activity_type DimReferenceData",
+                            NameEn = "",
+                            NameSv = "",
+                            SourceId = "Source1",
+                            SourceDescription = ""
+                        },
+                        DimResearchDatasetId = -1,
+                        DimResearchDataCatalogId = -1,
+                        DimResearchCommunityId = -1,
+                        SourceId = "Source1"
+                    },
+                    new FactContribution { // Activity role. Only FI name is populated.
+                        ContributionType = Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY,
+                        DimDateId = -1,
+                        DimFundingDecisionId = -1,
+                        DimGeoId = -1,
+                        DimIdentifierlessDataId = -1,
+                        DimInfrastructureId = -1,
+                        DimNameId = -1,
+                        DimNewsFeedId = -1,
+                        DimOrganizationId = -1,
+                        DimPublicationId = -1,
+                        DimResearchActivityId = 100,
+                        DimResearchActivity = null,
+                        DimReferencedataActorRoleId = 1006,
+                        DimReferencedataActorRole = new DimReferencedatum {
+                            Id = 1006,
+                            CodeScheme = Constants.ReferenceDataCodeSchemes.ACTIVITIES_AND_ROLES,
+                            CodeValue = "DimResearchActivity3 FactContribution researcher_name_activity DimReferenceData CodeValue",
+                            NameFi = "DimResearchActivity3 FactContribution researcher_name_activity DimReferenceData",
+                            NameEn = "",
+                            NameSv = "",
+                            SourceId = "Source1",
+                            SourceDescription = ""
+                        },
+                        DimResearchDatasetId = -1,
+                        DimResearchDataCatalogId = -1,
+                        DimResearchCommunityId = -1,
+                        SourceId = "Source1"
+                    }
+                }
             };
             ffvDimResearchActivity3.DimUserProfileId = data.UserProfile.Id;
             ffvDimResearchActivity3.DimUserProfile = data.UserProfile;

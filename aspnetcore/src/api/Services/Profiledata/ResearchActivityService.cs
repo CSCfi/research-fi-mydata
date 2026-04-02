@@ -139,6 +139,45 @@ namespace api.Services.Profiledata
                     DimIdentifierlessData_Child_ValueFi = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueFi,
                     DimIdentifierlessData_Child_ValueEn = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueEn,
                     DimIdentifierlessData_Child_ValueSv = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueSv,
+                    // Activity type.
+                    DimResearchActivity_ActivityType_CodeValue = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.ACTIVITY_TYPE)
+                        .Select(fc => fc.DimReferencedataActorRole.CodeValue).FirstOrDefault(),
+                    DimResearchActivity_ActivityType_NameFi = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.ACTIVITY_TYPE)
+                        .Select(fc => fc.DimReferencedataActorRole.NameFi).FirstOrDefault(),
+                    DimResearchActivity_ActivityType_NameEn = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.ACTIVITY_TYPE)
+                        .Select(fc => fc.DimReferencedataActorRole.NameEn).FirstOrDefault(),
+                    DimResearchActivity_ActivityType_NameSv = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.ACTIVITY_TYPE)
+                        .Select(fc => fc.DimReferencedataActorRole.NameSv).FirstOrDefault(),
+                    // Activity role.
+                    DimResearchActivity_Role_CodeValue = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY)
+                        .Select(fc => fc.DimReferencedataActorRole.CodeValue).FirstOrDefault(),
+                    DimResearchActivity_Role_NameFi = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY)
+                        .Select(fc => fc.DimReferencedataActorRole.NameFi).FirstOrDefault(),
+                    DimResearchActivity_Role_NameEn = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY)
+                        .Select(fc => fc.DimReferencedataActorRole.NameEn).FirstOrDefault(),
+                    DimResearchActivity_Role_NameSv = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY)
+                        .Select(fc => fc.DimReferencedataActorRole.NameSv).FirstOrDefault(),
+                    // Activity type from role parent.
+                    DimResearchActivity_ActivityType_From_Role_Parent_CodeValue = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY)
+                        .Select(fc => fc.DimReferencedataActorRole.DimReferencedata.CodeValue).FirstOrDefault(),
+                    DimResearchActivity_ActivityType_From_Role_Parent_NameFi = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY)
+                        .Select(fc => fc.DimReferencedataActorRole.DimReferencedata.NameFi).FirstOrDefault(),
+                    DimResearchActivity_ActivityType_From_Role_Parent_NameEn = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY)
+                        .Select(fc => fc.DimReferencedataActorRole.DimReferencedata.NameEn).FirstOrDefault(),
+                    DimResearchActivity_ActivityType_From_Role_Parent_NameSv = ffv.DimResearchActivity.FactContributions
+                        .Where(fc => fc.ContributionType == Constants.FactContributionTypes.RESEARCHER_NAME_ACTIVITY)
+                        .Select(fc => fc.DimReferencedataActorRole.DimReferencedata.NameSv).FirstOrDefault(),
                     DimResearchActivity_StartDate_Day = ffv.DimResearchActivity.DimStartDateNavigation != null ? ffv.DimResearchActivity.DimStartDateNavigation.Day : 0,
                     DimResearchActivity_StartDate_Month = ffv.DimResearchActivity.DimStartDateNavigation != null ? ffv.DimResearchActivity.DimStartDateNavigation.Month : 0,
                     DimResearchActivity_StartDate_Year = ffv.DimResearchActivity.DimStartDateNavigation != null ? ffv.DimResearchActivity.DimStartDateNavigation.Year : 0,

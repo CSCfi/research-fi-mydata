@@ -120,6 +120,7 @@
             public const string ORCID_FUNDING = "aktiviteetitjaroolit";
             public const string PROFILE_SHARING = "tutkijaprofiilin_luvitus";
             public const string USER_CHOICES = "Kiinnostuksen_ilmaiseminen";
+            public const string ACTIVITIES_AND_ROLES = "aktiviteetitjaroolit";
         }
 
         // https://koodistot.suomi.fi/codescheme;registryCode=research;schemeCode=aktiviteetitjaroolit
@@ -189,6 +190,12 @@
         {
             public const string DESCRIPTION = "description";
             public const string NAME = "name";
+        }
+
+        public static class FactContributionTypes
+        {
+            public const string ACTIVITY_TYPE = "activity_type";
+            public const string RESEARCHER_NAME_ACTIVITY = "researcher_name_activity";
         }
     }
 }
