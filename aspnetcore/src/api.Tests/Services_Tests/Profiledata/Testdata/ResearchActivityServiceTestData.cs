@@ -45,11 +45,24 @@ namespace api.Tests.Profiledata
              * 1st DimResearchActivity:
              *   - Has DimOrganization => OrganizationBroader.
              *   - Has all language versions populated.
+             *   - Has the same start year and name as DimProfileOnlyResearchActivity4.
+             *   - This must be included in the results and DimProfileOnlyResearchActivity4 should be deduplicated away.
              */
             FactFieldValue ffvDimResearchActivity1 = userProfileService.GetEmptyFactFieldValue();
             ffvDimResearchActivity1.DimResearchActivityId = 1;
             ffvDimResearchActivity1.DimResearchActivity = new DimResearchActivity {
                 Id = 100,
+                NameFi = "ResearchActivity to deduplicate name fi", // Same name as DimProfileOnlyResearchActivity4 to test deduplication.
+                NameSv = "ResearchActivity to deduplicate name sv",
+                NameEn = "ResearchActivity to deduplicate name en",
+                DimStartDate = 101,
+                DimStartDateNavigation = new DimDate {
+                    Id = 101,
+                    Year = 2019, // Same start year as DimProfileOnlyResearchActivity4 to test deduplication.
+                    Month = 1,
+                    Day = 11,
+                    SourceId = "Source1"
+                },
                 DescriptionFi = "DimResearchActivity1 description fi",
                 DescriptionSv = "DimResearchActivity1 description sv",
                 DescriptionEn = "DimResearchActivity1 description en",
@@ -78,8 +91,6 @@ namespace api.Tests.Profiledata
                     }
                 },
                 DimPids = new List<DimPid>(),
-                DimStartDate = 101,
-                DimStartDateNavigation = new DimDate { Id = 101, Year = 2019, Month = 1, Day = 11, SourceId = "Source1" },
                 DimWebLinks = new List<DimWebLink>()
                 {
                     new DimWebLink { Id = 101, Url = "https://example.com/dim-research-activity-1-wl1", LinkLabel = "DimResearchActivity1 Web Link 1", LinkType = "ProfileEditorWebLink", SourceId = "Source1" },
@@ -87,9 +98,6 @@ namespace api.Tests.Profiledata
                 },
                 InternationalCollaboration = true,
                 LocalIdentifier = "DimResearchActivity1 local identifier",
-                NameFi = "DimResearchActivity1 name fi",
-                NameSv = "DimResearchActivity1 name sv",
-                NameEn = "DimResearchActivity1 name en",
                 SourceId = "Source1",
                 FactContributions = new List<FactContribution>()
                 {
@@ -571,8 +579,62 @@ namespace api.Tests.Profiledata
             /*
              * 4th DimProfileOnlyResearchActivity:
              *   - Has the same start year and name as DimResearchActivity1.
-             *   - Should not be deduplicated.
+             *   - This should be deduplicated and not included in the results.
              */
+            FactFieldValue ffvDimProfileOnlyResearchActivity4 = userProfileService.GetEmptyFactFieldValue();
+            ffvDimProfileOnlyResearchActivity4.DimProfileOnlyResearchActivityId = 1003;
+            ffvDimProfileOnlyResearchActivity4.DimProfileOnlyResearchActivity = new DimProfileOnlyResearchActivity
+            {
+                Id = 1003,
+                NameFi = "ResearchActivity to deduplicate name fi", // Same name as DimResearchActivity1 to test deduplication.
+                NameEn = "ResearchActivity to deduplicate name en",
+                NameSv = "ResearchActivity to deduplicate name sv",
+                DimDateIdStart = 3015,
+                DimDateIdStartNavigation = new DimDate {
+                    Id = 3015,
+                    Year = 2019, // Same start year as DimResearchActivity1 to test deduplication.
+                    Month = 6,
+                    Day = 16,
+                    SourceId = "Source1"
+                },
+                DescriptionFi = "DimProfileOnlyResearchActivity4 description",
+                DescriptionSv = "",
+                DescriptionEn = "",
+                DimDateIdEnd = 3014,
+                DimDateIdEndNavigation = new DimDate { Id = 3014, Year = 2021, Month = 7, Day = 17, SourceId = "Source1" },
+                DimOrganizationId = 999,
+                DimOrganization = new DimOrganization {
+                    Id = 999,
+                    OrganizationId = "DimProfileOnlyResearchActivity4 organization organizationId",
+                    NameFi = "DimProfileOnlyResearchActivity4 organization name",
+                    NameEn = "",
+                    NameSv = "",
+                    SourceId = "Source1",
+                    DimSectorid = 998,
+                    DimSector = new DimSector { Id = 998, SectorId = "S2", NameFi = "Sector 2 Fi", NameSv = "Sector 2 Sv", NameEn = "Sector 2 En", SourceId = "Source1" }
+                },
+                SourceId = "Source1"
+            };
+            ffvDimProfileOnlyResearchActivity4.DimUserProfileId = data.UserProfile.Id;
+            ffvDimProfileOnlyResearchActivity4.DimUserProfile = data.UserProfile;
+            ffvDimProfileOnlyResearchActivity4.DimFieldDisplaySettingsId = dfdsResearchActivity.Id; // RESEARCH_ACTIVITY
+            ffvDimProfileOnlyResearchActivity4.DimFieldDisplaySettings = dfdsResearchActivity;
+            ffvDimProfileOnlyResearchActivity4.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvDimProfileOnlyResearchActivity4.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvDimProfileOnlyResearchActivity4.Show = false;
+            ffvDimProfileOnlyResearchActivity4.PrimaryValue = false;
+            ffvDimProfileOnlyResearchActivity4.DimReferencedataActorRoleId = 2005;
+            ffvDimProfileOnlyResearchActivity4.DimReferencedataActorRole = new DimReferencedatum {
+                Id = 2005,
+                CodeScheme = Constants.ReferenceDataCodeSchemes.ACTIVITIES_AND_ROLES,
+                CodeValue = "DimProfileOnlyResearchActivity4 activity_type DimReferenceData CodeValue",
+                NameFi = "DimProfileOnlyResearchActivity4 activity_type DimReferenceData",
+                NameEn = "",
+                NameSv = "",
+                SourceId = "Source1",
+                SourceDescription = ""
+            };
+            data.FactFieldValues.Add(ffvDimProfileOnlyResearchActivity4);
 
             return data;
         }

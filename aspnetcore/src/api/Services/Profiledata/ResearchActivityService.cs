@@ -48,6 +48,7 @@ namespace api.Services.Profiledata
         public class ResearchActivityDto
         {
             public bool IsProfileOnlyResearchActivity { get; set; }
+            public bool IsDuplicate { get; set; } = false;
             public int Id { get; set; }
             public bool? Show { get; set; }
             public bool? PrimaryValue { get; set; }
@@ -331,8 +332,8 @@ namespace api.Services.Profiledata
                         bNameEn: nameTraslationResearchActivity_Name.NameEn,
                         bNameSv: nameTraslationResearchActivity_Name.NameSv))
                     {
-                        // Duplicate found, remove profile only research activity duplicate from the list.
-                        profileOnlyResearchActivityDtos.Remove(profileOnlyResearchActivityDto);
+                        // Duplicate found, mark profile only research activity as duplicate.
+                        profileOnlyResearchActivityDto.IsDuplicate = true;
                         break;
                     }
                 }
@@ -347,7 +348,7 @@ namespace api.Services.Profiledata
              *   - List<ProfileEditorActivityAndReward>
              */
             List<ProfileEditorActivityAndReward> activitiesAndRewards = new();
-            foreach (ResearchActivityDto dto in researchActivityDtos.Concat(profileOnlyResearchActivityDtos))
+            foreach (ResearchActivityDto dto in researchActivityDtos.Concat(profileOnlyResearchActivityDtos).Where(d => !d.IsDuplicate))
             {
                 // Research activity organization search order:
                 // 1. DimResearchActivity_DimOrganizationBroader_Id

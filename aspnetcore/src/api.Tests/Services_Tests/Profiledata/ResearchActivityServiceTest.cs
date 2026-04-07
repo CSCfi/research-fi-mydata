@@ -56,9 +56,9 @@ namespace api.Tests.Profiledata
             Assert.Equal(6, result.Count);
 
             // result[0] from DimResearchActivity1
-            Assert.Equal("DimResearchActivity1 name fi", result[0].NameFi);
-            Assert.Equal("DimResearchActivity1 name en", result[0].NameEn);
-            Assert.Equal("DimResearchActivity1 name sv", result[0].NameSv);
+            Assert.Equal("ResearchActivity to deduplicate name fi", result[0].NameFi);
+            Assert.Equal("ResearchActivity to deduplicate name en", result[0].NameEn);
+            Assert.Equal("ResearchActivity to deduplicate name sv", result[0].NameSv);
             Assert.Equal("DimResearchActivity1 description fi", result[0].DescriptionFi);
             Assert.Equal("DimResearchActivity1 description en", result[0].DescriptionEn);
             Assert.Equal("DimResearchActivity1 description sv", result[0].DescriptionSv);
