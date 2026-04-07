@@ -53,9 +53,9 @@ namespace api.Tests.Profiledata
             );
 
             Assert.NotEmpty(result);
-            Assert.Equal(3, result.Count);
+            Assert.Equal(6, result.Count);
 
-            // result[0] from DimFundingDecision1
+            // result[0] from DimResearchActivity1
             Assert.Equal("DimResearchActivity1 name fi", result[0].NameFi);
             Assert.Equal("DimResearchActivity1 name en", result[0].NameEn);
             Assert.Equal("DimResearchActivity1 name sv", result[0].NameSv);
@@ -95,8 +95,16 @@ namespace api.Tests.Profiledata
             Assert.Equal("Org name En", result[0].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name Sv", result[0].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[0].DataSources[0].Organization.SectorId);
+            Assert.Equal("https://example.com/dim-research-activity-1-wl1", result[0].Url);
+            Assert.Equal(2, result[0].WebLinks.Count);
+            Assert.Equal("https://example.com/dim-research-activity-1-wl1", result[0].WebLinks[0].Url);
+            Assert.Equal("DimResearchActivity1 Web Link 1", result[0].WebLinks[0].LinkLabel);
+            Assert.Equal("ProfileEditorWebLink", result[0].WebLinks[0].LinkType);
+            Assert.Equal("https://example.com/dim-research-activity-1-wl2", result[0].WebLinks[1].Url);
+            Assert.Equal("DimResearchActivity1 Web Link 2", result[0].WebLinks[1].LinkLabel);
+            Assert.Equal("ProfileEditorWebLink", result[0].WebLinks[1].LinkType);
 
-            // result[1] from DimFundingDecision2
+            // result[1] from DimResearchActivity2
             Assert.Equal("DimResearchActivity2 name", result[1].NameFi);
             Assert.Equal("DimResearchActivity2 name", result[1].NameEn);
             Assert.Equal("DimResearchActivity2 name", result[1].NameSv);
@@ -137,7 +145,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
 
-            // result[2] from DimFundingDecision3
+            // result[2] from DimresearchActivity3
             Assert.Equal("DimResearchActivity3 name fi", result[2].NameFi);
             Assert.Equal("DimResearchActivity3 name en", result[2].NameEn);
             Assert.Equal("DimResearchActivity3 name sv", result[2].NameSv);
@@ -177,6 +185,215 @@ namespace api.Tests.Profiledata
             Assert.Equal("Org name En", result[2].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name Sv", result[2].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[2].DataSources[0].Organization.SectorId);
+
+            // result[3] from DimProfileOnlyResearchActivity1
+            Assert.Equal("DimProfileOnlyResearchActivity1 name fi", result[3].NameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity1 name en", result[3].NameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity1 name sv", result[3].NameSv);
+            Assert.Equal("DimProfileOnlyResearchActivity1 description fi", result[3].DescriptionFi);
+            Assert.Equal("DimProfileOnlyResearchActivity1 description en", result[3].DescriptionEn);
+            Assert.Equal("DimProfileOnlyResearchActivity1 description sv", result[3].DescriptionSv);
+            Assert.Equal("DimProfileOnlyResearchActivity1 organization broader name fi", result[3].OrganizationNameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity1 organization broader name en", result[3].OrganizationNameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity1 organization broader name sv", result[3].OrganizationNameSv);
+            Assert.Equal("DimProfileOnlyResearchActivity1 organization name fi", result[3].DepartmentNameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity1 organization name en", result[3].DepartmentNameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity1 organization name sv", result[3].DepartmentNameSv);
+            Assert.Equal("DimProfileOnlyResearchActivity1 activity_type DimReferenceData CodeValue", result[3].ActivityTypeCode);
+            Assert.Equal("DimProfileOnlyResearchActivity1 activity_type DimReferenceData NameFi", result[3].ActivityTypeNameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity1 activity_type DimReferenceData NameEn", result[3].ActivityTypeNameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity1 activity_type DimReferenceData NameSv", result[3].ActivityTypeNameSv);
+            Assert.Equal("", result[3].RoleCode);
+            Assert.Equal("", result[3].RoleNameFi);
+            Assert.Equal("", result[3].RoleNameEn);
+            Assert.Equal("", result[3].RoleNameSv);
+            Assert.Equal(1970, result[3].StartDate.Year);
+            Assert.Equal(5, result[3].StartDate.Month);
+            Assert.Equal(15, result[3].StartDate.Day);
+            Assert.Equal(1980, result[3].EndDate.Year);
+            Assert.Equal(4, result[3].EndDate.Month);
+            Assert.Equal(14, result[3].EndDate.Day);
+            Assert.Empty(result[3].sector);
+            Assert.NotNull(result[3].itemMeta);
+            Assert.Equal(1000, result[3].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY_PROFILE_ONLY, result[3].itemMeta.Type);
+            Assert.True(result[3].itemMeta.Show);
+            Assert.True(result[3].itemMeta.PrimaryValue);
+            Assert.Single(result[3].DataSources);
+            Assert.Equal(1, result[3].DataSources[0].Id);
+            Assert.Equal("DataSource1", result[3].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name Fi", result[3].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name En", result[3].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name Sv", result[3].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[3].DataSources[0].Organization.SectorId);
+            Assert.Equal("https://example.com/dim-profile-only-research-activity-1-wl1", result[3].Url);
+            Assert.Equal(2, result[3].WebLinks.Count);
+            Assert.Equal("https://example.com/dim-profile-only-research-activity-1-wl1", result[3].WebLinks[0].Url);
+            Assert.Equal("DimProfileOnlyResearchActivity1 Web Link 1", result[3].WebLinks[0].LinkLabel);
+            Assert.Equal("ProfileEditorWebLink", result[3].WebLinks[0].LinkType);
+            Assert.Equal("https://example.com/dim-profile-only-research-activity-1-wl2", result[3].WebLinks[1].Url);
+            Assert.Equal("DimProfileOnlyResearchActivity1 Web Link 2", result[3].WebLinks[1].LinkLabel);
+            Assert.Equal("ProfileEditorWebLink", result[3].WebLinks[1].LinkType);
+
+            // result[4] from DimProfileOnlyResearchActivity2
+            Assert.Equal("DimProfileOnlyResearchActivity2 name", result[4].NameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity2 name", result[4].NameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity2 name", result[4].NameSv);
+            Assert.Equal("DimProfileOnlyResearchActivity2 description", result[4].DescriptionFi);
+            Assert.Equal("DimProfileOnlyResearchActivity2 description", result[4].DescriptionEn);
+            Assert.Equal("DimProfileOnlyResearchActivity2 description", result[4].DescriptionSv);
+            Assert.Equal("DimProfileOnlyResearchActivity2 organization name", result[4].OrganizationNameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity2 organization name", result[4].OrganizationNameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity2 organization name", result[4].OrganizationNameSv);
+            Assert.Equal("", result[4].DepartmentNameFi);
+            Assert.Equal("", result[4].DepartmentNameEn);
+            Assert.Equal("", result[4].DepartmentNameSv);
+            Assert.Equal("DimProfileOnlyResearchActivity2 activity_type DimReferenceData CodeValue", result[4].ActivityTypeCode);
+            Assert.Equal("DimProfileOnlyResearchActivity2 activity_type DimReferenceData", result[4].ActivityTypeNameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity2 activity_type DimReferenceData", result[4].ActivityTypeNameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity2 activity_type DimReferenceData", result[4].ActivityTypeNameSv);
+            Assert.Equal("", result[4].RoleCode);
+            Assert.Equal("", result[4].RoleNameFi);
+            Assert.Equal("", result[4].RoleNameEn);
+            Assert.Equal("", result[4].RoleNameSv);
+            Assert.Equal(1960, result[4].StartDate.Year);
+            Assert.Equal(6, result[4].StartDate.Month);
+            Assert.Equal(16, result[4].StartDate.Day);
+            Assert.Equal(1965, result[4].EndDate.Year);
+            Assert.Equal(7, result[4].EndDate.Month);
+            Assert.Equal(17, result[4].EndDate.Day);
+            Assert.Empty(result[4].sector);
+            Assert.NotNull(result[4].itemMeta);
+            Assert.Equal(1001, result[4].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY_PROFILE_ONLY, result[4].itemMeta.Type);
+            Assert.False(result[4].itemMeta.Show);
+            Assert.False(result[4].itemMeta.PrimaryValue);
+            Assert.Single(result[4].DataSources);
+            Assert.Equal(2, result[4].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[4].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[4].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[4].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[4].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[4].DataSources[0].Organization.SectorId);
+
+            // result[5] from DimProfileOnlyResearchActivity3
+            Assert.Equal("DimProfileOnlyResearchActivity3 name", result[5].NameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity3 name", result[5].NameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity3 name", result[5].NameSv);
+            Assert.Equal("DimProfileOnlyResearchActivity3 description", result[5].DescriptionFi);
+            Assert.Equal("DimProfileOnlyResearchActivity3 description", result[5].DescriptionEn);
+            Assert.Equal("DimProfileOnlyResearchActivity3 description", result[5].DescriptionSv);
+            Assert.Equal("DimProfileOnlyResearchActivity3 identifierless data value fi", result[5].OrganizationNameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity3 identifierless data value en", result[5].OrganizationNameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity3 identifierless data value sv", result[5].OrganizationNameSv);
+            Assert.Equal("DimProfileOnlyResearchActivity3 identifierless data child value fi", result[5].DepartmentNameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity3 identifierless data child value en", result[5].DepartmentNameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity3 identifierless data child value sv", result[5].DepartmentNameSv);
+            Assert.Equal("DimProfileOnlyResearchActivity3 activity_type DimReferenceData CodeValue", result[5].ActivityTypeCode);
+            Assert.Equal("DimProfileOnlyResearchActivity3 activity_type DimReferenceData", result[5].ActivityTypeNameFi);
+            Assert.Equal("DimProfileOnlyResearchActivity3 activity_type DimReferenceData", result[5].ActivityTypeNameEn);
+            Assert.Equal("DimProfileOnlyResearchActivity3 activity_type DimReferenceData", result[5].ActivityTypeNameSv);
+            Assert.Equal("", result[5].RoleCode);
+            Assert.Equal("", result[5].RoleNameFi);
+            Assert.Equal("", result[5].RoleNameEn);
+            Assert.Equal("", result[5].RoleNameSv);
+            Assert.Equal(1950, result[5].StartDate.Year);
+            Assert.Equal(8, result[5].StartDate.Month);
+            Assert.Equal(18, result[5].StartDate.Day);
+            Assert.Equal(1955, result[5].EndDate.Year);
+            Assert.Equal(9, result[5].EndDate.Month);
+            Assert.Equal(19, result[5].EndDate.Day);
+            Assert.Empty(result[5].sector);
+            Assert.NotNull(result[5].itemMeta);
+            Assert.Equal(1002, result[5].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_RESEARCH_ACTIVITY_PROFILE_ONLY, result[5].itemMeta.Type);
+            Assert.False(result[5].itemMeta.Show);
+            Assert.False(result[5].itemMeta.PrimaryValue);
+            Assert.Single(result[5].DataSources);
+            Assert.Equal(2, result[5].DataSources[0].Id);
+            Assert.Equal("DataSource2", result[5].DataSources[0].RegisteredDataSource);
+            Assert.Equal("Org name", result[5].DataSources[0].Organization.NameFi);
+            Assert.Equal("Org name", result[5].DataSources[0].Organization.NameEn);
+            Assert.Equal("Org name", result[5].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[5].DataSources[0].Organization.SectorId);
+        }
+
+        [Fact(DisplayName = "Research activity deduplication")]
+        public void ResearchActivityDeduplication()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorActiviesAndRewards_ReturnsData_WhenMatchingUserProfileExists));
+            ResearchActivityService service = new(context, null, null);
+
+            // Duplicate
+            Assert.True(
+                service.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are duplicates"
+            );
+            // Year differs
+            Assert.False(
+                service.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2007,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are not duplicates, year differs"
+            );
+            // Fi name differs
+            Assert.False(
+                service.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FIx",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are not duplicates, Fi name differs"
+            );
+            // En name differs
+            Assert.False(
+                service.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name ENx",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SV"
+                ),
+                "Research activities are not duplicates, En name differs"
+            );
+            // Sv name differs
+            Assert.False(
+                service.IsResearchActivityDuplicate(
+                    aYear: 2006,
+                    bYear: 2006,
+                    aNameFi: "test name FI",
+                    bNameFi: "test name FI",
+                    aNameEn: "test name EN",
+                    bNameEn: "test name EN",
+                    aNameSv: "test name SV",
+                    bNameSv: "test name SVx"
+                ),
+                "Research activities are not duplicates, Sv name differs"
+            );
         }
     }
 }
