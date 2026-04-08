@@ -158,10 +158,10 @@ namespace api.Services.Profiledata
                     DimIdentifierlessData_ValueFi = ffv.DimIdentifierlessData.ValueFi,
                     DimIdentifierlessData_ValueEn = ffv.DimIdentifierlessData.ValueEn,
                     DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessData.ValueSv,
-                    DimIdentifierlessData_Child_Type = ffv.DimIdentifierlessData.DimIdentifierlessData.Type,
-                    DimIdentifierlessData_Child_ValueFi = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueFi,
-                    DimIdentifierlessData_Child_ValueEn = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueEn,
-                    DimIdentifierlessData_Child_ValueSv = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueSv,
+                    DimIdentifierlessData_Child_Type = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().Type,
+                    DimIdentifierlessData_Child_ValueFi = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueFi,
+                    DimIdentifierlessData_Child_ValueEn = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueEn,
+                    DimIdentifierlessData_Child_ValueSv = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueSv,
                     // Activity type.
                     ResearchActivity_ActivityType_CodeValue = ffv.DimResearchActivity.FactContributions
                         .Where(fc => fc.ContributionType == Constants.FactContributionTypes.ACTIVITY_TYPE)
@@ -263,10 +263,10 @@ namespace api.Services.Profiledata
                     DimIdentifierlessData_ValueFi = ffv.DimIdentifierlessData.ValueFi,
                     DimIdentifierlessData_ValueEn = ffv.DimIdentifierlessData.ValueEn,
                     DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessData.ValueSv,
-                    DimIdentifierlessData_Child_Type = ffv.DimIdentifierlessData.DimIdentifierlessData.Type,
-                    DimIdentifierlessData_Child_ValueFi = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueFi,
-                    DimIdentifierlessData_Child_ValueEn = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueEn,
-                    DimIdentifierlessData_Child_ValueSv = ffv.DimIdentifierlessData.DimIdentifierlessData.ValueSv,
+                    DimIdentifierlessData_Child_Type = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().Type,
+                    DimIdentifierlessData_Child_ValueFi = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueFi,
+                    DimIdentifierlessData_Child_ValueEn = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueEn,
+                    DimIdentifierlessData_Child_ValueSv = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueSv,
                     ResearchActivity_ActivityType_CodeValue = ffv.DimReferencedataActorRole.CodeValue, // Activity type from DimReferencedata via FactFieldValue.
                     ResearchActivity_ActivityType_NameFi = ffv.DimReferencedataActorRole.NameFi,
                     ResearchActivity_ActivityType_NameEn = ffv.DimReferencedataActorRole.NameEn,

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using System.Diagnostics;
 
 namespace api.Controllers
 {
@@ -106,7 +107,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get(string orcidId)
         {
-            _logger.LogInformation($"{logPrefix}get profile data for ORCID ID: " + orcidId);
+            _logger.LogInformation($"{logPrefix}GetProfileDataAsync for {orcidId} started.");
 
             // Check admin token authorization
             if (!IsAdminTokenAuthorized(Configuration))
@@ -131,11 +132,54 @@ namespace api.Controllers
             LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
 
             // Get profile data
+            var stopwatch = Stopwatch.StartNew();
             ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileDataAsync(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
+            stopwatch.Stop();
+            _logger.LogInformation($"{logPrefix}GetProfileDataAsync for {orcidId} completed in {stopwatch.ElapsedMilliseconds}ms.");
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
 
+        /// <summary>
+        /// Debug: Get any user profile data using refactored code.
+        /// </summary>
+        [HttpGet]
+        [Route("/[controller]/profiledata2/{orcidId}")]
+        [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetProfileData2(string orcidId)
+        {
+            _logger.LogInformation($"{logPrefix}GetProfileData2 for {orcidId} started.");
+
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
+            {
+                return Unauthorized();
+            }
+
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
+            }
+
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
+            {
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
+            }
+
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+
+            // Get profile data
+            var stopwatch = Stopwatch.StartNew();
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData2(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
+            stopwatch.Stop();
+            _logger.LogInformation($"{logPrefix}GetProfileData2 for {orcidId} completed in {stopwatch.ElapsedMilliseconds}ms.");
+
+            return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
+        }
 
         /// <summary>
         /// Debug: Create user profile for given ORCID ID.

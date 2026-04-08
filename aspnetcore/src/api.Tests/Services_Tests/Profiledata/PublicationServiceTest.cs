@@ -177,21 +177,21 @@ namespace api.Tests.Profiledata
             /*
              * result[3]
              */
-            Assert.Equal("DimProfileOnlyPublication3 Article number text", result[3].ArticleNumberText);
+            Assert.Equal("", result[3].ArticleNumberText);
             Assert.Equal("DimProfileOnlyPublication3 Authors text", result[3].AuthorsText);
-            Assert.Equal("DimProfileOnlyPublication3 Conference name", result[3].ConferenceName);
+            Assert.Equal("", result[3].ConferenceName);
             Assert.Equal("", result[3].Doi);
-            Assert.Equal("DimProfileOnlyPublication3 Issue number", result[3].IssueNumber);
+            Assert.Equal("", result[3].IssueNumber);
             Assert.Equal("", result[3].JournalName);
-            Assert.Equal(9, result[3].OpenAccess);
-            Assert.Equal("678", result[3].PageNumberText);
-            Assert.Equal("DimProfileOnlyPublication3 Parent publication name", result[3].ParentPublicationName);
+            Assert.Equal(0, result[3].OpenAccess);
+            Assert.Equal("", result[3].PageNumberText);
+            Assert.Equal("", result[3].ParentPublicationName);
             Assert.Equal("", result[3].PublicationId);
             Assert.Equal( "DimProfileOnlyPublication3 Publication name", result[3].PublicationName);
             Assert.Equal("", result[3].PublicationTypeCode);
             Assert.Equal(2025, result[3].PublicationYear);
-            Assert.Equal("DimProfileOnlyPublication3 Publisher name", result[3].PublisherName);
-            Assert.Equal("DimProfileOnlyPublication3 Volume number", result[3].Volume);
+            Assert.Equal("", result[3].PublisherName);
+            Assert.Equal("", result[3].Volume);
             Assert.Equal("", result[3].SelfArchivedAddress);
             Assert.Equal("0", result[3].SelfArchivedCode);
             // Item meta

@@ -133,9 +133,9 @@ namespace api.Services.Profiledata
                     Id = ffv.DimProfileOnlyPublicationId,
                     Show = ffv.Show,
                     PrimaryValue = ffv.PrimaryValue,
-                    ArticleNumberText = ffv.DimProfileOnlyPublication.ArticleNumberText,
-                    AuthorsText = ffv.DimProfileOnlyPublication.AuthorsText,
-                    ConferenceName = ffv.DimProfileOnlyPublication.ConferenceName,
+                    ArticleNumberText = ffv.DimProfileOnlyPublication.ArticleNumberText ?? "",
+                    AuthorsText = ffv.DimProfileOnlyPublication.AuthorsText ?? "",
+                    ConferenceName = ffv.DimProfileOnlyPublication.ConferenceName ?? "",
                     DataSources = new List<DataSourceDto> {
                         new DataSourceDto() {
                             DimRegisteredDatasource_Id = ffv.DimRegisteredDataSourceId,
@@ -148,21 +148,21 @@ namespace api.Services.Profiledata
                     },
                     Doi = ffv.DimProfileOnlyPublication.DoiHandle,
                     DoiDictionaryKey = ffv.DimProfileOnlyPublication.DoiHandle != null ? ffv.DimProfileOnlyPublication.DoiHandle.Trim().ToLower() : null,
-                    IssueNumber = ffv.DimProfileOnlyPublication.IssueNumber,
+                    IssueNumber = ffv.DimProfileOnlyPublication.IssueNumber ?? "",
                     JournalName = "",
-                    OpenAccessCodeUnprocessed = ffv.DimProfileOnlyPublication.OpenAccessCode,
-                    PageNumberText = ffv.DimProfileOnlyPublication.PageNumberText,
-                    ParentPublicationName = ffv.DimProfileOnlyPublication.ParentPublicationName,
+                    OpenAccessCodeUnprocessed = ffv.DimProfileOnlyPublication.OpenAccessCode != null ? ffv.DimProfileOnlyPublication.OpenAccessCode : "0", // Default value for profile-only publications is set to "0" (not open access)
+                    PageNumberText = ffv.DimProfileOnlyPublication.PageNumberText ?? "",
+                    ParentPublicationName = ffv.DimProfileOnlyPublication.ParentPublicationName ?? "",
                     PeerReviewed = ffv.DimProfileOnlyPublication.PeerReviewed,
                     PublicationId = ffv.DimProfileOnlyPublication.PublicationId,
                     PublicationIdDictionaryKey = ffv.DimProfileOnlyPublication.PublicationId != null ? ffv.DimProfileOnlyPublication.PublicationId.Trim().ToLower() : null,
                     PublicationName = ffv.DimProfileOnlyPublication.PublicationName,
                     PublicationTypeCode = "",
                     PublicationYear = ffv.DimProfileOnlyPublication.PublicationYear,
-                    PublisherName = ffv.DimProfileOnlyPublication.PublisherName,
+                    PublisherName = ffv.DimProfileOnlyPublication.PublisherName ?? "",
                     SelfArchivedAddress = "",
                     SelfArchivedCode = false,
-                    Volume = ffv.DimProfileOnlyPublication.Volume
+                    Volume = ffv.DimProfileOnlyPublication.Volume ?? ""
                 }).AsNoTracking().ToListAsync();
 
             var publicationIdDict = new Dictionary<string, PublicationDto>();
@@ -256,12 +256,8 @@ namespace api.Services.Profiledata
             List<ProfileEditorPublication> publications = new List<ProfileEditorPublication>();
             foreach (PublicationDto publicationDto in uniquePublications)
             {
-                int openAccessCode =
-                    (
-                        !string.IsNullOrWhiteSpace(publicationDto.OpenAccessCodeUnprocessed) &&
-                        int.TryParse(publicationDto.OpenAccessCodeUnprocessed, out int openAccessCodeValue)
-                    )
-                    ? openAccessCodeValue : 9; // Unknown value is set to 9
+                // Parse open access code. If parsing fails, set to 9 (unknown value).
+                int openAccessCode = int.TryParse(publicationDto.OpenAccessCodeUnprocessed, out int openAccessCodeParsed) ? openAccessCodeParsed : 9;
 
                 publications.Add(new ProfileEditorPublication()
                 {

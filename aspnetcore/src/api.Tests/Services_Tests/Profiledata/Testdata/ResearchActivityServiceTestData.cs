@@ -374,14 +374,17 @@ namespace api.Tests.Profiledata
                 ValueFi = "DimResearchActivity3 identifierless data value fi",
                 ValueEn = "DimResearchActivity3 identifierless data value en",
                 ValueSv = "DimResearchActivity3 identifierless data value sv",
-                DimIdentifierlessDataId = 301,
-                DimIdentifierlessData = new DimIdentifierlessDatum {
-                    Id = 301,
-                    Type = Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT,
-                    ValueFi = "DimResearchActivity3 identifierless data child value fi",
-                    ValueEn = "DimResearchActivity3 identifierless data child value en",
-                    ValueSv = "DimResearchActivity3 identifierless data child value sv",
-                    SourceId = "Source1"
+                DimIdentifierlessDataId = -1,
+                InverseDimIdentifierlessData = new List<DimIdentifierlessDatum> {
+                    new DimIdentifierlessDatum {
+                        Id = 301,
+                        DimIdentifierlessDataId = 300,
+                        Type = Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT,
+                        ValueFi = "DimResearchActivity3 identifierless data child value fi",
+                        ValueEn = "DimResearchActivity3 identifierless data child value en",
+                        ValueSv = "DimResearchActivity3 identifierless data child value sv",
+                        SourceId = "Source1"
+                    }
                 },
                 SourceId = "Source1"
             };
@@ -563,14 +566,17 @@ namespace api.Tests.Profiledata
                 ValueFi = "DimProfileOnlyResearchActivity3 identifierless data value fi",
                 ValueEn = "DimProfileOnlyResearchActivity3 identifierless data value en",
                 ValueSv = "DimProfileOnlyResearchActivity3 identifierless data value sv",
-                DimIdentifierlessDataId = 301,
-                DimIdentifierlessData = new DimIdentifierlessDatum {
-                    Id = 3001,
-                    Type = Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT,
-                    ValueFi = "DimProfileOnlyResearchActivity3 identifierless data child value fi",
-                    ValueEn = "DimProfileOnlyResearchActivity3 identifierless data child value en",
-                    ValueSv = "DimProfileOnlyResearchActivity3 identifierless data child value sv",
-                    SourceId = "Source1"
+                DimIdentifierlessDataId = -1,
+                InverseDimIdentifierlessData = new List<DimIdentifierlessDatum> {
+                    new DimIdentifierlessDatum {
+                        Id = 3001,
+                        DimIdentifierlessDataId = 3000,
+                        Type = Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT,
+                        ValueFi = "DimProfileOnlyResearchActivity3 identifierless data child value fi",
+                        ValueEn = "DimProfileOnlyResearchActivity3 identifierless data child value en",
+                        ValueSv = "DimProfileOnlyResearchActivity3 identifierless data child value sv",
+                        SourceId = "Source1"
+                    }
                 },
                 SourceId = "Source1"
             };

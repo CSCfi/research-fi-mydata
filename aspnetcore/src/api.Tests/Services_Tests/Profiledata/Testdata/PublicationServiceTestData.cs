@@ -291,19 +291,19 @@ namespace api.Tests.Profiledata
             ffvProfileOnlyPublication3.DimProfileOnlyPublicationId = 3;
             ffvProfileOnlyPublication3.DimProfileOnlyPublication = new DimProfileOnlyPublication {
                 Id = 23,
-                ArticleNumberText = "DimProfileOnlyPublication3 Article number text",
+                ArticleNumberText = null,
                 AuthorsText = "DimProfileOnlyPublication3 Authors text",
-                ConferenceName = "DimProfileOnlyPublication3 Conference name",
+                ConferenceName = null,
                 DoiHandle = "", // Doi not available.
-                IssueNumber = "DimProfileOnlyPublication3 Issue number",
-                OpenAccessCode = "", // Open access code not available.
-                PageNumberText = "678",
-                ParentPublicationName = "DimProfileOnlyPublication3 Parent publication name",
+                IssueNumber = null,
+                OpenAccessCode = null, // Open access code not available.
+                PageNumberText = null,
+                ParentPublicationName = null,
                 PublicationId = "", // PublicationId not available.
                 PublicationName = "DimProfileOnlyPublication3 Publication name",
                 PublicationYear = 2025,
-                PublisherName = "DimProfileOnlyPublication3 Publisher name",
-                Volume = "DimProfileOnlyPublication3 Volume number",
+                PublisherName = null,
+                Volume = null,
                 SourceId = "Source1"
             };
             ffvProfileOnlyPublication3.DimRegisteredDataSourceId = registeredDataSource_Orcid.Id;

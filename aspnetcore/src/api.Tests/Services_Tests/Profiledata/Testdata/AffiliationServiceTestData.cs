@@ -176,14 +176,17 @@ namespace api.Tests.Profiledata
                 ValueFi = "Affiliation 3 identifierless data value Fi",
                 ValueEn = "Affiliation 3 identifierless data value En",
                 ValueSv = "Affiliation 3 identifierless data value Sv",
-                DimIdentifierlessDataId = 1001,
-                DimIdentifierlessData = new DimIdentifierlessDatum {
-                    Id = 1001,
-                    Type = Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT,
-                    ValueFi = "Affiliation 3 identifierless data child value Fi",
-                    ValueEn = "Affiliation 3 identifierless data child value En",
-                    ValueSv = "Affiliation 3 identifierless data child value Sv",
-                    SourceId = "Source1"
+                DimIdentifierlessDataId = -1,
+                InverseDimIdentifierlessData = new List<DimIdentifierlessDatum> {
+                    new DimIdentifierlessDatum {
+                        Id = 1001,
+                        DimIdentifierlessDataId = 1000,
+                        Type = Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT,
+                        ValueFi = "Affiliation 3 identifierless data child value Fi",
+                        ValueEn = "Affiliation 3 identifierless data child value En",
+                        ValueSv = "Affiliation 3 identifierless data child value Sv",
+                        SourceId = "Source1"
+                    }
                 },
                 SourceId = "Source1"
             };
