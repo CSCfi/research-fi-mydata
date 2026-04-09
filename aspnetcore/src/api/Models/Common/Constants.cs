@@ -75,6 +75,7 @@
 
         public static class PidTypes
         {
+            public const string DOI = "doi";
             public const string ORCID = "ORCID";
             public const string ORCID_PUT_CODE = "ORCID put code";
         }

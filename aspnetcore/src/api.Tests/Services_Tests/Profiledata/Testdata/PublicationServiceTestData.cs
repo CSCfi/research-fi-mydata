@@ -78,7 +78,15 @@ namespace api.Tests.Profiledata
                         SourceId = "Source1"
                     },
                 },
-                DoiHandle = "10.1234/doi_dimpublication_1",
+                DimPids = new List<DimPid> {
+                    new DimPid {
+                        Id = 1,
+                        PidType = Constants.PidTypes.DOI,
+                        PidContent = "10.1234/doi_dimpublication_1",
+                        SourceId = "Source1"
+                    }
+                },
+                DoiHandle = null,
                 IssueNumber = "DimPublication1 Issue number",
                 JournalName = "DimPublication1 Journal name",
                 OpenAccessCode = 5000,
@@ -126,7 +134,15 @@ namespace api.Tests.Profiledata
                 ArticleNumberText = "DimPublication2 Article number text",
                 AuthorsText = "DimPublication2 Authors text",
                 ConferenceName = "DimPublication2 Conference name",
-                DoiHandle = "10.1234/doi_dimpublication_2",
+                DimPids = new List<DimPid> {
+                    new DimPid {
+                        Id = 2,
+                        PidType = Constants.PidTypes.DOI,
+                        PidContent = "10.1234/doi_dimpublication_2",
+                        SourceId = "Source1"
+                    }
+                },
+                DoiHandle = null,
                 IssueNumber = "DimPublication2 Issue number",
                 JournalName = "DimPublication2 Journal name",
                 OpenAccessCode = 5001,
@@ -174,7 +190,15 @@ namespace api.Tests.Profiledata
                 ArticleNumberText = "DimPublication3 Article number text",
                 AuthorsText = "DimPublication3 Authors text",
                 ConferenceName = "DimPublication3 Conference name",
-                DoiHandle = "10.1234/doi_to_deduplicate", // Same Doi with one of DimProfileOnlyPublications. Should be deduplicated based on Doi.   
+                DimPids = new List<DimPid> {
+                    new DimPid {
+                        Id = 3,
+                        PidType = Constants.PidTypes.DOI,
+                        PidContent = "10.1234/doi_to_deduplicate", // Same Doi with one of DimProfileOnlyPublications. Should be deduplicated based on Doi.   
+                        SourceId = "Source1"
+                    }
+                },
+                DoiHandle = null, 
                 IssueNumber = "DimPublication3 Issue number",
                 JournalName = "DimPublication3 Journal name",
                 OpenAccessCode = 5002,

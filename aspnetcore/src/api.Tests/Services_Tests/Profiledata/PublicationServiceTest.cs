@@ -115,7 +115,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("", result[1].PublicationTypeCode);
             Assert.Equal(2022, result[1].PublicationYear);
             Assert.Equal("DimPublication3 Publisher name", result[1].PublisherName);
-            Assert.Equal("", result[1].SelfArchivedAddress);
+            Assert.Null(result[1].SelfArchivedAddress);
             Assert.Equal("0", result[1].SelfArchivedCode);
             Assert.Equal("DimPublication3 Volume number", result[1].Volume);
             // Item meta

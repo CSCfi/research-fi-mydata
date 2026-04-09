@@ -134,12 +134,12 @@ namespace api.Services.Profiledata
                     DimAffiliation_AffiliationTypeFi = ffv.DimAffiliation.AffiliationTypeFi,
                     DimAffiliation_AffiliationTypeEn = ffv.DimAffiliation.AffiliationTypeEn,
                     DimAffiliation_AffiliationTypeSv = ffv.DimAffiliation.AffiliationTypeSv,
-                    StartDate_Year = ffv.DimAffiliation.StartDateNavigation.Year,
-                    StartDate_Month = ffv.DimAffiliation.StartDateNavigation.Month,
-                    StartDate_Day = ffv.DimAffiliation.StartDateNavigation.Day,
-                    EndDate_Year = ffv.DimAffiliation.EndDateNavigation.Year,
-                    EndDate_Month = ffv.DimAffiliation.EndDateNavigation.Month,
-                    EndDate_Day = ffv.DimAffiliation.EndDateNavigation.Day
+                    StartDate_Year = ffv.DimAffiliation.StartDateNavigation.Year > 1900 ? ffv.DimAffiliation.StartDateNavigation.Year : 0,
+                    StartDate_Month = ffv.DimAffiliation.StartDateNavigation.Year > 1900 ? ffv.DimAffiliation.StartDateNavigation.Month : 0,
+                    StartDate_Day = ffv.DimAffiliation.StartDateNavigation.Year > 1900 ? ffv.DimAffiliation.StartDateNavigation.Day : 0,
+                    EndDate_Year = ffv.DimAffiliation.EndDateNavigation.Year > 1900 ? ffv.DimAffiliation.EndDateNavigation.Year : 0,
+                    EndDate_Month = ffv.DimAffiliation.EndDateNavigation.Year > 1900 ? ffv.DimAffiliation.EndDateNavigation.Month : 0,
+                    EndDate_Day = ffv.DimAffiliation.EndDateNavigation.Year > 1900 ? ffv.DimAffiliation.EndDateNavigation.Day : 0
                 }).AsNoTracking().ToListAsync();
 
             List<ProfileEditorAffiliation> affiliations = new List<ProfileEditorAffiliation>();

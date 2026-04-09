@@ -103,8 +103,8 @@ namespace api.Services.Profiledata
                             DimregisteredDatasource_DimOrganization_DimSector_SectorId = ffv.DimRegisteredDataSource.DimOrganization.DimSector.SectorId
                         }
                     },
-                    Doi = ffv.DimPublication.DoiHandle,
-                    DoiDictionaryKey = ffv.DimPublication.DoiHandle != null ? ffv.DimPublication.DoiHandle.Trim().ToLower() : null,
+                    Doi = ffv.DimPublication.DimPids.FirstOrDefault(pid => pid.PidType == Constants.PidTypes.DOI) != null ? ffv.DimPublication.DimPids.FirstOrDefault(pid => pid.PidType == Constants.PidTypes.DOI).PidContent : null,
+                    DoiDictionaryKey = ffv.DimPublication.DimPids.FirstOrDefault(pid => pid.PidType == Constants.PidTypes.DOI) != null ? ffv.DimPublication.DimPids.FirstOrDefault(pid => pid.PidType == Constants.PidTypes.DOI).PidContent.Trim().ToLower() : null,
                     IssueNumber = ffv.DimPublication.IssueNumber,
                     JournalName = ffv.DimPublication.JournalName,
                     PageNumberText = ffv.DimPublication.PageNumberText,
@@ -117,7 +117,7 @@ namespace api.Services.Profiledata
                     PublicationYear = ffv.DimPublication.PublicationYear,
                     PublisherName = ffv.DimPublication.PublisherName,
                     PublicationTypeCode = ffv.DimPublication.PublicationTypeCode != -1 ? ffv.DimPublication.PublicationTypeCodeNavigation.CodeValue : "", // Unknown value is set to empty string
-                    SelfArchivedAddress = ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault() != null ? ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault().SelfArchivedUrl : "",
+                    SelfArchivedAddress = ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault() != null ? ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault().SelfArchivedUrl : null,
                     SelfArchivedCode = ffv.DimPublication.SelfArchivedCode,
                     Volume = ffv.DimPublication.Volume
                 }).AsNoTracking().ToListAsync();

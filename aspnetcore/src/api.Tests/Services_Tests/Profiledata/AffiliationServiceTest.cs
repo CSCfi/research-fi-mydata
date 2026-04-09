@@ -97,12 +97,12 @@ namespace api.Tests.Profiledata
             Assert.Equal("Affiliation 2 type En", result[1].AffiliationTypeFi);
             Assert.Equal("Affiliation 2 type En", result[1].AffiliationTypeEn);
             Assert.Equal("Affiliation 2 type En", result[1].AffiliationTypeSv);
-            Assert.Equal(2020, result[1].StartDate.Year);
-            Assert.Equal(3, result[1].StartDate.Month);
-            Assert.Equal(13, result[1].StartDate.Day);
-            Assert.Equal(2022, result[1].EndDate.Year);
-            Assert.Equal(2, result[1].EndDate.Month);
-            Assert.Equal(30, result[1].EndDate.Day);
+            Assert.Equal(0, result[1].StartDate.Year);
+            Assert.Equal(0, result[1].StartDate.Month);
+            Assert.Equal(0, result[1].StartDate.Day);
+            Assert.Equal(0, result[1].EndDate.Year);
+            Assert.Equal(0, result[1].EndDate.Month);
+            Assert.Equal(0, result[1].EndDate.Day);
             Assert.Empty(result[1].sector);
             Assert.NotNull(result[1].itemMeta);
             Assert.Equal(1001, result[1].itemMeta.Id);

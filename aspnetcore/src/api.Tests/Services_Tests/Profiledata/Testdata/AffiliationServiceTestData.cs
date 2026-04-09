@@ -99,6 +99,7 @@ namespace api.Tests.Profiledata
             /*
              * 2nd affiliation
              *   - Has DimOrganization, but that organization does not have OrganizationBroader.
+             *   - Has start and end years 1900, which should be converted to 0 in the service layer.
              */
             FactFieldValue ffvAffiliation2 = userProfileService.GetEmptyFactFieldValue();
             ffvAffiliation2.DimUserProfileId = data.UserProfile.Id;
@@ -115,9 +116,9 @@ namespace api.Tests.Profiledata
                 AffiliationTypeEn = "Affiliation 2 type En",
                 AffiliationTypeSv = "",
                 StartDate = 1002,
-                StartDateNavigation = new DimDate { Id = 1002, Year = 2020, Month = 3, Day = 13, SourceId = "Source1" },
+                StartDateNavigation = new DimDate { Id = 1002, Year = 1900, Month = 3, Day = 13, SourceId = "Source1" },
                 EndDate = 1003,
-                EndDateNavigation = new DimDate { Id = 1003, Year = 2022, Month = 2, Day = 30, SourceId = "Source1" },
+                EndDateNavigation = new DimDate { Id = 1003, Year = 1900, Month = 2, Day = 30, SourceId = "Source1" },
                 DimOrganizationId = 1002,
                 DimOrganization = new DimOrganization {
                     Id = 1002,
