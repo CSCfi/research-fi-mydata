@@ -38,22 +38,29 @@ namespace api.Controllers
         /// Get prompt data
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> GetProfileDataForPrompt(string orcidId)
+        public async Task<IActionResult> GetProfileDataForPrompt(string orcid)
         {
             LogUserIdentification logUserIdentification = new LogUserIdentification(
                 keycloakId: "",
                 orcid: "",
                 ip: HttpContext.Connection.RemoteIpAddress?.ToString()
             );
+
+            // Validate request data
+            if (string.IsNullOrWhiteSpace(orcid))
+            {
+                return BadRequest(new { error = "orcid cannot be empty." });
+            }
+
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
                 logUserIdentification,
                 new LogApiInfo(
                     action: LogContent.Action.AI_GET_PROFILE_DATA,
                     state: LogContent.ActionState.START,
-                    message: $"{orcidId}"));
+                    message: $"{orcid}"));
 
-            string? profileDataForPromt = await _biographyService.GetProfileDataForPromt(orcidId);
+            string? profileDataForPromt = await _biographyService.GetProfileDataForPromt(orcid);
 
             return Content(profileDataForPromt);
         }
@@ -69,6 +76,7 @@ namespace api.Controllers
                 orcid: "",
                 ip: HttpContext.Connection.RemoteIpAddress?.ToString()
             );
+
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
                 logUserIdentification,
@@ -131,6 +139,7 @@ namespace api.Controllers
                 orcid: "",
                 ip: HttpContext.Connection.RemoteIpAddress?.ToString()
             );
+
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
                 logUserIdentification,
