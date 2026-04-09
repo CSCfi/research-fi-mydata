@@ -116,7 +116,7 @@ namespace api.Services.Profiledata
                     PublicationName = ffv.DimPublication.PublicationName,
                     PublicationYear = ffv.DimPublication.PublicationYear,
                     PublisherName = ffv.DimPublication.PublisherName,
-                    PublicationTypeCode = ffv.DimPublication.PublicationTypeCode != -1 ? ffv.DimPublication.PublicationTypeCodeNavigation.CodeValue : "", // Unknown value is set to empty string
+                    PublicationTypeCode = ffv.DimPublication.PublicationTypeCode != -1 ? ffv.DimPublication.PublicationTypeCodeNavigation.CodeValue : null, // Unknown value is set to null
                     SelfArchivedAddress = ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault() != null ? ffv.DimPublication.DimLocallyReportedPubInfos.FirstOrDefault().SelfArchivedUrl : null,
                     SelfArchivedCode = ffv.DimPublication.SelfArchivedCode,
                     Volume = ffv.DimPublication.Volume

@@ -112,7 +112,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("DimPublication3 Parent publication name", result[1].ParentPublicationName);
             Assert.Equal("DimPublication3 PublicationId", result[1].PublicationId);
             Assert.Equal("DimPublication3 Publication name", result[1].PublicationName);
-            Assert.Equal("", result[1].PublicationTypeCode);
+            Assert.Null(result[1].PublicationTypeCode);
             Assert.Equal(2022, result[1].PublicationYear);
             Assert.Equal("DimPublication3 Publisher name", result[1].PublisherName);
             Assert.Null(result[1].SelfArchivedAddress);
