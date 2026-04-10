@@ -152,7 +152,7 @@ namespace api.Services.Profiledata
                     DimIdentifierlessData_ValueFi = ffv.DimIdentifierlessData.ValueFi,
                     DimIdentifierlessData_ValueEn = ffv.DimIdentifierlessData.ValueEn,
                     DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessData.ValueSv,
-                    DimIdentifierlessData_Child_Type = null,
+                    DimIdentifierlessData_Child_Type = null, // To improve query performance, child values are batch loaded later, see below.
                     DimIdentifierlessData_Child_ValueFi = null,
                     DimIdentifierlessData_Child_ValueEn = null,
                     DimIdentifierlessData_Child_ValueSv = null,
@@ -260,7 +260,7 @@ namespace api.Services.Profiledata
                     DimIdentifierlessData_ValueFi = ffv.DimIdentifierlessData.ValueFi,
                     DimIdentifierlessData_ValueEn = ffv.DimIdentifierlessData.ValueEn,
                     DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessData.ValueSv,
-                    DimIdentifierlessData_Child_Type = null,
+                    DimIdentifierlessData_Child_Type = null, // To improve query performance, child values are batch loaded later, see below.
                     DimIdentifierlessData_Child_ValueFi = null,
                     DimIdentifierlessData_Child_ValueEn = null,
                     DimIdentifierlessData_Child_ValueSv = null,

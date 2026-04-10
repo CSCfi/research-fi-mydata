@@ -60,7 +60,7 @@ namespace api.Services.Profiledata
             public string? DimOrganization_DimSector_NameFi { get; set; }
             public string? DimOrganization_DimSector_NameEn { get; set; }
             public string? DimOrganization_DimSector_NameSv { get; set; }
-            public int? DimIdentifierlessData_Id { get; set; }
+            public int DimIdentifierlessData_Id { get; set; }
             public string? DimIdentifierlessData_Type { get; set; }
             public string? DimIdentifierlessData_ValueFi { get; set; }
             public string? DimIdentifierlessData_ValueEn { get; set; }
@@ -126,10 +126,10 @@ namespace api.Services.Profiledata
                     DimIdentifierlessData_ValueFi = ffv.DimIdentifierlessData.ValueFi,
                     DimIdentifierlessData_ValueEn = ffv.DimIdentifierlessData.ValueEn,
                     DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessData.ValueSv,
-                    DimIdentifierlessData_Child_Type = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().Type,
-                    DimIdentifierlessData_Child_ValueFi = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueFi,
-                    DimIdentifierlessData_Child_ValueEn = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueEn,
-                    DimIdentifierlessData_Child_ValueSv = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueSv,
+                    DimIdentifierlessData_Child_Type = null, // To improve query performance, child values are batch loaded later, see below.
+                    DimIdentifierlessData_Child_ValueFi = null,
+                    DimIdentifierlessData_Child_ValueEn = null,
+                    DimIdentifierlessData_Child_ValueSv = null,
                     DimAffiliation_PositionNameFi = ffv.DimAffiliation.PositionNameFi,
                     DimAffiliation_PositionNameEn = ffv.DimAffiliation.PositionNameEn,
                     DimAffiliation_PositionNameSv = ffv.DimAffiliation.PositionNameSv,
@@ -143,6 +143,43 @@ namespace api.Services.Profiledata
                     EndDate_Month = ffv.DimAffiliation.EndDateNavigation.Year > 1900 ? ffv.DimAffiliation.EndDateNavigation.Month : 0,
                     EndDate_Day = ffv.DimAffiliation.EndDateNavigation.Year > 1900 ? ffv.DimAffiliation.EndDateNavigation.Day : 0
                 }).AsNoTracking().ToListAsync();
+
+            /*
+            * Batch load child identifierless data.
+            * One query replaces 4 correlated subqueries per row across both DTO lists.
+            */
+            List<int> parentIds = affiliationDtos
+                .Where(d => d.DimIdentifierlessData_Id > 0)
+                .Select(d => d.DimIdentifierlessData_Id)
+                .Distinct()
+                .ToList();
+            if (parentIds.Count > 0)
+            {
+                var childRows = await _ttvContext.DimIdentifierlessData
+                    .Where(c => c.DimIdentifierlessDataId.HasValue && parentIds.Contains(c.DimIdentifierlessDataId.Value))
+                    .OrderBy(c => c.Id)
+                    .Select(c => new { c.DimIdentifierlessDataId, c.Type, c.ValueFi, c.ValueEn, c.ValueSv })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                Dictionary<int, (string Type, string ValueFi, string ValueEn, string ValueSv)> childByParentId = new();
+                foreach (var child in childRows)
+                {
+                    if (child.DimIdentifierlessDataId.HasValue && !childByParentId.ContainsKey(child.DimIdentifierlessDataId.Value))
+                        childByParentId[child.DimIdentifierlessDataId.Value] = (child.Type, child.ValueFi, child.ValueEn, child.ValueSv);
+                }
+
+                foreach (AffiliationDto dto in affiliationDtos)
+                {
+                    if (dto.DimIdentifierlessData_Id > 0 && childByParentId.TryGetValue(dto.DimIdentifierlessData_Id, out var child))
+                    {
+                        dto.DimIdentifierlessData_Child_Type = child.Type;
+                        dto.DimIdentifierlessData_Child_ValueFi = child.ValueFi;
+                        dto.DimIdentifierlessData_Child_ValueEn = child.ValueEn;
+                        dto.DimIdentifierlessData_Child_ValueSv = child.ValueSv;
+                    }
+                }
+            }
 
             List<ProfileEditorAffiliation> affiliations = new List<ProfileEditorAffiliation>();
             foreach (AffiliationDto affiliationDto in affiliationDtos)
