@@ -217,7 +217,7 @@ namespace api.Services.Profiledata
                     }).ToList() 
                 }).AsNoTracking().ToListAsync();
             stopwatch_researchActivityDtos.Stop();
-            _logger.LogInformation($"GetProfileEditorResearchActivities. SQL query for researchActivityDtos took {stopwatch_researchActivityDtos.ElapsedMilliseconds}ms.");
+            _logger.LogInformation($"GetProfileEditorResearchActivities. SQL query for researchActivityDtos got {researchActivityDtos.Count} items and took {stopwatch_researchActivityDtos.ElapsedMilliseconds}ms.");
 
             /*
              * DimProfileOnlyResearchActivity => DTO
@@ -298,7 +298,7 @@ namespace api.Services.Profiledata
                     }).ToList() 
                 }).AsNoTracking().ToListAsync();
             stopwatch_profileOnlyResearchActivityDtos.Stop();
-            _logger.LogInformation($"GetProfileEditorResearchActivities. SQL query for profileOnlyResearchActivityDtos took {stopwatch_profileOnlyResearchActivityDtos.ElapsedMilliseconds}ms.");
+            _logger.LogInformation($"GetProfileEditorResearchActivities. SQL query for profileOnlyResearchActivityDtos got {profileOnlyResearchActivityDtos.Count} items and took {stopwatch_profileOnlyResearchActivityDtos.ElapsedMilliseconds}ms.");
 
             /*
              * Research activity deduplication.
@@ -306,6 +306,7 @@ namespace api.Services.Profiledata
              * Remove items from profileOnlyResearchActivityDtos which duplicate items from researchActivityDtos.
              * Comparison is done by computing a key for each research activity based on start year and translated name FI, and comparing the keys.
              */
+            var stopwatch_deduplicateDtos = Stopwatch.StartNew();
             HashSet<string> uniqueKeys = new();
             foreach (ResearchActivityDto researchActivityDto in researchActivityDtos)
             {
@@ -346,6 +347,7 @@ namespace api.Services.Profiledata
                     break;
                 }
             }
+            _logger.LogInformation($"GetProfileEditorResearchActivities. Deduplication took {stopwatch_deduplicateDtos.ElapsedMilliseconds}ms.");
 
             /*
              * Process DTOs
