@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using api.Models.Common;
 using api.Models.ProfileEditor.Items;
+using System.Diagnostics;
 
 namespace api.Services.Profiledata
 {
@@ -31,6 +32,7 @@ namespace api.Services.Profiledata
          */
         public async Task<List<ProfileEditorName>> GetProfileEditorNames(int userprofileId, bool forElasticsearch = false)
         {
+            var stopwatch = Stopwatch.StartNew();
             List<ProfileEditorName> names = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimNameId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME
@@ -76,6 +78,9 @@ namespace api.Services.Profiledata
                 }
             }
 
+            stopwatch.Stop();
+            _logger.LogInformation($"GetProfileEditorNames. {names.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+
             return names;
         }
 
@@ -84,6 +89,7 @@ namespace api.Services.Profiledata
          */
         public async Task<List<ProfileEditorName>> GetProfileEditorOtherNames(int userprofileId, bool forElasticsearch = false)
         {
+            var stopwatch = Stopwatch.StartNew();
             List<ProfileEditorName> otherNames = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimNameId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES
@@ -128,6 +134,9 @@ namespace api.Services.Profiledata
                     dataSource.Organization.NameSv = dataSourceOrganizationName.NameSv;
                 }
             }
+
+            stopwatch.Stop();
+            _logger.LogInformation($"GetProfileEditorOtherNames. {otherNames.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
 
             return otherNames;
         }

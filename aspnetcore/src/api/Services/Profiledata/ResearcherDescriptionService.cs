@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using api.Models.Common;
 using api.Models.ProfileEditor.Items;
+using System.Diagnostics;
 
 namespace api.Services.Profiledata
 {
@@ -34,6 +35,7 @@ namespace api.Services.Profiledata
          */
         public async Task<List<ProfileEditorResearcherDescription>> GetProfileEditorResearcherDescriptions(int userprofileId, bool forElasticsearch = false)
         {
+            var stopwatch = Stopwatch.StartNew();
             List<ProfileEditorResearcherDescription> researcherDescriptions = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimResearcherDescriptionId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION
@@ -63,39 +65,43 @@ namespace api.Services.Profiledata
                     }
                 }).AsNoTracking().ToListAsync();
 
-                /*
-                 * Postprocessing. Translate data source organizaton names and researcher description names.
-                 * Researcher description name translation must be skipped when data source is tiedejatutkimus.fi.
-                 * That indicates user generated value (from AI assisted researcher description feature), whose translation is handled in the frontend.
-                 */
-                foreach (ProfileEditorResearcherDescription researcherDescription in researcherDescriptions)
+            /*
+             * Postprocessing. Translate data source organizaton names and researcher description names.
+             * Researcher description name translation must be skipped when data source is tiedejatutkimus.fi.
+             * That indicates user generated value (from AI assisted researcher description feature), whose translation is handled in the frontend.
+             */
+            foreach (ProfileEditorResearcherDescription researcherDescription in researcherDescriptions)
+            {
+                // Translate data source organization names.
+                foreach (ProfileEditorSource dataSource in researcherDescription.DataSources)
                 {
-                    // Translate data source organization names.
-                    foreach (ProfileEditorSource dataSource in researcherDescription.DataSources)
-                    {
-                        NameTranslation dataSourceOrganizationName = _languageService.GetNameTranslation(
-                            nameFi: dataSource.Organization.NameFi,
-                            nameEn: dataSource.Organization.NameEn,
-                            nameSv: dataSource.Organization.NameSv
-                        );
-                        dataSource.Organization.NameFi = dataSourceOrganizationName.NameFi;
-                        dataSource.Organization.NameEn = dataSourceOrganizationName.NameEn;
-                        dataSource.Organization.NameSv = dataSourceOrganizationName.NameSv;
-                    }
-
-                    // Translate researcher description names if data source is not tiedejatutkimus.fi.
-                    if (researcherDescription.DataSources[0].RegisteredDataSource != _dataSourceHelperService.DimRegisteredDataSourceName_TTV)
-                    {
-                        NameTranslation nameTranslationResearcherDescription = _languageService.GetNameTranslation(
-                            nameFi: researcherDescription.ResearchDescriptionFi,
-                            nameEn: researcherDescription.ResearchDescriptionEn,
-                            nameSv: researcherDescription.ResearchDescriptionSv
-                        );
-                        researcherDescription.ResearchDescriptionFi = nameTranslationResearcherDescription.NameFi;
-                        researcherDescription.ResearchDescriptionEn = nameTranslationResearcherDescription.NameEn;
-                        researcherDescription.ResearchDescriptionSv = nameTranslationResearcherDescription.NameSv;
-                    }
+                    NameTranslation dataSourceOrganizationName = _languageService.GetNameTranslation(
+                        nameFi: dataSource.Organization.NameFi,
+                        nameEn: dataSource.Organization.NameEn,
+                        nameSv: dataSource.Organization.NameSv
+                    );
+                    dataSource.Organization.NameFi = dataSourceOrganizationName.NameFi;
+                    dataSource.Organization.NameEn = dataSourceOrganizationName.NameEn;
+                    dataSource.Organization.NameSv = dataSourceOrganizationName.NameSv;
                 }
+
+                // Translate researcher description names if data source is not tiedejatutkimus.fi.
+                if (researcherDescription.DataSources[0].RegisteredDataSource != _dataSourceHelperService.DimRegisteredDataSourceName_TTV)
+                {
+                    NameTranslation nameTranslationResearcherDescription = _languageService.GetNameTranslation(
+                        nameFi: researcherDescription.ResearchDescriptionFi,
+                        nameEn: researcherDescription.ResearchDescriptionEn,
+                        nameSv: researcherDescription.ResearchDescriptionSv
+                    );
+                    researcherDescription.ResearchDescriptionFi = nameTranslationResearcherDescription.NameFi;
+                    researcherDescription.ResearchDescriptionEn = nameTranslationResearcherDescription.NameEn;
+                    researcherDescription.ResearchDescriptionSv = nameTranslationResearcherDescription.NameSv;
+                }
+            }
+
+            stopwatch.Stop();
+            _logger.LogInformation($"GetProfileEditorResearcherDescriptions. {researcherDescriptions.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            
             return researcherDescriptions;
         }
     }

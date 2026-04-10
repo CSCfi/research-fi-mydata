@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using api.Models.Common;
 using api.Models.ProfileEditor.Items;
 using System;
+using System.Diagnostics;
 
 namespace api.Services.Profiledata
 {
@@ -118,6 +119,8 @@ namespace api.Services.Profiledata
          */
         public async Task<List<ProfileEditorActivityAndReward>> GetProfileEditorActiviesAndRewards(int userprofileId, bool forElasticsearch = false)
         {
+            var stopwatch = Stopwatch.StartNew();
+
             /*
              * DimResearchActivity => DTO
              */
@@ -551,6 +554,9 @@ namespace api.Services.Profiledata
                 }
                 activitiesAndRewards.Add(activityAndReward);
             }
+
+            stopwatch.Stop();
+            _logger.LogInformation($"GetProfileEditorResearchActivities. {activitiesAndRewards.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
 
             return activitiesAndRewards;
         }

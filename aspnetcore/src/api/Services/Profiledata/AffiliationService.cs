@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using api.Models.Common;
 using api.Models.ProfileEditor.Items;
 using System;
+using System.Diagnostics;
 
 namespace api.Services.Profiledata
 {
@@ -87,6 +88,7 @@ namespace api.Services.Profiledata
          */
         public async Task<List<ProfileEditorAffiliation>> GetProfileEditorAffiliations(int userprofileId, bool forElasticsearch = false)
         {
+            var stopwatch = Stopwatch.StartNew();
             List<AffiliationDto> affiliationDtos = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimAffiliationId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION
@@ -313,6 +315,8 @@ namespace api.Services.Profiledata
                 affiliations.Add(affiliation);
             }
 
+            stopwatch.Stop();
+            _logger.LogInformation($"GetProfileEditorAffiliations. {affiliations.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
             return affiliations;
         }
     }

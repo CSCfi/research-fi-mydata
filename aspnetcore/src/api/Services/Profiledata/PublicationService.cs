@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using api.Models.Common;
 using api.Models.ProfileEditor.Items;
+using System.Diagnostics;
 
 namespace api.Services.Profiledata
 {
@@ -78,7 +79,9 @@ namespace api.Services.Profiledata
          * Publications
          */
         public async Task<List<ProfileEditorPublication>> GetProfileEditorPublications(int userprofileId, bool forElasticsearch = false)
-        { 
+        {
+            var stopwatch = Stopwatch.StartNew();
+
             // DimPublication => DTOs
             List<PublicationDto> publicationDtos = await _ttvContext.FactFieldValues
                 .Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.DimPublicationId > 0
@@ -324,6 +327,9 @@ namespace api.Services.Profiledata
                     dataSource.Organization.NameSv = dataSourceOrganizationName.NameSv;
                 }
             }
+
+            stopwatch.Stop();
+            _logger.LogInformation($"GetProfileEditorPublications. {publications.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
 
             return publications;
         }

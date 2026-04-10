@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using api.Models.Common;
 using api.Models.ProfileEditor.Items;
+using System.Diagnostics;
 
 namespace api.Services.Profiledata
 {
@@ -31,7 +32,8 @@ namespace api.Services.Profiledata
          */
          public async Task<List<ProfileEditorExternalIdentifier>> GetProfileEditorExternalIdentifiers(int userprofileId, bool forElasticsearch = false)
          {
-             List<ProfileEditorExternalIdentifier> externalIdentifiers = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
+            var stopwatch = Stopwatch.StartNew();
+            List<ProfileEditorExternalIdentifier> externalIdentifiers = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimPidId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER
                 && (forElasticsearch ? ffv.Show == true : true))
@@ -74,6 +76,9 @@ namespace api.Services.Profiledata
                     dataSource.Organization.NameSv = dataSourceOrganizationName.NameSv;
                 }
             }
+
+            stopwatch.Stop();
+            _logger.LogInformation($"GetProfileEditorExternalIdentifiers. {externalIdentifiers.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
 
             return externalIdentifiers;
         }

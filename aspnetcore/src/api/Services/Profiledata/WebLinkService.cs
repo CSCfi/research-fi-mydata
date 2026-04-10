@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using api.Models.Common;
 using api.Models.ProfileEditor.Items;
+using System.Diagnostics;
 
 namespace api.Services.Profiledata
 {
@@ -31,6 +32,7 @@ namespace api.Services.Profiledata
          */
         public async Task<List<ProfileEditorWebLink>> GetProfileEditorWebLinks(int userprofileId, bool forElasticsearch = false)
         {
+            var stopwatch = Stopwatch.StartNew();
             List<ProfileEditorWebLink> webLinks = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimWebLinkId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK
@@ -75,6 +77,9 @@ namespace api.Services.Profiledata
                     dataSource.Organization.NameSv = dataSourceOrganizationName.NameSv;
                 }
             }
+
+            stopwatch.Stop();
+            _logger.LogInformation($"GetProfileEditorWebLinks. {webLinks.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
 
             return webLinks;
         }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using api.Models.Common;
 using api.Models.ProfileEditor.Items;
+using System.Diagnostics;
 
 namespace api.Services.Profiledata
 {
@@ -77,6 +78,8 @@ namespace api.Services.Profiledata
          */
         public async Task<List<ProfileEditorFundingDecision>> GetProfileEditorFundingDecisions(int userprofileId, bool forElasticsearch = false)
         {
+            var stopwatch = Stopwatch.StartNew();
+            
             /*
              * DimFundingDecision => DTO
              */
@@ -352,6 +355,9 @@ namespace api.Services.Profiledata
                 };
                 fundingDecisions.Add(fdFromProfileOnlyFundingDecisionDto);
             }
+
+            stopwatch.Stop();
+            _logger.LogInformation($"GetProfileEditorFundingDecisions. {fundingDecisions.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
 
             return fundingDecisions;
         }
