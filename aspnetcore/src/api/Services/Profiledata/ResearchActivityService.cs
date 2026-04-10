@@ -29,22 +29,12 @@ namespace api.Services.Profiledata
         }
 
         /*
-         * Check if research activities are duplicates.
-         * Comparison is based on fields:
-         * - start year
-         * - name FI
-         * - name EN
-         * - name SV
+         * Compute hash key for research activity based on start year and name FI, EN, SV.
          */
-        public bool IsResearchActivityDuplicate(int aYear, string aNameFi, string aNameEn, string aNameSv, int bYear, string bNameFi, string bNameEn, string bNameSv)
+        public string ComputeKey(int startYear, string nameFi, string nameEn, string nameSv)
         {
-            return (
-                aYear == bYear &&
-                aNameFi == bNameFi &&
-                aNameEn == bNameEn &&
-                aNameSv == bNameSv);
+            return $"{startYear}_{nameFi}_{nameEn}_{nameSv}".Trim().ToLowerInvariant().Replace(" ", "");
         }
-
 
         public class ResearchActivityDto
         {
@@ -308,7 +298,26 @@ namespace api.Services.Profiledata
              * Research activity deduplication.
              * Deduplication is based on start year and name properties.
              * Remove items from profileOnlyResearchActivityDtos which duplicate items from researchActivityDtos.
+             * Comparison is done by computing a key for each research activity based on start year and translated name FI, and comparing the keys.
              */
+            HashSet<string> uniqueKeys = new();
+            foreach (ResearchActivityDto researchActivityDto in researchActivityDtos)
+            {
+                NameTranslation nameTraslationResearchActivity_Name = _languageService.GetNameTranslation(
+                    nameFi: researchActivityDto.ResearchActivity_NameFi,
+                    nameEn: researchActivityDto.ResearchActivity_NameEn,
+                    nameSv: researchActivityDto.ResearchActivity_NameSv
+                );
+
+                uniqueKeys.Add(
+                    ComputeKey(
+                        startYear: researchActivityDto.ResearchActivity_StartDate_Year,
+                        nameFi: nameTraslationResearchActivity_Name.NameFi,
+                        nameEn: nameTraslationResearchActivity_Name.NameEn,
+                        nameSv: nameTraslationResearchActivity_Name.NameSv
+                    )
+                );
+            }
             foreach (ResearchActivityDto profileOnlyResearchActivityDto in profileOnlyResearchActivityDtos)
             {
                 NameTranslation nameTraslationProfileOnlyResearchActivity_Name = _languageService.GetNameTranslation(
@@ -317,28 +326,18 @@ namespace api.Services.Profiledata
                     nameSv: profileOnlyResearchActivityDto.ResearchActivity_NameSv
                 );
 
-                foreach (ResearchActivityDto researchActivityDto in researchActivityDtos)
-                {
-                    NameTranslation nameTraslationResearchActivity_Name = _languageService.GetNameTranslation(
-                        nameFi: researchActivityDto.ResearchActivity_NameFi,
-                        nameEn: researchActivityDto.ResearchActivity_NameEn,
-                        nameSv: researchActivityDto.ResearchActivity_NameSv
-                    );
+                string key = ComputeKey(
+                    startYear: profileOnlyResearchActivityDto.ResearchActivity_StartDate_Year,
+                    nameFi: nameTraslationProfileOnlyResearchActivity_Name.NameFi,
+                    nameEn: nameTraslationProfileOnlyResearchActivity_Name.NameEn,
+                    nameSv: nameTraslationProfileOnlyResearchActivity_Name.NameSv
+                );
 
-                    if (IsResearchActivityDuplicate(
-                        aYear: profileOnlyResearchActivityDto.ResearchActivity_StartDate_Year,
-                        aNameFi: nameTraslationProfileOnlyResearchActivity_Name.NameFi,
-                        aNameEn: nameTraslationProfileOnlyResearchActivity_Name.NameEn,
-                        aNameSv: nameTraslationProfileOnlyResearchActivity_Name.NameSv,
-                        bYear: researchActivityDto.ResearchActivity_StartDate_Year,
-                        bNameFi: nameTraslationResearchActivity_Name.NameFi,
-                        bNameEn: nameTraslationResearchActivity_Name.NameEn,
-                        bNameSv: nameTraslationResearchActivity_Name.NameSv))
-                    {
-                        // Duplicate found, mark profile only research activity as duplicate.
-                        profileOnlyResearchActivityDto.IsDuplicate = true;
-                        break;
-                    }
+                if (uniqueKeys.Contains(key))
+                {
+                    // Duplicate found, mark profile only research activity as duplicate.
+                    profileOnlyResearchActivityDto.IsDuplicate = true;
+                    break;
                 }
             }
 

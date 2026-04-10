@@ -318,81 +318,20 @@ namespace api.Tests.Profiledata
             Assert.Equal("S1", result[5].DataSources[0].Organization.SectorId);
         }
 
-        [Fact(DisplayName = "Research activity deduplication")]
-        public void ResearchActivityDeduplication()
+        [Fact(DisplayName = "Research activity hash key")]
+        public void ResearchActivityHashKey()
         {
-            using var context = CreateInMemoryContext(nameof(GetProfileEditorActiviesAndRewards_ReturnsData_WhenMatchingUserProfileExists));
+            using var context = CreateInMemoryContext(nameof(ResearchActivityHashKey));
             ResearchActivityService service = new(context, null, null);
 
-            // Duplicate
-            Assert.True(
-                service.IsResearchActivityDuplicate(
-                    aYear: 2006,
-                    bYear: 2006,
-                    aNameFi: "test name FI",
-                    bNameFi: "test name FI",
-                    aNameEn: "test name EN",
-                    bNameEn: "test name EN",
-                    aNameSv: "test name SV",
-                    bNameSv: "test name SV"
-                ),
-                "Research activities are duplicates"
-            );
-            // Year differs
-            Assert.False(
-                service.IsResearchActivityDuplicate(
-                    aYear: 2006,
-                    bYear: 2007,
-                    aNameFi: "test name FI",
-                    bNameFi: "test name FI",
-                    aNameEn: "test name EN",
-                    bNameEn: "test name EN",
-                    aNameSv: "test name SV",
-                    bNameSv: "test name SV"
-                ),
-                "Research activities are not duplicates, year differs"
-            );
-            // Fi name differs
-            Assert.False(
-                service.IsResearchActivityDuplicate(
-                    aYear: 2006,
-                    bYear: 2006,
-                    aNameFi: "test name FI",
-                    bNameFi: "test name FIx",
-                    aNameEn: "test name EN",
-                    bNameEn: "test name EN",
-                    aNameSv: "test name SV",
-                    bNameSv: "test name SV"
-                ),
-                "Research activities are not duplicates, Fi name differs"
-            );
-            // En name differs
-            Assert.False(
-                service.IsResearchActivityDuplicate(
-                    aYear: 2006,
-                    bYear: 2006,
-                    aNameFi: "test name FI",
-                    bNameFi: "test name FI",
-                    aNameEn: "test name EN",
-                    bNameEn: "test name ENx",
-                    aNameSv: "test name SV",
-                    bNameSv: "test name SV"
-                ),
-                "Research activities are not duplicates, En name differs"
-            );
-            // Sv name differs
-            Assert.False(
-                service.IsResearchActivityDuplicate(
-                    aYear: 2006,
-                    bYear: 2006,
-                    aNameFi: "test name FI",
-                    bNameFi: "test name FI",
-                    aNameEn: "test name EN",
-                    bNameEn: "test name EN",
-                    aNameSv: "test name SV",
-                    bNameSv: "test name SVx"
-                ),
-                "Research activities are not duplicates, Sv name differs"
+            Assert.Equal(
+                "2020_researchactivitynamefi_researchactivitynameen_researchactivitynamesv",
+                service.ComputeKey(
+                    startYear: 2020,
+                    nameFi: "ResearchActivity Name Fi",
+                    nameEn: " ResearchActivity Name En",
+                    nameSv: "ResearchActivity Name  Sv "
+                )
             );
         }
     }
