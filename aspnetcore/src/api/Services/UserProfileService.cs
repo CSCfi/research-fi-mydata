@@ -35,6 +35,7 @@ namespace api.Services
         private readonly IFundingDecisionService _fundingDecisionService;
         private readonly IResearchDatasetService _researchDatasetService;
         private readonly IResearchActivityService _researchActivityService;
+        private readonly IUniqueDataSourcesService _uniqueDataSourcesService;
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly IUtilityService _utilityService;
         private readonly ILanguageService _languageService;
@@ -66,7 +67,8 @@ namespace api.Services
             IWebLinkService webLinkService,
             IFundingDecisionService fundingDecisionService,
             IResearchDatasetService researchDatasetService,
-            IResearchActivityService researchActivityService)
+            IResearchActivityService researchActivityService,
+            IUniqueDataSourcesService uniqueDataSourcesService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
@@ -77,6 +79,7 @@ namespace api.Services
             _ttvSqlService = ttvSqlService;
             _logger = logger;
             _elasticsearchService = elasticsearchService;
+            _uniqueDataSourcesService = uniqueDataSourcesService;
             _researchActivityService = researchActivityService;
             _affiliationService = affiliationService;
             _educationService = educationService;
@@ -1376,7 +1379,7 @@ namespace api.Services
                 },
                 settings = new(),
                 cooperation = new(),
-                uniqueDataSources = new()
+                uniqueDataSources = await _uniqueDataSourcesService.GetUniqueDataSources(userprofileId, forElasticsearch)
             };
 
             // Add settings

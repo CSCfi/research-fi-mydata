@@ -313,6 +313,7 @@ namespace api
             services.AddScoped<IFundingDecisionService, FundingDecisionService>();
             services.AddScoped<IResearchDatasetService, ResearchDatasetService>();
             services.AddScoped<IResearchActivityService, ResearchActivityService>();
+            services.AddScoped<IUniqueDataSourcesService, UniqueDataSourcesService>();
             services.AddMemoryCache();
 
             // Background processing related services.
