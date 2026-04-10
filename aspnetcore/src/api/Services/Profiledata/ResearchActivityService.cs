@@ -152,10 +152,10 @@ namespace api.Services.Profiledata
                     DimIdentifierlessData_ValueFi = ffv.DimIdentifierlessData.ValueFi,
                     DimIdentifierlessData_ValueEn = ffv.DimIdentifierlessData.ValueEn,
                     DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessData.ValueSv,
-                    DimIdentifierlessData_Child_Type = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().Type,
-                    DimIdentifierlessData_Child_ValueFi = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueFi,
-                    DimIdentifierlessData_Child_ValueEn = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueEn,
-                    DimIdentifierlessData_Child_ValueSv = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueSv,
+                    DimIdentifierlessData_Child_Type = null,
+                    DimIdentifierlessData_Child_ValueFi = null,
+                    DimIdentifierlessData_Child_ValueEn = null,
+                    DimIdentifierlessData_Child_ValueSv = null,
                     // Activity type.
                     ResearchActivity_ActivityType_CodeValue = ffv.DimResearchActivity.FactContributions
                         .Where(fc => fc.ContributionType == Constants.FactContributionTypes.ACTIVITY_TYPE)
@@ -260,10 +260,10 @@ namespace api.Services.Profiledata
                     DimIdentifierlessData_ValueFi = ffv.DimIdentifierlessData.ValueFi,
                     DimIdentifierlessData_ValueEn = ffv.DimIdentifierlessData.ValueEn,
                     DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessData.ValueSv,
-                    DimIdentifierlessData_Child_Type = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().Type,
-                    DimIdentifierlessData_Child_ValueFi = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueFi,
-                    DimIdentifierlessData_Child_ValueEn = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueEn,
-                    DimIdentifierlessData_Child_ValueSv = ffv.DimIdentifierlessData.InverseDimIdentifierlessData.FirstOrDefault().ValueSv,
+                    DimIdentifierlessData_Child_Type = null,
+                    DimIdentifierlessData_Child_ValueFi = null,
+                    DimIdentifierlessData_Child_ValueEn = null,
+                    DimIdentifierlessData_Child_ValueSv = null,
                     ResearchActivity_ActivityType_CodeValue = ffv.DimReferencedataActorRole.CodeValue, // Activity type from DimReferencedata via FactFieldValue.
                     ResearchActivity_ActivityType_NameFi = ffv.DimReferencedataActorRole.NameFi,
                     ResearchActivity_ActivityType_NameEn = ffv.DimReferencedataActorRole.NameEn,
@@ -299,6 +299,47 @@ namespace api.Services.Profiledata
                 }).AsNoTracking().ToListAsync();
             stopwatch_profileOnlyResearchActivityDtos.Stop();
             _logger.LogInformation($"GetProfileEditorResearchActivities. SQL query for profileOnlyResearchActivityDtos got {profileOnlyResearchActivityDtos.Count} items and took {stopwatch_profileOnlyResearchActivityDtos.ElapsedMilliseconds}ms.");
+
+            /*
+            * Batch load child identifierless data.
+            * One query replaces 4 correlated subqueries per row across both DTO lists.
+            */
+            var stopwatch_childLookup = Stopwatch.StartNew();
+            List<int> allParentIds = researchActivityDtos
+                .Concat(profileOnlyResearchActivityDtos)
+                .Where(d => d.DimIdentifierlessData_Id > 0)
+                .Select(d => d.DimIdentifierlessData_Id)
+                .Distinct()
+                .ToList();
+            if (allParentIds.Count > 0)
+            {
+                var childRows = await _ttvContext.DimIdentifierlessData
+                    .Where(c => c.DimIdentifierlessDataId.HasValue && allParentIds.Contains(c.DimIdentifierlessDataId.Value))
+                    .OrderBy(c => c.Id)
+                    .Select(c => new { c.DimIdentifierlessDataId, c.Type, c.ValueFi, c.ValueEn, c.ValueSv })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                Dictionary<int, (string Type, string ValueFi, string ValueEn, string ValueSv)> childByParentId = new();
+                foreach (var child in childRows)
+                {
+                    if (child.DimIdentifierlessDataId.HasValue && !childByParentId.ContainsKey(child.DimIdentifierlessDataId.Value))
+                        childByParentId[child.DimIdentifierlessDataId.Value] = (child.Type, child.ValueFi, child.ValueEn, child.ValueSv);
+                }
+
+                foreach (ResearchActivityDto dto in researchActivityDtos.Concat(profileOnlyResearchActivityDtos))
+                {
+                    if (dto.DimIdentifierlessData_Id > 0 && childByParentId.TryGetValue(dto.DimIdentifierlessData_Id, out var child))
+                    {
+                        dto.DimIdentifierlessData_Child_Type = child.Type;
+                        dto.DimIdentifierlessData_Child_ValueFi = child.ValueFi;
+                        dto.DimIdentifierlessData_Child_ValueEn = child.ValueEn;
+                        dto.DimIdentifierlessData_Child_ValueSv = child.ValueSv;
+                    }
+                }
+            }
+            stopwatch_childLookup.Stop();
+            _logger.LogInformation($"GetProfileEditorResearchActivities. Batch child lookup took {stopwatch_childLookup.ElapsedMilliseconds}ms.");
 
             /*
              * Research activity deduplication.
