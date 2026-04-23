@@ -45,6 +45,7 @@ namespace api.Services
         private readonly ILogger<UserProfileService> _logger;
         private readonly IElasticsearchService _elasticsearchService;
         private readonly ISettingsService _settingsService;
+        private readonly ICooperationChoicesService _cooperationChoicesService;
 
         public UserProfileService(
             TtvContext ttvContext,
@@ -70,7 +71,8 @@ namespace api.Services
             IResearchDatasetService researchDatasetService,
             IResearchActivityService researchActivityService,
             IUniqueDataSourcesService uniqueDataSourcesService,
-            ISettingsService settingsService)
+            ISettingsService settingsService,
+            ICooperationChoicesService cooperationChoicesService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
@@ -81,6 +83,7 @@ namespace api.Services
             _sharingService = sharingService;
             _ttvSqlService = ttvSqlService;
             _logger = logger;
+            _cooperationChoicesService = cooperationChoicesService;
             _elasticsearchService = elasticsearchService;
             _uniqueDataSourcesService = uniqueDataSourcesService;
             _researchActivityService = researchActivityService;
@@ -1381,7 +1384,7 @@ namespace api.Services
                     activitiesAndRewards = await _researchActivityService.GetProfileEditorActiviesAndRewards(userprofileId, forElasticsearch)
                 },
                 settings = await _settingsService.GetProfileSettings(userprofileId, forElasticsearch),
-                cooperation = new(),
+                cooperation = await _cooperationChoicesService.GetCooperationChoices(userprofileId, forElasticsearch),
                 uniqueDataSources = await _uniqueDataSourcesService.GetUniqueDataSources(userprofileId, forElasticsearch)
             };
 

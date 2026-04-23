@@ -315,6 +315,7 @@ namespace api
             services.AddScoped<IResearchActivityService, ResearchActivityService>();
             services.AddScoped<IUniqueDataSourcesService, UniqueDataSourcesService>();
             services.AddScoped<ISettingsService, SettingsService>();
+            services.AddScoped<ICooperationChoicesService, CooperationChoicesService>();
             services.AddMemoryCache();
 
             // Background processing related services.
