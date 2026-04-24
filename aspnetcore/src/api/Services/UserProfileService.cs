@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using api.Models.Common;
 using api.Models.Orcid;
 using api.Models.Log;
+using api.Services.Profiledata;
 using Dapper;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -21,6 +22,20 @@ namespace api.Services
     public class UserProfileService : IUserProfileService
     {
         private readonly TtvContext _ttvContext;
+        private readonly IAffiliationService _affiliationService;
+        private readonly IEducationService _educationService;
+        private readonly IEmailService _emailService;
+        private readonly IExternalIdentifierService _externalIdentifierService;
+        private readonly IKeywordService _keywordService;
+        private readonly INameService _nameService;
+        private readonly IPublicationService _publicationService;
+        private readonly IResearcherDescriptionService _researcherDescriptionService;
+        private readonly ITelephoneNumberService _telephoneNumberService;
+        private readonly IWebLinkService _webLinkService;
+        private readonly IFundingDecisionService _fundingDecisionService;
+        private readonly IResearchDatasetService _researchDatasetService;
+        private readonly IResearchActivityService _researchActivityService;
+        private readonly IUniqueDataSourcesService _uniqueDataSourcesService;
         private readonly IDataSourceHelperService _dataSourceHelperService;
         private readonly IUtilityService _utilityService;
         private readonly ILanguageService _languageService;
@@ -29,6 +44,8 @@ namespace api.Services
         private readonly ITtvSqlService _ttvSqlService;
         private readonly ILogger<UserProfileService> _logger;
         private readonly IElasticsearchService _elasticsearchService;
+        private readonly ISettingsService _settingsService;
+        private readonly ICooperationChoicesService _cooperationChoicesService;
 
         public UserProfileService(
             TtvContext ttvContext,
@@ -39,17 +56,49 @@ namespace api.Services
             ISharingService sharingService,
             ITtvSqlService ttvSqlService,
             ILogger<UserProfileService> logger,
-            IElasticsearchService elasticsearchService)
+            IElasticsearchService elasticsearchService,
+            IAffiliationService affiliationService,
+            IEducationService educationService,
+            IEmailService emailService,
+            IExternalIdentifierService externalIdentifierService,
+            IKeywordService keywordService,
+            INameService nameService,
+            IPublicationService publicationService,
+            IResearcherDescriptionService researcherDescriptionService,
+            ITelephoneNumberService telephoneNumberService,
+            IWebLinkService webLinkService,
+            IFundingDecisionService fundingDecisionService,
+            IResearchDatasetService researchDatasetService,
+            IResearchActivityService researchActivityService,
+            IUniqueDataSourcesService uniqueDataSourcesService,
+            ISettingsService settingsService,
+            ICooperationChoicesService cooperationChoicesService)
         {
             _ttvContext = ttvContext;
             _dataSourceHelperService = dataSourceHelperService;
             _utilityService = utilityService;
             _languageService = languageService;
+            _settingsService = settingsService;
             _duplicateHandlerService = duplicateHandlerService;
             _sharingService = sharingService;
             _ttvSqlService = ttvSqlService;
             _logger = logger;
+            _cooperationChoicesService = cooperationChoicesService;
             _elasticsearchService = elasticsearchService;
+            _uniqueDataSourcesService = uniqueDataSourcesService;
+            _researchActivityService = researchActivityService;
+            _affiliationService = affiliationService;
+            _educationService = educationService;
+            _emailService = emailService;
+            _externalIdentifierService = externalIdentifierService;
+            _keywordService = keywordService;
+            _nameService = nameService;
+            _publicationService = publicationService;
+            _researcherDescriptionService = researcherDescriptionService;
+            _telephoneNumberService = telephoneNumberService;
+            _webLinkService = webLinkService;
+            _fundingDecisionService = fundingDecisionService;
+            _researchDatasetService = researchDatasetService;
         }
 
         public UserProfileService(
@@ -1301,9 +1350,59 @@ namespace api.Services
             return profileEditorSource;
         }
 
+        /*
+         * Get profile data - refactored
+         */
+
+        public async Task<ProfileEditorDataResponse> GetProfileData2(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
+        {
+            var connection = _ttvContext.Database.GetDbConnection();
+
+            List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId).ToListAsync();
+
+            ProfileEditorDataResponse profileDataResponse = new()
+            {
+                personal = new ProfileEditorDataPersonal()
+                {
+                    names = await _nameService.GetProfileEditorNames(userprofileId, forElasticsearch),
+                    otherNames = await _nameService.GetProfileEditorOtherNames(userprofileId, forElasticsearch),
+                    emails = await _emailService.GetProfileEditorEmails(userprofileId, forElasticsearch),
+                    telephoneNumbers = await _telephoneNumberService.GetProfileEditorTelephoneNumbers(userprofileId, forElasticsearch),
+                    webLinks = await _webLinkService.GetProfileEditorWebLinks(userprofileId, forElasticsearch),
+                    keywords = await _keywordService.GetProfileEditorKeywords(userprofileId, forElasticsearch),
+                    fieldOfSciences = new(), // These are currently not included in the profile data response.
+                    researcherDescriptions = await _researcherDescriptionService.GetProfileEditorResearcherDescriptions(userprofileId, forElasticsearch),
+                    externalIdentifiers = await _externalIdentifierService.GetProfileEditorExternalIdentifiers(userprofileId, forElasticsearch)
+                },
+                activity = new ProfileEditorDataActivity()
+                {
+                    educations = await _educationService.GetProfileEditorEducations(userprofileId, forElasticsearch),
+                    affiliations = await _affiliationService.GetProfileEditorAffiliations(userprofileId, forElasticsearch),
+                    publications = await _publicationService.GetProfileEditorPublications(userprofileId, forElasticsearch),
+                    fundingDecisions = await _fundingDecisionService.GetProfileEditorFundingDecisions(userprofileId, forElasticsearch),
+                    researchDatasets = await _researchDatasetService.GetProfileEditorResearchDatasets(userprofileId, forElasticsearch),
+                    activitiesAndRewards = await _researchActivityService.GetProfileEditorActiviesAndRewards(userprofileId, forElasticsearch)
+                },
+                settings = await _settingsService.GetProfileSettings(userprofileId, forElasticsearch),
+                cooperation = await _cooperationChoicesService.GetCooperationChoices(userprofileId, forElasticsearch),
+                uniqueDataSources = await _uniqueDataSourcesService.GetUniqueDataSources(userprofileId, forElasticsearch)
+            };
+
+            // Add settings
+            ProfileSettings profileSettings = (await connection.QueryAsync<ProfileSettings>(
+                _ttvSqlService.GetSqlQuery_ProfileSettings(userprofileId))).FirstOrDefault();
+            profileDataResponse.settings = profileSettings;
+
+            // Add cooperation choices
+            List<ProfileEditorCooperationItem> cooperationItems = (await connection.QueryAsync<ProfileEditorCooperationItem>(
+                _ttvSqlService.GetSqlQuery_ProfileEditorCooperationItems(userprofileId))).ToList();
+            profileDataResponse.cooperation.AddRange(cooperationItems);
+
+            return profileDataResponse;
+        }
 
         /*
-         *  Get profile data.
+         * Get profile data.
          */
         public async Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
         {

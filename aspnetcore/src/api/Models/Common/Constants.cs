@@ -75,6 +75,7 @@
 
         public static class PidTypes
         {
+            public const string DOI = "doi";
             public const string ORCID = "ORCID";
             public const string ORCID_PUT_CODE = "ORCID put code";
         }
@@ -120,6 +121,7 @@
             public const string ORCID_FUNDING = "aktiviteetitjaroolit";
             public const string PROFILE_SHARING = "tutkijaprofiilin_luvitus";
             public const string USER_CHOICES = "Kiinnostuksen_ilmaiseminen";
+            public const string ACTIVITIES_AND_ROLES = "aktiviteetitjaroolit";
         }
 
         // https://koodistot.suomi.fi/codescheme;registryCode=research;schemeCode=aktiviteetitjaroolit
@@ -176,6 +178,25 @@
             public const string NOTHING_TO_MODIFY = "nothing to modify";
             public const string NOTHING_TO_ADD = "nothing to add";
             public const string NOTHING_TO_REMOVE = "nothing to remove";
+        }
+
+        public static class DescriptiveItemLanguages
+        {
+            public const string FI = "fi";
+            public const string EN = "en";
+            public const string SV = "sv";
+        }
+
+        public static class DescriptiveItemTypes
+        {
+            public const string DESCRIPTION = "description";
+            public const string NAME = "name";
+        }
+
+        public static class FactContributionTypes
+        {
+            public const string ACTIVITY_TYPE = "activity_type";
+            public const string RESEARCHER_NAME_ACTIVITY = "researcher_name_activity";
         }
     }
 }
