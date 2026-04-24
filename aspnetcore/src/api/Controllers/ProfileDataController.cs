@@ -40,7 +40,7 @@ namespace api.Controllers
             _ttvSqlService = ttvSqlService;
             _logger = logger;
         }
-/*
+
         /// <summary>
         /// Get profile data. New version using different data structure.
         /// </summary>
@@ -78,7 +78,8 @@ namespace api.Controllers
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
-*/
+
+/*
         /// <summary>
         /// Get profile data - experimental version
         /// </summary>
@@ -101,6 +102,7 @@ namespace api.Controllers
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
+*/
 
         /// <summary>
         /// Modify profile data.
