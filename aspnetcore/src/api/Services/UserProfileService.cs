@@ -1388,16 +1388,6 @@ namespace api.Services
                 uniqueDataSources = await _uniqueDataSourcesService.GetUniqueDataSources(userprofileId, forElasticsearch)
             };
 
-            // Add settings
-            ProfileSettings profileSettings = (await connection.QueryAsync<ProfileSettings>(
-                _ttvSqlService.GetSqlQuery_ProfileSettings(userprofileId))).FirstOrDefault();
-            profileDataResponse.settings = profileSettings;
-
-            // Add cooperation choices
-            List<ProfileEditorCooperationItem> cooperationItems = (await connection.QueryAsync<ProfileEditorCooperationItem>(
-                _ttvSqlService.GetSqlQuery_ProfileEditorCooperationItems(userprofileId))).ToList();
-            profileDataResponse.cooperation.AddRange(cooperationItems);
-
             return profileDataResponse;
         }
 
