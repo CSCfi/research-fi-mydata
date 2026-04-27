@@ -157,7 +157,7 @@ namespace api.Tests.Profiledata
             Assert.Equal(2024, result[2].PublicationYear);
             Assert.Equal("DimProfileOnlyPublication2 Publisher name", result[2].PublisherName);
             Assert.Equal("", result[2].SelfArchivedAddress);
-            Assert.Equal("0", result[2].SelfArchivedCode);
+            Assert.Equal("", result[2].SelfArchivedCode);
             Assert.Equal("DimProfileOnlyPublication2 Volume number", result[2].Volume);
             // Item meta
             Assert.NotNull(result[0].itemMeta);
@@ -193,7 +193,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("", result[3].PublisherName);
             Assert.Equal("", result[3].Volume);
             Assert.Equal("", result[3].SelfArchivedAddress);
-            Assert.Equal("0", result[3].SelfArchivedCode);
+            Assert.Equal("", result[3].SelfArchivedCode);
             // Item meta
             Assert.NotNull(result[3].itemMeta);
             Assert.Equal(23, result[3].itemMeta.Id);
