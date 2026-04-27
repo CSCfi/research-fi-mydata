@@ -156,7 +156,7 @@ namespace api.Services.Profiledata
                     TypeOfFundingNameFi = ffv.DimReferencedataActorRole.NameFi,
                     TypeOfFundingNameEn = ffv.DimReferencedataActorRole.NameEn,
                     TypeOfFundingNameSv = ffv.DimReferencedataActorRole.NameSv,
-                    Url = ffv.DimProfileOnlyFundingDecision.DimWebLinks.Count > 0 ? ffv.DimProfileOnlyFundingDecision.DimWebLinks.FirstOrDefault().Url : string.Empty,
+                    Url = ffv.DimProfileOnlyFundingDecision.DimWebLinks.Count > 0 ? ffv.DimProfileOnlyFundingDecision.DimWebLinks.FirstOrDefault().Url : null,
                     DimProfileOnlyFundingDecision_DimOrganization_Id = ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder > 0 ? ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder : -1,
                     DimProfileOnlyFundingDecision_DimOrganization_NameFi = ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder != null && ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder > 0 ? ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.NameFi : string.Empty,
                     DimProfileOnlyFundingDecision_DimOrganization_NameEn = ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder != null && ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunder > 0 ? ffv.DimProfileOnlyFundingDecision.DimOrganizationIdFunderNavigation.NameEn : string.Empty,
