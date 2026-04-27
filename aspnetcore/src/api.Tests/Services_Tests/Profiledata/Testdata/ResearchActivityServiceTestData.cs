@@ -642,6 +642,51 @@ namespace api.Tests.Profiledata
             };
             data.FactFieldValues.Add(ffvDimProfileOnlyResearchActivity4);
 
+            /*
+             * 5th DimProfileOnlyResearchActivity:
+             *   - Is identical to the 3rd DimProfileOnlyResearchActivity in all fields relevant for deduplication (same name and start year as the 3rd DimProfileOnlyResearchActivity).
+             *   - This should be deduplicated and not included in the results.
+             */
+            FactFieldValue ffvDimProfileOnlyResearchActivity5 = userProfileService.GetEmptyFactFieldValue();
+            ffvDimProfileOnlyResearchActivity5.DimProfileOnlyResearchActivityId = 1003;
+            ffvDimProfileOnlyResearchActivity5.DimProfileOnlyResearchActivity = new DimProfileOnlyResearchActivity
+            {
+                Id = 1004,
+                DescriptionFi = "DimProfileOnlyResearchActivity3 description",
+                DescriptionSv = "",
+                DescriptionEn = "",
+                DimDateIdEnd = 4401,
+                DimDateIdEndNavigation = new DimDate { Id = 4401, Year = 1955, Month = 9, Day = 19, SourceId = "Source1" },
+                DimDateIdStart = 4402,
+                DimDateIdStartNavigation = new DimDate { Id = 4402, Year = 1950, Month = 8, Day = 18, SourceId = "Source1" },
+                DimOrganizationId = -1,
+                DimOrganization = data.DimOrganizations[0],
+                NameFi = "DimProfileOnlyResearchActivity3 name",
+                NameEn = "",
+                NameSv = "",
+                SourceId = "Source1"
+            };
+            ffvDimProfileOnlyResearchActivity5.DimUserProfileId = data.UserProfile.Id;
+            ffvDimProfileOnlyResearchActivity5.DimUserProfile = data.UserProfile;
+            ffvDimProfileOnlyResearchActivity5.DimFieldDisplaySettingsId = dfdsResearchActivity.Id; // RESEARCH_ACTIVITY
+            ffvDimProfileOnlyResearchActivity5.DimFieldDisplaySettings = dfdsResearchActivity;
+            ffvDimProfileOnlyResearchActivity5.DimRegisteredDataSourceId = data.DimRegisteredDataSources[1].Id;
+            ffvDimProfileOnlyResearchActivity5.DimRegisteredDataSource = data.DimRegisteredDataSources[1];
+            ffvDimProfileOnlyResearchActivity5.Show = false;
+            ffvDimProfileOnlyResearchActivity5.PrimaryValue = false;
+            ffvDimProfileOnlyResearchActivity5.DimReferencedataActorRoleId = 4005;
+            ffvDimProfileOnlyResearchActivity5.DimReferencedataActorRole = new DimReferencedatum {
+                Id = 4005,
+                CodeScheme = Constants.ReferenceDataCodeSchemes.ACTIVITIES_AND_ROLES,
+                CodeValue = "DimProfileOnlyResearchActivity5 activity_type DimReferenceData CodeValue",
+                NameFi = "DimProfileOnlyResearchActivity5 activity_type DimReferenceData",
+                NameEn = "",
+                NameSv = "",
+                SourceId = "Source1",
+                SourceDescription = ""
+            };
+            data.FactFieldValues.Add(ffvDimProfileOnlyResearchActivity5);
+
             return data;
         }
 

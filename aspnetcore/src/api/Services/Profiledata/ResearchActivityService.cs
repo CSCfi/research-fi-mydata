@@ -385,7 +385,11 @@ namespace api.Services.Profiledata
                 {
                     // Duplicate found, mark profile only research activity as duplicate.
                     profileOnlyResearchActivityDto.IsDuplicate = true;
-                    break;
+                }
+                else {
+                    // Add key to unique keys set for deduplication of next items.
+                    // This handles the case where there are multiple duplicates in profileOnlyResearchActivityDtos.
+                    uniqueKeys.Add(key);
                 }
             }
             _logger.LogInformation($"GetProfileEditorResearchActivities. Deduplication took {stopwatch_deduplicateDtos.ElapsedMilliseconds}ms.");
