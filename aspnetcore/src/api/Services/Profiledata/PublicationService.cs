@@ -262,6 +262,13 @@ namespace api.Services.Profiledata
                 // Parse open access code. If parsing fails, set to 9 (unknown value).
                 int openAccessCode = int.TryParse(publicationDto.OpenAccessCodeUnprocessed, out int openAccessCodeParsed) ? openAccessCodeParsed : 9;
 
+                // SelfArchivedCode.
+                string selfArchivedCode = "";
+                if (!publicationDto.IsProfileOnlyPublication)
+                {
+                    selfArchivedCode = (publicationDto.SelfArchivedCode != null && (bool)publicationDto.SelfArchivedCode) ? "1" : "0";
+                }
+
                 publications.Add(new ProfileEditorPublication()
                 {
                     ArticleNumberText = publicationDto.ArticleNumberText,
@@ -288,7 +295,7 @@ namespace api.Services.Profiledata
                     PublisherName = publicationDto.PublisherName,
                     PublicationTypeCode = publicationDto.PublicationTypeCode,
                     SelfArchivedAddress = publicationDto.SelfArchivedAddress,
-                    SelfArchivedCode = (publicationDto.SelfArchivedCode != null && (bool)publicationDto.SelfArchivedCode) ? "1" : "0",
+                    SelfArchivedCode = selfArchivedCode,
                     Volume = publicationDto.Volume,
                     DataSources = publicationDto.DataSources.Select(dataSourceDto => new ProfileEditorSource()
                     {
