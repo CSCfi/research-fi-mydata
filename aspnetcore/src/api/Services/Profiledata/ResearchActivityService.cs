@@ -212,8 +212,8 @@ namespace api.Services.Profiledata
                     WebLinks = ffv.DimResearchActivity.DimWebLinks.Select(wl => new ProfileEditorWebLink_WithoutItemMeta()
                     {
                         Url = wl.Url,
-                        LinkLabel = wl.LinkLabel,
-                        LinkType = wl.LinkType
+                        LinkLabel = wl.LinkLabel ?? "",
+                        LinkType = wl.LinkType ?? ""
                     }).ToList() 
                 }).AsNoTracking().ToListAsync();
             stopwatch_researchActivityDtos.Stop();
@@ -293,8 +293,8 @@ namespace api.Services.Profiledata
                     WebLinks = ffv.DimProfileOnlyResearchActivity.DimWebLinks.Select(wl => new ProfileEditorWebLink_WithoutItemMeta()
                     {
                         Url = wl.Url,
-                        LinkLabel = wl.LinkLabel,
-                        LinkType = wl.LinkType
+                        LinkLabel = wl.LinkLabel ?? "",
+                        LinkType = wl.LinkType ?? ""
                     }).ToList() 
                 }).AsNoTracking().ToListAsync();
             stopwatch_profileOnlyResearchActivityDtos.Stop();
