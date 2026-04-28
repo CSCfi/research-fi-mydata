@@ -63,7 +63,10 @@ namespace api.Services.Profiledata
             }
 
             stopwatch.Stop();
-            _logger.LogInformation($"GetUniqueDataSources. {dataSources.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetUniqueDataSources is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {dataSources.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            }
 
             return dataSources;
         }

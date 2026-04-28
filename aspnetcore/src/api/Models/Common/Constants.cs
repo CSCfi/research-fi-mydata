@@ -198,5 +198,10 @@
             public const string ACTIVITY_TYPE = "activity_type";
             public const string RESEARCHER_NAME_ACTIVITY = "researcher_name_activity";
         }
+
+        public static class LoggingParameters
+        {
+            public const int SLOW_OPERATION_MS_THRESHOLD = 2000;
+        }
     }
 }

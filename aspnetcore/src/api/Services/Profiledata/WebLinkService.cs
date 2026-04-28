@@ -79,7 +79,10 @@ namespace api.Services.Profiledata
             }
 
             stopwatch.Stop();
-            _logger.LogInformation($"GetProfileEditorWebLinks. {webLinks.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetProfileEditorWebLinks is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {webLinks.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            }
 
             return webLinks;
         }
