@@ -99,7 +99,10 @@ namespace api.Services.Profiledata
             }
 
             stopwatch.Stop();
-            _logger.LogInformation($"GetProfileEditorEducations. {educations.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetProfileEditorEducations is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {educations.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            }
 
             return educations;
         }  

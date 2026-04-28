@@ -78,7 +78,10 @@ namespace api.Services.Profiledata
             }
 
             stopwatch.Stop();
-            _logger.LogInformation($"GetProfileEditorExternalIdentifiers. {externalIdentifiers.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetProfileEditorExternalIdentifiers is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {externalIdentifiers.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            }
 
             return externalIdentifiers;
         }

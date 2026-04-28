@@ -136,7 +136,10 @@ namespace api.Services.Profiledata
             }
 
             stopwatch.Stop();
-            _logger.LogInformation($"GetProfileEditorOtherNames. {otherNames.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetProfileEditorOtherNames is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {otherNames.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            }
 
             return otherNames;
         }

@@ -114,7 +114,6 @@ namespace api.Services.Profiledata
             /*
              * DimResearchActivity => DTO
              */
-            var stopwatch_researchActivityDtos = Stopwatch.StartNew();
             List<ResearchActivityDto> researchActivityDtos = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimResearchActivityId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY
@@ -216,13 +215,10 @@ namespace api.Services.Profiledata
                         LinkType = wl.LinkType ?? ""
                     }).ToList() 
                 }).AsNoTracking().ToListAsync();
-            stopwatch_researchActivityDtos.Stop();
-            _logger.LogInformation($"GetProfileEditorResearchActivities. SQL query for researchActivityDtos got {researchActivityDtos.Count} items and took {stopwatch_researchActivityDtos.ElapsedMilliseconds}ms.");
 
             /*
              * DimProfileOnlyResearchActivity => DTO
              */
-            var stopwatch_profileOnlyResearchActivityDtos = Stopwatch.StartNew();
             List<ResearchActivityDto> profileOnlyResearchActivityDtos = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimProfileOnlyResearchActivityId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY
@@ -297,14 +293,11 @@ namespace api.Services.Profiledata
                         LinkType = wl.LinkType ?? ""
                     }).ToList() 
                 }).AsNoTracking().ToListAsync();
-            stopwatch_profileOnlyResearchActivityDtos.Stop();
-            _logger.LogInformation($"GetProfileEditorResearchActivities. SQL query for profileOnlyResearchActivityDtos got {profileOnlyResearchActivityDtos.Count} items and took {stopwatch_profileOnlyResearchActivityDtos.ElapsedMilliseconds}ms.");
 
             /*
             * Batch load child identifierless data.
             * One query replaces 4 correlated subqueries per row across both DTO lists.
             */
-            var stopwatch_childLookup = Stopwatch.StartNew();
             List<int> allParentIds = researchActivityDtos
                 .Concat(profileOnlyResearchActivityDtos)
                 .Where(d => d.DimIdentifierlessData_Id > 0)
@@ -338,8 +331,6 @@ namespace api.Services.Profiledata
                     }
                 }
             }
-            stopwatch_childLookup.Stop();
-            _logger.LogInformation($"GetProfileEditorResearchActivities. Batch child lookup took {stopwatch_childLookup.ElapsedMilliseconds}ms.");
 
             /*
              * Research activity deduplication.
@@ -347,7 +338,6 @@ namespace api.Services.Profiledata
              * Remove items from profileOnlyResearchActivityDtos which duplicate items from researchActivityDtos.
              * Comparison is done by computing a key for each research activity based on start year and translated name FI, and comparing the keys.
              */
-            var stopwatch_deduplicateDtos = Stopwatch.StartNew();
             HashSet<string> uniqueKeys = new();
             foreach (ResearchActivityDto researchActivityDto in researchActivityDtos)
             {
@@ -392,7 +382,6 @@ namespace api.Services.Profiledata
                     uniqueKeys.Add(key);
                 }
             }
-            _logger.LogInformation($"GetProfileEditorResearchActivities. Deduplication took {stopwatch_deduplicateDtos.ElapsedMilliseconds}ms.");
 
             /*
              * Process DTOs
@@ -402,7 +391,6 @@ namespace api.Services.Profiledata
              * Destination:
              *   - List<ProfileEditorActivityAndReward>
              */
-            var stopwatch_processDtos = Stopwatch.StartNew();
             List<ProfileEditorActivityAndReward> activitiesAndRewards = new();
             foreach (ResearchActivityDto dto in researchActivityDtos.Concat(profileOnlyResearchActivityDtos).Where(d => !d.IsDuplicate))
             {
@@ -617,11 +605,12 @@ namespace api.Services.Profiledata
                 }
                 activitiesAndRewards.Add(activityAndReward);
             }
-            stopwatch_processDtos.Stop();
-            _logger.LogInformation($"GetProfileEditorResearchActivities. Processing DTOs took {stopwatch_processDtos.ElapsedMilliseconds}ms.");
 
             stopwatch.Stop();
-            _logger.LogInformation($"GetProfileEditorResearchActivities. {activitiesAndRewards.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetProfileEditorResearchActivities is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {activitiesAndRewards.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            }
 
             return activitiesAndRewards;
         }

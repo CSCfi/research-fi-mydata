@@ -353,7 +353,11 @@ namespace api.Services.Profiledata
             }
 
             stopwatch.Stop();
-            _logger.LogInformation($"GetProfileEditorAffiliations. {affiliations.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetProfileEditorAffiliations is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {affiliations.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            }
+            
             return affiliations;
         }
     }
