@@ -27,7 +27,8 @@ namespace api.Services
             var stopwatch = Stopwatch.StartNew();
 
             List<ProfileEditorCooperationItem> cooperationItems = await _ttvContext.DimUserChoices
-                .Where(c => c.DimUserProfileId == userprofileId).Select(c => new ProfileEditorCooperationItem
+                .Where(c => c.DimUserProfileId == userprofileId && (!forElasticsearch || c.UserChoiceValue))
+                .Select(c => new ProfileEditorCooperationItem
                 {
                     Id = c.Id,
                     NameFi = c.DimReferencedataIdAsUserChoiceLabelNavigation.NameFi,

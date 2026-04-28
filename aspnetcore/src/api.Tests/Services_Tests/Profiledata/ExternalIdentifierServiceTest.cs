@@ -82,9 +82,17 @@ namespace api.Tests.Profiledata
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+        }
 
-            // When forElasticsearch is true, only the name with Show = true should be returned
-            result = await service.GetProfileEditorExternalIdentifiers(
+        [Fact]
+        public async Task GetProfileEditorExternalIdentifiers_ReturnsExternalIdentifiers_ForElasticsearch_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorExternalIdentifiers_ReturnsExternalIdentifiers_ForElasticsearch_WhenMatchingUserProfileExists));
+            var testData = ExternalIdentifierServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorExternalIdentifiers(
                 userprofileId: 1,
                 forElasticsearch: true
             );

@@ -159,9 +159,9 @@ namespace api.Tests.Profiledata
         }
 
         [Fact]
-        public async Task GetProfileEditorAffiliations_ReturnsAffiliations_WithSectors_WhenForElasticsearchIsTrue()
+        public async Task GetProfileEditorAffiliations_ReturnsAffiliations_ForElasticsearch_WhenMatchingUserProfileExists()
         {
-            using var context = CreateInMemoryContext(nameof(GetProfileEditorAffiliations_ReturnsAffiliations_WithSectors_WhenForElasticsearchIsTrue));
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorAffiliations_ReturnsAffiliations_ForElasticsearch_WhenMatchingUserProfileExists));
             var testData = AffiliationServiceTestData.Create();
             await testData.SeedAsync(context);
 

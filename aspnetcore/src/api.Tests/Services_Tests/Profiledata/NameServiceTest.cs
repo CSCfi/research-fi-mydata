@@ -150,9 +150,33 @@ namespace api.Tests.Profiledata
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameEn);
             Assert.Equal("Org name", result[1].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[1].DataSources[0].Organization.SectorId);
+        }
 
-            // When forElasticsearch is true, only the name with Show = true should be returned
-            result = await service.GetProfileEditorOtherNames(
+        [Fact]
+        public async Task GetProfileEditorNames_ReturnsNames_ForElasticsearch_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorNames_ReturnsNames_ForElasticsearch_WhenMatchingUserProfileExists));
+            var testData = NameServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorNames(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Single(result);
+        }
+
+        [Fact]
+        public async Task GetProfileEditorOtherNames_ReturnsOtherNames_ForElasticsearch_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorOtherNames_ReturnsOtherNames_ForElasticsearch_WhenMatchingUserProfileExists));
+            var testData = NameServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorOtherNames(
                 userprofileId: 1,
                 forElasticsearch: true
             );

@@ -66,6 +66,24 @@ namespace api.Tests
                         },
                         UserChoiceValue = false,
                         SourceId = "Source1"
+                    },
+                    new DimUserChoice
+                    {
+                        Id = 3,
+                        DimUserProfileId = 1,
+                        DimReferencedataIdAsUserChoiceLabelNavigation = new DimReferencedatum
+                        {
+                            CodeScheme = Constants.ReferenceDataCodeSchemes.USER_CHOICES,
+                            CodeValue = "",
+                            NameFi = "Yhteistyö 3",
+                            NameEn = "Cooperation 3",
+                            NameSv = "Samarbete 3",
+                            Order = 3,
+                            SourceDescription = "Source1",
+                            SourceId = "Source1"
+                        },
+                        UserChoiceValue = true,
+                        SourceId = "Source1"
                     }
                 }
             };
@@ -99,10 +117,10 @@ namespace api.Tests
                 logger: new NullLogger<CooperationChoicesService>());
         }
 
-        [Fact(DisplayName = "GetCooperationChoices retrieves correct choices for user profile")]
-        public async Task GetCooperationChoices_RetrievesCorrectChoices()
+        [Fact(DisplayName = "GetCooperationChoices retrieves correct choices for user profile when forElasticsearch is false")]
+        public async Task GetCooperationChoices_RetrievesCorrectChoices_ForElasticsearchFalse()
         {
-            using var context = CreateInMemoryContext(nameof(GetCooperationChoices_RetrievesCorrectChoices));
+            using var context = CreateInMemoryContext(nameof(GetCooperationChoices_RetrievesCorrectChoices_ForElasticsearchFalse));
             var testData = CooperationChoicesServiceTestData.Create();
             await testData.SeedAsync(context);
 
@@ -113,9 +131,29 @@ namespace api.Tests
             );
 
             Assert.NotEmpty(results);
-            Assert.Equal(2, results.Count);
+            Assert.Equal(3, results.Count);
             Assert.Contains(results, c => c.Id == 1 && c.Selected == true && c.NameFi == "Yhteistyö 1" && c.NameSv == "Samarbete 1" && c.NameEn == "Cooperation 1" && c.Order == 1);
             Assert.Contains(results, c => c.Id == 2 && c.Selected == false && c.NameFi == "Yhteistyö 2" && c.NameSv == "Samarbete 2" && c.NameEn == "Cooperation 2" && c.Order == 2);
+            Assert.Contains(results, c => c.Id == 3 && c.Selected == true && c.NameFi == "Yhteistyö 3" && c.NameSv == "Samarbete 3" && c.NameEn == "Cooperation 3" && c.Order == 3);
+        }
+
+        [Fact(DisplayName = "GetCooperationChoices retrieves correct choices for user profile when forElasticsearch is true")]
+        public async Task GetCooperationChoices_RetrievesCorrectChoices_ForElasticsearchTrue()
+        {
+            using var context = CreateInMemoryContext(nameof(GetCooperationChoices_RetrievesCorrectChoices_ForElasticsearchTrue));
+            var testData = CooperationChoicesServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var results = await service.GetCooperationChoices(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+
+            Assert.NotEmpty(results);
+            Assert.Equal(2, results.Count);
+            Assert.Contains(results, c => c.Id == 1 && c.Selected == true && c.NameFi == "Yhteistyö 1" && c.NameSv == "Samarbete 1" && c.NameEn == "Cooperation 1" && c.Order == 1);
+            Assert.Contains(results, c => c.Id == 3 && c.Selected == true && c.NameFi == "Yhteistyö 3" && c.NameSv == "Samarbete 3" && c.NameEn == "Cooperation 3" && c.Order == 3);
         }
     }
 }

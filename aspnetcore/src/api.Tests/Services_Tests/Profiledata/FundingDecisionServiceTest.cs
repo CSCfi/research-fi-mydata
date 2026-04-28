@@ -205,14 +205,22 @@ namespace api.Tests.Profiledata
             Assert.Equal(223344.55m, result[3].AmountInFundingDecisionCurrency);
             Assert.Equal("USD", result[3].FundingDecisionCurrencyAbbreviation);
             Assert.Equal("https://example.com/profile_only_fundingdecision2", result[3].Url);
+        }
 
-            // // When forElasticsearch is true, only the name with Show = true should be returned
-            // result = await service.GetProfileEditorFundingDecisions(
-            //     userprofileId: 1,
-            //     forElasticsearch: true
-            // );
-            // Assert.NotEmpty(result);
-            // Assert.Single(result);
+        [Fact]
+        public async Task GetProfileEditorFundingDecisions_ReturnsFundingDecisions_ForElasticsearch_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorFundingDecisions_ReturnsFundingDecisions_ForElasticsearch_WhenMatchingUserProfileExists));
+            var testData = FundingDecisionServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorFundingDecisions(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Equal(2, result.Count);
         }
     }
 }

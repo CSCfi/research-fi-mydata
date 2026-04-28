@@ -334,5 +334,21 @@ namespace api.Tests.Profiledata
                 )
             );
         }
+
+        [Fact]
+        public async Task GetProfileEditorActiviesAndRewards_ReturnsData_ForElasticsearch_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorActiviesAndRewards_ReturnsData_ForElasticsearch_WhenMatchingUserProfileExists));
+            var testData = ResearchActivityServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorActiviesAndRewards(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Equal(3, result.Count);
+        }
     }
 }

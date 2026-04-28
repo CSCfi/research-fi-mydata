@@ -208,9 +208,17 @@ namespace api.Tests.Profiledata
             Assert.Equal("ORCID", result[3].DataSources[0].Organization.NameEn);
             Assert.Equal("ORCID", result[3].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[3].DataSources[0].Organization.SectorId);
+        }
 
-            // When forElasticsearch is true, only publications with Show = true should be returned
-            result = await service.GetProfileEditorPublications(
+        [Fact]
+        public async Task GetProfileEditorPublications_ReturnsPublications_ForElasticsearch_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorPublications_ReturnsPublications_ForElasticsearch_WhenMatchingUserProfileExists));
+            var testData = PublicationServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorPublications(
                 userprofileId: 1,
                 forElasticsearch: true
             );
