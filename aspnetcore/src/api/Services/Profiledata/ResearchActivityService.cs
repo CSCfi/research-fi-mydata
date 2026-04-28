@@ -582,6 +582,16 @@ namespace api.Services.Profiledata
                     WebLinks = dto.WebLinks
                 };
 
+                // Make sure empty strings are null.
+                if (string.IsNullOrWhiteSpace(activityAndReward.ActivityTypeCode))
+                {
+                    activityAndReward.ActivityTypeCode = null;
+                }
+                if (string.IsNullOrWhiteSpace(activityAndReward.RoleCode))
+                {
+                    activityAndReward.RoleCode = null;
+                }
+
                 // Add Elasticsearch person index related data.
                 if (forElasticsearch && !String.IsNullOrWhiteSpace(dto.ResearchActivity_DimOrganization_DimSector_SectorId))
                 {
