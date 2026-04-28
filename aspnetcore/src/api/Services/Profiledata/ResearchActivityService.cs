@@ -582,14 +582,14 @@ namespace api.Services.Profiledata
                     WebLinks = dto.WebLinks
                 };
 
-                // Make sure empty strings are null.
+                // Make sure ActivityTypeCode and RoleCode empty values are always "".
                 if (string.IsNullOrWhiteSpace(activityAndReward.ActivityTypeCode))
                 {
-                    activityAndReward.ActivityTypeCode = null;
+                    activityAndReward.ActivityTypeCode = "";
                 }
                 if (string.IsNullOrWhiteSpace(activityAndReward.RoleCode))
                 {
-                    activityAndReward.RoleCode = null;
+                    activityAndReward.RoleCode = "";
                 }
 
                 // Add Elasticsearch person index related data.

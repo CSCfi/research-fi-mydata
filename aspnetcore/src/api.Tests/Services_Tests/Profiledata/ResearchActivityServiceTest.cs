@@ -203,7 +203,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("DimProfileOnlyResearchActivity1 activity_type DimReferenceData NameFi", result[3].ActivityTypeNameFi);
             Assert.Equal("DimProfileOnlyResearchActivity1 activity_type DimReferenceData NameEn", result[3].ActivityTypeNameEn);
             Assert.Equal("DimProfileOnlyResearchActivity1 activity_type DimReferenceData NameSv", result[3].ActivityTypeNameSv);
-            Assert.Null(result[3].RoleCode);
+            Assert.Equal("", result[3].RoleCode);
             Assert.Equal("", result[3].RoleNameFi);
             Assert.Equal("", result[3].RoleNameEn);
             Assert.Equal("", result[3].RoleNameSv);
@@ -252,7 +252,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("DimProfileOnlyResearchActivity2 activity_type DimReferenceData", result[4].ActivityTypeNameFi);
             Assert.Equal("DimProfileOnlyResearchActivity2 activity_type DimReferenceData", result[4].ActivityTypeNameEn);
             Assert.Equal("DimProfileOnlyResearchActivity2 activity_type DimReferenceData", result[4].ActivityTypeNameSv);
-            Assert.Null(result[4].RoleCode);
+            Assert.Equal("",result[4].RoleCode);
             Assert.Equal("", result[4].RoleNameFi);
             Assert.Equal("", result[4].RoleNameEn);
             Assert.Equal("", result[4].RoleNameSv);
@@ -293,7 +293,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("DimProfileOnlyResearchActivity3 activity_type DimReferenceData", result[5].ActivityTypeNameFi);
             Assert.Equal("DimProfileOnlyResearchActivity3 activity_type DimReferenceData", result[5].ActivityTypeNameEn);
             Assert.Equal("DimProfileOnlyResearchActivity3 activity_type DimReferenceData", result[5].ActivityTypeNameSv);
-            Assert.Null(result[5].RoleCode);
+            Assert.Equal("",result[5].RoleCode);
             Assert.Equal("", result[5].RoleNameFi);
             Assert.Equal("", result[5].RoleNameEn);
             Assert.Equal("", result[5].RoleNameSv);
