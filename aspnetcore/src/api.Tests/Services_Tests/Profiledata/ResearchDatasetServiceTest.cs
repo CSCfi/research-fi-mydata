@@ -158,5 +158,21 @@ namespace api.Tests.Profiledata
             Assert.Empty(result[3].PreferredIdentifiers);
             Assert.Equal("", result[3].Url);
         }
+
+        [Fact]
+        public async Task GetProfileEditorResearchDatasets_ReturnsResearchDatasets_ForElasticsearch_WhenMatchingUserProfileExists()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileEditorResearchDatasets_ReturnsResearchDatasets_ForElasticsearch_WhenMatchingUserProfileExists));
+            var testData = ResearchDatasetServiceTestData.Create();
+            await testData.SeedAsync(context);
+
+            var service = CreateService(context);
+            var result = await service.GetProfileEditorResearchDatasets(
+                userprofileId: 1,
+                forElasticsearch: true
+            );
+            Assert.NotEmpty(result);
+            Assert.Equal(3, result.Count);
+        }
     }
 }
