@@ -32,7 +32,7 @@ namespace api.Services.Profiledata
          */
         public async Task<List<ProfileEditorName>> GetProfileEditorNames(int userprofileId, bool forElasticsearch = false)
         {
-            var stopwatch = Stopwatch.StartNew();
+            var namesStopwatch = Stopwatch.StartNew();
             List<ProfileEditorName> names = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimNameId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_NAME
@@ -78,8 +78,11 @@ namespace api.Services.Profiledata
                 }
             }
 
-            stopwatch.Stop();
-            _logger.LogInformation($"GetProfileEditorNames. {names.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            namesStopwatch.Stop();
+            if (namesStopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetProfileEditorNames is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {names.Count} items in {namesStopwatch.ElapsedMilliseconds}ms.");
+            }
 
             return names;
         }
@@ -89,7 +92,7 @@ namespace api.Services.Profiledata
          */
         public async Task<List<ProfileEditorName>> GetProfileEditorOtherNames(int userprofileId, bool forElasticsearch = false)
         {
-            var stopwatch = Stopwatch.StartNew();
+            var otherNamesStopwatch = Stopwatch.StartNew();
             List<ProfileEditorName> otherNames = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimNameId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES
@@ -135,10 +138,10 @@ namespace api.Services.Profiledata
                 }
             }
 
-            stopwatch.Stop();
-            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            otherNamesStopwatch.Stop();
+            if (otherNamesStopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
             {
-                _logger.LogWarning($"GetProfileEditorOtherNames is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {otherNames.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+                _logger.LogWarning($"GetProfileEditorOtherNames is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {otherNames.Count} items in {otherNamesStopwatch.ElapsedMilliseconds}ms.");
             }
 
             return otherNames;

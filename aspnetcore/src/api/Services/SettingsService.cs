@@ -1,6 +1,7 @@
 ﻿
 using System.Diagnostics;
 using System.Threading.Tasks;
+using api.Models.Common;
 using api.Models.ProfileEditor;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,10 @@ namespace api.Services
             };
             
             stopwatch.Stop();
-            _logger.LogInformation($"GetProfileSettings retrieved in {stopwatch.ElapsedMilliseconds} ms");
+            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetProfileSettings is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch} in {stopwatch.ElapsedMilliseconds}ms.");
+            }
             
             return profileSettings;
         }
