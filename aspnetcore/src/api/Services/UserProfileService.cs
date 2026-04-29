@@ -1353,13 +1353,8 @@ namespace api.Services
         /*
          * Get profile data - refactored
          */
-
         public async Task<ProfileEditorDataResponse> GetProfileData2(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
         {
-            var connection = _ttvContext.Database.GetDbConnection();
-
-            List<FactFieldValue> ffvs = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId).ToListAsync();
-
             ProfileEditorDataResponse profileDataResponse = new()
             {
                 personal = new ProfileEditorDataPersonal()
@@ -1387,7 +1382,6 @@ namespace api.Services
                 cooperation = await _cooperationChoicesService.GetCooperationChoices(userprofileId, forElasticsearch),
                 uniqueDataSources = await _uniqueDataSourcesService.GetUniqueDataSources(userprofileId, forElasticsearch)
             };
-
             return profileDataResponse;
         }
 
