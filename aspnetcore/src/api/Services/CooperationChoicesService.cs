@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Models.Common;
 using api.Models.ProfileEditor;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +40,10 @@ namespace api.Services
                 }).AsNoTracking().ToListAsync();
             
             stopwatch.Stop();
-            _logger.LogInformation($"GetCooperationChoices. {cooperationItems.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            {
+                _logger.LogWarning($"GetCooperationChoices is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch} in {stopwatch.ElapsedMilliseconds}ms.");
+            }
             
             return cooperationItems;
         }
