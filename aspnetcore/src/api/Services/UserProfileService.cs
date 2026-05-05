@@ -1351,9 +1351,9 @@ namespace api.Services
         }
 
         /*
-         * Get profile data - refactored
+         * Get profile data.
          */
-        public async Task<ProfileEditorDataResponse> GetProfileData2(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
+        public async Task<ProfileEditorDataResponse> GetProfileData(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false)
         {
             ProfileEditorDataResponse profileDataResponse = new()
             {

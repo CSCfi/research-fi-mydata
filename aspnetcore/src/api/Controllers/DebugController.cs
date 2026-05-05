@@ -174,7 +174,7 @@ namespace api.Controllers
 
             // Get profile data
             var stopwatch = Stopwatch.StartNew();
-            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData2(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
             stopwatch.Stop();
             _logger.LogInformation($"{logPrefix}GetProfileData2 for {orcidId} completed in {stopwatch.ElapsedMilliseconds}ms.");
 
