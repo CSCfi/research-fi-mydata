@@ -28,7 +28,6 @@ namespace api.Services
         FactFieldValue GetEmptyFactFieldValueDemo();
         List<int> GetFieldIdentifiers();
         DimKnownPerson GetNewDimKnownPerson(string orcidId, DateTime currentDateTime);
-        Task<ProfileEditorDataResponse> GetProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false);
         Task<ProfileEditorDataResponse> GetProfileData(int userprofileId, LogUserIdentification logUserIdentification, bool forElasticsearch = false);
         Task<DimUserProfile> GetUserprofile(string orcidId);
         Task<DimUserProfile> GetUserprofileTracking(string orcidId);

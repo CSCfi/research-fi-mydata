@@ -34,7 +34,6 @@ namespace api.Services
         string GetSqlQuery_Delete_DimUserProfile(int userprofileId);
         string GetSqlQuery_Delete_DimWebLinks(List<int> dimWebLinkIds);
         string GetSqlQuery_Delete_FactFieldValues(int userprofileId);
-        string GetSqlQuery_ProfileData(int userprofileId, bool forElasticsearch = false);
         string GetSqlQuery_Select_BrParticipatesInFundingGroup(long dimNameId, List<int> existingFundingDecisionIds);
         string GetSqlQuery_Select_CountPublishedItemsInUserprofile(int dimUserProfileId);
         string GetSqlQuery_Select_DimAffiliation(int dimKnownPersonId, List<int> existingIds);
@@ -48,8 +47,6 @@ namespace api.Services
         string GetSqlQuery_Select_GetHiddenInUserprofile(int dimUserProfileId);
         string GetSqlQuery_Update_FactFieldValues(int dimUserProfileId, ProfileEditorItemMeta profileEditorItemMeta);
         string GetSqlQuery_Update_DimUserProfile_Modified(int dimUserProfileId);
-        string GetSqlQuery_ProfileEditorCooperationItems(int userprofileId);
-        string GetSqlQuery_ProfileSettings(int userprofileId);
         string GetSqlQuery_Select_PublicationDoiMatching(int dimUserProfileId);
     }
 }

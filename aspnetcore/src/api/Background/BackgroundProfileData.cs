@@ -41,7 +41,7 @@ namespace api.Services
 
             // Get profile data
             ProfileEditorDataResponse profileEditorDataResponse =
-                await localUserProfileService.GetProfileDataAsync(
+                await localUserProfileService.GetProfileData(
                     userprofileId: userprofileId,
                     logUserIdentification: logUserIdentification,
                     forElasticsearch: true);
