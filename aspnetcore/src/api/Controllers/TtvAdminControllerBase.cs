@@ -16,11 +16,11 @@ public abstract class TtvAdminControllerBase : ControllerBase
 
     // Get user identification object for structured logging.
     [NonAction]
-    protected LogUserIdentification GetLogUserIdentification()
+    protected LogUserIdentification GetLogUserIdentification(string orcid = "")
     {
         return new LogUserIdentification(
             keycloakId: "",
-            orcid: "",
+            orcid: orcid,
             ip: HttpContext.Connection.RemoteIpAddress?.ToString()
         );
     }

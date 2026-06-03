@@ -150,8 +150,7 @@ namespace api.Controllers
             }
 
             // User identification object for logging
-            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
-
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification(orcid: orcidId);
             // Get profile data
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
@@ -212,7 +211,7 @@ namespace api.Controllers
             }
 
             // User identification object for logging
-            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification(orcid: orcidId);
 
             // Create profile
             _logger.LogInformation(
@@ -297,7 +296,7 @@ namespace api.Controllers
             }
 
             // User identification object for logging
-            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification(orcid: orcidId);
 
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
