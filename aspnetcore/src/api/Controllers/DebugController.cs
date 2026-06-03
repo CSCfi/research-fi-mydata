@@ -61,15 +61,31 @@ namespace api.Controllers
         [Route("/[controller]/profilecount")]
         public async Task<IActionResult> GetNumberOfProfiles()
         {
-            _logger.LogInformation($"{logPrefix}get number of profiles");
-
             // Check admin token authorization
             if (!IsAdminTokenAuthorized(Configuration))
             {
                 return Unauthorized();
             }
 
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_USERPROFILE_COUNT,
+                    state: LogContent.ActionState.START));
+
             int count = await _ttvContext.DimUserProfiles.Where(up => up.Id != -1).AsNoTracking().CountAsync();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_USERPROFILE_COUNT,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"profile count = {count}"));
+
             return Ok(count);
         }
 
@@ -81,19 +97,33 @@ namespace api.Controllers
         [Route("/[controller]/orcids")]
         public async Task<IActionResult> GetListOfORCIDs()
         {
-            _logger.LogInformation($"{logPrefix}get list of ORCID IDs which have a user profile");
-
             // Check admin token authorization
             if (!IsAdminTokenAuthorized(Configuration))
             {
                 return Unauthorized();
             }
 
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_LIST_OF_ORCIDS,
+                    state: LogContent.ActionState.START));
+
             List<string> orcidIds = new();
             foreach (DimUserProfile up in await _ttvContext.DimUserProfiles.Where(up => up.Id != -1).AsNoTracking().ToListAsync())
             {
                 orcidIds.Add(up.OrcidId);
             }
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_LIST_OF_ORCIDS,
+                    state: LogContent.ActionState.COMPLETE));
 
             return Ok(orcidIds);
         }
@@ -107,8 +137,6 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get(string orcidId)
         {
-            _logger.LogInformation($"{logPrefix}GetProfileData for {orcidId} started.");
-
             // Check admin token authorization
             if (!IsAdminTokenAuthorized(Configuration))
             {
@@ -132,10 +160,24 @@ namespace api.Controllers
             LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
 
             // Get profile data
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_LIST_OF_ORCIDS,
+                    state: LogContent.ActionState.START));
+
             var stopwatch = Stopwatch.StartNew();
             ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
             stopwatch.Stop();
-            _logger.LogInformation($"{logPrefix}GetProfileData for {orcidId} completed in {stopwatch.ElapsedMilliseconds}ms.");
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"took {stopwatch.ElapsedMilliseconds}ms."));
 
             return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
@@ -149,8 +191,6 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateProfile(string orcidId)
         {
-            _logger.LogInformation($"{logPrefix}create user profile, ORCID ID: " + orcidId);
-
             // Check admin token authorization
             if (!IsAdminTokenAuthorized(Configuration))
             {
@@ -184,6 +224,13 @@ namespace api.Controllers
             LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
 
             // Create profile
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_CREATE_PROFILE,
+                    state: LogContent.ActionState.START));
+
             try
             {
                 await _userProfileService.CreateProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
@@ -191,11 +238,22 @@ namespace api.Controllers
             catch
             {
                 string msg = "profile creation failed";
-                _logger.LogError($"{logPrefix}{msg}");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.DEBUG_CREATE_PROFILE,
+                        state: LogContent.ActionState.FAILED,
+                        message: msg));
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
 
-            _logger.LogInformation($"{logPrefix}profile created");
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_CREATE_PROFILE,
+                    state: LogContent.ActionState.COMPLETE));
             return Ok(new ApiResponse(success: true));
         }
 
@@ -208,8 +266,6 @@ namespace api.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteProfile(string orcidId)
         {
-            _logger.LogInformation($"{logPrefix}delete user profile, ORCID ID: " + orcidId);
-
             // Check admin token authorization
             if (!IsAdminTokenAuthorized(Configuration))
             {
@@ -222,20 +278,34 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_DELETE_PROFILE,
+                    state: LogContent.ActionState.START));
+
             // Return immediately, if profile does not exist.
             (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
             if (!userprofileExists)
             {
                 string msg = "profile does not exist for ORCID ID: " + orcidId;
-                _logger.LogInformation($"{logPrefix}{msg}");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.DEBUG_DELETE_PROFILE,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: msg));
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
 
             // Remove cached profile data response. Cache key is ORCID ID.
             _cache.Remove(orcidId);
-
-            // User identification object for logging
-            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
 
             // Remove entry from Elasticsearch index.
             await _userProfileService.DeleteProfileFromElasticsearch(
@@ -251,12 +321,24 @@ namespace api.Controllers
             {
                 // Log error
                 string msg = "profile deletion failed";
-                _logger.LogError($"{logPrefix}{msg}");
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.DEBUG_DELETE_PROFILE,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: msg));
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
 
             // Log deletion
-            _logger.LogInformation($"{logPrefix}profile deleted");
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_DELETE_PROFILE,
+                    state: LogContent.ActionState.COMPLETE));
 
             return Ok(new ApiResponse(success: true));
         }
