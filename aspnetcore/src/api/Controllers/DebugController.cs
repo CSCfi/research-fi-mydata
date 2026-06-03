@@ -91,7 +91,7 @@ namespace api.Controllers
 
 
         /// <summary>
-        /// Debug: Get list of ORCID ID which have a user profile.
+        /// Debug: Get list of ORCID IDs which have a user profile.
         /// </summary>
         [HttpGet]
         [Route("/[controller]/orcids")]
@@ -149,13 +149,6 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
-            // Check that userprofile exists.
-            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
-            if (!userprofileExists)
-            {
-                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
-            }
-
             // User identification object for logging
             LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
 
@@ -164,8 +157,23 @@ namespace api.Controllers
                 LogContent.MESSAGE_TEMPLATE,
                 logUserIdentification,
                 new LogApiInfo(
-                    action: LogContent.Action.DEBUG_GET_LIST_OF_ORCIDS,
+                    action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
                     state: LogContent.ActionState.START));
+
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: "profile not found for ORCID ID: " + orcidId));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
+            }
 
             var stopwatch = Stopwatch.StartNew();
             ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
@@ -203,6 +211,17 @@ namespace api.Controllers
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
             }
 
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
+
+            // Create profile
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_CREATE_PROFILE,
+                    state: LogContent.ActionState.START));
+
             // Check if user profile already exists.
             (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
             if (userprofileExists)
@@ -217,19 +236,18 @@ namespace api.Controllers
 
             if (dimPid == null)
             {
-                return Ok(new ApiResponse(success: false, reason: "DEBUG Either ORCID ID does not exist in dim_pid, or it is not linked to any dim_known_person."));
+                // Create profile
+                string msg = "DEBUG Either ORCID ID does not exist in dim_pid, or it is not linked to any dim_known_person.";
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.DEBUG_CREATE_PROFILE,
+                        state: LogContent.ActionState.START,
+                        error: true,
+                        message: msg));
+                return Ok(new ApiResponse(success: false, reason: msg));
             }
-
-            // User identification object for logging
-            LogUserIdentification logUserIdentification = new LogUserIdentification(orcid: orcidId);
-
-            // Create profile
-            _logger.LogInformation(
-                LogContent.MESSAGE_TEMPLATE,
-                logUserIdentification,
-                new LogApiInfo(
-                    action: LogContent.Action.DEBUG_CREATE_PROFILE,
-                    state: LogContent.ActionState.START));
 
             try
             {
