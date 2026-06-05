@@ -229,8 +229,9 @@ namespace api.Services.Profiledata
                         if (!string.IsNullOrWhiteSpace(newPublication.PublicationIdDictionaryKey))
                             publicationIdDict.Add(newPublication.PublicationIdDictionaryKey, newPublication);
                         
-                        if (!string.IsNullOrWhiteSpace(newPublication.DoiDictionaryKey))                 
-                            doiDict.Add(newPublication.DoiDictionaryKey, newPublication);
+                        if (!string.IsNullOrWhiteSpace(newPublication.DoiDictionaryKey))
+                            // For Doi use TryAdd. Two different DimPublications can have the same DOI, but different publicationId.             
+                            doiDict.TryAdd(newPublication.DoiDictionaryKey, newPublication);
                     }
                     else
                         processedProfileOnlyPublications.Add(newPublication);

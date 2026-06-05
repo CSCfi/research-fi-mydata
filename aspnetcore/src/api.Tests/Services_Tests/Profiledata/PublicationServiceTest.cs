@@ -55,10 +55,10 @@ namespace api.Tests.Profiledata
             // Expected count is 4.
             // Out of 3 DimPublications 2 of them should be deduplicated based on the same PublicationId. That leaves 2 DimPublications.
             // Out of 3 DimProfileOnlyPublications 1 should be deduplicated with one of the DimPublications based on the same Doi. That leaves 2 DimProfileOnlyPublications.
-            Assert.Equal(4, result.Count);
+            Assert.Equal(5, result.Count);
 
             /*
-             * result[0]
+             * result[0] DimPublication.
              */
             Assert.Equal("DimPublication1 Article number text", result[0].ArticleNumberText);
             Assert.Equal("DimPublication1 Authors text", result[0].AuthorsText);
@@ -99,7 +99,7 @@ namespace api.Tests.Profiledata
             Assert.Equal("S1", result[0].DataSources[1].Organization.SectorId);
 
             /*
-             * result[1]
+             * result[1] DimPublication.
              */
             Assert.Equal("DimPublication3 Article number text", result[1].ArticleNumberText);
             Assert.Equal("DimPublication3 Authors text", result[1].AuthorsText);
@@ -137,66 +137,66 @@ namespace api.Tests.Profiledata
             Assert.Equal("ORCID", result[1].DataSources[1].Organization.NameFi);
             Assert.Equal("ORCID", result[1].DataSources[1].Organization.NameEn);
             Assert.Equal("ORCID", result[1].DataSources[1].Organization.NameSv);
-            Assert.Equal("S1", result[1].DataSources[1].Organization.SectorId);            
+            Assert.Equal("S1", result[1].DataSources[1].Organization.SectorId);
 
             /*
-             * result[2]
+             * result[2] DimPublication.
              */
-            Assert.Equal("DimProfileOnlyPublication2 Article number text", result[2].ArticleNumberText);
-            Assert.Equal("DimProfileOnlyPublication2 Authors text", result[2].AuthorsText);
-            Assert.Equal("DimProfileOnlyPublication2 Conference name", result[2].ConferenceName);
-            Assert.Equal("10.1234/doi_dimprofileonlypublication_2", result[2].Doi);
-            Assert.Equal("DimProfileOnlyPublication2 Issue number", result[2].IssueNumber);
-            Assert.Equal("", result[2].JournalName);
-            Assert.Equal(1, result[2].OpenAccess);
-            Assert.Equal("567", result[2].PageNumberText);
-            Assert.Equal("DimProfileOnlyPublication2 Parent publication name", result[2].ParentPublicationName);
-            Assert.Equal("DimProfileOnlyPublication2 PublicationId", result[2].PublicationId);
-            Assert.Equal("DimProfileOnlyPublication2 Publication name", result[2].PublicationName);
-            Assert.Equal("", result[2].PublicationTypeCode);
-            Assert.Equal(2024, result[2].PublicationYear);
-            Assert.Equal("DimProfileOnlyPublication2 Publisher name", result[2].PublisherName);
-            Assert.Equal("", result[2].SelfArchivedAddress);
-            Assert.Equal("", result[2].SelfArchivedCode);
-            Assert.Equal("DimProfileOnlyPublication2 Volume number", result[2].Volume);
+            Assert.Equal("DimPublication4 Article number text", result[2].ArticleNumberText);
+            Assert.Equal("DimPublication4 Authors text", result[2].AuthorsText);
+            Assert.Equal("DimPublication4 Conference name", result[2].ConferenceName);
+            Assert.Equal("10.1234/doi_dimpublication_1", result[2].Doi); // Same Doi with DimPublication 1, different PublicationId.
+            Assert.Equal("DimPublication4 Issue number", result[2].IssueNumber);
+            Assert.Equal("DimPublication4 Journal name", result[2].JournalName);
+            Assert.Equal(0, result[2].OpenAccess);
+            Assert.Equal("345", result[2].PageNumberText);
+            Assert.Equal("DimPublication4 Parent publication name", result[2].ParentPublicationName);
+            Assert.Equal("DimPublication4 PublicationId", result[2].PublicationId);
+            Assert.Equal("DimPublication4 Publication name", result[2].PublicationName);
+            Assert.Null(result[2].PublicationTypeCode);
+            Assert.Equal(2022, result[2].PublicationYear);
+            Assert.Equal("DimPublication4 Publisher name", result[2].PublisherName);
+            Assert.Null(result[2].SelfArchivedAddress);
+            Assert.Equal("0", result[2].SelfArchivedCode);
+            Assert.Equal("DimPublication4 Volume number", result[2].Volume);
             // Item meta
-            Assert.NotNull(result[0].itemMeta);
-            Assert.Equal(1, result[0].itemMeta.Id);
-            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION_PROFILE_ONLY, result[2].itemMeta.Type);
-            Assert.True(result[0].itemMeta.Show);
-            Assert.True(result[0].itemMeta.PrimaryValue);
+            Assert.NotNull(result[2].itemMeta);
+            Assert.Equal(4, result[2].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION, result[2].itemMeta.Type);
+            Assert.False(result[2].itemMeta.Show);
+            Assert.False(result[2].itemMeta.PrimaryValue);
             // Data sources
-            Assert.Single(result[2].DataSources);
-            Assert.Equal(4, result[2].DataSources[0].Id);
-            Assert.Equal("ORCID", result[2].DataSources[0].RegisteredDataSource);
-            Assert.Equal("ORCID", result[2].DataSources[0].Organization.NameFi);
-            Assert.Equal("ORCID", result[2].DataSources[0].Organization.NameEn);
-            Assert.Equal("ORCID", result[2].DataSources[0].Organization.NameSv);
-            Assert.Equal("S1", result[2].DataSources[0].Organization.SectorId);
+            Assert.Equal(1, result[2].DataSources.Count); // After deduplication by Doi, the publication should have combined data sources of the deduplicated publications.
+            Assert.Equal(3, result[2].DataSources[0].Id);
+            Assert.Equal("TTV", result[2].DataSources[0].RegisteredDataSource);
+            Assert.Equal("TTV Fi", result[2].DataSources[0].Organization.NameFi);
+            Assert.Equal("TTV En", result[2].DataSources[0].Organization.NameEn);
+            Assert.Equal("TTV Sv", result[2].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[2].DataSources[0].Organization.SectorId);   
 
             /*
-             * result[3]
+             * result[3] DimProfileOnlyPublication.
              */
-            Assert.Equal("", result[3].ArticleNumberText);
-            Assert.Equal("DimProfileOnlyPublication3 Authors text", result[3].AuthorsText);
-            Assert.Equal("", result[3].ConferenceName);
-            Assert.Equal("", result[3].Doi);
-            Assert.Equal("", result[3].IssueNumber);
+            Assert.Equal("DimProfileOnlyPublication2 Article number text", result[3].ArticleNumberText);
+            Assert.Equal("DimProfileOnlyPublication2 Authors text", result[3].AuthorsText);
+            Assert.Equal("DimProfileOnlyPublication2 Conference name", result[3].ConferenceName);
+            Assert.Equal("10.1234/doi_dimprofileonlypublication_2", result[3].Doi);
+            Assert.Equal("DimProfileOnlyPublication2 Issue number", result[3].IssueNumber);
             Assert.Equal("", result[3].JournalName);
-            Assert.Equal(0, result[3].OpenAccess);
-            Assert.Equal("", result[3].PageNumberText);
-            Assert.Equal("", result[3].ParentPublicationName);
-            Assert.Equal("", result[3].PublicationId);
-            Assert.Equal( "DimProfileOnlyPublication3 Publication name", result[3].PublicationName);
+            Assert.Equal(1, result[3].OpenAccess);
+            Assert.Equal("567", result[3].PageNumberText);
+            Assert.Equal("DimProfileOnlyPublication2 Parent publication name", result[3].ParentPublicationName);
+            Assert.Equal("DimProfileOnlyPublication2 PublicationId", result[3].PublicationId);
+            Assert.Equal("DimProfileOnlyPublication2 Publication name", result[3].PublicationName);
             Assert.Equal("", result[3].PublicationTypeCode);
-            Assert.Equal(2025, result[3].PublicationYear);
-            Assert.Equal("", result[3].PublisherName);
-            Assert.Equal("", result[3].Volume);
+            Assert.Equal(2024, result[3].PublicationYear);
+            Assert.Equal("DimProfileOnlyPublication2 Publisher name", result[3].PublisherName);
             Assert.Equal("", result[3].SelfArchivedAddress);
             Assert.Equal("", result[3].SelfArchivedCode);
+            Assert.Equal("DimProfileOnlyPublication2 Volume number", result[3].Volume);
             // Item meta
             Assert.NotNull(result[3].itemMeta);
-            Assert.Equal(23, result[3].itemMeta.Id);
+            Assert.Equal(22, result[3].itemMeta.Id);
             Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION_PROFILE_ONLY, result[3].itemMeta.Type);
             Assert.False(result[3].itemMeta.Show);
             Assert.False(result[3].itemMeta.PrimaryValue);
@@ -208,6 +208,41 @@ namespace api.Tests.Profiledata
             Assert.Equal("ORCID", result[3].DataSources[0].Organization.NameEn);
             Assert.Equal("ORCID", result[3].DataSources[0].Organization.NameSv);
             Assert.Equal("S1", result[3].DataSources[0].Organization.SectorId);
+
+            /*
+             * result[4] DimProfileOnlyPublication.
+             */
+            Assert.Equal("", result[4].ArticleNumberText);
+            Assert.Equal("DimProfileOnlyPublication3 Authors text", result[4].AuthorsText);
+            Assert.Equal("", result[4].ConferenceName);
+            Assert.Equal("", result[4].Doi);
+            Assert.Equal("", result[4].IssueNumber);
+            Assert.Equal("", result[4].JournalName);
+            Assert.Equal(0, result[4].OpenAccess);
+            Assert.Equal("", result[4].PageNumberText);
+            Assert.Equal("", result[4].ParentPublicationName);
+            Assert.Equal("", result[4].PublicationId);
+            Assert.Equal( "DimProfileOnlyPublication3 Publication name", result[4].PublicationName);
+            Assert.Equal("", result[4].PublicationTypeCode);
+            Assert.Equal(2025, result[4].PublicationYear);
+            Assert.Equal("", result[4].PublisherName);
+            Assert.Equal("", result[4].Volume);
+            Assert.Equal("", result[4].SelfArchivedAddress);
+            Assert.Equal("", result[4].SelfArchivedCode);
+            // Item meta
+            Assert.NotNull(result[4].itemMeta);
+            Assert.Equal(23, result[4].itemMeta.Id);
+            Assert.Equal(Constants.ItemMetaTypes.ACTIVITY_PUBLICATION_PROFILE_ONLY, result[4].itemMeta.Type);
+            Assert.False(result[4].itemMeta.Show);
+            Assert.False(result[4].itemMeta.PrimaryValue);
+            // Data sources
+            Assert.Single(result[4].DataSources);
+            Assert.Equal(4, result[4].DataSources[0].Id);
+            Assert.Equal("ORCID", result[4].DataSources[0].RegisteredDataSource);
+            Assert.Equal("ORCID", result[4].DataSources[0].Organization.NameFi);
+            Assert.Equal("ORCID", result[4].DataSources[0].Organization.NameEn);
+            Assert.Equal("ORCID", result[4].DataSources[0].Organization.NameSv);
+            Assert.Equal("S1", result[4].DataSources[0].Organization.SectorId);
         }
 
         [Fact]

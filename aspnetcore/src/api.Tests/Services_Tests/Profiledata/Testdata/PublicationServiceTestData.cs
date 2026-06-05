@@ -15,6 +15,7 @@ namespace api.Tests.Profiledata
         public List<DimFieldDisplaySetting> FieldDisplaySettings { get; private set; }
         public DimUserProfile UserProfile { get; private set; }
         public List<FactFieldValue> FactFieldValues { get; private set; }
+        public List<DimReferencedatum> DimReferencedatum { get; private set; }
 
         public static PublicationServiceTestData Create()
         {
@@ -28,6 +29,7 @@ namespace api.Tests.Profiledata
             data.DimSectors = new List<DimSector>();
             data.DimOrganizations = new List<DimOrganization>();
             data.DimRegisteredDataSources = new List<DimRegisteredDataSource>();
+            data.DimReferencedatum = new List<DimReferencedatum>();
             data.DimSectors.Add(new DimSector { Id = -1, SectorId = "", NameFi = "", NameSv = "", NameEn = "", SourceId = "Source1" });
             data.DimSectors.Add(new DimSector { Id = 1, SectorId = "S1", NameFi = "Sector Fi", NameSv = "Sector Sv", NameEn = "Sector En", SourceId = "Source1" });
             data.DimOrganizations.Add(new DimOrganization { Id = -1, NameFi = "", NameEn = "", NameSv = "", DimSector = data.DimSectors[0], SourceId = "Source1" });
@@ -47,16 +49,18 @@ namespace api.Tests.Profiledata
                 dfdsActivityPublication,
                 dfdsActivityPublicationProfileOnly
             };
+            data.DimReferencedatum.Add(new DimReferencedatum { Id = -1, CodeValue = "", CodeScheme = "", SourceId = "Source1", SourceDescription = "" });
     
 
             /*
              * DimPublications
              *
              * Test scenario:
-             *  - 3 publications:
+             *  - 4 publications:
              *      - DimPublication 1 and DimPublication 2 have the same PublicationId. They should be deduplicated based on PublicationId, and only one of them should be included in the results. Which one is included does not matter, as long as only one of them is included.
              *      - DimPublication 3 has a different PublicationId. It should not be deduplicated with DimPublication 1 or DimPublication 2.
              *      - DimPublication 3 has the same Doi as one of DimProfileOnlyPublications. They should be deduplicated based on Doi.
+             *      - DimPublication 4 has the same Doi as DimPublication 1, but different PublicatioId. It should not be deduplicated.
              */
 
             // DimPublication 1
@@ -214,13 +218,7 @@ namespace api.Tests.Profiledata
                 PublicationId = "DimPublication3 PublicationId", // Different PublicationId. Should not be deduplicated with DimPublication 1 or DimPublication 2.                 
                 PublicationName = "DimPublication3 Publication name",
                 PublicationTypeCode = -1,
-                PublicationTypeCodeNavigation = new DimReferencedatum {
-                    Id = -1,
-                    CodeValue = "",
-                    CodeScheme = "",
-                    SourceId = "Source1",
-                    SourceDescription = ""
-                },
+                PublicationTypeCodeNavigation = data.DimReferencedatum[0],
                 PublicationYear = 2022,
                 PublicationOrgId = "DimPublication3 Publication orgId",
                 PublisherName = "DimPublication3 Publisher name",
@@ -234,10 +232,60 @@ namespace api.Tests.Profiledata
             ffvPublication3.PrimaryValue = false;
             data.FactFieldValues.Add(ffvPublication3);
 
+            // DimPublication 4
+            FactFieldValue ffvPublication4 = userProfileService.GetEmptyFactFieldValue();
+            ffvPublication4.DimUserProfileId = data.UserProfile.Id;
+            ffvPublication4.DimUserProfile = data.UserProfile;
+            ffvPublication4.DimFieldDisplaySettingsId = dfdsActivityPublication.Id; // ACTIVITY_PUBLICATION
+            ffvPublication4.DimFieldDisplaySettings = dfdsActivityPublication;
+            ffvPublication4.DimPublicationId = 4;
+            ffvPublication4.DimPublication = new DimPublication {
+                Id = 4,
+                ArticleNumberText = "DimPublication4 Article number text",
+                AuthorsText = "DimPublication4 Authors text",
+                ConferenceName = "DimPublication4 Conference name",
+                DimPids = new List<DimPid> {
+                    new DimPid {
+                        Id = 4,
+                        PidType = Constants.PidTypes.DOI,
+                        PidContent = "10.1234/doi_dimpublication_1", // Same Doi with DimPublication 1. Should not be deduplicated, only profile only publications are deduplicated.
+                        SourceId = "Source1"
+                    }
+                },
+                DoiHandle = null, 
+                IssueNumber = "DimPublication4 Issue number",
+                JournalName = "DimPublication4 Journal name",
+                OpenAccessCode = 5002,
+                OpenAccessCodeNavigation = new DimReferencedatum {
+                    Id = 50022,
+                    CodeValue = "0",
+                    CodeScheme = "AvoinSaatavuusKytkin",
+                    SourceId = "Source1",
+                    SourceDescription = ""
+                },
+                PageNumberText = "345",
+                ParentPublicationName = "DimPublication4 Parent publication name",
+                PublicationId = "DimPublication4 PublicationId",               
+                PublicationName = "DimPublication4 Publication name",
+                PublicationTypeCode = -1,
+                PublicationTypeCodeNavigation = data.DimReferencedatum[0],
+                PublicationYear = 2022,
+                PublicationOrgId = "DimPublication4 Publication orgId",
+                PublisherName = "DimPublication4 Publisher name",
+                SelfArchivedCode = null,
+                Volume = "DimPublication4 Volume number",
+                SourceId = "Source1"
+            };
+            ffvPublication4.DimRegisteredDataSourceId = data.DimRegisteredDataSources[2].Id;
+            ffvPublication4.DimRegisteredDataSource = data.DimRegisteredDataSources[2];
+            ffvPublication4.Show = false;
+            ffvPublication4.PrimaryValue = false;
+            data.FactFieldValues.Add(ffvPublication4);
+
             /*
              * DimProfileOnlyPublications
              * Test scenario:
-             *  - 2 publications:
+             *  - 3 profile only publications:
              *      - DimProfileOnlyPublication 1 has the same Doi as one of DimPublications. They should be deduplicated based on Doi.
              *      - DimProfileOnlyPublication 2 has a different Doi. It should not be deduplicated with any of DimPublications.
              *      - DimProfileOnlyPublication 3 does not have Doi. It should not be deduplicated with any of DimPublications.
