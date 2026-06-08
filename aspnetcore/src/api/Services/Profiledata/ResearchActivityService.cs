@@ -208,12 +208,7 @@ namespace api.Services.Profiledata
                     ResearchActivity_DescriptionSv = ffv.DimResearchActivity.DescriptionSv,
                     ResearchActivity_InternationalCollaboration = ffv.DimResearchActivity.InternationalCollaboration,
                     ResearchActivity_DimWebLink_Url = ffv.DimResearchActivity.DimWebLinks.FirstOrDefault().Url,
-                    WebLinks = ffv.DimResearchActivity.DimWebLinks.Select(wl => new ProfileEditorWebLink_WithoutItemMeta()
-                    {
-                        Url = wl.Url,
-                        LinkLabel = wl.LinkLabel ?? "",
-                        LinkType = wl.LinkType ?? ""
-                    }).ToList() 
+                    WebLinks = new() // Will be populated later in-memory after batch loading to avoid N+1 query problem.
                 }).AsNoTracking().ToListAsync();
 
             /*
@@ -286,18 +281,13 @@ namespace api.Services.Profiledata
                     ResearchActivity_DescriptionSv = ffv.DimProfileOnlyResearchActivity.DescriptionSv,
                     ResearchActivity_InternationalCollaboration = null, // Not available in DimProfileOnlyResearchActivity.
                     ResearchActivity_DimWebLink_Url = ffv.DimProfileOnlyResearchActivity.DimWebLinks.FirstOrDefault().Url,
-                    WebLinks = ffv.DimProfileOnlyResearchActivity.DimWebLinks.Select(wl => new ProfileEditorWebLink_WithoutItemMeta()
-                    {
-                        Url = wl.Url,
-                        LinkLabel = wl.LinkLabel ?? "",
-                        LinkType = wl.LinkType ?? ""
-                    }).ToList() 
+                    WebLinks = new() // Will be populated later in-memory after batch loading to avoid N+1 query problem.
                 }).AsNoTracking().ToListAsync();
 
             /*
-            * Batch load child identifierless data.
-            * One query replaces 4 correlated subqueries per row across both DTO lists.
-            */
+             * Batch load child identifierless data.
+             * One query replaces 4 correlated subqueries per row across both DTO lists.
+             */
             List<int> allParentIds = researchActivityDtos
                 .Concat(profileOnlyResearchActivityDtos)
                 .Where(d => d.DimIdentifierlessData_Id > 0)
@@ -328,6 +318,94 @@ namespace api.Services.Profiledata
                         dto.DimIdentifierlessData_Child_ValueFi = child.ValueFi;
                         dto.DimIdentifierlessData_Child_ValueEn = child.ValueEn;
                         dto.DimIdentifierlessData_Child_ValueSv = child.ValueSv;
+                    }
+                }
+            }
+
+            /*
+             * Batch load web links.
+             */
+
+            // Collect research activity IDs.
+            List<int> allResearchActivityIds = researchActivityDtos
+                .Where(d => !d.IsProfileOnlyResearchActivity && d.Id > 0)
+                .Select(d => d.Id)
+                .Distinct()
+                .ToList();
+
+            // Collect profile only research activity IDs.
+            List<int> allProfileOnlyActivityIds = profileOnlyResearchActivityDtos
+                .Where(d => d.IsProfileOnlyResearchActivity && d.Id > 0)
+                .Select(d => d.Id)
+                .Distinct()
+                .ToList();
+
+            if (allResearchActivityIds.Count > 0 || allProfileOnlyActivityIds.Count > 0)
+            {
+                // Load WebLinks for DimResearchActivity
+                var dimResearchActivityWebLinks = await _ttvContext.DimWebLinks
+                    .Where(wl =>
+                        wl.DimResearchActivityId.HasValue &&
+                        allResearchActivityIds.Contains(wl.DimResearchActivityId.Value))
+                    .Select(wl => new
+                    {
+                        ActivityId = wl.DimResearchActivityId.GetValueOrDefault(),
+                        wl.Url,
+                        wl.LinkLabel,
+                        wl.LinkType
+                    })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                // Load WebLinks for DimProfileOnlyResearchActivity
+                var dimProfileOnlyActivityWebLinks = await _ttvContext.DimWebLinks
+                    .Where(wl =>
+                        wl.DimProfileOnlyResearchActivityId.HasValue &&
+                        allProfileOnlyActivityIds.Contains(wl.DimProfileOnlyResearchActivityId.Value))
+                    .Select(wl => new
+                    {
+                        ActivityId = wl.DimProfileOnlyResearchActivityId.GetValueOrDefault(),
+                        wl.Url,
+                        wl.LinkLabel,
+                        wl.LinkType
+                    })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                // Group by activity ID for O(1) lookups
+                var webLinksByResearchActivityId = dimResearchActivityWebLinks
+                    .GroupBy(wl => wl.ActivityId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var webLinksByProfileOnlyActivityId = dimProfileOnlyActivityWebLinks
+                    .GroupBy(wl => wl.ActivityId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                // Populate WebLinks in research activity DTOs.
+                foreach (var dto in researchActivityDtos)
+                {
+                    if (webLinksByResearchActivityId.TryGetValue(dto.Id, out var webLinks))
+                    {
+                        dto.WebLinks = webLinks.Select(wl => new ProfileEditorWebLink_WithoutItemMeta()
+                        {
+                            Url = wl.Url,
+                            LinkLabel = wl.LinkLabel ?? "",
+                            LinkType = wl.LinkType ?? ""
+                        }).ToList();
+                    }
+                }
+
+                // Populate WebLinks in profile only research activity DTOs.
+                foreach (var dto in profileOnlyResearchActivityDtos)
+                {
+                    if (webLinksByProfileOnlyActivityId.TryGetValue(dto.Id, out var webLinks))
+                    {
+                        dto.WebLinks = webLinks.Select(wl => new ProfileEditorWebLink_WithoutItemMeta()
+                        {
+                            Url = wl.Url,
+                            LinkLabel = wl.LinkLabel ?? "",
+                            LinkType = wl.LinkType ?? ""
+                        }).ToList();
                     }
                 }
             }
