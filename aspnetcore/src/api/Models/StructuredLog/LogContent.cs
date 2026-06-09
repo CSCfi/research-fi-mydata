@@ -18,6 +18,7 @@
             public const string DEBUG_GET_USERPROFILE_COUNT = "Debug: get user profile count";
             public const string DEBUG_GET_LIST_OF_ORCIDS = "Debug: get list of ORCID IDs";
             public const string DEBUG_GET_PROFILE_DATA = "Debug: get profile data";
+            public const string DEBUG_GET_PROFILE_DATA_BY_USERPROFILE_ID = "Debug: get profile data by userprofile ID";
             public const string DEBUG_CREATE_PROFILE = "Debug: create profile";
             public const string DEBUG_DELETE_PROFILE = "Debug: delete profile";
             public const string AI_GET_PROFILE_DATA = "AI: Get profile data";

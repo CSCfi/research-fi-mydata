@@ -57,7 +57,7 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             // Check admin token authorization
@@ -122,7 +122,7 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             // Check admin token authorization
@@ -298,7 +298,7 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             // Check admin token authorization
@@ -324,7 +324,7 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             // Check admin token authorization
@@ -351,7 +351,7 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             // Check admin token authorization
@@ -379,7 +379,7 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             // Check admin token authorization
