@@ -130,6 +130,66 @@ namespace api.Controllers
             
 
         /// <summary>
+        /// Debug: Get ORCID ID for given user profile ID.
+        /// </summary>
+        [HttpGet]
+        [Route("/[controller]/orcidfromuserid/{userProfileId}")]
+        [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetOrcidFromUserId(int userProfileId)
+        {
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
+            {
+                return Unauthorized();
+            }
+
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_PROFILE_DATA_BY_USERPROFILE_ID,
+                    state: LogContent.ActionState.START,
+                    message: $"userProfileId={userProfileId}"));
+
+            string orcidId = await _ttvContext.DimUserProfiles.Where(up => up.Id == userProfileId).Select(up => up.OrcidId).FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(orcidId))
+            {
+                string msg = $"No userProfile found for userProfileId={userProfileId}";
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.DEBUG_GET_PROFILE_DATA_BY_USERPROFILE_ID,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: msg));
+                return Ok(msg);
+            }
+
+            logUserIdentification.Orcid = orcidId;
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_PROFILE_DATA_BY_USERPROFILE_ID,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"userProfileId={userProfileId}, ORCID ID={orcidId}"));
+
+            return Ok(orcidId);
+        }
+
+
+
+        /// <summary>
         /// Debug: Get any user profile data.
         /// </summary>
         [HttpGet]
@@ -146,7 +206,7 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
+                return BadRequest(ModelState);
             }
 
             // User identification object for logging
@@ -207,7 +267,7 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
+                return BadRequest(ModelState);
             }
 
             // User identification object for logging
@@ -292,7 +352,7 @@ namespace api.Controllers
             // Validate request data
             if (!ModelState.IsValid)
             {
-                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.INVALID_REQUEST));
+                return BadRequest(ModelState);
             }
 
             // User identification object for logging
