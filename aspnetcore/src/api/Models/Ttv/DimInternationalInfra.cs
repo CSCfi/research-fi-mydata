@@ -15,7 +15,7 @@ public partial class DimInternationalInfra
 
     public string SourceId { get; set; }
 
-    public string SoureDescription { get; set; }
+    public string SourceDescription { get; set; }
 
     public DateTime? Created { get; set; }
 
