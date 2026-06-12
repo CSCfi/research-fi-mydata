@@ -65,6 +65,8 @@ public partial class TtvContext : DbContext
 
     public virtual DbSet<DimInfrastructureOld> DimInfrastructureOlds { get; set; }
 
+    public virtual DbSet<DimInternationalInfra> DimInternationalInfras { get; set; }
+
     public virtual DbSet<DimKeyword> DimKeywords { get; set; }
 
     public virtual DbSet<DimKnownPerson> DimKnownPeople { get; set; }
@@ -1571,6 +1573,38 @@ public partial class TtvContext : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("urn");
+        });
+
+        modelBuilder.Entity<DimInternationalInfra>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__dim_inte__3213E83FC74D977D");
+
+            entity.ToTable("dim_international_infra");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Created)
+                .HasColumnType("datetime")
+                .HasColumnName("created");
+            entity.Property(e => e.Modified)
+                .HasColumnType("datetime")
+                .HasColumnName("modified");
+            entity.Property(e => e.NameEn)
+                .IsRequired()
+                .HasMaxLength(4000)
+                .HasColumnName("name_en");
+            entity.Property(e => e.SourceId)
+                .IsRequired()
+                .HasMaxLength(255)
+                .HasColumnName("source_id");
+            entity.Property(e => e.SoureDescription)
+                .HasMaxLength(255)
+                .HasColumnName("soure_description");
+            entity.Property(e => e.UnlinkedIdentifier)
+                .HasMaxLength(255)
+                .HasColumnName("unlinked_identifier");
+            entity.Property(e => e.Weblink)
+                .HasMaxLength(255)
+                .HasColumnName("weblink");
         });
 
         modelBuilder.Entity<DimKeyword>(entity =>
@@ -4539,17 +4573,21 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<FactRelation>(entity =>
         {
-            entity.HasKey(e => new { e.RelationTypeCode, e.FromPublicationId, e.FromResearchDatasetId, e.FromIdentifierlessDataId, e.FromInfrastructureId, e.ToResearchDatasetId, e.ToIdentifierlessDataId, e.ToPublicationId, e.ToInfrastructureId, e.DimRegisteredDataSourceId }).HasName("PK__fact_rel__AA79694111711403");
+            entity.HasKey(e => new { e.RelationTypeCode, e.FromPublicationId, e.FromResearchDatasetId, e.FromInternationalInfraId, e.FromInfrastructureId, e.ToResearchDatasetId, e.ToInternationalInfraId, e.ToPublicationId, e.ToInfrastructureId, e.DimRegisteredDataSourceId }).HasName("PK__fact_rel__E2B55F22FD90A7FB");
 
             entity.ToTable("fact_relation");
 
             entity.Property(e => e.RelationTypeCode).HasColumnName("relation_type_code");
             entity.Property(e => e.FromPublicationId).HasColumnName("from_publication_id");
             entity.Property(e => e.FromResearchDatasetId).HasColumnName("from_research_dataset_id");
-            entity.Property(e => e.FromIdentifierlessDataId).HasColumnName("from_identifierless_data_id");
+            entity.Property(e => e.FromInternationalInfraId)
+                .HasDefaultValue(-1)
+                .HasColumnName("from_international_infra_id");
             entity.Property(e => e.FromInfrastructureId).HasColumnName("from_infrastructure_id");
             entity.Property(e => e.ToResearchDatasetId).HasColumnName("to_research_dataset_id");
-            entity.Property(e => e.ToIdentifierlessDataId).HasColumnName("to_identifierless_data_id");
+            entity.Property(e => e.ToInternationalInfraId)
+                .HasDefaultValue(-1)
+                .HasColumnName("to_international_infra_id");
             entity.Property(e => e.ToPublicationId).HasColumnName("to_publication_id");
             entity.Property(e => e.ToInfrastructureId).HasColumnName("to_infrastructure_id");
             entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
@@ -4579,15 +4617,15 @@ public partial class TtvContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("relation_endDate");
 
-            entity.HasOne(d => d.FromIdentifierlessData).WithMany(p => p.FactRelationFromIdentifierlessData)
-                .HasForeignKey(d => d.FromIdentifierlessDataId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("relation_fromIdentifierless");
-
             entity.HasOne(d => d.FromInfrastructure).WithMany(p => p.FactRelationFromInfrastructures)
                 .HasForeignKey(d => d.FromInfrastructureId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("relation_fromInfra");
+
+            entity.HasOne(d => d.FromInternationalInfra).WithMany(p => p.FactRelationFromInternationalInfras)
+                .HasForeignKey(d => d.FromInternationalInfraId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("relation_fromInternationalInfra");
 
             entity.HasOne(d => d.FromPublication).WithMany(p => p.FactRelationFromPublications)
                 .HasForeignKey(d => d.FromPublicationId)
@@ -4609,15 +4647,15 @@ public partial class TtvContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("relation_startDate");
 
-            entity.HasOne(d => d.ToIdentifierlessData).WithMany(p => p.FactRelationToIdentifierlessData)
-                .HasForeignKey(d => d.ToIdentifierlessDataId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("relation_toIdentifierlss");
-
             entity.HasOne(d => d.ToInfrastructure).WithMany(p => p.FactRelationToInfrastructures)
                 .HasForeignKey(d => d.ToInfrastructureId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("relation_toInfra");
+
+            entity.HasOne(d => d.ToInternationalInfra).WithMany(p => p.FactRelationToInternationalInfras)
+                .HasForeignKey(d => d.ToInternationalInfraId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("relation_toInternationalInfra");
 
             entity.HasOne(d => d.ToPublication).WithMany(p => p.FactRelationToPublications)
                 .HasForeignKey(d => d.ToPublicationId)
