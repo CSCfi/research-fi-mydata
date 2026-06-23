@@ -11,13 +11,9 @@ public partial class FactRelation
 
     public int FromResearchDatasetId { get; set; }
 
-    public int FromIdentifierlessDataId { get; set; }
-
     public int FromInfrastructureId { get; set; }
 
     public int ToResearchDatasetId { get; set; }
-
-    public int ToIdentifierlessDataId { get; set; }
 
     public int ToPublicationId { get; set; }
 
@@ -39,13 +35,17 @@ public partial class FactRelation
 
     public bool? ValidRelation { get; set; }
 
+    public int FromInternationalInfraId { get; set; }
+
+    public int ToInternationalInfraId { get; set; }
+
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 
     public virtual DimDate EndDateNavigation { get; set; }
 
-    public virtual DimIdentifierlessDatum FromIdentifierlessData { get; set; }
-
     public virtual DimInfrastructure FromInfrastructure { get; set; }
+
+    public virtual DimInternationalInfra FromInternationalInfra { get; set; }
 
     public virtual DimPublication FromPublication { get; set; }
 
@@ -55,9 +55,9 @@ public partial class FactRelation
 
     public virtual DimDate StartDateNavigation { get; set; }
 
-    public virtual DimIdentifierlessDatum ToIdentifierlessData { get; set; }
-
     public virtual DimInfrastructure ToInfrastructure { get; set; }
+
+    public virtual DimInternationalInfra ToInternationalInfra { get; set; }
 
     public virtual DimPublication ToPublication { get; set; }
 
