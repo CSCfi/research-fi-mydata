@@ -209,16 +209,13 @@ namespace api.Services
          */
         public async Task<(bool UserProfileExists, int UserProfileId)> GetUserprofileIdForOrcidId(string orcidId)
         {   
-            IntegerDTO dimUserProfileIdDTO = await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking()
-                .Select(dimUserProfile => new IntegerDTO()  
-                {  
-                    Value = dimUserProfile.Id
-                }).FirstOrDefaultAsync();
-            if (dimUserProfileIdDTO == null || dimUserProfileIdDTO.Value < 0) {
+            int? dimUserProfileId = await _ttvContext.DimUserProfiles.Where(dup => dup.OrcidId == orcidId).AsNoTracking()
+                .Select(dimUserProfile => dimUserProfile.Id).FirstOrDefaultAsync();
+            if (dimUserProfileId == null || dimUserProfileId <= 0) {
                 return (UserProfileExists: false,  UserProfileId: -1);
             }
             else {
-                return (UserProfileExists: true,  UserProfileId: dimUserProfileIdDTO.Value);
+                return (UserProfileExists: true,  UserProfileId: dimUserProfileId.Value);
             }
         }
 
