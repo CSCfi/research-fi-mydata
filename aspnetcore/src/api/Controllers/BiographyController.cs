@@ -61,6 +61,14 @@ namespace api.Controllers
             LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
             string orcidId = logUserIdentification.Orcid;
 
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_GET_PROFILEDATA,
+                    state: LogContent.ActionState.START,
+                    message: $"Target language {targetLanguage.ToUpper()}"));
+
             // Get profile data for prompt
             string? profileDataForPromt = null;
             try
@@ -125,7 +133,8 @@ namespace api.Controllers
                     logUserIdentification,
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
-                        state: LogContent.ActionState.START));
+                        state: LogContent.ActionState.START,
+                        message: $"Target language {targetLanguage.ToUpper()}"));
 
                 ChatCompletionOptions options = new()
                 {
