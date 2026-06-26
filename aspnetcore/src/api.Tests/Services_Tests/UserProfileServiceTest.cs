@@ -5,8 +5,10 @@ using api.Models.Ttv;
 using api.Models.ProfileEditor.Items;
 using System.Collections.Generic;
 using System;
+using System.Threading.Tasks;
 using api.Models.ProfileEditor;
 using api.Models.Log;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace api.Tests
@@ -792,6 +794,57 @@ namespace api.Tests
             bool actualShow = userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION, logUserIdentification);
             // Assert
             Assert.True(actualShow);
+        }
+
+        private TtvContext CreateInMemoryContext(string dbName)
+        {
+            var options = new DbContextOptionsBuilder<TtvContext>()
+                .UseInMemoryDatabase(databaseName: dbName)
+                .Options;
+            return new TtvContext(options);
+        }
+
+        [Fact(DisplayName = "GetUserprofileIdForOrcidId - returns true and profile id when profile exists")]
+        public async Task getUserprofileIdForOrcidId_01()
+        {
+            // Arrange
+            using var context = CreateInMemoryContext(nameof(getUserprofileIdForOrcidId_01));
+            string orcidId = "0000-0001-2345-6789";
+            int expectedProfileId = 42;
+            context.DimUserProfiles.Add(new DimUserProfile
+            {
+                Id = expectedProfileId,
+                OrcidId = orcidId,
+                SourceId = "test",
+                SourceDescription = "test",
+                DimKnownPersonId = -1
+            });
+            await context.SaveChangesAsync();
+            UserProfileService userProfileService = new UserProfileService(
+                ttvContext: context,
+                ttvSqlService: null,
+                logger: null);
+            // Act
+            var (UserProfileExists, UserProfileId) = await userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            // Assert
+            Assert.True(UserProfileExists);
+            Assert.Equal(expectedProfileId, UserProfileId);
+        }
+
+        [Fact(DisplayName = "GetUserprofileIdForOrcidId - returns false and -1 when profile does not exist")]
+        public async Task getUserprofileIdForOrcidId_02()
+        {
+            // Arrange
+            using var context = CreateInMemoryContext(nameof(getUserprofileIdForOrcidId_02));
+            UserProfileService userProfileService = new UserProfileService(
+                ttvContext: context,
+                ttvSqlService: null,
+                logger: null);
+            // Act
+            var (UserProfileExists, UserProfileId) = await userProfileService.GetUserprofileIdForOrcidId("0000-0000-0000-0000");
+            // Assert
+            Assert.False(UserProfileExists);
+            Assert.Equal(-1, UserProfileId);
         }
     }
 }
