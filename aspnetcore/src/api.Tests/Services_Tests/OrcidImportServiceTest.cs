@@ -385,6 +385,12 @@ namespace api.Tests
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterFirst = context.DimNames.Count(e => e.Id > 0);
 
+            var importedName = context.DimNames.Single(e => e.Id > 0);
+            Assert.Equal("Alice", importedName.FirstNames);
+            Assert.Equal("Smith", importedName.LastName);
+            Assert.Equal(KnownPersonId, importedName.DimKnownPersonIdConfirmedIdentity);
+            Assert.Equal(OrcidDataSourceId, importedName.DimRegisteredDataSourceId);
+
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimNames.Count(e => e.Id > 0);
 
@@ -409,6 +415,13 @@ namespace api.Tests
             // 1 main name + 2 other-names
             int countAfterFirst = context.DimNames.Count(e => e.Id > 0);
 
+            var otherNames = context.DimNames.Where(e => e.Id > 0 && e.FullName != null).OrderBy(e => e.Id).ToList();
+            Assert.Equal(2, otherNames.Count);
+            Assert.Equal("Alice S.", otherNames[0].FullName);
+            Assert.Equal("A. Smith", otherNames[1].FullName);
+            Assert.All(otherNames, n => Assert.Equal(KnownPersonId, n.DimKnownPersonIdConfirmedIdentity));
+            Assert.All(otherNames, n => Assert.Equal(OrcidDataSourceId, n.DimRegisteredDataSourceId));
+
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimNames.Count(e => e.Id > 0);
 
@@ -431,6 +444,11 @@ namespace api.Tests
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterFirst = context.DimResearcherDescriptions.Count(e => e.Id > 0);
+
+            var biography = context.DimResearcherDescriptions.Single(e => e.Id > 0);
+            Assert.Equal("Test researcher biography content.", biography.ResearchDescriptionEn);
+            Assert.Equal(KnownPersonId, biography.DimKnownPersonId);
+            Assert.Equal(OrcidDataSourceId, biography.DimRegisteredDataSourceId);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimResearcherDescriptions.Count(e => e.Id > 0);
@@ -455,6 +473,10 @@ namespace api.Tests
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterFirst = context.DimWebLinks.Count(e => e.Id > 0);
 
+            var webLink = context.DimWebLinks.Single(e => e.Id > 0);
+            Assert.Equal("https://example.com/profile", webLink.Url);
+            Assert.Equal("Homepage", webLink.LinkLabel);
+
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimWebLinks.Count(e => e.Id > 0);
 
@@ -478,6 +500,11 @@ namespace api.Tests
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterFirst = context.DimEmailAddrresses.Count(e => e.Id > 0);
 
+            var email = context.DimEmailAddrresses.Single(e => e.Id > 0);
+            Assert.Equal("alice@example.com", email.Email);
+            Assert.Equal(KnownPersonId, email.DimKnownPersonId);
+            Assert.Equal(OrcidDataSourceId, email.DimRegisteredDataSourceId);
+
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimEmailAddrresses.Count(e => e.Id > 0);
 
@@ -500,6 +527,11 @@ namespace api.Tests
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterFirst = context.DimKeywords.Count(e => e.Id > 0);
+
+            var keywords = context.DimKeywords.Where(e => e.Id > 0).OrderBy(e => e.Id).ToList();
+            Assert.Equal("machine learning", keywords[0].Keyword);
+            Assert.Equal("data science", keywords[1].Keyword);
+            Assert.All(keywords, k => Assert.Equal(OrcidDataSourceId, k.DimRegisteredDataSourceId));
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimKeywords.Count(e => e.Id > 0);
@@ -526,6 +558,11 @@ namespace api.Tests
             // Assert only the external-id one (non-put-code).
             int countAfterFirst = context.DimPids.Count(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE);
 
+            var externalId = context.DimPids.Single(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE);
+            Assert.Equal("99999", externalId.PidContent);
+            Assert.Equal("Loop profile", externalId.PidType);
+            Assert.Equal(KnownPersonId, externalId.DimKnownPersonId);
+
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimPids.Count(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE);
 
@@ -548,6 +585,12 @@ namespace api.Tests
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterFirst = context.DimEducations.Count(e => e.Id > 0);
+
+            var education = context.DimEducations.Single(e => e.Id > 0);
+            Assert.Equal("BSc", education.NameEn);
+            Assert.Equal("Test University", education.DegreeGrantingInstitutionName);
+            Assert.Equal(KnownPersonId, education.DimKnownPersonId);
+            Assert.Equal(OrcidDataSourceId, education.DimRegisteredDataSourceId);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimEducations.Count(e => e.Id > 0);
@@ -572,6 +615,11 @@ namespace api.Tests
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterFirst = context.DimAffiliations.Count(e => e.Id > 0);
 
+            var affiliation = context.DimAffiliations.Single(e => e.Id > 0);
+            Assert.Equal("Researcher", affiliation.PositionNameEn);
+            Assert.Equal(KnownPersonId, affiliation.DimKnownPersonId);
+            Assert.Equal(OrcidDataSourceId, affiliation.DimRegisteredDataSourceId);
+
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimAffiliations.Count(e => e.Id > 0);
 
@@ -595,6 +643,17 @@ namespace api.Tests
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int pubCountAfterFirst = context.DimProfileOnlyPublications.Count(e => e.Id > 0);
             int dsCountAfterFirst  = context.DimProfileOnlyDatasets.Count(e => e.Id > 0);
+
+            var publication = context.DimProfileOnlyPublications.Single(e => e.Id > 0);
+            Assert.Equal("Test Publication", publication.PublicationName);
+            Assert.Equal("journal-article", publication.OrcidWorkType);
+            Assert.Equal("10.1000/test1", publication.DoiHandle);
+            Assert.Equal(OrcidDataSourceId, publication.DimRegisteredDataSourceId);
+
+            var dataset = context.DimProfileOnlyDatasets.Single(e => e.Id > 0);
+            Assert.Equal("Test Dataset", dataset.NameEn);
+            Assert.Equal("data-set", dataset.OrcidWorkType);
+            Assert.Equal(OrcidDataSourceId, dataset.DimRegisteredDataSourceId);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int pubCountAfterSecond = context.DimProfileOnlyPublications.Count(e => e.Id > 0);
@@ -622,6 +681,10 @@ namespace api.Tests
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterFirst = context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0);
 
+            var funding = context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0);
+            Assert.Equal("Test Grant", funding.NameEn);
+            Assert.Equal(OrcidDataSourceId, funding.DimRegisteredDataSourceId);
+
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0);
 
@@ -644,6 +707,11 @@ namespace api.Tests
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterFirst = context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0);
+
+            var distinction = context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0);
+            Assert.Equal("Best Researcher Award", distinction.NameEn);
+            Assert.Equal("", distinction.OrcidWorkType);
+            Assert.Equal(OrcidDataSourceId, distinction.DimRegisteredDataSourceId);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0);
