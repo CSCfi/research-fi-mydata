@@ -1636,5 +1636,145 @@ namespace api.Tests
             Assert.Equal(Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT, orgUnit.Type);
             Assert.Equal("Science Award Dept", orgUnit.ValueEn);
         }
+
+        // =========================================================================
+        // PRIORITY 4: Edge cases / input bounds
+        // =========================================================================
+
+        [Fact(DisplayName = "Employment role title: truncated to 255 chars when longer")]
+        public async Task Employment_RoleTitle_TruncatedAt255Chars()
+        {
+            string dbName = nameof(Employment_RoleTitle_TruncatedAt255Chars);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // Build employment fixture with a 300-char role title
+            string longTitle = new string('A', 300);
+            string json = LoadFixture("employment.json")
+                .Replace("\"role-title\": \"Researcher\"", $"\"role-title\": \"{longTitle}\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+
+            Assert.Equal(255, context.DimAffiliations.Single(e => e.Id > 0).PositionNameEn.Length);
+        }
+
+        [Fact(DisplayName = "Dataset URL: truncated to 511 chars when longer")]
+        public async Task Dataset_Url_TruncatedAt511Chars()
+        {
+            string dbName = nameof(Dataset_Url_TruncatedAt511Chars);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // Build works fixture with a 600-char URL on the dataset
+            string longUrl = "https://dataset.example.com/" + new string('x', 600);
+            string json = LoadFixture("dataset_with_url.json")
+                .Replace("\"value\": \"https://dataset.example.com\"", $"\"value\": \"{longUrl}\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+
+            Assert.Equal(511, context.DimWebLinks.Single(e => e.Id > 0).Url.Length);
+        }
+
+        [Fact(DisplayName = "Empty ORCID record: no activity entities created, main name created")]
+        public async Task EmptyRecord_DoesNotCreateActivityEntities()
+        {
+            string dbName = nameof(EmptyRecord_DoesNotCreateActivityEntities);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            // Main name must be created
+            Assert.Equal(1, context.DimNames.Count(e => e.Id > 0));
+            // Activity entities must NOT be created
+            Assert.Equal(0, context.DimAffiliations.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimEducations.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimProfileOnlyPublications.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimProfileOnlyDatasets.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimEmailAddrresses.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimKeywords.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        // =========================================================================
+        // PRIORITY 5: Works → ResearchActivity path
+        // Works of type conference-paper / lecture-speech / other / etc. are parsed
+        // into OrcidWorks.ResearchActivities and imported as DimProfileOnlyResearchActivity.
+        // This path is distinct from the distinctions/memberships path (Priority 1/2).
+        // =========================================================================
+
+        [Fact(DisplayName = "Works research activity (conference-paper): imported once, not duplicated on re-import")]
+        public async Task WorkResearchActivity_ImportedAndNotDuplicated()
+        {
+            string dbName = nameof(WorkResearchActivity_ImportedAndNotDuplicated);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string json = LoadFixture("works_conference_paper.json");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            int countAfterFirst = context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0);
+
+            var activity = context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0);
+            Assert.Equal("Test Conference Paper", activity.NameEn);
+            Assert.Equal(OrcidDataSourceId, activity.DimRegisteredDataSourceId);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            int countAfterSecond = context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0);
+
+            Assert.Equal(1, countAfterFirst);
+            Assert.Equal(countAfterFirst, countAfterSecond);
+        }
+
+        // =========================================================================
+        // PRIORITY 6: AddDimDates standalone
+        // AddDimDates is called at the top of every import. Testing it directly
+        // verifies its dedup logic independently of the full import pipeline.
+        // =========================================================================
+
+        [Fact(DisplayName = "AddDimDates: creates DimDate rows for all date fields in the fixture")]
+        public async Task AddDimDates_CreatesDatesFromFixture()
+        {
+            string dbName = nameof(AddDimDates_CreatesDatesFromFixture);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // education.json has one education: start (2000,09,null→0), end (2004,06,null→0)
+            // The sentinel DimDate(0,0,0) already exists; neither date matches it, so 2 new rows.
+            await service.AddDimDates(LoadFixture("education.json"), DateTime.UtcNow, LogId);
+
+            var dates = context.DimDates.Where(e => e.Id > 0).OrderBy(e => e.Year).ToList();
+            Assert.Equal(2, dates.Count);
+            Assert.Equal(2000, dates[0].Year);
+            Assert.Equal(9, dates[0].Month);
+            Assert.Equal(2004, dates[1].Year);
+            Assert.Equal(6, dates[1].Month);
+        }
+
+        [Fact(DisplayName = "AddDimDates: does not duplicate existing DimDate rows on re-call")]
+        public async Task AddDimDates_DoesNotDuplicateDates()
+        {
+            string dbName = nameof(AddDimDates_DoesNotDuplicateDates);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string json = LoadFixture("education.json");
+
+            await service.AddDimDates(json, DateTime.UtcNow, LogId);
+            int countAfterFirst = context.DimDates.Count(e => e.Id > 0);
+
+            await service.AddDimDates(json, DateTime.UtcNow, LogId);
+            int countAfterSecond = context.DimDates.Count(e => e.Id > 0);
+
+            Assert.Equal(2, countAfterFirst);
+            Assert.Equal(countAfterFirst, countAfterSecond);
+        }
     }
 }
