@@ -1,0 +1,157 @@
+{
+  "orcid-identifier": {
+    "uri": "https://sandbox.orcid.org/0000-0001-0001-0001",
+    "path": "0000-0001-0001-0001",
+    "host": "sandbox.orcid.org"
+  },
+  "preferences": { "locale": "EN" },
+  "history": { "creation-method": "DIRECT" },
+  "person": {
+    "last-modified-date": null,
+    "name": {
+      "given-names": { "value": "Alice" },
+      "family-name": { "value": "Smith" },
+      "credit-name": null,
+      "source": null,
+      "visibility": "public",
+      "path": "0000-0001-0001-0001"
+    },
+    "other-names": { "last-modified-date": null, "other-name": [], "path": "/0000-0001-0001-0001/other-names" },
+    "biography": null,
+    "researcher-urls": { "last-modified-date": null, "researcher-url": [], "path": "/0000-0001-0001-0001/researcher-urls" },
+    "emails": { "last-modified-date": null, "email": [], "path": "/0000-0001-0001-0001/email" },
+    "addresses": { "last-modified-date": null, "address": [], "path": "/0000-0001-0001-0001/address" },
+    "keywords": { "last-modified-date": null, "keyword": [], "path": "/0000-0001-0001-0001/keywords" },
+    "external-identifiers": { "last-modified-date": null, "external-identifier": [], "path": "/0000-0001-0001-0001/external-identifiers" },
+    "path": "/0000-0001-0001-0001/person"
+  },
+  "activities-summary": {
+    "last-modified-date": null,
+    "distinctions": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/distinctions" },
+    "educations": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/educations" },
+    "employments": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/employments" },
+    "fundings": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/fundings" },
+    "invited-positions": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/invited-positions" },
+    "memberships": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/memberships" },
+    "peer-reviews": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/peer-reviews" },
+    "qualifications": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/qualifications" },
+    "research-resources": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/research-resources" },
+    "services": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/services" },
+    "works": {
+      "last-modified-date": null,
+      "group": [
+        {
+          "last-modified-date": { "value": 1000000000000 },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "doi",
+                "external-id-value": "10.1000/updated1",
+                "external-id-normalized": { "value": "10.1000/updated1", "transient": true },
+                "external-id-normalized-error": null,
+                "external-id-url": null,
+                "external-id-relationship": "self"
+              }
+            ]
+          },
+          "work-summary": [
+            {
+              "put-code": 8001,
+              "created-date": { "value": 1000000000000 },
+              "last-modified-date": { "value": 1000000000000 },
+              "source": {
+                "source-orcid": { "uri": "https://sandbox.orcid.org/0000-0001-0001-0001", "path": "0000-0001-0001-0001", "host": "sandbox.orcid.org" },
+                "source-client-id": null,
+                "source-name": { "value": "Alice Smith" },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": { "value": "Updated Publication" },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "doi",
+                    "external-id-value": "10.1000/updated1",
+                    "external-id-normalized": { "value": "10.1000/updated1", "transient": true },
+                    "external-id-normalized-error": null,
+                    "external-id-url": null,
+                    "external-id-relationship": "self"
+                  }
+                ]
+              },
+              "url": null,
+              "type": "journal-article",
+              "publication-date": { "year": { "value": "2021" }, "month": { "value": "06" }, "day": null },
+              "journal-title": null,
+              "visibility": "public",
+              "display-index": "0",
+              "path": "/0000-0001-0001-0001/work/8001"
+            }
+          ]
+        },
+        {
+          "last-modified-date": { "value": 1000000000000 },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "handle",
+                "external-id-value": "https://example.com/dataset/1",
+                "external-id-normalized": { "value": "https://example.com/dataset/1", "transient": true },
+                "external-id-normalized-error": null,
+                "external-id-url": null,
+                "external-id-relationship": "self"
+              }
+            ]
+          },
+          "work-summary": [
+            {
+              "put-code": 8002,
+              "created-date": { "value": 1000000000000 },
+              "last-modified-date": { "value": 1000000000000 },
+              "source": {
+                "source-orcid": { "uri": "https://sandbox.orcid.org/0000-0001-0001-0001", "path": "0000-0001-0001-0001", "host": "sandbox.orcid.org" },
+                "source-client-id": null,
+                "source-name": { "value": "Alice Smith" },
+                "assertion-origin-orcid": null,
+                "assertion-origin-client-id": null,
+                "assertion-origin-name": null
+              },
+              "title": {
+                "title": { "value": "Updated Dataset" },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "handle",
+                    "external-id-value": "https://example.com/dataset/1",
+                    "external-id-normalized": { "value": "https://example.com/dataset/1", "transient": true },
+                    "external-id-normalized-error": null,
+                    "external-id-url": null,
+                    "external-id-relationship": "self"
+                  }
+                ]
+              },
+              "url": null,
+              "type": "data-set",
+              "publication-date": null,
+              "journal-title": null,
+              "visibility": "public",
+              "display-index": "0",
+              "path": "/0000-0001-0001-0001/work/8002"
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0001-0001-0001/works"
+    },
+    "path": "/0000-0001-0001-0001/activities"
+  },
+  "path": "/0000-0001-0001-0001"
+}

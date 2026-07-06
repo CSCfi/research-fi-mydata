@@ -1,0 +1,84 @@
+{
+  "orcid-identifier": {
+    "uri": "https://sandbox.orcid.org/0000-0001-0001-0001",
+    "path": "0000-0001-0001-0001",
+    "host": "sandbox.orcid.org"
+  },
+  "preferences": { "locale": "EN" },
+  "history": { "creation-method": "DIRECT" },
+  "person": {
+    "last-modified-date": null,
+    "name": {
+      "given-names": { "value": "Alice" },
+      "family-name": { "value": "Smith" },
+      "credit-name": null,
+      "source": null,
+      "visibility": "public",
+      "path": "0000-0001-0001-0001"
+    },
+    "other-names": { "last-modified-date": null, "other-name": [], "path": "/0000-0001-0001-0001/other-names" },
+    "biography": null,
+    "researcher-urls": { "last-modified-date": null, "researcher-url": [], "path": "/0000-0001-0001-0001/researcher-urls" },
+    "emails": { "last-modified-date": null, "email": [], "path": "/0000-0001-0001-0001/email" },
+    "addresses": { "last-modified-date": null, "address": [], "path": "/0000-0001-0001-0001/address" },
+    "keywords": { "last-modified-date": null, "keyword": [], "path": "/0000-0001-0001-0001/keywords" },
+    "external-identifiers": { "last-modified-date": null, "external-identifier": [], "path": "/0000-0001-0001-0001/external-identifiers" },
+    "path": "/0000-0001-0001-0001/person"
+  },
+  "activities-summary": {
+    "last-modified-date": null,
+    "distinctions": {
+      "last-modified-date": null,
+      "affiliation-group": [
+        {
+          "last-modified-date": { "value": 1000000000000 },
+          "external-ids": { "external-id": [] },
+          "summaries": [
+            {
+              "distinction-summary": {
+                "created-date": { "value": 1000000000000 },
+                "last-modified-date": { "value": 1000000000000 },
+                "source": {
+                  "source-orcid": null,
+                  "source-client-id": { "uri": "https://sandbox.orcid.org/client/APP-TEST", "path": "APP-TEST", "host": "sandbox.orcid.org" },
+                  "source-name": { "value": "Test App" },
+                  "assertion-origin-orcid": null,
+                  "assertion-origin-client-id": null,
+                  "assertion-origin-name": null
+                },
+                "put-code": 10001,
+                "department-name": "Science",
+                "role-title": "Best Researcher Award",
+                "start-date": { "year": { "value": "2019" }, "month": { "value": "06" }, "day": null },
+                "end-date": null,
+                "organization": {
+                  "name": "Award Society",
+                  "address": { "city": "London", "region": null, "country": "GB" },
+                  "disambiguated-organization": null
+                },
+                "url": { "value": "https://distinction-updated.example.com" },
+                "external-ids": null,
+                "display-index": "0",
+                "visibility": "public",
+                "path": "/0000-0001-0001-0001/distinction/10001"
+              }
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0001-0001-0001/distinctions"
+    },
+    "educations": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/educations" },
+    "employments": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/employments" },
+    "fundings": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/fundings" },
+    "invited-positions": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/invited-positions" },
+    "memberships": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/memberships" },
+    "peer-reviews": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/peer-reviews" },
+    "qualifications": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/qualifications" },
+    "research-resources": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/research-resources" },
+    "services": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/services" },
+    "works": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/works" },
+    "path": "/0000-0001-0001-0001/activities"
+  },
+  "path": "/0000-0001-0001-0001"
+}
