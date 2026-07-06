@@ -45,6 +45,10 @@ namespace api.Tests
         private const int KnownPersonId = 1;
         private const int OrcidOrganizationId = -1;
 
+        // Seeded organization used by Priority 2 org-linking tests
+        private const int TestOrgId = 100;
+        private const int TestOrgDimPidId = 1000;
+
         private static readonly FkOffInterceptor _fkOffInterceptor = new();
 
         // Persistent in-memory SQLite connection per test DB name.
@@ -368,6 +372,47 @@ namespace api.Tests
         }
 
         private LogUserIdentification LogId => new("0000-0001-0001-0001");
+
+        // Seeds a real DimOrganization (Id=100) linked via a RinggoldID DimPid (Id=1000,
+        // PidContent="12345"). Tests that need the org-not-found path simply don't call this.
+        private async Task SeedOrgWithRinggoldId(TtvContext context)
+        {
+            context.DimOrganizations.Add(new DimOrganization
+            {
+                Id = TestOrgId,
+                NameFi = "Test Organization",
+                NameEn = "Test Organization",
+                NameSv = "Test Organization",
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = ""
+            });
+            context.DimPids.Add(new DimPid
+            {
+                Id = TestOrgDimPidId,
+                PidContent = "12345",
+                PidType = "RinggoldID",
+                DimOrganizationId = TestOrgId,
+                DimKnownPersonId = -1,
+                DimPublicationId = -1,
+                DimServiceId = -1,
+                DimInfrastructureId = -1,
+                DimPublicationChannelId = -1,
+                DimResearchDatasetId = -1,
+                DimResearchDataCatalogId = -1,
+                DimResearchActivityId = -1,
+                DimEventId = -1,
+                DimProfileOnlyDatasetId = -1,
+                DimProfileOnlyFundingDecisionId = -1,
+                DimProfileOnlyPublicationId = -1,
+                DimResearchCommunityId = -1,
+                DimResearchProjectId = -1,
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = "",
+                Created = DateTime.UtcNow,
+                Modified = DateTime.UtcNow
+            });
+            await context.SaveChangesAsync();
+        }
 
         // -------------------------------------------------------------------------
         // Section: person / name
@@ -1245,6 +1290,243 @@ namespace api.Tests
 
             Assert.Equal(0, context.DimWebLinks.Count(e => e.Id > 0));
             Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0)); // activity still present
+        }
+
+        // =========================================================================
+        // PRIORITY 2: Organization linking logic
+        // Each entity type (employment/funding/research-activity) has four tests:
+        //   1. Org found → FK set directly, no DimIdentifierlessData created
+        //   2. Org not found → DimIdentifierlessData used for org name
+        //   3. Transition IdentifierlessData → Org (org seeded between imports)
+        //   4. Transition Org → IdentifierlessData (unknown RINGGOLD on re-import)
+        // =========================================================================
+
+        // --- Employment ---
+
+        [Fact(DisplayName = "Employment: DimOrganizationId set when RINGGOLD match found in DB")]
+        public async Task Employment_LinkedToOrg_WhenDisambiguatedOrgFound()
+        {
+            string dbName = nameof(Employment_LinkedToOrg_WhenDisambiguatedOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+
+            var affiliation = context.DimAffiliations.Single(e => e.Id > 0);
+            Assert.Equal(TestOrgId, affiliation.DimOrganizationId);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Employment: DimIdentifierlessData used for org name when no RINGGOLD match")]
+        public async Task Employment_UsesIdentifierlessData_WhenOrgNotFound()
+        {
+            string dbName = nameof(Employment_UsesIdentifierlessData_WhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            // No org seeded → disambiguation lookup returns null
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+
+            var affiliation = context.DimAffiliations.Single(e => e.Id > 0);
+            Assert.Equal(-1, affiliation.DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Employment: transitions from DimIdentifierlessData to DimOrganization when org found on re-import")]
+        public async Task Employment_Transition_IdentifierlessToOrg()
+        {
+            string dbName = nameof(Employment_Transition_IdentifierlessToOrg);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // 1st import: org not yet in DB → identifierless data created
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+            Assert.Equal(-1, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+
+            // Seed org between imports
+            await SeedOrgWithRinggoldId(context);
+
+            // 2nd import: org now found → FK updated, identifierless data removed
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimAffiliations.Count(e => e.Id > 0)); // no duplicate affiliation
+        }
+
+        [Fact(DisplayName = "Employment: transitions from DimOrganization to DimIdentifierlessData when org match lost on re-import")]
+        public async Task Employment_Transition_OrgToIdentifierless()
+        {
+            string dbName = nameof(Employment_Transition_OrgToIdentifierless);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // 1st import: org found → FK set
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+
+            // 2nd import: RINGGOLD "99999" has no match → identifierless data created
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_unknown_ringgold.json"), LogId);
+            Assert.Equal(-1, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimAffiliations.Count(e => e.Id > 0)); // no duplicate affiliation
+        }
+
+        // --- Funding ---
+
+        [Fact(DisplayName = "Funding: DimOrganizationIdFunder set when RINGGOLD match found in DB")]
+        public async Task Funding_LinkedToOrg_WhenDisambiguatedOrgFound()
+        {
+            string dbName = nameof(Funding_LinkedToOrg_WhenDisambiguatedOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+
+            var funding = context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0);
+            Assert.Equal(TestOrgId, funding.DimOrganizationIdFunder);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Funding: DimIdentifierlessData used for funder name when no RINGGOLD match")]
+        public async Task Funding_UsesIdentifierlessData_WhenOrgNotFound()
+        {
+            string dbName = nameof(Funding_UsesIdentifierlessData_WhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+
+            var funding = context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0);
+            Assert.Null(funding.DimOrganizationIdFunder);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Funding: transitions from DimIdentifierlessData to DimOrganization when org found on re-import")]
+        public async Task Funding_Transition_IdentifierlessToOrg()
+        {
+            string dbName = nameof(Funding_Transition_IdentifierlessToOrg);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // 1st import: no org → identifierless data
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+            Assert.Null(context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+
+            await SeedOrgWithRinggoldId(context);
+
+            // 2nd import: org found → FK updated, identifierless data removed
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Funding: transitions from DimOrganization to DimIdentifierlessData when org match lost on re-import")]
+        public async Task Funding_Transition_OrgToIdentifierless()
+        {
+            string dbName = nameof(Funding_Transition_OrgToIdentifierless);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // 1st import: org found
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
+
+            // 2nd import: unknown RINGGOLD → identifierless data created
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_unknown_ringgold.json"), LogId);
+            // Service sets DimOrganizationIdFunder = -1 in the OrgToIdentifierless transition
+            Assert.NotEqual(TestOrgId, context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+        }
+
+        // --- Research activity (distinction) ---
+
+        [Fact(DisplayName = "Research activity: DimOrganizationId set when RINGGOLD match found in DB")]
+        public async Task ResearchActivity_LinkedToOrg_WhenDisambiguatedOrgFound()
+        {
+            string dbName = nameof(ResearchActivity_LinkedToOrg_WhenDisambiguatedOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+
+            var activity = context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0);
+            Assert.Equal(TestOrgId, activity.DimOrganizationId);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Research activity: DimIdentifierlessData used for org name when no RINGGOLD match")]
+        public async Task ResearchActivity_UsesIdentifierlessData_WhenOrgNotFound()
+        {
+            string dbName = nameof(ResearchActivity_UsesIdentifierlessData_WhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+
+            var activity = context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0);
+            Assert.Equal(-1, activity.DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Research activity: transitions from DimIdentifierlessData to DimOrganization when org found on re-import")]
+        public async Task ResearchActivity_Transition_IdentifierlessToOrg()
+        {
+            string dbName = nameof(ResearchActivity_Transition_IdentifierlessToOrg);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // 1st import: no org → identifierless data
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+            Assert.Equal(-1, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+
+            await SeedOrgWithRinggoldId(context);
+
+            // 2nd import: org found → FK updated, identifierless data removed
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Research activity: transitions from DimOrganization to DimIdentifierlessData when org match lost on re-import")]
+        public async Task ResearchActivity_Transition_OrgToIdentifierless()
+        {
+            string dbName = nameof(ResearchActivity_Transition_OrgToIdentifierless);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // 1st import: org found
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+
+            // 2nd import: unknown RINGGOLD → identifierless data created
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_unknown_ringgold.json"), LogId);
+            Assert.Equal(-1, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
         }
     }
 }
