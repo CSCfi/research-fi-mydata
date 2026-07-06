@@ -432,6 +432,18 @@ namespace api.Services
             return string.Join(" ", sentences);
         }
 
+        private static string? SanitizeBiographyField(string? value)
+        {
+            if (value is null)
+                return null;
+            return value
+                .Replace("&", "&amp;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;")
+                .Replace("\"", "&quot;")
+                .Replace("'", "&#39;");
+        }
+
         static string? LanguageFilter(string? en, string? fi, string? sv)
         {
             if (!string.IsNullOrWhiteSpace(en))
@@ -559,6 +571,10 @@ namespace api.Services
         {
             bool success = false;
 
+            string? sanitizedFi = SanitizeBiographyField(biography.Fi);
+            string? sanitizedEn = SanitizeBiographyField(biography.En);
+            string? sanitizedSv = SanitizeBiographyField(biography.Sv);
+
             DimUserProfile? dimUserProfile = await _ttvContext.DimUserProfiles
                 .Where(dup => dup.Id == userprofileId)
                 .Include(dup => dup.DimFieldDisplaySettings)
@@ -576,9 +592,9 @@ namespace api.Services
             if (existingFfv != null)
             {
                 // Update existing DimResearcherDescription
-                existingFfv.DimResearcherDescription.ResearchDescriptionFi = biography.Fi;
-                existingFfv.DimResearcherDescription.ResearchDescriptionEn = biography.En;
-                existingFfv.DimResearcherDescription.ResearchDescriptionSv = biography.Sv;
+                existingFfv.DimResearcherDescription.ResearchDescriptionFi = sanitizedFi;
+                existingFfv.DimResearcherDescription.ResearchDescriptionEn = sanitizedEn;
+                existingFfv.DimResearcherDescription.ResearchDescriptionSv = sanitizedSv;
                 // Update existing FactFieldValue
                 existingFfv.Modified = _utilityService.GetCurrentDateTime();
                 await _ttvContext.SaveChangesAsync();
@@ -593,9 +609,9 @@ namespace api.Services
                 // Create new DimResearcherDescription
                 DimResearcherDescription newResearcherDescription = new ()
                 {
-                    ResearchDescriptionFi = biography.Fi,
-                    ResearchDescriptionEn = biography.En,
-                    ResearchDescriptionSv = biography.Sv,
+                    ResearchDescriptionFi = sanitizedFi,
+                    ResearchDescriptionEn = sanitizedEn,
+                    ResearchDescriptionSv = sanitizedSv,
                     SourceId = Constants.SourceIdentifiers.PROFILE_API,
                     SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                     Created = _utilityService.GetCurrentDateTime(),
