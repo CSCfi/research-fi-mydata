@@ -1528,5 +1528,113 @@ namespace api.Tests
             Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
             Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
         }
+
+        // =========================================================================
+        // PRIORITY 3: Department name handling
+        //
+        // department-name is stored as a DimIdentifierlessDatum of type
+        // "organization_unit". Two storage modes depending on whether the org was
+        // disambiguated to a known DimOrganization or not:
+        //   • Org NOT found → org_unit created as a CHILD of the org_name row
+        //   • Org IS found  → org_unit created STANDALONE (no parent org_name row)
+        // =========================================================================
+
+        // --- Employment ---
+
+        [Fact(DisplayName = "Employment dept name: stored as child of org_name DimIdentifierlessDatum when org not found")]
+        public async Task Employment_DeptName_StoredAsChildOfOrgNameWhenOrgNotFound()
+        {
+            string dbName = nameof(Employment_DeptName_StoredAsChildOfOrgNameWhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            // No org seeded → disambiguation returns null → org_name created, org_unit as child
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment.json"), LogId);
+
+            // One org_name row, one org_unit row (child of org_name)
+            Assert.Equal(2, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME));
+            var orgUnit = context.DimIdentifierlessData.Single(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT);
+            Assert.Equal("Research", orgUnit.ValueEn);
+        }
+
+        [Fact(DisplayName = "Employment dept name: stored as standalone org_unit (no parent) when org is found via disambiguation")]
+        public async Task Employment_DeptName_StoredStandaloneWhenOrgFound()
+        {
+            string dbName = nameof(Employment_DeptName_StoredStandaloneWhenOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // employment_ringgold_dept.json: RINGGOLD="12345" + dept "R&D Department"
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_ringgold_dept.json"), LogId);
+
+            // Org linked directly, so no org_name row — only a standalone org_unit
+            Assert.Equal(TestOrgId, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            var orgUnit = context.DimIdentifierlessData.Single(e => e.Id > 0);
+            Assert.Equal(Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT, orgUnit.Type);
+            Assert.Equal("R&D Department", orgUnit.ValueEn);
+        }
+
+        [Fact(DisplayName = "Employment dept name: org_unit updated in-place on re-import")]
+        public async Task Employment_DeptName_UpdatedOnReImport()
+        {
+            string dbName = nameof(Employment_DeptName_UpdatedOnReImport);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // First import: dept "Research"
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment.json"), LogId);
+            Assert.Equal("Research", context.DimIdentifierlessData.Single(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT).ValueEn);
+
+            // Second import: same put-code, dept "Engineering"
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_dept_updated.json"), LogId);
+
+            // Row count unchanged; org_unit value updated
+            Assert.Equal(2, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal("Engineering", context.DimIdentifierlessData.Single(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT).ValueEn);
+        }
+
+        // --- Research activity (distinction) ---
+
+        [Fact(DisplayName = "Research activity dept name: stored as child of org_name when org not found")]
+        public async Task ResearchActivity_DeptName_StoredAsChildOfOrgNameWhenOrgNotFound()
+        {
+            string dbName = nameof(ResearchActivity_DeptName_StoredAsChildOfOrgNameWhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // distinction.json has dept "Science" and disambiguated-organization: null
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction.json"), LogId);
+
+            Assert.Equal(2, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME));
+            var orgUnit = context.DimIdentifierlessData.Single(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT);
+            Assert.Equal("Science", orgUnit.ValueEn);
+        }
+
+        [Fact(DisplayName = "Research activity dept name: stored as standalone org_unit when org is found via disambiguation")]
+        public async Task ResearchActivity_DeptName_StoredStandaloneWhenOrgFound()
+        {
+            string dbName = nameof(ResearchActivity_DeptName_StoredStandaloneWhenOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // distinction_ringgold_dept.json: RINGGOLD="12345" + dept "Science Award Dept"
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_ringgold_dept.json"), LogId);
+
+            Assert.Equal(TestOrgId, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            var orgUnit = context.DimIdentifierlessData.Single(e => e.Id > 0);
+            Assert.Equal(Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT, orgUnit.Type);
+            Assert.Equal("Science Award Dept", orgUnit.ValueEn);
+        }
     }
 }
