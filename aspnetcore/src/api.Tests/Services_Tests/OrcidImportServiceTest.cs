@@ -45,6 +45,10 @@ namespace api.Tests
         private const int KnownPersonId = 1;
         private const int OrcidOrganizationId = -1;
 
+        // Seeded organization used by Priority 2 org-linking tests
+        private const int TestOrgId = 100;
+        private const int TestOrgDimPidId = 1000;
+
         private static readonly FkOffInterceptor _fkOffInterceptor = new();
 
         // Persistent in-memory SQLite connection per test DB name.
@@ -368,6 +372,47 @@ namespace api.Tests
         }
 
         private LogUserIdentification LogId => new("0000-0001-0001-0001");
+
+        // Seeds a real DimOrganization (Id=100) linked via a RinggoldID DimPid (Id=1000,
+        // PidContent="12345"). Tests that need the org-not-found path simply don't call this.
+        private async Task SeedOrgWithRinggoldId(TtvContext context)
+        {
+            context.DimOrganizations.Add(new DimOrganization
+            {
+                Id = TestOrgId,
+                NameFi = "Test Organization",
+                NameEn = "Test Organization",
+                NameSv = "Test Organization",
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = ""
+            });
+            context.DimPids.Add(new DimPid
+            {
+                Id = TestOrgDimPidId,
+                PidContent = "12345",
+                PidType = "RinggoldID",
+                DimOrganizationId = TestOrgId,
+                DimKnownPersonId = -1,
+                DimPublicationId = -1,
+                DimServiceId = -1,
+                DimInfrastructureId = -1,
+                DimPublicationChannelId = -1,
+                DimResearchDatasetId = -1,
+                DimResearchDataCatalogId = -1,
+                DimResearchActivityId = -1,
+                DimEventId = -1,
+                DimProfileOnlyDatasetId = -1,
+                DimProfileOnlyFundingDecisionId = -1,
+                DimProfileOnlyPublicationId = -1,
+                DimResearchCommunityId = -1,
+                DimResearchProjectId = -1,
+                SourceId = Constants.SourceIdentifiers.PROFILE_API,
+                SourceDescription = "",
+                Created = DateTime.UtcNow,
+                Modified = DateTime.UtcNow
+            });
+            await context.SaveChangesAsync();
+        }
 
         // -------------------------------------------------------------------------
         // Section: person / name
@@ -717,6 +762,1018 @@ namespace api.Tests
             int countAfterSecond = context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0);
 
             Assert.Equal(1, countAfterFirst);
+            Assert.Equal(countAfterFirst, countAfterSecond);
+        }
+
+        // =========================================================================
+        // PRIORITY 1A: Update tests — field values change between imports
+        // =========================================================================
+
+        [Fact(DisplayName = "Name: updated when changed in ORCID")]
+        public async Task Name_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(Name_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimNames.Count(e => e.Id > 0));
+            var name = context.DimNames.Single(e => e.Id > 0);
+            Assert.Equal("Bob", name.FirstNames);
+            Assert.Equal("Jones", name.LastName);
+        }
+
+        [Fact(DisplayName = "Biography: updated when changed in ORCID")]
+        public async Task Biography_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(Biography_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("biography.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("biography_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimResearcherDescriptions.Count(e => e.Id > 0));
+            Assert.Equal("Updated biography text.", context.DimResearcherDescriptions.Single(e => e.Id > 0).ResearchDescriptionEn);
+        }
+
+        [Fact(DisplayName = "Researcher URL: updated when changed in ORCID")]
+        public async Task ResearcherUrl_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(ResearcherUrl_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+            var webLink = context.DimWebLinks.Single(e => e.Id > 0);
+            Assert.Equal("https://example.com/updated", webLink.Url);
+            Assert.Equal("Updated Homepage", webLink.LinkLabel);
+        }
+
+        [Fact(DisplayName = "Keywords: updated when changed in ORCID")]
+        public async Task Keywords_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(Keywords_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords_updated.json"), LogId);
+
+            Assert.Equal(2, context.DimKeywords.Count(e => e.Id > 0));
+            var keywords = context.DimKeywords.Where(e => e.Id > 0).Select(k => k.Keyword).ToHashSet();
+            Assert.Contains("deep learning", keywords);
+            Assert.Contains("statistics", keywords);
+            Assert.DoesNotContain("machine learning", keywords);
+            Assert.DoesNotContain("data science", keywords);
+        }
+
+        [Fact(DisplayName = "External identifier: updated when changed in ORCID")]
+        public async Task ExternalIdentifier_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(ExternalIdentifier_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("external_identifier.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("external_identifier_updated.json"), LogId);
+
+            var externalId = context.DimPids.Single(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE);
+            Assert.Equal("88888", externalId.PidContent);
+            Assert.Equal(1, context.DimPids.Count(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE));
+        }
+
+        [Fact(DisplayName = "Education: updated when changed in ORCID")]
+        public async Task Education_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(Education_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("education.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("education_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimEducations.Count(e => e.Id > 0));
+            var education = context.DimEducations.Single(e => e.Id > 0);
+            Assert.Equal("MSc", education.NameEn);
+            Assert.Equal("Updated University", education.DegreeGrantingInstitutionName);
+        }
+
+        [Fact(DisplayName = "Employment: updated when changed in ORCID")]
+        public async Task Employment_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(Employment_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimAffiliations.Count(e => e.Id > 0));
+            Assert.Equal("Senior Researcher", context.DimAffiliations.Single(e => e.Id > 0).PositionNameEn);
+        }
+
+        [Fact(DisplayName = "Publication: updated when changed in ORCID")]
+        public async Task Publication_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(Publication_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimProfileOnlyPublications.Count(e => e.Id > 0));
+            var publication = context.DimProfileOnlyPublications.Single(e => e.Id > 0);
+            Assert.Equal("Updated Publication", publication.PublicationName);
+            Assert.Equal("10.1000/updated1", publication.DoiHandle);
+        }
+
+        [Fact(DisplayName = "Dataset: updated when changed in ORCID")]
+        public async Task Dataset_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(Dataset_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimProfileOnlyDatasets.Count(e => e.Id > 0));
+            Assert.Equal("Updated Dataset", context.DimProfileOnlyDatasets.Single(e => e.Id > 0).NameEn);
+        }
+
+        [Fact(DisplayName = "Funding: updated when changed in ORCID")]
+        public async Task Funding_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(Funding_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+            Assert.Equal("Updated Grant", context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).NameEn);
+        }
+
+        [Fact(DisplayName = "Distinction (research activity): updated when changed in ORCID")]
+        public async Task Distinction_Updated_WhenChangedInOrcid()
+        {
+            string dbName = nameof(Distinction_Updated_WhenChangedInOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
+            Assert.Equal("Excellence Award", context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).NameEn);
+        }
+
+        // =========================================================================
+        // PRIORITY 1B: Deletion tests — items removed from ORCID are deleted from DB
+        // Strategy: import the section fixture, then re-import name.json (all
+        // activity sections empty) — the service must remove the orphaned rows.
+        // =========================================================================
+
+        [Fact(DisplayName = "Other names: deleted when removed from ORCID")]
+        public async Task OtherNames_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(OtherNames_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("other_names.json"), LogId);
+            Assert.Equal(2, context.DimNames.Count(e => e.Id > 0 && e.FullName != null));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimNames.Count(e => e.Id > 0 && e.FullName != null));
+            Assert.Equal(1, context.DimNames.Count(e => e.Id > 0)); // main name remains
+        }
+
+        [Fact(DisplayName = "Biography: deleted when removed from ORCID")]
+        public async Task Biography_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(Biography_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("biography.json"), LogId);
+            Assert.Equal(1, context.DimResearcherDescriptions.Count(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimResearcherDescriptions.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Researcher URL: deleted when removed from ORCID")]
+        public async Task ResearcherUrl_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(ResearcherUrl_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url.json"), LogId);
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimWebLinks.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Email: deleted when removed from ORCID")]
+        public async Task Email_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(Email_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("email.json"), LogId);
+            Assert.Equal(1, context.DimEmailAddrresses.Count(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimEmailAddrresses.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Keywords: deleted when removed from ORCID")]
+        public async Task Keywords_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(Keywords_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords.json"), LogId);
+            Assert.Equal(2, context.DimKeywords.Count(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimKeywords.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "External identifier: deleted when removed from ORCID")]
+        public async Task ExternalIdentifier_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(ExternalIdentifier_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("external_identifier.json"), LogId);
+            Assert.Equal(1, context.DimPids.Count(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimPids.Count(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE));
+        }
+
+        [Fact(DisplayName = "Education: deleted when removed from ORCID")]
+        public async Task Education_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(Education_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("education.json"), LogId);
+            Assert.Equal(1, context.DimEducations.Count(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimEducations.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Employment: deleted when removed from ORCID")]
+        public async Task Employment_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(Employment_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment.json"), LogId);
+            Assert.Equal(1, context.DimAffiliations.Count(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimAffiliations.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Publication and dataset: deleted when removed from ORCID")]
+        public async Task PublicationAndDataset_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(PublicationAndDataset_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works.json"), LogId);
+            Assert.Equal(1, context.DimProfileOnlyPublications.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyDatasets.Count(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimProfileOnlyPublications.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimProfileOnlyDatasets.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Funding: deleted when removed from ORCID")]
+        public async Task Funding_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(Funding_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding.json"), LogId);
+            Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+            // Org-name DimIdentifierlessDatum created for the unlinked funder must also be cleaned up
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Research activity: deleted when removed from ORCID")]
+        public async Task ResearchActivity_Deleted_WhenRemovedFromOrcid()
+        {
+            string dbName = nameof(ResearchActivity_Deleted_WhenRemovedFromOrcid);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction.json"), LogId);
+            Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            Assert.Equal(0, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
+        }
+
+        // =========================================================================
+        // PRIORITY 1C: DimWebLink lifecycle — add / update / remove on dataset,
+        // funding, and research activity
+        // =========================================================================
+
+        // --- Dataset ---
+
+        [Fact(DisplayName = "Dataset: DimWebLink created when URL is present on first import")]
+        public async Task Dataset_WebLink_CreatedWithUrl()
+        {
+            string dbName = nameof(Dataset_WebLink_CreatedWithUrl);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("dataset_with_url.json"), LogId);
+
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal("https://dataset.example.com", context.DimWebLinks.Single(e => e.Id > 0).Url);
+            Assert.Equal(1, context.DimProfileOnlyDatasets.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Dataset: DimWebLink updated when URL changes on re-import")]
+        public async Task Dataset_WebLink_UpdatedWhenUrlChanges()
+        {
+            string dbName = nameof(Dataset_WebLink_UpdatedWhenUrlChanges);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("dataset_with_url.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("dataset_url_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal("https://dataset-updated.example.com", context.DimWebLinks.Single(e => e.Id > 0).Url);
+        }
+
+        [Fact(DisplayName = "Dataset: DimWebLink deleted when URL is cleared on re-import")]
+        public async Task Dataset_WebLink_DeletedWhenUrlCleared()
+        {
+            string dbName = nameof(Dataset_WebLink_DeletedWhenUrlCleared);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // First import: dataset 8002 with URL
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("dataset_with_url.json"), LogId);
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+
+            // Second import: same put-code 8002, url=null (works.json)
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works.json"), LogId);
+
+            Assert.Equal(0, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyDatasets.Count(e => e.Id > 0)); // dataset row still present
+        }
+
+        // --- Funding ---
+
+        [Fact(DisplayName = "Funding: DimWebLink created when URL is present on first import")]
+        public async Task Funding_WebLink_CreatedWithUrl()
+        {
+            string dbName = nameof(Funding_WebLink_CreatedWithUrl);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_url.json"), LogId);
+
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal("https://funding.example.com", context.DimWebLinks.Single(e => e.Id > 0).Url);
+            Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Funding: DimWebLink updated when URL changes on re-import")]
+        public async Task Funding_WebLink_UpdatedWhenUrlChanges()
+        {
+            string dbName = nameof(Funding_WebLink_UpdatedWhenUrlChanges);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_url.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_url_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal("https://funding-updated.example.com", context.DimWebLinks.Single(e => e.Id > 0).Url);
+        }
+
+        [Fact(DisplayName = "Funding: DimWebLink deleted when URL is cleared on re-import")]
+        public async Task Funding_WebLink_DeletedWhenUrlCleared()
+        {
+            string dbName = nameof(Funding_WebLink_DeletedWhenUrlCleared);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // First import: funding 9001 with URL
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_url.json"), LogId);
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+
+            // Second import: same put-code 9001, url=null (funding.json)
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding.json"), LogId);
+
+            Assert.Equal(0, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0)); // funding still present
+        }
+
+        // --- Research activity (distinction) ---
+
+        [Fact(DisplayName = "Research activity: DimWebLink created when URL is present on first import")]
+        public async Task ResearchActivity_WebLink_CreatedWithUrl()
+        {
+            string dbName = nameof(ResearchActivity_WebLink_CreatedWithUrl);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_url.json"), LogId);
+
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal("https://distinction.example.com", context.DimWebLinks.Single(e => e.Id > 0).Url);
+            Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Research activity: DimWebLink updated when URL changes on re-import")]
+        public async Task ResearchActivity_WebLink_UpdatedWhenUrlChanges()
+        {
+            string dbName = nameof(ResearchActivity_WebLink_UpdatedWhenUrlChanges);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_url.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_url_updated.json"), LogId);
+
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal("https://distinction-updated.example.com", context.DimWebLinks.Single(e => e.Id > 0).Url);
+        }
+
+        [Fact(DisplayName = "Research activity: DimWebLink deleted when URL is cleared on re-import")]
+        public async Task ResearchActivity_WebLink_DeletedWhenUrlCleared()
+        {
+            string dbName = nameof(ResearchActivity_WebLink_DeletedWhenUrlCleared);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // First import: distinction 10001 with URL
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_url.json"), LogId);
+            Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
+
+            // Second import: same put-code 10001, url=null (distinction.json)
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction.json"), LogId);
+
+            Assert.Equal(0, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0)); // activity still present
+        }
+
+        // =========================================================================
+        // PRIORITY 2: Organization linking logic
+        // Each entity type (employment/funding/research-activity) has four tests:
+        //   1. Org found → FK set directly, no DimIdentifierlessData created
+        //   2. Org not found → DimIdentifierlessData used for org name
+        //   3. Transition IdentifierlessData → Org (org seeded between imports)
+        //   4. Transition Org → IdentifierlessData (unknown RINGGOLD on re-import)
+        // =========================================================================
+
+        // --- Employment ---
+
+        [Fact(DisplayName = "Employment: DimOrganizationId set when RINGGOLD match found in DB")]
+        public async Task Employment_LinkedToOrg_WhenDisambiguatedOrgFound()
+        {
+            string dbName = nameof(Employment_LinkedToOrg_WhenDisambiguatedOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+
+            var affiliation = context.DimAffiliations.Single(e => e.Id > 0);
+            Assert.Equal(TestOrgId, affiliation.DimOrganizationId);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Employment: DimIdentifierlessData used for org name when no RINGGOLD match")]
+        public async Task Employment_UsesIdentifierlessData_WhenOrgNotFound()
+        {
+            string dbName = nameof(Employment_UsesIdentifierlessData_WhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            // No org seeded → disambiguation lookup returns null
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+
+            var affiliation = context.DimAffiliations.Single(e => e.Id > 0);
+            Assert.Equal(-1, affiliation.DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Employment: transitions from DimIdentifierlessData to DimOrganization when org found on re-import")]
+        public async Task Employment_Transition_IdentifierlessToOrg()
+        {
+            string dbName = nameof(Employment_Transition_IdentifierlessToOrg);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // 1st import: org not yet in DB → identifierless data created
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+            Assert.Equal(-1, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+
+            // Seed org between imports
+            await SeedOrgWithRinggoldId(context);
+
+            // 2nd import: org now found → FK updated, identifierless data removed
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimAffiliations.Count(e => e.Id > 0)); // no duplicate affiliation
+        }
+
+        [Fact(DisplayName = "Employment: transitions from DimOrganization to DimIdentifierlessData when org match lost on re-import")]
+        public async Task Employment_Transition_OrgToIdentifierless()
+        {
+            string dbName = nameof(Employment_Transition_OrgToIdentifierless);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // 1st import: org found → FK set
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+
+            // 2nd import: RINGGOLD "99999" has no match → identifierless data created
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_unknown_ringgold.json"), LogId);
+            Assert.Equal(-1, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimAffiliations.Count(e => e.Id > 0)); // no duplicate affiliation
+        }
+
+        // --- Funding ---
+
+        [Fact(DisplayName = "Funding: DimOrganizationIdFunder set when RINGGOLD match found in DB")]
+        public async Task Funding_LinkedToOrg_WhenDisambiguatedOrgFound()
+        {
+            string dbName = nameof(Funding_LinkedToOrg_WhenDisambiguatedOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+
+            var funding = context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0);
+            Assert.Equal(TestOrgId, funding.DimOrganizationIdFunder);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Funding: DimIdentifierlessData used for funder name when no RINGGOLD match")]
+        public async Task Funding_UsesIdentifierlessData_WhenOrgNotFound()
+        {
+            string dbName = nameof(Funding_UsesIdentifierlessData_WhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+
+            var funding = context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0);
+            Assert.Null(funding.DimOrganizationIdFunder);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Funding: transitions from DimIdentifierlessData to DimOrganization when org found on re-import")]
+        public async Task Funding_Transition_IdentifierlessToOrg()
+        {
+            string dbName = nameof(Funding_Transition_IdentifierlessToOrg);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // 1st import: no org → identifierless data
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+            Assert.Null(context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+
+            await SeedOrgWithRinggoldId(context);
+
+            // 2nd import: org found → FK updated, identifierless data removed
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Funding: transitions from DimOrganization to DimIdentifierlessData when org match lost on re-import")]
+        public async Task Funding_Transition_OrgToIdentifierless()
+        {
+            string dbName = nameof(Funding_Transition_OrgToIdentifierless);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // 1st import: org found
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
+
+            // 2nd import: unknown RINGGOLD → identifierless data created
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_unknown_ringgold.json"), LogId);
+            // Service sets DimOrganizationIdFunder = -1 in the OrgToIdentifierless transition
+            Assert.NotEqual(TestOrgId, context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+        }
+
+        // --- Research activity (distinction) ---
+
+        [Fact(DisplayName = "Research activity: DimOrganizationId set when RINGGOLD match found in DB")]
+        public async Task ResearchActivity_LinkedToOrg_WhenDisambiguatedOrgFound()
+        {
+            string dbName = nameof(ResearchActivity_LinkedToOrg_WhenDisambiguatedOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+
+            var activity = context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0);
+            Assert.Equal(TestOrgId, activity.DimOrganizationId);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Research activity: DimIdentifierlessData used for org name when no RINGGOLD match")]
+        public async Task ResearchActivity_UsesIdentifierlessData_WhenOrgNotFound()
+        {
+            string dbName = nameof(ResearchActivity_UsesIdentifierlessData_WhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+
+            var activity = context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0);
+            Assert.Equal(-1, activity.DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Research activity: transitions from DimIdentifierlessData to DimOrganization when org found on re-import")]
+        public async Task ResearchActivity_Transition_IdentifierlessToOrg()
+        {
+            string dbName = nameof(ResearchActivity_Transition_IdentifierlessToOrg);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // 1st import: no org → identifierless data
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+            Assert.Equal(-1, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+
+            await SeedOrgWithRinggoldId(context);
+
+            // 2nd import: org found → FK updated, identifierless data removed
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Research activity: transitions from DimOrganization to DimIdentifierlessData when org match lost on re-import")]
+        public async Task ResearchActivity_Transition_OrgToIdentifierless()
+        {
+            string dbName = nameof(ResearchActivity_Transition_OrgToIdentifierless);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // 1st import: org found
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_ringgold.json"), LogId);
+            Assert.Equal(TestOrgId, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+
+            // 2nd import: unknown RINGGOLD → identifierless data created
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_with_unknown_ringgold.json"), LogId);
+            Assert.Equal(-1, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
+        }
+
+        // =========================================================================
+        // PRIORITY 3: Department name handling
+        //
+        // department-name is stored as a DimIdentifierlessDatum of type
+        // "organization_unit". Two storage modes depending on whether the org was
+        // disambiguated to a known DimOrganization or not:
+        //   • Org NOT found → org_unit created as a CHILD of the org_name row
+        //   • Org IS found  → org_unit created STANDALONE (no parent org_name row)
+        // =========================================================================
+
+        // --- Employment ---
+
+        [Fact(DisplayName = "Employment dept name: stored as child of org_name DimIdentifierlessDatum when org not found")]
+        public async Task Employment_DeptName_StoredAsChildOfOrgNameWhenOrgNotFound()
+        {
+            string dbName = nameof(Employment_DeptName_StoredAsChildOfOrgNameWhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            // No org seeded → disambiguation returns null → org_name created, org_unit as child
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment.json"), LogId);
+
+            // One org_name row, one org_unit row (child of org_name)
+            Assert.Equal(2, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME));
+            var orgUnit = context.DimIdentifierlessData.Single(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT);
+            Assert.Equal("Research", orgUnit.ValueEn);
+        }
+
+        [Fact(DisplayName = "Employment dept name: stored as standalone org_unit (no parent) when org is found via disambiguation")]
+        public async Task Employment_DeptName_StoredStandaloneWhenOrgFound()
+        {
+            string dbName = nameof(Employment_DeptName_StoredStandaloneWhenOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // employment_ringgold_dept.json: RINGGOLD="12345" + dept "R&D Department"
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_ringgold_dept.json"), LogId);
+
+            // Org linked directly, so no org_name row — only a standalone org_unit
+            Assert.Equal(TestOrgId, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            var orgUnit = context.DimIdentifierlessData.Single(e => e.Id > 0);
+            Assert.Equal(Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT, orgUnit.Type);
+            Assert.Equal("R&D Department", orgUnit.ValueEn);
+        }
+
+        [Fact(DisplayName = "Employment dept name: org_unit updated in-place on re-import")]
+        public async Task Employment_DeptName_UpdatedOnReImport()
+        {
+            string dbName = nameof(Employment_DeptName_UpdatedOnReImport);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // First import: dept "Research"
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment.json"), LogId);
+            Assert.Equal("Research", context.DimIdentifierlessData.Single(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT).ValueEn);
+
+            // Second import: same put-code, dept "Engineering"
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_dept_updated.json"), LogId);
+
+            // Row count unchanged; org_unit value updated
+            Assert.Equal(2, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal("Engineering", context.DimIdentifierlessData.Single(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT).ValueEn);
+        }
+
+        // --- Research activity (distinction) ---
+
+        [Fact(DisplayName = "Research activity dept name: stored as child of org_name when org not found")]
+        public async Task ResearchActivity_DeptName_StoredAsChildOfOrgNameWhenOrgNotFound()
+        {
+            string dbName = nameof(ResearchActivity_DeptName_StoredAsChildOfOrgNameWhenOrgNotFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // distinction.json has dept "Science" and disambiguated-organization: null
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction.json"), LogId);
+
+            Assert.Equal(2, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_NAME));
+            var orgUnit = context.DimIdentifierlessData.Single(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT);
+            Assert.Equal("Science", orgUnit.ValueEn);
+        }
+
+        [Fact(DisplayName = "Research activity dept name: stored as standalone org_unit when org is found via disambiguation")]
+        public async Task ResearchActivity_DeptName_StoredStandaloneWhenOrgFound()
+        {
+            string dbName = nameof(ResearchActivity_DeptName_StoredStandaloneWhenOrgFound);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+
+            // distinction_ringgold_dept.json: RINGGOLD="12345" + dept "Science Award Dept"
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("distinction_ringgold_dept.json"), LogId);
+
+            Assert.Equal(TestOrgId, context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0).DimOrganizationId);
+            Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
+            var orgUnit = context.DimIdentifierlessData.Single(e => e.Id > 0);
+            Assert.Equal(Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT, orgUnit.Type);
+            Assert.Equal("Science Award Dept", orgUnit.ValueEn);
+        }
+
+        // =========================================================================
+        // PRIORITY 4: Edge cases / input bounds
+        // =========================================================================
+
+        [Fact(DisplayName = "Employment role title: truncated to 255 chars when longer")]
+        public async Task Employment_RoleTitle_TruncatedAt255Chars()
+        {
+            string dbName = nameof(Employment_RoleTitle_TruncatedAt255Chars);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // Build employment fixture with a 300-char role title
+            string longTitle = new string('A', 300);
+            string json = LoadFixture("employment.json")
+                .Replace("\"role-title\": \"Researcher\"", $"\"role-title\": \"{longTitle}\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+
+            Assert.Equal(255, context.DimAffiliations.Single(e => e.Id > 0).PositionNameEn.Length);
+        }
+
+        [Fact(DisplayName = "Dataset URL: truncated to 511 chars when longer")]
+        public async Task Dataset_Url_TruncatedAt511Chars()
+        {
+            string dbName = nameof(Dataset_Url_TruncatedAt511Chars);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // Build works fixture with a 600-char URL on the dataset
+            string longUrl = "https://dataset.example.com/" + new string('x', 600);
+            string json = LoadFixture("dataset_with_url.json")
+                .Replace("\"value\": \"https://dataset.example.com\"", $"\"value\": \"{longUrl}\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+
+            Assert.Equal(511, context.DimWebLinks.Single(e => e.Id > 0).Url.Length);
+        }
+
+        [Fact(DisplayName = "Empty ORCID record: no activity entities created, main name created")]
+        public async Task EmptyRecord_DoesNotCreateActivityEntities()
+        {
+            string dbName = nameof(EmptyRecord_DoesNotCreateActivityEntities);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            // Main name must be created
+            Assert.Equal(1, context.DimNames.Count(e => e.Id > 0));
+            // Activity entities must NOT be created
+            Assert.Equal(0, context.DimAffiliations.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimEducations.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimProfileOnlyPublications.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimProfileOnlyDatasets.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimEmailAddrresses.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimKeywords.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimWebLinks.Count(e => e.Id > 0));
+            Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
+        }
+
+        // =========================================================================
+        // PRIORITY 5: Works → ResearchActivity path
+        // Works of type conference-paper / lecture-speech / other / etc. are parsed
+        // into OrcidWorks.ResearchActivities and imported as DimProfileOnlyResearchActivity.
+        // This path is distinct from the distinctions/memberships path (Priority 1/2).
+        // =========================================================================
+
+        [Fact(DisplayName = "Works research activity (conference-paper): imported once, not duplicated on re-import")]
+        public async Task WorkResearchActivity_ImportedAndNotDuplicated()
+        {
+            string dbName = nameof(WorkResearchActivity_ImportedAndNotDuplicated);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string json = LoadFixture("works_conference_paper.json");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            int countAfterFirst = context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0);
+
+            var activity = context.DimProfileOnlyResearchActivities.Single(e => e.Id > 0);
+            Assert.Equal("Test Conference Paper", activity.NameEn);
+            Assert.Equal(OrcidDataSourceId, activity.DimRegisteredDataSourceId);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            int countAfterSecond = context.DimProfileOnlyResearchActivities.Count(e => e.Id > 0);
+
+            Assert.Equal(1, countAfterFirst);
+            Assert.Equal(countAfterFirst, countAfterSecond);
+        }
+
+        // =========================================================================
+        // PRIORITY 6: AddDimDates standalone
+        // AddDimDates is called at the top of every import. Testing it directly
+        // verifies its dedup logic independently of the full import pipeline.
+        // =========================================================================
+
+        [Fact(DisplayName = "AddDimDates: creates DimDate rows for all date fields in the fixture")]
+        public async Task AddDimDates_CreatesDatesFromFixture()
+        {
+            string dbName = nameof(AddDimDates_CreatesDatesFromFixture);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            // education.json has one education: start (2000,09,null→0), end (2004,06,null→0)
+            // The sentinel DimDate(0,0,0) already exists; neither date matches it, so 2 new rows.
+            await service.AddDimDates(LoadFixture("education.json"), DateTime.UtcNow, LogId);
+
+            var dates = context.DimDates.Where(e => e.Id > 0).OrderBy(e => e.Year).ToList();
+            Assert.Equal(2, dates.Count);
+            Assert.Equal(2000, dates[0].Year);
+            Assert.Equal(9, dates[0].Month);
+            Assert.Equal(2004, dates[1].Year);
+            Assert.Equal(6, dates[1].Month);
+        }
+
+        [Fact(DisplayName = "AddDimDates: does not duplicate existing DimDate rows on re-call")]
+        public async Task AddDimDates_DoesNotDuplicateDates()
+        {
+            string dbName = nameof(AddDimDates_DoesNotDuplicateDates);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string json = LoadFixture("education.json");
+
+            await service.AddDimDates(json, DateTime.UtcNow, LogId);
+            int countAfterFirst = context.DimDates.Count(e => e.Id > 0);
+
+            await service.AddDimDates(json, DateTime.UtcNow, LogId);
+            int countAfterSecond = context.DimDates.Count(e => e.Id > 0);
+
+            Assert.Equal(2, countAfterFirst);
             Assert.Equal(countAfterFirst, countAfterSecond);
         }
     }
