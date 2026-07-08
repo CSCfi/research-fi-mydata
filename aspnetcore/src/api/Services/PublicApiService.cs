@@ -4,13 +4,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using api.Models.Ttv;
-using api.Models.Ai;
 using api.Models.Keycloak;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
 using System.Text.Json;
-using api.Models.Common;
 using System.Security.Cryptography;
 using System.Text;
 
