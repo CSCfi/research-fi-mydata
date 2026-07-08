@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using api.Models.Ai;
 
 namespace api.Services
 {

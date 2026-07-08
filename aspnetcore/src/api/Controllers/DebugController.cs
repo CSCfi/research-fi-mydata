@@ -18,6 +18,8 @@ using System.Diagnostics;
 
 namespace api.Controllers
 {
+    public record NationalIdentificationNumberRequest(string NationalIdentificationNumber);
+
     /*
      * DebugController implements API for debugging.
      */
@@ -27,6 +29,7 @@ namespace api.Controllers
         private readonly TtvContext _ttvContext;
         private readonly IUserProfileService _userProfileService;
         private readonly IElasticsearchService _elasticsearchService;
+        private readonly IPublicApiService _publicApiService;
         private readonly ILogger<UserProfileController> _logger;
         private readonly IMemoryCache _cache;
         private readonly IBackgroundTaskQueue _taskQueue;
@@ -40,7 +43,8 @@ namespace api.Controllers
             ILogger<UserProfileController> logger,
             IMemoryCache memoryCache,
             IBackgroundTaskQueue taskQueue,
-            IElasticsearchService elasticsearchService)
+            IElasticsearchService elasticsearchService,
+            IPublicApiService publicApiService)
         {
             _ttvContext = ttvContext;
             _userProfileService = userProfileService;
@@ -48,6 +52,7 @@ namespace api.Controllers
             _cache = memoryCache;
             _taskQueue = taskQueue;
             _elasticsearchService = elasticsearchService;
+            _publicApiService = publicApiService;
             Configuration = configuration;
 
             logPrefix = "DebugController: ";
@@ -418,6 +423,87 @@ namespace api.Controllers
                     state: LogContent.ActionState.COMPLETE));
 
             return Ok(new ApiResponse(success: true));
+        }
+
+        /// <summary>
+        /// Debug: Get profile data for given national identification number.
+        /// </summary>
+        [HttpPost]
+        [Route("/[controller]/profiledata")]
+        [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetProfiledataFromNationalIdentificationNumber([FromBody] NationalIdentificationNumberRequest request)
+        {
+            // Check admin token authorization
+            if (!IsAdminTokenAuthorized(Configuration))
+            {
+                return Unauthorized();
+            }
+
+            // Validate request data
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Get Keycloak username from national identification number
+            string username = _publicApiService.GetUsernameFromNationalIdentificationNumber(request.NationalIdentificationNumber);
+
+            // Get ORCID ID from Keycloak
+            string? orcidId = await _publicApiService.GetOrcidIdFromKeycloak(username);
+
+            if (orcidId == null)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(orcid: null),
+                    new LogApiInfo(
+                        action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: "ORCID ID not found for username: " + username));
+
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
+            }
+
+            // User identification object for logging
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification(orcid: orcidId);
+
+            // Get profile data
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
+                    state: LogContent.ActionState.START));
+
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: "profile not found for ORCID ID: " + orcidId));
+                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
+            stopwatch.Stop();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                logUserIdentification,
+                new LogApiInfo(
+                    action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"took {stopwatch.ElapsedMilliseconds}ms."));
+
+            return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
         }
     }
 }
