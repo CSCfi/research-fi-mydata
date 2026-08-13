@@ -65,11 +65,9 @@ namespace api.Services
                         error: true,
                         message: $"{ex.ToString()}"));
             }
-            try
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
+            foreach (OrcidEducation education in educations)
             {
-                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
-                foreach (OrcidEducation education in educations)
-                {
                     // Start date
                     DimDate educationStartDate =
                         await _ttvContext.DimDates.FirstOrDefaultAsync(
@@ -110,12 +108,6 @@ namespace api.Services
                         };
                         _ttvContext.DimDates.Add(educationEndDate);
                     }
-                }
-            }
-            finally
-            {
-                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
-                await _ttvContext.SaveChangesAsync();
             }
 
             // Employment DimDates
@@ -135,11 +127,8 @@ namespace api.Services
                         error: true,
                         message: $"{ex.ToString()}"));
             }
-            try
+            foreach (OrcidEmployment employment in employments)
             {
-                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
-                foreach (OrcidEmployment employment in employments)
-                {
                     // Start date
                     DimDate employmentStartDate =
                         await _ttvContext.DimDates.FirstOrDefaultAsync(
@@ -179,12 +168,6 @@ namespace api.Services
                         };
                         _ttvContext.DimDates.Add(employmentEndDate);
                     }
-                }
-            }
-            finally
-            {
-                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
-                await _ttvContext.SaveChangesAsync();
             }
 
             // Funding DimDates
@@ -204,11 +187,8 @@ namespace api.Services
                         error: true,
                         message: $"{ex.ToString()}"));
             }
-            try
+            foreach (OrcidFunding funding in fundings)
             {
-                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
-                foreach (OrcidFunding funding in fundings)
-                {
                     // Start data
                     DimDate fundingStartDate =
                         await _ttvContext.DimDates.FirstOrDefaultAsync(
@@ -248,12 +228,6 @@ namespace api.Services
                         };
                         _ttvContext.DimDates.Add(fundingEndDate);
                     }
-                }
-            }
-            finally
-            {
-                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
-                await _ttvContext.SaveChangesAsync();
             }
 
             // Research activity DimDates
@@ -289,11 +263,8 @@ namespace api.Services
                         error: true,
                         message: $"{ex.ToString()}"));
             }
-            try
+            foreach (OrcidResearchActivity researchActivity in orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices.Concat(orcidResearchActivity_works))
             {
-                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
-                foreach (OrcidResearchActivity researchActivity in orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices.Concat(orcidResearchActivity_works))
-                {
                     // Start date
                     DimDate researchActivityStartDate =
                         await _ttvContext.DimDates.FirstOrDefaultAsync(
@@ -334,13 +305,9 @@ namespace api.Services
                         };
                         _ttvContext.DimDates.Add(researchActivityEndDate);
                     }
-                }
             }
-            finally
-            {
-                _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
-                await _ttvContext.SaveChangesAsync();
-            }
+            _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            await _ttvContext.SaveChangesAsync();
         }
 
         /*
@@ -854,8 +821,6 @@ namespace api.Services
             // Get DimFieldDisplaySettings for keyword
             DimFieldDisplaySetting dimFieldDisplaySettingsKeyword =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_KEYWORD);
-            // Collect list of processed FactFieldValues related to keyword. Needed when deleting keywords.
-            List<FactFieldValue> processedKeywordFactFieldValues = new();
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidKeyword keyword in keywords)
             {
@@ -909,7 +874,6 @@ namespace api.Services
                     factFieldValuesKeyword.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_KEYWORD, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
                 }
-                processedKeywordFactFieldValues.Add(factFieldValuesKeyword);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             keywords = null;
@@ -1567,14 +1531,18 @@ namespace api.Services
             DimFieldDisplaySetting dimFieldDisplaySettingsOrcidFunding =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
             // Reference data
-            DimReferencedatum dimReferencedata_award =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_FUNDING && dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.AWARD).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_contract =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_FUNDING && dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.CONTRACT).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_grant =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_FUNDING && dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.GRANT).AsNoTracking().FirstOrDefaultAsync();
-            DimReferencedatum dimReferencedata_salaryAward =
-                await _ttvContext.DimReferencedata.Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_FUNDING && dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.SALARY_AWARD).AsNoTracking().FirstOrDefaultAsync();
+            var fundingRefData = await _ttvContext.DimReferencedata
+                .Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_FUNDING && (
+                    dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.AWARD ||
+                    dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.CONTRACT ||
+                    dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.GRANT ||
+                    dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.SALARY_AWARD))
+                .AsNoTracking()
+                .ToListAsync();
+            DimReferencedatum dimReferencedata_award       = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.AWARD);
+            DimReferencedatum dimReferencedata_contract    = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.CONTRACT);
+            DimReferencedatum dimReferencedata_grant       = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.GRANT);
+            DimReferencedatum dimReferencedata_salaryAward = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.SALARY_AWARD);
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidFunding orcidFunding in orcidFundings)
             {

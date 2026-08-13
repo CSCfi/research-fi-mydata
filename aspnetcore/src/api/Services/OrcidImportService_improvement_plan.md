@@ -25,9 +25,11 @@ The service is functionally correct and well-tested. The main performance proble
 
 ---
 
-## Phase 1 – Trivial Quick Wins (minimal diff, zero logic change)
+## Phase 1 – Trivial Quick Wins ✅ DONE (2026-08-13)
 
 **Target:** Zero regressions, purely mechanical edits. Can be done in a single PR.
+
+**Result:** Items 1.1, 1.2, and 1.4 implemented and all 66 tests pass. Item 1.3 was found unsafe and dropped — see note below.
 
 ### 1.1 Remove dead code: `processedKeywordFactFieldValues`
 
@@ -59,20 +61,11 @@ The service is functionally correct and well-tested. The main performance proble
 
 ---
 
-### 1.3 Add `AsNoTracking()` to DimDate lookups in the main import body
+### 1.3 Add `AsNoTracking()` to DimDate lookups in the main import body ❌ NOT SAFE — DROPPED
 
-Inside `ImportOrcidRecordJsonIntoUserProfile`, dates are retrieved with:
+**Assessment in plan was wrong.** When new entities (DimEducation, DimAffiliation, etc.) are created with `DimStartDateNavigation = someDate` where `someDate` is an `AsNoTracking` result (untracked), EF Core's `DbSet.Add()` graph-traversal adds every untracked reachable entity as **Added** state — even if it has a real (positive) primary key. `SaveChangesAsync` then tries to INSERT the date row that already exists, causing `UNIQUE constraint failed: dim_date.id`. This was confirmed by 35 test failures. The original tracked lookups must be kept to ensure EF Core sees the dates as **Unchanged** before graph traversal.
 
-```csharp
-DimDate educationStartDate = await _ttvContext.DimDates
-    .FirstOrDefaultAsync(dd => dd.Year == ... && dd.Month == ... && dd.Day == ...);
-```
-
-These dates are **only read** (assigned to navigation properties), never modified. Adding `.AsNoTracking()` tells EF Core not to snapshot these entities, which reduces both memory pressure and CPU overhead from change detection.
-
-**Change:** Add `.AsNoTracking()` to every `_ttvContext.DimDates.FirstOrDefaultAsync(...)` call in the main import body (there are approximately 10 such calls across the education, employment, funding, and research-activity loops).
-
-**Risk:** None. Navigation properties set on tracked entities work identically with `AsNoTracking` objects when the related entity is just being set as a reference.
+**This item is permanently removed from scope.** The DimDate lookups in the main import body must remain without `AsNoTracking()`.
 
 ---
 
@@ -398,7 +391,7 @@ private void RemoveOrphanedFactFieldValues<TEntity>(
 
 | Phase | Description | DB Queries Saved (est.) | Risk | Effort |
 |-------|-------------|------------------------|------|--------|
-| 1 | Trivial: dead code, single `SaveChanges`, `AsNoTracking`, parallel ref-data | 3 round trips per import | Minimal | 1–2 hours |
+| 1 ✅ | Trivial: dead code, single `SaveChanges`, parallel ref-data (item 1.3 AsNoTracking dropped as unsafe) | 3 round trips per import | Minimal | Done |
 | 2 | Eliminate JSON re-parsing | 0 DB (CPU/memory only) | Low | 2–4 hours |
 | 3 | Batch DimDate lookups in `AddDimDates` | ~2 × N_dates per import | Medium | 4–8 hours |
 | 4 | Pre-load DimDates in main body | ~2 × N_dates per import | Low (needs Ph.2+3) | 2–4 hours |
