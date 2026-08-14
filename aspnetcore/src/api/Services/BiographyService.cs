@@ -436,12 +436,8 @@ namespace api.Services
         {
             if (value is null)
                 return null;
-            return value
-                .Replace("&", "&amp;")
-                .Replace("<", "&lt;")
-                .Replace(">", "&gt;")
-                .Replace("\"", "&quot;")
-                .Replace("'", "&#39;");
+            // Remove <script> tags and their content to prevent XSS attacks.
+            return Regex.Replace(value, @"<script\b[^>]*>.*?</script>", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline);
         }
 
         static string? LanguageFilter(string? en, string? fi, string? sv)

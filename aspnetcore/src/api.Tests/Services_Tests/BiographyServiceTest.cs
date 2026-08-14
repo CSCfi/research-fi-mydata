@@ -200,11 +200,11 @@ namespace api.Tests
                 () => service.CreateOrUpdateBiography(999, biography));
         }
 
-        [Fact(DisplayName = "CreateOrUpdateBiography HTML-encodes malicious input when creating")]
-        public async Task CreateOrUpdateBiography_HtmlEncodesMaliciousInput_OnCreate()
+        [Fact(DisplayName = "CreateOrUpdateBiography removes script tags when creating")]
+        public async Task CreateOrUpdateBiography_RemovesScriptTags_OnCreate()
         {
             // Arrange
-            using var context = CreateInMemoryContext(nameof(CreateOrUpdateBiography_HtmlEncodesMaliciousInput_OnCreate));
+            using var context = CreateInMemoryContext(nameof(CreateOrUpdateBiography_RemovesScriptTags_OnCreate));
             await SeedUserProfileWithDisplaySettingAsync(context);
             var service = CreateService(context);
 
@@ -222,22 +222,22 @@ namespace api.Tests
             Assert.True(result);
             var created = await context.DimResearcherDescriptions.FirstOrDefaultAsync();
             Assert.NotNull(created);
-            Assert.Equal("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;Tutkija", created.ResearchDescriptionFi);
-            Assert.Equal("&lt;b onclick=&quot;evil()&quot;&gt;Researcher&lt;/b&gt;", created.ResearchDescriptionEn);
-            Assert.Equal("Text &amp; &lt;em&gt;markup&lt;/em&gt;", created.ResearchDescriptionSv);
+            Assert.Equal("Tutkija", created.ResearchDescriptionFi);
+            Assert.Equal("<b onclick=\"evil()\">Researcher</b>", created.ResearchDescriptionEn);
+            Assert.Equal("Text & <em>markup</em>", created.ResearchDescriptionSv);
         }
 
-        [Fact(DisplayName = "CreateOrUpdateBiography HTML-encodes malicious input when updating")]
-        public async Task CreateOrUpdateBiography_HtmlEncodesMaliciousInput_OnUpdate()
+        [Fact(DisplayName = "CreateOrUpdateBiography removes script tags when updating")]
+        public async Task CreateOrUpdateBiography_RemovesScriptTags_OnUpdate()
         {
             // Arrange
-            using var context = CreateInMemoryContext(nameof(CreateOrUpdateBiography_HtmlEncodesMaliciousInput_OnUpdate));
+            using var context = CreateInMemoryContext(nameof(CreateOrUpdateBiography_RemovesScriptTags_OnUpdate));
             await SeedExistingBiographyAsync(context);
             var service = CreateService(context);
 
             var biography = new Biography
             {
-                Fi = "<img src=x onerror=alert(1)>",
+                Fi = "before<script>evil()</script>after",
                 En = "Safe text",
                 Sv = null
             };
@@ -249,9 +249,36 @@ namespace api.Tests
             Assert.True(result);
             var updated = await context.DimResearcherDescriptions.FindAsync(1);
             Assert.NotNull(updated);
-            Assert.Equal("&lt;img src=x onerror=alert(1)&gt;", updated.ResearchDescriptionFi);
+            Assert.Equal("beforeafter", updated.ResearchDescriptionFi);
             Assert.Equal("Safe text", updated.ResearchDescriptionEn);
             Assert.Null(updated.ResearchDescriptionSv);
+        }
+
+        [Fact(DisplayName = "CreateOrUpdateBiography removes script tags case-insensitively and with attributes")]
+        public async Task CreateOrUpdateBiography_RemovesScriptTags_CaseInsensitiveAndWithAttributes()
+        {
+            // Arrange
+            using var context = CreateInMemoryContext(nameof(CreateOrUpdateBiography_RemovesScriptTags_CaseInsensitiveAndWithAttributes));
+            await SeedUserProfileWithDisplaySettingAsync(context);
+            var service = CreateService(context);
+
+            var biography = new Biography
+            {
+                Fi = "<SCRIPT>uppercase()</SCRIPT>text",
+                En = "<script type=\"text/javascript\">withAttr()</script>text",
+                Sv = "before<script>\nmultiline\n</script>after"
+            };
+
+            // Act
+            bool result = await service.CreateOrUpdateBiography(UserProfileId, biography);
+
+            // Assert
+            Assert.True(result);
+            var created = await context.DimResearcherDescriptions.FirstOrDefaultAsync();
+            Assert.NotNull(created);
+            Assert.Equal("text", created.ResearchDescriptionFi);
+            Assert.Equal("text", created.ResearchDescriptionEn);
+            Assert.Equal("beforeafter", created.ResearchDescriptionSv);
         }
 
         [Fact(DisplayName = "CreateOrUpdateBiography preserves null fields without encoding")]
