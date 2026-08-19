@@ -5,6 +5,7 @@ namespace api.Services
 {
     public interface IBiographyService
     {
+        string GetSystemPrompt(string targetLanguage);
         Task<string?> GetProfileDataForPromt(string orcidId);
         Task<Biography> GetBiography(int userprofileId);
         Task<bool> CreateOrUpdateBiography(int userprofileId, Biography biography);
