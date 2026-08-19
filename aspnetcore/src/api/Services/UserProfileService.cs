@@ -172,11 +172,22 @@ namespace api.Services
 
         /*
          * Check if data related to FactFieldValue can be removed.
-         * Data from registered data source ORCID can be removed.
+
          */
         public bool CanDeleteFactFieldValueRelatedData(FactFieldValue ffv)
         {
-            return ffv.DimRegisteredDataSourceId == _dataSourceHelperService.DimRegisteredDataSourceId_ORCID;
+            //  Data from registered data source ORCID can be removed.
+            if (ffv.DimRegisteredDataSourceId == _dataSourceHelperService.DimRegisteredDataSourceId_ORCID)
+            {
+                return true;
+            }
+            // User defined researcher description can be removed. They have registered data source TTV.
+            else if (ffv.DimResearcherDescriptionId != -1 && ffv.DimRegisteredDataSourceId == _dataSourceHelperService.DimRegisteredDataSourceId_TTV)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /*
