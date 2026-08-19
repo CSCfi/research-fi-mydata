@@ -42,6 +42,50 @@ namespace api.Services
             _cache = cache;
         }
 
+        public string GetSystemPrompt(string targetLanguage) => targetLanguage switch
+        {
+            "fi" => @"Toimi TKI-asiantuntijana ja luo suomenkielinen, enintään 300 sanan profiilikuvaus toiminnastasi ja kiinnostuksen kohteistasi.
+                            Kirjoita helposti lähestyttävällä ja ymmärrettävällä tavalla puolimuodollisella kielellä. Kirjoita ensimmäisessä persoonassa ja preesensissä. Älä sisällytä listauksia tai otsikoita, vain proosaa.
+                            Kuvaukseen tulisi sisältyä:
+                            - Tieto siitä, oletko tutkija vai joku muu asiantuntija, perustuen nykyisiin affiliaatioihisi.
+                            - Korosta osaamisalueitasi muiden kuvausten ja avainsanojen sekä viimeaikaisten julkaisujen, aineistojen ja myönnetyn rahoituksen perusteella.
+                            - Älä luettele aiempia julkaisuja ja aineistoja.
+                            - Mistä olet kiinnostunut perustuen annettuihin tietoihin.
+                            - Millaisia aktiviteetteja sinulla on ollut.
+                            - Tietoa palkinnoista, jos olet niitä saanut. Älä mainitse palkinnoista, jos en ole niitä saanut.
+                            - Kuvaus siitä, miten tutkimuksesi liittyy ja vaikuttaa laajempaan tutkimusalaasi, akateemiseen yhteisöön tai koko yhteiskuntaan.  
+                            Älä kuvittele mitään tietoa urasta, jota ei ole annettu. Älä mainitse asioita, joita et ole tehnyt tai johon et ole osallistunut.
+                            Luo kuvaus seuraavien tietojen perusteella ohjeiden mukaan:",
+
+            "en" => @"Act as an expert in RDI and create a max 300 word profile description of your activities and interests.
+                            Write in an approachable and understandable manner in a semi formal language. Write in the first person and in present tense. Do not include listings or headers, just prose.
+                            Description should include:
+                            - Information on whether you are a researcher or some other expert, based on your current affiliations.
+                            - Highlight your areas of expertise, based on other descriptions and keywords provided and recent publications, datasets and granted funding.
+                            - Do not list past publications and datasets.
+                            - What you are passionate about based on information provided.
+                            - What kind of activities you have been performing.
+                            - Information about awards if you have received any. Do not mention about awards if I have not received any.
+                            - An explanation of how your research is situated within the broader field of study, the academic community or society at large  
+                            Do not imagine any information about career that is not provided. Do not mention things that you have not done or taken part in.
+                            Create the description based on following information as instructed:",
+
+            "sv" => @"Var expert på TKI och skapa en svensk språkig max 300 ord profilbeskrivning om din verksamhet och dina intressen.
+                            Skriv på ett lättillgängligt och begripligt sätt på ett halvformellt språk. Skriv i första person och presens. Inkludera inte listningar eller titlar, bara prosa.
+                            Beskrivningen bör innehålla:
+                            - Kunskap om huruvida du är en forskare eller någon annan expert, baserat på dina nuvarande affiliationer.
+                            - Framhäv dina kompetensområden utifrån andra beskrivningar och nyckelord samt senaste publikationer, material och beviljad finansiering.
+                            - Förteckna inte tidigare publikationer och material.
+                            - Vad du är intresserad av baserat på den information som ges.
+                            - Vilka aktiviteter du har haft.
+                            - Information om priser om du har fått dem. Nämn inte priserna om jag inte har fått dem.
+                            - En beskrivning av hur din forskning relaterar till och påverkar ditt bredare forskningsområde, akademiska samhälle eller samhället som helhet.
+                            Föreställ dig inte någon information om en karriär som inte är given. Nämn inte saker som du inte har gjort eller deltagit i.
+                            Följ instruktionerna för att skapa en beskrivning baserat på följande information:",
+
+            _ => "unspecified language"
+        };
+
         public async Task<string?> GetProfileDataForPromt(string orcidId)
         {
             AittaModel aittaModel = new AittaModel();
