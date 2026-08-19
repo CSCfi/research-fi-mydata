@@ -43,7 +43,7 @@ namespace api.Tests
             Assert.Contains<int>(Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY, fieldIdentifiers);
         }
 
-        [Fact(DisplayName = "CanDeleteFactFieldValueRelatedData returns true")]
+        [Fact(DisplayName = "CanDeleteFactFieldValueRelatedData returns true when registered data source is ORCID")]
         public void canDeleteFactFieldValueRelatedData_01()
         {
             // Arrange
@@ -60,7 +60,7 @@ namespace api.Tests
             Assert.True(actualCanDeleteFactFieldValueRelatedData);
         }
 
-        [Fact(DisplayName = "CanDeleteFactFieldValueRelatedData returns false")]
+        [Fact(DisplayName = "CanDeleteFactFieldValueRelatedData returns false when registered data source is not ORCID")]
         public void canDeleteFactFieldValueRelatedData_02()
         {
             // Arrange
@@ -70,6 +70,42 @@ namespace api.Tests
             FactFieldValue ffv = new()
             {
                 DimRegisteredDataSourceId = 54321 // Registered data source is different from DimRegisteredDataSourceId_ORCID
+            };
+            // Act
+            bool actualCanDeleteFactFieldValueRelatedData = userProfileService.CanDeleteFactFieldValueRelatedData(ffv);
+            // Assert
+            Assert.False(actualCanDeleteFactFieldValueRelatedData);
+        }
+
+        [Fact(DisplayName = "CanDeleteFactFieldValueRelatedData returns true for researcher description, which has registered data source TTV")]
+        public void canDeleteFactFieldValueRelatedData_03()
+        {
+            // Arrange
+            DataSourceHelperService dataSourceHelperService = new DataSourceHelperService();
+            dataSourceHelperService.DimRegisteredDataSourceId_TTV = 23456;
+            UserProfileService userProfileService = new UserProfileService(dataSourceHelperService:dataSourceHelperService);
+            FactFieldValue ffv = new()
+            {
+                DimResearcherDescriptionId = 1,
+                DimRegisteredDataSourceId = 23456 // Registered data source is the same as DimRegisteredDataSourceId_TTV
+            };
+            // Act
+            bool actualCanDeleteFactFieldValueRelatedData = userProfileService.CanDeleteFactFieldValueRelatedData(ffv);
+            // Assert
+            Assert.True(actualCanDeleteFactFieldValueRelatedData);
+        }
+
+        [Fact(DisplayName = "CanDeleteFactFieldValueRelatedData returns false for researcher description, which has registered data source other than TTV")]
+        public void canDeleteFactFieldValueRelatedData_04()
+        {
+            // Arrange
+            DataSourceHelperService dataSourceHelperService = new DataSourceHelperService();
+            dataSourceHelperService.DimRegisteredDataSourceId_TTV = 34567;
+            UserProfileService userProfileService = new UserProfileService(dataSourceHelperService:dataSourceHelperService);
+            FactFieldValue ffv = new()
+            {
+                DimResearcherDescriptionId = 1,
+                DimRegisteredDataSourceId = 23456 // Registered data source is different from DimRegisteredDataSourceId_TTV
             };
             // Act
             bool actualCanDeleteFactFieldValueRelatedData = userProfileService.CanDeleteFactFieldValueRelatedData(ffv);
