@@ -1,5 +1,7 @@
 # Upgrade Plan: net8.0 → net10.0
 
+> **Completed August 2026.** The migration from .NET 8 to .NET 10 was successfully completed. All 305 tests pass and the solution builds without errors.
+
 ## Prerequisites
 
 Install the .NET 10 SDK (currently only `8.0.415` is installed):
@@ -137,14 +139,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
   with:
     dotnet-version: 10.0.x        # was 8.0.x
 ```
-
----
-
-## Step 5 — Optional: modernize hosting model
-
-`Startup.cs` uses the pre-.NET 6 hosting pattern. Migrating to `WebApplication.CreateBuilder` in `Program.cs` is not required for net10.0 to compile, but is the current standard and simplifies the codebase.
-
-This is a non-trivial refactor and should be done in a separate PR after the framework upgrade is stable.
 
 ---
 

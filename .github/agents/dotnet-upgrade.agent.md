@@ -72,7 +72,7 @@ Use these prompts for targeted analysis of specific upgrade aspects.
 1. Run a discovery pass to enumerate all `*.sln` and `*.csproj` files in the repository.
 2. Detect the current .NET version(s) used across projects.
 3. Identify the latest available stable .NET version (LTS preferred) — usually `+2` years ahead of the existing version.
-4. Generate an upgrade plan to move from current → next stable version (e.g., `net6.0 → net8.0`, or `net7.0 → net9.0`).
+4. Generate an upgrade plan to move from current → next stable version (e.g., `net8.0 → net10.0`, or `net10.0 → net12.0`).
 5. Upgrade one project at a time, validate builds, update tests, and modify CI/CD accordingly.
 
 ---
