@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Mydatalogging;
@@ -38,13 +39,13 @@ public class BasicAuthenticatedHttpClient : IHttpClient
         }
     }
 
-    public async Task<HttpResponseMessage> PostAsync(string requestUri, Stream contentStream)
+    public async Task<HttpResponseMessage> PostAsync(string requestUri, Stream contentStream, CancellationToken cancellationToken)
     {
         using var content = new StreamContent(contentStream);
         content.Headers.Add("Content-Type", "application/json");
 
         var response = await httpClient
-          .PostAsync(requestUri, content)
+          .PostAsync(requestUri, content, cancellationToken)
           .ConfigureAwait(false);
 
         return response;

@@ -9,9 +9,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.OpenApi.Models;
-using System.Reflection;
-using System.IO;
 using System;
 using IdentityModel.Client;
 using Microsoft.Net.Http.Headers;
@@ -65,41 +62,10 @@ namespace api
 
             services.AddControllers();
 
-            // Swagger documentation
+            // OpenAPI documentation
             if (Environment.IsDevelopment())
             {
-                services.AddSwaggerGen(options =>
-                {
-                    options.SwaggerDoc("v1", new OpenApiInfo
-                    {
-                        Title = "Mydata API",
-                        Description = "An API for Mydata frontend.",
-                        Version = "v1"
-                    });
-                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                    {
-                        In = ParameterLocation.Header,
-                        Description = "Please insert JWT with Bearer into field",
-                        Name = "Authorization",
-                        Type = SecuritySchemeType.ApiKey
-                    });
-                    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] { }
-                    }
-                    });
-
-                    string xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-                });
+                services.AddOpenApi();
             }
 
             services.AddAuthentication("Bearer")
@@ -348,8 +314,6 @@ namespace api
             {
                 app.UseDeveloperExceptionPage();
                 //IdentityModelEventSource.ShowPII = true;
-                app.UseSwagger();
-                app.UseSwaggerUI();
                 app.UseCors("development");
             }
 
@@ -367,6 +331,10 @@ namespace api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                if (Environment.IsDevelopment())
+                {
+                    endpoints.MapOpenApi();
+                }
             });
         }
 
