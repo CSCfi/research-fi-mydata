@@ -237,14 +237,26 @@ namespace api
              */
             services.AddSingleton<ChatClient>(sp =>
             {
+                var clientOptions = new OpenAIClientOptions()
+                {
+                    Endpoint = new Uri(Configuration["OpenAIOptions:BaseUrl"]),
+                    RetryPolicy = new System.ClientModel.Primitives.ClientRetryPolicy(maxRetries: 0)
+                };
+
+                // Optionally allow self-signed certificates
+                if (Configuration.GetValue<bool>("OpenAIOptions:AllowSelfSignedCertificate"))
+                {
+                    var handler = new System.Net.Http.HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = System.Net.Http.HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };
+                    clientOptions.Transport = new System.ClientModel.Primitives.HttpClientPipelineTransport(new System.Net.Http.HttpClient(handler));
+                }
+
                 return new ChatClient(
                     model: Configuration["OpenAIOptions:Model"],
                     credential: new ApiKeyCredential(Configuration["OpenAIOptions:ApiKey"]),
-                    options: new OpenAIClientOptions()
-                    {
-                        Endpoint = new Uri(Configuration["OpenAIOptions:BaseUrl"]),
-                        RetryPolicy = new System.ClientModel.Primitives.ClientRetryPolicy(maxRetries: 0)
-                    }
+                    options: clientOptions
                 );
             });
 
