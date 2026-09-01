@@ -1,7 +1,7 @@
 # Plan: Use ORCID `last-modified-date` / `created-date` for `FactFieldValue.Modified` / `Created` — Keywords (Phase 1)
 
 **Date:** 2026-09-01
-**Status:** `Modified` field — Implemented; `Created` field — Pending
+**Status:** Implemented
 
 ## Summary
 
@@ -48,7 +48,7 @@ Phase 1 scope: ORCID keywords only.
 
 ---
 
-## Task 1 — Extend `OrcidKeyword` model *(Modified: done; Created: pending)*
+## Task 1 — Extend `OrcidKeyword` model *(Implemented)*
 
 **File:** `aspnetcore/src/api/Models/Orcid/OrcidKeyword.cs`
 
@@ -79,7 +79,7 @@ required.
 
 ---
 
-## Task 2 — Add internal helper and parse timestamps in `OrcidJsonParserService` *(Modified: done; Created: pending)*
+## Task 2 — Add internal helper and parse timestamps in `OrcidJsonParserService` *(Implemented)*
 
 **File:** `aspnetcore/src/api/Services/OrcidJsonParserService.cs`
 
@@ -123,7 +123,7 @@ keywords.Add(new OrcidKeyword(
 
 ---
 
-## Task 3 — Use timestamps in `OrcidImportService` *(Modified: done; Created: pending)*
+## Task 3 — Use timestamps in `OrcidImportService` *(Implemented)*
 
 **File:** `aspnetcore/src/api/Services/OrcidImportService.cs`
 
@@ -163,7 +163,7 @@ factFieldValuesKeyword.Created  = keywordCreated;  // add this line
 
 ---
 
-## Task 4 — Update fixture JSON files *(last-modified-date: done; created-date: pending)*
+## Task 4 — Update fixture JSON files *(Implemented)*
 
 Use readable round-number Unix millisecond timestamps.
 
@@ -183,7 +183,7 @@ creation timestamps do not change on update — only `last-modified-date` advanc
 
 ---
 
-## Task 5 — Update `OrcidJsonParserServiceTest` *(LastModifiedDate: done; CreatedDate: pending)*
+## Task 5 — Update `OrcidJsonParserServiceTest` *(Implemented)*
 
 **File:** `aspnetcore/src/api.Tests/Services_Tests/OrcidJsonParserServiceTest.cs`
 
@@ -200,7 +200,7 @@ Sandbox record timestamps for reference:
 | 4603 | `1477423527037` | `1477423515476` |
 | 4604 | `1477423527039` | `1477423527039` |
 
-### 5b — New test `TestGetKeywords_NullLastModifiedDate()` *(done)*
+### 5b — New test `TestGetKeywords_NullLastModifiedDate()`
 
 Verifies `LastModifiedDate == null` when the field is absent/null.
 
@@ -212,23 +212,23 @@ Same pattern as 5b but for `CreatedDate`.
 
 ---
 
-## Task 6 — Update `OrcidImportServiceTest` *(Modified assertions: done; Created assertions: pending)*
+## Task 6 — Update `OrcidImportServiceTest` *(Implemented)*
 
 **File:** `aspnetcore/src/api.Tests/Services_Tests/OrcidImportServiceTest.cs`
 
-### 6a — `Keywords_FactFieldValue_Modified_UsesOrcidTimestamp` *(done)*
+### 6a — `Keywords_FactFieldValue_Modified_UsesOrcidTimestamp`
 
 Asserts `FactFieldValue.Modified` equals the ORCID `last-modified-date` on initial import.
 
-### 6b — `Keywords_Updated_WhenChangedInOrcid` *(Modified assertions done)*
+### 6b — `Keywords_Updated_WhenChangedInOrcid`
 
 Asserts `FactFieldValue.Modified` equals the updated ORCID `last-modified-date` after re-import.
 
-### 6c — `Keywords_FactFieldValue_Modified_FallsBackToCurrentDateTime` *(done)*
+### 6c — `Keywords_FactFieldValue_Modified_FallsBackToCurrentDateTime`
 
 Asserts fallback to `currentDateTime` when `last-modified-date` is null.
 
-### 6d — `Keywords_FactFieldValue_Created_UsesOrcidTimestamp` *(pending)*
+### 6d — `Keywords_FactFieldValue_Created_UsesOrcidTimestamp`
 
 After a single import of `keywords.json`, assert:
 
@@ -241,7 +241,7 @@ Assert.Equal(
     ffvs[1].Created);
 ```
 
-### 6e — `Keywords_FactFieldValue_Created_FallsBackToCurrentDateTime` *(pending)*
+### 6e — `Keywords_FactFieldValue_Created_FallsBackToCurrentDateTime`
 
 Same pattern as 6c but for `FactFieldValue.Created`, using `keywords_null_timestamp.json`.
 
@@ -252,11 +252,10 @@ Same pattern as 6c but for `FactFieldValue.Created`, using `keywords_null_timest
 ## Implementation order
 
 ```
-Task 1 (CreatedDate) → Task 2 (generalize helper + created-date) → Task 4 (fixture created-date) → Task 5 (CreatedDate assertions) → Task 3 (Created DB fields) → Task 6 (Created tests)
+All tasks complete.
 ```
 
-Tasks 1 and 2 can be done in parallel. All `Modified`-related tasks (1–6 for Modified) are
-already complete.
+Tasks 1 and 2 can be done in parallel. All tasks are complete.
 
 ---
 
