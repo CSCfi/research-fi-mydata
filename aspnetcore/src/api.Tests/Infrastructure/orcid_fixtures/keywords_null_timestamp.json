@@ -71,9 +71,7 @@
           "created-date": {
             "value": 1000000000000
           },
-          "last-modified-date": {
-            "value": 1700000000000
-          }
+          "last-modified-date": null
         },
         {
           "content": "data science",
@@ -98,9 +96,7 @@
           "created-date": {
             "value": 1000000000000
           },
-          "last-modified-date": {
-            "value": 1710000000000
-          }
+          "last-modified-date": null
         }
       ],
       "path": "/0000-0001-0001-0001/keywords"
@@ -114,61 +110,17 @@
   },
   "activities-summary": {
     "last-modified-date": null,
-    "distinctions": {
-      "last-modified-date": null,
-      "affiliation-group": [],
-      "path": "/0000-0001-0001-0001/distinctions"
-    },
-    "educations": {
-      "last-modified-date": null,
-      "affiliation-group": [],
-      "path": "/0000-0001-0001-0001/educations"
-    },
-    "employments": {
-      "last-modified-date": null,
-      "affiliation-group": [],
-      "path": "/0000-0001-0001-0001/employments"
-    },
-    "fundings": {
-      "last-modified-date": null,
-      "group": [],
-      "path": "/0000-0001-0001-0001/fundings"
-    },
-    "invited-positions": {
-      "last-modified-date": null,
-      "affiliation-group": [],
-      "path": "/0000-0001-0001-0001/invited-positions"
-    },
-    "memberships": {
-      "last-modified-date": null,
-      "affiliation-group": [],
-      "path": "/0000-0001-0001-0001/memberships"
-    },
-    "peer-reviews": {
-      "last-modified-date": null,
-      "group": [],
-      "path": "/0000-0001-0001-0001/peer-reviews"
-    },
-    "qualifications": {
-      "last-modified-date": null,
-      "affiliation-group": [],
-      "path": "/0000-0001-0001-0001/qualifications"
-    },
-    "research-resources": {
-      "last-modified-date": null,
-      "group": [],
-      "path": "/0000-0001-0001-0001/research-resources"
-    },
-    "services": {
-      "last-modified-date": null,
-      "affiliation-group": [],
-      "path": "/0000-0001-0001-0001/services"
-    },
-    "works": {
-      "last-modified-date": null,
-      "group": [],
-      "path": "/0000-0001-0001-0001/works"
-    },
+    "distinctions": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/distinctions" },
+    "educations": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/educations" },
+    "employments": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/employments" },
+    "fundings": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/fundings" },
+    "invited-positions": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/invited-positions" },
+    "memberships": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/memberships" },
+    "peer-reviews": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/peer-reviews" },
+    "qualifications": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/qualifications" },
+    "research-resources": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/research-resources" },
+    "services": { "last-modified-date": null, "affiliation-group": [], "path": "/0000-0001-0001-0001/services" },
+    "works": { "last-modified-date": null, "group": [], "path": "/0000-0001-0001-0001/works" },
     "path": "/0000-0001-0001-0001/activities"
   },
   "path": "/0000-0001-0001-0001"

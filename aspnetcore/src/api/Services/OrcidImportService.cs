@@ -831,14 +831,15 @@ namespace api.Services
                         ffv.DimPidIdOrcidPutCode > 0 &&
                         ffv.DimPidIdOrcidPutCodeNavigation.PidContent == keyword.PutCode.Value.ToString());
 
+                DateTime keywordModified = keyword.LastModifiedDate ?? currentDateTime;
                 if (factFieldValuesKeyword != null)
                 {
                     // Update existing DimKeyword
                     DimKeyword dimKeyword = factFieldValuesKeyword.DimKeyword;
                     dimKeyword.Keyword = keyword.Value;
-                    dimKeyword.Modified = currentDateTime;
+                    dimKeyword.Modified = keywordModified;
                     // Update existing FactFieldValue
-                    factFieldValuesKeyword.Modified = currentDateTime;
+                    factFieldValuesKeyword.Modified = keywordModified;
                     // Mark as processed
                     orcidImportHelper.dimKeywordIds.Add(factFieldValuesKeyword.DimKeywordId);
                 }
@@ -852,7 +853,7 @@ namespace api.Services
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         Created = currentDateTime,
-                        Modified = currentDateTime
+                        Modified = keywordModified
                     };
                     _ttvContext.DimKeywords.Add(dimKeyword);
 
@@ -871,6 +872,7 @@ namespace api.Services
                     factFieldValuesKeyword.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesKeyword.DimKeyword = dimKeyword;
                     factFieldValuesKeyword.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeKeyword;
+                    factFieldValuesKeyword.Modified = keywordModified;
                     factFieldValuesKeyword.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_KEYWORD, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
                 }

@@ -297,6 +297,35 @@ namespace api.Tests
             Assert.Equal(expectedKeywords[0].PutCode.Value, actualKeywords[0].PutCode.Value);
             Assert.Equal(expectedKeywords[1].PutCode.Value, actualKeywords[1].PutCode.Value);
             Assert.Equal(expectedKeywords[2].PutCode.Value, actualKeywords[2].PutCode.Value);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1477423527029).UtcDateTime, actualKeywords[0].LastModifiedDate);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1477423527037).UtcDateTime, actualKeywords[1].LastModifiedDate);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1477423527039).UtcDateTime, actualKeywords[2].LastModifiedDate);
+        }
+
+        [Fact(DisplayName = "Get keywords: null last-modified-date yields null LastModifiedDate")]
+        public void TestGetKeywords_NullLastModifiedDate()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string json = """
+                {
+                  "person": {
+                    "keywords": {
+                      "keyword": [
+                        {
+                          "content": "test",
+                          "put-code": 1,
+                          "last-modified-date": null
+                        }
+                      ]
+                    }
+                  }
+                }
+                """;
+
+            List<OrcidKeyword> keywords = orcidJsonParserService.GetKeywords(json);
+
+            Assert.Single(keywords);
+            Assert.Null(keywords[0].LastModifiedDate);
         }
 
         [Fact(DisplayName = "Get external identifiers")]

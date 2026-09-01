@@ -585,6 +585,45 @@ namespace api.Tests
             Assert.Equal(countAfterFirst, countAfterSecond);
         }
 
+        [Fact(DisplayName = "Keywords: FactFieldValue.Modified uses ORCID last-modified-date timestamp")]
+        public async Task Keywords_FactFieldValue_Modified_UsesOrcidTimestamp()
+        {
+            string dbName = nameof(Keywords_FactFieldValue_Modified_UsesOrcidTimestamp);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords.json"), LogId);
+
+            var ffvs = context.FactFieldValues
+                .Where(f => f.DimKeywordId > 0)
+                .OrderBy(f => f.DimKeywordId)
+                .ToList();
+
+            Assert.Equal(2, ffvs.Count);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1700000000000).UtcDateTime, ffvs[0].Modified);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1710000000000).UtcDateTime, ffvs[1].Modified);
+        }
+
+        [Fact(DisplayName = "Keywords: FactFieldValue.Modified falls back to currentDateTime when ORCID timestamp is null")]
+        public async Task Keywords_FactFieldValue_Modified_FallsBackToCurrentDateTime()
+        {
+            string dbName = nameof(Keywords_FactFieldValue_Modified_FallsBackToCurrentDateTime);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords_null_timestamp.json"), LogId);
+
+            var modified = context.FactFieldValues
+                .Where(f => f.DimKeywordId > 0)
+                .Select(f => f.Modified)
+                .First();
+
+            Assert.NotNull(modified);
+            Assert.True((DateTime.UtcNow - modified.Value).TotalSeconds < 5);
+        }
+
         // -------------------------------------------------------------------------
         // Section: person / external-identifiers  (1 entry)
         // -------------------------------------------------------------------------
@@ -835,6 +874,13 @@ namespace api.Tests
             Assert.Contains("statistics", keywords);
             Assert.DoesNotContain("machine learning", keywords);
             Assert.DoesNotContain("data science", keywords);
+
+            var ffvs = context.FactFieldValues
+                .Where(f => f.DimKeywordId > 0)
+                .OrderBy(f => f.DimKeywordId)
+                .ToList();
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1720000000000).UtcDateTime, ffvs[0].Modified);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1730000000000).UtcDateTime, ffvs[1].Modified);
         }
 
         [Fact(DisplayName = "External identifier: updated when changed in ORCID")]
