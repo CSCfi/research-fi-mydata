@@ -831,14 +831,18 @@ namespace api.Services
                         ffv.DimPidIdOrcidPutCode > 0 &&
                         ffv.DimPidIdOrcidPutCodeNavigation.PidContent == keyword.PutCode.Value.ToString());
 
+                DateTime keywordModified = keyword.LastModifiedDate ?? currentDateTime;
+                DateTime keywordCreated  = keyword.CreatedDate      ?? currentDateTime;
                 if (factFieldValuesKeyword != null)
                 {
                     // Update existing DimKeyword
                     DimKeyword dimKeyword = factFieldValuesKeyword.DimKeyword;
                     dimKeyword.Keyword = keyword.Value;
-                    dimKeyword.Modified = currentDateTime;
+                    dimKeyword.Modified = keywordModified;
+                    dimKeyword.Created = keywordCreated;
                     // Update existing FactFieldValue
-                    factFieldValuesKeyword.Modified = currentDateTime;
+                    factFieldValuesKeyword.Modified = keywordModified;
+                    factFieldValuesKeyword.Created = keywordCreated;
                     // Mark as processed
                     orcidImportHelper.dimKeywordIds.Add(factFieldValuesKeyword.DimKeywordId);
                 }
@@ -851,8 +855,8 @@ namespace api.Services
                         SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = currentDateTime,
-                        Modified = currentDateTime
+                        Created = keywordCreated,
+                        Modified = keywordModified
                     };
                     _ttvContext.DimKeywords.Add(dimKeyword);
 
@@ -871,6 +875,8 @@ namespace api.Services
                     factFieldValuesKeyword.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesKeyword.DimKeyword = dimKeyword;
                     factFieldValuesKeyword.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeKeyword;
+                    factFieldValuesKeyword.Modified = keywordModified;
+                    factFieldValuesKeyword.Created = keywordCreated;
                     factFieldValuesKeyword.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_KEYWORD, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
                 }

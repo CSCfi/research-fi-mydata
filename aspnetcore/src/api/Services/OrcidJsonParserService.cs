@@ -428,6 +428,20 @@ namespace api.Services
             return emails;
         }
 
+        // Returns null when the field is absent or null; converts milliseconds to UTC DateTime.
+        internal static DateTime? GetOrcidDateTime(JsonElement element, string propertyName)
+        {
+            if (!element.TryGetProperty(propertyName, out JsonElement dateElement) ||
+                dateElement.ValueKind == JsonValueKind.Null)
+                return null;
+
+            if (!dateElement.TryGetProperty("value", out JsonElement valueElement) ||
+                valueElement.ValueKind == JsonValueKind.Null)
+                return null;
+
+            return DateTimeOffset.FromUnixTimeMilliseconds(valueElement.GetInt64()).UtcDateTime;
+        }
+
         /*
          * Keywords
          */
@@ -441,7 +455,9 @@ namespace api.Services
                     keywords.Add(
                         new OrcidKeyword(
                             value: element.GetProperty("content").GetString(),
-                            putCode: this.GetOrcidPutCode(element)
+                            putCode: this.GetOrcidPutCode(element),
+                            lastModifiedDate: GetOrcidDateTime(element, "last-modified-date"),
+                            createdDate: GetOrcidDateTime(element, "created-date")
                         )
                     );
                 }
