@@ -429,13 +429,13 @@ namespace api.Services
         }
 
         // Returns null when the field is absent or null; converts milliseconds to UTC DateTime.
-        internal static DateTime? GetLastModifiedDateTime(JsonElement element)
+        internal static DateTime? GetOrcidDateTime(JsonElement element, string propertyName)
         {
-            if (!element.TryGetProperty("last-modified-date", out JsonElement lmdElement) ||
-                lmdElement.ValueKind == JsonValueKind.Null)
+            if (!element.TryGetProperty(propertyName, out JsonElement dateElement) ||
+                dateElement.ValueKind == JsonValueKind.Null)
                 return null;
 
-            if (!lmdElement.TryGetProperty("value", out JsonElement valueElement) ||
+            if (!dateElement.TryGetProperty("value", out JsonElement valueElement) ||
                 valueElement.ValueKind == JsonValueKind.Null)
                 return null;
 
@@ -456,7 +456,8 @@ namespace api.Services
                         new OrcidKeyword(
                             value: element.GetProperty("content").GetString(),
                             putCode: this.GetOrcidPutCode(element),
-                            lastModifiedDate: GetLastModifiedDateTime(element)
+                            lastModifiedDate: GetOrcidDateTime(element, "last-modified-date"),
+                            createdDate: GetOrcidDateTime(element, "created-date")
                         )
                     );
                 }

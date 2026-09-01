@@ -68,9 +68,7 @@
             "assertion-origin-client-id": null,
             "assertion-origin-name": null
           },
-          "created-date": {
-            "value": 1000000000000
-          },
+          "created-date": null,
           "last-modified-date": null
         },
         {
@@ -93,9 +91,7 @@
             "assertion-origin-client-id": null,
             "assertion-origin-name": null
           },
-          "created-date": {
-            "value": 1000000000000
-          },
+          "created-date": null,
           "last-modified-date": null
         }
       ],

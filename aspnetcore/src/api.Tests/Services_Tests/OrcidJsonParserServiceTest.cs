@@ -300,6 +300,9 @@ namespace api.Tests
             Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1477423527029).UtcDateTime, actualKeywords[0].LastModifiedDate);
             Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1477423527037).UtcDateTime, actualKeywords[1].LastModifiedDate);
             Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1477423527039).UtcDateTime, actualKeywords[2].LastModifiedDate);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1461170250189).UtcDateTime, actualKeywords[0].CreatedDate);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1477423515476).UtcDateTime, actualKeywords[1].CreatedDate);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1477423527039).UtcDateTime, actualKeywords[2].CreatedDate);
         }
 
         [Fact(DisplayName = "Get keywords: null last-modified-date yields null LastModifiedDate")]
@@ -326,6 +329,32 @@ namespace api.Tests
 
             Assert.Single(keywords);
             Assert.Null(keywords[0].LastModifiedDate);
+        }
+
+        [Fact(DisplayName = "Get keywords: null created-date yields null CreatedDate")]
+        public void TestGetKeywords_NullCreatedDate()
+        {
+            OrcidJsonParserService orcidJsonParserService = new OrcidJsonParserService();
+            string json = """
+                {
+                  "person": {
+                    "keywords": {
+                      "keyword": [
+                        {
+                          "content": "test",
+                          "put-code": 1,
+                          "created-date": null
+                        }
+                      ]
+                    }
+                  }
+                }
+                """;
+
+            List<OrcidKeyword> keywords = orcidJsonParserService.GetKeywords(json);
+
+            Assert.Single(keywords);
+            Assert.Null(keywords[0].CreatedDate);
         }
 
         [Fact(DisplayName = "Get external identifiers")]

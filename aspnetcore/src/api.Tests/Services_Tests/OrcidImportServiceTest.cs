@@ -624,6 +624,45 @@ namespace api.Tests
             Assert.True((DateTime.UtcNow - modified.Value).TotalSeconds < 5);
         }
 
+        [Fact(DisplayName = "Keywords: FactFieldValue.Created uses ORCID created-date timestamp")]
+        public async Task Keywords_FactFieldValue_Created_UsesOrcidTimestamp()
+        {
+            string dbName = nameof(Keywords_FactFieldValue_Created_UsesOrcidTimestamp);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords.json"), LogId);
+
+            var ffvs = context.FactFieldValues
+                .Where(f => f.DimKeywordId > 0)
+                .OrderBy(f => f.DimKeywordId)
+                .ToList();
+
+            Assert.Equal(2, ffvs.Count);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1690000000000).UtcDateTime, ffvs[0].Created);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1691000000000).UtcDateTime, ffvs[1].Created);
+        }
+
+        [Fact(DisplayName = "Keywords: FactFieldValue.Created falls back to currentDateTime when ORCID timestamp is null")]
+        public async Task Keywords_FactFieldValue_Created_FallsBackToCurrentDateTime()
+        {
+            string dbName = nameof(Keywords_FactFieldValue_Created_FallsBackToCurrentDateTime);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords_null_timestamp.json"), LogId);
+
+            var created = context.FactFieldValues
+                .Where(f => f.DimKeywordId > 0)
+                .Select(f => f.Created)
+                .First();
+
+            Assert.NotNull(created);
+            Assert.True((DateTime.UtcNow - created.Value).TotalSeconds < 5);
+        }
+
         // -------------------------------------------------------------------------
         // Section: person / external-identifiers  (1 entry)
         // -------------------------------------------------------------------------
