@@ -120,10 +120,12 @@ namespace api.Services.Profiledata
                     TypeOfFundingNameEn = ffv.DimFundingDecision.DimTypeOfFunding.NameEn,
                     TypeOfFundingNameSv = ffv.DimFundingDecision.DimTypeOfFunding.NameSv,
                 }).AsNoTracking().ToListAsync();
+            long fundingDecisionQueryMs = stopwatch.ElapsedMilliseconds;
 
             /*
              * DimProfileOnlyFundingDecision => DTO
              */
+            stopwatch.Restart();
             List<FundingDecisionDto> profileOnlyFundingDecisionsDtos = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimProfileOnlyFundingDecisionId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION
@@ -167,12 +169,14 @@ namespace api.Services.Profiledata
                     FactFieldValues_DimIdentifierlessData_ValueEn = ffv.DimIdentifierlessDataId > 0 ? ffv.DimIdentifierlessData.ValueEn : string.Empty,
                     FactFieldValues_DimIdentifierlessData_ValueSv = ffv.DimIdentifierlessDataId > 0 ? ffv.DimIdentifierlessData.ValueSv : string.Empty
                 }).AsNoTracking().ToListAsync();
+            long profileOnlyFundingDecisionQueryMs = stopwatch.ElapsedMilliseconds;
 
             List<ProfileEditorFundingDecision> fundingDecisions = new(); 
 
             /*
              * Process DimFundingDecision DTOs
              */
+            stopwatch.Restart();
             foreach (FundingDecisionDto fundingDecisionDto in fundingDecisionsDtos)
             {
                 // Name translation: funding decision name
@@ -257,10 +261,12 @@ namespace api.Services.Profiledata
                 };
                 fundingDecisions.Add(fdFromFundingDecisionDto);
             }
+            long processFundingDecisionDtosMs = stopwatch.ElapsedMilliseconds;
 
             /*
              * Process DimProfileOnlyFundingDecision DTOs
              */
+            stopwatch.Restart();
             foreach (FundingDecisionDto profileOnlyFundingDecisionDto in profileOnlyFundingDecisionsDtos)
             {
                 // Name translation: funding decision name
@@ -355,11 +361,14 @@ namespace api.Services.Profiledata
                 };
                 fundingDecisions.Add(fdFromProfileOnlyFundingDecisionDto);
             }
+            long processProfileOnlyFundingDecisionDtosMs = stopwatch.ElapsedMilliseconds;
 
-            stopwatch.Stop();
-            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            long totalMs = fundingDecisionQueryMs + profileOnlyFundingDecisionQueryMs + processFundingDecisionDtosMs + processProfileOnlyFundingDecisionDtosMs;
+            if (totalMs > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
             {
-                _logger.LogWarning($"GetProfileEditorFundingDecisions is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {fundingDecisions.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+                _logger.LogWarning($"GetProfileEditorFundingDecisions is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {fundingDecisions.Count} items in {totalMs}ms " +
+                    $"(fundingDecisionQuery={fundingDecisionQueryMs}ms, profileOnlyFundingDecisionQuery={profileOnlyFundingDecisionQueryMs}ms, " +
+                    $"processFundingDecisionDtos={processFundingDecisionDtosMs}ms, processProfileOnlyFundingDecisionDtos={processProfileOnlyFundingDecisionDtosMs}ms).");
             }
 
             return fundingDecisions;
