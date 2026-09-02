@@ -51,15 +51,22 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> QueryAiModel(string targetLanguage)
         {
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            string orcidId = logUserIdentification.Orcid;
+
+            // Check that userprofile exists.
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
+            if (!userprofileExists)
+            {
+                return BadRequest("User profile not found.");
+            }
+
             // Validate request data
             if (!string.IsNullOrEmpty(targetLanguage) && targetLanguage != "fi" && targetLanguage != "en" && targetLanguage != "sv")
             {
                 ModelState.AddModelError(nameof(targetLanguage), "Target language must be one of: fi, en, sv");
                 return BadRequest(ModelState);
             }
-
-            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
-            string orcidId = logUserIdentification.Orcid;
 
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
@@ -101,7 +108,7 @@ namespace api.Controllers
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_GET_PROFILEDATA,
                         state: LogContent.ActionState.FAILED,
                         message: ex.Message));
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
 
@@ -183,7 +190,7 @@ namespace api.Controllers
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.FAILED,
                         message: "AI request was canceled by the client"));
-                return StatusCode(499);
+                return StatusCode(StatusCodes.Status499ClientClosedRequest);
             }
             catch (OperationCanceledException ex)
             {
@@ -263,7 +270,7 @@ namespace api.Controllers
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GET,
                         state: LogContent.ActionState.FAILED,
                         message: ex.Message));
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -323,7 +330,7 @@ namespace api.Controllers
                         action: LogContent.Action.PROFILE_BIOGRAPHY_SET,
                         state: LogContent.ActionState.FAILED,
                         message: ex.Message));
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             return NoContent();
@@ -379,7 +386,7 @@ namespace api.Controllers
                         action: LogContent.Action.PROFILE_BIOGRAPHY_DELETE,
                         state: LogContent.ActionState.FAILED,
                         message: ex.Message));
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             return NoContent();
@@ -455,7 +462,7 @@ namespace api.Controllers
                         action: LogContent.Action.AI_TRANSLATE_TEXT,
                         state: LogContent.ActionState.FAILED,
                         message: ex.Message));
-                return StatusCode(500);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
     }
