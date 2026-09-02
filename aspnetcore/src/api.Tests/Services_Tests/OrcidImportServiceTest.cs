@@ -663,6 +663,47 @@ namespace api.Tests
             Assert.True((DateTime.UtcNow - created.Value).TotalSeconds < 5);
         }
 
+        [Fact(DisplayName = "Keywords: DimKeyword.Created and Modified are set to currentDateTime on insert, not ORCID timestamps")]
+        public async Task Keywords_DimKeyword_Created_SetToCurrentDateTime_OnInsert()
+        {
+            string dbName = nameof(Keywords_DimKeyword_Created_SetToCurrentDateTime_OnInsert);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords.json"), LogId);
+
+            var dimKeywords = context.DimKeywords.Where(k => k.Id > 0).ToList();
+            Assert.Equal(2, dimKeywords.Count);
+            Assert.All(dimKeywords, k => Assert.True((DateTime.UtcNow - k.Created.Value).TotalSeconds < 5));
+            Assert.All(dimKeywords, k => Assert.True((DateTime.UtcNow - k.Modified.Value).TotalSeconds < 5));
+        }
+
+        [Fact(DisplayName = "Keywords: DimKeyword.Created is not overwritten on update, DimKeyword.Modified is set to currentDateTime")]
+        public async Task Keywords_DimKeyword_Created_NotOverwritten_OnUpdate()
+        {
+            string dbName = nameof(Keywords_DimKeyword_Created_NotOverwritten_OnUpdate);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords.json"), LogId);
+            var createdAfterFirst = context.DimKeywords
+                .Where(k => k.Id > 0)
+                .OrderBy(k => k.Id)
+                .Select(k => k.Created)
+                .ToList();
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("keywords_updated.json"), LogId);
+            var dimKeywordsAfterUpdate = context.DimKeywords
+                .Where(k => k.Id > 0)
+                .OrderBy(k => k.Id)
+                .ToList();
+
+            Assert.Equal(createdAfterFirst, dimKeywordsAfterUpdate.Select(k => k.Created));
+            Assert.All(dimKeywordsAfterUpdate, k => Assert.True((DateTime.UtcNow - k.Modified.Value).TotalSeconds < 5));
+        }
+
         // -------------------------------------------------------------------------
         // Section: person / external-identifiers  (1 entry)
         // -------------------------------------------------------------------------

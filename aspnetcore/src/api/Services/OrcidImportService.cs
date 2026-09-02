@@ -838,8 +838,7 @@ namespace api.Services
                     // Update existing DimKeyword
                     DimKeyword dimKeyword = factFieldValuesKeyword.DimKeyword;
                     dimKeyword.Keyword = keyword.Value;
-                    dimKeyword.Modified = keywordModified;
-                    dimKeyword.Created = keywordCreated;
+                    dimKeyword.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     factFieldValuesKeyword.Modified = keywordModified;
                     factFieldValuesKeyword.Created = keywordCreated;
@@ -855,8 +854,8 @@ namespace api.Services
                         SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
-                        Created = keywordCreated,
-                        Modified = keywordModified
+                        Created = currentDateTime,
+                        Modified = currentDateTime
                     };
                     _ttvContext.DimKeywords.Add(dimKeyword);
 
