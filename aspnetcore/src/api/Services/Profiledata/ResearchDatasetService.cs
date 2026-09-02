@@ -107,10 +107,12 @@ namespace api.Services.Profiledata
                     }).ToList()
 
                 }).AsNoTracking().ToListAsync();
+            long researchDatasetQueryMs = stopwatch.ElapsedMilliseconds;
 
             /*
              * DimProfileOnlyDataset => DTO
              */
+            stopwatch.Restart();
             List<ResearchDatasetDto> profileOnlyResearchDatasetDtos = await _ttvContext.FactFieldValues.Where(ffv => ffv.DimUserProfileId == userprofileId
                 && ffv.DimProfileOnlyDatasetId > 0
                 && ffv.DimFieldDisplaySettings.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET
@@ -137,6 +139,7 @@ namespace api.Services.Profiledata
                     NameSv = ffv.DimProfileOnlyDataset.NameSv,
                     Url = ffv.DimProfileOnlyDataset.DimWebLinks.Count > 0 ? ffv.DimProfileOnlyDataset.DimWebLinks.FirstOrDefault().Url : string.Empty,
                 }).AsNoTracking().ToListAsync();
+            long profileOnlyResearchDatasetQueryMs = stopwatch.ElapsedMilliseconds;
 
 
             List<ProfileEditorResearchDataset> researchDatasets = new(); 
@@ -144,6 +147,7 @@ namespace api.Services.Profiledata
             /*
              * Process DimResearchDataset DTOs
              */
+            stopwatch.Restart();
             foreach (ResearchDatasetDto researchDatasetDto in researchDatasetDtos)
             {
                 // Name translation: research dataset name
@@ -201,10 +205,12 @@ namespace api.Services.Profiledata
 
                 researchDatasets.Add(researchDataset);
             }
+            long processResearchDatasetDtosMs = stopwatch.ElapsedMilliseconds;
 
             /*
              * Process DimProfileOnlyDataset DTOs
              */
+            stopwatch.Restart();
             foreach (ResearchDatasetDto profileOnlyResearchDatasetDto in profileOnlyResearchDatasetDtos)
             {
                 // Name translation: research dataset name
@@ -262,10 +268,13 @@ namespace api.Services.Profiledata
                 researchDatasets.Add(researchDataset);
             }
 
-            stopwatch.Stop();
-            if (stopwatch.ElapsedMilliseconds > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
+            long processProfileOnlyResearchDatasetDtosMs = stopwatch.ElapsedMilliseconds;
+            long totalMs = researchDatasetQueryMs + profileOnlyResearchDatasetQueryMs + processResearchDatasetDtosMs + processProfileOnlyResearchDatasetDtosMs;
+            if (totalMs > Constants.LoggingParameters.SLOW_OPERATION_MS_THRESHOLD)
             {
-                _logger.LogWarning($"GetProfileEditorResearchDatasets is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {researchDatasets.Count} items in {stopwatch.ElapsedMilliseconds}ms.");
+                _logger.LogWarning($"GetProfileEditorResearchDatasets is slow. userprofileId={userprofileId}, forElasticsearch={forElasticsearch}, {researchDatasets.Count} items in {totalMs}ms " +
+                    $"(researchDatasetQuery={researchDatasetQueryMs}ms, profileOnlyResearchDatasetQuery={profileOnlyResearchDatasetQueryMs}ms, " +
+                    $"processResearchDatasetDtos={processResearchDatasetDtosMs}ms, processProfileOnlyResearchDatasetDtos={processProfileOnlyResearchDatasetDtosMs}ms).");
             }
 
             return researchDatasets;
