@@ -83,8 +83,8 @@ namespace api.Controllers
             }
 
             // Check that user profile has published items. Biography generation requires published data.
-            int publishedItemsCount = await _userProfileService.GetPublishedItemsCount(userprofileId);
-            if (publishedItemsCount <= 10)
+            bool hasEnoughPublishedItems = await _biographyService.HasEnoughPublishedItems(userprofileId);
+            if (!hasEnoughPublishedItems)
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,

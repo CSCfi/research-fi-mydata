@@ -10,5 +10,6 @@ namespace api.Services
         Task<Biography> GetBiography(int userprofileId);
         Task<bool> CreateOrUpdateBiography(int userprofileId, Biography biography);
         Task<bool> DeleteBiography(int userprofileId);
+        Task<bool> HasEnoughPublishedItems(int userprofileId);
     }
 }

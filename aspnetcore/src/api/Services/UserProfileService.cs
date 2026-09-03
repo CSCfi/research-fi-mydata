@@ -1757,29 +1757,6 @@ namespace api.Services
         }
 
         /*
-         * Get published items count.
-         * Count of user profile fact_field_values rows which have show=true.
-         */
-        public async Task<int> GetPublishedItemsCount(int dimUserProfileId)
-        {
-            int publishedCount = 0;
-
-            try
-            {
-                using (var connection = _ttvContext.Database.GetDbConnection())
-                {
-                    string publishedCountSql = _ttvSqlService.GetSqlQuery_Select_CountPublishedItemsInUserprofile(dimUserProfileId);
-                    publishedCount = (await connection.QueryAsync<int>(publishedCountSql)).First();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.ToString());
-            }
-            return publishedCount;
-        }
-
-        /*
          * Update profile in Elasticsearch
          */
         public async Task<bool> UpdateProfileInElasticsearch(string orcidId, int userprofileId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_UPDATE)

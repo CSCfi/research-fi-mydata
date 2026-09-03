@@ -34,7 +34,6 @@ namespace api.Services
         Task<DimUserProfile> GetUserprofileById(int Id);
         Task<(bool UserProfileExists, int UserProfileId)> GetUserprofileIdForOrcidId(string orcidId);
         Task<bool> IsUserprofilePublished(int dimUserProfileId);
-        Task<int> GetPublishedItemsCount(int dimUserProfileId);
         Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens);
         Task<bool> DeleteProfileFromElasticsearch(string orcidId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_UPDATE);
         Task<bool> UpdateProfileInElasticsearch(string orcidId, int userprofileId, LogUserIdentification logUserIdentification, string logAction = LogContent.Action.ELASTICSEARCH_UPDATE);

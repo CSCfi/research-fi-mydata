@@ -86,6 +86,16 @@ namespace api.Services
             _ => "unspecified language"
         };
 
+
+        // Check that user profile has published items. Biography generation requires published data.
+        public async Task<bool> HasEnoughPublishedItems(int userprofileId)
+        {
+            int publishedItemsCount = await _ttvContext.FactFieldValues
+                .Where(ffv => ffv.DimUserProfileId == userprofileId && ffv.Show == true)
+                .CountAsync();
+            return publishedItemsCount > 5;
+        }
+
         public async Task<string?> GetProfileDataForPromt(string orcidId)
         {
             AittaModel aittaModel = new AittaModel();
