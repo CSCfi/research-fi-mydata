@@ -58,14 +58,42 @@ namespace api.Controllers
             (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
             if (!userprofileExists)
             {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
+                        state: LogContent.ActionState.FAILED,
+                        message: "User profile not found."));
                 return BadRequest("User profile not found.");
             }
 
             // Validate request data
             if (!string.IsNullOrEmpty(targetLanguage) && targetLanguage != "fi" && targetLanguage != "en" && targetLanguage != "sv")
             {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
+                        state: LogContent.ActionState.FAILED,
+                        message: "Invalid target language."));
                 ModelState.AddModelError(nameof(targetLanguage), "Target language must be one of: fi, en, sv");
                 return BadRequest(ModelState);
+            }
+
+            // Check if profile is not published. Biography generation works only for published profiles.
+            bool isUserprofilePublished = await _userProfileService.IsUserprofilePublished(userprofileId);
+            if (!isUserprofilePublished)
+            {
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    logUserIdentification,
+                    new LogApiInfo(
+                        action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
+                        state: LogContent.ActionState.FAILED,
+                        message: "Profile is not published."));
+                return BadRequest("Profile is not published.");
             }
 
             _logger.LogInformation(
