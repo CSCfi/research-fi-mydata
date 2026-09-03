@@ -64,7 +64,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.FAILED,
-                        message: "User profile not found."));
+                        message: "User profile not found.",
+                        error: true));
                 return BadRequest("User profile not found.");
             }
 
@@ -77,7 +78,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.FAILED,
-                        message: "Invalid target language."));
+                        message: "Invalid target language.",
+                        error: true));
                 ModelState.AddModelError(nameof(targetLanguage), "Target language must be one of: fi, en, sv");
                 return BadRequest(ModelState);
             }
@@ -92,7 +94,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.FAILED,
-                        message: "Profile does not have enough published items."));
+                        message: "Profile does not have enough published items.",
+                        error: true));
                 return BadRequest("Profile does not have enough published items.");
             }
 
@@ -135,7 +138,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_GET_PROFILEDATA,
                         state: LogContent.ActionState.FAILED,
-                        message: ex.Message));
+                        message: ex.Message,
+                        error: true));
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
@@ -178,7 +182,8 @@ namespace api.Controllers
                         new LogApiInfo(
                             action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                             state: LogContent.ActionState.FAILED,
-                            message: "AI returned empty completion"));
+                            message: "AI returned empty completion",
+                            error: true));
                     return StatusCode(StatusCodes.Status503ServiceUnavailable);
                 }
 
@@ -201,7 +206,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.FAILED,
-                        message: ex.Message));
+                        message: ex.Message,
+                        error: true));
                 return ex.Status switch
                 {
                     400 or 422 => BadRequest("Invalid request"),
@@ -217,7 +223,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.FAILED,
-                        message: "AI request was canceled by the client"));
+                        message: "AI request was canceled by the client",
+                        error: true));
                 return StatusCode(StatusCodes.Status499ClientClosedRequest);
             }
             catch (OperationCanceledException ex)
@@ -228,7 +235,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.FAILED,
-                        message: ex.Message));
+                        message: ex.Message,
+                        error: true));
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
             catch (Exception ex)
@@ -240,7 +248,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.FAILED,
-                        message: ex.Message));
+                        message: ex.Message,
+                        error: true));
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -297,7 +306,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GET,
                         state: LogContent.ActionState.FAILED,
-                        message: ex.Message));
+                        message: ex.Message,
+                        error: true));
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -357,7 +367,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_SET,
                         state: LogContent.ActionState.FAILED,
-                        message: ex.Message));
+                        message: ex.Message,
+                        error: true));
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
@@ -489,7 +500,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.AI_TRANSLATE_TEXT,
                         state: LogContent.ActionState.FAILED,
-                        message: ex.Message));
+                        message: ex.Message,
+                        error: true));
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
