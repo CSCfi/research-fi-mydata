@@ -82,9 +82,9 @@ namespace api.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Check if profile is not published. Biography generation works only for published profiles.
-            bool isUserprofilePublished = await _userProfileService.IsUserprofilePublished(userprofileId);
-            if (!isUserprofilePublished)
+            // Check that user profile has published items. Biography generation requires published data.
+            int publishedItemsCount = await _userProfileService.GetPublishedItemsCount(userprofileId);
+            if (publishedItemsCount <= 10)
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
@@ -92,8 +92,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_GENERATE_QUERY_MODEL,
                         state: LogContent.ActionState.FAILED,
-                        message: "Profile is not published."));
-                return BadRequest("Profile is not published.");
+                        message: "Profile does not have enough published items."));
+                return BadRequest("Profile does not have enough published items.");
             }
 
             _logger.LogInformation(
