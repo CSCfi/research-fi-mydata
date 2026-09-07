@@ -321,7 +321,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.DEBUG_CREATE_PROFILE,
                         state: LogContent.ActionState.FAILED,
-                        message: msg));
+                        message: msg,
+                        error: true));
                 return Ok(new ApiResponse(success: false, reason: msg));
             }
 
