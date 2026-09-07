@@ -424,7 +424,8 @@ namespace api.Controllers
                     new LogApiInfo(
                         action: LogContent.Action.PROFILE_BIOGRAPHY_DELETE,
                         state: LogContent.ActionState.FAILED,
-                        message: ex.Message));
+                        message: ex.Message,
+                        error: true));
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 

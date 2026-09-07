@@ -325,6 +325,7 @@ namespace api.Services
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ELASTICSEARCH_PROFILE_UPDATE_ALL,
                                 state: LogContent.ActionState.IN_PROGRESS,
+                                error: true,
                                 message: $"{ex.ToString()}"));
                     }
 
@@ -400,6 +401,7 @@ namespace api.Services
                             new LogApiInfo(
                                 action: LogContent.Action.ADMIN_ORCID_UPDATE_ALL,
                                 state: LogContent.ActionState.IN_PROGRESS,
+                                error: true,
                                 message: $"{ex.ToString()}"));
                     }
 
