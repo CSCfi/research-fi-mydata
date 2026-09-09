@@ -1,5 +1,6 @@
 ﻿using api.Models.Elasticsearch;
 using System.Collections.Generic;
+using System;
 
 namespace api.Models.ProfileEditor.Items
 {
@@ -11,6 +12,7 @@ namespace api.Models.ProfileEditor.Items
             settings = new();
             cooperation = new List<ProfileEditorCooperationItem>();
             uniqueDataSources = new();
+            updated = null;
         }
 
         public ProfileEditorDataPersonal personal { get; set; }
@@ -18,5 +20,6 @@ namespace api.Models.ProfileEditor.Items
         public ProfileSettings settings { get; set; }
         public List<ProfileEditorCooperationItem> cooperation { get; set; }
         public List<ProfileEditorSource> uniqueDataSources { get; set; }
+        public DateTime? updated { get; set; }
     }
 }

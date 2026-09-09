@@ -19,7 +19,8 @@ public static class ElasticsearchMapper
             activity = MapToElasticsearchActivity(src.activity),
             settings = MapToElasticsearchProfileSettings(src.settings),
             cooperation = MapToElasticsearchCooperation(src.cooperation),
-            uniqueDataSources = MapToElasticsearchSource(src.uniqueDataSources)
+            uniqueDataSources = MapToElasticsearchSource(src.uniqueDataSources),
+            updated = src.updated
         };
     }
     public static ElasticsearchPersonal MapToElasticsearchPersonal(ProfileEditorDataPersonal src)

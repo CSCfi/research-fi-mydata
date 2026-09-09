@@ -1,5 +1,6 @@
 using Xunit;
 using api.Services;
+using api.Services.Profiledata;
 using api.Models.Common;
 using api.Models.Ttv;
 using api.Models.ProfileEditor.Items;
@@ -10,6 +11,7 @@ using api.Models.ProfileEditor;
 using api.Models.Log;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace api.Tests
 {
@@ -881,6 +883,93 @@ namespace api.Tests
             // Assert
             Assert.False(UserProfileExists);
             Assert.Equal(-1, UserProfileId);
+        }
+
+        private UserProfileService CreateUserProfileServiceForGetProfileData(TtvContext context)
+        {
+            return new UserProfileService(
+                ttvContext: context,
+                dataSourceHelperService: null,
+                utilityService: null,
+                languageService: null,
+                duplicateHandlerService: null,
+                sharingService: null,
+                ttvSqlService: null,
+                logger: null,
+                elasticsearchService: null,
+                affiliationService: new AffiliationService(ttvContext: context, languageService: new LanguageService(), utilityService: new UtilityService(), logger: new NullLogger<AffiliationService>()),
+                educationService: new EducationService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<EducationService>()),
+                emailService: new EmailService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<EmailService>()),
+                externalIdentifierService: new ExternalIdentifierService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<ExternalIdentifierService>()),
+                keywordService: new KeywordService(ttvContext: context, dataSourceHelperService: new DataSourceHelperService(), languageService: new LanguageService(), logger: new NullLogger<KeywordService>()),
+                nameService: new NameService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<NameService>()),
+                publicationService: new PublicationService(ttvContext: context, languageService: new LanguageService(), duplicateHandlerService: new DuplicateHandlerService(), logger: new NullLogger<PublicationService>()),
+                researcherDescriptionService: new ResearcherDescriptionService(ttvContext: context, dataSourceHelperService: new DataSourceHelperService(), languageService: new LanguageService(), logger: new NullLogger<ResearcherDescriptionService>()),
+                telephoneNumberService: new TelephoneNumberService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<TelephoneNumberService>()),
+                webLinkService: new WebLinkService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<WebLinkService>()),
+                fundingDecisionService: new FundingDecisionService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<FundingDecisionService>()),
+                researchDatasetService: new ResearchDatasetService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<ResearchDatasetService>()),
+                researchActivityService: new ResearchActivityService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<ResearchActivityService>()),
+                uniqueDataSourcesService: new UniqueDataSourcesService(ttvContext: context, languageService: new LanguageService(), logger: new NullLogger<UniqueDataSourcesService>()),
+                settingsService: new SettingsService(ttvContext: context, logger: new NullLogger<SettingsService>()),
+                cooperationChoicesService: new CooperationChoicesService(ttvContext: context, logger: new NullLogger<CooperationChoicesService>()));
+        }
+
+        [Fact(DisplayName = "GetProfileData - populates updated from DimUserProfile.Modified")]
+        public async Task getProfileData_01()
+        {
+            // Arrange
+            using var context = CreateInMemoryContext(nameof(getProfileData_01));
+            DateTime expectedModified = new DateTime(2024, 1, 15, 10, 30, 0, DateTimeKind.Utc);
+            context.DimUserProfiles.Add(new DimUserProfile
+            {
+                Id = 1,
+                OrcidId = "0000-0001-2345-6789",
+                SourceId = "test",
+                SourceDescription = "test",
+                DimKnownPersonId = -1,
+                Modified = expectedModified
+            });
+            await context.SaveChangesAsync();
+            UserProfileService userProfileService = CreateUserProfileServiceForGetProfileData(context);
+            // Act
+            ProfileEditorDataResponse result = await userProfileService.GetProfileData(userprofileId: 1, logUserIdentification: new LogUserIdentification(orcid: "0000-0001-2345-6789"));
+            // Assert
+            Assert.Equal(expectedModified, result.updated);
+        }
+
+        [Fact(DisplayName = "GetProfileData - updated is null when DimUserProfile.Modified is null")]
+        public async Task getProfileData_02()
+        {
+            // Arrange
+            using var context = CreateInMemoryContext(nameof(getProfileData_02));
+            context.DimUserProfiles.Add(new DimUserProfile
+            {
+                Id = 1,
+                OrcidId = "0000-0001-2345-6789",
+                SourceId = "test",
+                SourceDescription = "test",
+                DimKnownPersonId = -1,
+                Modified = null
+            });
+            await context.SaveChangesAsync();
+            UserProfileService userProfileService = CreateUserProfileServiceForGetProfileData(context);
+            // Act
+            ProfileEditorDataResponse result = await userProfileService.GetProfileData(userprofileId: 1, logUserIdentification: new LogUserIdentification(orcid: "0000-0001-2345-6789"));
+            // Assert
+            Assert.Null(result.updated);
+        }
+
+        [Fact(DisplayName = "GetProfileData - updated is null when no matching DimUserProfile exists")]
+        public async Task getProfileData_03()
+        {
+            // Arrange
+            using var context = CreateInMemoryContext(nameof(getProfileData_03));
+            UserProfileService userProfileService = CreateUserProfileServiceForGetProfileData(context);
+            // Act
+            ProfileEditorDataResponse result = await userProfileService.GetProfileData(userprofileId: 999, logUserIdentification: new LogUserIdentification(orcid: "0000-0001-2345-6789"));
+            // Assert
+            Assert.Null(result.updated);
         }
     }
 }
