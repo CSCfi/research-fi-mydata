@@ -1388,7 +1388,9 @@ namespace api.Services
                 },
                 settings = await _settingsService.GetProfileSettings(userprofileId, forElasticsearch),
                 cooperation = await _cooperationChoicesService.GetCooperationChoices(userprofileId, forElasticsearch),
-                uniqueDataSources = await _uniqueDataSourcesService.GetUniqueDataSources(userprofileId, forElasticsearch)
+                uniqueDataSources = await _uniqueDataSourcesService.GetUniqueDataSources(userprofileId, forElasticsearch),
+                updated = await _ttvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId).AsNoTracking()
+                    .Select(dup => dup.Modified).FirstOrDefaultAsync()
             };
             return profileDataResponse;
         }

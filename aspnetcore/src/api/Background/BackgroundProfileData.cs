@@ -1,13 +1,8 @@
 ﻿using System.Threading.Tasks;
 using api.Models.Log;
-using api.Models.Ttv;
-using api.Models.Common;
 using api.Models.Elasticsearch;
 using Microsoft.Extensions.DependencyInjection;
 using api.Models.ProfileEditor.Items;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using api.Models.ProfileEditor;
 using api.CustomMapper;
 
 namespace api.Services
@@ -37,7 +32,6 @@ namespace api.Services
             // Create a scope and get TtvContext for data query.
             using IServiceScope scope = _serviceScopeFactory.CreateScope();
             IUserProfileService localUserProfileService = scope.ServiceProvider.GetRequiredService<IUserProfileService>();
-            TtvContext localTtvContext = scope.ServiceProvider.GetRequiredService<TtvContext>();
 
             // Get profile data
             ProfileEditorDataResponse profileEditorDataResponse =
@@ -46,15 +40,8 @@ namespace api.Services
                     logUserIdentification: logUserIdentification,
                     forElasticsearch: true);
 
-            // Convert profile editor model into Elasticsearch model.
+            // Convert profile editor model into Elasticsearch model. "updated" is mapped from profileEditorDataResponse.updated.
             ElasticsearchPerson elasticsearchPerson = ElasticsearchMapper.MapToElasticsearchPerson(src: profileEditorDataResponse, orcidId: orcidId);
-
-            // Add updated timestamp
-            DateTimeDTO userProfileModified = await localTtvContext.DimUserProfiles.Where(dup => dup.Id == userprofileId).AsNoTracking().Select(dimUserProfile => new DateTimeDTO()  
-                {  
-                    Value = dimUserProfile.Modified
-                }).FirstOrDefaultAsync();
-            elasticsearchPerson.updated = userProfileModified.Value;
 
             return elasticsearchPerson;
         }

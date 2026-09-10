@@ -2,6 +2,7 @@ using Xunit;
 using api.CustomMapper;
 using api.Models.Elasticsearch;
 using api.Models.ProfileEditor.Items;
+using System;
 using System.Collections.Generic;
 using api.Models.ProfileEditor;
 using api.Models.Common;
@@ -907,7 +908,8 @@ namespace api.Tests
                             SectorId = "source-sector-id-2"
                         }
                     }
-                }
+                },
+                updated = new DateTime(2024, 1, 15, 10, 30, 0, DateTimeKind.Utc)
             };
         }
 
@@ -1632,7 +1634,7 @@ namespace api.Tests
                         }
                     }
                 },
-                updated = null
+                updated = new DateTime(2024, 1, 15, 10, 30, 0, DateTimeKind.Utc)
             };
         }
 
@@ -1650,6 +1652,8 @@ namespace api.Tests
             Assert.NotNull(actualObject);
             // Assert id
             Assert.Equal(orcidId, actualObject.id);
+            // Assert updated
+            Assert.Equal(expectedObject.updated, actualObject.updated);
             // Assert personal.names
             Assert.Equal(expectedObject.personal.names[0].FirstNames, actualObject.personal.names[0].FirstNames);
             Assert.Equal(expectedObject.personal.names[0].LastName, actualObject.personal.names[0].LastName);
