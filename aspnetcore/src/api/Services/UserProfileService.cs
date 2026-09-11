@@ -1260,7 +1260,7 @@ namespace api.Services
                     AllowAllSubscriptions = false,
                     Hidden = false,
                     PublishNewOrcidData = false,
-                    ProfileUsername = "" // TODO: Set value to Keycloak id
+                    ProfileUsername = logUserIdentification.KeycloakId ?? ""
                 };
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
             }
