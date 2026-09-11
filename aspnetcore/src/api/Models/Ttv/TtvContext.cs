@@ -3826,6 +3826,10 @@ public partial class TtvContext : DbContext
 
             entity.ToTable("dim_user_profile");
 
+            entity.HasIndex(e => e.OrcidId, "idx_dim_user_profile_orcid_id");
+
+            entity.HasIndex(e => e.ProfileUsername, "idx_dim_user_profile_profile_username");
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AllowAllSubscriptions).HasColumnName("allow_all_subscriptions");
             entity.Property(e => e.Created)
@@ -3852,6 +3856,11 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.OrcidTokenScope)
                 .HasMaxLength(255)
                 .HasColumnName("orcid_token_scope");
+            entity.Property(e => e.ProfileUsername)
+                .IsRequired()
+                .HasMaxLength(255)
+                .HasDefaultValue("", "DF_dim_user_profile_profile_username")
+                .HasColumnName("profile_username");
             entity.Property(e => e.PublishNewOrcidData).HasColumnName("publish_new_orcid_data");
             entity.Property(e => e.SourceDescription)
                 .HasMaxLength(255)
