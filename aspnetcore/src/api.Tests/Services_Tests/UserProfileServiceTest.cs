@@ -855,6 +855,7 @@ namespace api.Tests
                 OrcidId = orcidId,
                 SourceId = "test",
                 SourceDescription = "test",
+                ProfileUsername = "",
                 DimKnownPersonId = -1
             });
             await context.SaveChangesAsync();
@@ -927,6 +928,7 @@ namespace api.Tests
                 OrcidId = "0000-0001-2345-6789",
                 SourceId = "test",
                 SourceDescription = "test",
+                ProfileUsername = "",
                 DimKnownPersonId = -1,
                 Modified = expectedModified
             });
@@ -949,6 +951,7 @@ namespace api.Tests
                 OrcidId = "0000-0001-2345-6789",
                 SourceId = "test",
                 SourceDescription = "test",
+                ProfileUsername = "",
                 DimKnownPersonId = -1,
                 Modified = null
             });

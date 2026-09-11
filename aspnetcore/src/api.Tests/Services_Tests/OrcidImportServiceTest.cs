@@ -115,6 +115,7 @@ namespace api.Tests
                 DimKnownPersonId = KnownPersonId,
                 SourceId = Constants.SourceIdentifiers.PROFILE_API,
                 SourceDescription = "",
+                ProfileUsername = "",
                 AllowAllSubscriptions = false,
                 Hidden = false,
                 PublishNewOrcidData = false,

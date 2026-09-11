@@ -1259,7 +1259,8 @@ namespace api.Services
                     Modified = currentDateTime,
                     AllowAllSubscriptions = false,
                     Hidden = false,
-                    PublishNewOrcidData = false
+                    PublishNewOrcidData = false,
+                    ProfileUsername = "" // TODO: Set value to Keycloak id
                 };
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
             }
