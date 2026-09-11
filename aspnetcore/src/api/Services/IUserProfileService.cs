@@ -16,7 +16,7 @@ namespace api.Services
         Task<DimResearcherDescription> AddOrUpdateDimResearcherDescription(string description_fi, string description_en, string description_sv, int dimKnownPersonId, int dimRegisteredDataSourceId);
         Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile, LogUserIdentification logUserIdentification);
         bool CanDeleteFactFieldValueRelatedData(FactFieldValue ffv);
-        Task CreateProfile(string orcidId, LogUserIdentification logUserIdentification);
+        Task CreateProfile(string orcidId, string userName, LogUserIdentification logUserIdentification);
         Task<bool> DeleteProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification);
         Task ExecuteRawSql(string sql);
         DimProfileOnlyDataset GetEmptyDimProfileOnlyDataset();

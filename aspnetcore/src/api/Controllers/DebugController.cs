@@ -315,7 +315,7 @@ namespace api.Controllers
 
             try
             {
-                await _userProfileService.CreateProfile(orcidId: orcidId, logUserIdentification: logUserIdentification);
+                await _userProfileService.CreateProfile(orcidId: orcidId, userName: "", logUserIdentification: logUserIdentification);
             }
             catch
             {

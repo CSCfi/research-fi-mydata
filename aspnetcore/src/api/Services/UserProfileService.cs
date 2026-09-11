@@ -1199,7 +1199,7 @@ namespace api.Services
          *   - FactFieldValues
          *   - BrGrantedPermissions
          */
-        public async Task CreateProfile(string orcidId, LogUserIdentification logUserIdentification)
+        public async Task CreateProfile(string orcidId, string userName, LogUserIdentification logUserIdentification)
         {
             // Get DimPid by ORCID ID.
             DimPid dimPid = await _ttvContext.DimPids
@@ -1260,7 +1260,7 @@ namespace api.Services
                     AllowAllSubscriptions = false,
                     Hidden = false,
                     PublishNewOrcidData = false,
-                    ProfileUsername = logUserIdentification.KeycloakId ?? ""
+                    ProfileUsername = userName
                 };
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
             }
