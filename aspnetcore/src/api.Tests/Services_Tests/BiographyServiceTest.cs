@@ -53,7 +53,8 @@ namespace api.Tests
                 OrcidId = OrcidId,
                 DimKnownPersonId = 10,
                 SourceId = Constants.SourceIdentifiers.PROFILE_API,
-                SourceDescription = Constants.SourceDescriptions.PROFILE_API
+                SourceDescription = Constants.SourceDescriptions.PROFILE_API,
+                ProfileUsername = ""
             };
             var displaySetting = new DimFieldDisplaySetting
             {

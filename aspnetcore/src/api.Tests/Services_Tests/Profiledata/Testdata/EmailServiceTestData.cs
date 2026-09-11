@@ -24,7 +24,7 @@ namespace api.Tests.Profiledata
             
             UserProfileService userProfileService = new UserProfileService(utilityService: utilityService);
 
-            data.UserProfile = new DimUserProfile { Id = 1, SourceId = "Source1" };
+            data.UserProfile = new DimUserProfile { Id = 1, SourceId = "Source1", ProfileUsername = "" };
             data.DimSectors = new List<DimSector>();
             data.DimOrganizations = new List<DimOrganization>();
             data.DimRegisteredDataSources = new List<DimRegisteredDataSource>();

@@ -19,6 +19,7 @@ namespace api.Tests
             data.UserProfile = new DimUserProfile {
                 Id = 1,
                 SourceId = "Source1",
+                ProfileUsername = "",
                 PublishNewOrcidData = true,
                 HighlightOpeness = true,
                 Hidden = true,
