@@ -427,10 +427,10 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Debug: Get profile data for given national identification number.
+        /// Debug: Test Public API functionality.
         /// </summary>
         [HttpPost]
-        [Route("/[controller]/profiledata")]
+        [Route("/[controller]/profiledataforapi")]
         [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProfiledataFromNationalIdentificationNumber([FromBody] NationalIdentificationNumberRequest request)
         {
