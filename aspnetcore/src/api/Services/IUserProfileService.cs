@@ -32,6 +32,7 @@ namespace api.Services
         Task<DimUserProfile> GetUserprofile(string orcidId);
         Task<DimUserProfile> GetUserprofileTracking(string orcidId);
         Task<DimUserProfile> GetUserprofileById(int Id);
+        Task<DimUserProfile> GetUserprofileByUsername(string username);
         Task<(bool UserProfileExists, int UserProfileId)> GetUserprofileIdForOrcidId(string orcidId);
         Task<bool> IsUserprofilePublished(int dimUserProfileId);
         Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens);

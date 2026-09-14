@@ -6,6 +6,5 @@ namespace api.Services
     {
         string GetProfileDataForPublicApi(string nationalIdentificationNumber);
         string GetUsernameFromNationalIdentificationNumber(string nationalIdentificationNumber);
-        Task<string?> GetOrcidIdFromKeycloak(string username);
     }
 }

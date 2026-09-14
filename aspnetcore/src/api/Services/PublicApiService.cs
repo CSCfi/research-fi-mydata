@@ -47,18 +47,5 @@ namespace api.Services
             }
             return sb.ToString();
         }
-
-        public async Task<string?> GetOrcidIdFromKeycloak(string username)
-        {
-            HttpClient keycloakHttpClient = _httpClientFactory.CreateClient("keycloakClient");
-            HttpRequestMessage request = new(HttpMethod.Get, $"?username={Uri.EscapeDataString(username)}");
-            HttpResponseMessage response = await keycloakHttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            string responseBody = await response.Content.ReadAsStringAsync();
-            List<KeycloakUserDTO>? users = JsonSerializer.Deserialize<List<KeycloakUserDTO>>(responseBody);
-
-            return users?.FirstOrDefault()?.Attributes?.Orcid?.FirstOrDefault();
-        }
     }
 }

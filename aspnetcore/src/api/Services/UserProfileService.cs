@@ -215,6 +215,14 @@ namespace api.Services
             return await _ttvContext.DimUserProfiles.Where(dup => dup.Id == Id).AsNoTracking().FirstOrDefaultAsync();
         }
 
+        /* 
+         * Get DimUserProfile based on username.
+         */ 
+        public async Task<DimUserProfile> GetUserprofileByUsername(string username)
+        {
+            return await _ttvContext.DimUserProfiles.Where(dup => dup.ProfileUsername == username).AsNoTracking().FirstOrDefaultAsync();
+        }
+
         /*
          * Check if user profile exists for ORCID Id.
          */

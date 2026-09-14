@@ -440,19 +440,20 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            // Validate request data
+            // Validate request data.
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            // Get Keycloak username from national identification number
+            // Get Keycloak username from national identification number.
             string username = _publicApiService.GetUsernameFromNationalIdentificationNumber(request.NationalIdentificationNumber);
 
-            // Get ORCID ID from Keycloak
-            string? orcidId = await _publicApiService.GetOrcidIdFromKeycloak(username);
+            // Get userprofile from username.
+            DimUserProfile? dimUserProfile = await _userProfileService.GetUserprofileByUsername(username);
 
-            if (orcidId == null)
+            // Check that userprofile exists.
+            if (dimUserProfile == null)
             {
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
@@ -461,13 +462,13 @@ namespace api.Controllers
                         action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
                         state: LogContent.ActionState.FAILED,
                         error: true,
-                        message: "ORCID ID not found for username: " + username));
+                        message: "User profile not found for username: " + username));
 
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
 
-            // User identification object for logging
-            LogUserIdentification logUserIdentification = this.GetLogUserIdentification(orcid: orcidId);
+            // User identification object for logging.
+            LogUserIdentification logUserIdentification = this.GetLogUserIdentification(orcid: dimUserProfile.OrcidId);
 
             // Get profile data
             _logger.LogInformation(
@@ -477,23 +478,8 @@ namespace api.Controllers
                     action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
                     state: LogContent.ActionState.START));
 
-            // Check that userprofile exists.
-            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
-            if (!userprofileExists)
-            {
-                _logger.LogError(
-                    LogContent.MESSAGE_TEMPLATE,
-                    logUserIdentification,
-                    new LogApiInfo(
-                        action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
-                        state: LogContent.ActionState.FAILED,
-                        error: true,
-                        message: "profile not found for ORCID ID: " + orcidId));
-                return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
-            }
-
             var stopwatch = Stopwatch.StartNew();
-            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData(userprofileId: userprofileId, logUserIdentification: logUserIdentification);
+            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData(userprofileId: dimUserProfile.Id, logUserIdentification: logUserIdentification);
             stopwatch.Stop();
 
             _logger.LogInformation(
