@@ -215,6 +215,14 @@ namespace api.Services
             return await _ttvContext.DimUserProfiles.Where(dup => dup.Id == Id).AsNoTracking().FirstOrDefaultAsync();
         }
 
+        /* 
+         * Get DimUserProfile based on username.
+         */ 
+        public async Task<DimUserProfile> GetUserprofileByUsername(string username)
+        {
+            return await _ttvContext.DimUserProfiles.Where(dup => dup.ProfileUsername == username).AsNoTracking().FirstOrDefaultAsync();
+        }
+
         /*
          * Check if user profile exists for ORCID Id.
          */
@@ -1199,7 +1207,7 @@ namespace api.Services
          *   - FactFieldValues
          *   - BrGrantedPermissions
          */
-        public async Task CreateProfile(string orcidId, LogUserIdentification logUserIdentification)
+        public async Task CreateProfile(string orcidId, string userName, LogUserIdentification logUserIdentification)
         {
             // Get DimPid by ORCID ID.
             DimPid dimPid = await _ttvContext.DimPids
@@ -1260,7 +1268,7 @@ namespace api.Services
                     AllowAllSubscriptions = false,
                     Hidden = false,
                     PublishNewOrcidData = false,
-                    ProfileUsername = "" // TODO: Set value to Keycloak id
+                    ProfileUsername = userName
                 };
                 _ttvContext.DimUserProfiles.Add(dimUserProfile);
             }

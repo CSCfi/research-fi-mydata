@@ -24,6 +24,13 @@ public abstract class TtvControllerBase : ControllerBase
         return User.Claims.FirstOrDefault(x => x.Type == "orcid")?.Value;
     }
 
+    // Get username from user claims
+    [NonAction]
+    protected string GetUsername()
+    {
+        return User.Claims.FirstOrDefault(x => x.Type == "preferred_username")?.Value;
+    }
+
     // Get access token from HttpRequest header Authorization.
     [NonAction]
     protected string GetBearerTokenFromHttpRequest()

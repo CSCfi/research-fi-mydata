@@ -16,7 +16,7 @@ namespace api.Services
         Task<DimResearcherDescription> AddOrUpdateDimResearcherDescription(string description_fi, string description_en, string description_sv, int dimKnownPersonId, int dimRegisteredDataSourceId);
         Task AddTtvDataToUserProfile(DimKnownPerson dimKnownPerson, DimUserProfile dimUserProfile, LogUserIdentification logUserIdentification);
         bool CanDeleteFactFieldValueRelatedData(FactFieldValue ffv);
-        Task CreateProfile(string orcidId, LogUserIdentification logUserIdentification);
+        Task CreateProfile(string orcidId, string userName, LogUserIdentification logUserIdentification);
         Task<bool> DeleteProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification);
         Task ExecuteRawSql(string sql);
         DimProfileOnlyDataset GetEmptyDimProfileOnlyDataset();
@@ -32,6 +32,7 @@ namespace api.Services
         Task<DimUserProfile> GetUserprofile(string orcidId);
         Task<DimUserProfile> GetUserprofileTracking(string orcidId);
         Task<DimUserProfile> GetUserprofileById(int Id);
+        Task<DimUserProfile> GetUserprofileByUsername(string username);
         Task<(bool UserProfileExists, int UserProfileId)> GetUserprofileIdForOrcidId(string orcidId);
         Task<bool> IsUserprofilePublished(int dimUserProfileId);
         Task UpdateOrcidTokensInDimUserProfile(int dimUserProfileId, OrcidTokens orcidTokens);

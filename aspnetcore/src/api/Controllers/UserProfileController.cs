@@ -83,7 +83,7 @@ namespace api.Controllers
 
             // Return immediately, if profile already exists.
             // Log error, but pass silently in user profile API.
-            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(GetOrcidId());
+            (bool userprofileExists, int userprofileId) = await _userProfileService.GetUserprofileIdForOrcidId(orcidId);
             if (userprofileExists)
             {
                 _logger.LogError(
@@ -100,7 +100,7 @@ namespace api.Controllers
             // Create profile
             try
             {
-                await _userProfileService.CreateProfile(orcidId: orcidId, logUserIdentification: this.GetLogUserIdentification());
+                await _userProfileService.CreateProfile(orcidId: orcidId, userName: GetUsername(), logUserIdentification: this.GetLogUserIdentification());
             }
             catch
             {
