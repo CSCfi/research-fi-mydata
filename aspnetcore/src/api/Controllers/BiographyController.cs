@@ -16,6 +16,7 @@ using api.Models.Ttv;
 using Elasticsearch.Net;
 using System.Net.Http;
 using System.ClientModel;
+using api.Models.ProfileEditor.Items;
 
 namespace api.Controllers
 {
@@ -338,6 +339,8 @@ namespace api.Controllers
             }
 
             // Set Biography
+            bool success = false;
+            ProfileEditorItemMeta profileEditorItemMeta = new ProfileEditorItemMeta(0, 0, null, null);
             try
             {
                 _logger.LogInformation(
@@ -348,7 +351,7 @@ namespace api.Controllers
                         state: LogContent.ActionState.START));
 
                 var setBiographyStopwatch = Stopwatch.StartNew();
-                bool success = await _biographyService.CreateOrUpdateBiography(userprofileId, biography);
+                (success, profileEditorItemMeta) = await _biographyService.CreateOrUpdateBiography(userprofileId, biography);
                 setBiographyStopwatch.Stop();
 
                 _logger.LogInformation(
@@ -372,7 +375,9 @@ namespace api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            return NoContent();
+            if (success)
+                return Ok(profileEditorItemMeta);
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         /// <summary>

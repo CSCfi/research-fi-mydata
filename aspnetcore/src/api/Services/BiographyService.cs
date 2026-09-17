@@ -10,6 +10,7 @@ using System.Text.Json;
 using Dapper;
 using api.Models.Common;
 using Microsoft.Extensions.Caching.Memory;
+using api.Models.ProfileEditor.Items;
 
 namespace api.Services
 {
@@ -617,9 +618,15 @@ namespace api.Services
             return success;
         }
 
-        public async Task<bool> CreateOrUpdateBiography(int userprofileId, Biography biography)
+        public async Task<(bool, ProfileEditorItemMeta)> CreateOrUpdateBiography(int userprofileId, Biography biography)
         {
             bool success = false;
+            ProfileEditorItemMeta profileEditorItemMeta = new ProfileEditorItemMeta(
+                0,
+                Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION,
+                false,
+                false
+            );
 
             string? sanitizedFi = SanitizeBiographyField(biography.Fi);
             string? sanitizedEn = SanitizeBiographyField(biography.En);
@@ -649,6 +656,7 @@ namespace api.Services
                 existingFfv.Modified = _utilityService.GetCurrentDateTime();
                 await _ttvContext.SaveChangesAsync();
                 success = true;
+                profileEditorItemMeta.Id = existingFfv.DimResearcherDescription.Id;
             }
             else
             {
@@ -686,6 +694,7 @@ namespace api.Services
                 _ttvContext.FactFieldValues.Add(newFfv);
                 await _ttvContext.SaveChangesAsync();
                 success = true;
+                profileEditorItemMeta.Id = newResearcherDescription.Id;
             }
 
             // Remove cached profile data response. Cache key is ORCID ID.
@@ -695,7 +704,7 @@ namespace api.Services
                 _cache.Remove(orcidId);
             }
 
-            return success;
+            return (success, profileEditorItemMeta);
         }
     }
 }
