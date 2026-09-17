@@ -657,6 +657,8 @@ namespace api.Services
                 await _ttvContext.SaveChangesAsync();
                 success = true;
                 profileEditorItemMeta.Id = existingFfv.DimResearcherDescription.Id;
+                profileEditorItemMeta.Show = existingFfv.Show;
+                profileEditorItemMeta.PrimaryValue = existingFfv.PrimaryValue;
             }
             else
             {
