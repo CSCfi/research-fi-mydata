@@ -1,7 +1,7 @@
 # Plan Revision: ORCID timestamps for FactFieldValue only, restore DimKeyword import-time timestamps
 
 **Date:** 2026-09-02
-**Status:** Implemented
+**Status:** In Progress
 
 ## Summary
 
