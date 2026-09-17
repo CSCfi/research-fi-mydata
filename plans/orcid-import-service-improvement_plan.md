@@ -1,5 +1,6 @@
 # OrcidImportService – Performance Improvement Plan
 
+**Status:** In Progress — 2026-07-07 (Phase 1 done; Phases 2–7 pending)
 **File:** `aspnetcore/src/api/Services/OrcidImportService.cs`  
 **Date:** 2026-07-07  
 **Goal:** Measurable database round-trip reduction and maintainability gains, with minimal risk to proven production logic. Changes are broken into independent phases that can be reviewed, tested, and deployed separately.
