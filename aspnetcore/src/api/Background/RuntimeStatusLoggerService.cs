@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using api.Models.Log;
@@ -43,6 +44,9 @@ public class RuntimeStatusLoggerService : BackgroundService
         TimeSpan? previousCpuTime = null;
         DateTime? previousSampleTimeUtc = null;
 
+        // Read once: the cgroup CPU quota is fixed for the container's lifetime.
+        double cpuQuotaCores = GetCpuQuotaCores();
+
         // Log immediately on startup so status is visible without waiting for the first interval.
         LogStatus();
 
@@ -66,7 +70,7 @@ public class RuntimeStatusLoggerService : BackgroundService
                 cpuUsagePercent = CalculateCpuUsagePercent(
                     cpuTimeDelta: currentCpuTime - previousCpuTime.Value,
                     wallTimeDelta: nowUtc - previousSampleTimeUtc.Value,
-                    processorCount: Environment.ProcessorCount);
+                    cpuQuotaCores: cpuQuotaCores);
             }
             previousCpuTime = currentCpuTime;
             previousSampleTimeUtc = nowUtc;
@@ -78,6 +82,7 @@ public class RuntimeStatusLoggerService : BackgroundService
                 gcHeapBytes: GC.GetTotalMemory(false),
                 gcTotalAvailableMemoryBytes: GC.GetGCMemoryInfo().TotalAvailableMemoryBytes,
                 cpuUsagePercent: cpuUsagePercent,
+                cpuQuotaCores: cpuQuotaCores,
                 processorCount: Environment.ProcessorCount,
                 backgroundQueueLength: _taskQueue.Count,
                 gen0Collections: GC.CollectionCount(0),
@@ -91,15 +96,60 @@ public class RuntimeStatusLoggerService : BackgroundService
         }
     }
 
-    // Percentage of available CPU capacity (across all processor count) consumed during wallTimeDelta.
-    public static int? CalculateCpuUsagePercent(TimeSpan cpuTimeDelta, TimeSpan wallTimeDelta, int processorCount)
+    // Percentage of the container's CPU quota (fractional cores, e.g. 0.5 for a 500m OpenShift limit) consumed during wallTimeDelta.
+    public static int? CalculateCpuUsagePercent(TimeSpan cpuTimeDelta, TimeSpan wallTimeDelta, double cpuQuotaCores)
     {
-        if (wallTimeDelta <= TimeSpan.Zero || processorCount <= 0)
+        if (wallTimeDelta <= TimeSpan.Zero || cpuQuotaCores <= 0)
         {
             return null;
         }
 
-        double percent = 100.0 * cpuTimeDelta.TotalMilliseconds / (wallTimeDelta.TotalMilliseconds * processorCount);
+        double percent = 100.0 * cpuTimeDelta.TotalMilliseconds / (wallTimeDelta.TotalMilliseconds * cpuQuotaCores);
         return (int)Math.Round(percent, MidpointRounding.AwayFromZero);
+    }
+
+    // Fractional CPU quota in cores (e.g. 0.5 for an OpenShift "500m" limit). Environment.ProcessorCount
+    // rounds this up to the nearest whole core (minimum 1), which understates CPU% for sub-1-core limits,
+    // so the cgroup quota files are read directly when present, falling back to Environment.ProcessorCount
+    // (e.g. local/non-container dev, or no CPU limit set).
+    public static double GetCpuQuotaCores()
+    {
+        try
+        {
+            const string cgroupV2Path = "/sys/fs/cgroup/cpu.max";
+            if (File.Exists(cgroupV2Path))
+            {
+                string[] parts = File.ReadAllText(cgroupV2Path).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 2 && parts[0] != "max"
+                    && long.TryParse(parts[0], out long quota)
+                    && long.TryParse(parts[1], out long period)
+                    && period > 0)
+                {
+                    return (double)quota / period;
+                }
+            }
+            else
+            {
+                const string cgroupV1QuotaPath = "/sys/fs/cgroup/cpu/cpu.cfs_quota_us";
+                const string cgroupV1PeriodPath = "/sys/fs/cgroup/cpu/cpu.cfs_period_us";
+                if (File.Exists(cgroupV1QuotaPath) && File.Exists(cgroupV1PeriodPath)
+                    && long.TryParse(File.ReadAllText(cgroupV1QuotaPath).Trim(), out long quota)
+                    && long.TryParse(File.ReadAllText(cgroupV1PeriodPath).Trim(), out long period)
+                    && quota > 0 && period > 0)
+                {
+                    return (double)quota / period;
+                }
+            }
+        }
+        catch (IOException)
+        {
+            // Fall back below.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Fall back below.
+        }
+
+        return Environment.ProcessorCount;
     }
 }

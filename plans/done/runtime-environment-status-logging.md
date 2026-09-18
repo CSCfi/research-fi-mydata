@@ -19,6 +19,13 @@ Interval is configurable via `RuntimeStatusLogging:IntervalSeconds` in `appsetti
 visible right away rather than after the first interval elapses; subsequent events follow the
 configured interval.
 
+`CpuUsagePercent` is computed against `CpuQuotaCores`, a fractional CPU quota (e.g. 0.5 for an
+OpenShift "500m" limit) read directly from cgroup v2/v1 files, not `Environment.ProcessorCount`
+— which rounds sub-1-core quotas up to 1 and would otherwise understate CPU usage. `ProcessorCount`
+is still logged for reference, alongside `CpuQuotaCores`.
+visible right away rather than after the first interval elapses; subsequent events follow the
+configured interval.
+
 Files touched:
 - `aspnetcore/src/api/Background/BackgroundTaskQueue.cs` — added `Count` to
   `IBackgroundTaskQueue`/`BackgroundTaskQueue`.

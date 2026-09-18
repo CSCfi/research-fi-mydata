@@ -7,6 +7,7 @@ namespace api.Models.Log
             long gcHeapBytes,
             long gcTotalAvailableMemoryBytes,
             int? cpuUsagePercent,
+            double cpuQuotaCores,
             int processorCount,
             int backgroundQueueLength,
             int gen0Collections,
@@ -20,6 +21,7 @@ namespace api.Models.Log
             GcHeapBytes = gcHeapBytes;
             GcTotalAvailableMemoryBytes = gcTotalAvailableMemoryBytes;
             CpuUsagePercent = cpuUsagePercent;
+            CpuQuotaCores = cpuQuotaCores;
             ProcessorCount = processorCount;
             BackgroundQueueLength = backgroundQueueLength;
             Gen0Collections = gen0Collections;
@@ -43,7 +45,12 @@ namespace api.Models.Log
         // Null on the first tick, before a previous CPU-time sample exists to diff against.
         public int? CpuUsagePercent { get; set; }
 
-        // Cgroup-aware CPU quota (Environment.ProcessorCount), not the host's physical core count.
+        // Fractional CPU quota in cores (e.g. 0.5 for an OpenShift "500m" limit) used as the
+        // CpuUsagePercent denominator; read from cgroup files, falling back to ProcessorCount.
+        public double CpuQuotaCores { get; set; }
+
+        // Environment.ProcessorCount: rounds the cgroup CPU quota up to the nearest whole core
+        // (minimum 1), so it can look higher than the actual fractional quota (see CpuQuotaCores).
         public int ProcessorCount { get; set; }
 
         // Number of queued-but-not-yet-dequeued background work items (IBackgroundTaskQueue.Count).

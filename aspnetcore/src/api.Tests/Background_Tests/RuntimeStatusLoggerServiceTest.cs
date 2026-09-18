@@ -8,25 +8,37 @@ namespace api.Tests.Background_Tests
         [Fact]
         public void CalculateCpuUsagePercent_ReturnsExpectedValue()
         {
-            // 1 processor fully busy for the whole wall-clock interval => 100%.
+            // 1 core quota fully busy for the whole wall-clock interval => 100%.
             int? result = RuntimeStatusLoggerService.CalculateCpuUsagePercent(
                 cpuTimeDelta: TimeSpan.FromSeconds(5),
                 wallTimeDelta: TimeSpan.FromSeconds(5),
-                processorCount: 1);
+                cpuQuotaCores: 1);
 
             Assert.Equal(100, result);
         }
 
         [Fact]
-        public void CalculateCpuUsagePercent_DividesAcrossProcessorCount()
+        public void CalculateCpuUsagePercent_DividesAcrossCpuQuotaCores()
         {
-            // 1 second of CPU time out of 2 processors over 1 second of wall time => 50%.
+            // 1 second of CPU time out of a 2-core quota over 1 second of wall time => 50%.
             int? result = RuntimeStatusLoggerService.CalculateCpuUsagePercent(
                 cpuTimeDelta: TimeSpan.FromSeconds(1),
                 wallTimeDelta: TimeSpan.FromSeconds(1),
-                processorCount: 2);
+                cpuQuotaCores: 2);
 
             Assert.Equal(50, result);
+        }
+
+        [Fact]
+        public void CalculateCpuUsagePercent_SupportsFractionalCpuQuotaCores()
+        {
+            // OpenShift 500m limit (0.5 core) fully consumed for the whole wall-clock interval => 100%.
+            int? result = RuntimeStatusLoggerService.CalculateCpuUsagePercent(
+                cpuTimeDelta: TimeSpan.FromMilliseconds(500),
+                wallTimeDelta: TimeSpan.FromSeconds(1),
+                cpuQuotaCores: 0.5);
+
+            Assert.Equal(100, result);
         }
 
         [Fact]
@@ -35,7 +47,7 @@ namespace api.Tests.Background_Tests
             int? result = RuntimeStatusLoggerService.CalculateCpuUsagePercent(
                 cpuTimeDelta: TimeSpan.FromMilliseconds(456),
                 wallTimeDelta: TimeSpan.FromSeconds(1),
-                processorCount: 1);
+                cpuQuotaCores: 1);
 
             Assert.Equal(46, result);
         }
@@ -46,20 +58,31 @@ namespace api.Tests.Background_Tests
             int? result = RuntimeStatusLoggerService.CalculateCpuUsagePercent(
                 cpuTimeDelta: TimeSpan.FromSeconds(1),
                 wallTimeDelta: TimeSpan.Zero,
-                processorCount: 1);
+                cpuQuotaCores: 1);
 
             Assert.Null(result);
         }
 
         [Fact]
-        public void CalculateCpuUsagePercent_ReturnsNull_WhenProcessorCountIsZero()
+        public void CalculateCpuUsagePercent_ReturnsNull_WhenCpuQuotaCoresIsZero()
         {
             int? result = RuntimeStatusLoggerService.CalculateCpuUsagePercent(
                 cpuTimeDelta: TimeSpan.FromSeconds(1),
                 wallTimeDelta: TimeSpan.FromSeconds(1),
-                processorCount: 0);
+                cpuQuotaCores: 0);
 
             Assert.Null(result);
+        }
+
+        [Fact]
+        public void GetCpuQuotaCores_ReturnsPositiveValue()
+        {
+            // No assertion on the exact source (cgroup files vs. Environment.ProcessorCount
+            // fallback), since that depends on the environment the test runs in - just that a
+            // usable, positive quota is always returned.
+            double result = RuntimeStatusLoggerService.GetCpuQuotaCores();
+
+            Assert.True(result > 0);
         }
     }
 }
