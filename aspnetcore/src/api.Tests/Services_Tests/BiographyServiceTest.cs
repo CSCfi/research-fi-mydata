@@ -3,6 +3,7 @@ using api.Services;
 using api.Models.Ttv;
 using api.Models.Ai;
 using api.Models.Common;
+using api.Models.ProfileEditor.Items;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -136,7 +137,7 @@ namespace api.Tests
             var biography = new Biography { Fi = "Elämäkerta Fi", En = "Biography En", Sv = "Biografi Sv" };
 
             // Act
-            bool result = await service.CreateOrUpdateBiography(UserProfileId, biography);
+            (bool result, ProfileEditorItemMeta meta) = await service.CreateOrUpdateBiography(UserProfileId, biography);
 
             // Assert
             Assert.True(result);
@@ -168,7 +169,7 @@ namespace api.Tests
             var biography = new Biography { Fi = "Paivitetty Fi", En = "Updated En", Sv = "Uppdaterad Sv" };
 
             // Act
-            bool result = await service.CreateOrUpdateBiography(UserProfileId, biography);
+            (bool result, ProfileEditorItemMeta meta) = await service.CreateOrUpdateBiography(UserProfileId, biography);
 
             // Assert
             Assert.True(result);
@@ -217,7 +218,7 @@ namespace api.Tests
             };
 
             // Act
-            bool result = await service.CreateOrUpdateBiography(UserProfileId, biography);
+            (bool result, ProfileEditorItemMeta meta) = await service.CreateOrUpdateBiography(UserProfileId, biography);
 
             // Assert
             Assert.True(result);
@@ -244,7 +245,7 @@ namespace api.Tests
             };
 
             // Act
-            bool result = await service.CreateOrUpdateBiography(UserProfileId, biography);
+            (bool result, ProfileEditorItemMeta meta) = await service.CreateOrUpdateBiography(UserProfileId, biography);
 
             // Assert
             Assert.True(result);
@@ -271,7 +272,7 @@ namespace api.Tests
             };
 
             // Act
-            bool result = await service.CreateOrUpdateBiography(UserProfileId, biography);
+            (bool result, ProfileEditorItemMeta meta) = await service.CreateOrUpdateBiography(UserProfileId, biography);
 
             // Assert
             Assert.True(result);
@@ -293,7 +294,7 @@ namespace api.Tests
             var biography = new Biography { Fi = null, En = null, Sv = null };
 
             // Act
-            bool result = await service.CreateOrUpdateBiography(UserProfileId, biography);
+            (bool result, ProfileEditorItemMeta meta) = await service.CreateOrUpdateBiography(UserProfileId, biography);
 
             // Assert
             Assert.True(result);
