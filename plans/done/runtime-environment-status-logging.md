@@ -15,7 +15,9 @@ logs, the runtime status event isn't paired with `LogUserIdentification`/`LogApi
 isn't tied to a request/user — it logs `LogRuntimeStatus` on its own.
 
 Interval is configurable via `RuntimeStatusLogging:IntervalSeconds` in `appsettings.json`
-(default 300s; `<= 0` disables it).
+(default 300s; `<= 0` disables it). The first event logs immediately on startup, so pod status is
+visible right away rather than after the first interval elapses; subsequent events follow the
+configured interval.
 
 Files touched:
 - `aspnetcore/src/api/Background/BackgroundTaskQueue.cs` — added `Count` to

@@ -43,9 +43,17 @@ public class RuntimeStatusLoggerService : BackgroundService
         TimeSpan? previousCpuTime = null;
         DateTime? previousSampleTimeUtc = null;
 
+        // Log immediately on startup so status is visible without waiting for the first interval.
+        LogStatus();
+
         using PeriodicTimer timer = new(_interval);
 
         while (await timer.WaitForNextTickAsync(stoppingToken))
+        {
+            LogStatus();
+        }
+
+        void LogStatus()
         {
             process.Refresh();
 
