@@ -365,7 +365,6 @@ namespace api.Services
                 // DimRegisteredDataSource
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimRegisteredDataSource)
-                        .ThenInclude(drds => drds.DimOrganization)
                 // DimName
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimName)
@@ -378,18 +377,12 @@ namespace api.Services
                 // DimProfileOnlyFundingDecision
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyFundingDecision)
-                        .ThenInclude(fd => fd.DimOrganizationIdFunderNavigation)
-                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
-                    .ThenInclude(ffv => ffv.DimProfileOnlyFundingDecision)
                         .ThenInclude(fd => fd.DimWebLinks)
                 // DimProfileOnlyDataset
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyDataset)
                         .ThenInclude(ds => ds.DimWebLinks)
                 // DimProfileOnlyResearchActivity
-                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
-                    .ThenInclude(ffv => ffv.DimProfileOnlyResearchActivity)
-                        .ThenInclude(ra => ra.DimOrganization)
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimProfileOnlyResearchActivity)
                         .ThenInclude(ra => ra.DimWebLinks)
@@ -413,9 +406,6 @@ namespace api.Services
                     .ThenInclude(ffv => ffv.DimEducation)
                         .ThenInclude(de => de.DimEndDateNavigation)
                 // DimAffiliation
-                .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
-                    .ThenInclude(ffv => ffv.DimAffiliation)
-                        .ThenInclude(da => da.DimOrganization)
                 .Include(dup => dup.FactFieldValues.Where(ffv => ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId))
                     .ThenInclude(ffv => ffv.DimAffiliation)
                         .ThenInclude(da => da.StartDateNavigation)

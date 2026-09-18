@@ -1,9 +1,11 @@
 # OrcidImportService – Performance Improvement Plan
 
-**Status:** In Progress — 2026-07-07 (Phase 1 done; Phases 2–7 pending)
+**Status:** In Progress — 2026-09-18 (Phases 0 and 1 done; Phases 2–7 pending)
 **File:** `aspnetcore/src/api/Services/OrcidImportService.cs`  
-**Date:** 2026-07-07  
+**Date:** 2026-07-07 (updated 2026-09-18)  
 **Goal:** Measurable database round-trip reduction and maintainability gains, with minimal risk to proven production logic. Changes are broken into independent phases that can be reviewed, tested, and deployed separately.
+
+> **2026-09-18 update:** A memory-usage investigation of the background ORCID import task identified an additional, very low-effort fix — see **Phase 0** below. It was implemented immediately as the top priority in this plan because it improves memory efficiency for the largest profiles with minimal risk.
 
 ---
 
@@ -13,6 +15,7 @@ The service is functionally correct and well-tested. The main performance proble
 
 | # | Problem | Severity | Effort |
 |---|---------|----------|--------|
+| 0 | Query for `dimUserProfile` includes 4 unused `ThenInclude` navigations (`DimOrganization` ×3, `DimOrganizationIdFunderNavigation`) that are never read — only their FK ids are used | High (memory usage) | Trivial |
 | 1 | ORCID JSON parsed twice for 4 data types | Medium | Low |
 | 2 | 4 separate `SaveChangesAsync` calls in `AddDimDates` | Low | Low |
 | 3 | N+1 DimDate DB queries in `AddDimDates` (one per item per date field) | High | Medium |
@@ -23,6 +26,45 @@ The service is functionally correct and well-tested. The main performance proble
 | 8 | Dead code: `processedKeywordFactFieldValues` list is populated but never consumed | Low | Trivial |
 | 9 | `AsNoTracking()` missing on read-only DimDate lookups in main import body | Low | Trivial |
 | 10 | 2000-line monolithic method; hard to maintain and unit-test at granular level | Medium | High |
+
+---
+
+## Phase 0 – Remove Unused `Include` Navigations (Top Priority – Memory Efficiency) ✅ DONE (2026-09-18)
+
+**Target:** Reduce buffered row width for the largest/most numerous split-query collections in the `ImportOrcidRecordJsonIntoUserProfile` `dimUserProfile` query, with zero logic changes.
+
+### 0.1 Context
+
+A memory-usage review of the background ORCID import task found that its EF Core query is heavier than necessary. Two contributing factors:
+
+- `EnableRetryOnFailure()` + `UseQuerySplittingBehavior(SplitQuery)` (`Startup.cs`), which makes EF Core buffer each split query's entire result set in memory before shaping entities.
+- The `dimUserProfile` query's very large `Include`/`ThenInclude` graph (~20 branches) being fully tracked for the lifetime of the import.
+
+While fully splitting that query into per-section queries is tracked separately (out of scope for this file), a grep of this file found four `ThenInclude` navigations that are fetched but **never dereferenced** anywhere in the method; only their integer FK is ever read or written:
+
+| Line (approx.) | Include | FK actually used instead |
+|---|---|---|
+| `dup.FactFieldValues... .ThenInclude(ffv => ffv.DimRegisteredDataSource).ThenInclude(drds => drds.DimOrganization)` | `DimOrganization` (via `DimRegisteredDataSource`) | not read anywhere |
+| `ThenInclude(ffv => ffv.DimProfileOnlyFundingDecision).ThenInclude(fd => fd.DimOrganizationIdFunderNavigation)` | `DimOrganizationIdFunderNavigation` | `DimOrganizationIdFunder` (int) |
+| `ThenInclude(ffv => ffv.DimProfileOnlyResearchActivity).ThenInclude(ra => ra.DimOrganization)` | `DimOrganization` | `DimOrganizationId` (int) |
+| `ThenInclude(ffv => ffv.DimAffiliation).ThenInclude(da => da.DimOrganization)` | `DimOrganization` | `DimOrganizationId` (int) |
+
+`DimOrganization` has ~25 columns including several free-text fields (`OrganizationBackground`, `VisitingAddress`, `PostalAddress`, `NameVariants`, tri-lingual names), and is pulled in for **every** `DimAffiliation` and `DimProfileOnlyResearchActivity`/`DimProfileOnlyFundingDecision` row in the profile — i.e. exactly the collections most likely to be large for a prolific researcher.
+
+Note: `ThenInclude(did => did.InverseDimIdentifierlessData)` (under `DimIdentifierlessData`) is **not** in this list — it is used later for cascading removes and must stay.
+
+### 0.2 Approach
+
+Delete the four unused `ThenInclude` lines identified above from the `dimUserProfile` query in `ImportOrcidRecordJsonIntoUserProfile`. No other code changes are needed since nothing reads these navigation properties.
+
+**Risk:** Minimal. Purely removes unused eager-loaded data; does not change any entity, FK, or mutation logic. Existing test suite (`OrcidImportServiceTest.cs`) should pass unchanged since it never asserts on these navigation properties.
+
+**Result:** All 4 `ThenInclude` lines removed. Full test suite run (`dotnet test aspnetcore/mydata.sln --filter FullyQualifiedName~OrcidImportServiceTest`): 72/72 tests pass, build clean.
+
+**Acceptance criteria:**
+1. All existing tests in `OrcidImportServiceTest.cs` pass unchanged.
+2. `dotnet build` / `dotnet test` clean.
+3. Manual/staging verification that ORCID import still correctly links affiliations, research activities, and funding decisions to organisations (via FK ids).
 
 ---
 
@@ -392,6 +434,7 @@ private void RemoveOrphanedFactFieldValues<TEntity>(
 
 | Phase | Description | DB Queries Saved (est.) | Risk | Effort |
 |-------|-------------|------------------------|------|--------|
+| 0 ✅ | Remove 4 unused `ThenInclude` navigations (memory efficiency) | 0 (reduces buffered row width, not query count) | Minimal | Done |
 | 1 ✅ | Trivial: dead code, single `SaveChanges`, parallel ref-data (item 1.3 AsNoTracking dropped as unsafe) | 3 round trips per import | Minimal | Done |
 | 2 | Eliminate JSON re-parsing | 0 DB (CPU/memory only) | Low | 2–4 hours |
 | 3 | Batch DimDate lookups in `AddDimDates` | ~2 × N_dates per import | Medium | 4–8 hours |
