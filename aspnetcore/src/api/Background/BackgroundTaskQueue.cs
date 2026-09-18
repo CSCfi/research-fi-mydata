@@ -14,6 +14,8 @@ public interface IBackgroundTaskQueue
 
     ValueTask<Func<CancellationToken, ValueTask>> DequeueAsync(
         CancellationToken cancellationToken);
+
+    int Count { get; }
 }
 
 public class BackgroundTaskQueue : IBackgroundTaskQueue
@@ -52,4 +54,6 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
 
         return workItem;
     }
+
+    public int Count => _queue.Reader.Count;
 }

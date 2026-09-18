@@ -300,6 +300,7 @@ namespace api
             // Background processing related services.
             services.AddTransient<IBackgroundProfiledata, BackgroundProfiledata>();
             services.AddHostedService<QueuedHostedService>();
+            services.AddHostedService<RuntimeStatusLoggerService>();
             services.AddSingleton<IBackgroundTaskQueue>(ctx =>
             {
                 return new BackgroundTaskQueue();

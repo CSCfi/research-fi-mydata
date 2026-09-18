@@ -3,6 +3,7 @@
     public static class LogContent
     {
         public const string MESSAGE_TEMPLATE = "{@LogUserIdentification}, {@LogApiInfo}";
+        public const string MESSAGE_TEMPLATE_RUNTIME_STATUS = "{@LogRuntimeStatus}";
 
         public static class Action
         {
