@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using api.Models.Ttv;
 using api.Models.Keycloak;
+using api.PublicApiContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -30,10 +31,10 @@ namespace api.Services
             _logger = logger;
         }
 
-        public string GetProfileDataForPublicApi(string nationalIdentificationNumber)
+        // Mockup: build greeting response. Real DimUserProfile-derived data is a future phase.
+        public PublicApiHelloResponse GetHelloMessage(string username)
         {
-            string profileData = "test";
-            return profileData;
+            return new PublicApiHelloResponse { Message = $"Hello {username}" };
         }
 
         public string GetUsernameFromNationalIdentificationNumber(string nationalIdentificationNumber)

@@ -78,4 +78,7 @@
     <None Remove="Serilog.Formatting.OpenSearch" />
     <None Remove="Models\Log\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\api.PublicApiContracts\api.PublicApiContracts.csproj" />
+  </ItemGroup>
 </Project>
