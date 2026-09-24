@@ -1,9 +1,10 @@
-namespace api.PublicApiContracts
+namespace ResearchFi.PersonPublicApi
 {
     /// <summary>
-    /// Response body for the Public API mockup "hello" endpoint.
+    /// Profile data response for public API.
     /// </summary>
-    public class PublicApiHelloResponse
+    public class ProfileDataResponse
+
     {
         /// <summary>
         /// Greeting message, e.g. "Hello username".
