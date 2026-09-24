@@ -2,7 +2,7 @@ using api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using api.PublicApiContracts;
+using ResearchFi.PersonPublicApi;
 
 namespace api.Controllers
 {
@@ -25,18 +25,18 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Mockup endpoint for Public API integration. Returns a greeting for the given username.
-        /// Exact request/response shape is out of scope for this phase; see plans/public-api-nuget-contracts.md.
+        /// Profile data endpoint for Public API.
         /// </summary>
         [HttpPost]
-        public IActionResult GetDataForPublicApi([FromBody] PublicApiHelloRequest request)
+        [Route("profile")]
+        public IActionResult GetProfileData([FromBody] ProfileDataRequest request)
         {
             if (!IsPublicApiTokenAuthorized())
             {
                 return Unauthorized();
             }
 
-            return Ok(_publicApiService.GetHelloMessage(request?.Username));
+            return Ok(_publicApiService.GetProfileDataForPublicApi(request?.PersonKeyIdentifier));
         }
 
         // Check that request contains required Public API token, in header "publicapitoken".

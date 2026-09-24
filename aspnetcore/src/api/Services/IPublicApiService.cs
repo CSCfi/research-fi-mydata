@@ -1,10 +1,10 @@
-using api.PublicApiContracts;
+using ResearchFi.PersonPublicApi;
 
 namespace api.Services
 {
     public interface IPublicApiService
     {
-        PublicApiHelloResponse GetHelloMessage(string username);
+        ProfileDataResponse GetProfileDataForPublicApi(string username);
         string GetUsernameFromNationalIdentificationNumber(string nationalIdentificationNumber);
     }
 }
