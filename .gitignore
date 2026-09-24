@@ -196,6 +196,11 @@ PublishScripts/
 *.nuget.targets
 # except custom packages
 !**/custom_nuget/*
+# except api.PublicApiContracts pack output, which is committed so it can be handed off to the Public API app
+!aspnetcore/src/api.PublicApiContracts/bin/
+!aspnetcore/src/api.PublicApiContracts/bin/Release/
+aspnetcore/src/api.PublicApiContracts/bin/Release/*
+!aspnetcore/src/api.PublicApiContracts/bin/Release/*.nupkg
 
 # Microsoft Azure Build Output
 csx/

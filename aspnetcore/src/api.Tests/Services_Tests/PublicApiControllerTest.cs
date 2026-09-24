@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using api.Controllers;
-using api.PublicApiContracts;
+using ResearchFi.PersonPublicApi;
 using api.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +20,8 @@ namespace api.Tests
             IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
 
             Mock<IPublicApiService> publicApiServiceMock = new Mock<IPublicApiService>();
-            publicApiServiceMock.Setup(s => s.GetHelloMessage(It.IsAny<string>()))
-                .Returns((string username) => new PublicApiHelloResponse { Message = $"Hello {username}" });
+            publicApiServiceMock.Setup(s => s.GetProfileDataForPublicApi(It.IsAny<string>()))
+                .Returns((string username) => new ProfileDataResponse { Message = $"Hello {username}" });
 
             PublicApiController controller = new PublicApiController(NullLogger<PublicApiController>.Instance, publicApiServiceMock.Object, configuration)
             {
@@ -34,36 +34,36 @@ namespace api.Tests
             return controller;
         }
 
-        [Fact(DisplayName = "GetDataForPublicApi - returns 401 when token header is missing")]
-        public void GetDataForPublicApi_01()
+        [Fact(DisplayName = "GetProfileForPublicApi - returns 401 when token header is missing")]
+        public void GetProfileForPublicApi_01()
         {
             PublicApiController controller = CreateController(configuredToken: "secret", headerToken: null);
 
-            IActionResult result = controller.GetDataForPublicApi(new PublicApiHelloRequest { Username = "matti" });
+            IActionResult result = controller.GetProfileData(new ProfileDataRequest { PersonKeyIdentifier = "Alice" });
 
             Assert.IsType<UnauthorizedResult>(result);
         }
 
-        [Fact(DisplayName = "GetDataForPublicApi - returns 401 when token header does not match")]
-        public void GetDataForPublicApi_02()
+        [Fact(DisplayName = "GetProfileForPublicApi - returns 401 when token header does not match")]
+        public void GetProfileForPublicApi_02()
         {
             PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "wrong");
 
-            IActionResult result = controller.GetDataForPublicApi(new PublicApiHelloRequest { Username = "matti" });
+            IActionResult result = controller.GetProfileData(new ProfileDataRequest { PersonKeyIdentifier = "Alice" });
 
             Assert.IsType<UnauthorizedResult>(result);
         }
 
-        [Fact(DisplayName = "GetDataForPublicApi - returns greeting when token header matches")]
-        public void GetDataForPublicApi_03()
+        [Fact(DisplayName = "GetProfileForPublicApi - returns greeting when token header matches")]
+        public void GetProfileForPublicApi_03()
         {
             PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "secret");
 
-            IActionResult result = controller.GetDataForPublicApi(new PublicApiHelloRequest { Username = "matti" });
+            IActionResult result = controller.GetProfileData(new ProfileDataRequest { PersonKeyIdentifier = "Alice" });
 
             OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
-            PublicApiHelloResponse response = Assert.IsType<PublicApiHelloResponse>(okResult.Value);
-            Assert.Equal("Hello matti", response.Message);
+            ProfileDataResponse response = Assert.IsType<ProfileDataResponse>(okResult.Value);
+            Assert.Equal("Hello Alice", response.Message);
         }
     }
 }

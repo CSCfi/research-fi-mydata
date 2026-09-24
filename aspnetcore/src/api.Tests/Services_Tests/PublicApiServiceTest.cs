@@ -27,9 +27,9 @@ namespace api.Tests
         {
             var publicApiService = new PublicApiService(null, null, null);
 
-            var response = publicApiService.GetHelloMessage("matti");
+            var response = publicApiService.GetProfileDataForPublicApi("Alice");
 
-            Assert.Equal("Hello matti", response.Message);
+            Assert.Equal("Hello Alice", response.Message);
         }
 
         private static PublicApiService CreateServiceWithResponse(string jsonResponse)
