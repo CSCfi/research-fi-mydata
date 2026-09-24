@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "src\api\api.csproj", "{9A67B131-39EA-4D65-A99C-7650B2238308}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.PublicApiContracts", "src\api.PublicApiContracts\api.PublicApiContracts.csproj", "{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,9 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1C38915D-3D9C-4BF7-9C0F-B4568DE45493}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -54,9 +53,25 @@ Global
 		{9A67B131-39EA-4D65-A99C-7650B2238308}.Release|x64.Build.0 = Release|Any CPU
 		{9A67B131-39EA-4D65-A99C-7650B2238308}.Release|x86.ActiveCfg = Release|Any CPU
 		{9A67B131-39EA-4D65-A99C-7650B2238308}.Release|x86.Build.0 = Release|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Debug|x64.Build.0 = Debug|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Debug|x86.Build.0 = Debug|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Release|x64.ActiveCfg = Release|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Release|x64.Build.0 = Release|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Release|x86.ActiveCfg = Release|Any CPU
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1C38915D-3D9C-4BF7-9C0F-B4568DE45493} = {530E1C35-DCEA-4F12-B363-E62C2554D61E}
 		{9A67B131-39EA-4D65-A99C-7650B2238308} = {530E1C35-DCEA-4F12-B363-E62C2554D61E}
+		{250ECEC4-2292-4F99-8F2D-605FA39DDF0F} = {530E1C35-DCEA-4F12-B363-E62C2554D61E}
 	EndGlobalSection
 EndGlobal

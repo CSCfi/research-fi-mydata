@@ -1,10 +1,10 @@
-using System.Threading.Tasks;
+using api.PublicApiContracts;
 
 namespace api.Services
 {
     public interface IPublicApiService
     {
-        string GetProfileDataForPublicApi(string nationalIdentificationNumber);
+        PublicApiHelloResponse GetHelloMessage(string username);
         string GetUsernameFromNationalIdentificationNumber(string nationalIdentificationNumber);
     }
 }
