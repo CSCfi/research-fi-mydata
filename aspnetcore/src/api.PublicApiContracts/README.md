@@ -25,4 +25,18 @@ There is currently no NuGet feed for this package. To consume it:
 3. Reference `CSC.ResearchFi.Mydata.PublicApiContracts` at the version printed in the `.nupkg`
    filename from the Public API app's project.
 
-Bump `<Version>` in `api.PublicApiContracts.csproj` manually whenever the contract changes.
+Bump `<Version>` in `api.PublicApiContracts.csproj` manually whenever the contract changes, e.g.:
+
+```xml
+<PropertyGroup>
+  ...
+  <Version>0.0.2</Version>
+  ...
+</PropertyGroup>
+```
+
+Use semantic versioning as a guideline: bump the patch number (`0.0.1` → `0.0.2`) for
+backwards-compatible additions (e.g. a new optional property), and the minor/major number
+(`0.0.1` → `0.1.0` or `1.0.0`) once a breaking change is made (e.g. a renamed/removed property) so
+the Public API app doesn't silently pick up an incompatible contract. After bumping the version,
+re-run `dotnet pack` and hand off the newly versioned `.nupkg` as described above.
