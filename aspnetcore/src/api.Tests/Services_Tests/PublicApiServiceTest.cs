@@ -22,6 +22,16 @@ namespace api.Tests
             Assert.Equal("5f0c2c8d2107f4700fb5aa1ef717ac03", publicApiService.GetUsernameFromNationalIdentificationNumber("010170-999R"));
         }
 
+        [Fact(DisplayName = "GetHelloMessage - returns greeting containing given username")]
+        public void GetHelloMessage_01()
+        {
+            var publicApiService = new PublicApiService(null, null, null);
+
+            var response = publicApiService.GetHelloMessage("matti");
+
+            Assert.Equal("Hello matti", response.Message);
+        }
+
         private static PublicApiService CreateServiceWithResponse(string jsonResponse)
         {
             var handler = new FakeHttpMessageHandler(jsonResponse);

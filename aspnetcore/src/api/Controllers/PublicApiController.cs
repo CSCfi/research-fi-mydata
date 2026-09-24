@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
-using api.Models.Ai;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using api.Models.Log;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using api.Models.Api;
-using api.Models.Common;
+using api.PublicApiContracts;
 
 namespace api.Controllers
 {
@@ -21,24 +14,36 @@ namespace api.Controllers
     public class PublicApiController : TtvControllerBase
     {
         private readonly ILogger<PublicApiController> _logger;
-        private readonly IUserProfileService _userProfileService;
+        private readonly IPublicApiService _publicApiService;
+        private readonly IConfiguration _configuration;
 
-        public PublicApiController(ILogger<PublicApiController> logger, IUserProfileService userProfileService)
+        public PublicApiController(ILogger<PublicApiController> logger, IPublicApiService publicApiService, IConfiguration configuration)
         {
             _logger = logger;
-            _userProfileService = userProfileService;
+            _publicApiService = publicApiService;
+            _configuration = configuration;
         }
 
-/*
         /// <summary>
-        /// Get profile data.
+        /// Mockup endpoint for Public API integration. Returns a greeting for the given username.
+        /// Exact request/response shape is out of scope for this phase; see plans/public-api-nuget-contracts.md.
         /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> GetDataForPublicApi()
+        [HttpPost]
+        public IActionResult GetDataForPublicApi([FromBody] PublicApiHelloRequest request)
         {
-            LogUserIdentification logUserIdentification = this.GetLogUserIdentification();
+            if (!IsPublicApiTokenAuthorized())
+            {
+                return Unauthorized();
+            }
+
+            return Ok(_publicApiService.GetHelloMessage(request?.Username));
         }
-    }
-*/
+
+        // Check that request contains required Public API token, in header "publicapitoken".
+        [NonAction]
+        private bool IsPublicApiTokenAuthorized()
+        {
+            return !string.IsNullOrWhiteSpace(_configuration["PUBLICAPITOKEN"]) && Request.Headers["publicapitoken"] == _configuration["PUBLICAPITOKEN"];
+        }
     }
 }
