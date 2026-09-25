@@ -1,3 +1,4 @@
+using api.Models.Log;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -31,8 +32,27 @@ namespace api.Controllers
         [Route("profile")]
         public IActionResult GetProfileData([FromBody] ProfileDataRequest request)
         {
+            string clientId = GetPublicApiClientId();
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                this.GetLogUserIdentification(),
+                new LogApiInfo(
+                    action: LogContent.Action.PUBLIC_API_PROFILE_REQUEST,
+                    state: LogContent.ActionState.START,
+                    message: $"Public API clientId={clientId}"));
+
             if (!IsPublicApiTokenAuthorized())
             {
+                string errorMessage = "Invalid token from Public API";
+                _logger.LogError(
+                    LogContent.MESSAGE_TEMPLATE,
+                    this.GetLogUserIdentification(),
+                    new LogApiInfo(
+                        action: LogContent.Action.PUBLIC_API_PROFILE_REQUEST,
+                        state: LogContent.ActionState.FAILED,
+                        error: true,
+                        message: $"{errorMessage}. Public API clientId={clientId}"));
                 return Unauthorized();
             }
 
@@ -44,6 +64,13 @@ namespace api.Controllers
         private bool IsPublicApiTokenAuthorized()
         {
             return !string.IsNullOrWhiteSpace(_configuration["PUBLICAPITOKEN"]) && Request.Headers["publicapitoken"] == _configuration["PUBLICAPITOKEN"];
+        }
+
+        // Get calling Public API client's client credentials clientid, sent in header "clientid".
+        [NonAction]
+        private string GetPublicApiClientId()
+        {
+            return Request.Headers["public-api-clientid"].ToString();
         }
     }
 }
