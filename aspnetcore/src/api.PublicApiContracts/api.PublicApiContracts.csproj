@@ -8,7 +8,7 @@
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>CSC.ResearchFi.Mydata.PublicApiContracts</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <Authors>CSC - IT Center for Science</Authors>
     <Description>Request/response contract types for the Research.fi Mydata Public API integration endpoint.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
