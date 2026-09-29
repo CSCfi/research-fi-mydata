@@ -115,10 +115,6 @@ objects:
                 requests:
                   cpu: 1
                   memory: 5Gi
-              env:
-                # Allocates 85% of the container memory limit to the .NET Garbage Collector
-                - name: DOTNET_GCHeapHardLimitPercent
-                  value: '85'
       replicas: 1
       triggers:
         - type: ConfigChange

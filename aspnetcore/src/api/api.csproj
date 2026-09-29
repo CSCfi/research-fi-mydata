@@ -39,6 +39,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Heap limit as % of container memory limit; leaves headroom for native memory -->
+    <RuntimeHostConfigurationOption Include="System.GC.HeapHardLimitPercent" Value="85" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Models\Orcid\" />
     <Folder Include="Services\" />
     <Folder Include="Models\ProfileEditor\" />
