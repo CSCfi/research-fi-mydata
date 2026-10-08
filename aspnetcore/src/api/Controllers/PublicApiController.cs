@@ -1,5 +1,6 @@
 using api.Models.Log;
 using api.Services;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -30,7 +31,7 @@ namespace api.Controllers
         /// </summary>
         [HttpPost]
         [Route("profile")]
-        public IActionResult GetProfileData([FromBody] ProfileDataRequest request)
+        public async Task<IActionResult> GetProfileData([FromBody] ProfileDataRequest request)
         {
             string clientId = GetPublicApiClientId();
 
@@ -56,7 +57,7 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            return Ok(_publicApiService.GetProfileDataForPublicApi(request?.PersonKeyIdentifier));
+            return Ok(await _publicApiService.GetProfileDataForPublicApi(request?.PersonKeyIdentifier));
         }
 
         // Check that request contains required Public API token, in header "publicapitoken".

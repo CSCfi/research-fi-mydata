@@ -1,0 +1,920 @@
+{
+    "description": "",
+    "id": "https://iri.suomi.fi/model/researchfi_publicapi_person/1.0.3/",
+    "type": "object",
+    "title": "Research.fi - profile API end point",
+    "properties": {
+        "date": {
+            "description": "",
+            "type": "object",
+            "title": "Date format",
+            "required": ["year"],
+            "properties": {
+                "month": {
+                    "description": "",
+                    "type": "number",
+                    "title": "month"
+                },
+                "year": {
+                    "description": "",
+                    "type": "number",
+                    "title": "year"
+                },
+                "datePartial": {
+                    "description": "",
+                    "type": "string",
+                    "title": "datePartial"
+                },
+                "day": {
+                    "description": "",
+                    "type": "number",
+                    "title": "day"
+                }
+            }
+        },
+        "descriptive_item": {
+            "description": "",
+            "type": "object",
+            "title": "Text language versions",
+            "required": [
+                "descriptiveContent",
+                "language"
+            ],
+            "properties": {
+                "descriptiveContent": {
+                    "description": "",
+                    "type": "string",
+                    "title": "content text"
+                },
+                "language": {
+                    "description": "",
+                    "type": "string",
+                    "title": "language version"
+                }
+            }
+        },
+        "education": {
+            "description": "",
+            "type": "object",
+            "title": "Education",
+            "properties": {
+                "educationName": {
+                    "description": "",
+                    "title": "educationName",
+                    "$ref": "#/properties/language_variant"
+                },
+                "educationEndsOn": {
+                    "description": "",
+                    "title": "educationEndsOn",
+                    "$ref": "#/properties/date"
+                },
+                "degreeGrantingInstitutionName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "degreeGrantingInstitutionName"
+                },
+                "educationStartsOn": {
+                    "description": "",
+                    "title": "educationStartsOn",
+                    "$ref": "#/properties/date"
+                }
+            }
+        },
+        "software": {
+            "description": "",
+            "type": "object",
+            "title": "software",
+            "required": [
+                "softwareIsIdentifiedBy",
+                "listOfAuthors",
+                "publicationName"
+            ],
+            "properties": {
+                "publishedOn": {
+                    "description": "",
+                    "title": "publishedOn",
+                    "$ref": "#/properties/publication_channel"
+                },
+                "publicationYear": {
+                    "description": "",
+                    "type": "number",
+                    "title": "publicationYear"
+                },
+                "publicationName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "publicationName"
+                },
+                "softwareIsIdentifiedBy": {
+                    "minItems": 1,
+                    "description": "?",
+                    "type": "array",
+                    "title": "softwareIsIdentifiedBy",
+                    "items": [{
+                        "description": "?",
+                        "title": "softwareIsIdentifiedBy",
+                        "$ref": "#/properties/identifier"
+                    }]
+                },
+                "listOfAuthors": {
+                    "description": "",
+                    "type": "string",
+                    "title": "listOfAuthors"
+                }
+            }
+        },
+        "publication_serie": {
+            "description": "",
+            "type": "object",
+            "title": "Publication serie",
+            "required": ["serieName"],
+            "properties": {
+                "volume": {
+                    "description": "",
+                    "type": "string",
+                    "title": "volume"
+                },
+                "isClassifiedByPublicationForum": {
+                    "description": "",
+                    "title": "isClassifiedByPublicationForum",
+                    "$ref": "#/properties/publication_forum_channel"
+                },
+                "ISSN": {
+                    "maxItems": 2,
+                    "description": "",
+                    "type": "array",
+                    "title": "ISSN",
+                    "items": {"type": "string"}
+                },
+                "serieName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "serieName"
+                }
+            }
+        },
+        "contact_information": {
+            "description": "",
+            "type": "object",
+            "title": "Contact information",
+            "properties": {
+                "phoneNumber": {
+                    "description": "",
+                    "type": "array",
+                    "title": "phoneNumber",
+                    "items": {"type": "object"}
+                },
+                "email": {
+                    "description": "",
+                    "type": "array",
+                    "title": "email",
+                    "items": {"type": "object"}
+                },
+                "homepage": {
+                    "description": "",
+                    "type": "array",
+                    "title": "homepage",
+                    "items": [{
+                        "description": "",
+                        "title": "homepage",
+                        "$ref": "#/properties/weblink"
+                    }]
+                }
+            }
+        },
+        "publication_forum_channel": {
+            "description": "",
+            "type": "object",
+            "title": "In Publication Forum",
+            "required": ["JuFo-Id"],
+            "properties": {"JuFo-Id": {
+                "description": "",
+                "type": "string",
+                "title": "JuFo-Id"
+            }}
+        },
+        "repository": {
+            "description": "",
+            "type": "object",
+            "title": "Repository",
+            "required": [
+                "repositoryName",
+                "URI"
+            ],
+            "properties": {
+                "repositoryName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "repositoryName"
+                },
+                "URI": {
+                    "description": "",
+                    "type": "string",
+                    "title": "URI"
+                }
+            }
+        },
+        "audiovisualPublication": {
+            "description": "",
+            "type": "object",
+            "title": "audiovisualPublication",
+            "required": [
+                "AVPublicationIsIdentifiedBy",
+                "listOfAuthors",
+                "publicationName"
+            ],
+            "properties": {
+                "AVPublicationIsIdentifiedBy": {
+                    "minItems": 1,
+                    "description": "'DOI', 'URN'",
+                    "type": "array",
+                    "title": "AVPublicationIsIdentifiedBy",
+                    "items": [{
+                        "description": "'DOI', 'URN'",
+                        "title": "AVPublicationIsIdentifiedBy",
+                        "$ref": "#/properties/identifier"
+                    }]
+                },
+                "publishedOn": {
+                    "description": "",
+                    "title": "publishedOn",
+                    "$ref": "#/properties/publication_channel"
+                },
+                "publicationYear": {
+                    "description": "",
+                    "type": "number",
+                    "title": "publicationYear"
+                },
+                "publicationName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "publicationName"
+                },
+                "listOfAuthors": {
+                    "description": "",
+                    "type": "string",
+                    "title": "listOfAuthors"
+                }
+            }
+        },
+        "output": {
+            "description": "",
+            "type": "object",
+            "title": "Output",
+            "properties": {
+                "contributesToDataset": {
+                    "description": "",
+                    "type": "array",
+                    "title": "contributesToDataset",
+                    "items": [{
+                        "description": "",
+                        "title": "contributesToDataset",
+                        "$ref": "#/properties/research_dataset"
+                    }]
+                },
+                "contributesToApplication": {
+                    "description": "",
+                    "type": "array",
+                    "title": "contributesToApplication",
+                    "items": [{
+                        "description": "",
+                        "title": "contributesToApplication",
+                        "$ref": "#/properties/software"
+                    }]
+                },
+                "contributesToAudiovisualPublication": {
+                    "description": "",
+                    "type": "array",
+                    "title": "contributesToAudiovisualPublication",
+                    "items": [{
+                        "description": "",
+                        "title": "contributesToAudiovisualPublication",
+                        "$ref": "#/properties/audiovisualPublication"
+                    }]
+                },
+                "contributesToWrittenPublication": {
+                    "description": "",
+                    "type": "array",
+                    "title": "contributesToWrittenPublication",
+                    "items": [{
+                        "description": "",
+                        "title": "contributesToWrittenPublication",
+                        "$ref": "#/properties/written_publication"
+                    }]
+                },
+                "contributesToArtpublication": {
+                    "description": "",
+                    "type": "array",
+                    "title": "contributesToArtpublication",
+                    "items": [{
+                        "description": "",
+                        "title": "contributesToArtpublication",
+                        "$ref": "#/properties/art_publication"
+                    }]
+                }
+            }
+        },
+        "registered_data_source": {
+            "description": "",
+            "type": "object",
+            "title": "Data source",
+            "required": [
+                "dataSourceOrganizationName",
+                "dataSourceName"
+            ],
+            "properties": {
+                "dataSourceOrganizationName": {
+                    "description": "",
+                    "title": "dataSourceOrganizationName",
+                    "$ref": "#/properties/language_variant"
+                },
+                "dataSourceName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "dataSourceName"
+                }
+            }
+        },
+        "journal": {
+            "description": "",
+            "type": "object",
+            "title": "Journal",
+            "required": ["journalName"],
+            "properties": {
+                "volume": {
+                    "description": "",
+                    "type": "string",
+                    "title": "volume"
+                },
+                "isClassifiedByPublicationForum": {
+                    "description": "",
+                    "title": "isClassifiedByPublicationForum",
+                    "$ref": "#/properties/publication_forum_channel"
+                },
+                "journalName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "journal name"
+                },
+                "ISSN": {
+                    "maxItems": 2,
+                    "description": "",
+                    "type": "array",
+                    "title": "ISSN",
+                    "items": {"type": "string"}
+                }
+            }
+        },
+        "written_publication": {
+            "description": "",
+            "type": "object",
+            "title": "Written publication",
+            "required": [
+                "publicationName",
+                "writtenPublicationIsIdentifiedBy",
+                "listOfAuthors"
+            ],
+            "properties": {
+                "publicationYear": {
+                    "description": "",
+                    "type": "number",
+                    "title": "publicationYear"
+                },
+                "publishedOn": {
+                    "description": "",
+                    "title": "publishedOn",
+                    "$ref": "#/properties/publication_channel"
+                },
+                "writtenPublicationIsIdentifiedBy": {
+                    "minItems": 1,
+                    "description": "pid_type in ('DOI', 'ISBN', 'URN', 'Handle', )",
+                    "type": "array",
+                    "title": "writtenPublicationIsIdentifiedBy",
+                    "items": [{
+                        "description": "pid_type in ('DOI', 'ISBN', 'URN', 'Handle', )",
+                        "title": "writtenPublicationIsIdentifiedBy",
+                        "$ref": "#/properties/identifier"
+                    }]
+                },
+                "writtenPublicationIsPartOfParentPublication": {
+                    "description": "",
+                    "title": "writtenPublicationIsPartOfParent",
+                    "$ref": "#/properties/parent_publication"
+                },
+                "publicationName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "publicationName"
+                },
+                "listOfAuthors": {
+                    "description": "",
+                    "type": "string",
+                    "title": "listOfAuthors"
+                }
+            }
+        },
+        "affiliation": {
+            "description": "",
+            "type": "object",
+            "title": "Affiilation",
+            "required": [
+                "affiliationStartsOn",
+                "affiliationOrganization"
+            ],
+            "properties": {
+                "affiliationStartsOn": {
+                    "description": "",
+                    "title": "affiliationStartsOn",
+                    "$ref": "#/properties/date"
+                },
+                "affiliationEndsOn": {
+                    "description": "",
+                    "title": "affiliationEndsOn",
+                    "$ref": "#/properties/date"
+                },
+                "affiliationType": {
+                    "description": "",
+                    "title": "affiliationType",
+                    "$ref": "#/properties/language_variant"
+                },
+                "affiliationOrganization": {
+                    "description": "",
+                    "title": "affiliationOrganization",
+                    "$ref": "#/properties/organization"
+                },
+                "position": {
+                    "description": "",
+                    "title": "position",
+                    "$ref": "#/properties/language_variant"
+                }
+            }
+        },
+        "keyword": {
+            "description": "",
+            "type": "object",
+            "title": "Keyword",
+            "required": ["keywordContent"],
+            "properties": {
+                "keywordContent": {
+                    "description": "",
+                    "type": "string",
+                    "title": "keyword"
+                },
+                "keywordLanguage": {
+                    "description": "",
+                    "type": "string",
+                    "title": "keyword language"
+                }
+            }
+        },
+        "language_variant": {
+            "description": "",
+            "type": "object",
+            "title": "Language variant",
+            "properties": {
+                "fi": {
+                    "description": "",
+                    "type": "string",
+                    "title": "fi"
+                },
+                "sv": {
+                    "description": "",
+                    "type": "string",
+                    "title": "sv"
+                },
+                "en": {
+                    "description": "",
+                    "type": "string",
+                    "title": "en"
+                }
+            }
+        },
+        "research_dataset": {
+            "description": "",
+            "type": "object",
+            "title": "Research dataset",
+            "required": ["datasetTitle"],
+            "properties": {
+                "datasetTitle": {
+                    "minItems": 1,
+                    "description": "",
+                    "type": "array",
+                    "title": "datasetTitle",
+                    "items": [{
+                        "description": "",
+                        "title": "datasetTitle",
+                        "$ref": "#/properties/descriptive_item"
+                    }]
+                },
+                "datasetDescription": {
+                    "description": "",
+                    "type": "array",
+                    "title": "datasetDescription",
+                    "items": [{
+                        "description": "",
+                        "title": "datasetDescription",
+                        "$ref": "#/properties/descriptive_item"
+                    }]
+                },
+                "datasetCreatedDate": {
+                    "description": "",
+                    "title": "datasetCreatedDate",
+                    "$ref": "#/properties/date"
+                },
+                "roleInDataset": {
+                    "description": "",
+                    "type": "array",
+                    "title": "roleInDataset",
+                    "items": [{
+                        "description": "",
+                        "title": "roleInDataset",
+                        "$ref": "#/properties/reference_data"
+                    }]
+                },
+                "datasetIsIdentifiedBy": {
+                    "description": "pidType in ('DOI', 'URN', 'URL')",
+                    "type": "array",
+                    "title": "datasetIsIdentifiedBy",
+                    "items": [{
+                        "description": "pidType in ('DOI', 'URN', 'URL')",
+                        "title": "datasetIsIdentifiedBy",
+                        "$ref": "#/properties/identifier"
+                    }]
+                }
+            }
+        },
+        "parent_publication": {
+            "description": "",
+            "type": "object",
+            "title": "Parent publication",
+            "required": ["parentPublicationName"],
+            "properties": {
+                "parentPublicationIssueNumber": {
+                    "description": "",
+                    "type": "string",
+                    "title": "parentPublicationIssueNumber"
+                },
+                "parentPublicationName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "parentPublicationName"
+                },
+                "publishedOn": {
+                    "description": "",
+                    "title": "publishedOn",
+                    "$ref": "#/properties/publication_channel"
+                }
+            }
+        },
+        "conference_event": {
+            "description": "",
+            "type": "object",
+            "title": "Conference",
+            "required": ["conferenceName"],
+            "properties": {
+                "isClassifiedByPublicationForum": {
+                    "description": "",
+                    "title": "isClassifiedByPublicationForum",
+                    "$ref": "#/properties/publication_forum_channel"
+                },
+                "conferenceName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "conferenceName"
+                }
+            }
+        },
+        "identifier": {
+            "description": "",
+            "type": "object",
+            "title": "Identifier",
+            "required": [
+                "pidType",
+                "pidContent"
+            ],
+            "properties": {
+                "pidContent": {
+                    "description": "",
+                    "type": "string",
+                    "title": "persistent identifier"
+                },
+                "pidType": {
+                    "description": "",
+                    "type": "string",
+                    "title": "persistent identifier type"
+                }
+            }
+        },
+        "publication_channel": {
+            "description": "",
+            "type": "object",
+            "title": "publication_channel",
+            "properties": {
+                "isPublishedBy": {
+                    "description": "",
+                    "title": "isPublishedBy",
+                    "$ref": "#/properties/publisher"
+                },
+                "isPublishedInSerie": {
+                    "description": "",
+                    "title": "isPublishedInSerie",
+                    "$ref": "#/properties/publication_serie"
+                },
+                "relatesToConference": {
+                    "description": "",
+                    "title": "relatesToConference",
+                    "$ref": "#/properties/conference_event"
+                },
+                "publishedInJournal": {
+                    "description": "",
+                    "title": "publishedInJournal",
+                    "$ref": "#/properties/journal"
+                },
+                "availableOnPlatform": {
+                    "description": "",
+                    "title": "availableOnPlatform",
+                    "$ref": "#/properties/repository"
+                }
+            }
+        },
+        "reference_data": {
+            "description": "",
+            "type": "object",
+            "title": "Code list",
+            "required": [
+                "codeValue",
+                "codeLabel"
+            ],
+            "properties": {
+                "codeLabel": {
+                    "description": "",
+                    "title": "codeLabel",
+                    "$ref": "#/properties/language_variant"
+                },
+                "codeValue": {
+                    "description": "",
+                    "type": "number",
+                    "title": "codeValue"
+                }
+            }
+        },
+        "profile": {
+            "description": "",
+            "type": "object",
+            "title": "Profile",
+            "required": [
+                "isNamedBy",
+                "personIsIdentifiedByORCID"
+            ],
+            "properties": {
+                "hasGrantedFunding": {
+                    "description": "",
+                    "type": "array",
+                    "title": "hasGrantedFunding",
+                    "items": [{
+                        "description": "",
+                        "title": "hasGrantedFunding",
+                        "$ref": "#/properties/granted_funding"
+                    }]
+                },
+                "descriptionOfActivities": {
+                    "description": "oma kuvaus tai AI generoitu kuvaus",
+                    "title": "descriptionOfActivities",
+                    "$ref": "#/properties/language_variant"
+                },
+                "isNamedBy": {
+                    "description": "",
+                    "title": "isNamedBy",
+                    "$ref": "#/properties/person_name"
+                },
+                "isReachableFrom": {
+                    "description": "",
+                    "title": "isReachableFrom",
+                    "$ref": "#/properties/contact_information"
+                },
+                "contributesToOutput": {
+                    "description": "",
+                    "type": "array",
+                    "title": "contributesToOutput",
+                    "items": [{
+                        "description": "",
+                        "title": "contributesToOutput",
+                        "$ref": "#/properties/output"
+                    }]
+                },
+                "affiliations": {
+                    "description": "",
+                    "type": "array",
+                    "title": "affiliations",
+                    "items": [{
+                        "description": "",
+                        "title": "affiliations",
+                        "$ref": "#/properties/affiliation"
+                    }]
+                },
+                "personIsIdentifiedByORCID": {
+                    "description": "",
+                    "type": "string",
+                    "title": "personIsIdentifiedByORCID"
+                },
+                "collaborationInterests": {
+                    "maxItems": 4,
+                    "description": "http://uri.suomi.fi/codelist/research/Kiinnostuksen_ilmaiseminen,\ncode_scheme='Kiinnostuksen_ilmaiseminen'",
+                    "type": "array",
+                    "title": "collaborationInterests",
+                    "items": [{
+                        "description": "http://uri.suomi.fi/codelist/research/Kiinnostuksen_ilmaiseminen,\ncode_scheme='Kiinnostuksen_ilmaiseminen'",
+                        "title": "collaborationInterests",
+                        "$ref": "#/properties/reference_data"
+                    }]
+                },
+                "hasEducations": {
+                    "description": "",
+                    "type": "array",
+                    "title": "hasEducations",
+                    "items": [{
+                        "description": "",
+                        "title": "hasEducations",
+                        "$ref": "#/properties/education"
+                    }]
+                }
+            }
+        },
+        "person_name": {
+            "description": "",
+            "type": "object",
+            "title": "Person name",
+            "required": [
+                "firstName",
+                "lastName"
+            ],
+            "properties": {
+                "firstName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "firstName"
+                },
+                "lastName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "lastName"
+                }
+            }
+        },
+        "granted_funding": {
+            "description": "",
+            "type": "object",
+            "title": "Granted funding",
+            "required": [
+                "grantedFundingName",
+                "isFundedBy"
+            ],
+            "properties": {
+                "fundingStartsOn": {
+                    "description": "",
+                    "title": "fundingStartsOn",
+                    "$ref": "#/properties/date"
+                },
+                "isFundedBy": {
+                    "description": "",
+                    "title": "isFundedBy",
+                    "$ref": "#/properties/organization"
+                },
+                "fundingEndsOn": {
+                    "description": "",
+                    "title": "fundingEndsOn",
+                    "$ref": "#/properties/date"
+                },
+                "grantedFundingName": {
+                    "description": "",
+                    "title": "grantedFundingName",
+                    "$ref": "#/properties/language_variant"
+                }
+            }
+        },
+        "organization": {
+            "description": "",
+            "type": "object",
+            "title": "Organization",
+            "required": [
+                "organizationIsIdentifiedBy",
+                "organizationName"
+            ],
+            "properties": {
+                "organizationIsIdentifiedBy": {
+                    "minItems": 1,
+                    "description": "Oppilaitoskoodi,\nY-tunnus,\nPIC,\nURN",
+                    "type": "array",
+                    "title": "organizationIsIdentifiedBy",
+                    "items": [{
+                        "description": "Oppilaitoskoodi,\nY-tunnus,\nPIC,\nURN",
+                        "title": "organizationIsIdentifiedBy",
+                        "$ref": "#/properties/identifier"
+                    }]
+                },
+                "isPartOfOrganization": {
+                    "description": "",
+                    "title": "isPartOfOrganization",
+                    "$ref": "#/properties/organization"
+                },
+                "organizationName": {
+                    "description": "",
+                    "title": "organizationName",
+                    "$ref": "#/properties/language_variant"
+                },
+                "organizationSector": {
+                    "description": "",
+                    "title": "organizationSector",
+                    "$ref": "#/properties/reference_data"
+                }
+            }
+        },
+        "weblink": {
+            "description": "",
+            "type": "object",
+            "title": "Weblink",
+            "required": [
+                "linkLabel",
+                "linkURL"
+            ],
+            "properties": {
+                "linkLabel": {
+                    "description": "",
+                    "type": "string",
+                    "title": "linkLabel"
+                },
+                "linkURL": {
+                    "description": "",
+                    "type": "string",
+                    "title": "linkURL"
+                }
+            }
+        },
+        "publisher": {
+            "description": "",
+            "type": "object",
+            "title": "Publisher",
+            "required": ["publisherName"],
+            "properties": {
+                "isClassifiedByPublicationForum": {
+                    "description": "",
+                    "title": "isClassifiedByPublicationForum",
+                    "$ref": "#/properties/publication_forum_channel"
+                },
+                "publisherName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "publisherName"
+                }
+            }
+        },
+        "art_publication": {
+            "description": "",
+            "type": "object",
+            "title": "Art publication",
+            "required": [
+                "publicationName",
+                "listOfAuthors",
+                "artPublicationIsIdentifiedBy"
+            ],
+            "properties": {
+                "artPublicationIsIdentifiedBy": {
+                    "minItems": 1,
+                    "description": "?",
+                    "type": "array",
+                    "title": "artPublicationIsIdentifiedBy",
+                    "items": [{
+                        "description": "?",
+                        "title": "artPublicationIsIdentifiedBy",
+                        "$ref": "#/properties/identifier"
+                    }]
+                },
+                "publicationYear": {
+                    "description": "",
+                    "type": "number",
+                    "title": "publicationYear"
+                },
+                "publishedOn": {
+                    "description": "",
+                    "title": "publishedOn",
+                    "$ref": "#/properties/publication_channel"
+                },
+                "publicationName": {
+                    "description": "",
+                    "type": "string",
+                    "title": "publicationName"
+                },
+                "listOfAuthors": {
+                    "description": "",
+                    "type": "string",
+                    "title": "listOfAuthors"
+                },
+                "artPublicationHasParent": {
+                    "description": "",
+                    "title": "artPublicationHasParent",
+                    "$ref": "#/properties/parent_publication"
+                }
+            }
+        }
+    }
+}
