@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using api.Controllers;
 using ResearchFi.PersonPublicApi;
 using api.Services;
@@ -21,7 +22,10 @@ namespace api.Tests
 
             Mock<IPublicApiService> publicApiServiceMock = new Mock<IPublicApiService>();
             publicApiServiceMock.Setup(s => s.GetProfileDataForPublicApi(It.IsAny<string>()))
-                .Returns((string username) => new ProfileDataResponse { Message = $"Hello {username}" });
+                .ReturnsAsync((string username) => new ProfileDataResponse
+                {
+                    PersonProfileData = new PersonProfileData { IsNamedBy = new PersonName { FirstName = "Test", LastName = username } }
+                });
 
             PublicApiController controller = new PublicApiController(NullLogger<PublicApiController>.Instance, publicApiServiceMock.Object, configuration)
             {
@@ -35,35 +39,35 @@ namespace api.Tests
         }
 
         [Fact(DisplayName = "GetProfileForPublicApi - returns 401 when token header is missing")]
-        public void GetProfileForPublicApi_01()
+        public async Task GetProfileForPublicApi_01()
         {
             PublicApiController controller = CreateController(configuredToken: "secret", headerToken: null);
 
-            IActionResult result = controller.GetProfileData(new ProfileDataRequest { PersonKeyIdentifier = "Alice" });
+            IActionResult result = await controller.GetProfileData(new ProfileDataRequest { PersonKeyIdentifier = "Alice" });
 
             Assert.IsType<UnauthorizedResult>(result);
         }
 
         [Fact(DisplayName = "GetProfileForPublicApi - returns 401 when token header does not match")]
-        public void GetProfileForPublicApi_02()
+        public async Task GetProfileForPublicApi_02()
         {
             PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "wrong");
 
-            IActionResult result = controller.GetProfileData(new ProfileDataRequest { PersonKeyIdentifier = "Alice" });
+            IActionResult result = await controller.GetProfileData(new ProfileDataRequest { PersonKeyIdentifier = "Alice" });
 
             Assert.IsType<UnauthorizedResult>(result);
         }
 
         [Fact(DisplayName = "GetProfileForPublicApi - returns greeting when token header matches")]
-        public void GetProfileForPublicApi_03()
+        public async Task GetProfileForPublicApi_03()
         {
             PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "secret");
 
-            IActionResult result = controller.GetProfileData(new ProfileDataRequest { PersonKeyIdentifier = "Alice" });
+            IActionResult result = await controller.GetProfileData(new ProfileDataRequest { PersonKeyIdentifier = "Alice" });
 
             OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
             ProfileDataResponse response = Assert.IsType<ProfileDataResponse>(okResult.Value);
-            Assert.Equal("Hello Alice", response.Message);
+            Assert.Equal("Alice", response.PersonProfileData.IsNamedBy.LastName);
         }
     }
 }
