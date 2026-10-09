@@ -22,6 +22,9 @@ RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 #
 FROM keycloak/keycloak:26.8.0
 
+# Re-enables the deprecated client-initiated account linking (disabled by default).
+ENV KC_SPI_LOGIN_PROTOCOL__OPENID_CONNECT__ALLOW_CLIENT_INITIATED_ACCOUNT_LINKING=true
+
 # Enable SHA1 to prevent JDBC error with SQL Server: "Algorithm constraints check failed on signature algorithm SHA1withRSA"
 # https://github.com/keycloak/keycloak/issues/19185
 USER root
