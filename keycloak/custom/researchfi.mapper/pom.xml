@@ -2,12 +2,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>researchfi</groupId>
   <artifactId>researchfi.mapper</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <name>Keycloak custom SAML mapper for Researchfi project</name>
   
   	<properties>
   		<javaVersion>21</javaVersion>
-		<keycloakVersion>26.6.3</keycloakVersion>
+		<keycloakVersion>26.8.0</keycloakVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>21</maven.compiler.source>
      	<maven.compiler.target>21</maven.compiler.target>

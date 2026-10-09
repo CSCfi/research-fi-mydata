@@ -1,15 +1,16 @@
 #
 # Build container
 #
-FROM --platform=linux/amd64 keycloak/keycloak:26.6.3 AS builder
+FROM --platform=linux/amd64 keycloak/keycloak:26.8.0 AS builder
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
 ENV KC_DB=mssql
 
 # Install custom providers. Researchfi customization jar file should be added here.
-ADD --chown=keycloak:keycloak https://github.com/CSCfi/research-fi-mydata/raw/master/keycloak/custom/build_dependencies/researchfi.mapper-0.0.2.jar /opt/keycloak/providers/researchfi.mapper-0.0.2.jar
-RUN chmod a+r /opt/keycloak/providers/researchfi.mapper-0.0.2.jar
+#ADD --chown=keycloak:keycloak https://github.com/CSCfi/research-fi-mydata/raw/master/keycloak/custom/build_dependencies/researchfi.mapper-0.0.3.jar /opt/keycloak/providers/researchfi.mapper-0.0.3.jar
+ADD --chown=keycloak:keycloak https://github.com/CSCfi/research-fi-mydata/raw/CSCTTV-4925-keycloak-version-update-q4-2026/keycloak/custom/build_dependencies/researchfi.mapper-0.0.3.jar /opt/keycloak/providers/researchfi.mapper-0.0.3.jar
+RUN chmod a+r /opt/keycloak/providers/researchfi.mapper-0.0.3.jar
 
 RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 
@@ -19,7 +20,7 @@ RUN /opt/keycloak/bin/kc.sh build --transaction-xa-enabled=false
 #
 # Optimized container
 #
-FROM keycloak/keycloak:26.6.3
+FROM keycloak/keycloak:26.8.0
 
 # Enable SHA1 to prevent JDBC error with SQL Server: "Algorithm constraints check failed on signature algorithm SHA1withRSA"
 # https://github.com/keycloak/keycloak/issues/19185
