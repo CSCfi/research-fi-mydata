@@ -8,7 +8,6 @@ namespace api.Services
         string ConvertListOfIntsToCommaSeparatedString(List<int> listOfInts);
         string ConvertListOfLongsToCommaSeparatedString(List<long> listOfInts);
         string GetFactFieldValuesFKColumnNameFromItemMetaType(int itemMetaType);
-        string GetSqlQuery_Delete_BrGrantedPermissions(int userprofileId);
         string GetSqlQuery_Delete_DimAffiliations(List<int> dimAffiliationIds);
         string GetSqlQuery_Delete_DimCompetences(List<int> dimCompetenceIds);
         string GetSqlQuery_Delete_DimEducations(List<int> dimEducationIds);

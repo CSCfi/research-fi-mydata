@@ -493,19 +493,6 @@ namespace api.Tests
             Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
         }
 
-        [Fact(DisplayName = "Memory cache key - given permissions")]
-        public void MemoryCacheKey_GivenPermissions()
-        {
-            // Arrange
-            UserProfileService userProfileService = new();
-            string orcidId = "1234-5678-9098-7654";
-            string expectedMemoryCacheKey = $"given_permissions-{orcidId}";
-            // Act
-            string actualMemoryCacheKey = userProfileService.GetCMemoryCacheKey_GivenPermissions(orcidId: orcidId);
-            // Assert
-            Assert.Equal(expectedMemoryCacheKey, actualMemoryCacheKey);
-        }
-
         [Fact(DisplayName = "Research activity deduplication")]
         public void ResearchActivityDeduplication()
         {
@@ -894,7 +881,6 @@ namespace api.Tests
                 utilityService: null,
                 languageService: null,
                 duplicateHandlerService: null,
-                sharingService: null,
                 ttvSqlService: null,
                 logger: null,
                 elasticsearchService: null,

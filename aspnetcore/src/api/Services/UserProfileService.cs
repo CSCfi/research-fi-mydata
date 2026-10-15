@@ -40,7 +40,6 @@ namespace api.Services
         private readonly IUtilityService _utilityService;
         private readonly ILanguageService _languageService;
         private readonly IDuplicateHandlerService _duplicateHandlerService;
-        private readonly ISharingService _sharingService;
         private readonly ITtvSqlService _ttvSqlService;
         private readonly ILogger<UserProfileService> _logger;
         private readonly IElasticsearchService _elasticsearchService;
@@ -53,7 +52,6 @@ namespace api.Services
             IUtilityService utilityService,
             ILanguageService languageService,
             IDuplicateHandlerService duplicateHandlerService,
-            ISharingService sharingService,
             ITtvSqlService ttvSqlService,
             ILogger<UserProfileService> logger,
             IElasticsearchService elasticsearchService,
@@ -80,7 +78,6 @@ namespace api.Services
             _languageService = languageService;
             _settingsService = settingsService;
             _duplicateHandlerService = duplicateHandlerService;
-            _sharingService = sharingService;
             _ttvSqlService = ttvSqlService;
             _logger = logger;
             _cooperationChoicesService = cooperationChoicesService;
@@ -1205,7 +1202,6 @@ namespace api.Services
          *   - DimUserProfile
          *   - DimFieldDisplaySettings
          *   - FactFieldValues
-         *   - BrGrantedPermissions
          */
         public async Task CreateProfile(string orcidId, string userName, LogUserIdentification logUserIdentification)
         {
@@ -1293,12 +1289,7 @@ namespace api.Services
                 }
             }
 
-            // BrGrantedPermissions - Add default sharing permissions
-            _ttvContext.BrGrantedPermissions.AddRange(
-                await _sharingService.GetDefaultSharingPermissionsListForUserProfile(dimUserProfile)
-            );
-
-            // Save DimUserProfile, DimFieldDisplaySettings and BrGrantedPermissions changes.
+            // Save DimUserProfile and DimFieldDisplaySettings changes.
             await _ttvContext.SaveChangesAsync();
 
             // DimUserChoices
@@ -1412,7 +1403,6 @@ namespace api.Services
          * - delete ORCID put codes from DimPid
          * - delete FactFieldValues related items
          * - delete DimFieldDisplaySettings
-         * - delete BrGrantedPermissions (sharing permission)
          * - delete DimUserChoices (co-operation selection) 
          * - delete DimUserProfile  
          */
@@ -1674,11 +1664,6 @@ namespace api.Services
                         sql: _ttvSqlService.GetSqlQuery_Delete_DimFieldDisplaySettings(userprofileId)
                     );
 
-                    // Delete br_granted_permissions
-                    await ExecuteSqlQueryWithProfiling(
-                        sql: _ttvSqlService.GetSqlQuery_Delete_BrGrantedPermissions(userprofileId)
-                    );
-
                     // Delete dim_user_choices
                     await ExecuteSqlQueryWithProfiling(
                         sql: _ttvSqlService.GetSqlQuery_Delete_DimUserChoices(userprofileId)
@@ -1928,30 +1913,6 @@ namespace api.Services
         public string GetCMemoryCacheKey_UserChoices(string orcidId)
         {
             return $"userchoices-{orcidId}";
-        }
-
-        /*
-         * Returns memory cache key for share purposes
-         */
-        public string GetCMemoryCacheKey_SharePurposes()
-        {
-            return "share_purposes";
-        }
-
-        /*
-         * Returns memory cache key for share permissions
-         */
-        public string GetCMemoryCacheKey_SharePermissions()
-        {
-            return "share_permissions";
-        }
-
-        /*
-         * Returns memory cache key for given permissions
-         */
-        public string GetCMemoryCacheKey_GivenPermissions(string orcidId)
-        {
-            return $"given_permissions-{orcidId}";
         }
 
         /*

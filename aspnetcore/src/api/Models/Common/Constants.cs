@@ -119,7 +119,6 @@
         {
             public const string ORCID_RESEARCH_ACTIVITY = "aktiviteetitjaroolit";
             public const string ORCID_FUNDING = "aktiviteetitjaroolit";
-            public const string PROFILE_SHARING = "tutkijaprofiilin_luvitus";
             public const string USER_CHOICES = "Kiinnostuksen_ilmaiseminen";
             public const string ACTIVITIES_AND_ROLES = "aktiviteetitjaroolit";
         }
@@ -155,18 +154,6 @@
             public const string CONTRACT = "13";
             public const string GRANT = "13";
             public const string SALARY_AWARD = "13";
-        }
-
-        public static class ReferenceDataCodeValues
-        {
-            public const string PROFILE_SHARING_PROFILE_INFORMATION = "01";
-            public const string PROFILE_SHARING_EMAIL_ADDRESS = "02";
-            public const string PROFILE_SHARING_PHONE_NUMBER = "03";
-            public const string PROFILE_SHARING_AFFILIATION_AND_EDUCATION = "04";
-            public const string PROFILE_SHARING_PUBLICATIONS = "05";
-            public const string PROFILE_SHARING_DATASETS = "06";
-            public const string PROFILE_SHARING_GRANTS = "07";
-            public const string PROFILE_SHARING_ACTIVITIES_AND_DISTINCTIONS = "08";
         }
 
         public static class ApiResponseReasons
