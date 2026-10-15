@@ -860,10 +860,7 @@ def write_plan(m, ddl_name, path, n_checks, verification_log):
           '`tutkijaprofiilin_luvitus`, `Kiinnostuksen_ilmaiseminen`) are real.',
           '- `dim_controller_purpose.purpose_code_id`: assumed to reference the `tutkijaprofiilin_luvitus` codes (draft consent model); '
           '`<insufficient data>` otherwise.',
-          '- `dim_descriptive_item.dim_profile_data_sharing_consentid` is NOT NULL without an FK in the DDL; seeded as -1.',
-          '- The DDL has no `dim_purpose` or `br_granted_permissions` table, but the current API reads `dim_purpose` at startup '
-          '(`StartupHelperService.GetDimPurposeId_OnStartup_TTV`) and writes `br_granted_permissions` on profile creation. '
-          'They cannot be seeded from this DDL: `<insufficient data>`.', '',
+          '- `dim_descriptive_item.dim_profile_data_sharing_consentid` is NOT NULL without an FK in the DDL; seeded as -1.', '',
           '## Verification', '',
           f'- The script ends with {n_checks} checks collected in `#seed_checks`; it prints `N/N checks passed` and raises an error if any fail.',
           '- Checks: orphan check for every FK, all FKs enabled and trusted, one -1 row per sentinel table, fixed rows 1/2 and one data source '

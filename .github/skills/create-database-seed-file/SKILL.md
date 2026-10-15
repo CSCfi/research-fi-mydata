@@ -103,7 +103,7 @@ The steps below describe what the bundled scripts do and why. Use them to adapt 
      - unknowns and assumptions
      - the verification result
    - Have the generator take a `--verification-log` path so the database result is embedded in the plan. After embedding, confirm the SQL file did not change.
-7. **Run the script against a disposable database** (see [Disposable database recipe](#disposable-database-recipe)), then check that the SQL Server tables the API reads at startup exist. The 2026-10-14 draft DDL has no `dim_purpose` or `br_granted_permissions`, but `StartupHelperService` and `CreateProfile` need them. Report a gap like this as `<insufficient data>`; do not invent tables.
+7. **Run the script against a disposable database** (see [Disposable database recipe](#disposable-database-recipe)), then check that the SQL Server tables the API reads at startup exist. Report a missing table as `<insufficient data>`; do not invent tables.
 
 ## Disposable Database Recipe
 - Image: `mcr.microsoft.com/mssql/server:2022-latest`. On Apple silicon, run it with `--platform linux/amd64`. There is no `sqlcmd` on the host; use `docker exec <name> /opt/mssql-tools18/bin/sqlcmd -C -b -I`.
