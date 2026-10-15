@@ -57,7 +57,16 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            return Ok(await _publicApiService.GetProfileDataForPublicApi(request?.PersonKeyIdentifier));
+            // Schema query_for_consent_status: personIdentifier has 1-2 items and funderROR is required.
+            if (request?.PersonIdentifier == null
+                || request.PersonIdentifier.Count < 1
+                || request.PersonIdentifier.Count > 2
+                || string.IsNullOrWhiteSpace(request.FunderROR))
+            {
+                return BadRequest();
+            }
+
+            return Ok(await _publicApiService.GetProfileDataForPublicApi(request));
         }
 
         // Check that request contains required Public API token, in header "publicapitoken".

@@ -5,7 +5,7 @@ namespace api.Services
 {
     public interface IPublicApiService
     {
-        Task<ProfileDataResponse> GetProfileDataForPublicApi(string personKeyIdentifier);
+        Task<ProfileDataResponse> GetProfileDataForPublicApi(ProfileDataRequest request);
         string GetUsernameFromNationalIdentificationNumber(string nationalIdentificationNumber);
     }
 }

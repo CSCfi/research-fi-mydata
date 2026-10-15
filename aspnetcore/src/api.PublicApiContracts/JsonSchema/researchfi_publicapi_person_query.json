@@ -1,0 +1,120 @@
+{
+    "description": "A data exchange format used by funding organizations to determine whether a person has granted a valid consent for the transfer of their Research.fi profile data. The response returns the current consent status or indicates that no profile exists for the person or that the funding organization is not registered in the system.",
+    "id": "https://iri.suomi.fi/model/researchfi_profile_consent_conta/1.0.1/",
+    "type": "object",
+    "title": "Research.fi - profile data trasfer consent status query and response for funding organizations",
+    "properties": {
+        "identifier": {
+            "description": "",
+            "type": "object",
+            "title": "Persistent identifier information",
+            "required": [
+                "pidType",
+                "pidContent"
+            ],
+            "properties": {
+                "pidContent": {
+                    "description": "",
+                    "type": "string",
+                    "title": "pidContent"
+                },
+                "pidType": {
+                    "description": "",
+                    "title": "pidType",
+                    "enum": [
+                        "ORCID",
+                        "HETU"
+                    ]
+                }
+            }
+        },
+        "response_for_consent_status": {
+            "description": "",
+            "type": "object",
+            "title": "Response for consent",
+            "required": [
+                "consentGranted",
+                "recognizedFunder",
+                "recognizedProfile",
+                "personProfileURL"
+            ],
+            "properties": {
+                "recognizedFunder": {
+                    "description": "",
+                    "title": "recognizedFunder",
+                    "type": "boolean"
+                },
+                "consentGranted": {
+                    "description": "",
+                    "title": "consentGranted",
+                    "type": "boolean"
+                },
+                "profileData": {
+                    "description": "Assosiaation kohteen luokka:\nhttps://iri.suomi.fi/model/researchfi_publicapi_person/profile",
+                    "title": "profileData",
+                    "$ref": ""
+                },
+                "personProfileURL": {
+                    "description": "",
+                    "title": "personProfileURL",
+                    "$ref": "#/properties/language_variant"
+                },
+                "recognizedProfile": {
+                    "description": "",
+                    "title": "recognizedProfile",
+                    "type": "boolean"
+                }
+            }
+        },
+        "language_variant": {
+            "description": "",
+            "type": "object",
+            "title": "Language variants",
+            "properties": {
+                "fi": {
+                    "description": "",
+                    "type": "string",
+                    "title": "fi"
+                },
+                "sv": {
+                    "description": "",
+                    "type": "string",
+                    "title": "sv"
+                },
+                "en": {
+                    "description": "",
+                    "type": "string",
+                    "title": "en"
+                }
+            }
+        },
+        "query_for_consent_status": {
+            "description": "",
+            "type": "object",
+            "title": "Query for consent status",
+            "required": [
+                "personIdentifier",
+                "funderROR"
+            ],
+            "properties": {
+                "funderROR": {
+                    "description": "",
+                    "type": "string",
+                    "title": "funderROR"
+                },
+                "personIdentifier": {
+                    "minItems": 1,
+                    "maxItems": 2,
+                    "description": "'Hetu', 'ORCID'",
+                    "type": "array",
+                    "title": "personIdentifier",
+                    "items": [{
+                        "description": "'Hetu', 'ORCID'",
+                        "title": "personIdentifier",
+                        "$ref": "#/properties/identifier"
+                    }]
+                }
+            }
+        }
+    }
+}

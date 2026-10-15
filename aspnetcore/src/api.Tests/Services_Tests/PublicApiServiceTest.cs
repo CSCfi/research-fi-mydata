@@ -97,28 +97,38 @@ namespace api.Tests
             return new PublicApiService(context, null, null, userProfileServiceMock.Object);
         }
 
+        private static ProfileDataRequest CreateRequest(string pidType, string pidContent)
+        {
+            return new ProfileDataRequest
+            {
+                PersonIdentifier = new List<Identifier> { new Identifier { PidType = pidType, PidContent = pidContent } },
+                FunderROR = "https://ror.org/funder"
+            };
+        }
+
         [Fact(DisplayName = "GetProfileDataForPublicApi - profile not found is not recognized")]
         public async Task GetProfileDataForPublicApi_01()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_01));
             var service = CreateService(context, null, null, out _);
 
-            var response = await service.GetProfileDataForPublicApi("unknown");
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "unknown"));
 
-            Assert.False(response.PersonProfileRecognized);
-            Assert.Null(response.PersonProfileData);
+            Assert.False(response.RecognizedProfile);
+            Assert.Null(response.ProfileData);
         }
 
-        [Fact(DisplayName = "GetProfileDataForPublicApi - empty username does not look up profile")]
+        [Fact(DisplayName = "GetProfileDataForPublicApi - empty identifier does not look up profile")]
         public async Task GetProfileDataForPublicApi_02()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_02));
             var service = CreateService(context, new DimUserProfile { Id = 1 }, null, out var userProfileServiceMock);
 
-            var response = await service.GetProfileDataForPublicApi("");
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", ""));
 
-            Assert.False(response.PersonProfileRecognized);
+            Assert.False(response.RecognizedProfile);
             userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
+            userProfileServiceMock.Verify(s => s.GetUserprofile(It.IsAny<string>()), Times.Never);
         }
 
         [Fact(DisplayName = "GetProfileDataForPublicApi - hidden profile is not recognized")]
@@ -127,10 +137,10 @@ namespace api.Tests
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_03));
             var service = CreateService(context, new DimUserProfile { Id = 1, Hidden = true }, CreateProfileEditorData(), out _);
 
-            var response = await service.GetProfileDataForPublicApi("alice");
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "alice"));
 
-            Assert.False(response.PersonProfileRecognized);
-            Assert.Null(response.PersonProfileData);
+            Assert.False(response.RecognizedProfile);
+            Assert.Null(response.ProfileData);
         }
 
         [Fact(DisplayName = "GetProfileDataForPublicApi - maps profile data to contract")]
@@ -151,11 +161,11 @@ namespace api.Tests
             await context.SaveChangesAsync();
             var service = CreateService(context, new DimUserProfile { Id = 1, OrcidId = "0000-0000-0000-0001" }, CreateProfileEditorData(), out var userProfileServiceMock);
 
-            var response = await service.GetProfileDataForPublicApi("alice");
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "alice"));
 
-            Assert.True(response.PersonProfileRecognized);
+            Assert.True(response.RecognizedProfile);
             userProfileServiceMock.Verify(s => s.GetProfileData(1, It.IsAny<LogUserIdentification>(), true), Times.Once);
-            PersonProfileData data = response.PersonProfileData;
+            PersonProfileData data = response.ProfileData;
             Assert.Equal("Matti", data.IsNamedBy.FirstName);
             Assert.Equal("Virtanen", data.IsNamedBy.LastName);
             Assert.Equal("0000-0000-0000-0001", data.PersonIsIdentifiedByORCID);
@@ -202,16 +212,28 @@ namespace api.Tests
             Assert.Equal("Interest 2", interest.CodeLabel.En);
         }
 
-        [Fact(DisplayName = "GetProfileDataForPublicApi - looks up profile by username derived from person key identifier")]
+        [Fact(DisplayName = "GetProfileDataForPublicApi - looks up profile by username derived from HETU")]
         public async Task GetProfileDataForPublicApi_05()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_05));
             var service = CreateService(context, null, null, out var userProfileServiceMock);
 
-            await service.GetProfileDataForPublicApi("010170-999R");
+            await service.GetProfileDataForPublicApi(CreateRequest("HETU", "010170-999R"));
 
             // Value 010170-999R is a test value for Finnish national identification number. No real person is associated with this value.
             userProfileServiceMock.Verify(s => s.GetUserprofileByUsername("5f0c2c8d2107f4700fb5aa1ef717ac03"), Times.Once);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - looks up profile by ORCID")]
+        public async Task GetProfileDataForPublicApi_06()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_06));
+            var service = CreateService(context, null, null, out var userProfileServiceMock);
+
+            await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            userProfileServiceMock.Verify(s => s.GetUserprofile("0000-0000-0000-0001"), Times.Once);
+            userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
         }
 
         private static PublicApiService CreateServiceWithResponse(string jsonResponse)
