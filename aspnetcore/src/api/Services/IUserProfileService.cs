@@ -45,9 +45,6 @@ namespace api.Services
         string GetCMemoryCacheKey_UserProfile(string orcidId);
         string GetCMemoryCacheKey_ProfileSettings(string orcidId);
         string GetCMemoryCacheKey_UserChoices(string orcidId);
-        string GetCMemoryCacheKey_SharePurposes();
-        string GetCMemoryCacheKey_SharePermissions();
-        string GetCMemoryCacheKey_GivenPermissions(string orcidId);
         Task SetModifiedTimestampInUserProfile(int Id);
         bool SetFactFieldValuesShow(DimUserProfile dimUserProfile, int fieldIdentifier, LogUserIdentification logUserIdentification);
         Task AddTtvPublicationsByDoiToUserProfile(int dimUserProfileId, LogUserIdentification logUserIdentification);

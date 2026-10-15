@@ -850,18 +850,6 @@ namespace api.Tests
             Assert.Equal(NormalizeSql(expectedSqlString), NormalizeSql(actualSqlString));
         }
 
-        [Fact(DisplayName = "Get SQL query for deleting br_granted_permissions")]
-        public void Test_GetSqlQuery_Delete_BrGrantedPermissions()
-        {
-            // Arrange
-            TtvSqlService ttvSqlService = new();
-            string expectedSqlString = "DELETE FROM br_granted_permissions WHERE dim_user_profile_id=998877";
-            // Act
-            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_BrGrantedPermissions(998877);
-            // Assert
-            Assert.Equal(NormalizeSql(expectedSqlString), NormalizeSql(actualSqlString));
-        }
-
         [Fact(DisplayName = "Get SQL query for deleting dim_user_choices")]
         public void Test_GetSqlQuery_Delete_DimUserChoices()
         {

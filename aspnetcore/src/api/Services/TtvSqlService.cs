@@ -255,12 +255,6 @@ namespace api.Services
             return $"DELETE FROM dim_field_display_settings WHERE dim_user_profile_id={userprofileId}";
         }
 
-        // Return SQL DELETE statement for br_granted_permissions.
-        public string GetSqlQuery_Delete_BrGrantedPermissions(int userprofileId)
-        {
-            return $"DELETE FROM br_granted_permissions WHERE dim_user_profile_id={userprofileId}";
-        }
-
         // Return SQL DELETE statement for dim_user_choices.
         public string GetSqlQuery_Delete_DimUserChoices(int userprofileId)
         {

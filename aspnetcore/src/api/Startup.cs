@@ -273,7 +273,6 @@ namespace api
             services.AddScoped<IKeycloakAdminApiService, KeycloakAdminApiService>();
             services.AddScoped<IDuplicateHandlerService, DuplicateHandlerService>();
             services.AddScoped<IStartupHelperService, StartupHelperService>();
-            services.AddScoped<ISharingService, SharingService>();
             services.AddSingleton<IElasticsearchService, ElasticsearchService>();
             services.AddSingleton<IUtilityService, UtilityService>();    
             services.AddSingleton<IDataSourceHelperService, DataSourceHelperService>();
