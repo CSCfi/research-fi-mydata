@@ -38,17 +38,24 @@ namespace api.Services
         }
 
         // Get profile data for public API. Only published (show=true) items are included.
-        public async Task<ProfileDataResponse> GetProfileDataForPublicApi(string personKeyIdentifier)
+        public async Task<ProfileDataResponse> GetProfileDataForPublicApi(ProfileDataRequest request)
         {
-            // Profiles created before username was introduced have an empty username, never match those.
-            DimUserProfile dimUserProfile = string.IsNullOrWhiteSpace(personKeyIdentifier)
-                ? null
-                : await _userProfileService.GetUserprofileByUsername(GetUsernameFromNationalIdentificationNumber(personKeyIdentifier));
+            // Get user profile.
+            DimUserProfile dimUserProfile = await FindUserProfile(request?.PersonIdentifier);
 
+            // Profile not found or hidden.
             if (dimUserProfile == null || dimUserProfile.Hidden)
             {
-                return new ProfileDataResponse { PersonProfileRecognized = false, PersonProfileData = null };
+                // TODO: not handled yet. Funder recognition is not checked.
+                return new ProfileDataResponse {
+                    RecognizedProfile = false,
+                    ConsentGranted = false,
+                    ProfileData = null,
+                    RecognizedFunder = true
+                };
             }
+
+            // TODO: handle funder recognition and consent status.
 
             ProfileEditorDataResponse profileData = await _userProfileService.GetProfileData(
                 userprofileId: dimUserProfile.Id,
@@ -57,8 +64,8 @@ namespace api.Services
 
             return new ProfileDataResponse
             {
-                PersonProfileRecognized = true,
-                PersonProfileData = new PersonProfileData
+                RecognizedProfile = true,
+                ProfileData = new PersonProfileData
                 {
                     HasGrantedFunding = profileData.activity.fundingDecisions.Select(ToGrantedFunding).ToList(),
                     DescriptionOfActivities = ToDescriptionOfActivities(profileData.personal.researcherDescriptions),
@@ -81,10 +88,30 @@ namespace api.Services
                     CollaborationInterests = await GetCollaborationInterests(dimUserProfile.Id),
                     HasEducations = profileData.activity.educations.Select(ToEducation).ToList()
                 },
-                // TODO: not handled yet. Consent and funder recognition are not checked.
+                // TODO: not handled yet. Consent, funder recognition and profile URL are not set.
                 ConsentGranted = true,
-                RecognizedFunder = true
+                RecognizedFunder = true,
+                PersonProfileURL = null
             };
+        }
+
+        // HETU identifier is preferred over ORCID. Returns null when no usable identifier matches a profile.
+        private async Task<DimUserProfile> FindUserProfile(IEnumerable<Identifier> personIdentifiers)
+        {
+            Identifier hetu = personIdentifiers?.FirstOrDefault(i => string.Equals(i?.PidType, "HETU", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(i.PidContent));
+            if (hetu != null)
+            {
+                // Profiles created before username was introduced have an empty username, never match those.
+                return await _userProfileService.GetUserprofileByUsername(GetUsernameFromNationalIdentificationNumber(hetu.PidContent));
+            }
+
+            Identifier orcid = personIdentifiers?.FirstOrDefault(i => string.Equals(i?.PidType, api.Models.Common.Constants.PidTypes.ORCID, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(i.PidContent));
+            if (orcid != null)
+            {
+                return await _userProfileService.GetUserprofile(orcid.PidContent);
+            }
+
+            return null;
         }
 
         // The profile data cooperation items do not contain the reference data code, so query the selected choices directly.

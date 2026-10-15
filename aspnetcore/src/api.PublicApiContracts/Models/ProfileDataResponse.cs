@@ -1,20 +1,19 @@
 namespace ResearchFi.PersonPublicApi
 {
     /// <summary>
-    /// Profile data response for public API.
+    /// Profile data response for public API (schema: response_for_consent_status).
     /// </summary>
     public class ProfileDataResponse
-
     {
         /// <summary>
         /// Person has profile.
         /// </summary>
-        public bool PersonProfileRecognized { get; set; }
+        public bool RecognizedProfile { get; set; }
 
         /// <summary>
-        /// Person's data.
+        /// Funder is recognized.
         /// </summary>
-        public PersonProfileData PersonProfileData { get; set; }
+        public bool RecognizedFunder { get; set; }
 
         /// <summary>
         /// Consent is granted for this funder.
@@ -22,8 +21,13 @@ namespace ResearchFi.PersonPublicApi
         public bool ConsentGranted { get; set; }
 
         /// <summary>
-        /// Funder is recognized.
+        /// Link to the person's profile.
         /// </summary>
-        public bool RecognizedFunder { get; set; }
+        public LanguageVariant PersonProfileURL { get; set; }
+
+        /// <summary>
+        /// Person's data.
+        /// </summary>
+        public PersonProfileData ProfileData { get; set; }
     }
 }
