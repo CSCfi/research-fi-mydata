@@ -39,8 +39,6 @@ public partial class DimUserProfile
 
     public string ProfileUsername { get; set; }
 
-    public virtual ICollection<BrGrantedPermission> BrGrantedPermissions { get; set; } = new List<BrGrantedPermission>();
-
     public virtual ICollection<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; } = new List<DimFieldDisplaySetting>();
 
     public virtual DimKnownPerson DimKnownPerson { get; set; }
