@@ -101,8 +101,8 @@ namespace api.Tests
         {
             return new ProfileDataRequest
             {
-                PersonIdentifier = new List<Identifier> { new Identifier { PidType = pidType, PidContent = pidContent } },
-                FunderROR = "https://ror.org/funder"
+                PersonIdentifiers = new List<Identifier> { new Identifier { PidType = pidType, PidContent = pidContent } },
+                ControllerROR = "https://ror.org/controller"
             };
         }
 
@@ -114,7 +114,7 @@ namespace api.Tests
 
             var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "unknown"));
 
-            Assert.False(response.RecognizedProfile);
+            Assert.False(response.ProfileFound);
             Assert.Null(response.ProfileData);
         }
 
@@ -126,7 +126,7 @@ namespace api.Tests
 
             var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", ""));
 
-            Assert.False(response.RecognizedProfile);
+            Assert.False(response.ProfileFound);
             userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
             userProfileServiceMock.Verify(s => s.GetUserprofile(It.IsAny<string>()), Times.Never);
         }
@@ -139,7 +139,7 @@ namespace api.Tests
 
             var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "alice"));
 
-            Assert.False(response.RecognizedProfile);
+            Assert.False(response.ProfileFound);
             Assert.Null(response.ProfileData);
         }
 
@@ -163,12 +163,13 @@ namespace api.Tests
 
             var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "alice"));
 
-            Assert.True(response.RecognizedProfile);
+            Assert.True(response.ProfileFound);
             userProfileServiceMock.Verify(s => s.GetProfileData(1, It.IsAny<LogUserIdentification>(), true), Times.Once);
             PersonProfileData data = response.ProfileData;
             Assert.Equal("Matti", data.IsNamedBy.FirstName);
             Assert.Equal("Virtanen", data.IsNamedBy.LastName);
-            Assert.Equal("0000-0000-0000-0001", data.PersonIsIdentifiedByORCID);
+            Assert.Equal("0000-0000-0000-0001", data.PersonIsIdentifiedBy.PidContent);
+            Assert.Equal("ORCID", data.PersonIsIdentifiedBy.PidType);
             Assert.Equal("Description", data.DescriptionOfActivities.En);
             Assert.Equal("Kuvaus", data.DescriptionOfActivities.Fi);
             Assert.Null(data.DescriptionOfActivities.Sv);
@@ -200,7 +201,7 @@ namespace api.Tests
             Assert.Equal("Virtanen M", publication.ListOfAuthors);
             Assert.Equal(2021, publication.PublicationYear);
             Assert.Equal("10.1234/abc", Assert.Single(publication.WrittenPublicationIsIdentifiedBy).PidContent);
-            Assert.Equal("Journal", publication.PublishedOn.PublishedInJournal.JournalName);
+            Assert.Equal("Journal", publication.PublishedOn.IsPublishedInSerie.JournalName);
             ResearchDataset dataset = Assert.Single(output.ContributesToDataset);
             Assert.Equal("Dataset", Assert.Single(dataset.DatasetTitle).DescriptiveContent);
             Assert.Equal(2022, dataset.DatasetCreatedDate.Year);

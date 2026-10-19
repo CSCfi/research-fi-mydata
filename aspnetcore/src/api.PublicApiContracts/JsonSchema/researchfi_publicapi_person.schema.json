@@ -1,6 +1,6 @@
 {
     "description": "",
-    "id": "https://iri.suomi.fi/model/researchfi_publicapi_person/1.0.3/",
+    "id": "https://iri.suomi.fi/model/researchfi_publicapi_person/1.0.4/",
     "type": "object",
     "title": "Research.fi - profile API end point",
     "properties": {
@@ -123,36 +123,6 @@
                 }
             }
         },
-        "publication_serie": {
-            "description": "",
-            "type": "object",
-            "title": "Publication serie",
-            "required": ["serieName"],
-            "properties": {
-                "volume": {
-                    "description": "",
-                    "type": "string",
-                    "title": "volume"
-                },
-                "isClassifiedByPublicationForum": {
-                    "description": "",
-                    "title": "isClassifiedByPublicationForum",
-                    "$ref": "#/properties/publication_forum_channel"
-                },
-                "ISSN": {
-                    "maxItems": 2,
-                    "description": "",
-                    "type": "array",
-                    "title": "ISSN",
-                    "items": {"type": "string"}
-                },
-                "serieName": {
-                    "description": "",
-                    "type": "string",
-                    "title": "serieName"
-                }
-            }
-        },
         "contact_information": {
             "description": "",
             "type": "object",
@@ -186,31 +156,35 @@
             "description": "",
             "type": "object",
             "title": "In Publication Forum",
-            "required": ["JuFo-Id"],
-            "properties": {"JuFo-Id": {
-                "description": "",
-                "type": "string",
-                "title": "JuFo-Id"
-            }}
+            "required": ["identifierByPublicationForum"],
+            "properties": {
+                "jufoClassification": {
+                    "description": "",
+                    "title": "jufoClassification",
+                    "$ref": "#/properties/reference_data"
+                },
+                "identifierByPublicationForum": {
+                    "description": "JuFo-Id",
+                    "title": "identifierByPublicationForum",
+                    "$ref": "#/properties/identifier"
+                }
+            }
         },
         "repository": {
             "description": "",
             "type": "object",
             "title": "Repository",
-            "required": [
-                "repositoryName",
-                "URI"
-            ],
+            "required": ["repositoryName"],
             "properties": {
+                "repositoryIsIdentifiedBy": {
+                    "description": "pid_type = 'uri'",
+                    "title": "repositoryIsIdentifiedBy",
+                    "$ref": "#/properties/identifier"
+                },
                 "repositoryName": {
                     "description": "",
                     "type": "string",
                     "title": "repositoryName"
-                },
-                "URI": {
-                    "description": "",
-                    "type": "string",
-                    "title": "URI"
                 }
             }
         },
@@ -314,57 +288,6 @@
                 }
             }
         },
-        "registered_data_source": {
-            "description": "",
-            "type": "object",
-            "title": "Data source",
-            "required": [
-                "dataSourceOrganizationName",
-                "dataSourceName"
-            ],
-            "properties": {
-                "dataSourceOrganizationName": {
-                    "description": "",
-                    "title": "dataSourceOrganizationName",
-                    "$ref": "#/properties/language_variant"
-                },
-                "dataSourceName": {
-                    "description": "",
-                    "type": "string",
-                    "title": "dataSourceName"
-                }
-            }
-        },
-        "journal": {
-            "description": "",
-            "type": "object",
-            "title": "Journal",
-            "required": ["journalName"],
-            "properties": {
-                "volume": {
-                    "description": "",
-                    "type": "string",
-                    "title": "volume"
-                },
-                "isClassifiedByPublicationForum": {
-                    "description": "",
-                    "title": "isClassifiedByPublicationForum",
-                    "$ref": "#/properties/publication_forum_channel"
-                },
-                "journalName": {
-                    "description": "",
-                    "type": "string",
-                    "title": "journal name"
-                },
-                "ISSN": {
-                    "maxItems": 2,
-                    "description": "",
-                    "type": "array",
-                    "title": "ISSN",
-                    "items": {"type": "string"}
-                }
-            }
-        },
         "written_publication": {
             "description": "",
             "type": "object",
@@ -449,21 +372,31 @@
                 }
             }
         },
-        "keyword": {
+        "serial_publication": {
             "description": "",
             "type": "object",
-            "title": "Keyword",
-            "required": ["keywordContent"],
+            "title": "Publication serie",
+            "required": ["journalName"],
             "properties": {
-                "keywordContent": {
+                "volume": {
                     "description": "",
                     "type": "string",
-                    "title": "keyword"
+                    "title": "volume"
                 },
-                "keywordLanguage": {
+                "isClassifiedByPublicationForum": {
+                    "description": "",
+                    "title": "isClassifiedByPublicationForum",
+                    "$ref": "#/properties/publication_forum_channel"
+                },
+                "journalName": {
                     "description": "",
                     "type": "string",
-                    "title": "keyword language"
+                    "title": "journalName"
+                },
+                "serialPublicationIsIdentifiedBy": {
+                    "description": "pid_type = 'ISSN'",
+                    "title": "serialPublicationIsIdentifiedBy",
+                    "$ref": "#/properties/identifier"
                 }
             }
         },
@@ -618,17 +551,12 @@
                 "isPublishedInSerie": {
                     "description": "",
                     "title": "isPublishedInSerie",
-                    "$ref": "#/properties/publication_serie"
+                    "$ref": "#/properties/serial_publication"
                 },
                 "relatesToConference": {
                     "description": "",
                     "title": "relatesToConference",
                     "$ref": "#/properties/conference_event"
-                },
-                "publishedInJournal": {
-                    "description": "",
-                    "title": "publishedInJournal",
-                    "$ref": "#/properties/journal"
                 },
                 "availableOnPlatform": {
                     "description": "",
@@ -664,7 +592,7 @@
             "title": "Profile",
             "required": [
                 "isNamedBy",
-                "personIsIdentifiedByORCID"
+                "personIsIdentifiedBy"
             ],
             "properties": {
                 "hasGrantedFunding": {
@@ -712,10 +640,10 @@
                         "$ref": "#/properties/affiliation"
                     }]
                 },
-                "personIsIdentifiedByORCID": {
-                    "description": "",
-                    "type": "string",
-                    "title": "personIsIdentifiedByORCID"
+                "personIsIdentifiedBy": {
+                    "description": "pidType = 'ORCID'",
+                    "title": "personIsIdentifiedBy",
+                    "$ref": "#/properties/identifier"
                 },
                 "collaborationInterests": {
                     "maxItems": 4,

@@ -5,7 +5,10 @@ namespace ResearchFi.PersonPublicApi
     /// </summary>
     public class PublicationForumChannel
     {
-        /// <summary>JuFo identifier.</summary>
-        public string JuFoId { get; set; }
+        /// <summary>JuFo classification.</summary>
+        public ReferenceData JufoClassification { get; set; }
+
+        /// <summary>JuFo-Id.</summary>
+        public Identifier IdentifierByPublicationForum { get; set; }
     }
 }

@@ -9,13 +9,10 @@ namespace ResearchFi.PersonPublicApi
         public Publisher IsPublishedBy { get; set; }
 
         /// <summary>Publication series.</summary>
-        public PublicationSerie IsPublishedInSerie { get; set; }
+        public SerialPublication IsPublishedInSerie { get; set; }
 
         /// <summary>Related conference.</summary>
         public ConferenceEvent RelatesToConference { get; set; }
-
-        /// <summary>Journal the publication appeared in.</summary>
-        public Journal PublishedInJournal { get; set; }
 
         /// <summary>Platform the publication is available on.</summary>
         public Repository AvailableOnPlatform { get; set; }

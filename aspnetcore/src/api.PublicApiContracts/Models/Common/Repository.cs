@@ -5,10 +5,10 @@ namespace ResearchFi.PersonPublicApi
     /// </summary>
     public class Repository
     {
+        /// <summary>Platform or repository identifier, pid_type = 'uri'.</summary>
+        public Identifier RepositoryIsIdentifiedBy { get; set; }
+
         /// <summary>Platform or repository name.</summary>
         public string RepositoryName { get; set; }
-
-        /// <summary>Platform or repository URI.</summary>
-        public string URI { get; set; }
     }
 }

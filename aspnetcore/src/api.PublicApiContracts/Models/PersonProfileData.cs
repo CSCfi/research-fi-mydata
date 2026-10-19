@@ -38,9 +38,9 @@ namespace ResearchFi.PersonPublicApi
         public List<Affiliation> Affiliations { get; set; }
 
         /// <summary>
-        /// Person's ORCID identifier.
+        /// Person's identifier, pidType = 'ORCID'.
         /// </summary>
-        public string PersonIsIdentifiedByORCID { get; set; }
+        public Identifier PersonIsIdentifiedBy { get; set; }
 
         /// <summary>
         /// Collaboration interests expressed by the person.

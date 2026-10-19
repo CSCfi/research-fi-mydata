@@ -1,8 +1,8 @@
 {
-    "description": "A data exchange format used by funding organizations to determine whether a person has granted a valid consent for the transfer of their Research.fi profile data. The response returns the current consent status or indicates that no profile exists for the person or that the funding organization is not registered in the system.",
-    "id": "https://iri.suomi.fi/model/researchfi_profile_consent_conta/1.0.1/",
+    "description": "A data exchange format used to determine whether a person has granted a valid consent for the transfer of their Research.fi profile data to a specified controller. The response returns the current consent status or indicates that no profile exists for the person or that the specified controller is not registered in the system.",
+    "id": "https://iri.suomi.fi/model/researchfi_profile_consent/1.0.0/",
     "type": "object",
-    "title": "Research.fi - profile data trasfer consent status query and response for funding organizations",
+    "title": "Research.fi - profile data transfer consent status query and response",
     "properties": {
         "identifier": {
             "description": "",
@@ -33,36 +33,35 @@
             "type": "object",
             "title": "Response for consent",
             "required": [
-                "consentGranted",
-                "recognizedFunder",
-                "recognizedProfile",
-                "personProfileURL"
+                "consentManagementURL",
+                "profileFound",
+                "controllerFound"
             ],
             "properties": {
-                "recognizedFunder": {
+                "profileFound": {
                     "description": "",
-                    "title": "recognizedFunder",
+                    "title": "profileFound",
                     "type": "boolean"
                 },
-                "consentGranted": {
+                "controllerFound": {
                     "description": "",
-                    "title": "consentGranted",
+                    "title": "controllerFound",
                     "type": "boolean"
                 },
                 "profileData": {
-                    "description": "Assosiaation kohteen luokka:\nhttps://iri.suomi.fi/model/researchfi_publicapi_person/profile",
+                    "description": "",
                     "title": "profileData",
                     "$ref": ""
                 },
-                "personProfileURL": {
-                    "description": "",
-                    "title": "personProfileURL",
-                    "$ref": "#/properties/language_variant"
-                },
-                "recognizedProfile": {
-                    "description": "",
-                    "title": "recognizedProfile",
+                "consentActive": {
+                    "description": "Indicates whether an active consent exists between the identified person and the specified controller. Returned only when both the controller and the profile are found.",
+                    "title": "consentActive",
                     "type": "boolean"
+                },
+                "consentManagementURL": {
+                    "description": "",
+                    "title": "consentManagementURL",
+                    "$ref": "#/properties/language_variant"
                 }
             }
         },
@@ -71,15 +70,15 @@
             "type": "object",
             "title": "Language variants",
             "properties": {
-                "fi": {
-                    "description": "",
-                    "type": "string",
-                    "title": "fi"
-                },
                 "sv": {
                     "description": "",
                     "type": "string",
                     "title": "sv"
+                },
+                "fi": {
+                    "description": "",
+                    "type": "string",
+                    "title": "fi"
                 },
                 "en": {
                     "description": "",
@@ -93,24 +92,24 @@
             "type": "object",
             "title": "Query for consent status",
             "required": [
-                "personIdentifier",
-                "funderROR"
+                "personIdentifiers",
+                "controllerROR"
             ],
             "properties": {
-                "funderROR": {
+                "controllerROR": {
                     "description": "",
                     "type": "string",
-                    "title": "funderROR"
+                    "title": "controllerROR"
                 },
-                "personIdentifier": {
+                "personIdentifiers": {
                     "minItems": 1,
                     "maxItems": 2,
                     "description": "'Hetu', 'ORCID'",
                     "type": "array",
-                    "title": "personIdentifier",
+                    "title": "personIdentifiers",
                     "items": [{
                         "description": "'Hetu', 'ORCID'",
-                        "title": "personIdentifier",
+                        "title": "personIdentifiers",
                         "$ref": "#/properties/identifier"
                     }]
                 }

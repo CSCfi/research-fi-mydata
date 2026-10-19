@@ -24,7 +24,7 @@ namespace api.Tests
             publicApiServiceMock.Setup(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()))
                 .ReturnsAsync((ProfileDataRequest request) => new ProfileDataResponse
                 {
-                    ProfileData = new PersonProfileData { IsNamedBy = new PersonName { FirstName = "Test", LastName = request.PersonIdentifier[0].PidContent } }
+                    ProfileData = new PersonProfileData { IsNamedBy = new PersonName { FirstName = "Test", LastName = request.PersonIdentifiers[0].PidContent } }
                 });
 
             PublicApiController controller = new PublicApiController(NullLogger<PublicApiController>.Instance, publicApiServiceMock.Object, configuration)
@@ -42,8 +42,8 @@ namespace api.Tests
         {
             return new ProfileDataRequest
             {
-                PersonIdentifier = new List<Identifier> { new Identifier { PidType = "ORCID", PidContent = pidContent } },
-                FunderROR = "https://ror.org/funder"
+                PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "ORCID", PidContent = pidContent } },
+                ControllerROR = "https://ror.org/controller"
             };
         }
 
@@ -85,8 +85,8 @@ namespace api.Tests
             PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "secret");
 
             Assert.IsType<BadRequestResult>(await controller.GetProfileData(null));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest { FunderROR = "x" }));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest { PersonIdentifier = new List<Identifier> { new Identifier() } }));
+            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest { ControllerROR = "x" }));
+            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest { PersonIdentifiers = new List<Identifier> { new Identifier() } }));
         }
     }
 }

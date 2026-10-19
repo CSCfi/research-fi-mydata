@@ -10,11 +10,11 @@ namespace ResearchFi.PersonPublicApi
         /// <summary>
         /// Identifiers of the person whose profile data consent is queried. 1-2 items, pidType is "ORCID" or "HETU".
         /// </summary>
-        public List<Identifier> PersonIdentifier { get; set; }
+        public List<Identifier> PersonIdentifiers { get; set; }
 
         /// <summary>
-        /// ROR identifier of the funder to whom permission is granted.
+        /// ROR identifier of the controller to whom the profile data transfer consent is granted.
         /// </summary>
-        public string FunderROR { get; set; }
+        public string ControllerROR { get; set; }
     }
 }

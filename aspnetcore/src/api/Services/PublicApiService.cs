@@ -41,21 +41,21 @@ namespace api.Services
         public async Task<ProfileDataResponse> GetProfileDataForPublicApi(ProfileDataRequest request)
         {
             // Get user profile.
-            DimUserProfile dimUserProfile = await FindUserProfile(request?.PersonIdentifier);
+            DimUserProfile dimUserProfile = await FindUserProfile(request?.PersonIdentifiers);
 
             // Profile not found or hidden.
             if (dimUserProfile == null || dimUserProfile.Hidden)
             {
-                // TODO: not handled yet. Funder recognition is not checked.
+                // TODO: not handled yet. Controller recognition is not checked.
                 return new ProfileDataResponse {
-                    RecognizedProfile = false,
-                    ConsentGranted = false,
-                    ProfileData = null,
-                    RecognizedFunder = true
+                    ProfileFound = false,
+                    ControllerFound = true,
+                    ConsentActive = null,
+                    ProfileData = null
                 };
             }
 
-            // TODO: handle funder recognition and consent status.
+            // TODO: handle controller recognition and consent status.
 
             ProfileEditorDataResponse profileData = await _userProfileService.GetProfileData(
                 userprofileId: dimUserProfile.Id,
@@ -64,7 +64,7 @@ namespace api.Services
 
             return new ProfileDataResponse
             {
-                RecognizedProfile = true,
+                ProfileFound = true,
                 ProfileData = new PersonProfileData
                 {
                     HasGrantedFunding = profileData.activity.fundingDecisions.Select(ToGrantedFunding).ToList(),
@@ -84,14 +84,14 @@ namespace api.Services
                         }
                     },
                     Affiliations = profileData.activity.affiliations.Select(ToAffiliation).ToList(),
-                    PersonIsIdentifiedByORCID = dimUserProfile.OrcidId,
+                    PersonIsIdentifiedBy = new Identifier { PidType = api.Models.Common.Constants.PidTypes.ORCID, PidContent = dimUserProfile.OrcidId },
                     CollaborationInterests = await GetCollaborationInterests(dimUserProfile.Id),
                     HasEducations = profileData.activity.educations.Select(ToEducation).ToList()
                 },
-                // TODO: not handled yet. Consent, funder recognition and profile URL are not set.
-                ConsentGranted = true,
-                RecognizedFunder = true,
-                PersonProfileURL = null
+                // TODO: not handled yet. Consent, controller recognition and consent management URL are not set.
+                ConsentActive = true,
+                ControllerFound = true,
+                ConsentManagementURL = null
             };
         }
 
@@ -243,7 +243,7 @@ namespace api.Services
             };
         }
 
-        // TODO: not handled yet: identifiers other than DOI, JuFo ids, ISSN, publication series, parent publication issue number.
+        // TODO: not handled yet: identifiers other than DOI, JuFo ids, ISSN, parent publication issue number.
         private static WrittenPublication ToWrittenPublication(ProfileEditorPublication publication)
         {
             List<Identifier> identifiers = new();
@@ -253,11 +253,11 @@ namespace api.Services
             }
 
             Publisher publisher = string.IsNullOrWhiteSpace(publication.PublisherName) ? null : new Publisher { PublisherName = publication.PublisherName };
-            Journal journal = string.IsNullOrWhiteSpace(publication.JournalName) ? null : new Journal { JournalName = publication.JournalName, Volume = NullIfBlank(publication.Volume) };
+            SerialPublication serie = string.IsNullOrWhiteSpace(publication.JournalName) ? null : new SerialPublication { JournalName = publication.JournalName, Volume = NullIfBlank(publication.Volume) };
             ConferenceEvent conference = string.IsNullOrWhiteSpace(publication.ConferenceName) ? null : new ConferenceEvent { ConferenceName = publication.ConferenceName };
-            PublicationChannel channel = publisher == null && journal == null && conference == null
+            PublicationChannel channel = publisher == null && serie == null && conference == null
                 ? null
-                : new PublicationChannel { IsPublishedBy = publisher, PublishedInJournal = journal, RelatesToConference = conference };
+                : new PublicationChannel { IsPublishedBy = publisher, IsPublishedInSerie = serie, RelatesToConference = conference };
 
             ParentPublication parentPublication = null;
             if (!string.IsNullOrWhiteSpace(publication.ParentPublicationName))

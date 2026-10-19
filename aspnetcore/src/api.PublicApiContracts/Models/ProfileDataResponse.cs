@@ -8,22 +8,22 @@ namespace ResearchFi.PersonPublicApi
         /// <summary>
         /// Person has profile.
         /// </summary>
-        public bool RecognizedProfile { get; set; }
+        public bool ProfileFound { get; set; }
 
         /// <summary>
-        /// Funder is recognized.
+        /// Controller is registered in the system.
         /// </summary>
-        public bool RecognizedFunder { get; set; }
+        public bool ControllerFound { get; set; }
 
         /// <summary>
-        /// Consent is granted for this funder.
+        /// Active consent exists between the person and the controller. Set only when both the controller and the profile are found.
         /// </summary>
-        public bool ConsentGranted { get; set; }
+        public bool? ConsentActive { get; set; }
 
         /// <summary>
-        /// Link to the person's profile.
+        /// Link to the page where the person manages consents.
         /// </summary>
-        public LanguageVariant PersonProfileURL { get; set; }
+        public LanguageVariant ConsentManagementURL { get; set; }
 
         /// <summary>
         /// Person's data.

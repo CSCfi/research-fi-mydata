@@ -57,11 +57,11 @@ namespace api.Controllers
                 return Unauthorized();
             }
 
-            // Schema query_for_consent_status: personIdentifier has 1-2 items and funderROR is required.
-            if (request?.PersonIdentifier == null
-                || request.PersonIdentifier.Count < 1
-                || request.PersonIdentifier.Count > 2
-                || string.IsNullOrWhiteSpace(request.FunderROR))
+            // Schema query_for_consent_status: personIdentifiers has 1-2 items and controllerROR is required.
+            if (request?.PersonIdentifiers == null
+                || request.PersonIdentifiers.Count < 1
+                || request.PersonIdentifiers.Count > 2
+                || string.IsNullOrWhiteSpace(request.ControllerROR))
             {
                 return BadRequest();
             }
