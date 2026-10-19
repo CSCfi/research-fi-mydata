@@ -364,8 +364,6 @@ namespace api
         {
             DimRegisteredDataSource dimRegisteredDataSource_ORCID = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_ORCID();
             DimRegisteredDataSource dimRegisteredDataSource_TTV = startupHelperService.GetDimRegisteredDataSourceId_OnStartup_TTV();
-            // TODO: Uncomment when sharing permissions feature is enabled.
-            // DimPurpose dimPurpose_TTV = startupHelperService.GetDimPurposeId_OnStartup_TTV();
 
             dataSourceHelperService.DimRegisteredDataSourceId_ORCID = dimRegisteredDataSource_ORCID.Id;
             dataSourceHelperService.DimRegisteredDataSourceName_ORCID = dimRegisteredDataSource_ORCID.Name;

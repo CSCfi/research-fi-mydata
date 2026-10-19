@@ -6,10 +6,6 @@ namespace api.Models.Ttv;
 
 public partial class TtvContext : DbContext
 {
-    public TtvContext()
-    {
-    }
-
     public TtvContext(DbContextOptions<TtvContext> options)
         : base(options)
     {
@@ -17,11 +13,7 @@ public partial class TtvContext : DbContext
 
     public virtual DbSet<BrFundingConsortiumParticipation> BrFundingConsortiumParticipations { get; set; }
 
-    public virtual DbSet<BrGrantedPermission> BrGrantedPermissions { get; set; }
-
     public virtual DbSet<BrParticipatesInFundingGroup> BrParticipatesInFundingGroups { get; set; }
-
-    public virtual DbSet<BrServiceSubscription> BrServiceSubscriptions { get; set; }
 
     public virtual DbSet<BrWordClusterDimFundingDecision> BrWordClusterDimFundingDecisions { get; set; }
 
@@ -50,8 +42,6 @@ public partial class TtvContext : DbContext
     public virtual DbSet<DimEsfri> DimEsfris { get; set; }
 
     public virtual DbSet<DimEvent> DimEvents { get; set; }
-
-    public virtual DbSet<DimExternalService> DimExternalServices { get; set; }
 
     public virtual DbSet<DimFieldDisplaySetting> DimFieldDisplaySettings { get; set; }
 
@@ -100,8 +90,6 @@ public partial class TtvContext : DbContext
     public virtual DbSet<DimPublication> DimPublications { get; set; }
 
     public virtual DbSet<DimPublicationChannel> DimPublicationChannels { get; set; }
-
-    public virtual DbSet<DimPurpose> DimPurposes { get; set; }
 
     public virtual DbSet<DimReferencedatum> DimReferencedata { get; set; }
 
@@ -165,7 +153,6 @@ public partial class TtvContext : DbContext
 
     public virtual DbSet<PidM> PidMs { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BrFundingConsortiumParticipation>(entity =>
@@ -193,32 +180,6 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimOrganizationid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FKbr_funding503907");
-        });
-
-        modelBuilder.Entity<BrGrantedPermission>(entity =>
-        {
-            entity.HasKey(e => new { e.DimUserProfileId, e.DimExternalServiceId, e.DimPermittedFieldGroup }).HasName("PK__br_grant__F51F7BCBA005930F");
-
-            entity.ToTable("br_granted_permissions");
-
-            entity.Property(e => e.DimUserProfileId).HasColumnName("dim_user_profile_id");
-            entity.Property(e => e.DimExternalServiceId).HasColumnName("dim_external_service_id");
-            entity.Property(e => e.DimPermittedFieldGroup).HasColumnName("dim_permitted_field_group");
-
-            entity.HasOne(d => d.DimExternalService).WithMany(p => p.BrGrantedPermissions)
-                .HasForeignKey(d => d.DimExternalServiceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKbr_granted953402");
-
-            entity.HasOne(d => d.DimPermittedFieldGroupNavigation).WithMany(p => p.BrGrantedPermissions)
-                .HasForeignKey(d => d.DimPermittedFieldGroup)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("field group");
-
-            entity.HasOne(d => d.DimUserProfile).WithMany(p => p.BrGrantedPermissions)
-                .HasForeignKey(d => d.DimUserProfileId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("permitted_services");
         });
 
         modelBuilder.Entity<BrParticipatesInFundingGroup>(entity =>
@@ -255,26 +216,6 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimOrganizationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("get_funding_in_name_of_org");
-        });
-
-        modelBuilder.Entity<BrServiceSubscription>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("br_service_subscription");
-
-            entity.Property(e => e.DimExternalServiceId).HasColumnName("dim_external_service_id");
-            entity.Property(e => e.DimUserProfileId).HasColumnName("dim_user_profile_id");
-
-            entity.HasOne(d => d.DimExternalService).WithMany()
-                .HasForeignKey(d => d.DimExternalServiceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKbr_service763943");
-
-            entity.HasOne(d => d.DimUserProfile).WithMany()
-                .HasForeignKey(d => d.DimUserProfileId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("permitted services");
         });
 
         modelBuilder.Entity<BrWordClusterDimFundingDecision>(entity =>
@@ -963,7 +904,7 @@ public partial class TtvContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("created");
             entity.Property(e => e.DimContactInformationId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_dim_email_addrress_dim_contact_information_id")
                 .HasColumnName("dim_contact_information_id");
             entity.Property(e => e.DimKnownPersonId).HasColumnName("dim_known_person_id");
             entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
@@ -1106,41 +1047,6 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimRegisteredDataSourceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FKdim_event492051");
-        });
-
-        modelBuilder.Entity<DimExternalService>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__dim_exte__3213E83FAB316432");
-
-            entity.ToTable("dim_external_service");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Created)
-                .HasColumnType("datetime")
-                .HasColumnName("created");
-            entity.Property(e => e.Description)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("description");
-            entity.Property(e => e.DimOrganizationId).HasColumnName("dim_organization_id");
-            entity.Property(e => e.Modified)
-                .HasColumnType("datetime")
-                .HasColumnName("modified");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.SourceDescription)
-                .HasMaxLength(255)
-                .HasColumnName("source_description");
-            entity.Property(e => e.SourceId)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("source_id");
-
-            entity.HasOne(d => d.DimOrganization).WithMany(p => p.DimExternalServices)
-                .HasForeignKey(d => d.DimOrganizationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKdim_extern413099");
         });
 
         modelBuilder.Entity<DimFieldDisplaySetting>(entity =>
@@ -2200,7 +2106,7 @@ public partial class TtvContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("created");
             entity.Property(e => e.DimEventId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_dim_pid_dim_event_id")
                 .HasColumnName("dim_event_id");
             entity.Property(e => e.DimInfrastructureId).HasColumnName("dim_infrastructure_id");
             entity.Property(e => e.DimKnownPersonId).HasColumnName("dim_known_person_id");
@@ -2950,49 +2856,6 @@ public partial class TtvContext : DbContext
                 .HasColumnName("source_id");
         });
 
-        modelBuilder.Entity<DimPurpose>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__dim_purp__3213E83FA11DB48C");
-
-            entity.ToTable("dim_purpose");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Created)
-                .HasColumnType("datetime")
-                .HasColumnName("created");
-            entity.Property(e => e.DescriptionEn).HasColumnName("description_en");
-            entity.Property(e => e.DescriptionFi).HasColumnName("description_fi");
-            entity.Property(e => e.DescriptionSv).HasColumnName("description_sv");
-            entity.Property(e => e.DimOrganizationId).HasColumnName("dim_organization_id");
-            entity.Property(e => e.Modified)
-                .HasColumnType("datetime")
-                .HasColumnName("modified");
-            entity.Property(e => e.NameEn)
-                .HasMaxLength(255)
-                .HasColumnName("name_en");
-            entity.Property(e => e.NameFi)
-                .HasMaxLength(255)
-                .HasColumnName("name_fi");
-            entity.Property(e => e.NameSv)
-                .HasMaxLength(255)
-                .HasColumnName("name_sv");
-            entity.Property(e => e.NameUnd)
-                .HasMaxLength(255)
-                .HasColumnName("name_und");
-            entity.Property(e => e.SourceDescription)
-                .HasMaxLength(255)
-                .HasColumnName("source_description");
-            entity.Property(e => e.SourceId)
-                .IsRequired()
-                .HasMaxLength(255)
-                .HasColumnName("source_id");
-
-            entity.HasOne(d => d.DimOrganization).WithMany(p => p.DimPurposes)
-                .HasForeignKey(d => d.DimOrganizationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKdim_purpos656541");
-        });
-
         modelBuilder.Entity<DimReferencedatum>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__dim_refe__3213E83F5360D403");
@@ -3012,7 +2875,7 @@ public partial class TtvContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("created");
             entity.Property(e => e.DimReferencedataId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_dim_referencedata_dim_referencedata_id")
                 .HasColumnName("dim_referencedata_id");
             entity.Property(e => e.Modified)
                 .HasColumnType("datetime")
@@ -3707,7 +3570,7 @@ public partial class TtvContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("created");
             entity.Property(e => e.DimContactInformationId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_dim_telephone_number_dim_contact_information_id")
                 .HasColumnName("dim_contact_information_id");
             entity.Property(e => e.DimKnownPersonId).HasColumnName("dim_known_person_id");
             entity.Property(e => e.DimRegisteredDataSourceId).HasColumnName("dim_registered_data_source_id");
@@ -3890,7 +3753,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.DimCallProgrammeId).HasColumnName("dim_call_programme_id");
             entity.Property(e => e.DimFundingDecisionId).HasColumnName("dim_funding_decision_id");
             entity.Property(e => e.DimInfrastructureId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_dim_web_link_dim_infrastructure_id")
                 .HasColumnName("dim_infrastructure_id");
             entity.Property(e => e.DimKnownPersonId).HasColumnName("dim_known_person_id");
             entity.Property(e => e.DimOrganizationId).HasColumnName("dim_organization_id");
@@ -3904,7 +3767,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.DimResearchDatasetId).HasColumnName("dim_research_dataset_id");
             entity.Property(e => e.DimResearchProjectId).HasColumnName("dim_research_project_id");
             entity.Property(e => e.DimServiceId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_dim_web_link_dim_service_id")
                 .HasColumnName("dim_service_id");
             entity.Property(e => e.LanguageVariant)
                 .HasMaxLength(255)
@@ -4037,7 +3900,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.DimResearchCommunityId).HasColumnName("dim_research_community_id");
             entity.Property(e => e.DimReferencedataActorRoleId).HasColumnName("dim_referencedata_actor_role_id");
             entity.Property(e => e.DimResearchProjectId)
-                .HasDefaultValueSql("('-1')")
+                .HasDefaultValueSql("('-1')", "fact_contribution_project_def")
                 .HasColumnName("dim_research_project_id");
             entity.Property(e => e.ContributionType)
                 .IsRequired()
@@ -4135,25 +3998,25 @@ public partial class TtvContext : DbContext
             entity.ToTable("fact_dim_referencedata_field_of_science");
 
             entity.Property(e => e.DimReferencedataId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_fact_dim_referencedata_field_of_science_dim_referencedata_id")
                 .HasColumnName("dim_referencedata_id");
             entity.Property(e => e.DimResearchDatasetId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_fact_dim_referencedata_field_of_science_dim_research_dataset_id")
                 .HasColumnName("dim_research_dataset_id");
             entity.Property(e => e.DimKnownPersonId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_fact_dim_referencedata_field_of_science_dim_known_person_id")
                 .HasColumnName("dim_known_person_id");
             entity.Property(e => e.DimPublicationId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_fact_dim_referencedata_field_of_science_dim_publication_id")
                 .HasColumnName("dim_publication_id");
             entity.Property(e => e.DimResearchActivityId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_fact_dim_referencedata_field_of_science_dim_research_activity_id")
                 .HasColumnName("dim_research_activity_id");
             entity.Property(e => e.DimFundingDecisionId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_fact_dim_referencedata_field_of_science_dim_funding_decision_id")
                 .HasColumnName("dim_funding_decision_id");
             entity.Property(e => e.DimInfrastructureId)
-                .HasDefaultValue(-1)
+                .HasDefaultValue(-1, "DF_fact_dim_referencedata_field_of_science_dim_infrastructure_id")
                 .HasColumnName("dim_infrastructure_id");
             entity.Property(e => e.Created)
                 .HasColumnType("datetime")
@@ -4794,7 +4657,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.DimInfrastructureId).HasColumnName("dim_infrastructure_id");
             entity.Property(e => e.DimServiceId).HasColumnName("dim_service_id");
             entity.Property(e => e.RowCreated)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("(getdate())", "DF_pid_ms_created")
                 .HasColumnType("datetime")
                 .HasColumnName("row_created");
         });

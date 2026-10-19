@@ -69,8 +69,6 @@ public partial class DimOrganization
 
     public virtual ICollection<DimAffiliation> DimAffiliations { get; set; } = new List<DimAffiliation>();
 
-    public virtual ICollection<DimExternalService> DimExternalServices { get; set; } = new List<DimExternalService>();
-
     public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; } = new List<DimFundingDecision>();
 
     public virtual ICollection<DimIdentifierlessDatum> DimIdentifierlessData { get; set; } = new List<DimIdentifierlessDatum>();
@@ -84,8 +82,6 @@ public partial class DimOrganization
     public virtual ICollection<DimProfileOnlyFundingDecision> DimProfileOnlyFundingDecisions { get; set; } = new List<DimProfileOnlyFundingDecision>();
 
     public virtual ICollection<DimProfileOnlyResearchActivity> DimProfileOnlyResearchActivities { get; set; } = new List<DimProfileOnlyResearchActivity>();
-
-    public virtual ICollection<DimPurpose> DimPurposes { get; set; } = new List<DimPurpose>();
 
     public virtual DimRegisteredDataSource DimRegisteredDataSource { get; set; }
 
