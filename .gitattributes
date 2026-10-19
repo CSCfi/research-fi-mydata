@@ -1,0 +1,15 @@
+# Handle line endings automatically for files detected as text
+# and leave binary files (like images) alone.
+* text=auto
+
+# Force all C# files and project files to use LF (Unix-style)
+# This is common for modern .NET Core/Web projects
+*.cs text eol=lf
+*.cshtml text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.xml text eol=lf
+
+# Optional: If you prefer Windows-style (CRLF) for everyone, use:
+# *.cs   text eol=crlf
