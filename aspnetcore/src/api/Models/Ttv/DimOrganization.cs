@@ -97,6 +97,8 @@ public partial class DimOrganization
 
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
 
+    public virtual ICollection<FactOrganizationGeneral> FactOrganizationGenerals { get; set; } = new List<FactOrganizationGeneral>();
+
     public virtual ICollection<FactUpkeep> FactUpkeeps { get; set; } = new List<FactUpkeep>();
 
     public virtual ICollection<DimOrganization> InverseDimOrganizationBroaderNavigation { get; set; } = new List<DimOrganization>();

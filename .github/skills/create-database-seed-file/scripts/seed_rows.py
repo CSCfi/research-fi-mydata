@@ -485,9 +485,4 @@ def build():
     t['fact_organization_general'] = [
         dict(id=i, dim_organization_id=o, source_id='Tiedejatutkimus.fi', source_description='Seed test data', created=TS, modified=TS)
         for i, o in [(1, 8), (2, 3), (3, 4), (4, 6)]]
-    t['dim_controller_purpose'] = [
-        dict(id=n, purpose_code_id=r, consent_controller_id=1, created=TS, modified=TS) for n, r in enumerate(RD_SHARING, start=1)]
-    t['fact_profile_data_sharing_consent'] = [
-        dict(dim_user_profile_id=p, dim_consent_target_id=c, dim_date_id_consent_granted=g, created=TS, modified=TS)
-        for p, c, g in [(1, 1, 7), (1, 2, 7), (1, 4, 7), (1, 5, 7), (1, 8, 7), (2, 1, 8), (2, 5, 8), (3, 1, 8)]]
     return t
