@@ -51,6 +51,8 @@ public partial class TtvContext : DbContext
 
     public virtual DbSet<DimIdentifierlessDatum> DimIdentifierlessData { get; set; }
 
+    public virtual DbSet<DimIdentifierlessOrganization> DimIdentifierlessOrganizations { get; set; }
+
     public virtual DbSet<DimInfrastructure> DimInfrastructures { get; set; }
 
     public virtual DbSet<DimInfrastructureOld> DimInfrastructureOlds { get; set; }
@@ -142,6 +144,8 @@ public partial class TtvContext : DbContext
     public virtual DbSet<FactInfraKeyword> FactInfraKeywords { get; set; }
 
     public virtual DbSet<FactKeyword> FactKeywords { get; set; }
+
+    public virtual DbSet<FactOrganizationGeneral> FactOrganizationGenerals { get; set; }
 
     public virtual DbSet<FactReferencedatum> FactReferencedata { get; set; }
 
@@ -1357,6 +1361,46 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimOrganizationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("identifierlessIsPartOfOrganization");
+        });
+
+        modelBuilder.Entity<DimIdentifierlessOrganization>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__dim_iden__3213E83F98B4CD20");
+
+            entity.ToTable("dim_identifierless_organization");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Created)
+                .HasColumnType("datetime")
+                .HasColumnName("created");
+            entity.Property(e => e.Modified)
+                .HasColumnType("datetime")
+                .HasColumnName("modified");
+            entity.Property(e => e.NameEn)
+                .HasMaxLength(4000)
+                .HasColumnName("name_en");
+            entity.Property(e => e.NameFi)
+                .HasMaxLength(4000)
+                .HasColumnName("name_fi");
+            entity.Property(e => e.NameSv)
+                .HasMaxLength(4000)
+                .HasColumnName("name_sv");
+            entity.Property(e => e.NameUnd)
+                .HasMaxLength(4000)
+                .HasColumnName("name_und");
+            entity.Property(e => e.SourceDescription)
+                .HasMaxLength(255)
+                .HasColumnName("source_description");
+            entity.Property(e => e.SourceId)
+                .IsRequired()
+                .HasMaxLength(255)
+                .HasColumnName("source_id");
+            entity.Property(e => e.UnlinkedIdentifier)
+                .HasMaxLength(255)
+                .HasColumnName("unlinked_identifier");
+            entity.Property(e => e.WeblinkUrl)
+                .HasMaxLength(511)
+                .HasColumnName("weblink_url");
         });
 
         modelBuilder.Entity<DimInfrastructure>(entity =>
@@ -3885,6 +3929,8 @@ public partial class TtvContext : DbContext
 
             entity.ToTable("fact_contribution");
 
+            entity.HasIndex(e => e.FactOrganizationGeneralId, "fact_contribution_fact_organization_general_id");
+
             entity.Property(e => e.DimFundingDecisionId).HasColumnName("dim_funding_decision_id");
             entity.Property(e => e.DimOrganizationId).HasColumnName("dim_organization_id");
             entity.Property(e => e.DimDateId).HasColumnName("dim_date_id");
@@ -3909,6 +3955,9 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.Created)
                 .HasColumnType("datetime")
                 .HasColumnName("created");
+            entity.Property(e => e.FactOrganizationGeneralId)
+                .HasDefaultValue(-1, "DF_fact_contribution_dim_organization_general_id")
+                .HasColumnName("fact_organization_general_id");
             entity.Property(e => e.Modified)
                 .HasColumnType("datetime")
                 .HasColumnName("modified");
@@ -3989,6 +4038,11 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimResearchDatasetId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("authors, infras, publications, funding decisions");
+
+            entity.HasOne(d => d.FactOrganizationGeneral).WithMany(p => p.FactContributions)
+                .HasForeignKey(d => d.FactOrganizationGeneralId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("contribution_generalOrganization");
         });
 
         modelBuilder.Entity<FactDimReferencedataFieldOfScience>(entity =>
@@ -4373,6 +4427,46 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.DimResearchProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FKfact_keywo171431");
+        });
+
+        modelBuilder.Entity<FactOrganizationGeneral>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__fact_org__3213E83FFDDA48C2");
+
+            entity.ToTable("fact_organization_general");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Created)
+                .HasColumnType("datetime")
+                .HasColumnName("created");
+            entity.Property(e => e.DimIdentifierlessOrganizationId).HasColumnName("dim_identifierless_organization_id");
+            entity.Property(e => e.DimOrganizationId).HasColumnName("dim_organization_id");
+            entity.Property(e => e.Modified)
+                .HasColumnType("datetime")
+                .HasColumnName("modified");
+            entity.Property(e => e.ParentOrgGeneralId).HasColumnName("parent_org_general_id");
+            entity.Property(e => e.SourceDescription)
+                .HasMaxLength(255)
+                .HasColumnName("source_description");
+            entity.Property(e => e.SourceId)
+                .IsRequired()
+                .HasMaxLength(255)
+                .HasColumnName("source_id");
+
+            entity.HasOne(d => d.DimIdentifierlessOrganization).WithMany(p => p.FactOrganizationGenerals)
+                .HasForeignKey(d => d.DimIdentifierlessOrganizationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("identifierlessOrganization_organizationGeneral");
+
+            entity.HasOne(d => d.DimOrganization).WithMany(p => p.FactOrganizationGenerals)
+                .HasForeignKey(d => d.DimOrganizationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("organization_organizationGeneral");
+
+            entity.HasOne(d => d.ParentOrgGeneral).WithMany(p => p.InverseParentOrgGeneral)
+                .HasForeignKey(d => d.ParentOrgGeneralId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("parent_organization");
         });
 
         modelBuilder.Entity<FactReferencedatum>(entity =>

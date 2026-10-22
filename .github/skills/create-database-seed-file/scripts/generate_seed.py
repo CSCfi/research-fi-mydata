@@ -857,10 +857,7 @@ def write_plan(m, ddl_name, path, n_checks, verification_log):
           '`fact_field_values` rows use it (settings rows exist, `show` = 0).',
           f'- Code scheme names {", ".join(f"`{s}`" for s in S.ILLUSTRATIVE_CODE_SCHEMES)} and the names/codes of roles `3.1.1` and `2.3.1` '
           'are illustrative, not taken from the official code lists. Scheme names from `Constants` (`aktiviteetitjaroolit`, '
-          '`tutkijaprofiilin_luvitus`, `Kiinnostuksen_ilmaiseminen`) are real.',
-          '- `dim_controller_purpose.purpose_code_id`: assumed to reference the `tutkijaprofiilin_luvitus` codes (draft consent model); '
-          '`<insufficient data>` otherwise.',
-          '- `dim_descriptive_item.dim_profile_data_sharing_consentid` is NOT NULL without an FK in the DDL; seeded as -1.', '',
+          '`tutkijaprofiilin_luvitus`, `Kiinnostuksen_ilmaiseminen`) are real.', '',
           '## Verification', '',
           f'- The script ends with {n_checks} checks collected in `#seed_checks`; it prints `N/N checks passed` and raises an error if any fail.',
           '- Checks: orphan check for every FK, all FKs enabled and trusted, one -1 row per sentinel table, fixed rows 1/2 and one data source '
