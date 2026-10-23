@@ -310,6 +310,12 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
         }
 
+        // dim_web_link.url is nvarchar(511)
+        private static string TruncateUrl(string url)
+        {
+            return url != null && url.Length > 511 ? url.Substring(0, 511) : url;
+        }
+
         /*
          * Helper method, add DimWebLink
          */
@@ -325,7 +331,7 @@ namespace api.Services
         {
             return new DimWebLink()
             {
-                Url = url.Length > 511 ? url.Substring(0, 511) : url, // nvarchar(511) in the DB
+                Url = TruncateUrl(url),
                 LinkLabel = label,
                 DimKnownPerson = dimKnownPerson,
                 DimProfileOnlyDataset = dimProfileOnlyDataset,
@@ -594,7 +600,7 @@ namespace api.Services
                 {
                     // Update existing DimWebLink
                     DimWebLink dimWebLink = factFieldValuesWebLink.DimWebLink;
-                    dimWebLink.Url = researchUrl.Url;
+                    dimWebLink.Url = TruncateUrl(researchUrl.Url);
                     dimWebLink.LinkLabel = researchUrl.UrlName;
                     dimWebLink.Modified = currentDateTime;
                     // Update existing FactFieldValue
@@ -1439,7 +1445,7 @@ namespace api.Services
                             {
                                 // Update DimWebLink
                                 DimWebLink datasetWebLink = dimProfileOnlyDataset.DimWebLinks.First();
-                                datasetWebLink.Url = orcidDataset.Url;
+                                datasetWebLink.Url = TruncateUrl(orcidDataset.Url);
                                 datasetWebLink.Modified = currentDateTime;
                             }
                         }
@@ -1590,7 +1596,7 @@ namespace api.Services
                         {
                             // Update DimWebLink
                             DimWebLink datasetWebLink = dimProfileOnlyFundingDecision_existing.DimWebLinks.First();
-                            datasetWebLink.Url = orcidFunding.Url;
+                            datasetWebLink.Url = TruncateUrl(orcidFunding.Url);
                             datasetWebLink.Modified = currentDateTime;
                         }
                     }
@@ -1854,7 +1860,7 @@ namespace api.Services
                         {
                             // Update DimWebLink
                             DimWebLink researchActivityWebLink = dimProfileOnlyResearchActivity_existing.DimWebLinks.First();
-                            researchActivityWebLink.Url = orcidResearchActivity.Url;
+                            researchActivityWebLink.Url = TruncateUrl(orcidResearchActivity.Url);
                             researchActivityWebLink.Modified = currentDateTime;
                         }
                     }
