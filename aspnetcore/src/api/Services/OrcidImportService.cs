@@ -310,10 +310,15 @@ namespace api.Services
             await _ttvContext.SaveChangesAsync();
         }
 
+        private static string Truncate(string value, int maxLength)
+        {
+            return value != null && value.Length > maxLength ? value.Substring(0, maxLength) : value;
+        }
+
         // dim_web_link.url is nvarchar(511)
         private static string TruncateUrl(string url)
         {
-            return url != null && url.Length > 511 ? url.Substring(0, 511) : url;
+            return Truncate(url, 511);
         }
 
         /*
@@ -332,7 +337,7 @@ namespace api.Services
             return new DimWebLink()
             {
                 Url = TruncateUrl(url),
-                LinkLabel = label,
+                LinkLabel = Truncate(label, 255),
                 DimKnownPerson = dimKnownPerson,
                 DimProfileOnlyDataset = dimProfileOnlyDataset,
                 DimProfileOnlyFundingDecision = dimProfileOnlyFundingDecision,
@@ -451,8 +456,8 @@ namespace api.Services
             {
                 // Update existing DimName
                 DimName dimName = factFieldValuesName.DimName;
-                dimName.LastName = _orcidJsonParserService.GetFamilyName(orcidRecordJson).Value;
-                dimName.FirstNames = _orcidJsonParserService.GetGivenNames(orcidRecordJson).Value;
+                dimName.LastName = Truncate(_orcidJsonParserService.GetFamilyName(orcidRecordJson).Value, 255);
+                dimName.FirstNames = Truncate(_orcidJsonParserService.GetGivenNames(orcidRecordJson).Value, 255);
                 dimName.Modified = currentDateTime;
                 // Update existing FactFieldValue
                 factFieldValuesName.Modified = currentDateTime;
@@ -464,8 +469,8 @@ namespace api.Services
                 // Create new DimName
                 DimName dimName = new()
                 {
-                    LastName = _orcidJsonParserService.GetFamilyName(orcidRecordJson).Value,
-                    FirstNames = _orcidJsonParserService.GetGivenNames(orcidRecordJson).Value,
+                    LastName = Truncate(_orcidJsonParserService.GetFamilyName(orcidRecordJson).Value, 255),
+                    FirstNames = Truncate(_orcidJsonParserService.GetGivenNames(orcidRecordJson).Value, 255),
                     DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                     DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                     SourceId = Constants.SourceIdentifiers.PROFILE_API,
@@ -520,7 +525,7 @@ namespace api.Services
                 {
                     // Update existing DimName
                     DimName dimName_otherName = factFieldValuesOtherName.DimName;
-                    dimName_otherName.FullName = otherName.Value;
+                    dimName_otherName.FullName = Truncate(otherName.Value, 255);
                     dimName_otherName.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     factFieldValuesOtherName.Modified = currentDateTime;
@@ -532,7 +537,7 @@ namespace api.Services
                     // Create new DimName for other name
                     DimName dimName_otherName = new()
                     {
-                        FullName = otherName.Value,
+                        FullName = Truncate(otherName.Value, 255),
                         DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                         SourceId = Constants.SourceIdentifiers.PROFILE_API,
@@ -601,7 +606,7 @@ namespace api.Services
                     // Update existing DimWebLink
                     DimWebLink dimWebLink = factFieldValuesWebLink.DimWebLink;
                     dimWebLink.Url = TruncateUrl(researchUrl.Url);
-                    dimWebLink.LinkLabel = researchUrl.UrlName;
+                    dimWebLink.LinkLabel = Truncate(researchUrl.UrlName, 255);
                     dimWebLink.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     factFieldValuesWebLink.Modified = currentDateTime;
@@ -736,11 +741,13 @@ namespace api.Services
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidEmail email in emails)
             {
+                string emailValue = Truncate(email.Value, 255);
+
                 // Check if email already exists
                 FactFieldValue factFieldValuesEmail =
                     dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
                         ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsEmailAddress &&
-                        ffv.DimEmailAddrress.Email == email.Value);
+                        ffv.DimEmailAddrress.Email == emailValue);
 
                 if (factFieldValuesEmail != null)
                 {
@@ -756,7 +763,7 @@ namespace api.Services
                     // Create new DimEmailAddrress
                     DimEmailAddrress dimEmailAddress = new()
                     {
-                        Email = email.Value,
+                        Email = emailValue,
                         SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         Created = currentDateTime,
@@ -833,7 +840,7 @@ namespace api.Services
                 {
                     // Update existing DimKeyword
                     DimKeyword dimKeyword = factFieldValuesKeyword.DimKeyword;
-                    dimKeyword.Keyword = keyword.Value;
+                    dimKeyword.Keyword = Truncate(keyword.Value, 255);
                     dimKeyword.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     factFieldValuesKeyword.Modified = keywordModified;
@@ -846,7 +853,7 @@ namespace api.Services
                     // Create new DimKeyword
                     DimKeyword dimKeyword = new()
                     {
-                        Keyword = keyword.Value,
+                        Keyword = Truncate(keyword.Value, 255),
                         SourceId = Constants.SourceIdentifiers.PROFILE_API,
                         SourceDescription = Constants.SourceDescriptions.PROFILE_API,
                         DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
@@ -915,8 +922,8 @@ namespace api.Services
                 {
                     // Update existing DimPid
                     DimPid dimPid = factFieldValuesExternalIdentifier.DimPid;
-                    dimPid.PidContent = externalIdentifier.ExternalIdValue;
-                    dimPid.PidType = externalIdentifier.ExternalIdType;
+                    dimPid.PidContent = Truncate(externalIdentifier.ExternalIdValue, 255);
+                    dimPid.PidType = Truncate(externalIdentifier.ExternalIdType, 255);
                     dimPid.Modified = currentDateTime;
                     // Update existing FactFieldValue
                     factFieldValuesExternalIdentifier.Modified = currentDateTime;
@@ -927,8 +934,8 @@ namespace api.Services
                 {
                     // Create new DimPid (external identifier is stored into DimPid)
                     DimPid dimPid = _userProfileService.GetEmptyDimPid();
-                    dimPid.PidContent = externalIdentifier.ExternalIdValue;
-                    dimPid.PidType = externalIdentifier.ExternalIdType;
+                    dimPid.PidContent = Truncate(externalIdentifier.ExternalIdValue, 255);
+                    dimPid.PidType = Truncate(externalIdentifier.ExternalIdType, 255);
                     dimPid.DimKnownPersonId = dimUserProfile.DimKnownPersonId;
                     dimPid.SourceId = Constants.SourceIdentifiers.PROFILE_API;
                     _ttvContext.DimPids.Add(dimPid);
