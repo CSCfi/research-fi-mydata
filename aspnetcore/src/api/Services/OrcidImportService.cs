@@ -63,7 +63,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidEducation education in educations)
@@ -125,7 +125,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             foreach (OrcidEmployment employment in employments)
             {
@@ -185,7 +185,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             foreach (OrcidFunding funding in fundings)
             {
@@ -245,7 +245,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             List<OrcidResearchActivity> orcidResearchActivity_works = new();
             try
@@ -261,7 +261,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             foreach (OrcidResearchActivity researchActivity in orcidResearchActivity_invitedPositionsAndDistinctionsMembershipsServices.Concat(orcidResearchActivity_works))
             {
@@ -495,7 +495,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             // Get DimFieldDisplaySettings for other name
             DimFieldDisplaySetting dimFieldDisplaySettingsOtherName =
@@ -575,7 +575,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             // Get DimFieldDisplaySettings for weblink
             DimFieldDisplaySetting dimFieldDisplaySettingsWebLink =
@@ -651,7 +651,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             // Get DimFieldDisplaySettings for researcher description
             DimFieldDisplaySetting dimFieldDisplaySettingsResearcherDescription =
@@ -721,7 +721,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             // Email: DimFieldDisplaySettings
             DimFieldDisplaySetting dimFieldDisplaySettingsEmailAddress =
@@ -806,7 +806,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             // Get DimFieldDisplaySettings for keyword
             DimFieldDisplaySetting dimFieldDisplaySettingsKeyword =
@@ -890,7 +890,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             // Get DimFieldDisplaySettings for keyword
             DimFieldDisplaySetting dimFieldDisplaySettingsExternalIdentifier =
@@ -966,7 +966,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             // Get DimFieldDisplaySettings for education
             DimFieldDisplaySetting dimFieldDisplaySettingsEducation =
@@ -1060,7 +1060,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             // Get DimFieldDisplaySettings for affiliation
             DimFieldDisplaySetting dimFieldDisplaySettingsAffiliation =
@@ -1308,7 +1308,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
 
             // Works => Publication
@@ -1520,7 +1520,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
             // Get DimFieldDisplaySettings for orcid publication
             DimFieldDisplaySetting dimFieldDisplaySettingsOrcidFunding =
@@ -1800,7 +1800,7 @@ namespace api.Services
                         action: LogContent.Action.ORCID_RECORD_PARSE,
                         state: LogContent.ActionState.IN_PROGRESS,
                         error: true,
-                        message: $"{ex.ToString()}"));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
             }
 
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
@@ -2320,7 +2320,7 @@ namespace api.Services
                                 action: LogContent.Action.ORCID_RECORD_PARSE,
                                 state: LogContent.ActionState.IN_PROGRESS,
                                 error: true,
-                                message: $"{ex.ToString()}"));
+                                message: ex.InnerException?.ToString() ?? ex.ToString()));
                     }
                 }
             }
