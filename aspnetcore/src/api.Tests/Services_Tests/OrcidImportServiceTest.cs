@@ -416,6 +416,117 @@ namespace api.Tests
         }
 
         // -------------------------------------------------------------------------
+        // Section: truncation of values exceeding nvarchar(255) columns
+        // -------------------------------------------------------------------------
+
+        private static string Long(char c) => new string(c, 300);
+        private static string Max(char c) => new string(c, 255);
+
+        [Fact(DisplayName = "Name: over-long first/last name truncated to 255 on insert and update")]
+        public async Task Name_LongValues_TruncatedTo255()
+        {
+            using var context = CreateContext(nameof(Name_LongValues_TruncatedTo255));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string Fixture(char c) => LoadFixture("name.json")
+                .Replace("\"Alice\"", $"\"{Long(c)}\"")
+                .Replace("\"Smith\"", $"\"{Long(c)}\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('a'), LogId);
+            var name = context.DimNames.Single(e => e.Id > 0);
+            Assert.Equal(Max('a'), name.FirstNames);
+            Assert.Equal(Max('a'), name.LastName);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('b'), LogId);
+            name = context.DimNames.Single(e => e.Id > 0);
+            Assert.Equal(Max('b'), name.FirstNames);
+            Assert.Equal(Max('b'), name.LastName);
+        }
+
+        [Fact(DisplayName = "Other name: over-long full name truncated to 255 on insert and update")]
+        public async Task OtherName_LongValue_TruncatedTo255()
+        {
+            using var context = CreateContext(nameof(OtherName_LongValue_TruncatedTo255));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string Fixture(char c) => LoadFixture("other_names.json").Replace("\"Alice S.\"", $"\"{Long(c)}\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('a'), LogId);
+            Assert.Single(context.DimNames, n => n.Id > 0 && n.FullName == Max('a'));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('b'), LogId);
+            Assert.Single(context.DimNames, n => n.Id > 0 && n.FullName == Max('b'));
+            Assert.DoesNotContain(context.DimNames, n => n.FullName == Max('a'));
+        }
+
+        [Fact(DisplayName = "Researcher URL: over-long label truncated to 255 on insert and update")]
+        public async Task ResearcherUrl_LongLabel_TruncatedTo255()
+        {
+            using var context = CreateContext(nameof(ResearcherUrl_LongLabel_TruncatedTo255));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string Fixture(char c) => LoadFixture("researcher_url.json").Replace("\"Homepage\"", $"\"{Long(c)}\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('a'), LogId);
+            Assert.Equal(Max('a'), context.DimWebLinks.Single(e => e.Id > 0).LinkLabel);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('b'), LogId);
+            Assert.Equal(Max('b'), context.DimWebLinks.Single(e => e.Id > 0).LinkLabel);
+        }
+
+        [Fact(DisplayName = "Email: over-long address truncated to 255 and not duplicated on re-import")]
+        public async Task Email_LongValue_TruncatedTo255_AndNotDuplicated()
+        {
+            using var context = CreateContext(nameof(Email_LongValue_TruncatedTo255_AndNotDuplicated));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string json = LoadFixture("email.json").Replace("\"alice@example.com\"", $"\"{Long('a')}@example.com\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            Assert.Equal(Max('a'), context.DimEmailAddrresses.Single(e => e.Id > 0).Email);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            Assert.Equal(1, context.DimEmailAddrresses.Count(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Keyword: over-long keyword truncated to 255 on insert and update")]
+        public async Task Keyword_LongValue_TruncatedTo255()
+        {
+            using var context = CreateContext(nameof(Keyword_LongValue_TruncatedTo255));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string Fixture(char c) => LoadFixture("keywords.json").Replace("\"machine learning\"", $"\"{Long(c)}\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('a'), LogId);
+            Assert.Single(context.DimKeywords, k => k.Id > 0 && k.Keyword == Max('a'));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('b'), LogId);
+            Assert.Single(context.DimKeywords, k => k.Id > 0 && k.Keyword == Max('b'));
+            Assert.DoesNotContain(context.DimKeywords, k => k.Keyword == Max('a'));
+        }
+
+        [Fact(DisplayName = "External identifier: over-long type and value truncated to 255 on insert and update")]
+        public async Task ExternalIdentifier_LongValues_TruncatedTo255()
+        {
+            using var context = CreateContext(nameof(ExternalIdentifier_LongValues_TruncatedTo255));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string Fixture(char c) => LoadFixture("external_identifier.json")
+                .Replace("\"Loop profile\"", $"\"{Long(c)}\"")
+                .Replace("\"99999\"", $"\"{Long(c)}\"");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('a'), LogId);
+            var pid = context.DimPids.Single(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE);
+            Assert.Equal(Max('a'), pid.PidContent);
+            Assert.Equal(Max('a'), pid.PidType);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('b'), LogId);
+            pid = context.DimPids.Single(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE);
+            Assert.Equal(Max('b'), pid.PidContent);
+            Assert.Equal(Max('b'), pid.PidType);
+        }
+
+        // -------------------------------------------------------------------------
         // Section: person / name
         // -------------------------------------------------------------------------
 
