@@ -116,7 +116,7 @@ namespace api.Controllers
                             action: LogContent.Action.ORCID_RECORD_GET_PUBLIC_API,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: ex.ToString()));
+                            message: ex.InnerException?.ToString() ?? ex.ToString()));
 
                     return Ok(new ApiResponse(success: false));
                 }
@@ -159,7 +159,7 @@ namespace api.Controllers
                             action: LogContent.Action.KEYCLOAK_GET_ORCID_TOKENS,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: ex.ToString()));
+                            message: ex.InnerException?.ToString() ?? ex.ToString()));
                     return Ok(new ApiResponse(success: false));
                 }
 
@@ -192,7 +192,7 @@ namespace api.Controllers
                             action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
                             state: LogContent.ActionState.FAILED,
                             error: true,
-                            message: ex.ToString()));
+                            message: ex.InnerException?.ToString() ?? ex.ToString()));
                     return Ok(new ApiResponse(success: false));
                 }
             }
@@ -228,7 +228,7 @@ namespace api.Controllers
                         action: LogContent.Action.ORCID_RECORD_IMPORT,
                         state: LogContent.ActionState.FAILED,
                         error: true,
-                        message: ex.ToString()));
+                        message: ex.InnerException?.ToString() ?? ex.ToString()));
 
                 return Ok(new ApiResponse(success: false));
             }
@@ -287,7 +287,7 @@ namespace api.Controllers
                             new LogApiInfo(
                                 action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
                                 error: true,
-                                message: ex.ToString(),
+                                message: ex.InnerException?.ToString() ?? ex.ToString(),
                                 state: LogContent.ActionState.FAILED));
                     }
                 });

@@ -150,7 +150,7 @@ namespace api.Controllers
                         new LogApiInfo(
                             action: LogContent.Action.ORCID_RECORD_GET_MEMBER_API,
                             error: true,
-                            message: ex.ToString(),
+                            message: ex.InnerException?.ToString() ?? ex.ToString(),
                             state: LogContent.ActionState.FAILED));
                 }
 
@@ -183,7 +183,7 @@ namespace api.Controllers
                             new LogApiInfo(
                                 action: LogContent.Action.ORCID_RECORD_IMPORT,
                                 error: true,
-                                message: ex.ToString(),
+                                message: ex.InnerException?.ToString() ?? ex.ToString(),
                                 state: LogContent.ActionState.FAILED));
                     }
                 }
@@ -233,7 +233,7 @@ namespace api.Controllers
                             new LogApiInfo(
                                 action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
                                 error: true,
-                                message: ex.ToString(),
+                                message: ex.InnerException?.ToString() ?? ex.ToString(),
                                 state: LogContent.ActionState.FAILED));
                     }
                 }
