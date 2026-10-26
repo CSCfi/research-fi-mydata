@@ -3,6 +3,30 @@ Status: In Progress
 
 # Public API controller and service implementation spec
 
+## Current status — In Progress
+
+**Core controller and consent-gated service behavior is implemented and verified.** The plan
+remains in progress because three planned verification items have not been completed:
+
+1. Add a regression test proving request logs do not contain the shared token, HETU, ORCID, or
+   profile data. The controller now logs an empty user-identification object, but this privacy
+   guarantee is not yet asserted by a test.
+2. Verify with focused tests that the profile-editor `forElasticsearch: true` path excludes
+   unpublished/private data for every mapped item type. Existing tests verify the Public API
+   mapping, but do not establish those visibility guarantees.
+3. Add a regression test proving that a service/query exception propagates as an error rather
+   than being converted into a success-shaped response.
+
+**Completed:** policy decisions; request authentication and validation; ORCID/HETU selection;
+case-insensitive bare-ROR lookup; controller/profile consent resolution; consent expiry and
+withdrawal checks; response flags and URL; profile-data withholding; API documentation.
+`dotnet build aspnetcore/mydata.sln --no-restore` succeeded, and `dotnet test
+aspnetcore/mydata.sln` passed all 353 tests. The full test run reported one xUnit analyzer warning
+in the unrelated `Profiledata/PublicationServiceTest.cs`.
+
+**Next:** complete the three verification items above, rerun the tests and build, then mark this
+plan Implemented and move it to `plans/done/`.
+
 ## Purpose
 
 Define the intended behavior for `POST /api/publicapi/profile` and implement it in
@@ -127,132 +151,59 @@ The response must not disclose personal data in any scenario where release is no
 
 ## Implementation plan
 
-### Phase 0 — Confirm the policy and data model
+### Phase 0 — Confirm the policy and data model — Complete
 
-1. Policy decisions were confirmed in discussion; see the table above.
-2. Generated EF relationships show ROR PIDs attached to `DimOrganization` and consent controller
-   references attached to `FactOrganizationGeneral`.
-3. `DimDate` stores calendar components; expiry is compared inclusively with the UTC current date.
-4. The response scenario table is complete and confirmed.
+Policy decisions are recorded in the table above. Generated EF relationships establish the ROR
+and consent lookup paths, and the response scenario table is complete.
 
-**Acceptance criteria**
+### Phase 1 — Controller boundary — Implemented; privacy-log test remains
 
-- No policy row remains `TBD` for behavior that will be implemented.
-- The ROR lookup source, consent validity predicate, identifier resolution behavior, and response
-  matrix are explicit and testable.
-- Any requested contract/configuration change is identified separately before implementation.
+Implemented in `PublicApiController`; tests cover token authentication, malformed requests,
+service-call suppression, and response pass-through. The log privacy regression test is still
+pending.
 
-### Phase 1 — Specify and test controller boundary behavior
+### Phase 2 — Profile, controller, and consent resolution — Implemented
 
-Target files:
+Implemented in `PublicApiService`; service tests cover identifier precedence, ROR lookup,
+response flags, active/inactive consent, expiry boundary, hidden profiles, and data withholding.
 
-- `aspnetcore/src/api/Controllers/PublicApiController.cs`
-- `aspnetcore/src/api.Tests/Services_Tests/PublicApiControllerTest.cs`
+### Phase 3 — Public profile mapping and visibility — Mapping implemented; visibility verification pending
 
-1. Add/adjust controller tests for token missing, mismatched token, and valid token.
-2. Assert the service is not called on unauthorized or malformed requests.
-3. Cover null request, missing/empty identifier list, list sizes outside 1–2, missing/blank ROR,
-   and unsupported identifier types according to the confirmed decision.
-4. Verify valid requests pass through the service result unchanged and return `200 OK`.
-5. Verify logs do not contain token or person identifier values; retain useful client-id context.
+Existing mapping assertions cover names, contact details, descriptions, affiliations, education,
+funding, publications, datasets, identifiers, and collaboration interests. Add focused tests
+confirming `forElasticsearch: true` excludes unpublished/private data for the mapped item types.
 
-**Acceptance criteria**
+### Phase 4 — Build, tests, and documentation — Complete except pending checks above
 
-- Every controller rule above is covered by a focused test.
-- Unauthorized and malformed requests do not invoke `IPublicApiService`.
-- Existing endpoint route, response contract, and structured logging conventions are preserved.
-
-### Phase 2 — Implement profile, controller, and consent resolution
-
-Target files:
-
-- `aspnetcore/src/api/Services/PublicApiService.cs`
-- `aspnetcore/src/api/Services/IPublicApiService.cs` only if a service contract change is needed.
-- `aspnetcore/src/api.Tests/Services_Tests/PublicApiServiceTest.cs`
-
-1. Implement identifier selection, precedence, and fallback exactly as confirmed.
-2. Resolve hidden/missing profiles without requesting profile-editor data.
-3. Resolve ROR to the registered controller organization using the confirmed data source.
-4. Query consent for the resolved profile/controller and apply the confirmed target/purpose, date,
-   withdrawal, expiry, and duplicate-row rules.
-5. Build response flags, profile-data presence, and consent management URL according to the
-   completed response matrix.
-6. Remove misleading TODOs and placeholder success values once replaced with real behavior.
-7. Keep query behavior asynchronous and use existing EF Core patterns. Surface database or
-   configuration failures rather than reporting a false `controllerFound` or inactive consent.
-
-**Acceptance criteria**
-
-- Tests cover each response-matrix row and consent date boundaries.
-- Tests cover unknown controller, no consent, withdrawn consent, expired consent, and active
-  consent as applicable to the confirmed policy.
-- Tests prove profile-editor data is only requested in permitted scenarios.
-- Controller matching and consent filtering are exercised against the test database or an
-  appropriately isolated repository/service boundary.
-
-### Phase 3 — Verify and preserve public profile mapping
-
-Target files:
-
-- `aspnetcore/src/api/Services/PublicApiService.cs`
-- `aspnetcore/src/api.Tests/Services_Tests/PublicApiServiceTest.cs`
-
-1. Retain and verify the existing mappings for names, contact details, researcher description,
-   affiliations, education, funding, publications, datasets, identifiers, and collaboration
-   interests.
-2. Confirm `forElasticsearch: true` yields only data intended for public release, including
-   per-item visibility behavior.
-3. Add focused regressions for filtering/visibility and missing optional source values where
-   existing tests do not fully establish behavior.
-4. Confirm the service response serializes with the contract shape and required response fields.
-
-**Acceptance criteria**
-
-- Existing mapping assertions continue to pass.
-- No unpublished/private item is included contrary to the confirmed visibility policy.
-- Null/optional data does not cause a mapping exception or fabricate output.
-- No contract change is made without explicit agreement and corresponding schema/package update.
-
-### Phase 4 — Full verification and documentation
-
-1. Run targeted `PublicApiControllerTests` and `PublicApiServiceTests`.
-2. Run `dotnet test aspnetcore/mydata.sln` and `dotnet build aspnetcore/mydata.sln`.
-3. Update API documentation/configuration documentation only if implementation adds or changes
-   required settings, routes, headers, or response behavior.
-4. Review the final diff for accidental logging of personal data and for any remaining placeholder
-   consent/controller behavior.
-
-**Acceptance criteria**
-
-- Targeted tests, full test suite, and build pass.
-- Documented endpoint behavior agrees with the confirmed spec and contract.
-- No silent fallback reports a controller or consent as found/active without evidence.
+API documentation is updated. The full solution build and test suite passed; rerun both after the
+remaining privacy-log and visibility tests are added.
 
 ## Test scenario checklist
 
-- [ ] Missing `PUBLICAPITOKEN` configuration; missing and incorrect token headers.
-- [ ] Valid token with malformed request, including null identifiers and invalid count.
-- [ ] Valid request; service response is returned as `200 OK`.
-- [ ] Each supported identifier independently resolves a profile.
-- [ ] Both identifiers supplied: precedence, same-person, and conflict behavior.
-- [ ] Unsupported identifier and blank identifier behavior.
-- [ ] Missing/hidden profile; no profile-data lookup and correct response matrix.
-- [ ] Registered and unknown ROR behavior, including normalization policy.
-- [ ] Consent absent, withdrawn, expired, active, and boundary-date cases.
-- [ ] Consent-target/purpose match and mismatch if applicable.
-- [ ] Profile data withheld or returned according to the consent policy.
-- [ ] Consent management URL populated according to configuration/policy.
-- [ ] Public profile mapping, including unpublished/private items and optional values.
-- [ ] Logs omit token, HETU, ORCID, and profile data.
-- [ ] Service/query exceptions do not become a success-shaped response.
+- [x] Missing `PUBLICAPITOKEN` configuration; missing and incorrect token headers.
+- [x] Valid token with malformed request, including null identifiers, blank values, unsupported
+  types, and invalid list sizes.
+- [x] Valid request; service response is returned as `200 OK`.
+- [x] Each supported identifier independently resolves a profile.
+- [x] Both identifiers supplied: ORCID precedence and no HETU fallback after ORCID lookup.
+- [x] Unsupported identifier and blank identifier behavior.
+- [x] Missing/hidden profile; profile-data lookup suppression and response flags.
+- [x] Registered and unknown ROR behavior, including case normalization for bare IDs.
+- [x] Consent absent, withdrawn, expired, active, and expiry boundary cases.
+- [x] Consent purpose is intentionally not considered.
+- [x] Profile data withheld or returned according to the consent policy.
+- [x] Consent management URL populated in all language variants.
+- [x] Public profile field mapping.
+- [ ] Verify unpublished/private-item filtering for all mapped item types.
+- [ ] Assert logs omit token, HETU, ORCID, and profile data.
+- [ ] Add explicit regression that service/query exceptions are not converted into success responses.
 
 ## Risks and mitigations
 
-- **Unconfirmed consent rules:** Incorrectly returning personal data is a privacy risk. Treat policy
-  decisions as a hard gate; do not ship guessed behavior.
-- **ROR storage ambiguity:** The entity model may not make ROR resolution obvious. Verify actual
-  stored identifier data and use a focused query/test rather than matching names or arbitrary
-  organization fields.
+- **Consent release:** Incorrectly returning personal data is a privacy risk. The implementation
+  requires active consent and a visible profile before retrieving profile data.
+- **Public visibility filtering:** Confirm the `forElasticsearch` behavior protects every mapped
+  profile item type before considering the work complete.
 - **Generated EF model:** TTV entities are scaffolded. Do not hand-edit generated entities; query
   through the existing model or request a scaffold/schema change separately.
 - **Identifier privacy:** HETU is sensitive. Keep it out of logs, errors, assertions beyond
