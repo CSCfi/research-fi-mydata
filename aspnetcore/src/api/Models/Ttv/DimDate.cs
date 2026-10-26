@@ -81,6 +81,12 @@ public partial class DimDate
 
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
 
+    public virtual ICollection<FactProfileDataSharingConsent> FactProfileDataSharingConsentDimDateIdConsentExpireNavigations { get; set; } = new List<FactProfileDataSharingConsent>();
+
+    public virtual ICollection<FactProfileDataSharingConsent> FactProfileDataSharingConsentDimDateIdConsentGrantedNavigations { get; set; } = new List<FactProfileDataSharingConsent>();
+
+    public virtual ICollection<FactProfileDataSharingConsent> FactProfileDataSharingConsentDimDateIdConsentWithdrawnNavigations { get; set; } = new List<FactProfileDataSharingConsent>();
+
     public virtual ICollection<FactRelation> FactRelationEndDateNavigations { get; set; } = new List<FactRelation>();
 
     public virtual ICollection<FactRelation> FactRelationStartDateNavigations { get; set; } = new List<FactRelation>();

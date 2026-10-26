@@ -39,6 +39,8 @@ public partial class DimReferencedatum
 
     public virtual ICollection<DimCallProgramme> DimCallProgrammesNavigation { get; set; } = new List<DimCallProgramme>();
 
+    public virtual ICollection<DimConsentTarget> DimConsentTargets { get; set; } = new List<DimConsentTarget>();
+
     public virtual ICollection<DimEducation> DimEducations { get; set; } = new List<DimEducation>();
 
     public virtual ICollection<DimFundingDecision> DimFundingDecisions { get; set; } = new List<DimFundingDecision>();

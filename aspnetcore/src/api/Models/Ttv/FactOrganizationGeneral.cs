@@ -21,11 +21,15 @@ public partial class FactOrganizationGeneral
 
     public DateTime? Modified { get; set; }
 
+    public virtual ICollection<DimConsentTarget> DimConsentTargets { get; set; } = new List<DimConsentTarget>();
+
     public virtual DimIdentifierlessOrganization DimIdentifierlessOrganization { get; set; }
 
     public virtual DimOrganization DimOrganization { get; set; }
 
     public virtual ICollection<FactContribution> FactContributions { get; set; } = new List<FactContribution>();
+
+    public virtual ICollection<FactProfileDataSharingConsent> FactProfileDataSharingConsents { get; set; } = new List<FactProfileDataSharingConsent>();
 
     public virtual ICollection<FactOrganizationGeneral> InverseParentOrgGeneral { get; set; } = new List<FactOrganizationGeneral>();
 

@@ -46,4 +46,6 @@ public partial class DimUserProfile
     public virtual ICollection<DimUserChoice> DimUserChoices { get; set; } = new List<DimUserChoice>();
 
     public virtual ICollection<FactFieldValue> FactFieldValues { get; set; } = new List<FactFieldValue>();
+
+    public virtual ICollection<FactProfileDataSharingConsent> FactProfileDataSharingConsents { get; set; } = new List<FactProfileDataSharingConsent>();
 }
