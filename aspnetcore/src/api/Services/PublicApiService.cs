@@ -19,6 +19,7 @@ namespace api.Services
 {
     public class PublicApiService : IPublicApiService
     {
+        private const string ConsentManagementUrl = "https://localhost:5003/fi/mydata/account-settings?login=1";
         private readonly TtvContext _ttvContext;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<PublicApiService> _logger;
@@ -40,78 +41,123 @@ namespace api.Services
         // Get profile data for public API. Only published (show=true) items are included.
         public async Task<ProfileDataResponse> GetProfileDataForPublicApi(ProfileDataRequest request)
         {
-            // Get user profile.
             DimUserProfile dimUserProfile = await FindUserProfile(request?.PersonIdentifiers);
+            List<int> controllerOrganizationIds = await FindControllerOrganizationIds(request.ControllerROR);
+            bool profileFound = dimUserProfile != null;
+            bool controllerFound = controllerOrganizationIds.Count > 0;
+            bool? consentActive = null;
 
-            // Profile not found or hidden.
-            if (dimUserProfile == null || dimUserProfile.Hidden)
+            if (profileFound && controllerFound)
             {
-                // TODO: not handled yet. Controller recognition is not checked.
-                return new ProfileDataResponse {
-                    ProfileFound = false,
-                    ControllerFound = true,
-                    ConsentActive = null,
-                    ProfileData = null
-                };
+                consentActive = await HasActiveConsent(dimUserProfile.Id, controllerOrganizationIds);
             }
 
-            // TODO: handle controller recognition and consent status.
+            ProfileDataResponse response = new()
+            {
+                ProfileFound = profileFound,
+                ControllerFound = controllerFound,
+                ConsentActive = consentActive,
+                ConsentManagementURL = new LanguageVariant
+                {
+                    Fi = ConsentManagementUrl,
+                    Sv = ConsentManagementUrl,
+                    En = ConsentManagementUrl
+                }
+            };
+
+            if (!profileFound || dimUserProfile.Hidden || consentActive != true)
+            {
+                return response;
+            }
 
             ProfileEditorDataResponse profileData = await _userProfileService.GetProfileData(
                 userprofileId: dimUserProfile.Id,
-                logUserIdentification: new LogUserIdentification(orcid: dimUserProfile.OrcidId),
+                logUserIdentification: new LogUserIdentification(),
                 forElasticsearch: true);
 
-            return new ProfileDataResponse
+            response.ProfileData = new PersonProfileData
             {
-                ProfileFound = true,
-                ProfileData = new PersonProfileData
+                HasGrantedFunding = profileData.activity.fundingDecisions.Select(ToGrantedFunding).ToList(),
+                DescriptionOfActivities = ToDescriptionOfActivities(profileData.personal.researcherDescriptions),
+                IsNamedBy = ToPersonName(profileData.personal.names.FirstOrDefault()),
+                IsReachableFrom = ToContactInformation(profileData.personal),
+                ContributesToOutput = new List<Output>
                 {
-                    HasGrantedFunding = profileData.activity.fundingDecisions.Select(ToGrantedFunding).ToList(),
-                    DescriptionOfActivities = ToDescriptionOfActivities(profileData.personal.researcherDescriptions),
-                    IsNamedBy = ToPersonName(profileData.personal.names.FirstOrDefault()),
-                    IsReachableFrom = ToContactInformation(profileData.personal),
-                    ContributesToOutput = new List<Output>
+                    new Output
                     {
-                        new Output
-                        {
-                            ContributesToWrittenPublication = profileData.activity.publications.Select(ToWrittenPublication).ToList(),
-                            ContributesToDataset = profileData.activity.researchDatasets.Select(ToResearchDataset).ToList(),
-                            // TODO: not handled yet. Profile data has no source for these output types.
-                            ContributesToApplication = new List<Software>(),
-                            ContributesToAudiovisualPublication = new List<AudiovisualPublication>(),
-                            ContributesToArtpublication = new List<ArtPublication>()
-                        }
-                    },
-                    Affiliations = profileData.activity.affiliations.Select(ToAffiliation).ToList(),
-                    PersonIsIdentifiedBy = new Identifier { PidType = api.Models.Common.Constants.PidTypes.ORCID, PidContent = dimUserProfile.OrcidId },
-                    CollaborationInterests = await GetCollaborationInterests(dimUserProfile.Id),
-                    HasEducations = profileData.activity.educations.Select(ToEducation).ToList()
+                        ContributesToWrittenPublication = profileData.activity.publications.Select(ToWrittenPublication).ToList(),
+                        ContributesToDataset = profileData.activity.researchDatasets.Select(ToResearchDataset).ToList(),
+                        ContributesToApplication = new List<Software>(),
+                        ContributesToAudiovisualPublication = new List<AudiovisualPublication>(),
+                        ContributesToArtpublication = new List<ArtPublication>()
+                    }
                 },
-                // TODO: not handled yet. Consent, controller recognition and consent management URL are not set.
-                ConsentActive = true,
-                ControllerFound = true,
-                ConsentManagementURL = null
+                Affiliations = profileData.activity.affiliations.Select(ToAffiliation).ToList(),
+                PersonIsIdentifiedBy = new Identifier { PidType = api.Models.Common.Constants.PidTypes.ORCID, PidContent = dimUserProfile.OrcidId },
+                CollaborationInterests = await GetCollaborationInterests(dimUserProfile.Id),
+                HasEducations = profileData.activity.educations.Select(ToEducation).ToList()
             };
+            return response;
         }
 
-        // HETU identifier is preferred over ORCID. Returns null when no usable identifier matches a profile.
+        // ORCID takes precedence when both supported identifiers are supplied.
         private async Task<DimUserProfile> FindUserProfile(IEnumerable<Identifier> personIdentifiers)
         {
-            Identifier hetu = personIdentifiers?.FirstOrDefault(i => string.Equals(i?.PidType, "HETU", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(i.PidContent));
-            if (hetu != null)
-            {
-                // Profiles created before username was introduced have an empty username, never match those.
-                return await _userProfileService.GetUserprofileByUsername(GetUsernameFromNationalIdentificationNumber(hetu.PidContent));
-            }
-
             Identifier orcid = personIdentifiers?.FirstOrDefault(i => string.Equals(i?.PidType, api.Models.Common.Constants.PidTypes.ORCID, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(i.PidContent));
             if (orcid != null)
             {
                 return await _userProfileService.GetUserprofile(orcid.PidContent);
             }
 
+            Identifier hetu = personIdentifiers?.FirstOrDefault(i => string.Equals(i?.PidType, "HETU", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(i.PidContent));
+            if (hetu != null)
+            {
+                return await _userProfileService.GetUserprofileByUsername(GetUsernameFromNationalIdentificationNumber(hetu.PidContent));
+            }
+
             return null;
+        }
+
+        private async Task<List<int>> FindControllerOrganizationIds(string controllerROR)
+        {
+            string normalizedRor = controllerROR.Trim().ToUpperInvariant();
+            return await _ttvContext.FactOrganizationGenerals
+                .Where(controller => _ttvContext.DimPids.Any(pid =>
+                    pid.DimOrganizationId == controller.DimOrganizationId
+                    && pid.PidType.ToUpper() == "RORID"
+                    && pid.PidContent.ToUpper() == normalizedRor))
+                .Select(controller => controller.Id)
+                .Distinct()
+                .ToListAsync();
+        }
+
+        private async Task<bool> HasActiveConsent(int userProfileId, List<int> controllerOrganizationIds)
+        {
+            List<FactProfileDataSharingConsent> consents = await _ttvContext.FactProfileDataSharingConsents
+                .Where(consent =>
+                    consent.DimUserProfileId == userProfileId
+                    && controllerOrganizationIds.Contains(consent.ControllerOrganizationId))
+                .Include(consent => consent.DimDateIdConsentExpireNavigation)
+                .AsNoTracking()
+                .ToListAsync();
+
+            DateTime utcToday = DateTime.UtcNow.Date;
+            if (consents.Any(consent =>
+                consent.DimDateIdConsentExpire.HasValue
+                && consent.DimDateIdConsentExpireNavigation == null))
+            {
+                throw new InvalidOperationException("A consent expiry date references a missing date record.");
+            }
+
+            return consents.Any(consent =>
+                consent.DimDateIdConsentWithdrawn == null
+                && (consent.DimDateIdConsentExpire == null
+                    || GetDate(consent.DimDateIdConsentExpireNavigation) >= utcToday));
+        }
+
+        private static DateTime GetDate(DimDate date)
+        {
+            return new DateTime(date.Year, date.Month, date.Day);
         }
 
         // The profile data cooperation items do not contain the reference data code, so query the selected choices directly.

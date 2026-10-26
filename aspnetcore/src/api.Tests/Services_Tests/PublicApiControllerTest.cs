@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using api.Controllers;
 using ResearchFi.PersonPublicApi;
@@ -15,17 +16,14 @@ namespace api.Tests
     [Collection("Public API controller tests")]
     public class PublicApiControllerTests
     {
-        private static PublicApiController CreateController(string configuredToken, string headerToken)
+        private static PublicApiController CreateController(string configuredToken, string headerToken, out Mock<IPublicApiService> publicApiServiceMock)
         {
             Dictionary<string, string> inMemorySettings = new Dictionary<string, string> { { "PUBLICAPITOKEN", configuredToken } };
             IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
 
-            Mock<IPublicApiService> publicApiServiceMock = new Mock<IPublicApiService>();
+            publicApiServiceMock = new Mock<IPublicApiService>();
             publicApiServiceMock.Setup(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()))
-                .ReturnsAsync((ProfileDataRequest request) => new ProfileDataResponse
-                {
-                    ProfileData = new PersonProfileData { IsNamedBy = new PersonName { FirstName = "Test", LastName = request.PersonIdentifiers[0].PidContent } }
-                });
+                .ReturnsAsync(new ProfileDataResponse { ProfileFound = true });
 
             PublicApiController controller = new PublicApiController(NullLogger<PublicApiController>.Instance, publicApiServiceMock.Object, configuration)
             {
@@ -43,50 +41,98 @@ namespace api.Tests
             return new ProfileDataRequest
             {
                 PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "ORCID", PidContent = pidContent } },
-                ControllerROR = "https://ror.org/controller"
+                ControllerROR = "029pk6x14"
             };
         }
 
         [Fact(DisplayName = "GetProfileForPublicApi - returns 401 when token header is missing")]
         public async Task GetProfileForPublicApi_01()
         {
-            PublicApiController controller = CreateController(configuredToken: "secret", headerToken: null);
+            PublicApiController controller = CreateController(configuredToken: "secret", headerToken: null, out var serviceMock);
 
             IActionResult result = await controller.GetProfileData(CreateRequest("Alice"));
 
             Assert.IsType<UnauthorizedResult>(result);
+            serviceMock.Verify(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()), Times.Never);
         }
 
         [Fact(DisplayName = "GetProfileForPublicApi - returns 401 when token header does not match")]
         public async Task GetProfileForPublicApi_02()
         {
-            PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "wrong");
+            PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "wrong", out var serviceMock);
 
             IActionResult result = await controller.GetProfileData(CreateRequest("Alice"));
 
             Assert.IsType<UnauthorizedResult>(result);
+            serviceMock.Verify(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()), Times.Never);
         }
 
-        [Fact(DisplayName = "GetProfileForPublicApi - returns greeting when token header matches")]
+        [Fact(DisplayName = "GetProfileForPublicApi - passes response through when token matches")]
         public async Task GetProfileForPublicApi_03()
         {
-            PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "secret");
+            PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "secret", out var serviceMock);
+            ProfileDataRequest request = CreateRequest("0000-0000-0000-0001");
+            ProfileDataResponse expectedResponse = new ProfileDataResponse { ProfileFound = true };
+            serviceMock.Setup(s => s.GetProfileDataForPublicApi(request)).ReturnsAsync(expectedResponse);
 
-            IActionResult result = await controller.GetProfileData(CreateRequest("Alice"));
+            IActionResult result = await controller.GetProfileData(request);
 
             OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
-            ProfileDataResponse response = Assert.IsType<ProfileDataResponse>(okResult.Value);
-            Assert.Equal("Alice", response.ProfileData.IsNamedBy.LastName);
+            Assert.Same(expectedResponse, okResult.Value);
+            serviceMock.Verify(s => s.GetProfileDataForPublicApi(request), Times.Once);
         }
 
         [Fact(DisplayName = "GetProfileForPublicApi - returns 400 when request does not match query schema")]
         public async Task GetProfileForPublicApi_04()
         {
-            PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "secret");
+            PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "secret", out var serviceMock);
 
             Assert.IsType<BadRequestResult>(await controller.GetProfileData(null));
             Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest { ControllerROR = "x" }));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest { PersonIdentifiers = new List<Identifier> { new Identifier() } }));
+            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            {
+                PersonIdentifiers = new List<Identifier>(),
+                ControllerROR = "ror"
+            }));
+            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            {
+                PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "ORCID", PidContent = "x" } }
+            }));
+            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            {
+                PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "ORCID", PidContent = " " } },
+                ControllerROR = "ror"
+            }));
+            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            {
+                PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "ORCID", PidContent = "x" } },
+                ControllerROR = " "
+            }));
+            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            {
+                PersonIdentifiers = new List<Identifier> { null },
+                ControllerROR = "ror"
+            }));
+            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            {
+                PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "OTHER", PidContent = "x" } },
+                ControllerROR = "ror"
+            }));
+            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            {
+                PersonIdentifiers = Enumerable.Range(0, 3).Select(_ => new Identifier { PidType = "HETU", PidContent = "x" }).ToList(),
+                ControllerROR = "ror"
+            }));
+            serviceMock.Verify(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileForPublicApi - returns unauthorized when configured token is missing")]
+        public async Task GetProfileForPublicApi_05()
+        {
+            PublicApiController controller = CreateController(configuredToken: null, headerToken: "secret", out var serviceMock);
+
+            Assert.IsType<UnauthorizedResult>(await controller.GetProfileData(CreateRequest("0000-0000-0000-0001")));
+            serviceMock.Verify(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()), Times.Never);
         }
     }
 }

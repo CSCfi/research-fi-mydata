@@ -1,6 +1,7 @@
 using api.Models.Log;
 using api.Services;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -37,7 +38,7 @@ namespace api.Controllers
 
             _logger.LogInformation(
                 LogContent.MESSAGE_TEMPLATE,
-                this.GetLogUserIdentification(),
+                new LogUserIdentification(),
                 new LogApiInfo(
                     action: LogContent.Action.PUBLIC_API_PROFILE_REQUEST,
                     state: LogContent.ActionState.START,
@@ -48,7 +49,7 @@ namespace api.Controllers
                 string errorMessage = "Invalid token from Public API";
                 _logger.LogError(
                     LogContent.MESSAGE_TEMPLATE,
-                    this.GetLogUserIdentification(),
+                    new LogUserIdentification(),
                     new LogApiInfo(
                         action: LogContent.Action.PUBLIC_API_PROFILE_REQUEST,
                         state: LogContent.ActionState.FAILED,
@@ -61,7 +62,12 @@ namespace api.Controllers
             if (request?.PersonIdentifiers == null
                 || request.PersonIdentifiers.Count < 1
                 || request.PersonIdentifiers.Count > 2
-                || string.IsNullOrWhiteSpace(request.ControllerROR))
+                || string.IsNullOrWhiteSpace(request.ControllerROR)
+                || request.PersonIdentifiers.Any(identifier =>
+                    identifier == null
+                    || string.IsNullOrWhiteSpace(identifier.PidContent)
+                    || (!string.Equals(identifier.PidType, "ORCID", System.StringComparison.OrdinalIgnoreCase)
+                        && !string.Equals(identifier.PidType, "HETU", System.StringComparison.OrdinalIgnoreCase))))
             {
                 return BadRequest();
             }

@@ -32,7 +32,17 @@ Notice that the number of underscores ("_" vs "__") in the variable name is sign
 | ORCID__WEBHOOK__ACCESSTOKEN | ORCID webhook access token | 184bbfdc185ce506 |
 | ORCID__WEBHOOK__API | ORCID webhook API endpoint | https://api.sandbox.orcid.org/ |
 | ORCID__WEBHOOK__ENABLED | Toggle ORCID webhook integration  | true |
-| PUBLICAPITOKEN | Shared-secret token required in the `publicapitoken` request header for the Public API integration endpoint (`POST /api/publicapi`) | 184bbfdc185ce506 |
+| PUBLICAPITOKEN | Shared-secret token required in the `publicapitoken` request header for the Public API integration endpoint (`POST /api/publicapi/profile`) | 184bbfdc185ce506 |
 | RUNTIMESTATUSLOGGING__INTERVALSECONDS | Optional. Interval for periodic runtime status log entries (memory, CPU, background queue length, etc.). Defaults to 300 if unset. Set to 0 or a negative value to disable. | 300 |
 | SERILOG:WRITETO:HTTPSINK:ARGS:REQUESTURI |  |
 | SERVICEURL | Publicly visible domain of the application | https://mydata-api-devel.mydomain.com
+
+## Public API profile endpoint
+
+`POST /api/publicapi/profile` requires the configured `PUBLICAPITOKEN` in the `publicapitoken`
+header. Requests identify a person with one or two `ORCID`/`HETU` identifiers and a bare ROR ID
+in `controllerROR`. ORCID takes precedence over HETU. Profile data is returned only when the
+profile is visible and an active consent exists for the registered controller; hidden profiles
+are recognized but their profile data is withheld. The consent-management URL is currently a
+development placeholder (`https://localhost:5003/fi/mydata/account-settings?login=1`) in all
+language variants.

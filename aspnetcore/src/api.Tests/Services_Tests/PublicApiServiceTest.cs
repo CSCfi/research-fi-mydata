@@ -93,8 +93,48 @@ namespace api.Tests
         {
             userProfileServiceMock = new Mock<IUserProfileService>();
             userProfileServiceMock.Setup(s => s.GetUserprofileByUsername(It.IsAny<string>())).ReturnsAsync(dimUserProfile);
+            userProfileServiceMock.Setup(s => s.GetUserprofile(It.IsAny<string>())).ReturnsAsync(dimUserProfile);
             userProfileServiceMock.Setup(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true)).ReturnsAsync(profileData);
             return new PublicApiService(context, null, null, userProfileServiceMock.Object);
+        }
+
+        private static void AddController(TtvContext context, int controllerId = 10, string ror = "029pk6x14")
+        {
+            context.FactOrganizationGenerals.Add(new FactOrganizationGeneral
+            {
+                Id = controllerId,
+                DimOrganizationId = controllerId + 100,
+                SourceId = "test"
+            });
+            context.DimPids.Add(new DimPid
+            {
+                Id = controllerId,
+                DimOrganizationId = controllerId + 100,
+                PidType = "RORID",
+                PidContent = ror,
+                SourceId = "test"
+            });
+        }
+
+        private static void AddConsent(TtvContext context, int profileId = 1, int controllerId = 10, DateTime? expiry = null, DateTime? withdrawn = null)
+        {
+            context.DimDates.Add(new DimDate { Id = 1, Year = 2020, Month = 1, Day = 1, SourceId = "test" });
+            if (expiry.HasValue)
+            {
+                context.DimDates.Add(new DimDate { Id = 2, Year = expiry.Value.Year, Month = expiry.Value.Month, Day = expiry.Value.Day, SourceId = "test" });
+            }
+            if (withdrawn.HasValue)
+            {
+                context.DimDates.Add(new DimDate { Id = 3, Year = withdrawn.Value.Year, Month = withdrawn.Value.Month, Day = withdrawn.Value.Day, SourceId = "test" });
+            }
+            context.FactProfileDataSharingConsents.Add(new FactProfileDataSharingConsent
+            {
+                DimUserProfileId = profileId,
+                ControllerOrganizationId = controllerId,
+                DimDateIdConsentGranted = 1,
+                DimDateIdConsentExpire = expiry.HasValue ? 2 : null,
+                DimDateIdConsentWithdrawn = withdrawn.HasValue ? 3 : null
+            });
         }
 
         private static ProfileDataRequest CreateRequest(string pidType, string pidContent)
@@ -102,26 +142,42 @@ namespace api.Tests
             return new ProfileDataRequest
             {
                 PersonIdentifiers = new List<Identifier> { new Identifier { PidType = pidType, PidContent = pidContent } },
-                ControllerROR = "https://ror.org/controller"
+                ControllerROR = "029pk6x14"
             };
         }
 
-        [Fact(DisplayName = "GetProfileDataForPublicApi - profile not found is not recognized")]
+        [Fact(DisplayName = "GetProfileDataForPublicApi - resolves controller when profile is missing")]
         public async Task GetProfileDataForPublicApi_01()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_01));
+            AddController(context);
+            await context.SaveChangesAsync();
             var service = CreateService(context, null, null, out _);
 
             var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "unknown"));
 
             Assert.False(response.ProfileFound);
+            Assert.True(response.ControllerFound);
+            Assert.Null(response.ConsentActive);
             Assert.Null(response.ProfileData);
+            Assert.Equal("https://localhost:5003/fi/mydata/account-settings?login=1", response.ConsentManagementURL.Fi);
+            Assert.Equal(response.ConsentManagementURL.Fi, response.ConsentManagementURL.Sv);
+            Assert.Equal(response.ConsentManagementURL.Fi, response.ConsentManagementURL.En);
+
+            ProfileDataRequest unknownControllerRequest = CreateRequest("HETU", "unknown");
+            unknownControllerRequest.ControllerROR = "unknown";
+            var unknownControllerResponse = await service.GetProfileDataForPublicApi(unknownControllerRequest);
+
+            Assert.False(unknownControllerResponse.ProfileFound);
+            Assert.False(unknownControllerResponse.ControllerFound);
+            Assert.Null(unknownControllerResponse.ConsentActive);
         }
 
         [Fact(DisplayName = "GetProfileDataForPublicApi - empty identifier does not look up profile")]
         public async Task GetProfileDataForPublicApi_02()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_02));
+            AddController(context);
             var service = CreateService(context, new DimUserProfile { Id = 1 }, null, out var userProfileServiceMock);
 
             var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", ""));
@@ -131,16 +187,22 @@ namespace api.Tests
             userProfileServiceMock.Verify(s => s.GetUserprofile(It.IsAny<string>()), Times.Never);
         }
 
-        [Fact(DisplayName = "GetProfileDataForPublicApi - hidden profile is not recognized")]
+        [Fact(DisplayName = "GetProfileDataForPublicApi - hidden profile is found but its data is withheld")]
         public async Task GetProfileDataForPublicApi_03()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_03));
-            var service = CreateService(context, new DimUserProfile { Id = 1, Hidden = true }, CreateProfileEditorData(), out _);
+            AddController(context);
+            AddConsent(context);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1, Hidden = true }, CreateProfileEditorData(), out var userProfileServiceMock);
 
             var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "alice"));
 
-            Assert.False(response.ProfileFound);
+            Assert.True(response.ProfileFound);
+            Assert.True(response.ControllerFound);
+            Assert.Equal(true, response.ConsentActive);
             Assert.Null(response.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
         }
 
         [Fact(DisplayName = "GetProfileDataForPublicApi - maps profile data to contract")]
@@ -158,13 +220,21 @@ namespace api.Tests
                     Id = 2, DimUserProfileId = 1, UserChoiceValue = false, SourceId = "s",
                     DimReferencedataIdAsUserChoiceLabelNavigation = new DimReferencedatum { CodeScheme = "Kiinnostuksen_ilmaiseminen", CodeValue = "3", NameEn = "Interest 3", Order = 3, SourceId = "s", SourceDescription = "s" }
                 });
+            AddController(context);
+            AddConsent(context);
             await context.SaveChangesAsync();
             var service = CreateService(context, new DimUserProfile { Id = 1, OrcidId = "0000-0000-0000-0001" }, CreateProfileEditorData(), out var userProfileServiceMock);
 
             var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "alice"));
 
             Assert.True(response.ProfileFound);
-            userProfileServiceMock.Verify(s => s.GetProfileData(1, It.IsAny<LogUserIdentification>(), true), Times.Once);
+            Assert.True(response.ControllerFound);
+            Assert.Equal(true, response.ConsentActive);
+            Assert.Equal("https://localhost:5003/fi/mydata/account-settings?login=1", response.ConsentManagementURL.Fi);
+            userProfileServiceMock.Verify(s => s.GetProfileData(
+                1,
+                It.Is<LogUserIdentification>(log => string.IsNullOrEmpty(log.Orcid) && string.IsNullOrEmpty(log.KeycloakId)),
+                true), Times.Once);
             PersonProfileData data = response.ProfileData;
             Assert.Equal("Matti", data.IsNamedBy.FirstName);
             Assert.Equal("Virtanen", data.IsNamedBy.LastName);
@@ -235,6 +305,114 @@ namespace api.Tests
 
             userProfileServiceMock.Verify(s => s.GetUserprofile("0000-0000-0000-0001"), Times.Once);
             userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - withholds profile data without a registered controller")]
+        public async Task GetProfileDataForPublicApi_07()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_07));
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.True(response.ProfileFound);
+            Assert.False(response.ControllerFound);
+            Assert.Null(response.ConsentActive);
+            Assert.Null(response.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - withholds profile data without consent")]
+        public async Task GetProfileDataForPublicApi_08()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_08));
+            AddController(context);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.True(response.ProfileFound);
+            Assert.True(response.ControllerFound);
+            Assert.Equal(false, response.ConsentActive);
+            Assert.Null(response.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - consent expiry is inclusive of UTC today")]
+        public async Task GetProfileDataForPublicApi_09()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_09));
+            AddController(context);
+            AddConsent(context, expiry: DateTime.UtcNow.Date);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out _);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.Equal(true, response.ConsentActive);
+            Assert.NotNull(response.ProfileData);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - expired consent is inactive")]
+        public async Task GetProfileDataForPublicApi_10()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_10));
+            AddController(context);
+            AddConsent(context, expiry: DateTime.UtcNow.Date.AddDays(-1));
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var expiredResponse = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.Equal(false, expiredResponse.ConsentActive);
+            Assert.Null(expiredResponse.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - withdrawn consent is inactive")]
+        public async Task GetProfileDataForPublicApi_13()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_13));
+            AddController(context);
+            AddConsent(context, withdrawn: DateTime.UtcNow.Date);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.Equal(false, response.ConsentActive);
+            Assert.Null(response.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - ORCID is preferred and does not fall back to HETU")]
+        public async Task GetProfileDataForPublicApi_11()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_11));
+            var service = CreateService(context, null, null, out var userProfileServiceMock);
+            ProfileDataRequest request = CreateRequest("ORCID", "0000-0000-0000-0001");
+            request.PersonIdentifiers.Add(new Identifier { PidType = "HETU", PidContent = "010170-999R" });
+
+            await service.GetProfileDataForPublicApi(request);
+
+            userProfileServiceMock.Verify(s => s.GetUserprofile("0000-0000-0000-0001"), Times.Once);
+            userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - matches bare ROR IDs without case sensitivity")]
+        public async Task GetProfileDataForPublicApi_12()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_12));
+            AddController(context);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, null, null, out _);
+            ProfileDataRequest request = CreateRequest("HETU", "unknown");
+            request.ControllerROR = "029PK6X14";
+
+            var response = await service.GetProfileDataForPublicApi(request);
+
+            Assert.True(response.ControllerFound);
         }
 
         private static PublicApiService CreateServiceWithResponse(string jsonResponse)
