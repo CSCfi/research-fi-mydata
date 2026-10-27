@@ -59,17 +59,41 @@ namespace api.Controllers
             }
 
             // Schema query_for_consent_status: personIdentifiers has 1-2 items and controllerROR is required.
-            if (request?.PersonIdentifiers == null
-                || request.PersonIdentifiers.Count < 1
-                || request.PersonIdentifiers.Count > 2
-                || string.IsNullOrWhiteSpace(request.ControllerROR)
-                || request.PersonIdentifiers.Any(identifier =>
-                    identifier == null
-                    || string.IsNullOrWhiteSpace(identifier.PidContent)
-                    || (!string.Equals(identifier.PidType, "ORCID", System.StringComparison.OrdinalIgnoreCase)
-                        && !string.Equals(identifier.PidType, "HETU", System.StringComparison.OrdinalIgnoreCase))))
+            if (request == null)
             {
-                return BadRequest();
+                return BadRequest("A request body is required.");
+            }
+
+            if (request.PersonIdentifiers == null || request.PersonIdentifiers.Count == 0)
+            {
+                return BadRequest("At least one person identifier is required.");
+            }
+
+            if (request.PersonIdentifiers.Count > 2)
+            {
+                return BadRequest("No more than two person identifiers may be provided.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.ControllerROR))
+            {
+                return BadRequest("ControllerROR is required.");
+            }
+
+            if (request.PersonIdentifiers.Any(identifier => identifier == null))
+            {
+                return BadRequest("Each person identifier must be provided.");
+            }
+
+            if (request.PersonIdentifiers.Any(identifier => string.IsNullOrWhiteSpace(identifier.PidContent)))
+            {
+                return BadRequest("PidContent is required for each person identifier.");
+            }
+
+            if (request.PersonIdentifiers.Any(identifier =>
+                    !string.Equals(identifier.PidType, "ORCID", System.StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(identifier.PidType, "HETU", System.StringComparison.OrdinalIgnoreCase)))
+            {
+                return BadRequest("PidType must be either ORCID or HETU.");
             }
 
             return Ok(await _publicApiService.GetProfileDataForPublicApi(request));

@@ -45,6 +45,12 @@ namespace api.Tests
             };
         }
 
+        private static void AssertBadRequest(IActionResult result, string expectedMessage)
+        {
+            BadRequestObjectResult badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal(expectedMessage, badRequest.Value);
+        }
+
         [Fact(DisplayName = "GetProfileForPublicApi - returns 401 when token header is missing")]
         public async Task GetProfileForPublicApi_01()
         {
@@ -87,42 +93,42 @@ namespace api.Tests
         {
             PublicApiController controller = CreateController(configuredToken: "secret", headerToken: "secret", out var serviceMock);
 
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(null));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest { ControllerROR = "x" }));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            AssertBadRequest(await controller.GetProfileData(null), "A request body is required.");
+            AssertBadRequest(await controller.GetProfileData(new ProfileDataRequest { ControllerROR = "x" }), "At least one person identifier is required.");
+            AssertBadRequest(await controller.GetProfileData(new ProfileDataRequest
             {
                 PersonIdentifiers = new List<Identifier>(),
                 ControllerROR = "ror"
-            }));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            }), "At least one person identifier is required.");
+            AssertBadRequest(await controller.GetProfileData(new ProfileDataRequest
             {
                 PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "ORCID", PidContent = "x" } }
-            }));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            }), "ControllerROR is required.");
+            AssertBadRequest(await controller.GetProfileData(new ProfileDataRequest
             {
                 PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "ORCID", PidContent = " " } },
                 ControllerROR = "ror"
-            }));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            }), "PidContent is required for each person identifier.");
+            AssertBadRequest(await controller.GetProfileData(new ProfileDataRequest
             {
                 PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "ORCID", PidContent = "x" } },
                 ControllerROR = " "
-            }));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            }), "ControllerROR is required.");
+            AssertBadRequest(await controller.GetProfileData(new ProfileDataRequest
             {
                 PersonIdentifiers = new List<Identifier> { null },
                 ControllerROR = "ror"
-            }));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            }), "Each person identifier must be provided.");
+            AssertBadRequest(await controller.GetProfileData(new ProfileDataRequest
             {
                 PersonIdentifiers = new List<Identifier> { new Identifier { PidType = "OTHER", PidContent = "x" } },
                 ControllerROR = "ror"
-            }));
-            Assert.IsType<BadRequestResult>(await controller.GetProfileData(new ProfileDataRequest
+            }), "PidType must be either ORCID or HETU.");
+            AssertBadRequest(await controller.GetProfileData(new ProfileDataRequest
             {
                 PersonIdentifiers = Enumerable.Range(0, 3).Select(_ => new Identifier { PidType = "HETU", PidContent = "x" }).ToList(),
                 ControllerROR = "ror"
-            }));
+            }), "No more than two person identifiers may be provided.");
             serviceMock.Verify(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()), Times.Never);
         }
 
