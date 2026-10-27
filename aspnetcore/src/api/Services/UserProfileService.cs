@@ -1404,6 +1404,7 @@ namespace api.Services
          * - delete FactFieldValues related items
          * - delete DimFieldDisplaySettings
          * - delete DimUserChoices (co-operation selection) 
+         * - delete FactProfileDataSharingConsent
          * - delete DimUserProfile  
          */
         public async Task<bool> DeleteProfileDataAsync(int userprofileId, LogUserIdentification logUserIdentification)
@@ -1667,6 +1668,11 @@ namespace api.Services
                     // Delete dim_user_choices
                     await ExecuteSqlQueryWithProfiling(
                         sql: _ttvSqlService.GetSqlQuery_Delete_DimUserChoices(userprofileId)
+                    );
+
+                    // Delete profile data sharing consents
+                    await ExecuteSqlQueryWithProfiling(
+                        sql: _ttvSqlService.GetSqlQuery_Delete_FactProfileDataSharingConsents(userprofileId)
                     );
 
                     // Delete dim_user_profile
