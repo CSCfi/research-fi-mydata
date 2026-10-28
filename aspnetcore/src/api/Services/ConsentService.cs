@@ -60,8 +60,8 @@ namespace api.Services
                 .AsNoTracking()
                 .Where(consent =>
                     consent.DimUserProfileId == userProfileId
-                    && consent.ConsentWithdrawnDate == null
-                    && (consent.ConsentExpireDate == null || consent.ConsentExpireDate >= utcNow))
+                    && consent.DateConsentWithdrawn == null
+                    && (consent.DateConsentExpire == null || consent.DateConsentExpire >= utcNow))
                 .OrderBy(consent => consent.ControllerOrganizationId)
                 .Select(consent => new ConsentResponse(
                     _ttvContext.DimConsentTargets
@@ -75,8 +75,8 @@ namespace api.Services
                         .Where(pid => pid.PidType == "RORID")
                         .Select(pid => pid.PidContent)
                         .FirstOrDefault(),
-                    consent.ConsentGrantedDate,
-                    consent.ConsentExpireDate))
+                    consent.DateConsentGranted,
+                    consent.DateConsentExpire))
                 .ToListAsync(cancellationToken);
         }
 
@@ -108,9 +108,9 @@ namespace api.Services
             {
                 DimUserProfileId = userProfileId,
                 ControllerOrganizationId = controllerOrganizationId.Value,
-                ConsentGrantedDate = grantedDate,
-                ConsentExpireDate = grantedDate.AddYears(5),
-                ConsentWithdrawnDate = null,
+                DateConsentGranted = grantedDate,
+                DateConsentExpire = grantedDate.AddYears(5),
+                DateConsentWithdrawn = null,
                 Created = grantedDate
             };
             _ttvContext.FactProfileDataSharingConsents.Add(consent);

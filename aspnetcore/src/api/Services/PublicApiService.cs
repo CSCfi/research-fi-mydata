@@ -142,9 +142,9 @@ namespace api.Services
                 .ToListAsync();
 
             return consents.Any(consent =>
-                consent.ConsentWithdrawnDate == null
-                && (consent.ConsentExpireDate == null
-                    || consent.ConsentExpireDate >= utcNow));
+                consent.DateConsentWithdrawn == null
+                && (consent.DateConsentExpire == null
+                    || consent.DateConsentExpire >= utcNow));
         }
 
         // The profile data cooperation items do not contain the reference data code, so query the selected choices directly.

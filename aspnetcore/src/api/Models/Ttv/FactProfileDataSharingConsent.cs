@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace api.Models.Ttv;
 
@@ -21,19 +22,19 @@ public partial class FactProfileDataSharingConsent
     /// https://iri.suomi.fi/model/researchfi_core/consent_granted_date
     /// suostumuksen antamispäivämäärä
     /// </summary>
-    public DateTime ConsentGrantedDate { get; set; }
+    public DateTime DateConsentGranted { get; set; }
 
     /// <summary>
     /// https://iri.suomi.fi/model/researchfi_core/consent_withdrawn_date
     /// suostumuksen perumispäivämäärä
     /// </summary>
-    public DateTime? ConsentWithdrawnDate { get; set; }
+    public DateTime? DateConsentWithdrawn { get; set; }
 
     /// <summary>
     /// https://iri.suomi.fi/model/researchfi_core/consent_expire_date
     /// suostumuksen viimeinen voimassaolo pvm (5 vuotta antopäivämäärästä)
     /// </summary>
-    public DateTime? ConsentExpireDate { get; set; }
+    public DateTime? DateConsentExpire { get; set; }
 
     public DateTime Created { get; set; }
 

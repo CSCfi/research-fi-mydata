@@ -102,9 +102,9 @@ namespace api.Tests
             {
                 DimUserProfileId = profileId,
                 ControllerOrganizationId = controllerId,
-                ConsentGrantedDate = now,
-                ConsentExpireDate = expiry,
-                ConsentWithdrawnDate = withdrawn,
+                DateConsentGranted = now,
+                DateConsentExpire = expiry,
+                DateConsentWithdrawn = withdrawn,
                 Created = now
             });
         }
@@ -175,9 +175,9 @@ namespace api.Tests
                 var consent = await context.FactProfileDataSharingConsents.SingleAsync();
 
                 Assert.Equal(ConsentGrantResult.Created, result);
-                Assert.InRange(consent.ConsentGrantedDate, beforeGrant, afterGrant);
-                Assert.Equal(consent.ConsentGrantedDate.AddYears(5), consent.ConsentExpireDate);
-                Assert.Null(consent.ConsentWithdrawnDate);
+                Assert.InRange(consent.DateConsentGranted, beforeGrant, afterGrant);
+                Assert.Equal(consent.DateConsentGranted.AddYears(5), consent.DateConsentExpire);
+                Assert.Null(consent.DateConsentWithdrawn);
                 Assert.Equal(ConsentGrantResult.ConsentAlreadyExists,
                     await service.GrantConsentAsync(1, 31, CancellationToken.None));
                 Assert.Equal(ConsentGrantResult.TargetNotFound,

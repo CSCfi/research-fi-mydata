@@ -122,9 +122,9 @@ namespace api.Tests
             {
                 DimUserProfileId = profileId,
                 ControllerOrganizationId = controllerId,
-                ConsentGrantedDate = DateTime.UtcNow,
-                ConsentExpireDate = expiry,
-                ConsentWithdrawnDate = withdrawn,
+                DateConsentGranted = DateTime.UtcNow,
+                DateConsentExpire = expiry,
+                DateConsentWithdrawn = withdrawn,
                 Created = DateTime.UtcNow
             });
         }

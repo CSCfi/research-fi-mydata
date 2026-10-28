@@ -4519,18 +4519,18 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.Created)
                 .HasColumnType("datetime")
                 .HasColumnName("created");
-            entity.Property(e => e.ConsentExpireDate)
-                .HasColumnType("datetime")
+            entity.Property(e => e.DateConsentExpire)
                 .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_expire_date\nsuostumuksen viimeinen voimassaolo pvm (5 vuotta antopäivämäärästä)")
-                .HasColumnName("consent_expire_date");
-            entity.Property(e => e.ConsentGrantedDate)
                 .HasColumnType("datetime")
+                .HasColumnName("date_consent_expire");
+            entity.Property(e => e.DateConsentGranted)
                 .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_granted_date\nsuostumuksen antamispäivämäärä")
-                .HasColumnName("consent_granted_date");
-            entity.Property(e => e.ConsentWithdrawnDate)
                 .HasColumnType("datetime")
+                .HasColumnName("date_consent_granted");
+            entity.Property(e => e.DateConsentWithdrawn)
                 .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_withdrawn_date\nsuostumuksen perumispäivämäärä")
-                .HasColumnName("consent_withdrawn_date");
+                .HasColumnType("datetime")
+                .HasColumnName("date_consent_withdrawn");
             entity.Property(e => e.Modified)
                 .HasColumnType("datetime")
                 .HasColumnName("modified");
