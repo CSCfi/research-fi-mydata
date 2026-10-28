@@ -133,31 +133,18 @@ namespace api.Services
 
         private async Task<bool> HasActiveConsent(int userProfileId, List<int> controllerOrganizationIds)
         {
+            DateTime utcNow = DateTime.UtcNow;
             List<FactProfileDataSharingConsent> consents = await _ttvContext.FactProfileDataSharingConsents
                 .Where(consent =>
                     consent.DimUserProfileId == userProfileId
                     && controllerOrganizationIds.Contains(consent.ControllerOrganizationId))
-                .Include(consent => consent.DimDateIdConsentExpireNavigation)
                 .AsNoTracking()
                 .ToListAsync();
 
-            DateTime utcToday = DateTime.UtcNow.Date;
-            if (consents.Any(consent =>
-                consent.DimDateIdConsentExpire.HasValue
-                && consent.DimDateIdConsentExpireNavigation == null))
-            {
-                throw new InvalidOperationException("A consent expiry date references a missing date record.");
-            }
-
             return consents.Any(consent =>
-                consent.DimDateIdConsentWithdrawn == null
-                && (consent.DimDateIdConsentExpire == null
-                    || GetDate(consent.DimDateIdConsentExpireNavigation) >= utcToday));
-        }
-
-        private static DateTime GetDate(DimDate date)
-        {
-            return new DateTime(date.Year, date.Month, date.Day);
+                consent.ConsentWithdrawnDate == null
+                && (consent.ConsentExpireDate == null
+                    || consent.ConsentExpireDate >= utcNow));
         }
 
         // The profile data cooperation items do not contain the reference data code, so query the selected choices directly.

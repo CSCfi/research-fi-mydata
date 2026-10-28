@@ -118,22 +118,14 @@ namespace api.Tests
 
         private static void AddConsent(TtvContext context, int profileId = 1, int controllerId = 10, DateTime? expiry = null, DateTime? withdrawn = null)
         {
-            context.DimDates.Add(new DimDate { Id = 1, Year = 2020, Month = 1, Day = 1, SourceId = "test" });
-            if (expiry.HasValue)
-            {
-                context.DimDates.Add(new DimDate { Id = 2, Year = expiry.Value.Year, Month = expiry.Value.Month, Day = expiry.Value.Day, SourceId = "test" });
-            }
-            if (withdrawn.HasValue)
-            {
-                context.DimDates.Add(new DimDate { Id = 3, Year = withdrawn.Value.Year, Month = withdrawn.Value.Month, Day = withdrawn.Value.Day, SourceId = "test" });
-            }
             context.FactProfileDataSharingConsents.Add(new FactProfileDataSharingConsent
             {
                 DimUserProfileId = profileId,
                 ControllerOrganizationId = controllerId,
-                DimDateIdConsentGranted = 1,
-                DimDateIdConsentExpire = expiry.HasValue ? 2 : null,
-                DimDateIdConsentWithdrawn = withdrawn.HasValue ? 3 : null
+                ConsentGrantedDate = DateTime.UtcNow,
+                ConsentExpireDate = expiry,
+                ConsentWithdrawnDate = withdrawn,
+                Created = DateTime.UtcNow
             });
         }
 
@@ -339,12 +331,12 @@ namespace api.Tests
             userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
         }
 
-        [Fact(DisplayName = "GetProfileDataForPublicApi - consent expiry is inclusive of UTC today")]
+        [Fact(DisplayName = "GetProfileDataForPublicApi - consent is active before its UTC expiry")]
         public async Task GetProfileDataForPublicApi_09()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_09));
             AddController(context);
-            AddConsent(context, expiry: DateTime.UtcNow.Date);
+            AddConsent(context, expiry: DateTime.UtcNow.AddHours(1));
             await context.SaveChangesAsync();
             var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out _);
 

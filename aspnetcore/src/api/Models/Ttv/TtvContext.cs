@@ -4519,15 +4519,18 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.Created)
                 .HasColumnType("datetime")
                 .HasColumnName("created");
-            entity.Property(e => e.DimDateIdConsentExpire)
+            entity.Property(e => e.ConsentExpireDate)
+                .HasColumnType("datetime")
                 .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_expire_date\nsuostumuksen viimeinen voimassaolo pvm (5 vuotta antopäivämäärästä)")
-                .HasColumnName("dim_date_id_consent_expire");
-            entity.Property(e => e.DimDateIdConsentGranted)
+                .HasColumnName("consent_expire_date");
+            entity.Property(e => e.ConsentGrantedDate)
+                .HasColumnType("datetime")
                 .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_granted_date\nsuostumuksen antamispäivämäärä")
-                .HasColumnName("dim_date_id_consent_granted");
-            entity.Property(e => e.DimDateIdConsentWithdrawn)
+                .HasColumnName("consent_granted_date");
+            entity.Property(e => e.ConsentWithdrawnDate)
+                .HasColumnType("datetime")
                 .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_withdrawn_date\nsuostumuksen perumispäivämäärä")
-                .HasColumnName("dim_date_id_consent_withdrawn");
+                .HasColumnName("consent_withdrawn_date");
             entity.Property(e => e.Modified)
                 .HasColumnType("datetime")
                 .HasColumnName("modified");
@@ -4536,19 +4539,6 @@ public partial class TtvContext : DbContext
                 .HasForeignKey(d => d.ControllerOrganizationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("consent_controller_organization");
-
-            entity.HasOne(d => d.DimDateIdConsentExpireNavigation).WithMany(p => p.FactProfileDataSharingConsentDimDateIdConsentExpireNavigations)
-                .HasForeignKey(d => d.DimDateIdConsentExpire)
-                .HasConstraintName("consent_expire_date");
-
-            entity.HasOne(d => d.DimDateIdConsentGrantedNavigation).WithMany(p => p.FactProfileDataSharingConsentDimDateIdConsentGrantedNavigations)
-                .HasForeignKey(d => d.DimDateIdConsentGranted)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("consent_granted_date");
-
-            entity.HasOne(d => d.DimDateIdConsentWithdrawnNavigation).WithMany(p => p.FactProfileDataSharingConsentDimDateIdConsentWithdrawnNavigations)
-                .HasForeignKey(d => d.DimDateIdConsentWithdrawn)
-                .HasConstraintName("consent_withdrawn_date");
 
             entity.HasOne(d => d.DimUserProfile).WithMany(p => p.FactProfileDataSharingConsents)
                 .HasForeignKey(d => d.DimUserProfileId)

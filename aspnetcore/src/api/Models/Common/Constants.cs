@@ -162,6 +162,9 @@
             public const string PROFILE_NOT_FOUND = "profile not found";
             public const string PROFILE_CREATE_FAILED = "create profile failed";
             public const string INVALID_REQUEST = "invalid request data";
+            public const string CONSENT_TARGET_NOT_FOUND = "consent target not found";
+            public const string CONSENT_ALREADY_EXISTS = "consent already exists";
+            public const string CONSENT_NOT_FOUND = "consent not found";
             public const string NOTHING_TO_MODIFY = "nothing to modify";
             public const string NOTHING_TO_ADD = "nothing to add";
             public const string NOTHING_TO_REMOVE = "nothing to remove";
