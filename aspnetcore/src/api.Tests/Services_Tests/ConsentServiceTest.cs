@@ -143,6 +143,7 @@ namespace api.Tests
             using (context)
             {
                 await AddTargetAsync(context, targetId: 30, organizationId: 1, controllerId: 10, purposeId: 20, rorId: "029pk6x14");
+                await AddTargetAsync(context, targetId: 31, organizationId: 1, controllerId: 10, purposeId: 21, rorId: null);
                 AddConsent(context, profileId: 1, controllerId: 10, expiry: DateTime.UtcNow.AddDays(1));
                 AddConsent(context, profileId: 1, controllerId: 11, expiry: DateTime.UtcNow.AddDays(-1));
                 AddConsent(context, profileId: 2, controllerId: 10, expiry: DateTime.UtcNow.AddDays(1));
@@ -155,6 +156,9 @@ namespace api.Tests
                 Assert.Equal(30, consent.ConsentTargetId);
                 Assert.Equal("029pk6x14", consent.RorId);
                 Assert.Equal("Organisaatio 1", consent.OrganizationNameFi);
+                Assert.Equal("Tarkoitus 20", consent.PurposeNameFi);
+                Assert.Equal("Purpose 20", consent.PurposeNameEn);
+                Assert.Equal("Ändamål 20", consent.PurposeNameSv);
             }
         }
 

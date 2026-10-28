@@ -25,6 +25,9 @@ namespace api.Models.Api
         string OrganizationNameSv,
         string OrganizationNameEn,
         string RorId,
+        string PurposeNameFi,
+        string PurposeNameEn,
+        string PurposeNameSv,
         DateTime ConsentGrantedDate,
         DateTime? ConsentExpireDate);
 

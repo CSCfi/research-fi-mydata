@@ -75,6 +75,21 @@ namespace api.Services
                         .Where(pid => pid.PidType == "RORID")
                         .Select(pid => pid.PidContent)
                         .FirstOrDefault(),
+                    _ttvContext.DimConsentTargets
+                        .Where(target => target.ControllerOrganizationId == consent.ControllerOrganizationId)
+                        .OrderBy(target => target.Id)
+                        .Select(target => target.PurposeCode.NameFi)
+                        .FirstOrDefault(),
+                    _ttvContext.DimConsentTargets
+                        .Where(target => target.ControllerOrganizationId == consent.ControllerOrganizationId)
+                        .OrderBy(target => target.Id)
+                        .Select(target => target.PurposeCode.NameEn)
+                        .FirstOrDefault(),
+                    _ttvContext.DimConsentTargets
+                        .Where(target => target.ControllerOrganizationId == consent.ControllerOrganizationId)
+                        .OrderBy(target => target.Id)
+                        .Select(target => target.PurposeCode.NameSv)
+                        .FirstOrDefault(),
                     consent.DateConsentGranted,
                     consent.DateConsentExpire))
                 .ToListAsync(cancellationToken);
