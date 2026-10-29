@@ -63,10 +63,10 @@ Out of scope unless separately agreed:
 ## Contract and current implementation context
 
 - Route: `POST /api/publicapi/profile`.
-- Request type: `ResearchFi.PersonPublicApi.ProfileDataRequest`.
+- Request type: `ResearchFi.ProfilePublicApi.ProfileDataRequest`.
 - The request schema requires `personIdentifiers` (1–2 items) and `controllerROR`; identifier
   types are `ORCID` and `HETU`.
-- Response type: `ResearchFi.PersonPublicApi.ProfileDataResponse`.
+- Response type: `ResearchFi.ProfilePublicApi.ProfileDataResponse`.
 - The response schema requires `profileFound`, `controllerFound`, and `consentManagementURL`.
   `consentActive` is meaningful only when both the profile and controller are found.
 - The controller authenticates using configured `PUBLICAPITOKEN` compared with the

@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using ResearchFi.PersonPublicApi;
+using ResearchFi.ProfilePublicApi;
 
 namespace api.Services
 {

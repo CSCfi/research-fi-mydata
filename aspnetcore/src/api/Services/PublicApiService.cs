@@ -8,7 +8,7 @@ using api.Models.Keycloak;
 using api.Models.Log;
 using api.Models.ProfileEditor;
 using api.Models.ProfileEditor.Items;
-using ResearchFi.PersonPublicApi;
+using ResearchFi.ProfilePublicApi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;

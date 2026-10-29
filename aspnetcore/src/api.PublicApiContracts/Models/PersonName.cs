@@ -1,4 +1,4 @@
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Person's name (schema: person_name).

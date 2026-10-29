@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Research dataset (schema: research_dataset).

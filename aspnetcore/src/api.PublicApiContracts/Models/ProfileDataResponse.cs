@@ -1,4 +1,4 @@
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Profile data response for public API (schema: response_for_consent_status).

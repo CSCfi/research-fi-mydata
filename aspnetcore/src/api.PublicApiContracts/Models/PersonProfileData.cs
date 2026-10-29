@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Person profile data for public API (schema: profile).

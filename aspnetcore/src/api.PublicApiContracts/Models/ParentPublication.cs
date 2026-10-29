@@ -1,4 +1,4 @@
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Parent publication (schema: parent_publication).

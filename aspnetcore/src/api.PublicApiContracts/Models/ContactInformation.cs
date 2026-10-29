@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Contact information (schema: contact_information).

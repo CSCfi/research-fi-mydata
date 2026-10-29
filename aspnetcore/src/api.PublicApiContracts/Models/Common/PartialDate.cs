@@ -1,4 +1,4 @@
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Date that may be given with only year, or year and month (schema: date).

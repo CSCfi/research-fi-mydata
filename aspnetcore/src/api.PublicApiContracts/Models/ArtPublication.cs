@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Art publication (schema: art_publication).

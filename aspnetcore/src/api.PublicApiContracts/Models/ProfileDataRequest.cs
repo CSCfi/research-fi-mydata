@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Profile data request from the public API (schema: query_for_consent_status).

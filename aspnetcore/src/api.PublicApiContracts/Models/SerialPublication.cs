@@ -1,4 +1,4 @@
-namespace ResearchFi.PersonPublicApi
+namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
     /// Serial publication, such as a journal or publication series (schema: serial_publication).

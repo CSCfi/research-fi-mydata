@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using ResearchFi.PersonPublicApi;
+using ResearchFi.ProfilePublicApi;
 
 namespace api.Controllers
 {

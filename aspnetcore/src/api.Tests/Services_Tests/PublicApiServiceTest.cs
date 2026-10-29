@@ -13,7 +13,7 @@ using api.Models.ProfileEditor.Items;
 using api.Models.Ttv;
 using api.Services;
 using Microsoft.EntityFrameworkCore;
-using ResearchFi.PersonPublicApi;
+using ResearchFi.ProfilePublicApi;
 
 namespace api.Tests
 {
