@@ -8,9 +8,6 @@ organization-wide grants, and caller-scoped physical withdrawal. Added a scoped 
 models, regression tests, and request examples. Updated consent date handling to use UTC
 `DateTime` fields and synchronized Public API expiry/withdrawal checks.
 
-The API expects `consent_granted_date`, `consent_withdrawn_date`, and `consent_expire_date`
-datetime columns in the warehouse; deploy the corresponding schema change before the API.
-
 Files touched: `aspnetcore/src/api/Controllers/ConsentController.cs`,
 `aspnetcore/src/api/Models/Api/ConsentModels.cs`,
 `aspnetcore/src/api/Models/Common/Constants.cs`,
