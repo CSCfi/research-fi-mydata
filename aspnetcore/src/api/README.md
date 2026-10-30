@@ -36,9 +36,9 @@ Notice that the number of underscores ("_" vs "__") in the variable name is sign
 | ORCID__WEBHOOK__ACCESSTOKEN | ORCID webhook access token | 184bbfdc185ce506 |
 | ORCID__WEBHOOK__API | ORCID webhook API endpoint | https://api.sandbox.orcid.org/ |
 | ORCID__WEBHOOK__ENABLED | Toggle ORCID webhook integration  | true |
-| PORTAL__URL__EN | URL of the English-language frontend portal | https://research.fi/en/ |
-| PORTAL__URL__FI | URL of the Finnish-language frontend portal | https://tiedejatutkimus.fi/fi/ |
-| PORTAL__URL__SV | URL of the Swedish-language frontend portal | https://forskning.fi/sv/ |
+| PORTAL__URL__EN | URL of the English-language frontend portal. Must end with a trailing slash. | https://research.fi/en/ |
+| PORTAL__URL__FI | URL of the Finnish-language frontend portal. Must end with a trailing slash. | https://tiedejatutkimus.fi/fi/ |
+| PORTAL__URL__SV | URL of the Swedish-language frontend portal. Must end with a trailing slash. | https://forskning.fi/sv/ |
 | PUBLICAPITOKEN | Shared-secret token required in the `publicapitoken` request header for the Public API integration endpoint (`POST /api/publicapi/profile`) | 184bbfdc185ce506 |
 | RUNTIMESTATUSLOGGING__INTERVALSECONDS | Optional. Interval for periodic runtime status log entries (memory, CPU, background queue length, etc.). Defaults to 300 if unset. Set to 0 or a negative value to disable. | 300 |
 | SERILOG__WRITETO__HTTPSINK__ARGS__REQUESTURI | URL where the HTTP log sink sends log events | https://logs.example.com/ |
@@ -52,4 +52,5 @@ in `controllerROR`. ORCID takes precedence over HETU. Profile data is returned o
 profile is visible and an active consent exists for the registered controller; hidden profiles
 are recognized but their profile data is withheld. The consent-management URL for each language
 is built from `PORTAL__URL__FI`, `PORTAL__URL__EN`, or `PORTAL__URL__SV`, followed by
-`/mydata/account-settings?login=1`.
+`/mydata/account-settings?login=1`. The portal URL values should include a trailing slash; it is
+removed during URL construction before the path is appended, preventing a double slash.
