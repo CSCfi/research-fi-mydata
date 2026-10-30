@@ -13,6 +13,7 @@ using api.Models.ProfileEditor.Items;
 using api.Models.Ttv;
 using api.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using ResearchFi.ProfilePublicApi;
 
 namespace api.Tests
@@ -23,7 +24,7 @@ namespace api.Tests
         [Fact(DisplayName = "Get username from national identification number")]
         public void GetUsernameFromNationalIdentificationNumber_01()
         {
-            var publicApiService = new PublicApiService(null, null, null, null);
+            var publicApiService = new PublicApiService(null, null, null, null, CreatePortalConfiguration());
 
             // Value 010170-999R is a test value for Finnish national identification number. No real person is associated with this value.
             Assert.Equal("5f0c2c8d2107f4700fb5aa1ef717ac03", publicApiService.GetUsernameFromNationalIdentificationNumber("010170-999R"));
@@ -95,7 +96,19 @@ namespace api.Tests
             userProfileServiceMock.Setup(s => s.GetUserprofileByUsername(It.IsAny<string>())).ReturnsAsync(dimUserProfile);
             userProfileServiceMock.Setup(s => s.GetUserprofile(It.IsAny<string>())).ReturnsAsync(dimUserProfile);
             userProfileServiceMock.Setup(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true)).ReturnsAsync(profileData);
-            return new PublicApiService(context, null, null, userProfileServiceMock.Object);
+            return new PublicApiService(context, null, null, userProfileServiceMock.Object, CreatePortalConfiguration());
+        }
+
+        private static IConfiguration CreatePortalConfiguration()
+        {
+            return new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    ["PORTAL:URL:FI"] = "https://portal.example/fi/",
+                    ["PORTAL:URL:SV"] = "https://portal.example/sv/",
+                    ["PORTAL:URL:EN"] = "https://portal.example/en/"
+                })
+                .Build();
         }
 
         private static void AddController(TtvContext context, int controllerId = 10, string ror = "029pk6x14")
@@ -152,9 +165,9 @@ namespace api.Tests
             Assert.True(response.ControllerFound);
             Assert.Null(response.ConsentActive);
             Assert.Null(response.ProfileData);
-            Assert.Equal("https://localhost:5003/fi/mydata/account-settings?login=1", response.ConsentManagementURL.Fi);
-            Assert.Equal(response.ConsentManagementURL.Fi, response.ConsentManagementURL.Sv);
-            Assert.Equal(response.ConsentManagementURL.Fi, response.ConsentManagementURL.En);
+            Assert.Equal("https://portal.example/fi/mydata/account-settings?login=1", response.ConsentManagementURL.Fi);
+            Assert.Equal("https://portal.example/sv/mydata/account-settings?login=1", response.ConsentManagementURL.Sv);
+            Assert.Equal("https://portal.example/en/mydata/account-settings?login=1", response.ConsentManagementURL.En);
 
             ProfileDataRequest unknownControllerRequest = CreateRequest("HETU", "unknown");
             unknownControllerRequest.ControllerROR = "unknown";
@@ -222,7 +235,7 @@ namespace api.Tests
             Assert.True(response.ProfileFound);
             Assert.True(response.ControllerFound);
             Assert.Equal(true, response.ConsentActive);
-            Assert.Equal("https://localhost:5003/fi/mydata/account-settings?login=1", response.ConsentManagementURL.Fi);
+            Assert.Equal("https://portal.example/fi/mydata/account-settings?login=1", response.ConsentManagementURL.Fi);
             userProfileServiceMock.Verify(s => s.GetProfileData(
                 1,
                 It.Is<LogUserIdentification>(log => string.IsNullOrEmpty(log.Orcid) && string.IsNullOrEmpty(log.KeycloakId)),
@@ -416,7 +429,7 @@ namespace api.Tests
             };
             var factoryMock = new Mock<IHttpClientFactory>();
             factoryMock.Setup(f => f.CreateClient("keycloakClient")).Returns(httpClient);
-            return new PublicApiService(null, factoryMock.Object, null, null);
+            return new PublicApiService(null, factoryMock.Object, null, null, CreatePortalConfiguration());
         }
 
         private class FakeHttpMessageHandler : HttpMessageHandler

@@ -10,6 +10,7 @@ using api.Models.ProfileEditor;
 using api.Models.ProfileEditor.Items;
 using ResearchFi.ProfilePublicApi;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Security.Cryptography;
@@ -19,23 +20,26 @@ namespace api.Services
 {
     public class PublicApiService : IPublicApiService
     {
-        private const string ConsentManagementUrl = "https://localhost:5003/fi/mydata/account-settings?login=1";
+        private const string ConsentManagementPath = "/mydata/account-settings?login=1";
         private readonly TtvContext _ttvContext;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<PublicApiService> _logger;
         private readonly IUserProfileService _userProfileService;
+        private readonly IConfiguration _configuration;
 
 
         public PublicApiService(
             TtvContext ttvContext,
             IHttpClientFactory httpClientFactory,
             ILogger<PublicApiService> logger,
-            IUserProfileService userProfileService)
+            IUserProfileService userProfileService,
+            IConfiguration configuration)
         {
             _ttvContext = ttvContext;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
             _userProfileService = userProfileService;
+            _configuration = configuration;
         }
 
         // Get profile data for public API. Only published (show=true) items are included.
@@ -59,9 +63,9 @@ namespace api.Services
                 ConsentActive = consentActive,
                 ConsentManagementURL = new LanguageVariant
                 {
-                    Fi = ConsentManagementUrl,
-                    Sv = ConsentManagementUrl,
-                    En = ConsentManagementUrl
+                    Fi = GetConsentManagementUrl("PORTAL:URL:FI"),
+                    Sv = GetConsentManagementUrl("PORTAL:URL:SV"),
+                    En = GetConsentManagementUrl("PORTAL:URL:EN")
                 }
             };
 
@@ -98,6 +102,17 @@ namespace api.Services
                 HasEducations = profileData.activity.educations.Select(ToEducation).ToList()
             };
             return response;
+        }
+
+        private string GetConsentManagementUrl(string configurationKey)
+        {
+            string portalUrl = _configuration[configurationKey];
+            if (string.IsNullOrWhiteSpace(portalUrl))
+            {
+                throw new InvalidOperationException($"Required configuration '{configurationKey}' is missing.");
+            }
+
+            return $"{portalUrl.TrimEnd('/')}{ConsentManagementPath}";
         }
 
         // ORCID takes precedence when both supported identifiers are supplied.
