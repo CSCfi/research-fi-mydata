@@ -74,12 +74,18 @@ namespace api.Services
                 return response;
             }
 
+            response.ProfileData = await GetPersonProfileData(dimUserProfile.Id, dimUserProfile.OrcidId);
+            return response;
+        }
+
+        public async Task<PersonProfileData> GetPersonProfileData(int userProfileId, string orcidId)
+        {
             ProfileEditorDataResponse profileData = await _userProfileService.GetProfileData(
-                userprofileId: dimUserProfile.Id,
+                userprofileId: userProfileId,
                 logUserIdentification: new LogUserIdentification(),
                 forElasticsearch: true);
 
-            response.ProfileData = new PersonProfileData
+            return new PersonProfileData
             {
                 HasGrantedFunding = profileData.activity.fundingDecisions.Select(ToGrantedFunding).ToList(),
                 DescriptionOfActivities = ToDescriptionOfActivities(profileData.personal.researcherDescriptions),
@@ -97,11 +103,10 @@ namespace api.Services
                     }
                 },
                 Affiliations = profileData.activity.affiliations.Select(ToAffiliation).ToList(),
-                PersonIsIdentifiedBy = new Identifier { PidType = api.Models.Common.Constants.PidTypes.ORCID, PidContent = dimUserProfile.OrcidId },
-                CollaborationInterests = await GetCollaborationInterests(dimUserProfile.Id),
+                PersonIsIdentifiedBy = new Identifier { PidType = api.Models.Common.Constants.PidTypes.ORCID, PidContent = orcidId },
+                CollaborationInterests = await GetCollaborationInterests(userProfileId),
                 HasEducations = profileData.activity.educations.Select(ToEducation).ToList()
             };
-            return response;
         }
 
         private string GetConsentManagementUrl(string configurationKey, string controllerRor)

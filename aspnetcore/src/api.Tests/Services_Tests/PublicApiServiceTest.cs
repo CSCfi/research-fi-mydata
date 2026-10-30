@@ -316,6 +316,24 @@ namespace api.Tests
             Assert.Equal("Interest 2", interest.CodeLabel.En);
         }
 
+        [Fact(DisplayName = "GetPersonProfileData - maps data without controller, consent or portal configuration")]
+        public async Task GetPersonProfileData_WithoutConsent()
+        {
+            using var context = CreateInMemoryContext(nameof(GetPersonProfileData_WithoutConsent));
+            CreateService(context, null, CreateProfileEditorData(), out var userProfileServiceMock);
+            var service = new PublicApiService(
+                context, null, null, userProfileServiceMock.Object, new ConfigurationBuilder().Build());
+
+            PersonProfileData data = await service.GetPersonProfileData(1, "0000-0000-0000-0001");
+
+            Assert.Equal("Matti", data.IsNamedBy.FirstName);
+            Assert.Equal("0000-0000-0000-0001", data.PersonIsIdentifiedBy.PidContent);
+            Assert.Equal("Article", Assert.Single(Assert.Single(data.ContributesToOutput).ContributesToWrittenPublication).PublicationName);
+            userProfileServiceMock.Verify(s => s.GetProfileData(1, It.IsAny<LogUserIdentification>(), true), Times.Once);
+            userProfileServiceMock.Verify(s => s.GetUserprofile(It.IsAny<string>()), Times.Never);
+            userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
+        }
+
         [Fact(DisplayName = "GetProfileDataForPublicApi - looks up profile by username derived from HETU")]
         public async Task GetProfileDataForPublicApi_05()
         {
