@@ -63,9 +63,9 @@ namespace api.Services
                 ConsentActive = consentActive,
                 ConsentManagementURL = new LanguageVariant
                 {
-                    Fi = GetConsentManagementUrl("PORTAL:URL:FI"),
-                    Sv = GetConsentManagementUrl("PORTAL:URL:SV"),
-                    En = GetConsentManagementUrl("PORTAL:URL:EN")
+                    Fi = GetConsentManagementUrl("PORTAL:URL:FI", request.ControllerROR),
+                    Sv = GetConsentManagementUrl("PORTAL:URL:SV", request.ControllerROR),
+                    En = GetConsentManagementUrl("PORTAL:URL:EN", request.ControllerROR)
                 }
             };
 
@@ -104,7 +104,7 @@ namespace api.Services
             return response;
         }
 
-        private string GetConsentManagementUrl(string configurationKey)
+        private string GetConsentManagementUrl(string configurationKey, string controllerRor)
         {
             string portalUrl = _configuration[configurationKey];
             if (string.IsNullOrWhiteSpace(portalUrl))
@@ -112,7 +112,7 @@ namespace api.Services
                 throw new InvalidOperationException($"Required configuration '{configurationKey}' is missing.");
             }
 
-            return $"{portalUrl.TrimEnd('/')}{ConsentManagementPath}";
+            return $"{portalUrl.TrimEnd('/')}{ConsentManagementPath}&rorid={Uri.EscapeDataString(controllerRor)}&returnurl={{URL_ENCODED_RETURN_URL}}";
         }
 
         // ORCID takes precedence when both supported identifiers are supplied.

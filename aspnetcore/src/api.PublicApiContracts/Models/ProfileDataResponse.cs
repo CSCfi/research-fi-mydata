@@ -22,6 +22,7 @@ namespace ResearchFi.ProfilePublicApi
 
         /// <summary>
         /// Link to the page where the person manages consents.
+        /// Replace the literal {URL_ENCODED_RETURN_URL} with desired URL-encoded return URL.
         /// </summary>
         public LanguageVariant ConsentManagementURL { get; set; }
 

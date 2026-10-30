@@ -14,6 +14,7 @@ using api.Models.Ttv;
 using api.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.WebUtilities;
 using ResearchFi.ProfilePublicApi;
 
 namespace api.Tests
@@ -165,9 +166,9 @@ namespace api.Tests
             Assert.True(response.ControllerFound);
             Assert.Null(response.ConsentActive);
             Assert.Null(response.ProfileData);
-            Assert.Equal("https://portal.example/fi/mydata/account-settings?login=1", response.ConsentManagementURL.Fi);
-            Assert.Equal("https://portal.example/sv/mydata/account-settings?login=1", response.ConsentManagementURL.Sv);
-            Assert.Equal("https://portal.example/en/mydata/account-settings?login=1", response.ConsentManagementURL.En);
+            Assert.Equal("https://portal.example/fi/mydata/account-settings?login=1&rorid=029pk6x14&returnurl={URL_ENCODED_RETURN_URL}", response.ConsentManagementURL.Fi);
+            Assert.Equal("https://portal.example/sv/mydata/account-settings?login=1&rorid=029pk6x14&returnurl={URL_ENCODED_RETURN_URL}", response.ConsentManagementURL.Sv);
+            Assert.Equal("https://portal.example/en/mydata/account-settings?login=1&rorid=029pk6x14&returnurl={URL_ENCODED_RETURN_URL}", response.ConsentManagementURL.En);
 
             ProfileDataRequest unknownControllerRequest = CreateRequest("HETU", "unknown");
             unknownControllerRequest.ControllerROR = "unknown";
@@ -176,6 +177,33 @@ namespace api.Tests
             Assert.False(unknownControllerResponse.ProfileFound);
             Assert.False(unknownControllerResponse.ControllerFound);
             Assert.Null(unknownControllerResponse.ConsentActive);
+        }
+
+        [Theory(DisplayName = "GetProfileDataForPublicApi - consent URL encodes controller and supports return URL replacement")]
+        [InlineData("03yrm5c26", "03yrm5c26")]
+        [InlineData("https://ror.org/029pk6x14", "https%3A%2F%2Fror.org%2F029pk6x14")]
+        [InlineData("controller&returnurl=other#fragment", "controller%26returnurl%3Dother%23fragment")]
+        public async Task GetProfileDataForPublicApi_ConsentUrlTemplate(string controllerRor, string encodedControllerRor)
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_ConsentUrlTemplate) + controllerRor);
+            var service = CreateService(context, null, null, out _);
+            var request = CreateRequest("HETU", "unknown");
+            request.ControllerROR = controllerRor;
+
+            var response = await service.GetProfileDataForPublicApi(request);
+
+            const string returnUrl = "https://service.example/callback?state=a%20b&next=/profile#details";
+            foreach (string template in new[] { response.ConsentManagementURL.Fi, response.ConsentManagementURL.Sv, response.ConsentManagementURL.En })
+            {
+                Assert.EndsWith($"?login=1&rorid={encodedControllerRor}&returnurl={{URL_ENCODED_RETURN_URL}}", template);
+                string url = template.Replace("{URL_ENCODED_RETURN_URL}", Uri.EscapeDataString(returnUrl));
+                var query = QueryHelpers.ParseQuery(new Uri(url).Query);
+                Assert.Equal(3, query.Count);
+                Assert.Equal("1", Assert.Single(query["login"]));
+                Assert.Equal(controllerRor, Assert.Single(query["rorid"]));
+                Assert.Equal(returnUrl, Assert.Single(query["returnurl"]));
+                Assert.DoesNotContain("{URL_ENCODED_RETURN_URL}", url);
+            }
         }
 
         [Fact(DisplayName = "GetProfileDataForPublicApi - empty identifier does not look up profile")]
@@ -235,7 +263,7 @@ namespace api.Tests
             Assert.True(response.ProfileFound);
             Assert.True(response.ControllerFound);
             Assert.Equal(true, response.ConsentActive);
-            Assert.Equal("https://portal.example/fi/mydata/account-settings?login=1", response.ConsentManagementURL.Fi);
+            Assert.Equal("https://portal.example/fi/mydata/account-settings?login=1&rorid=029pk6x14&returnurl={URL_ENCODED_RETURN_URL}", response.ConsentManagementURL.Fi);
             userProfileServiceMock.Verify(s => s.GetProfileData(
                 1,
                 It.Is<LogUserIdentification>(log => string.IsNullOrEmpty(log.Orcid) && string.IsNullOrEmpty(log.KeycloakId)),
