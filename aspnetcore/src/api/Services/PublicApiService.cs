@@ -62,12 +62,19 @@ namespace api.Services
                 ProfileFound = profileFound,
                 ControllerFound = controllerFound,
                 ConsentActive = consentActive,
-                ConsentManagementURL = new LanguageVariant
-                {
-                    Fi = GetConsentManagementUrl("PORTAL:URL:FI", request.ControllerROR),
-                    Sv = GetConsentManagementUrl("PORTAL:URL:SV", request.ControllerROR),
-                    En = GetConsentManagementUrl("PORTAL:URL:EN", request.ControllerROR)
-                }
+                ConsentManagementURL = profileFound
+                    ? new LanguageVariant
+                    {
+                        Fi = GetConsentManagementUrl("PORTAL:URL:FI", request.ControllerROR),
+                        Sv = GetConsentManagementUrl("PORTAL:URL:SV", request.ControllerROR),
+                        En = GetConsentManagementUrl("PORTAL:URL:EN", request.ControllerROR)
+                    }
+                    : new LanguageVariant
+                    {
+                        Fi = string.Empty,
+                        Sv = string.Empty,
+                        En = string.Empty
+                    }
             };
 
             if (!profileFound || dimUserProfile.Hidden || consentActive != true)

@@ -282,9 +282,9 @@ namespace api.Tests
             Assert.True(response.ControllerFound);
             Assert.Null(response.ConsentActive);
             Assert.Null(response.ProfileData);
-            Assert.Equal("https://portal.example/fi/mydata/account-settings?login=1&rorid=029pk6x14&returnurl={URL_ENCODED_RETURN_URL}", response.ConsentManagementURL.Fi);
-            Assert.Equal("https://portal.example/sv/mydata/account-settings?login=1&rorid=029pk6x14&returnurl={URL_ENCODED_RETURN_URL}", response.ConsentManagementURL.Sv);
-            Assert.Equal("https://portal.example/en/mydata/account-settings?login=1&rorid=029pk6x14&returnurl={URL_ENCODED_RETURN_URL}", response.ConsentManagementURL.En);
+            Assert.Empty(response.ConsentManagementURL.Fi);
+            Assert.Empty(response.ConsentManagementURL.Sv);
+            Assert.Empty(response.ConsentManagementURL.En);
 
             ProfileDataRequest unknownControllerRequest = CreateRequest("HETU", "unknown");
             unknownControllerRequest.ControllerROR = "unknown";
@@ -293,6 +293,9 @@ namespace api.Tests
             Assert.False(unknownControllerResponse.ProfileFound);
             Assert.False(unknownControllerResponse.ControllerFound);
             Assert.Null(unknownControllerResponse.ConsentActive);
+            Assert.Empty(unknownControllerResponse.ConsentManagementURL.Fi);
+            Assert.Empty(unknownControllerResponse.ConsentManagementURL.Sv);
+            Assert.Empty(unknownControllerResponse.ConsentManagementURL.En);
         }
 
         [Theory(DisplayName = "GetProfileDataForPublicApi - consent URL encodes controller and supports return URL replacement")]
@@ -302,12 +305,13 @@ namespace api.Tests
         public async Task GetProfileDataForPublicApi_ConsentUrlTemplate(string controllerRor, string encodedControllerRor)
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_ConsentUrlTemplate) + controllerRor);
-            var service = CreateService(context, null, null, out _);
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, null, out _);
             var request = CreateRequest("HETU", "unknown");
             request.ControllerROR = controllerRor;
 
             var response = await service.GetProfileDataForPublicApi(request);
 
+            Assert.True(response.ProfileFound);
             const string returnUrl = "https://service.example/callback?state=a%20b&next=/profile#details";
             foreach (string template in new[] { response.ConsentManagementURL.Fi, response.ConsentManagementURL.Sv, response.ConsentManagementURL.En })
             {

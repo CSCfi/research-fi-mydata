@@ -21,7 +21,7 @@ namespace ResearchFi.ProfilePublicApi
         public bool? ConsentActive { get; set; }
 
         /// <summary>
-        /// Link to the page where the person manages consents.
+        /// Link to the page where the person manages consents. Empty when no profile is found.
         /// Replace the literal {URL_ENCODED_RETURN_URL} with desired URL-encoded return URL.
         /// </summary>
         public LanguageVariant ConsentManagementURL { get; set; }
