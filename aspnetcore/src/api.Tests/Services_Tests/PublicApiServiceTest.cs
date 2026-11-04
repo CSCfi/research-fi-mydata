@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -22,6 +23,120 @@ namespace api.Tests
     [Collection("Public API service tests")]
     public class PublicApiServiceTests
     {
+        [Fact(DisplayName = "PersonProfileData omits null properties when serialized")]
+        public void PersonProfileData_OmitsNullProperties()
+        {
+            Assert.Equal("{}", JsonSerializer.Serialize(new PersonProfileData()));
+        }
+
+        [Theory]
+        [InlineData(typeof(Affiliation))]
+        [InlineData(typeof(ArtPublication))]
+        [InlineData(typeof(AudiovisualPublication))]
+        [InlineData(typeof(ConferenceEvent))]
+        [InlineData(typeof(ContactInformation))]
+        [InlineData(typeof(Education))]
+        [InlineData(typeof(GrantedFunding))]
+        [InlineData(typeof(Organization))]
+        [InlineData(typeof(Output))]
+        [InlineData(typeof(ParentPublication))]
+        [InlineData(typeof(PersonName))]
+        [InlineData(typeof(PublicationChannel))]
+        [InlineData(typeof(PublicationForumChannel))]
+        [InlineData(typeof(Publisher))]
+        [InlineData(typeof(ResearchDataset))]
+        [InlineData(typeof(SerialPublication))]
+        [InlineData(typeof(Software))]
+        [InlineData(typeof(WebLink))]
+        [InlineData(typeof(WrittenPublication))]
+        [InlineData(typeof(DescriptiveItem))]
+        [InlineData(typeof(Identifier))]
+        [InlineData(typeof(LanguageVariant))]
+        [InlineData(typeof(PartialDate))]
+        [InlineData(typeof(ReferenceData))]
+        [InlineData(typeof(Repository))]
+        public void PersonProfileData_NestedContractOmitsNullProperties(Type contractType)
+        {
+            object contract = Activator.CreateInstance(contractType);
+            using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(contract, contractType));
+
+            foreach (JsonProperty property in document.RootElement.EnumerateObject())
+            {
+                Assert.NotEqual(JsonValueKind.Null, property.Value.ValueKind);
+            }
+        }
+
+        [Fact]
+        public void PersonProfileData_OmitsNestedNullPropertiesWithWebSerializerOptions()
+        {
+            var data = new PersonProfileData
+            {
+                Affiliations = new List<Affiliation>
+                {
+                    new Affiliation
+                    {
+                        AffiliationEndsOn = new PartialDate { Year = 2022, Month = 1, Day = 1 },
+                        AffiliationType = new LanguageVariant()
+                    }
+                }
+            };
+
+            string json = JsonSerializer.Serialize(data, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            Assert.Equal(
+                "{\"affiliations\":[{\"affiliationEndsOn\":{\"year\":2022,\"month\":1,\"day\":1},\"affiliationType\":{}}]}",
+                json);
+        }
+
+        [Fact]
+        public void PersonProfileData_PreservesNonNullNestedValues()
+        {
+            var data = new PersonProfileData
+            {
+                DescriptionOfActivities = new LanguageVariant { Fi = "", En = "Description" },
+                HasEducations = new List<Education>
+                {
+                    new Education { EducationStartsOn = new PartialDate { Year = 2020 } }
+                },
+                ContributesToOutput = new List<Output>
+                {
+                    new Output
+                    {
+                        ContributesToWrittenPublication = new List<WrittenPublication>
+                        {
+                            new WrittenPublication
+                            {
+                                PublicationName = "Article",
+                                PublicationYear = 2021,
+                                PublishedOn = new PublicationChannel
+                                {
+                                    IsPublishedBy = new Publisher { PublisherName = "Publisher" }
+                                }
+                            }
+                        }
+                    }
+                },
+                CollaborationInterests = new List<ReferenceData> { new ReferenceData { CodeValue = 0 } },
+                HasGrantedFunding = new List<GrantedFunding>()
+            };
+            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
+            string json = JsonSerializer.Serialize(data, options);
+            var deserialized = JsonSerializer.Deserialize<PersonProfileData>(json, options);
+
+            Assert.DoesNotContain(":null", json);
+            Assert.Equal("", deserialized.DescriptionOfActivities.Fi);
+            Assert.Equal("Description", deserialized.DescriptionOfActivities.En);
+            Assert.Equal(2020, Assert.Single(deserialized.HasEducations).EducationStartsOn.Year);
+            var publication = Assert.Single(Assert.Single(deserialized.ContributesToOutput).ContributesToWrittenPublication);
+            Assert.Equal("Article", publication.PublicationName);
+            Assert.Equal(2021, publication.PublicationYear);
+            Assert.Equal("Publisher", publication.PublishedOn.IsPublishedBy.PublisherName);
+            Assert.Equal(0, Assert.Single(deserialized.CollaborationInterests).CodeValue);
+            Assert.NotNull(deserialized.HasGrantedFunding);
+            Assert.Empty(deserialized.HasGrantedFunding);
+        }
+
         [Fact(DisplayName = "Get username from national identification number")]
         public void GetUsernameFromNationalIdentificationNumber_01()
         {
@@ -62,7 +177,8 @@ namespace api.Tests
                         {
                             OrganizationNameEn = "University",
                             PositionNameEn = "Professor",
-                            StartDate = new ProfileEditorDate { Year = 2020, Month = 3 }
+                            StartDate = new ProfileEditorDate { Year = 2020, Month = 3 },
+                            EndDate = new ProfileEditorDate { Year = 2024, Month = 6, Day = 5 }
                         }
                     },
                     educations = new List<ProfileEditorEducation>
@@ -286,16 +402,20 @@ namespace api.Tests
             Assert.Equal(2020, affiliation.AffiliationStartsOn.Year);
             Assert.Equal(3, affiliation.AffiliationStartsOn.Month);
             Assert.Null(affiliation.AffiliationStartsOn.Day);
-            Assert.Null(affiliation.AffiliationEndsOn);
+            Assert.Equal("2020-03", affiliation.AffiliationStartsOn.DatePartial);
+            Assert.Equal("2024-06-05", affiliation.AffiliationEndsOn.DatePartial);
+            Assert.Equal(5, affiliation.AffiliationEndsOn.Day);
 
             Education education = Assert.Single(data.HasEducations);
             Assert.Equal("PhD", education.EducationName.En);
             Assert.Equal(2010, education.EducationStartsOn.Year);
+            Assert.Equal("2010", education.EducationStartsOn.DatePartial);
 
             GrantedFunding funding = Assert.Single(data.HasGrantedFunding);
             Assert.Equal("Project", funding.GrantedFundingName.En);
             Assert.Equal("Funder", funding.IsFundedBy.OrganizationName.En);
             Assert.Equal(2019, funding.FundingStartsOn.Year);
+            Assert.Equal("2019", funding.FundingStartsOn.DatePartial);
             Assert.Null(funding.FundingEndsOn);
 
             Output output = Assert.Single(data.ContributesToOutput);

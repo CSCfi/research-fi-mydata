@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
@@ -6,9 +8,11 @@ namespace ResearchFi.ProfilePublicApi
     public class ConferenceEvent
     {
         /// <summary>Publication forum classification of the conference.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public PublicationForumChannel IsClassifiedByPublicationForum { get; set; }
 
         /// <summary>Conference name.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string ConferenceName { get; set; }
     }
 }

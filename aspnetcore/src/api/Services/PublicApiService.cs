@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -207,18 +208,30 @@ namespace api.Services
             {
                 return null;
             }
-            // TODO: not handled yet: PartialDate.DatePartial.
+            string datePartial = date.Year.ToString("D4", CultureInfo.InvariantCulture);
+            if (date.Month > 0)
+            {
+                datePartial += $"-{date.Month.ToString("D2", CultureInfo.InvariantCulture)}";
+                if (date.Day > 0)
+                {
+                    datePartial += $"-{date.Day.ToString("D2", CultureInfo.InvariantCulture)}";
+                }
+            }
+
             return new PartialDate
             {
                 Year = date.Year,
                 Month = date.Month > 0 ? date.Month : null,
-                Day = date.Day > 0 ? date.Day : null
+                Day = date.Day > 0 ? date.Day : null,
+                DatePartial = datePartial
             };
         }
 
         private static PartialDate ToPartialDate(int? year)
         {
-            return year > 0 ? new PartialDate { Year = year.Value } : null;
+            return year > 0
+                ? new PartialDate { Year = year.Value, DatePartial = year.Value.ToString("D4", CultureInfo.InvariantCulture) }
+                : null;
         }
 
         private static List<DescriptiveItem> ToDescriptiveItems(string fi, string sv, string en)

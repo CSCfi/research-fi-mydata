@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
@@ -8,11 +10,13 @@ namespace ResearchFi.ProfilePublicApi
         /// <summary>
         /// Person's first name.
         /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Person's last name.
         /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string LastName { get; set; }
     }
 }

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
@@ -6,6 +8,7 @@ namespace ResearchFi.ProfilePublicApi
     public class ReferenceData
     {
         /// <summary>Code label.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public LanguageVariant CodeLabel { get; set; }
 
         /// <summary>Code value.</summary>

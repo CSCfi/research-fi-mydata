@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
@@ -6,9 +8,11 @@ namespace ResearchFi.ProfilePublicApi
     public class Identifier
     {
         /// <summary>Persistent identifier value.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string PidContent { get; set; }
 
         /// <summary>Persistent identifier type, for example DOI or URN.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string PidType { get; set; }
     }
 }

@@ -14,6 +14,10 @@ The real, `DimUserProfile`-derived contract will replace/extend these types in a
 
 ## Consuming this package
 
+When serialized with System.Text.Json, `PersonProfileData` and its nested contract types omit
+null-valued properties. Non-null values, including empty objects, empty arrays, and zeroes,
+are retained. For example, a language variant with no translations is serialized as `{}`.
+
 There is currently no NuGet feed for this package. To consume it:
 
 1. In the Mydata API repository, run:

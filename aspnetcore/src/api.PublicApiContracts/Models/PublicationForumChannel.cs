@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
@@ -6,9 +8,11 @@ namespace ResearchFi.ProfilePublicApi
     public class PublicationForumChannel
     {
         /// <summary>JuFo classification.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public ReferenceData JufoClassification { get; set; }
 
         /// <summary>JuFo-Id.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Identifier IdentifierByPublicationForum { get; set; }
     }
 }

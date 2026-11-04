@@ -1,7 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace ResearchFi.ProfilePublicApi
 {
     /// <summary>
-    /// Date that may be given with only year, or year and month (schema: date).
+    /// Date given as a year, year and month, or full date (schema: date).
     /// </summary>
     public class PartialDate
     {
@@ -9,12 +11,15 @@ namespace ResearchFi.ProfilePublicApi
         public int Year { get; set; }
 
         /// <summary>Month.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public int? Month { get; set; }
 
         /// <summary>Day.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public int? Day { get; set; }
 
-        /// <summary>Partial date as text.</summary>
+        /// <summary>Date value formatted as YYYY, YYYY-MM, or YYYY-MM-DD, depending on available parts.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string DatePartial { get; set; }
     }
 }
