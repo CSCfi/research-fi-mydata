@@ -261,6 +261,12 @@ namespace api.Services
             return $"DELETE FROM dim_user_choices WHERE dim_user_profile_id={userprofileId}";
         }
 
+        // Return SQL DELETE statement for fact_profile_data_sharing_consent.
+        public string GetSqlQuery_Delete_FactProfileDataSharingConsents(int userprofileId)
+        {
+            return $"DELETE FROM fact_profile_data_sharing_consent WHERE dim_user_profile_id={userprofileId}";
+        }
+
         // Return SQL DELETE statement for dim_user_profile.
         public string GetSqlQuery_Delete_DimUserProfile(int userprofileId)
         {

@@ -1,25 +1,593 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using Xunit;
+using api.Models.Log;
+using api.Models.ProfileEditor;
+using api.Models.ProfileEditor.Items;
+using api.Models.Ttv;
 using api.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.WebUtilities;
+using ResearchFi.ProfilePublicApi;
 
 namespace api.Tests
 {
     [Collection("Public API service tests")]
     public class PublicApiServiceTests
     {
+        [Fact(DisplayName = "PersonProfileData omits null properties when serialized")]
+        public void PersonProfileData_OmitsNullProperties()
+        {
+            Assert.Equal("{}", JsonSerializer.Serialize(new PersonProfileData()));
+        }
+
+        [Theory]
+        [InlineData(typeof(Affiliation))]
+        [InlineData(typeof(ArtPublication))]
+        [InlineData(typeof(AudiovisualPublication))]
+        [InlineData(typeof(ConferenceEvent))]
+        [InlineData(typeof(ContactInformation))]
+        [InlineData(typeof(Education))]
+        [InlineData(typeof(GrantedFunding))]
+        [InlineData(typeof(Organization))]
+        [InlineData(typeof(Output))]
+        [InlineData(typeof(ParentPublication))]
+        [InlineData(typeof(PersonName))]
+        [InlineData(typeof(PublicationChannel))]
+        [InlineData(typeof(PublicationForumChannel))]
+        [InlineData(typeof(Publisher))]
+        [InlineData(typeof(ResearchDataset))]
+        [InlineData(typeof(SerialPublication))]
+        [InlineData(typeof(Software))]
+        [InlineData(typeof(WebLink))]
+        [InlineData(typeof(WrittenPublication))]
+        [InlineData(typeof(DescriptiveItem))]
+        [InlineData(typeof(Identifier))]
+        [InlineData(typeof(LanguageVariant))]
+        [InlineData(typeof(PartialDate))]
+        [InlineData(typeof(ReferenceData))]
+        [InlineData(typeof(Repository))]
+        public void PersonProfileData_NestedContractOmitsNullProperties(Type contractType)
+        {
+            object contract = Activator.CreateInstance(contractType);
+            using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(contract, contractType));
+
+            foreach (JsonProperty property in document.RootElement.EnumerateObject())
+            {
+                Assert.NotEqual(JsonValueKind.Null, property.Value.ValueKind);
+            }
+        }
+
+        [Fact]
+        public void PersonProfileData_OmitsNestedNullPropertiesWithWebSerializerOptions()
+        {
+            var data = new PersonProfileData
+            {
+                Affiliations = new List<Affiliation>
+                {
+                    new Affiliation
+                    {
+                        AffiliationEndsOn = new PartialDate { Year = 2022, Month = 1, Day = 1 },
+                        AffiliationType = new LanguageVariant()
+                    }
+                }
+            };
+
+            string json = JsonSerializer.Serialize(data, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            Assert.Equal(
+                "{\"affiliations\":[{\"affiliationEndsOn\":{\"year\":2022,\"month\":1,\"day\":1},\"affiliationType\":{}}]}",
+                json);
+        }
+
+        [Fact]
+        public void PersonProfileData_PreservesNonNullNestedValues()
+        {
+            var data = new PersonProfileData
+            {
+                DescriptionOfActivities = new LanguageVariant { Fi = "", En = "Description" },
+                HasEducations = new List<Education>
+                {
+                    new Education { EducationStartsOn = new PartialDate { Year = 2020 } }
+                },
+                ContributesToOutput = new List<Output>
+                {
+                    new Output
+                    {
+                        ContributesToWrittenPublication = new List<WrittenPublication>
+                        {
+                            new WrittenPublication
+                            {
+                                PublicationName = "Article",
+                                PublicationYear = 2021,
+                                PublishedOn = new PublicationChannel
+                                {
+                                    IsPublishedBy = new Publisher { PublisherName = "Publisher" }
+                                }
+                            }
+                        }
+                    }
+                },
+                CollaborationInterests = new List<ReferenceData> { new ReferenceData { CodeValue = 0 } },
+                HasGrantedFunding = new List<GrantedFunding>()
+            };
+            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
+            string json = JsonSerializer.Serialize(data, options);
+            var deserialized = JsonSerializer.Deserialize<PersonProfileData>(json, options);
+
+            Assert.DoesNotContain(":null", json);
+            Assert.Equal("", deserialized.DescriptionOfActivities.Fi);
+            Assert.Equal("Description", deserialized.DescriptionOfActivities.En);
+            Assert.Equal(2020, Assert.Single(deserialized.HasEducations).EducationStartsOn.Year);
+            var publication = Assert.Single(Assert.Single(deserialized.ContributesToOutput).ContributesToWrittenPublication);
+            Assert.Equal("Article", publication.PublicationName);
+            Assert.Equal(2021, publication.PublicationYear);
+            Assert.Equal("Publisher", publication.PublishedOn.IsPublishedBy.PublisherName);
+            Assert.Equal(0, Assert.Single(deserialized.CollaborationInterests).CodeValue);
+            Assert.NotNull(deserialized.HasGrantedFunding);
+            Assert.Empty(deserialized.HasGrantedFunding);
+        }
+
         [Fact(DisplayName = "Get username from national identification number")]
         public void GetUsernameFromNationalIdentificationNumber_01()
         {
-            var publicApiService = new PublicApiService(null, null, null);
+            var publicApiService = new PublicApiService(null, null, null, null, CreatePortalConfiguration());
 
             // Value 010170-999R is a test value for Finnish national identification number. No real person is associated with this value.
             Assert.Equal("5f0c2c8d2107f4700fb5aa1ef717ac03", publicApiService.GetUsernameFromNationalIdentificationNumber("010170-999R"));
+        }
+
+        private static TtvContext CreateInMemoryContext(string dbName)
+        {
+            var options = new DbContextOptionsBuilder<TtvContext>()
+                .UseInMemoryDatabase(databaseName: dbName)
+                .Options;
+            return new TtvContext(options);
+        }
+
+        private static ProfileEditorDataResponse CreateProfileEditorData()
+        {
+            return new ProfileEditorDataResponse
+            {
+                personal = new ProfileEditorDataPersonal
+                {
+                    names = new List<ProfileEditorName> { new ProfileEditorName { FirstNames = "Matti", LastName = "Virtanen" } },
+                    emails = new List<ProfileEditorEmail> { new ProfileEditorEmail { Value = "matti@example.com" } },
+                    telephoneNumbers = new List<ProfileEditorTelephoneNumber> { new ProfileEditorTelephoneNumber { Value = "+358401234567" } },
+                    webLinks = new List<ProfileEditorWebLink> { new ProfileEditorWebLink { LinkLabel = "Home", Url = "https://example.com" } },
+                    researcherDescriptions = new List<ProfileEditorResearcherDescription>
+                    {
+                        new ProfileEditorResearcherDescription { ResearchDescriptionFi = "Kuvaus", ResearchDescriptionEn = "Description" }
+                    }
+                },
+                activity = new ProfileEditorDataActivity
+                {
+                    affiliations = new List<ProfileEditorAffiliation>
+                    {
+                        new ProfileEditorAffiliation
+                        {
+                            OrganizationNameEn = "University",
+                            PositionNameEn = "Professor",
+                            StartDate = new ProfileEditorDate { Year = 2020, Month = 3 },
+                            EndDate = new ProfileEditorDate { Year = 2024, Month = 6, Day = 5 }
+                        }
+                    },
+                    educations = new List<ProfileEditorEducation>
+                    {
+                        new ProfileEditorEducation { NameEn = "PhD", DegreeGrantingInstitutionName = "University", StartDate = new ProfileEditorDate { Year = 2010 } }
+                    },
+                    publications = new List<ProfileEditorPublication>
+                    {
+                        new ProfileEditorPublication { PublicationName = "Article", AuthorsText = "Virtanen M", PublicationYear = 2021, Doi = "10.1234/abc", JournalName = "Journal" }
+                    },
+                    fundingDecisions = new List<ProfileEditorFundingDecision>
+                    {
+                        new ProfileEditorFundingDecision { ProjectNameEn = "Project", FunderNameEn = "Funder", FundingStartYear = 2019 }
+                    },
+                    researchDatasets = new List<ProfileEditorResearchDataset>
+                    {
+                        new ProfileEditorResearchDataset
+                        {
+                            NameEn = "Dataset",
+                            DatasetCreated = 2022,
+                            Actor = new List<ProfileEditorActor> { new ProfileEditorActor { actorRole = 2, actorRoleNameEn = "Creator" } },
+                            PreferredIdentifiers = new List<ProfileEditorPreferredIdentifier> { new ProfileEditorPreferredIdentifier { PidContent = "10.1234/ds", PidType = "DOI" } }
+                        }
+                    }
+                }
+            };
+        }
+
+        private static PublicApiService CreateService(TtvContext context, DimUserProfile dimUserProfile, ProfileEditorDataResponse profileData, out Mock<IUserProfileService> userProfileServiceMock)
+        {
+            userProfileServiceMock = new Mock<IUserProfileService>();
+            userProfileServiceMock.Setup(s => s.GetUserprofileByUsername(It.IsAny<string>())).ReturnsAsync(dimUserProfile);
+            userProfileServiceMock.Setup(s => s.GetUserprofile(It.IsAny<string>())).ReturnsAsync(dimUserProfile);
+            userProfileServiceMock.Setup(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true)).ReturnsAsync(profileData);
+            return new PublicApiService(context, null, null, userProfileServiceMock.Object, CreatePortalConfiguration());
+        }
+
+        private static IConfiguration CreatePortalConfiguration()
+        {
+            return new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    ["PORTAL:URL:FI"] = "https://portal.example/fi/",
+                    ["PORTAL:URL:SV"] = "https://portal.example/sv/",
+                    ["PORTAL:URL:EN"] = "https://portal.example/en/"
+                })
+                .Build();
+        }
+
+        private static void AddController(TtvContext context, int controllerId = 10, string ror = "029pk6x14")
+        {
+            context.FactOrganizationGenerals.Add(new FactOrganizationGeneral
+            {
+                Id = controllerId,
+                DimOrganizationId = controllerId + 100,
+                SourceId = "test"
+            });
+            context.DimPids.Add(new DimPid
+            {
+                Id = controllerId,
+                DimOrganizationId = controllerId + 100,
+                PidType = "RORID",
+                PidContent = ror,
+                SourceId = "test"
+            });
+        }
+
+        private static void AddConsent(TtvContext context, int profileId = 1, int controllerId = 10, DateTime? expiry = null, DateTime? withdrawn = null)
+        {
+            context.FactProfileDataSharingConsents.Add(new FactProfileDataSharingConsent
+            {
+                DimUserProfileId = profileId,
+                ControllerOrganizationId = controllerId,
+                DateConsentGranted = DateTime.UtcNow,
+                DateConsentExpire = expiry,
+                DateConsentWithdrawn = withdrawn,
+                Created = DateTime.UtcNow
+            });
+        }
+
+        private static ProfileDataRequest CreateRequest(string pidType, string pidContent)
+        {
+            return new ProfileDataRequest
+            {
+                PersonIdentifiers = new List<Identifier> { new Identifier { PidType = pidType, PidContent = pidContent } },
+                ControllerROR = "029pk6x14"
+            };
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - resolves controller when profile is missing")]
+        public async Task GetProfileDataForPublicApi_01()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_01));
+            AddController(context);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, null, null, out _);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "unknown"));
+
+            Assert.False(response.ProfileFound);
+            Assert.True(response.ControllerFound);
+            Assert.Null(response.ConsentActive);
+            Assert.Null(response.ProfileData);
+            Assert.Empty(response.ConsentManagementURL.Fi);
+            Assert.Empty(response.ConsentManagementURL.Sv);
+            Assert.Empty(response.ConsentManagementURL.En);
+
+            ProfileDataRequest unknownControllerRequest = CreateRequest("HETU", "unknown");
+            unknownControllerRequest.ControllerROR = "unknown";
+            var unknownControllerResponse = await service.GetProfileDataForPublicApi(unknownControllerRequest);
+
+            Assert.False(unknownControllerResponse.ProfileFound);
+            Assert.False(unknownControllerResponse.ControllerFound);
+            Assert.Null(unknownControllerResponse.ConsentActive);
+            Assert.Empty(unknownControllerResponse.ConsentManagementURL.Fi);
+            Assert.Empty(unknownControllerResponse.ConsentManagementURL.Sv);
+            Assert.Empty(unknownControllerResponse.ConsentManagementURL.En);
+        }
+
+        [Theory(DisplayName = "GetProfileDataForPublicApi - consent URL encodes controller and supports return URL replacement")]
+        [InlineData("03yrm5c26", "03yrm5c26")]
+        [InlineData("https://ror.org/029pk6x14", "https%3A%2F%2Fror.org%2F029pk6x14")]
+        [InlineData("controller&returnurl=other#fragment", "controller%26returnurl%3Dother%23fragment")]
+        public async Task GetProfileDataForPublicApi_ConsentUrlTemplate(string controllerRor, string encodedControllerRor)
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_ConsentUrlTemplate) + controllerRor);
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, null, out _);
+            var request = CreateRequest("HETU", "unknown");
+            request.ControllerROR = controllerRor;
+
+            var response = await service.GetProfileDataForPublicApi(request);
+
+            Assert.True(response.ProfileFound);
+            const string returnUrl = "https://service.example/callback?state=a%20b&next=/profile#details";
+            foreach (string template in new[] { response.ConsentManagementURL.Fi, response.ConsentManagementURL.Sv, response.ConsentManagementURL.En })
+            {
+                Assert.EndsWith($"?login=1&rorid={encodedControllerRor}&returnurl={{URL_ENCODED_RETURN_URL}}", template);
+                string url = template.Replace("{URL_ENCODED_RETURN_URL}", Uri.EscapeDataString(returnUrl));
+                var query = QueryHelpers.ParseQuery(new Uri(url).Query);
+                Assert.Equal(3, query.Count);
+                Assert.Equal("1", Assert.Single(query["login"]));
+                Assert.Equal(controllerRor, Assert.Single(query["rorid"]));
+                Assert.Equal(returnUrl, Assert.Single(query["returnurl"]));
+                Assert.DoesNotContain("{URL_ENCODED_RETURN_URL}", url);
+            }
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - empty identifier does not look up profile")]
+        public async Task GetProfileDataForPublicApi_02()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_02));
+            AddController(context);
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, null, out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", ""));
+
+            Assert.False(response.ProfileFound);
+            userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
+            userProfileServiceMock.Verify(s => s.GetUserprofile(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - hidden profile is found but its data is withheld")]
+        public async Task GetProfileDataForPublicApi_03()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_03));
+            AddController(context);
+            AddConsent(context);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1, Hidden = true }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "alice"));
+
+            Assert.True(response.ProfileFound);
+            Assert.True(response.ControllerFound);
+            Assert.Equal(true, response.ConsentActive);
+            Assert.Null(response.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - maps profile data to contract")]
+        public async Task GetProfileDataForPublicApi_04()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_04));
+            context.DimUserChoices.AddRange(
+                new DimUserChoice
+                {
+                    Id = 1, DimUserProfileId = 1, UserChoiceValue = true, SourceId = "s",
+                    DimReferencedataIdAsUserChoiceLabelNavigation = new DimReferencedatum { CodeScheme = "Kiinnostuksen_ilmaiseminen", CodeValue = "2", NameEn = "Interest 2", Order = 2, SourceId = "s", SourceDescription = "s" }
+                },
+                new DimUserChoice
+                {
+                    Id = 2, DimUserProfileId = 1, UserChoiceValue = false, SourceId = "s",
+                    DimReferencedataIdAsUserChoiceLabelNavigation = new DimReferencedatum { CodeScheme = "Kiinnostuksen_ilmaiseminen", CodeValue = "3", NameEn = "Interest 3", Order = 3, SourceId = "s", SourceDescription = "s" }
+                });
+            AddController(context);
+            AddConsent(context);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1, OrcidId = "0000-0000-0000-0001" }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("HETU", "alice"));
+
+            Assert.True(response.ProfileFound);
+            Assert.True(response.ControllerFound);
+            Assert.Equal(true, response.ConsentActive);
+            Assert.Equal("https://portal.example/fi/mydata/account-settings?login=1&rorid=029pk6x14&returnurl={URL_ENCODED_RETURN_URL}", response.ConsentManagementURL.Fi);
+            userProfileServiceMock.Verify(s => s.GetProfileData(
+                1,
+                It.Is<LogUserIdentification>(log => string.IsNullOrEmpty(log.Orcid) && string.IsNullOrEmpty(log.KeycloakId)),
+                true), Times.Once);
+            PersonProfileData data = response.ProfileData;
+            Assert.Equal("Matti", data.IsNamedBy.FirstName);
+            Assert.Equal("Virtanen", data.IsNamedBy.LastName);
+            Assert.Equal("0000-0000-0000-0001", data.PersonIsIdentifiedBy.PidContent);
+            Assert.Equal("ORCID", data.PersonIsIdentifiedBy.PidType);
+            Assert.Equal("Description", data.DescriptionOfActivities.En);
+            Assert.Equal("Kuvaus", data.DescriptionOfActivities.Fi);
+            Assert.Null(data.DescriptionOfActivities.Sv);
+            Assert.Equal("matti@example.com", Assert.Single(data.IsReachableFrom.Email));
+            Assert.Equal("+358401234567", Assert.Single(data.IsReachableFrom.PhoneNumber));
+            Assert.Equal("https://example.com", Assert.Single(data.IsReachableFrom.Homepage).LinkURL);
+
+            Affiliation affiliation = Assert.Single(data.Affiliations);
+            Assert.Equal("University", affiliation.AffiliationOrganization.OrganizationName.En);
+            Assert.Equal("Professor", affiliation.Position.En);
+            Assert.Equal(2020, affiliation.AffiliationStartsOn.Year);
+            Assert.Equal(3, affiliation.AffiliationStartsOn.Month);
+            Assert.Null(affiliation.AffiliationStartsOn.Day);
+            Assert.Equal("2020-03", affiliation.AffiliationStartsOn.DatePartial);
+            Assert.Equal("2024-06-05", affiliation.AffiliationEndsOn.DatePartial);
+            Assert.Equal(5, affiliation.AffiliationEndsOn.Day);
+
+            Education education = Assert.Single(data.HasEducations);
+            Assert.Equal("PhD", education.EducationName.En);
+            Assert.Equal(2010, education.EducationStartsOn.Year);
+            Assert.Equal("2010", education.EducationStartsOn.DatePartial);
+
+            GrantedFunding funding = Assert.Single(data.HasGrantedFunding);
+            Assert.Equal("Project", funding.GrantedFundingName.En);
+            Assert.Equal("Funder", funding.IsFundedBy.OrganizationName.En);
+            Assert.Equal(2019, funding.FundingStartsOn.Year);
+            Assert.Equal("2019", funding.FundingStartsOn.DatePartial);
+            Assert.Null(funding.FundingEndsOn);
+
+            Output output = Assert.Single(data.ContributesToOutput);
+            WrittenPublication publication = Assert.Single(output.ContributesToWrittenPublication);
+            Assert.Equal("Article", publication.PublicationName);
+            Assert.Equal("Virtanen M", publication.ListOfAuthors);
+            Assert.Equal(2021, publication.PublicationYear);
+            Assert.Equal("10.1234/abc", Assert.Single(publication.WrittenPublicationIsIdentifiedBy).PidContent);
+            Assert.Equal("Journal", publication.PublishedOn.IsPublishedInSerie.JournalName);
+            ResearchDataset dataset = Assert.Single(output.ContributesToDataset);
+            Assert.Equal("Dataset", Assert.Single(dataset.DatasetTitle).DescriptiveContent);
+            Assert.Equal(2022, dataset.DatasetCreatedDate.Year);
+            Assert.Equal(2, Assert.Single(dataset.RoleInDataset).CodeValue);
+            Assert.Equal("10.1234/ds", Assert.Single(dataset.DatasetIsIdentifiedBy).PidContent);
+
+            ReferenceData interest = Assert.Single(data.CollaborationInterests);
+            Assert.Equal(2, interest.CodeValue);
+            Assert.Equal("Interest 2", interest.CodeLabel.En);
+        }
+
+        [Fact(DisplayName = "GetPersonProfileData - maps data without controller, consent or portal configuration")]
+        public async Task GetPersonProfileData_WithoutConsent()
+        {
+            using var context = CreateInMemoryContext(nameof(GetPersonProfileData_WithoutConsent));
+            CreateService(context, null, CreateProfileEditorData(), out var userProfileServiceMock);
+            var service = new PublicApiService(
+                context, null, null, userProfileServiceMock.Object, new ConfigurationBuilder().Build());
+
+            PersonProfileData data = await service.GetPersonProfileData(1, "0000-0000-0000-0001");
+
+            Assert.Equal("Matti", data.IsNamedBy.FirstName);
+            Assert.Equal("0000-0000-0000-0001", data.PersonIsIdentifiedBy.PidContent);
+            Assert.Equal("Article", Assert.Single(Assert.Single(data.ContributesToOutput).ContributesToWrittenPublication).PublicationName);
+            userProfileServiceMock.Verify(s => s.GetProfileData(1, It.IsAny<LogUserIdentification>(), true), Times.Once);
+            userProfileServiceMock.Verify(s => s.GetUserprofile(It.IsAny<string>()), Times.Never);
+            userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - looks up profile by username derived from HETU")]
+        public async Task GetProfileDataForPublicApi_05()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_05));
+            var service = CreateService(context, null, null, out var userProfileServiceMock);
+
+            await service.GetProfileDataForPublicApi(CreateRequest("HETU", "010170-999R"));
+
+            // Value 010170-999R is a test value for Finnish national identification number. No real person is associated with this value.
+            userProfileServiceMock.Verify(s => s.GetUserprofileByUsername("5f0c2c8d2107f4700fb5aa1ef717ac03"), Times.Once);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - looks up profile by ORCID")]
+        public async Task GetProfileDataForPublicApi_06()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_06));
+            var service = CreateService(context, null, null, out var userProfileServiceMock);
+
+            await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            userProfileServiceMock.Verify(s => s.GetUserprofile("0000-0000-0000-0001"), Times.Once);
+            userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - withholds profile data without a registered controller")]
+        public async Task GetProfileDataForPublicApi_07()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_07));
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.True(response.ProfileFound);
+            Assert.False(response.ControllerFound);
+            Assert.Null(response.ConsentActive);
+            Assert.Null(response.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - withholds profile data without consent")]
+        public async Task GetProfileDataForPublicApi_08()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_08));
+            AddController(context);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.True(response.ProfileFound);
+            Assert.True(response.ControllerFound);
+            Assert.Equal(false, response.ConsentActive);
+            Assert.Null(response.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - consent is active before its UTC expiry")]
+        public async Task GetProfileDataForPublicApi_09()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_09));
+            AddController(context);
+            AddConsent(context, expiry: DateTime.UtcNow.AddHours(1));
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out _);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.Equal(true, response.ConsentActive);
+            Assert.NotNull(response.ProfileData);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - expired consent is inactive")]
+        public async Task GetProfileDataForPublicApi_10()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_10));
+            AddController(context);
+            AddConsent(context, expiry: DateTime.UtcNow.Date.AddDays(-1));
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var expiredResponse = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.Equal(false, expiredResponse.ConsentActive);
+            Assert.Null(expiredResponse.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - withdrawn consent is inactive")]
+        public async Task GetProfileDataForPublicApi_13()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_13));
+            AddController(context);
+            AddConsent(context, withdrawn: DateTime.UtcNow.Date);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.Equal(false, response.ConsentActive);
+            Assert.Null(response.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - ORCID is preferred and does not fall back to HETU")]
+        public async Task GetProfileDataForPublicApi_11()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_11));
+            var service = CreateService(context, null, null, out var userProfileServiceMock);
+            ProfileDataRequest request = CreateRequest("ORCID", "0000-0000-0000-0001");
+            request.PersonIdentifiers.Add(new Identifier { PidType = "HETU", PidContent = "010170-999R" });
+
+            await service.GetProfileDataForPublicApi(request);
+
+            userProfileServiceMock.Verify(s => s.GetUserprofile("0000-0000-0000-0001"), Times.Once);
+            userProfileServiceMock.Verify(s => s.GetUserprofileByUsername(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact(DisplayName = "GetProfileDataForPublicApi - matches bare ROR IDs without case sensitivity")]
+        public async Task GetProfileDataForPublicApi_12()
+        {
+            using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_12));
+            AddController(context);
+            await context.SaveChangesAsync();
+            var service = CreateService(context, null, null, out _);
+            ProfileDataRequest request = CreateRequest("HETU", "unknown");
+            request.ControllerROR = "029PK6X14";
+
+            var response = await service.GetProfileDataForPublicApi(request);
+
+            Assert.True(response.ControllerFound);
         }
 
         private static PublicApiService CreateServiceWithResponse(string jsonResponse)
@@ -31,7 +599,7 @@ namespace api.Tests
             };
             var factoryMock = new Mock<IHttpClientFactory>();
             factoryMock.Setup(f => f.CreateClient("keycloakClient")).Returns(httpClient);
-            return new PublicApiService(null, factoryMock.Object, null);
+            return new PublicApiService(null, factoryMock.Object, null, null, CreatePortalConfiguration());
         }
 
         private class FakeHttpMessageHandler : HttpMessageHandler

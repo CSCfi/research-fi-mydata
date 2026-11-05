@@ -33,6 +33,7 @@ namespace api.Services
         string GetSqlQuery_Delete_DimUserProfile(int userprofileId);
         string GetSqlQuery_Delete_DimWebLinks(List<int> dimWebLinkIds);
         string GetSqlQuery_Delete_FactFieldValues(int userprofileId);
+        string GetSqlQuery_Delete_FactProfileDataSharingConsents(int userprofileId);
         string GetSqlQuery_Select_BrParticipatesInFundingGroup(long dimNameId, List<int> existingFundingDecisionIds);
         string GetSqlQuery_Select_CountPublishedItemsInUserprofile(int dimUserProfileId);
         string GetSqlQuery_Select_DimAffiliation(int dimKnownPersonId, List<int> existingIds);

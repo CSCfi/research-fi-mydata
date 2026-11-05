@@ -862,6 +862,18 @@ namespace api.Tests
             Assert.Equal(NormalizeSql(expectedSqlString), NormalizeSql(actualSqlString));
         }
 
+        [Fact(DisplayName = "Get SQL query for deleting fact_profile_data_sharing_consent")]
+        public void Test_GetSqlQuery_Delete_FactProfileDataSharingConsents()
+        {
+            // Arrange
+            TtvSqlService ttvSqlService = new();
+            string expectedSqlString = "DELETE FROM fact_profile_data_sharing_consent WHERE dim_user_profile_id=887766";
+            // Act
+            string actualSqlString = ttvSqlService.GetSqlQuery_Delete_FactProfileDataSharingConsents(887766);
+            // Assert
+            Assert.Equal(NormalizeSql(expectedSqlString), NormalizeSql(actualSqlString));
+        }
+
         [Fact(DisplayName = "Get SQL query for deleting dim_user_profile")]
         public void Test_GetSqlQuery_Delete_DimUserProfile()
         {

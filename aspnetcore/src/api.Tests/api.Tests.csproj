@@ -26,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\api\api.csproj" />
+    <ProjectReference Include="..\api.PublicApiContracts\api.PublicApiContracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Moq" />

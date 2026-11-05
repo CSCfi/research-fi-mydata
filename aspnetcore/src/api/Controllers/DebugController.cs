@@ -15,11 +15,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Diagnostics;
+using ResearchFi.ProfilePublicApi;
 
 namespace api.Controllers
 {
-    public record NationalIdentificationNumberRequest(string NationalIdentificationNumber);
-
     /*
      * DebugController implements API for debugging.
      */
@@ -427,12 +426,12 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Debug: Test Public API functionality.
+        /// Debug: Get profile data for Public API.
         /// </summary>
-        [HttpPost]
-        [Route("/[controller]/profiledataforapi")]
-        [ProducesResponseType(typeof(ApiResponseProfileDataGet), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetProfiledataFromNationalIdentificationNumber([FromBody] NationalIdentificationNumberRequest request)
+        [HttpGet]
+        [Route("/[controller]/profiledata-for-public-api/{orcidId}")]
+        [ProducesResponseType(typeof(PersonProfileData), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetProfileDataForPublicApiFromOrcidId(string orcidId)
         {
             // Check admin token authorization
             if (!IsAdminTokenAuthorized(Configuration))
@@ -446,11 +445,8 @@ namespace api.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Get Keycloak username from national identification number.
-            string username = _publicApiService.GetUsernameFromNationalIdentificationNumber(request.NationalIdentificationNumber);
-
-            // Get userprofile from username.
-            DimUserProfile? dimUserProfile = await _userProfileService.GetUserprofileByUsername(username);
+            // Get userprofile from ORCID ID.
+            DimUserProfile? dimUserProfile = await _userProfileService.GetUserprofile(orcidId);
 
             // Check that userprofile exists.
             if (dimUserProfile == null)
@@ -462,7 +458,7 @@ namespace api.Controllers
                         action: LogContent.Action.DEBUG_GET_PROFILE_DATA,
                         state: LogContent.ActionState.FAILED,
                         error: true,
-                        message: "User profile not found for username: " + username));
+                        message: "User profile not found for ORCID ID: " + orcidId));
 
                 return Ok(new ApiResponse(success: false, reason: Constants.ApiResponseReasons.PROFILE_NOT_FOUND));
             }
@@ -479,7 +475,7 @@ namespace api.Controllers
                     state: LogContent.ActionState.START));
 
             var stopwatch = Stopwatch.StartNew();
-            ProfileEditorDataResponse profileDataResponse = await _userProfileService.GetProfileData(userprofileId: dimUserProfile.Id, logUserIdentification: logUserIdentification);
+            PersonProfileData profileDataResponse = await _publicApiService.GetPersonProfileData(dimUserProfile.Id, dimUserProfile.OrcidId);
             stopwatch.Stop();
 
             _logger.LogInformation(
@@ -490,7 +486,7 @@ namespace api.Controllers
                     state: LogContent.ActionState.COMPLETE,
                     message: $"took {stopwatch.ElapsedMilliseconds}ms."));
 
-            return Ok(new ApiResponseProfileDataGet(success: true, reason: "", data: profileDataResponse, fromCache: false));
+            return Ok(profileDataResponse);
         }
     }
 }

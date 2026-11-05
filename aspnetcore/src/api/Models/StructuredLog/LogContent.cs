@@ -67,6 +67,7 @@
             public const string ORCID_WEBHOOK_RECEIVED = "ORCID: webhook: received";
             public const string SETTINGS_GET = "Settings: get";
             public const string SETTINGS_SET = "Settings: set";
+            public const string PUBLIC_API_PROFILE_REQUEST = "Public API: profile: request";
         }
 
         public static class ActionState
