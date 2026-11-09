@@ -3,10 +3,13 @@ using api.Services;
 using api.Models.Common;
 using api.Models.Ttv;
 using api.Models.Log;
+using api.Models.Orcid;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -344,7 +347,10 @@ namespace api.Tests
             await context.SaveChangesAsync();
         }
 
-        private OrcidImportService CreateService(TtvContext context)
+        private OrcidImportService CreateService(
+            TtvContext context,
+            IOrcidJsonParserService parser = null,
+            ILogger<OrcidImportService> logger = null)
         {
             var utilityService = new UtilityService();
             var userProfileService = new UserProfileService(
@@ -357,11 +363,61 @@ namespace api.Tests
                 ttvContext: context,
                 userProfileService: userProfileService,
                 orcidApiService: null,
-                orcidJsonParserService: new OrcidJsonParserService(),
+                orcidJsonParserService: parser ?? new OrcidJsonParserService(),
                 organizationHandlerService: organizationHandlerService,
                 utilityService: utilityService,
                 dataSourceHelperService: new DataSourceHelperService { DimRegisteredDataSourceId_ORCID = OrcidDataSourceId },
-                logger: new NullLogger<OrcidImportService>());
+                logger: logger ?? new NullLogger<OrcidImportService>());
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AddDimDates_LogsCompleteExceptionChain_AndContinues(bool hasInnerExceptions)
+        {
+            using var context = CreateContext(nameof(AddDimDates_LogsCompleteExceptionChain_AndContinues));
+            Exception innerException = null;
+            if (hasInnerExceptions)
+            {
+                Action throwRootException = () => throw new System.ComponentModel.Win32Exception(258);
+                var rootException = Record.Exception(throwRootException);
+                Action throwInnerException = () => throw new TimeoutException("Database operation timed out", rootException);
+                innerException = Record.Exception(throwInnerException);
+            }
+            var exception = new InvalidOperationException("Education parsing failed", innerException);
+            var parser = new Mock<IOrcidJsonParserService>(MockBehavior.Strict);
+            parser.Setup(p => p.GetEducations("{}")).Throws(exception);
+            parser.Setup(p => p.GetEmployments("{}")).Returns(new List<OrcidEmployment>());
+            parser.Setup(p => p.GetFundings("{}")).Returns(new List<OrcidFunding>());
+            parser.Setup(p => p.GetProfileOnlyResearchActivityItems("{}")).Returns(new List<OrcidResearchActivity>());
+            parser.Setup(p => p.GetWorks("{}", true)).Returns(new OrcidWorks());
+            var logger = new Mock<ILogger<OrcidImportService>>();
+            var service = CreateService(context, parser.Object, logger.Object);
+
+            await service.AddDimDates("{}", DateTime.UtcNow, LogId);
+
+            var logCall = Assert.Single(logger.Invocations, i => i.Method.Name == nameof(ILogger.Log));
+            Assert.Equal(LogLevel.Error, Assert.IsType<LogLevel>(logCall.Arguments[0]));
+            var state = Assert.IsAssignableFrom<IEnumerable<KeyValuePair<string, object>>>(logCall.Arguments[2]);
+            var logInfo = Assert.Single(state.Select(p => p.Value).OfType<LogApiInfo>());
+            Assert.Equal(exception.ToString(), logInfo.Message);
+            Assert.Contains(typeof(InvalidOperationException).FullName, logInfo.Message);
+            Assert.False(string.IsNullOrEmpty(exception.StackTrace));
+            Assert.Contains(exception.StackTrace, logInfo.Message);
+            if (hasInnerExceptions)
+            {
+                Assert.Contains(typeof(TimeoutException).FullName, logInfo.Message);
+                Assert.Contains(typeof(System.ComponentModel.Win32Exception).FullName, logInfo.Message);
+                Assert.Contains(innerException.StackTrace, logInfo.Message);
+                Assert.Contains(innerException.InnerException.StackTrace, logInfo.Message);
+            }
+            Assert.Equal(LogContent.Action.ORCID_RECORD_PARSE, logInfo.Action);
+            Assert.Equal(LogContent.ActionState.IN_PROGRESS, logInfo.State);
+            Assert.True(logInfo.Error);
+            Assert.Null(logCall.Arguments[3]);
+            Assert.True(context.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.Empty(await context.DimDates.ToListAsync());
+            parser.VerifyAll();
         }
 
         private string LoadFixture(string fileName)
