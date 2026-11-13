@@ -4516,6 +4516,7 @@ public partial class TtvContext : DbContext
             entity.Property(e => e.ControllerOrganizationId)
                 .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_controller")
                 .HasColumnName("controller_organization_id");
+            entity.Property(e => e.ConsentActive).HasColumnName("consent_active");
             entity.Property(e => e.Created)
                 .HasColumnType("datetime")
                 .HasColumnName("created");

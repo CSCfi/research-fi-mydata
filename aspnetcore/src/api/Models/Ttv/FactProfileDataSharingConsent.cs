@@ -40,6 +40,8 @@ public partial class FactProfileDataSharingConsent
 
     public DateTime? Modified { get; set; }
 
+    public bool ConsentActive { get; set; }
+
     public virtual FactOrganizationGeneral ControllerOrganization { get; set; }
 
     public virtual DimUserProfile DimUserProfile { get; set; }
