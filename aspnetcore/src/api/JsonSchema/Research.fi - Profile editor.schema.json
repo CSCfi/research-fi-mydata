@@ -1,0 +1,155 @@
+{
+    "description": "Profiilieditorin tiedot",
+    "id": "https://iri.suomi.fi/model/researchfi_profile_editor/1.0.0/",
+    "type": "object",
+    "title": "Research.fi - Profile editor",
+    "properties": {
+        "person_profile": {
+            "description": "",
+            "type": "object",
+            "title": "Profiili editori",
+            "required": ["profileUsername"],
+            "properties": {
+                "consentTargets": {
+                    "description": "",
+                    "type": "array",
+                    "title": "consentTargets",
+                    "items": [{
+                        "description": "",
+                        "title": "consentTargets",
+                        "$ref": "#/properties/consent_target"
+                    }]
+                },
+                "profileUsername": {
+                    "description": "",
+                    "type": "string",
+                    "title": "profileUsername"
+                }
+            }
+        },
+        "reference_data": {
+            "description": "",
+            "type": "object",
+            "title": "reference_data",
+            "required": [
+                "codeLabel",
+                "codeValue"
+            ],
+            "properties": {
+                "codeLabel": {
+                    "description": "",
+                    "title": "codeLabel",
+                    "$ref": "#/properties/language_variant"
+                },
+                "codeValue": {
+                    "description": "",
+                    "type": "string",
+                    "title": "codeValue"
+                }
+            }
+        },
+        "consent_target": {
+            "description": "",
+            "type": "object",
+            "title": "consent_target",
+            "required": [
+                "consentController",
+                "consentPurpose",
+                "consentTargetId"
+            ],
+            "properties": {
+                "consentPurpose": {
+                    "minItems": 1,
+                    "description": "",
+                    "type": "array",
+                    "title": "consentPurpose",
+                    "items": [{
+                        "description": "",
+                        "title": "consentPurpose",
+                        "$ref": "#/properties/reference_data"
+                    }]
+                },
+                "consentController": {
+                    "description": "",
+                    "title": "consentController",
+                    "$ref": "#/properties/consent_controller_organization"
+                },
+                "consentTargetId": {
+                    "description": "",
+                    "type": "number",
+                    "title": "consentTargetId"
+                },
+                "consent": {
+                    "description": "",
+                    "title": "consent",
+                    "$ref": "#/properties/profile_data_shareing_consent"
+                }
+            }
+        },
+        "consent_controller_organization": {
+            "description": "",
+            "type": "object",
+            "title": "consent_controller_organization",
+            "required": [
+                "organizationName",
+                "ROR"
+            ],
+            "properties": {
+                "organizationName": {
+                    "description": "",
+                    "title": "organizationName",
+                    "$ref": "#/properties/language_variant"
+                },
+                "ROR": {
+                    "description": "",
+                    "type": "string",
+                    "title": "ROR"
+                }
+            }
+        },
+        "profile_data_shareing_consent": {
+            "description": "",
+            "type": "object",
+            "title": "profile_data_shareing_consent",
+            "properties": {
+                "consentGrantedDate": {
+                    "description": "",
+                    "type": "string",
+                    "title": "consentGrantedDate"
+                },
+                "consentWithdrawnDate": {
+                    "description": "",
+                    "type": "string",
+                    "title": "consentWithdrawnDate"
+                },
+                "consentExpireDate": {
+                    "description": "",
+                    "type": "string",
+                    "title": "consentExpireDate"
+                }
+            }
+        },
+        "language_variant": {
+            "description": "",
+            "type": "object",
+            "title": "language_variant",
+            "properties": {
+                "fi": {
+                    "description": "",
+                    "type": "string",
+                    "title": "fi"
+                },
+                "sv": {
+                    "description": "",
+                    "type": "string",
+                    "title": "sv"
+                },
+                "en": {
+                    "description": "",
+                    "type": "string",
+                    "title": "en"
+                }
+            }
+        }
+    }
+}

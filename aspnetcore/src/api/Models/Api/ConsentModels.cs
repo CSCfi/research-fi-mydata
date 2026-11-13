@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace api.Models.Api
 {
@@ -8,28 +9,37 @@ namespace api.Models.Api
     /// </summary>
     public sealed record ConsentTargetResponse(
         int ConsentTargetId,
-        string OrganizationNameFi,
-        string OrganizationNameSv,
-        string OrganizationNameEn,
-        string RorId,
-        string PurposeNameFi,
-        string PurposeNameEn,
-        string PurposeNameSv);
+        ConsentControllerResponse ConsentController,
+        IReadOnlyList<ConsentPurposeResponse> ConsentPurpose,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ConsentDetailsResponse Consent);
 
     /// <summary>
-    /// An active consent granted to a controller organization.
+    /// The organization responsible for a consent target.
     /// </summary>
-    public sealed record ConsentResponse(
-        int ConsentTargetId,
-        string OrganizationNameFi,
-        string OrganizationNameSv,
-        string OrganizationNameEn,
-        string RorId,
-        string PurposeNameFi,
-        string PurposeNameEn,
-        string PurposeNameSv,
-        DateTime ConsentGrantedDate,
-        DateTime? ConsentExpireDate);
+    public sealed record ConsentControllerResponse(
+        ConsentLanguageVariant OrganizationName,
+        [property: JsonPropertyName("ROR")] string Ror);
+
+    /// <summary>
+    /// A consent purpose and its localized label.
+    /// </summary>
+    public sealed record ConsentPurposeResponse(ConsentLanguageVariant CodeLabel, string CodeValue);
+
+    /// <summary>
+    /// Localized labels for a consent target.
+    /// </summary>
+    public sealed record ConsentLanguageVariant(
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string Fi,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string Sv,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string En);
+
+    /// <summary>
+    /// Dates associated with a consent.
+    /// </summary>
+    public sealed record ConsentDetailsResponse(
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DateTime? ConsentGrantedDate,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DateTime? ConsentWithdrawnDate,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DateTime? ConsentExpireDate);
 
     /// <summary>
     /// Request to grant consent to a consent target.
@@ -52,12 +62,12 @@ namespace api.Models.Api
 
     public sealed class ApiResponseConsentGet : ApiResponse
     {
-        public ApiResponseConsentGet(bool success, string reason, IReadOnlyList<ConsentResponse> data)
+        public ApiResponseConsentGet(bool success, string reason, IReadOnlyList<ConsentTargetResponse> data)
             : base(success, reason)
         {
             Data = data;
         }
 
-        public IReadOnlyList<ConsentResponse> Data { get; }
+        public IReadOnlyList<ConsentTargetResponse> Data { get; }
     }
 }

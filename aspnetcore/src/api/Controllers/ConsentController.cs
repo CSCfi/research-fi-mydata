@@ -25,18 +25,20 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Gets the available consent targets, optionally filtered by a bare ROR identifier.
+        /// Gets consent targets with a ROR identifier and the signed-in researcher's active consent,
+        /// optionally filtered by a bare ROR identifier.
         /// </summary>
         [HttpGet("targets")]
         [ProducesResponseType(typeof(ApiResponseConsentTargetsGet), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTargets([FromQuery] string rorId, CancellationToken cancellationToken)
         {
-            var targets = await _consentService.GetTargetsAsync(rorId, cancellationToken);
+            (bool profileExists, int userProfileId) = await _userProfileService.GetUserprofileIdForOrcidId(GetOrcidId());
+            var targets = await _consentService.GetTargetsAsync(rorId, profileExists ? userProfileId : null, cancellationToken);
             return Ok(new ApiResponseConsentTargetsGet(success: true, reason: "", data: targets));
         }
 
         /// <summary>
-        /// Gets the signed-in researcher's active consents.
+        /// Gets each ROR-identified target covered by the signed-in researcher's active consents.
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponseConsentGet), StatusCodes.Status200OK)]

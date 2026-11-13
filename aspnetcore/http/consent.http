@@ -2,13 +2,16 @@
 @consentTargetId = 456
 @rorId = 029pk6x14
 
-### List all consent targets
+### List consent targets with a ROR. Each data item has consentTargetId,
+### consentController (organizationName and ROR), and consentPurpose (codeLabel and codeValue).
+### consent contains the signed-in user's active consent dates, or {} if there is no active consent.
 GET {{baseUrl}}/api/consent/targets
 
 ### Find consent targets by bare ROR ID
 GET {{baseUrl}}/api/consent/targets?rorId={{rorId}}
 
-### List my active consents
+### List each ROR-identified target covered by my active consents.
+### Each data item also contains consent dates in a consent object.
 GET {{baseUrl}}/api/consent
 
 ### Grant consent for a target

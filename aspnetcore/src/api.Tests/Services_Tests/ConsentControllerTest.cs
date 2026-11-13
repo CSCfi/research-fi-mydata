@@ -36,6 +36,29 @@ namespace api.Tests
             return controller;
         }
 
+        [Theory]
+        [InlineData(true, 42)]
+        [InlineData(false, 0)]
+        public async Task GetTargets_PassesResolvedProfileOrNull(bool profileExists, int profileId)
+        {
+            var consentService = new Mock<IConsentService>();
+            var userProfileService = new Mock<IUserProfileService>();
+            userProfileService
+                .Setup(service => service.GetUserprofileIdForOrcidId("0000-0000-0000-0001"))
+                .ReturnsAsync((profileExists, profileId));
+            int? expectedProfileId = profileExists ? profileId : null;
+            using var cancellation = new CancellationTokenSource();
+            consentService
+                .Setup(service => service.GetTargetsAsync("ror", expectedProfileId, cancellation.Token))
+                .ReturnsAsync(new List<ConsentTargetResponse>());
+            var controller = CreateController(consentService, userProfileService);
+
+            var result = Assert.IsType<OkObjectResult>(await controller.GetTargets("ror", cancellation.Token));
+
+            Assert.IsType<ApiResponseConsentTargetsGet>(result.Value);
+            consentService.Verify(service => service.GetTargetsAsync("ror", expectedProfileId, cancellation.Token), Times.Once);
+        }
+
         [Fact]
         public async Task GetConsents_ResolvesProfileFromOrcidClaim()
         {
@@ -46,7 +69,7 @@ namespace api.Tests
                 .ReturnsAsync((true, 42));
             consentService
                 .Setup(service => service.GetConsentsAsync(42, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<ConsentResponse>());
+                .ReturnsAsync(new List<ConsentTargetResponse>());
             var controller = CreateController(consentService, userProfileService);
 
             var result = Assert.IsType<OkObjectResult>(await controller.GetConsents(CancellationToken.None));

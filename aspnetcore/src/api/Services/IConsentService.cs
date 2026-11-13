@@ -7,8 +7,8 @@ namespace api.Services
 {
     public interface IConsentService
     {
-        Task<IReadOnlyList<ConsentTargetResponse>> GetTargetsAsync(string rorId, CancellationToken cancellationToken);
-        Task<IReadOnlyList<ConsentResponse>> GetConsentsAsync(int userProfileId, CancellationToken cancellationToken);
+        Task<IReadOnlyList<ConsentTargetResponse>> GetTargetsAsync(string rorId, int? userProfileId, CancellationToken cancellationToken);
+        Task<IReadOnlyList<ConsentTargetResponse>> GetConsentsAsync(int userProfileId, CancellationToken cancellationToken);
         Task<ConsentGrantResult> GrantConsentAsync(int userProfileId, int consentTargetId, CancellationToken cancellationToken);
         Task<bool> WithdrawConsentAsync(int userProfileId, int consentTargetId, CancellationToken cancellationToken);
     }
