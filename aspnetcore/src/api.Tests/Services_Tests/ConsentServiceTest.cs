@@ -32,7 +32,7 @@ namespace api.Tests
             return (connection, context);
         }
 
-        private static async Task AddTargetAsync(TtvContext context, int targetId, int organizationId, int controllerId, int purposeId, string rorId)
+        private static async Task AddTargetAsync(TtvContext context, int organizationId, int controllerId, int purposeId, string rorId)
         {
             if (!await context.DimOrganizations.AnyAsync(item => item.Id == organizationId))
             {
@@ -79,7 +79,7 @@ namespace api.Tests
             {
                 context.DimPids.Add(new DimPid
                 {
-                    Id = targetId + 1000,
+                    Id = organizationId + 1000,
                     DimOrganizationId = organizationId,
                     PidType = "RORID",
                     PidContent = rorId,
@@ -89,7 +89,6 @@ namespace api.Tests
 
             context.DimConsentTargets.Add(new DimConsentTarget
             {
-                Id = targetId,
                 ControllerOrganizationId = controllerId,
                 PurposeCodeId = purposeId
             });
@@ -118,23 +117,24 @@ namespace api.Tests
             using (connection)
             using (context)
             {
-                await AddTargetAsync(context, targetId: 30, organizationId: 1, controllerId: 10, purposeId: 20, rorId: "029pk6x14");
-                await AddTargetAsync(context, targetId: 31, organizationId: 2, controllerId: 11, purposeId: 21, rorId: null);
-                await AddTargetAsync(context, targetId: 32, organizationId: 3, controllerId: 12, purposeId: 22, rorId: "other-ror");
-                await AddTargetAsync(context, targetId: 33, organizationId: 4, controllerId: 13, purposeId: 23, rorId: "\t");
+                await AddTargetAsync(context, organizationId: 1, controllerId: 10, purposeId: 20, rorId: "029pk6x14");
+                await AddTargetAsync(context, organizationId: 2, controllerId: 11, purposeId: 21, rorId: null);
+                await AddTargetAsync(context, organizationId: 3, controllerId: 12, purposeId: 22, rorId: "other-ror");
+                await AddTargetAsync(context, organizationId: 4, controllerId: 13, purposeId: 23, rorId: "\t");
                 var service = new ConsentService(context);
 
                 var allTargets = await service.GetTargetsAsync(null, null, CancellationToken.None);
                 var filteredTargets = await service.GetTargetsAsync("  029PK6X14  ", null, CancellationToken.None);
                 var unknownTargets = await service.GetTargetsAsync("not-a-ror", null, CancellationToken.None);
 
-                Assert.Equal(new[] { 30, 32 }, allTargets.Select(item => item.ConsentTargetId));
+                Assert.Equal(new[] { 10, 12 }, allTargets.Select(item => item.ConsentTargetId));
                 Assert.Equal("Organisaatio 1", allTargets[0].ConsentController.OrganizationName.Fi);
                 Assert.Equal("029pk6x14", allTargets[0].ConsentController.Ror);
-                Assert.Equal("Purpose 20", Assert.Single(allTargets[0].ConsentPurpose).CodeLabel.En);
+                Assert.Equal(new[] { "purpose-20" }, allTargets[0].ConsentPurpose.Select(purpose => purpose.CodeValue));
+                Assert.Equal("Purpose 20", allTargets[0].ConsentPurpose[0].CodeLabel.En);
                 Assert.Equal("purpose-20", allTargets[0].ConsentPurpose[0].CodeValue);
                 Assert.Null(allTargets[0].Consent.ConsentGrantedDate);
-                Assert.Equal(new[] { 30 }, filteredTargets.Select(item => item.ConsentTargetId));
+                Assert.Equal(new[] { 10 }, filteredTargets.Select(item => item.ConsentTargetId));
                 Assert.Empty(unknownTargets);
             }
         }
@@ -146,11 +146,11 @@ namespace api.Tests
             using (connection)
             using (context)
             {
-                await AddTargetAsync(context, 30, 1, 10, 20, "ror-one");
-                await AddTargetAsync(context, 31, 1, 10, 21, null);
-                await AddTargetAsync(context, 32, 2, 11, 22, "ror-two");
-                await AddTargetAsync(context, 33, 3, 12, 23, "ror-three");
-                await AddTargetAsync(context, 34, 4, 13, 24, "ror-four");
+                await AddTargetAsync(context, 1, 10, 20, "ror-one");
+                await AddTargetAsync(context, 1, 10, 21, null);
+                await AddTargetAsync(context, 2, 11, 22, "ror-two");
+                await AddTargetAsync(context, 3, 12, 23, "ror-three");
+                await AddTargetAsync(context, 4, 13, 24, "ror-four");
                 AddConsent(context, 1, 10, expiry: DateTime.UtcNow.AddDays(1));
                 AddConsent(context, 2, 11);
                 AddConsent(context, 1, 12, expiry: DateTime.UtcNow.AddDays(-1));
@@ -162,12 +162,12 @@ namespace api.Tests
                 var filtered = await service.GetTargetsAsync("ror-one", 1, CancellationToken.None);
                 var noProfile = await service.GetTargetsAsync(null, null, CancellationToken.None);
 
-                Assert.Equal(new[] { 30, 31, 32, 33, 34 }, targets.Select(item => item.ConsentTargetId));
+                Assert.Equal(new[] { 10, 11, 12, 13 }, targets.Select(item => item.ConsentTargetId));
+                Assert.Equal(new[] { "purpose-20", "purpose-21" }, targets[0].ConsentPurpose.Select(purpose => purpose.CodeValue));
                 Assert.NotNull(targets[0].Consent.ConsentGrantedDate);
                 Assert.NotNull(targets[0].Consent.ConsentExpireDate);
-                Assert.Equal(targets[0].Consent, targets[1].Consent);
-                Assert.All(targets.Skip(2), target => Assert.Null(target.Consent.ConsentGrantedDate));
-                Assert.Equal(new[] { 30, 31 }, filtered.Select(item => item.ConsentTargetId));
+                Assert.All(targets.Skip(1), target => Assert.Null(target.Consent.ConsentGrantedDate));
+                Assert.Equal(new[] { 10 }, filtered.Select(item => item.ConsentTargetId));
                 Assert.All(filtered, target => Assert.NotNull(target.Consent.ConsentGrantedDate));
                 Assert.All(noProfile, target => Assert.Null(target.Consent.ConsentGrantedDate));
             }
@@ -180,11 +180,11 @@ namespace api.Tests
             using (connection)
             using (context)
             {
-                await AddTargetAsync(context, targetId: 30, organizationId: 1, controllerId: 10, purposeId: 20, rorId: "029pk6x14");
-                await AddTargetAsync(context, targetId: 31, organizationId: 1, controllerId: 10, purposeId: 21, rorId: null);
-                await AddTargetAsync(context, targetId: 32, organizationId: 2, controllerId: 13, purposeId: 22, rorId: null);
-                await AddTargetAsync(context, targetId: 33, organizationId: 3, controllerId: 14, purposeId: 23, rorId: "\t");
-                await AddTargetAsync(context, targetId: 34, organizationId: 4, controllerId: 15, purposeId: 24, rorId: "ror-inactive");
+                await AddTargetAsync(context, 1, 10, 20, "029pk6x14");
+                await AddTargetAsync(context, 1, 10, 21, null);
+                await AddTargetAsync(context, 2, 13, 22, null);
+                await AddTargetAsync(context, 3, 14, 23, "\t");
+                await AddTargetAsync(context, 4, 15, 24, "ror-inactive");
                 AddConsent(context, profileId: 1, controllerId: 10, expiry: DateTime.UtcNow.AddDays(1));
                 AddConsent(context, profileId: 1, controllerId: 13);
                 AddConsent(context, profileId: 1, controllerId: 14);
@@ -196,16 +196,13 @@ namespace api.Tests
 
                 var consents = await new ConsentService(context).GetConsentsAsync(1, CancellationToken.None);
 
-                Assert.Equal(new[] { 30, 31 }, consents.Select(consent => consent.ConsentTargetId));
-                Assert.All(consents, consent =>
-                {
-                    Assert.Equal("029pk6x14", consent.ConsentController.Ror);
-                    Assert.Equal("Organisaatio 1", consent.ConsentController.OrganizationName.Fi);
-                    Assert.NotNull(consent.Consent);
-                    Assert.NotNull(consent.Consent.ConsentExpireDate);
-                });
-                Assert.Equal("purpose-20", Assert.Single(consents[0].ConsentPurpose).CodeValue);
-                Assert.Equal("purpose-21", Assert.Single(consents[1].ConsentPurpose).CodeValue);
+                var consent = Assert.Single(consents);
+                Assert.Equal(10, consent.ConsentTargetId);
+                Assert.Equal("029pk6x14", consent.ConsentController.Ror);
+                Assert.Equal("Organisaatio 1", consent.ConsentController.OrganizationName.Fi);
+                Assert.NotNull(consent.Consent);
+                Assert.NotNull(consent.Consent.ConsentExpireDate);
+                Assert.Equal(new[] { "purpose-20", "purpose-21" }, consent.ConsentPurpose.Select(purpose => purpose.CodeValue));
             }
         }
 
@@ -216,7 +213,7 @@ namespace api.Tests
             using (connection)
             using (context)
             {
-                await AddTargetAsync(context, 30, 1, 10, 20, "029pk6x14");
+                await AddTargetAsync(context, 1, 10, 20, "029pk6x14");
                 var organization = await context.DimOrganizations.SingleAsync();
                 organization.NameSv = null;
                 var purpose = await context.DimReferencedata.SingleAsync();
@@ -269,12 +266,12 @@ namespace api.Tests
             using (connection)
             using (context)
             {
-                await AddTargetAsync(context, targetId: 30, organizationId: 1, controllerId: 10, purposeId: 20, rorId: null);
-                await AddTargetAsync(context, targetId: 31, organizationId: 1, controllerId: 10, purposeId: 21, rorId: null);
+                await AddTargetAsync(context, organizationId: 1, controllerId: 10, purposeId: 20, rorId: null);
+                await AddTargetAsync(context, organizationId: 1, controllerId: 10, purposeId: 21, rorId: null);
                 var service = new ConsentService(context);
                 DateTime beforeGrant = DateTime.UtcNow;
 
-                ConsentGrantResult result = await service.GrantConsentAsync(1, 30, CancellationToken.None);
+                ConsentGrantResult result = await service.GrantConsentAsync(1, 10, CancellationToken.None);
                 DateTime afterGrant = DateTime.UtcNow;
                 var consent = await context.FactProfileDataSharingConsents.SingleAsync();
 
@@ -284,7 +281,7 @@ namespace api.Tests
                 Assert.Null(consent.DateConsentWithdrawn);
                 Assert.True(consent.ConsentActive);
                 Assert.Equal(ConsentGrantResult.ConsentAlreadyExists,
-                    await service.GrantConsentAsync(1, 31, CancellationToken.None));
+                    await service.GrantConsentAsync(1, 10, CancellationToken.None));
                 Assert.Equal(ConsentGrantResult.TargetNotFound,
                     await service.GrantConsentAsync(1, 999, CancellationToken.None));
             }
@@ -297,26 +294,26 @@ namespace api.Tests
             using (connection)
             using (context)
             {
-                await AddTargetAsync(context, targetId: 30, organizationId: 1, controllerId: 10, purposeId: 20, rorId: null);
+                await AddTargetAsync(context, organizationId: 1, controllerId: 10, purposeId: 20, rorId: null);
                 AddConsent(context, profileId: 1, controllerId: 10);
                 AddConsent(context, profileId: 2, controllerId: 10);
                 await context.SaveChangesAsync();
                 var service = new ConsentService(context);
 
-                Assert.False(await service.WithdrawConsentAsync(3, 30, CancellationToken.None));
+                Assert.False(await service.WithdrawConsentAsync(3, 10, CancellationToken.None));
                 Assert.False(await service.WithdrawConsentAsync(1, 999, CancellationToken.None));
                 DateTime beforeWithdrawal = DateTime.UtcNow;
-                Assert.True(await service.WithdrawConsentAsync(1, 30, CancellationToken.None));
+                Assert.True(await service.WithdrawConsentAsync(1, 10, CancellationToken.None));
                 DateTime afterWithdrawal = DateTime.UtcNow;
                 var withdrawnConsent = await context.FactProfileDataSharingConsents
                     .SingleAsync(item => item.DimUserProfileId == 1);
                 Assert.False(withdrawnConsent.ConsentActive);
                 Assert.InRange(withdrawnConsent.DateConsentWithdrawn.Value, beforeWithdrawal, afterWithdrawal);
                 Assert.Equal(2, await context.FactProfileDataSharingConsents.CountAsync());
-                Assert.False(await service.WithdrawConsentAsync(1, 30, CancellationToken.None));
+                Assert.False(await service.WithdrawConsentAsync(1, 10, CancellationToken.None));
 
                 DateTime beforeRegrant = DateTime.UtcNow;
-                Assert.Equal(ConsentGrantResult.Created, await service.GrantConsentAsync(1, 30, CancellationToken.None));
+                Assert.Equal(ConsentGrantResult.Created, await service.GrantConsentAsync(1, 10, CancellationToken.None));
                 DateTime afterRegrant = DateTime.UtcNow;
                 Assert.Equal(2, await context.FactProfileDataSharingConsents.CountAsync());
                 Assert.True(withdrawnConsent.ConsentActive);

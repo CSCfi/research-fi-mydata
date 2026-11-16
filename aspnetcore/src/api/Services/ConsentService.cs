@@ -41,12 +41,17 @@ namespace api.Services
                 join consent in ActiveConsents(userProfileId, DateTime.UtcNow)
                     on target.ControllerOrganizationId equals consent.ControllerOrganizationId into matchingConsents
                 from consent in matchingConsents.DefaultIfEmpty()
-                orderby target.ControllerOrganizationId, target.Id
+                orderby target.ControllerOrganizationId, target.PurposeCodeId
                 select new { Target = target, Consent = consent }
             ).ToListAsync(cancellationToken);
 
             return results.Where(result => HasRor(result.Target))
-                .Select(result => MapTarget(result.Target, result.Consent)).ToList();
+                .GroupBy(result => result.Target.ControllerOrganizationId)
+                .OrderBy(group => group.Key)
+                .Select(group => MapTarget(
+                    group.Select(result => result.Target).ToList(),
+                    group.First().Consent))
+                .ToList();
         }
 
         public async Task<IReadOnlyList<ConsentTargetResponse>> GetConsentsAsync(int userProfileId, CancellationToken cancellationToken)
@@ -56,12 +61,17 @@ namespace api.Services
                 from target in GetTargetsWithRor()
                 join consent in ActiveConsents(userProfileId, utcNow).Where(consent => consent.ConsentActive)
                     on target.ControllerOrganizationId equals consent.ControllerOrganizationId
-                orderby target.ControllerOrganizationId, target.Id
+                orderby target.ControllerOrganizationId, target.PurposeCodeId
                 select new { Target = target, Consent = consent }
             ).ToListAsync(cancellationToken);
 
             return results.Where(result => HasRor(result.Target))
-                .Select(result => MapTarget(result.Target, result.Consent)).ToList();
+                .GroupBy(result => result.Target.ControllerOrganizationId)
+                .OrderBy(group => group.Key)
+                .Select(group => MapTarget(
+                    group.Select(result => result.Target).ToList(),
+                    group.First().Consent))
+                .ToList();
         }
 
         private IQueryable<FactProfileDataSharingConsent> ActiveConsents(int? userProfileId, DateTime utcNow) =>
@@ -87,31 +97,34 @@ namespace api.Services
         private static bool HasRor(DimConsentTarget target) =>
             target.ControllerOrganization.DimOrganization.DimPids.Any(pid => !string.IsNullOrWhiteSpace(pid.PidContent));
 
-        private static ConsentTargetResponse MapTarget(DimConsentTarget target, FactProfileDataSharingConsent consent)
+        private static ConsentTargetResponse MapTarget(
+            IReadOnlyList<DimConsentTarget> targets,
+            FactProfileDataSharingConsent consent)
         {
+            DimConsentTarget target = targets[0];
             var organization = target.ControllerOrganization.DimOrganization;
             string ror = organization.DimPids
                 .Where(pid => string.Equals(pid.PidType, "RORID", StringComparison.OrdinalIgnoreCase)
                     && !string.IsNullOrWhiteSpace(pid.PidContent))
                 .OrderBy(pid => pid.Id)
                 .First().PidContent.Trim();
-            var purpose = target.PurposeCode;
             return new ConsentTargetResponse(
-                target.Id,
+                target.ControllerOrganizationId,
                 new ConsentControllerResponse(new ConsentLanguageVariant(organization.NameFi, organization.NameSv, organization.NameEn), ror),
-                new[] { new ConsentPurposeResponse(new ConsentLanguageVariant(purpose.NameFi, purpose.NameSv, purpose.NameEn), purpose.CodeValue) },
+                targets.OrderBy(item => item.PurposeCodeId)
+                    .Select(item => new ConsentPurposeResponse(
+                        new ConsentLanguageVariant(item.PurposeCode.NameFi, item.PurposeCode.NameSv, item.PurposeCode.NameEn),
+                        item.PurposeCode.CodeValue))
+                    .ToList(),
                 new ConsentDetailsResponse(consent?.DateConsentGranted, consent?.DateConsentWithdrawn, consent?.DateConsentExpire));
         }
 
-        public async Task<ConsentGrantResult> GrantConsentAsync(int userProfileId, int consentTargetId, CancellationToken cancellationToken)
+        public async Task<ConsentGrantResult> GrantConsentAsync(int userProfileId, int controllerOrganizationId, CancellationToken cancellationToken)
         {
-            int? controllerOrganizationId = await _ttvContext.DimConsentTargets
+            bool targetExists = await _ttvContext.DimConsentTargets
                 .AsNoTracking()
-                .Where(target => target.Id == consentTargetId)
-                .Select(target => (int?)target.ControllerOrganizationId)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (!controllerOrganizationId.HasValue)
+                .AnyAsync(target => target.ControllerOrganizationId == controllerOrganizationId, cancellationToken);
+            if (!targetExists)
             {
                 return ConsentGrantResult.TargetNotFound;
             }
@@ -119,7 +132,7 @@ namespace api.Services
             FactProfileDataSharingConsent existingConsent = await _ttvContext.FactProfileDataSharingConsents
                 .FirstOrDefaultAsync(consent =>
                     consent.DimUserProfileId == userProfileId
-                    && consent.ControllerOrganizationId == controllerOrganizationId.Value,
+                    && consent.ControllerOrganizationId == controllerOrganizationId,
                     cancellationToken);
             if (existingConsent?.ConsentActive == true)
             {
@@ -141,7 +154,7 @@ namespace api.Services
             var consent = new FactProfileDataSharingConsent
             {
                 DimUserProfileId = userProfileId,
-                ControllerOrganizationId = controllerOrganizationId.Value,
+                ControllerOrganizationId = controllerOrganizationId,
                 DateConsentGranted = grantedDate,
                 DateConsentExpire = grantedDate.AddYears(5),
                 DateConsentWithdrawn = null,
@@ -159,7 +172,7 @@ namespace api.Services
                 bool concurrentConsentExists = await _ttvContext.FactProfileDataSharingConsents
                     .AnyAsync(item =>
                         item.DimUserProfileId == userProfileId
-                        && item.ControllerOrganizationId == controllerOrganizationId.Value,
+                        && item.ControllerOrganizationId == controllerOrganizationId,
                         cancellationToken);
                 if (concurrentConsentExists)
                 {
@@ -172,14 +185,12 @@ namespace api.Services
             return ConsentGrantResult.Created;
         }
 
-        public async Task<bool> WithdrawConsentAsync(int userProfileId, int consentTargetId, CancellationToken cancellationToken)
+        public async Task<bool> WithdrawConsentAsync(int userProfileId, int controllerOrganizationId, CancellationToken cancellationToken)
         {
-            int? controllerOrganizationId = await _ttvContext.DimConsentTargets
+            bool targetExists = await _ttvContext.DimConsentTargets
                 .AsNoTracking()
-                .Where(target => target.Id == consentTargetId)
-                .Select(target => (int?)target.ControllerOrganizationId)
-                .FirstOrDefaultAsync(cancellationToken);
-            if (!controllerOrganizationId.HasValue)
+                .AnyAsync(target => target.ControllerOrganizationId == controllerOrganizationId, cancellationToken);
+            if (!targetExists)
             {
                 return false;
             }
@@ -187,7 +198,7 @@ namespace api.Services
             FactProfileDataSharingConsent consent = await _ttvContext.FactProfileDataSharingConsents
                 .FirstOrDefaultAsync(
                     item => item.DimUserProfileId == userProfileId
-                        && item.ControllerOrganizationId == controllerOrganizationId.Value
+                        && item.ControllerOrganizationId == controllerOrganizationId
                         && item.ConsentActive,
                     cancellationToken);
             if (consent == null)

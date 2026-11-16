@@ -671,23 +671,22 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<DimConsentTarget>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__dim_cons__3213E83F2D56C389");
+            entity.HasKey(e => new { e.ControllerOrganizationId, e.PurposeCodeId }).HasName("PK__dim_cons__73F2A17C367C5386");
 
             entity.ToTable("dim_consent_target", tb => tb.HasComment("https://iri.suomi.fi/model/researchfi_core/concent_target"));
 
-            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.ControllerOrganizationId)
                 .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_controller")
                 .HasColumnName("controller_organization_id");
+            entity.Property(e => e.PurposeCodeId)
+                .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_purpose\r\n\r\nhttp://uri.suomi.fi/codelist/research/profile_data_use_purpose\r\ndim_referencedata.code_sheme = 'profile_data_use_purpose'")
+                .HasColumnName("purpose_code_id");
             entity.Property(e => e.Created)
                 .HasColumnType("datetime")
                 .HasColumnName("created");
             entity.Property(e => e.Modified)
                 .HasColumnType("datetime")
                 .HasColumnName("modified");
-            entity.Property(e => e.PurposeCodeId)
-                .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_purpose\n\nhttp://uri.suomi.fi/codelist/research/profile_data_use_purpose\ndim_referencedata.code_sheme = 'profile_data_use_purpose'")
-                .HasColumnName("purpose_code_id");
 
             entity.HasOne(d => d.ControllerOrganization).WithMany(p => p.DimConsentTargets)
                 .HasForeignKey(d => d.ControllerOrganizationId)
@@ -4506,32 +4505,33 @@ public partial class TtvContext : DbContext
 
         modelBuilder.Entity<FactProfileDataSharingConsent>(entity =>
         {
-            entity.HasKey(e => new { e.DimUserProfileId, e.ControllerOrganizationId }).HasName("PK__fact_pro__EB95AE8D4FD92888");
+            entity.HasKey(e => e.Id).HasName("PK__fact_pro__3213E83F64D2E671");
 
             entity.ToTable("fact_profile_data_sharing_consent", tb => tb.HasComment("https://iri.suomi.fi/model/researchfi_core/granted_permission"));
 
-            entity.Property(e => e.DimUserProfileId)
-                .HasComment("https://iri.suomi.fi/model/researchfi_core/consenting_user_profile")
-                .HasColumnName("dim_user_profile_id");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ConsentActive).HasColumnName("consent_active");
             entity.Property(e => e.ControllerOrganizationId)
                 .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_controller")
                 .HasColumnName("controller_organization_id");
-            entity.Property(e => e.ConsentActive).HasColumnName("consent_active");
             entity.Property(e => e.Created)
                 .HasColumnType("datetime")
                 .HasColumnName("created");
             entity.Property(e => e.DateConsentExpire)
-                .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_expire_date\nsuostumuksen viimeinen voimassaolo pvm (5 vuotta antopäivämäärästä)")
+                .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_expire_date\r\nsuostumuksen viimeinen voimassaolo pvm (5 vuotta antopäivämäärästä)")
                 .HasColumnType("datetime")
                 .HasColumnName("date_consent_expire");
             entity.Property(e => e.DateConsentGranted)
-                .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_granted_date\nsuostumuksen antamispäivämäärä")
+                .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_granted_date\r\nsuostumuksen antamispäivämäärä")
                 .HasColumnType("datetime")
                 .HasColumnName("date_consent_granted");
             entity.Property(e => e.DateConsentWithdrawn)
-                .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_withdrawn_date\nsuostumuksen perumispäivämäärä")
+                .HasComment("https://iri.suomi.fi/model/researchfi_core/consent_withdrawn_date\r\nsuostumuksen perumispäivämäärä")
                 .HasColumnType("datetime")
                 .HasColumnName("date_consent_withdrawn");
+            entity.Property(e => e.DimUserProfileId)
+                .HasComment("https://iri.suomi.fi/model/researchfi_core/consenting_user_profile")
+                .HasColumnName("dim_user_profile_id");
             entity.Property(e => e.Modified)
                 .HasColumnType("datetime")
                 .HasColumnName("modified");
