@@ -96,7 +96,7 @@ namespace api.Tests
             await context.SaveChangesAsync();
         }
 
-        private static void AddConsent(TtvContext context, int profileId, int controllerId, DateTime? expiry = null, DateTime? withdrawn = null)
+        private static void AddConsent(TtvContext context, int profileId, int controllerId, DateTime? expiry = null, DateTime? withdrawn = null, bool consentActive = true)
         {
             var now = DateTime.UtcNow;
             context.FactProfileDataSharingConsents.Add(new FactProfileDataSharingConsent
@@ -106,6 +106,7 @@ namespace api.Tests
                 DateConsentGranted = now,
                 DateConsentExpire = expiry,
                 DateConsentWithdrawn = withdrawn,
+                ConsentActive = consentActive,
                 Created = now
             });
         }
@@ -183,12 +184,14 @@ namespace api.Tests
                 await AddTargetAsync(context, targetId: 31, organizationId: 1, controllerId: 10, purposeId: 21, rorId: null);
                 await AddTargetAsync(context, targetId: 32, organizationId: 2, controllerId: 13, purposeId: 22, rorId: null);
                 await AddTargetAsync(context, targetId: 33, organizationId: 3, controllerId: 14, purposeId: 23, rorId: "\t");
+                await AddTargetAsync(context, targetId: 34, organizationId: 4, controllerId: 15, purposeId: 24, rorId: "ror-inactive");
                 AddConsent(context, profileId: 1, controllerId: 10, expiry: DateTime.UtcNow.AddDays(1));
                 AddConsent(context, profileId: 1, controllerId: 13);
                 AddConsent(context, profileId: 1, controllerId: 14);
                 AddConsent(context, profileId: 1, controllerId: 11, expiry: DateTime.UtcNow.AddDays(-1));
                 AddConsent(context, profileId: 2, controllerId: 10, expiry: DateTime.UtcNow.AddDays(1));
                 AddConsent(context, profileId: 1, controllerId: 12, withdrawn: DateTime.UtcNow);
+                AddConsent(context, profileId: 1, controllerId: 15, consentActive: false);
                 await context.SaveChangesAsync();
 
                 var consents = await new ConsentService(context).GetConsentsAsync(1, CancellationToken.None);
@@ -279,6 +282,7 @@ namespace api.Tests
                 Assert.InRange(consent.DateConsentGranted, beforeGrant, afterGrant);
                 Assert.Equal(consent.DateConsentGranted.AddYears(5), consent.DateConsentExpire);
                 Assert.Null(consent.DateConsentWithdrawn);
+                Assert.True(consent.ConsentActive);
                 Assert.Equal(ConsentGrantResult.ConsentAlreadyExists,
                     await service.GrantConsentAsync(1, 31, CancellationToken.None));
                 Assert.Equal(ConsentGrantResult.TargetNotFound,
@@ -287,7 +291,7 @@ namespace api.Tests
         }
 
         [Fact]
-        public async Task WithdrawConsentAsync_DeletesOnlyTheRequestingProfilesConsentAndAllowsRegrant()
+        public async Task WithdrawConsentAsync_DeactivatesOnlyTheRequestingProfilesConsentAndAllowsRegrant()
         {
             var (connection, context) = await CreateContextAsync();
             using (connection)
@@ -301,11 +305,23 @@ namespace api.Tests
 
                 Assert.False(await service.WithdrawConsentAsync(3, 30, CancellationToken.None));
                 Assert.False(await service.WithdrawConsentAsync(1, 999, CancellationToken.None));
+                DateTime beforeWithdrawal = DateTime.UtcNow;
                 Assert.True(await service.WithdrawConsentAsync(1, 30, CancellationToken.None));
-                Assert.Equal(1, await context.FactProfileDataSharingConsents.CountAsync());
-
-                Assert.Equal(ConsentGrantResult.Created, await service.GrantConsentAsync(1, 30, CancellationToken.None));
+                DateTime afterWithdrawal = DateTime.UtcNow;
+                var withdrawnConsent = await context.FactProfileDataSharingConsents
+                    .SingleAsync(item => item.DimUserProfileId == 1);
+                Assert.False(withdrawnConsent.ConsentActive);
+                Assert.InRange(withdrawnConsent.DateConsentWithdrawn.Value, beforeWithdrawal, afterWithdrawal);
                 Assert.Equal(2, await context.FactProfileDataSharingConsents.CountAsync());
+                Assert.False(await service.WithdrawConsentAsync(1, 30, CancellationToken.None));
+
+                DateTime beforeRegrant = DateTime.UtcNow;
+                Assert.Equal(ConsentGrantResult.Created, await service.GrantConsentAsync(1, 30, CancellationToken.None));
+                DateTime afterRegrant = DateTime.UtcNow;
+                Assert.Equal(2, await context.FactProfileDataSharingConsents.CountAsync());
+                Assert.True(withdrawnConsent.ConsentActive);
+                Assert.Null(withdrawnConsent.DateConsentWithdrawn);
+                Assert.InRange(withdrawnConsent.DateConsentGranted, beforeRegrant, afterRegrant);
             }
         }
     }

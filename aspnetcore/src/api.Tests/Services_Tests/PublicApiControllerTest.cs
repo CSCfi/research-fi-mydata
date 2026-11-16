@@ -1,12 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Controllers;
+using api.Models.Log;
 using ResearchFi.ProfilePublicApi;
 using api.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
@@ -16,7 +19,7 @@ namespace api.Tests
     [Collection("Public API controller tests")]
     public class PublicApiControllerTests
     {
-        private static PublicApiController CreateController(string configuredToken, string headerToken, out Mock<IPublicApiService> publicApiServiceMock)
+        private static PublicApiController CreateController(string configuredToken, string headerToken, out Mock<IPublicApiService> publicApiServiceMock, ILogger<PublicApiController> logger = null)
         {
             Dictionary<string, string> inMemorySettings = new Dictionary<string, string> { { "PUBLICAPITOKEN", configuredToken } };
             IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
@@ -25,7 +28,7 @@ namespace api.Tests
             publicApiServiceMock.Setup(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()))
                 .ReturnsAsync(new ProfileDataResponse { ProfileFound = true });
 
-            PublicApiController controller = new PublicApiController(NullLogger<PublicApiController>.Instance, publicApiServiceMock.Object, configuration)
+            PublicApiController controller = new PublicApiController(logger ?? NullLogger<PublicApiController>.Instance, publicApiServiceMock.Object, configuration)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -139,6 +142,56 @@ namespace api.Tests
 
             Assert.IsType<UnauthorizedResult>(await controller.GetProfileData(CreateRequest("0000-0000-0000-0001")));
             serviceMock.Verify(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()), Times.Never);
+        }
+
+        [Theory]
+        [InlineData("orcid", "0000-0000-0000-0001", null, "0000-0000-0000-0001")]
+        [InlineData("ORCID", "0000-0000-0000-0001", "0000-0000-0000-0002", "0000-0000-0000-0002")]
+        [InlineData("HETU", "sensitive-hetu", "0000-0000-0000-0002", "0000-0000-0000-0002")]
+        [InlineData("HETU", "sensitive-hetu", null, "")]
+        public async Task GetProfileData_LogsCompletionWithOrcidAndClientId(string pidType, string pidContent, string responseOrcid, string expectedOrcid)
+        {
+            Mock<ILogger<PublicApiController>> logger = new Mock<ILogger<PublicApiController>>();
+            PublicApiController controller = CreateController("secret", "secret", out var serviceMock, logger.Object);
+            controller.HttpContext.Request.Headers["public-api-clientid"] = "test-client";
+            ProfileDataRequest request = CreateRequest(pidContent);
+            request.PersonIdentifiers[0].PidType = pidType;
+            serviceMock.Setup(s => s.GetProfileDataForPublicApi(request)).ReturnsAsync(new ProfileDataResponse
+            {
+                ProfileData = responseOrcid == null ? null : new PersonProfileData
+                {
+                    PersonIsIdentifiedBy = new Identifier { PidType = "ORCID", PidContent = responseOrcid }
+                }
+            });
+
+            Assert.IsType<OkObjectResult>(await controller.GetProfileData(request));
+
+            var completion = Assert.Single(logger.Invocations
+                .Where(invocation => invocation.Method.Name == nameof(ILogger.Log))
+                .Select(invocation => (IReadOnlyList<KeyValuePair<string, object>>)invocation.Arguments[2]),
+                state => state.Any(item => item.Value is LogApiInfo info && info.State == LogContent.ActionState.COMPLETE));
+            LogUserIdentification user = Assert.IsType<LogUserIdentification>(completion.Single(item => item.Key == "@LogUserIdentification").Value);
+            LogApiInfo apiInfo = Assert.IsType<LogApiInfo>(completion.Single(item => item.Key == "@LogApiInfo").Value);
+            Assert.Equal(expectedOrcid, user.Orcid);
+            Assert.Equal(LogContent.Action.PUBLIC_API_PROFILE_REQUEST, apiInfo.Action);
+            Assert.Contains("test-client", apiInfo.Message);
+            Assert.DoesNotContain("sensitive-hetu", apiInfo.Message);
+        }
+
+        [Fact]
+        public async Task GetProfileData_DoesNotLogCompletionWhenServiceFails()
+        {
+            Mock<ILogger<PublicApiController>> logger = new Mock<ILogger<PublicApiController>>();
+            PublicApiController controller = CreateController("secret", "secret", out var serviceMock, logger.Object);
+            serviceMock.Setup(s => s.GetProfileDataForPublicApi(It.IsAny<ProfileDataRequest>()))
+                .ThrowsAsync(new InvalidOperationException("Service failed"));
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => controller.GetProfileData(CreateRequest("0000-0000-0000-0001")));
+
+            Assert.DoesNotContain(logger.Invocations
+                .Where(invocation => invocation.Method.Name == nameof(ILogger.Log))
+                .Select(invocation => (IReadOnlyList<KeyValuePair<string, object>>)invocation.Arguments[2]),
+                state => state.Any(item => item.Value is LogApiInfo info && info.State == LogContent.ActionState.COMPLETE));
         }
     }
 }

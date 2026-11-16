@@ -54,7 +54,7 @@ namespace api.Services
             DateTime utcNow = DateTime.UtcNow;
             var results = await (
                 from target in GetTargetsWithRor()
-                join consent in ActiveConsents(userProfileId, utcNow)
+                join consent in ActiveConsents(userProfileId, utcNow).Where(consent => consent.ConsentActive)
                     on target.ControllerOrganizationId equals consent.ControllerOrganizationId
                 orderby target.ControllerOrganizationId, target.Id
                 select new { Target = target, Consent = consent }
@@ -116,17 +116,28 @@ namespace api.Services
                 return ConsentGrantResult.TargetNotFound;
             }
 
-            bool consentAlreadyExists = await _ttvContext.FactProfileDataSharingConsents
-                .AnyAsync(consent =>
+            FactProfileDataSharingConsent existingConsent = await _ttvContext.FactProfileDataSharingConsents
+                .FirstOrDefaultAsync(consent =>
                     consent.DimUserProfileId == userProfileId
                     && consent.ControllerOrganizationId == controllerOrganizationId.Value,
                     cancellationToken);
-            if (consentAlreadyExists)
+            if (existingConsent?.ConsentActive == true)
             {
                 return ConsentGrantResult.ConsentAlreadyExists;
             }
 
             DateTime grantedDate = DateTime.UtcNow;
+            if (existingConsent != null)
+            {
+                existingConsent.DateConsentGranted = grantedDate;
+                existingConsent.DateConsentExpire = grantedDate.AddYears(5);
+                existingConsent.DateConsentWithdrawn = null;
+                existingConsent.ConsentActive = true;
+                existingConsent.Modified = grantedDate;
+                await _ttvContext.SaveChangesAsync(cancellationToken);
+                return ConsentGrantResult.Created;
+            }
+
             var consent = new FactProfileDataSharingConsent
             {
                 DimUserProfileId = userProfileId,
@@ -134,6 +145,7 @@ namespace api.Services
                 DateConsentGranted = grantedDate,
                 DateConsentExpire = grantedDate.AddYears(5),
                 DateConsentWithdrawn = null,
+                ConsentActive = true,
                 Created = grantedDate
             };
             _ttvContext.FactProfileDataSharingConsents.Add(consent);
@@ -175,14 +187,18 @@ namespace api.Services
             FactProfileDataSharingConsent consent = await _ttvContext.FactProfileDataSharingConsents
                 .FirstOrDefaultAsync(
                     item => item.DimUserProfileId == userProfileId
-                        && item.ControllerOrganizationId == controllerOrganizationId.Value,
+                        && item.ControllerOrganizationId == controllerOrganizationId.Value
+                        && item.ConsentActive,
                     cancellationToken);
             if (consent == null)
             {
                 return false;
             }
 
-            _ttvContext.FactProfileDataSharingConsents.Remove(consent);
+            DateTime withdrawnDate = DateTime.UtcNow;
+            consent.ConsentActive = false;
+            consent.DateConsentWithdrawn = withdrawnDate;
+            consent.Modified = withdrawnDate;
             await _ttvContext.SaveChangesAsync(cancellationToken);
             return true;
         }

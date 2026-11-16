@@ -10,6 +10,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {
+    /// <summary>
+    /// Grants activate consent; GetConsents returns only active consent. Withdrawal deactivates consent
+    /// and records the UTC withdrawal date, while a later grant reactivates it.
+    /// </summary>
     [Route("api/consent")]
     [ApiController]
     [Authorize(Policy = "RequireScopeApi1AndClaimOrcid")]
