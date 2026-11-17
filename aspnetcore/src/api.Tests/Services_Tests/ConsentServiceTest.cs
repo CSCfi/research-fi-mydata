@@ -127,14 +127,14 @@ namespace api.Tests
                 var filteredTargets = await service.GetTargetsAsync("  029PK6X14  ", null, CancellationToken.None);
                 var unknownTargets = await service.GetTargetsAsync("not-a-ror", null, CancellationToken.None);
 
-                Assert.Equal(new[] { 10, 12 }, allTargets.Select(item => item.ConsentTargetId));
+                Assert.Equal(new[] { 10, 12 }, allTargets.Select(item => item.OrgNodeId));
                 Assert.Equal("Organisaatio 1", allTargets[0].ConsentController.OrganizationName.Fi);
                 Assert.Equal("029pk6x14", allTargets[0].ConsentController.Ror);
                 Assert.Equal(new[] { "purpose-20" }, allTargets[0].ConsentPurpose.Select(purpose => purpose.CodeValue));
                 Assert.Equal("Purpose 20", allTargets[0].ConsentPurpose[0].CodeLabel.En);
                 Assert.Equal("purpose-20", allTargets[0].ConsentPurpose[0].CodeValue);
                 Assert.Null(allTargets[0].Consent.ConsentGrantedDate);
-                Assert.Equal(new[] { 10 }, filteredTargets.Select(item => item.ConsentTargetId));
+                Assert.Equal(new[] { 10 }, filteredTargets.Select(item => item.OrgNodeId));
                 Assert.Empty(unknownTargets);
             }
         }
@@ -162,12 +162,12 @@ namespace api.Tests
                 var filtered = await service.GetTargetsAsync("ror-one", 1, CancellationToken.None);
                 var noProfile = await service.GetTargetsAsync(null, null, CancellationToken.None);
 
-                Assert.Equal(new[] { 10, 11, 12, 13 }, targets.Select(item => item.ConsentTargetId));
+                Assert.Equal(new[] { 10, 11, 12, 13 }, targets.Select(item => item.OrgNodeId));
                 Assert.Equal(new[] { "purpose-20", "purpose-21" }, targets[0].ConsentPurpose.Select(purpose => purpose.CodeValue));
                 Assert.NotNull(targets[0].Consent.ConsentGrantedDate);
                 Assert.NotNull(targets[0].Consent.ConsentExpireDate);
                 Assert.All(targets.Skip(1), target => Assert.Null(target.Consent.ConsentGrantedDate));
-                Assert.Equal(new[] { 10 }, filtered.Select(item => item.ConsentTargetId));
+                Assert.Equal(new[] { 10 }, filtered.Select(item => item.OrgNodeId));
                 Assert.All(filtered, target => Assert.NotNull(target.Consent.ConsentGrantedDate));
                 Assert.All(noProfile, target => Assert.Null(target.Consent.ConsentGrantedDate));
             }
@@ -197,7 +197,7 @@ namespace api.Tests
                 var consents = await new ConsentService(context).GetConsentsAsync(1, CancellationToken.None);
 
                 var consent = Assert.Single(consents);
-                Assert.Equal(10, consent.ConsentTargetId);
+                Assert.Equal(10, consent.OrgNodeId);
                 Assert.Equal("029pk6x14", consent.ConsentController.Ror);
                 Assert.Equal("Organisaatio 1", consent.ConsentController.OrganizationName.Fi);
                 Assert.NotNull(consent.Consent);
@@ -231,7 +231,7 @@ namespace api.Tests
                     new ApiResponseConsentGet(true, "", new[] { activeTarget }), JsonSerializerOptions.Web));
 
                 var targetJson = targetsJson.RootElement.GetProperty("data")[0];
-                Assert.Equal(new[] { "consentTargetId", "consentController", "consentPurpose", "consent" },
+                Assert.Equal(new[] { "orgNodeId", "consentController", "consentPurpose", "consent" },
                     targetJson.EnumerateObject().Select(property => property.Name));
                 Assert.Equal(JsonValueKind.Object, targetJson.GetProperty("consent").ValueKind);
                 Assert.Empty(targetJson.GetProperty("consent").EnumerateObject());

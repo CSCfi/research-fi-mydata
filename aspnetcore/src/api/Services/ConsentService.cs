@@ -109,7 +109,7 @@ namespace api.Services
                 .OrderBy(pid => pid.Id)
                 .First().PidContent.Trim();
             return new ConsentTargetResponse(
-                target.ControllerOrganizationId,
+                target.ControllerOrganization.Id,
                 new ConsentControllerResponse(new ConsentLanguageVariant(organization.NameFi, organization.NameSv, organization.NameEn), ror),
                 targets.OrderBy(item => item.PurposeCodeId)
                     .Select(item => new ConsentPurposeResponse(

@@ -8,7 +8,7 @@ namespace api.Models.Api
     /// A consent target and the organization and purpose it represents.
     /// </summary>
     public sealed record ConsentTargetResponse(
-        int ConsentTargetId,
+        int OrgNodeId,
         ConsentControllerResponse ConsentController,
         IReadOnlyList<ConsentPurposeResponse> ConsentPurpose,
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ConsentDetailsResponse Consent);

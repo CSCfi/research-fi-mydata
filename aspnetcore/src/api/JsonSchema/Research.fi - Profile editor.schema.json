@@ -53,9 +53,9 @@
             "type": "object",
             "title": "consent_target",
             "required": [
+                "orgNodeId",
                 "consentController",
-                "consentPurpose",
-                "consentTargetId"
+                "consentPurpose"
             ],
             "properties": {
                 "consentPurpose": {
@@ -74,15 +74,15 @@
                     "title": "consentController",
                     "$ref": "#/properties/consent_controller_organization"
                 },
-                "consentTargetId": {
+                "orgNodeId": {
                     "description": "",
                     "type": "number",
-                    "title": "consentTargetId"
+                    "title": "orgNodeId"
                 },
                 "consent": {
-                    "description": "",
+                    "description": "viimeisimmän voimassa olevan suostumuksen tiedot",
                     "title": "consent",
-                    "$ref": "#/properties/profile_data_shareing_consent"
+                    "$ref": "#/properties/profile_data_sharing_consent"
                 }
             }
         },
@@ -107,10 +107,11 @@
                 }
             }
         },
-        "profile_data_shareing_consent": {
+        "profile_data_sharing_consent": {
             "description": "",
             "type": "object",
-            "title": "profile_data_shareing_consent",
+            "title": "profile_data_sharing_consent",
+            "required": ["consentActive"],
             "properties": {
                 "consentGrantedDate": {
                     "description": "",
@@ -121,6 +122,11 @@
                     "description": "",
                     "type": "string",
                     "title": "consentWithdrawnDate"
+                },
+                "consentActive": {
+                    "description": "",
+                    "title": "consent_active",
+                    "type": "boolean"
                 },
                 "consentExpireDate": {
                     "description": "",
