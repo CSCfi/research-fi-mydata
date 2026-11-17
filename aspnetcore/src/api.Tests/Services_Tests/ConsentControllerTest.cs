@@ -93,7 +93,7 @@ namespace api.Tests
             var controller = CreateController(consentService, userProfileService);
 
             var result = Assert.IsType<OkObjectResult>(await controller.GrantConsent(
-                new CreateConsentRequest { ConsentTargetId = 999 },
+                new CreateConsentRequest { OrgNodeId = 999 },
                 CancellationToken.None));
 
             var response = Assert.IsType<ApiResponse>(result.Value);

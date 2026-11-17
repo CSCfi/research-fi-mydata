@@ -59,7 +59,7 @@ namespace api.Services
             DateTime utcNow = DateTime.UtcNow;
             var results = await (
                 from target in GetTargetsWithRor()
-                join consent in ActiveConsents(userProfileId, utcNow).Where(consent => consent.ConsentActive)
+                join consent in ActiveConsents(userProfileId, utcNow)
                     on target.ControllerOrganizationId equals consent.ControllerOrganizationId
                 orderby target.ControllerOrganizationId, target.PurposeCodeId
                 select new { Target = target, Consent = consent }
@@ -77,6 +77,7 @@ namespace api.Services
         private IQueryable<FactProfileDataSharingConsent> ActiveConsents(int? userProfileId, DateTime utcNow) =>
             _ttvContext.FactProfileDataSharingConsents.AsNoTracking()
                 .Where(consent => consent.DimUserProfileId == userProfileId
+                    && consent.ConsentActive
                     && consent.DateConsentWithdrawn == null
                     && (consent.DateConsentExpire == null || consent.DateConsentExpire >= utcNow));
 
@@ -130,28 +131,18 @@ namespace api.Services
                 return ConsentGrantResult.TargetNotFound;
             }
 
-            FactProfileDataSharingConsent existingConsent = await _ttvContext.FactProfileDataSharingConsents
-                .FirstOrDefaultAsync(consent =>
+            bool activeConsentExists = await _ttvContext.FactProfileDataSharingConsents
+                .AnyAsync(consent =>
                     consent.DimUserProfileId == userProfileId
-                    && consent.ControllerOrganizationId == controllerOrganizationId,
+                    && consent.ControllerOrganizationId == controllerOrganizationId
+                    && consent.ConsentActive,
                     cancellationToken);
-            if (existingConsent?.ConsentActive == true)
+            if (activeConsentExists)
             {
                 return ConsentGrantResult.ConsentAlreadyExists;
             }
 
             DateTime grantedDate = DateTime.UtcNow;
-            if (existingConsent != null)
-            {
-                existingConsent.DateConsentGranted = grantedDate;
-                existingConsent.DateConsentExpire = grantedDate.AddYears(5);
-                existingConsent.DateConsentWithdrawn = null;
-                existingConsent.ConsentActive = true;
-                existingConsent.Modified = grantedDate;
-                await _ttvContext.SaveChangesAsync(cancellationToken);
-                return ConsentGrantResult.Created;
-            }
-
             var consent = new FactProfileDataSharingConsent
             {
                 DimUserProfileId = userProfileId,
@@ -173,7 +164,8 @@ namespace api.Services
                 bool concurrentConsentExists = await _ttvContext.FactProfileDataSharingConsents
                     .AnyAsync(item =>
                         item.DimUserProfileId == userProfileId
-                        && item.ControllerOrganizationId == controllerOrganizationId,
+                        && item.ControllerOrganizationId == controllerOrganizationId
+                        && item.ConsentActive,
                         cancellationToken);
                 if (concurrentConsentExists)
                 {

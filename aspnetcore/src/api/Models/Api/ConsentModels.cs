@@ -46,7 +46,7 @@ namespace api.Models.Api
     /// </summary>
     public sealed record CreateConsentRequest
     {
-        public int ConsentTargetId { get; init; }
+        public int OrgNodeId { get; init; }
     }
 
     public sealed class ApiResponseConsentTargetsGet : ApiResponse

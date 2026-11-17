@@ -181,6 +181,24 @@ namespace api.Tests
         }
 
         [Fact]
+        public async Task GetTargetsAsync_ExcludesInactiveConsentWithoutWithdrawalDate()
+        {
+            var (connection, context) = await CreateContextAsync();
+            using (connection)
+            using (context)
+            {
+                await AddTargetAsync(context, 1, 10, 20, "ror-one");
+                AddConsent(context, 1, 10, consentActive: false);
+                await context.SaveChangesAsync();
+
+                var target = Assert.Single(await new ConsentService(context)
+                    .GetTargetsAsync(null, 1, CancellationToken.None));
+
+                Assert.Null(target.Consent.ConsentGrantedDate);
+            }
+        }
+
+        [Fact]
         public async Task GetConsentsAsync_ReturnsOnlyActiveConsentsForRequestedProfile()
         {
             var (connection, context) = await CreateContextAsync();
@@ -339,16 +357,35 @@ namespace api.Tests
                     .SingleAsync(item => item.DimUserProfileId == 1);
                 Assert.False(withdrawnConsent.ConsentActive);
                 Assert.InRange(withdrawnConsent.DateConsentWithdrawn.Value, beforeWithdrawal, afterWithdrawal);
+                Assert.Equal(withdrawnConsent.DateConsentWithdrawn, withdrawnConsent.Modified);
+                var history = context.Entry(withdrawnConsent).CurrentValues.Clone();
                 Assert.Equal(2, await context.FactProfileDataSharingConsents.CountAsync());
                 Assert.False(await service.WithdrawConsentAsync(1, 10, CancellationToken.None));
 
                 DateTime beforeRegrant = DateTime.UtcNow;
                 Assert.Equal(ConsentGrantResult.Created, await service.GrantConsentAsync(1, 10, CancellationToken.None));
                 DateTime afterRegrant = DateTime.UtcNow;
-                Assert.Equal(2, await context.FactProfileDataSharingConsents.CountAsync());
-                Assert.True(withdrawnConsent.ConsentActive);
-                Assert.Null(withdrawnConsent.DateConsentWithdrawn);
-                Assert.InRange(withdrawnConsent.DateConsentGranted, beforeRegrant, afterRegrant);
+                Assert.Equal(3, await context.FactProfileDataSharingConsents.CountAsync());
+                var newConsent = await context.FactProfileDataSharingConsents.AsNoTracking()
+                    .SingleAsync(item => item.DimUserProfileId == 1 && item.ConsentActive);
+                Assert.NotEqual(withdrawnConsent.Id, newConsent.Id);
+                Assert.Null(newConsent.DateConsentWithdrawn);
+                Assert.InRange(newConsent.DateConsentGranted, beforeRegrant, afterRegrant);
+                Assert.Equal(newConsent.DateConsentGranted.AddYears(5), newConsent.DateConsentExpire);
+                Assert.Equal(ConsentGrantResult.ConsentAlreadyExists,
+                    await service.GrantConsentAsync(1, 10, CancellationToken.None));
+                Assert.True(await service.WithdrawConsentAsync(1, 10, CancellationToken.None));
+                Assert.False(await service.WithdrawConsentAsync(1, 10, CancellationToken.None));
+                Assert.Equal(3, await context.FactProfileDataSharingConsents.CountAsync());
+                Assert.False((await context.FactProfileDataSharingConsents.AsNoTracking()
+                    .SingleAsync(item => item.Id == newConsent.Id)).ConsentActive);
+                Assert.True((await context.FactProfileDataSharingConsents.AsNoTracking()
+                    .SingleAsync(item => item.DimUserProfileId == 2)).ConsentActive);
+                var persistedHistory = await context.Entry(withdrawnConsent).GetDatabaseValuesAsync();
+                foreach (var property in history.Properties)
+                {
+                    Assert.Equal(history[property], persistedHistory[property]);
+                }
             }
         }
     }

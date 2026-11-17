@@ -161,18 +161,11 @@ namespace api.Services
 
         private async Task<bool> HasActiveConsent(int userProfileId, List<int> controllerOrganizationIds)
         {
-            DateTime utcNow = DateTime.UtcNow;
-            List<FactProfileDataSharingConsent> consents = await _ttvContext.FactProfileDataSharingConsents
-                .Where(consent =>
+            return await _ttvContext.FactProfileDataSharingConsents
+                .AnyAsync(consent =>
                     consent.DimUserProfileId == userProfileId
-                    && controllerOrganizationIds.Contains(consent.ControllerOrganizationId))
-                .AsNoTracking()
-                .ToListAsync();
-
-            return consents.Any(consent =>
-                consent.DateConsentWithdrawn == null
-                && (consent.DateConsentExpire == null
-                    || consent.DateConsentExpire >= utcNow));
+                    && controllerOrganizationIds.Contains(consent.ControllerOrganizationId)
+                    && consent.ConsentActive);
         }
 
         // The profile data cooperation items do not contain the reference data code, so query the selected choices directly.

@@ -246,7 +246,7 @@ namespace api.Tests
             });
         }
 
-        private static void AddConsent(TtvContext context, int profileId = 1, int controllerId = 10, DateTime? expiry = null, DateTime? withdrawn = null)
+        private static void AddConsent(TtvContext context, int profileId = 1, int controllerId = 10, DateTime? expiry = null, DateTime? withdrawn = null, bool consentActive = true)
         {
             context.FactProfileDataSharingConsents.Add(new FactProfileDataSharingConsent
             {
@@ -255,6 +255,7 @@ namespace api.Tests
                 DateConsentGranted = DateTime.UtcNow,
                 DateConsentExpire = expiry,
                 DateConsentWithdrawn = withdrawn,
+                ConsentActive = consentActive,
                 Created = DateTime.UtcNow
             });
         }
@@ -529,7 +530,7 @@ namespace api.Tests
             Assert.NotNull(response.ProfileData);
         }
 
-        [Fact(DisplayName = "GetProfileDataForPublicApi - expired consent is inactive")]
+        [Fact(DisplayName = "GetProfileDataForPublicApi - active flag grants access regardless of past expiry")]
         public async Task GetProfileDataForPublicApi_10()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_10));
@@ -540,12 +541,12 @@ namespace api.Tests
 
             var expiredResponse = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
 
-            Assert.Equal(false, expiredResponse.ConsentActive);
-            Assert.Null(expiredResponse.ProfileData);
-            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+            Assert.Equal(true, expiredResponse.ConsentActive);
+            Assert.NotNull(expiredResponse.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Once);
         }
 
-        [Fact(DisplayName = "GetProfileDataForPublicApi - withdrawn consent is inactive")]
+        [Fact(DisplayName = "GetProfileDataForPublicApi - active flag grants access regardless of withdrawal date")]
         public async Task GetProfileDataForPublicApi_13()
         {
             using var context = CreateInMemoryContext(nameof(GetProfileDataForPublicApi_13));
@@ -556,9 +557,42 @@ namespace api.Tests
 
             var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
 
-            Assert.Equal(false, response.ConsentActive);
-            Assert.Null(response.ProfileData);
-            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Never);
+            Assert.Equal(true, response.ConsentActive);
+            Assert.NotNull(response.ProfileData);
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true), Times.Once);
+        }
+
+        [Theory(DisplayName = "GetProfileDataForPublicApi - inactive history requires a new active consent")]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetProfileDataForPublicApi_InactiveHistory(bool regranted)
+        {
+            using var context = CreateInMemoryContext($"{nameof(GetProfileDataForPublicApi_InactiveHistory)}_{regranted}");
+            AddController(context);
+            AddConsent(context, consentActive: false);
+            AddConsent(context, withdrawn: DateTime.UtcNow.AddDays(-1), consentActive: false);
+            AddConsent(context, profileId: 2);
+            AddConsent(context, controllerId: 11);
+            if (regranted)
+            {
+                AddConsent(context, expiry: DateTime.UtcNow.AddYears(5));
+            }
+            await context.SaveChangesAsync();
+            var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);
+
+            var response = await service.GetProfileDataForPublicApi(CreateRequest("ORCID", "0000-0000-0000-0001"));
+
+            Assert.Equal(regranted, response.ConsentActive);
+            if (regranted)
+            {
+                Assert.NotNull(response.ProfileData);
+            }
+            else
+            {
+                Assert.Null(response.ProfileData);
+            }
+            userProfileServiceMock.Verify(s => s.GetProfileData(It.IsAny<int>(), It.IsAny<LogUserIdentification>(), true),
+                regranted ? Times.Once() : Times.Never());
         }
 
         [Fact(DisplayName = "GetProfileDataForPublicApi - ORCID is preferred and does not fall back to HETU")]
