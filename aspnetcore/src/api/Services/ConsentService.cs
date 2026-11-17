@@ -111,7 +111,8 @@ namespace api.Services
             return new ConsentTargetResponse(
                 target.ControllerOrganization.Id,
                 new ConsentControllerResponse(new ConsentLanguageVariant(organization.NameFi, organization.NameSv, organization.NameEn), ror),
-                targets.OrderBy(item => item.PurposeCodeId)
+                targets.OrderBy(item => item.PurposeCode.Order)
+                    .ThenBy(item => item.PurposeCodeId)
                     .Select(item => new ConsentPurposeResponse(
                         new ConsentLanguageVariant(item.PurposeCode.NameFi, item.PurposeCode.NameSv, item.PurposeCode.NameEn),
                         item.PurposeCode.CodeValue))

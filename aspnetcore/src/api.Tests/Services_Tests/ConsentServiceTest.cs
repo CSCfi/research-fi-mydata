@@ -32,7 +32,13 @@ namespace api.Tests
             return (connection, context);
         }
 
-        private static async Task AddTargetAsync(TtvContext context, int organizationId, int controllerId, int purposeId, string rorId)
+        private static async Task AddTargetAsync(
+            TtvContext context,
+            int organizationId,
+            int controllerId,
+            int purposeId,
+            string rorId,
+            int? purposeOrder = null)
         {
             if (!await context.DimOrganizations.AnyAsync(item => item.Id == organizationId))
             {
@@ -71,7 +77,8 @@ namespace api.Tests
                     NameEn = $"Purpose {purposeId}",
                     NameSv = $"Ändamål {purposeId}",
                     SourceId = "test",
-                    SourceDescription = "test"
+                    SourceDescription = "test",
+                    Order = purposeOrder
                 });
             }
 
@@ -203,6 +210,29 @@ namespace api.Tests
                 Assert.NotNull(consent.Consent);
                 Assert.NotNull(consent.Consent.ConsentExpireDate);
                 Assert.Equal(new[] { "purpose-20", "purpose-21" }, consent.ConsentPurpose.Select(purpose => purpose.CodeValue));
+            }
+        }
+
+        [Fact]
+        public async Task ConsentPurpose_IsOrderedByReferenceDataOrderForTargetsAndConsents()
+        {
+            var (connection, context) = await CreateContextAsync();
+            using (connection)
+            using (context)
+            {
+                await AddTargetAsync(context, 1, 10, 20, "ror-one", purposeOrder: 2);
+                await AddTargetAsync(context, 1, 10, 21, null, purposeOrder: 1);
+                AddConsent(context, profileId: 1, controllerId: 10);
+                await context.SaveChangesAsync();
+                var service = new ConsentService(context);
+
+                var target = Assert.Single(await service.GetTargetsAsync(null, 1, CancellationToken.None));
+                var consent = Assert.Single(await service.GetConsentsAsync(1, CancellationToken.None));
+
+                Assert.Equal(new[] { "purpose-21", "purpose-20" },
+                    target.ConsentPurpose.Select(purpose => purpose.CodeValue));
+                Assert.Equal(new[] { "purpose-21", "purpose-20" },
+                    consent.ConsentPurpose.Select(purpose => purpose.CodeValue));
             }
         }
 
