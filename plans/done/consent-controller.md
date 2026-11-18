@@ -4,9 +4,12 @@ Status: Implemented
 # Consent controller
 
 Added authenticated profile consent target discovery, ROR filtering, active-consent listing,
-organization-wide grants, and caller-scoped physical withdrawal. Added a scoped service, API
+organization-wide grants, and caller-scoped soft withdrawal. Withdrawn rows remain unchanged
+during subsequent consent operations; regranting creates a new active row rather than reusing
+history. Full user-profile deletion retains its existing physical cleanup behavior. Added a scoped service, API
 models, regression tests, and request examples. Updated consent date handling to use UTC
-`DateTime` fields and synchronized Public API expiry/withdrawal checks.
+`DateTime` fields. Public API consent authorization uses only `ConsentActive` for the
+requested profile and controller, ignoring expiry and withdrawal dates and inactive history.
 
 Files touched: `aspnetcore/src/api/Controllers/ConsentController.cs`,
 `aspnetcore/src/api/Models/Api/ConsentModels.cs`,

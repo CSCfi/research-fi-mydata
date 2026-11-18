@@ -2,6 +2,11 @@
 {
     public static class Constants
     {
+        public static class Consent
+        {
+            public const int EXPIRY_YEARS = 10;
+        }
+
         /*
          * FieldIdentifiers should be according to
          * https://koodistot.suomi.fi/codescheme;registryCode=research;schemeCode=ttv_field_identifiers

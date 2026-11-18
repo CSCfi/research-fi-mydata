@@ -8,8 +8,6 @@ namespace api.Models.Ttv;
 /// </summary>
 public partial class DimConsentTarget
 {
-    public int Id { get; set; }
-
     /// <summary>
     /// https://iri.suomi.fi/model/researchfi_core/consent_controller
     /// </summary>

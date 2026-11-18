@@ -96,7 +96,23 @@ namespace api.Controllers
                 return BadRequest("PidType must be either ORCID or HETU.");
             }
 
-            return Ok(await _publicApiService.GetProfileDataForPublicApi(request));
+            ProfileDataResponse response = await _publicApiService.GetProfileDataForPublicApi(request);
+            Identifier responseIdentifier = response?.ProfileData?.PersonIsIdentifiedBy;
+            string orcid = string.Equals(responseIdentifier?.PidType, "ORCID", System.StringComparison.OrdinalIgnoreCase)
+                ? responseIdentifier.PidContent
+                : request.PersonIdentifiers
+                    .FirstOrDefault(identifier => string.Equals(identifier.PidType, "ORCID", System.StringComparison.OrdinalIgnoreCase))
+                    ?.PidContent;
+
+            _logger.LogInformation(
+                LogContent.MESSAGE_TEMPLATE,
+                new LogUserIdentification(orcid ?? ""),
+                new LogApiInfo(
+                    action: LogContent.Action.PUBLIC_API_PROFILE_REQUEST,
+                    state: LogContent.ActionState.COMPLETE,
+                    message: $"Public API clientId={clientId}"));
+
+            return Ok(response);
         }
 
         // Check that request contains required Public API token, in header "publicapitoken".

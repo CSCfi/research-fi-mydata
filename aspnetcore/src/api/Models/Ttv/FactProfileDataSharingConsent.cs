@@ -8,6 +8,8 @@ namespace api.Models.Ttv;
 /// </summary>
 public partial class FactProfileDataSharingConsent
 {
+    public int Id { get; set; }
+
     /// <summary>
     /// https://iri.suomi.fi/model/researchfi_core/consenting_user_profile
     /// </summary>
@@ -17,6 +19,8 @@ public partial class FactProfileDataSharingConsent
     /// https://iri.suomi.fi/model/researchfi_core/consent_controller
     /// </summary>
     public int ControllerOrganizationId { get; set; }
+
+    public bool ConsentActive { get; set; }
 
     /// <summary>
     /// https://iri.suomi.fi/model/researchfi_core/consent_granted_date

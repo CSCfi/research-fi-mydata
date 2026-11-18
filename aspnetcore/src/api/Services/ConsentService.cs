@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using api.Models.Api;
+using api.Models.Common;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,9 +19,9 @@ namespace api.Services
             _ttvContext = ttvContext;
         }
 
-        public async Task<IReadOnlyList<ConsentTargetResponse>> GetTargetsAsync(string rorId, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<ConsentTargetResponse>> GetTargetsAsync(string rorId, int? userProfileId, CancellationToken cancellationToken)
         {
-            IQueryable<DimConsentTarget> query = _ttvContext.DimConsentTargets.AsNoTracking();
+            IQueryable<DimConsentTarget> query = GetTargetsWithRor();
             if (rorId != null)
             {
                 string normalizedRorId = rorId.Trim().ToUpperInvariant();
@@ -32,88 +33,112 @@ namespace api.Services
                 query = query.Where(target => _ttvContext.DimPids.Any(pid =>
                     pid.DimOrganizationId == target.ControllerOrganization.DimOrganizationId
                     && pid.PidType.ToUpper() == "RORID"
-                    && pid.PidContent.ToUpper() == normalizedRorId));
+                    && pid.PidContent != null
+                    && pid.PidContent.Trim().ToUpper() == normalizedRorId));
             }
 
-            return await query
-                .OrderBy(target => target.ControllerOrganizationId)
-                .ThenBy(target => target.Id)
-                .Select(target => new ConsentTargetResponse(
-                    target.Id,
-                    target.ControllerOrganization.DimOrganization.NameFi,
-                    target.ControllerOrganization.DimOrganization.NameSv,
-                    target.ControllerOrganization.DimOrganization.NameEn,
-                    target.ControllerOrganization.DimOrganization.DimPids
-                        .Where(pid => pid.PidType == "RORID")
-                        .Select(pid => pid.PidContent)
-                        .FirstOrDefault(),
-                    target.PurposeCode.NameFi,
-                    target.PurposeCode.NameEn,
-                    target.PurposeCode.NameSv))
-                .ToListAsync(cancellationToken);
+            var results = await (
+                from target in query
+                join consent in ActiveConsents(userProfileId, DateTime.UtcNow)
+                    on target.ControllerOrganizationId equals consent.ControllerOrganizationId into matchingConsents
+                from consent in matchingConsents.DefaultIfEmpty()
+                orderby target.ControllerOrganizationId, target.PurposeCodeId
+                select new { Target = target, Consent = consent }
+            ).ToListAsync(cancellationToken);
+
+            return results.Where(result => HasRor(result.Target))
+                .GroupBy(result => result.Target.ControllerOrganizationId)
+                .OrderBy(group => group.Key)
+                .Select(group => MapTarget(
+                    group.Select(result => result.Target).ToList(),
+                    group.First().Consent))
+                .ToList();
         }
 
-        public async Task<IReadOnlyList<ConsentResponse>> GetConsentsAsync(int userProfileId, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<ConsentTargetResponse>> GetConsentsAsync(int userProfileId, CancellationToken cancellationToken)
         {
             DateTime utcNow = DateTime.UtcNow;
-            return await _ttvContext.FactProfileDataSharingConsents
-                .AsNoTracking()
-                .Where(consent =>
-                    consent.DimUserProfileId == userProfileId
-                    && consent.DateConsentWithdrawn == null
-                    && (consent.DateConsentExpire == null || consent.DateConsentExpire >= utcNow))
-                .OrderBy(consent => consent.ControllerOrganizationId)
-                .Select(consent => new ConsentResponse(
-                    _ttvContext.DimConsentTargets
-                        .Where(target => target.ControllerOrganizationId == consent.ControllerOrganizationId)
-                        .Select(target => target.Id)
-                        .FirstOrDefault(),
-                    consent.ControllerOrganization.DimOrganization.NameFi,
-                    consent.ControllerOrganization.DimOrganization.NameSv,
-                    consent.ControllerOrganization.DimOrganization.NameEn,
-                    consent.ControllerOrganization.DimOrganization.DimPids
-                        .Where(pid => pid.PidType == "RORID")
-                        .Select(pid => pid.PidContent)
-                        .FirstOrDefault(),
-                    _ttvContext.DimConsentTargets
-                        .Where(target => target.ControllerOrganizationId == consent.ControllerOrganizationId)
-                        .OrderBy(target => target.Id)
-                        .Select(target => target.PurposeCode.NameFi)
-                        .FirstOrDefault(),
-                    _ttvContext.DimConsentTargets
-                        .Where(target => target.ControllerOrganizationId == consent.ControllerOrganizationId)
-                        .OrderBy(target => target.Id)
-                        .Select(target => target.PurposeCode.NameEn)
-                        .FirstOrDefault(),
-                    _ttvContext.DimConsentTargets
-                        .Where(target => target.ControllerOrganizationId == consent.ControllerOrganizationId)
-                        .OrderBy(target => target.Id)
-                        .Select(target => target.PurposeCode.NameSv)
-                        .FirstOrDefault(),
-                    consent.DateConsentGranted,
-                    consent.DateConsentExpire))
-                .ToListAsync(cancellationToken);
+            var results = await (
+                from target in GetTargetsWithRor()
+                join consent in ActiveConsents(userProfileId, utcNow)
+                    on target.ControllerOrganizationId equals consent.ControllerOrganizationId
+                orderby target.ControllerOrganizationId, target.PurposeCodeId
+                select new { Target = target, Consent = consent }
+            ).ToListAsync(cancellationToken);
+
+            return results.Where(result => HasRor(result.Target))
+                .GroupBy(result => result.Target.ControllerOrganizationId)
+                .OrderBy(group => group.Key)
+                .Select(group => MapTarget(
+                    group.Select(result => result.Target).ToList(),
+                    group.First().Consent))
+                .ToList();
         }
 
-        public async Task<ConsentGrantResult> GrantConsentAsync(int userProfileId, int consentTargetId, CancellationToken cancellationToken)
-        {
-            int? controllerOrganizationId = await _ttvContext.DimConsentTargets
-                .AsNoTracking()
-                .Where(target => target.Id == consentTargetId)
-                .Select(target => (int?)target.ControllerOrganizationId)
-                .FirstOrDefaultAsync(cancellationToken);
+        private IQueryable<FactProfileDataSharingConsent> ActiveConsents(int? userProfileId, DateTime utcNow) =>
+            _ttvContext.FactProfileDataSharingConsents.AsNoTracking()
+                .Where(consent => consent.DimUserProfileId == userProfileId
+                    && consent.ConsentActive
+                    && consent.DateConsentWithdrawn == null
+                    && (consent.DateConsentExpire == null || consent.DateConsentExpire >= utcNow));
 
-            if (!controllerOrganizationId.HasValue)
+        private IQueryable<DimConsentTarget> GetTargetsWithRor()
+        {
+            return _ttvContext.DimConsentTargets
+                .AsNoTracking()
+                .Where(target => target.ControllerOrganization.DimOrganization.DimPids.Any(pid =>
+                    pid.PidType.ToUpper() == "RORID"
+                    && pid.PidContent != null
+                    && pid.PidContent.Trim() != ""))
+                .Include(target => target.PurposeCode)
+                .Include(target => target.ControllerOrganization)
+                    .ThenInclude(controller => controller.DimOrganization)
+                    .ThenInclude(organization => organization.DimPids.Where(pid => pid.PidType.ToUpper() == "RORID"));
+        }
+
+        private static bool HasRor(DimConsentTarget target) =>
+            target.ControllerOrganization.DimOrganization.DimPids.Any(pid => !string.IsNullOrWhiteSpace(pid.PidContent));
+
+        private static ConsentTargetResponse MapTarget(
+            IReadOnlyList<DimConsentTarget> targets,
+            FactProfileDataSharingConsent consent)
+        {
+            DimConsentTarget target = targets[0];
+            var organization = target.ControllerOrganization.DimOrganization;
+            string ror = organization.DimPids
+                .Where(pid => string.Equals(pid.PidType, "RORID", StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(pid.PidContent))
+                .OrderBy(pid => pid.Id)
+                .First().PidContent.Trim();
+            return new ConsentTargetResponse(
+                target.ControllerOrganization.Id,
+                new ConsentControllerResponse(new ConsentLanguageVariant(organization.NameFi, organization.NameSv, organization.NameEn), ror),
+                targets.OrderBy(item => item.PurposeCode.Order)
+                    .ThenBy(item => item.PurposeCodeId)
+                    .Select(item => new ConsentPurposeResponse(
+                        new ConsentLanguageVariant(item.PurposeCode.NameFi, item.PurposeCode.NameSv, item.PurposeCode.NameEn),
+                        item.PurposeCode.CodeValue))
+                    .ToList(),
+                new ConsentDetailsResponse(consent?.DateConsentGranted, consent?.DateConsentWithdrawn, consent?.DateConsentExpire));
+        }
+
+        public async Task<ConsentGrantResult> GrantConsentAsync(int userProfileId, int controllerOrganizationId, CancellationToken cancellationToken)
+        {
+            bool targetExists = await _ttvContext.DimConsentTargets
+                .AsNoTracking()
+                .AnyAsync(target => target.ControllerOrganizationId == controllerOrganizationId, cancellationToken);
+            if (!targetExists)
             {
                 return ConsentGrantResult.TargetNotFound;
             }
 
-            bool consentAlreadyExists = await _ttvContext.FactProfileDataSharingConsents
+            bool activeConsentExists = await _ttvContext.FactProfileDataSharingConsents
                 .AnyAsync(consent =>
                     consent.DimUserProfileId == userProfileId
-                    && consent.ControllerOrganizationId == controllerOrganizationId.Value,
+                    && consent.ControllerOrganizationId == controllerOrganizationId
+                    && consent.ConsentActive,
                     cancellationToken);
-            if (consentAlreadyExists)
+            if (activeConsentExists)
             {
                 return ConsentGrantResult.ConsentAlreadyExists;
             }
@@ -122,10 +147,11 @@ namespace api.Services
             var consent = new FactProfileDataSharingConsent
             {
                 DimUserProfileId = userProfileId,
-                ControllerOrganizationId = controllerOrganizationId.Value,
+                ControllerOrganizationId = controllerOrganizationId,
                 DateConsentGranted = grantedDate,
-                DateConsentExpire = grantedDate.AddYears(5),
+                DateConsentExpire = grantedDate.AddYears(Constants.Consent.EXPIRY_YEARS),
                 DateConsentWithdrawn = null,
+                ConsentActive = true,
                 Created = grantedDate
             };
             _ttvContext.FactProfileDataSharingConsents.Add(consent);
@@ -139,7 +165,8 @@ namespace api.Services
                 bool concurrentConsentExists = await _ttvContext.FactProfileDataSharingConsents
                     .AnyAsync(item =>
                         item.DimUserProfileId == userProfileId
-                        && item.ControllerOrganizationId == controllerOrganizationId.Value,
+                        && item.ControllerOrganizationId == controllerOrganizationId
+                        && item.ConsentActive,
                         cancellationToken);
                 if (concurrentConsentExists)
                 {
@@ -152,14 +179,12 @@ namespace api.Services
             return ConsentGrantResult.Created;
         }
 
-        public async Task<bool> WithdrawConsentAsync(int userProfileId, int consentTargetId, CancellationToken cancellationToken)
+        public async Task<bool> WithdrawConsentAsync(int userProfileId, int controllerOrganizationId, CancellationToken cancellationToken)
         {
-            int? controllerOrganizationId = await _ttvContext.DimConsentTargets
+            bool targetExists = await _ttvContext.DimConsentTargets
                 .AsNoTracking()
-                .Where(target => target.Id == consentTargetId)
-                .Select(target => (int?)target.ControllerOrganizationId)
-                .FirstOrDefaultAsync(cancellationToken);
-            if (!controllerOrganizationId.HasValue)
+                .AnyAsync(target => target.ControllerOrganizationId == controllerOrganizationId, cancellationToken);
+            if (!targetExists)
             {
                 return false;
             }
@@ -167,14 +192,18 @@ namespace api.Services
             FactProfileDataSharingConsent consent = await _ttvContext.FactProfileDataSharingConsents
                 .FirstOrDefaultAsync(
                     item => item.DimUserProfileId == userProfileId
-                        && item.ControllerOrganizationId == controllerOrganizationId.Value,
+                        && item.ControllerOrganizationId == controllerOrganizationId
+                        && item.ConsentActive,
                     cancellationToken);
             if (consent == null)
             {
                 return false;
             }
 
-            _ttvContext.FactProfileDataSharingConsents.Remove(consent);
+            DateTime withdrawnDate = DateTime.UtcNow;
+            consent.ConsentActive = false;
+            consent.DateConsentWithdrawn = withdrawnDate;
+            consent.Modified = withdrawnDate;
             await _ttvContext.SaveChangesAsync(cancellationToken);
             return true;
         }

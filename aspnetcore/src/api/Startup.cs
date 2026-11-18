@@ -1,3 +1,4 @@
+using api.Background;
 using api.Services;
 using api.Models.Ttv;
 using Microsoft.AspNetCore.Builder;
@@ -301,6 +302,7 @@ namespace api
             services.AddTransient<IBackgroundProfiledata, BackgroundProfiledata>();
             services.AddHostedService<QueuedHostedService>();
             services.AddHostedService<RuntimeStatusLoggerService>();
+            services.AddHostedService<ConsentExpiryService>();
             services.AddSingleton<IBackgroundTaskQueue>(ctx =>
             {
                 return new BackgroundTaskQueue();

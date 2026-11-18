@@ -1,33 +1,38 @@
 @baseUrl = http://localhost:6001
-@consentTargetId = 456
+@orgNodeId = 456
 @rorId = 029pk6x14
 
-### List all consent targets
+### List consent targets with a ROR. Each data item has orgNodeId,
+### consentController (organizationName and ROR), and consentPurpose (codeLabel and codeValue).
+### consent contains the signed-in user's active consent dates, or {} if there is no active consent.
 GET {{baseUrl}}/api/consent/targets
 
 ### Find consent targets by bare ROR ID
 GET {{baseUrl}}/api/consent/targets?rorId={{rorId}}
 
-### List my active consents
+### List each ROR-identified target covered by my active consents.
+### Each data item also contains consent dates in a consent object.
 GET {{baseUrl}}/api/consent
 
 ### Grant consent for a target
+### Creates a new active row unless an active consent already exists; inactive history is unchanged.
 POST {{baseUrl}}/api/consent
 Content-Type: application/json
 
 {
-  "consentTargetId": {{consentTargetId}}
+  "orgNodeId": {{orgNodeId}}
 }
 
-### Withdraw consent using a consent target ID
-DELETE {{baseUrl}}/api/consent/{{consentTargetId}}
+### Withdraw consent using an organization node ID
+### Soft-deletes the active consent, recording its UTC withdrawal date and retaining the row as history.
+DELETE {{baseUrl}}/api/consent/{{orgNodeId}}
 
 ### Attempt to grant consent to a missing target
 POST {{baseUrl}}/api/consent
 Content-Type: application/json
 
 {
-  "consentTargetId": 2147483647
+  "orgNodeId": 2147483647
 }
 
 ### Attempt to withdraw consent that is not mine
