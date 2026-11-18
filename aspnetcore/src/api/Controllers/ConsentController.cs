@@ -13,6 +13,7 @@ namespace api.Controllers
     /// <summary>
     /// Grants activate consent; GetConsents returns only active consent. Withdrawal deactivates consent
     /// and records the UTC withdrawal date. Later grants create new rows, preserving inactive history.
+    /// The nightly expiry job deactivates expired consents at midnight Helsinki time without recording a withdrawal.
     /// </summary>
     [Route("api/consent")]
     [ApiController]

@@ -54,3 +54,13 @@ are recognized but their profile data is withheld. The consent-management URL fo
 is built from `PORTAL__URL__FI`, `PORTAL__URL__EN`, or `PORTAL__URL__SV`, followed by
 `/mydata/account-settings?login=1`. The portal URL values should include a trailing slash; it is
 removed during URL construction before the path is appended, preventing a double slash.
+
+## Nightly consent expiry
+
+Each new data-sharing consent is assigned a fixed expiry date when granted. Existing
+consents retain their stored expiry dates.
+
+At midnight in `Europe/Helsinki`, the running API sets `ConsentActive` to `false` for active
+data-sharing consents whose expiry timestamp is strictly earlier than the current UTC time.
+Consents without an expiry and withdrawal timestamps are left unchanged. If the API is down
+at midnight, any overdue consents are picked up at the next scheduled run.

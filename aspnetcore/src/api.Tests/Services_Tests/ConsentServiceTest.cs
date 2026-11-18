@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using api.Models.Api;
+using api.Models.Common;
 using api.Models.Ttv;
 using api.Services;
 using Microsoft.Data.Sqlite;
@@ -325,7 +326,7 @@ namespace api.Tests
 
                 Assert.Equal(ConsentGrantResult.Created, result);
                 Assert.InRange(consent.DateConsentGranted, beforeGrant, afterGrant);
-                Assert.Equal(consent.DateConsentGranted.AddYears(5), consent.DateConsentExpire);
+                Assert.Equal(consent.DateConsentGranted.AddYears(Constants.Consent.EXPIRY_YEARS), consent.DateConsentExpire);
                 Assert.Null(consent.DateConsentWithdrawn);
                 Assert.True(consent.ConsentActive);
                 Assert.Equal(ConsentGrantResult.ConsentAlreadyExists,
@@ -371,7 +372,7 @@ namespace api.Tests
                 Assert.NotEqual(withdrawnConsent.Id, newConsent.Id);
                 Assert.Null(newConsent.DateConsentWithdrawn);
                 Assert.InRange(newConsent.DateConsentGranted, beforeRegrant, afterRegrant);
-                Assert.Equal(newConsent.DateConsentGranted.AddYears(5), newConsent.DateConsentExpire);
+                Assert.Equal(newConsent.DateConsentGranted.AddYears(Constants.Consent.EXPIRY_YEARS), newConsent.DateConsentExpire);
                 Assert.Equal(ConsentGrantResult.ConsentAlreadyExists,
                     await service.GrantConsentAsync(1, 10, CancellationToken.None));
                 Assert.True(await service.WithdrawConsentAsync(1, 10, CancellationToken.None));

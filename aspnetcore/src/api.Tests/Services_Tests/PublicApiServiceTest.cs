@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.WebUtilities;
 using ResearchFi.ProfilePublicApi;
+using Constants = api.Models.Common.Constants;
 
 namespace api.Tests
 {
@@ -575,7 +576,7 @@ namespace api.Tests
             AddConsent(context, controllerId: 11);
             if (regranted)
             {
-                AddConsent(context, expiry: DateTime.UtcNow.AddYears(5));
+                AddConsent(context, expiry: DateTime.UtcNow.AddYears(Constants.Consent.EXPIRY_YEARS));
             }
             await context.SaveChangesAsync();
             var service = CreateService(context, new DimUserProfile { Id = 1 }, CreateProfileEditorData(), out var userProfileServiceMock);

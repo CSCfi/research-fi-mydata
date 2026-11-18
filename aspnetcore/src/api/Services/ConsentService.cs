@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using api.Models.Api;
+using api.Models.Common;
 using api.Models.Ttv;
 using Microsoft.EntityFrameworkCore;
 
@@ -148,7 +149,7 @@ namespace api.Services
                 DimUserProfileId = userProfileId,
                 ControllerOrganizationId = controllerOrganizationId,
                 DateConsentGranted = grantedDate,
-                DateConsentExpire = grantedDate.AddYears(5),
+                DateConsentExpire = grantedDate.AddYears(Constants.Consent.EXPIRY_YEARS),
                 DateConsentWithdrawn = null,
                 ConsentActive = true,
                 Created = grantedDate
