@@ -151,7 +151,7 @@ Implementation note (2026-11-23): Parser timestamp propagation and
 `FactFieldValue` timestamp population are implemented, including the dataset
 update correction and timestamp preservation when organization changes recreate
 rows. Parser/import regression tests pass. Production import and data-audit
-verification remain pending; do not begin Phase 1 until the gate below is met.
+verification were confirmed by the user on 2026-11-23.
 
 ### Scope
 
@@ -214,6 +214,10 @@ permission to skip that item based on a runtime-generated value.
 ## Phase 1 - Primary Person Name
 
 Apply timestamp comparison to the existing primary name `FactFieldValue`.
+
+Implementation note (2026-11-23): Timestamp comparison and regression tests are
+implemented. Production rollout and verification remain pending before
+proceeding to Phase 2.
 
 - Parse the timestamp of the ORCID name object once and reuse it for given and
   family name handling.

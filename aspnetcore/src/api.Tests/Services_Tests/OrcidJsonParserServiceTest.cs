@@ -367,6 +367,11 @@ namespace api.Tests
             var givenNames = parser.GetGivenNames(json);
             Assert.Equal(Timestamp(1460669280210), givenNames.CreatedDate);
             Assert.Equal(Timestamp(1486594670761), givenNames.LastModifiedDate);
+            var name = parser.GetName(json);
+            Assert.Equal("Susan", name.GivenNames);
+            Assert.Equal("Lopez", name.FamilyName);
+            Assert.Equal(givenNames.CreatedDate, name.CreatedDate);
+            Assert.Equal(givenNames.LastModifiedDate, name.LastModifiedDate);
             Assert.Equal(givenNames.CreatedDate, parser.GetFamilyName(json).CreatedDate);
             Assert.Equal(givenNames.LastModifiedDate, parser.GetCreditName(json).LastModifiedDate);
 

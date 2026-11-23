@@ -213,7 +213,7 @@ namespace api.Services
         /*
          * Check if Json document is full ORCID record
          */
-        private Boolean IsFullRecord(JsonDocument orcidJsonDocument)
+        private static Boolean IsFullRecord(JsonDocument orcidJsonDocument)
         {
             //var myValue = new System.Text.Json.JsonElement();
             //return orcidJsonDocument.RootElement.TryGetProperty("person", out myValue);
@@ -221,44 +221,42 @@ namespace api.Services
             return orcidJsonDocument.RootElement.TryGetProperty("person", out _);
         }
 
+        private static JsonElement GetNameElement(JsonDocument document)
+        {
+            return IsFullRecord(document)
+                ? document.RootElement.GetProperty("person").GetProperty("name")
+                : document.RootElement.GetProperty("name");
+        }
+
+        private static string GetNameValue(JsonElement nameElement, string propertyName)
+        {
+            if (nameElement.ValueKind == JsonValueKind.Object &&
+                nameElement.TryGetProperty(propertyName, out JsonElement componentElement) &&
+                componentElement.ValueKind == JsonValueKind.Object &&
+                componentElement.TryGetProperty("value", out JsonElement valueElement))
+                return valueElement.GetString() ?? "";
+
+            return "";
+        }
+
+        public OrcidName GetName(string json)
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement nameElement = GetNameElement(document);
+            return new OrcidName(
+                givenNames: GetNameValue(nameElement, "given-names"),
+                familyName: GetNameValue(nameElement, "family-name"),
+                lastModifiedDate: GetOrcidDateTime(nameElement, "last-modified-date"),
+                createdDate: GetOrcidDateTime(nameElement, "created-date"));
+        }
+
         /*
          * Given names
          */
         public OrcidGivenNames GetGivenNames(String json)
         {
-            using JsonDocument document = JsonDocument.Parse(json);
-
-            // Get name element
-            JsonElement nameElement = IsFullRecord(document)
-                ? document.RootElement.GetProperty("person").GetProperty("name")
-                : document.RootElement.GetProperty("name");
-            DateTime? lastModifiedDate = GetOrcidDateTime(nameElement, "last-modified-date");
-            DateTime? createdDate = GetOrcidDateTime(nameElement, "created-date");
-
-            JsonElement givenNamesElement;
-            // Check if name element is null
-            if (nameElement.ValueKind == JsonValueKind.Null)
-            {
-                return new OrcidGivenNames("", lastModifiedDate, createdDate);
-            }
-            else
-            {
-                givenNamesElement = nameElement.GetProperty("given-names");
-            }
-
-            // Get value
-            if (givenNamesElement.ValueKind != JsonValueKind.Null && givenNamesElement.TryGetProperty("value", out JsonElement valueElement))
-            {
-                return new OrcidGivenNames(
-                    valueElement.GetString(),
-                    lastModifiedDate,
-                    createdDate
-                );
-            }
-            else
-            {
-                return new OrcidGivenNames("", lastModifiedDate, createdDate);
-            }
+            OrcidName name = GetName(json);
+            return new OrcidGivenNames(name.GivenNames, name.LastModifiedDate, name.CreatedDate);
         }
 
         /*
@@ -266,39 +264,8 @@ namespace api.Services
          */
         public OrcidFamilyName GetFamilyName(String json)
         {
-            using JsonDocument document = JsonDocument.Parse(json);
-
-            // Get name element
-            JsonElement nameElement = IsFullRecord(document)
-                ? document.RootElement.GetProperty("person").GetProperty("name")
-                : document.RootElement.GetProperty("name");
-            DateTime? lastModifiedDate = GetOrcidDateTime(nameElement, "last-modified-date");
-            DateTime? createdDate = GetOrcidDateTime(nameElement, "created-date");
-
-            JsonElement familyNameElement;
-            // Check if name element is null
-            if (nameElement.ValueKind == JsonValueKind.Null)
-            {
-                return new OrcidFamilyName("", lastModifiedDate, createdDate);
-            }
-            else
-            {
-                familyNameElement = nameElement.GetProperty("family-name");
-            }
-
-            // Get value
-            if (familyNameElement.ValueKind != JsonValueKind.Null && familyNameElement.TryGetProperty("value", out JsonElement valueElement))
-            {
-                return new OrcidFamilyName(
-                    valueElement.GetString(),
-                    lastModifiedDate,
-                    createdDate
-                );
-            }
-            else
-            {
-                return new OrcidFamilyName("", lastModifiedDate, createdDate);
-            }
+            OrcidName name = GetName(json);
+            return new OrcidFamilyName(name.FamilyName, name.LastModifiedDate, name.CreatedDate);
         }
 
         /*
@@ -307,38 +274,11 @@ namespace api.Services
         public OrcidCreditName GetCreditName(String json)
         {
             using JsonDocument document = JsonDocument.Parse(json);
-
-            // Get name element
-            JsonElement nameElement = IsFullRecord(document)
-                ? document.RootElement.GetProperty("person").GetProperty("name")
-                : document.RootElement.GetProperty("name");
-            DateTime? lastModifiedDate = GetOrcidDateTime(nameElement, "last-modified-date");
-            DateTime? createdDate = GetOrcidDateTime(nameElement, "created-date");
-
-            JsonElement creditNameElement;
-            // Check if name element is null
-            if (nameElement.ValueKind == JsonValueKind.Null)
-            {
-                return new OrcidCreditName("", lastModifiedDate, createdDate);
-            }
-            else
-            {
-                creditNameElement = nameElement.GetProperty("credit-name");
-            }
-
-            // Get value
-            if (creditNameElement.ValueKind != JsonValueKind.Null && creditNameElement.TryGetProperty("value", out JsonElement valueElement))
-            {
-                return new OrcidCreditName(
-                    valueElement.GetString(),
-                    lastModifiedDate,
-                    createdDate
-                );
-            }
-            else
-            {
-                return new OrcidCreditName("", lastModifiedDate, createdDate);
-            }
+            JsonElement nameElement = GetNameElement(document);
+            return new OrcidCreditName(
+                GetNameValue(nameElement, "credit-name"),
+                GetOrcidDateTime(nameElement, "last-modified-date"),
+                GetOrcidDateTime(nameElement, "created-date"));
         }
 
         /*

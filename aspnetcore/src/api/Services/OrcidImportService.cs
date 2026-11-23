@@ -332,6 +332,13 @@ namespace api.Services
             factFieldValue.Modified = lastModifiedDate ?? (isNew ? createdDate ?? currentDateTime : currentDateTime);
         }
 
+        private static bool IsOrcidTimestampUnchanged(FactFieldValue factFieldValue, DateTime? lastModifiedDate)
+        {
+            return lastModifiedDate.HasValue &&
+                factFieldValue.Modified.HasValue &&
+                lastModifiedDate.Value <= factFieldValue.Modified.Value;
+        }
+
         /*
          * Helper method, add DimWebLink
          */
@@ -463,27 +470,30 @@ namespace api.Services
             FactFieldValue factFieldValuesName =
                 dimUserProfile.FactFieldValues.FirstOrDefault(
                     ffv => ffv.DimFieldDisplaySettings.Id == dimFieldDisplaySettingsName.Id && ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId);
-            OrcidGivenNames orcidGivenNames = _orcidJsonParserService.GetGivenNames(orcidRecordJson);
-            OrcidFamilyName orcidFamilyName = _orcidJsonParserService.GetFamilyName(orcidRecordJson);
+            OrcidName orcidName = _orcidJsonParserService.GetName(orcidRecordJson);
             if (factFieldValuesName != null)
             {
-                // Update existing DimName
-                DimName dimName = factFieldValuesName.DimName;
-                dimName.LastName = Truncate(orcidFamilyName.Value, 255);
-                dimName.FirstNames = Truncate(orcidGivenNames.Value, 255);
-                dimName.Modified = currentDateTime;
-                // Update existing FactFieldValue
-                SetOrcidTimestamps(factFieldValuesName, orcidGivenNames.CreatedDate, orcidGivenNames.LastModifiedDate, currentDateTime);
                 // Mark as processed
                 orcidImportHelper.dimNameIds.Add(factFieldValuesName.DimName.Id);
+
+                if (!IsOrcidTimestampUnchanged(factFieldValuesName, orcidName.LastModifiedDate))
+                {
+                    // Update existing DimName
+                    DimName dimName = factFieldValuesName.DimName;
+                    dimName.LastName = Truncate(orcidName.FamilyName, 255);
+                    dimName.FirstNames = Truncate(orcidName.GivenNames, 255);
+                    dimName.Modified = currentDateTime;
+                    // Update existing FactFieldValue
+                    SetOrcidTimestamps(factFieldValuesName, orcidName.CreatedDate, orcidName.LastModifiedDate, currentDateTime);
+                }
             }
             else
             {
                 // Create new DimName
                 DimName dimName = new()
                 {
-                    LastName = Truncate(orcidFamilyName.Value, 255),
-                    FirstNames = Truncate(orcidGivenNames.Value, 255),
+                    LastName = Truncate(orcidName.FamilyName, 255),
+                    FirstNames = Truncate(orcidName.GivenNames, 255),
                     DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                     DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                     SourceId = Constants.SourceIdentifiers.PROFILE_API,
@@ -498,7 +508,7 @@ namespace api.Services
                 factFieldValuesName.DimFieldDisplaySettings = dimFieldDisplaySettingsName;
                 factFieldValuesName.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                 factFieldValuesName.DimName = dimName;
-                SetOrcidTimestamps(factFieldValuesName, orcidGivenNames.CreatedDate, orcidGivenNames.LastModifiedDate, currentDateTime, isNew: true);
+                SetOrcidTimestamps(factFieldValuesName, orcidName.CreatedDate, orcidName.LastModifiedDate, currentDateTime, isNew: true);
                 factFieldValuesName.Show = true; // ORCID name is selected by default.
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
             }
