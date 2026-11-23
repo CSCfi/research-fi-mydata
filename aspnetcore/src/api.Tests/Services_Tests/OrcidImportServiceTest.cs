@@ -495,10 +495,46 @@ namespace api.Tests
             Assert.Equal(createdDate, factFieldValue.Created);
             Assert.Equal(modifiedDate, factFieldValue.Modified);
 
+            var dimName = context.DimNames.Single(e => e.Id == factFieldValue.DimNameId);
+            DateTime dimNameModified = dimName.Modified.Value;
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            factFieldValue = Assert.Single(context.FactFieldValues.Where(ffv => ffv.DimNameId > 0));
+            Assert.Equal(modifiedDate, factFieldValue.Modified);
+            Assert.Equal(dimNameModified, context.DimNames.Single(e => e.Id == factFieldValue.DimNameId).Modified);
+
+            string olderJson = json
+                .Replace("1000000001000", "999999999000")
+                .Replace("\"Alice\"", "\"Ignored\"");
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, olderJson, LogId);
+            factFieldValue = Assert.Single(context.FactFieldValues.Where(ffv => ffv.DimNameId > 0));
+            Assert.Equal(modifiedDate, factFieldValue.Modified);
+            Assert.Equal("Alice", context.DimNames.Single(e => e.Id == factFieldValue.DimNameId).FirstNames);
+
+            string newerJson = json
+                .Replace("1000000001000", "1000000002000")
+                .Replace("\"Alice\"", "\"Alicia\"");
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, newerJson, LogId);
+            factFieldValue = Assert.Single(context.FactFieldValues.Where(ffv => ffv.DimNameId > 0));
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1000000002000).UtcDateTime, factFieldValue.Modified);
+            Assert.Equal("Alicia", context.DimNames.Single(e => e.Id == factFieldValue.DimNameId).FirstNames);
+
+            string emptyJson = newerJson
+                .Replace("1000000002000", "1000000003000")
+                .Replace("\"Alicia\"", "null")
+                .Replace("\"Smith\"", "null");
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, emptyJson, LogId);
+            factFieldValue = Assert.Single(context.FactFieldValues.Where(ffv => ffv.DimNameId > 0));
+            dimName = context.DimNames.Single(e => e.Id == factFieldValue.DimNameId);
+            Assert.Equal("", dimName.FirstNames);
+            Assert.Equal("", dimName.LastName);
+
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
             factFieldValue = Assert.Single(context.FactFieldValues.Where(ffv => ffv.DimNameId > 0));
             Assert.Equal(createdDate, factFieldValue.Created);
             Assert.True(factFieldValue.Modified > modifiedDate);
+            dimName = context.DimNames.Single(e => e.Id == factFieldValue.DimNameId);
+            Assert.Equal("Alice", dimName.FirstNames);
+            Assert.Equal("Smith", dimName.LastName);
         }
 
         [Fact(DisplayName = "Name: missing ORCID timestamps use the import clock")]

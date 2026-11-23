@@ -20,6 +20,7 @@ namespace api.Services
         List<OrcidFunding> GetFundings(string json);
         OrcidFunding GetFundingDetail(string fundingDetailJson);
         OrcidWorks GetWorks(string json, bool processOnlyResearchActivities=false);
+        OrcidName GetName(string json);
         bool IsPublication(string orcidWorkType);
         bool IsResearchActivity(string orcidWorkType);
         bool IsDataset(string orcidWorkType);
