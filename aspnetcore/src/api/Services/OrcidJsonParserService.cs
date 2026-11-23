@@ -232,12 +232,14 @@ namespace api.Services
             JsonElement nameElement = IsFullRecord(document)
                 ? document.RootElement.GetProperty("person").GetProperty("name")
                 : document.RootElement.GetProperty("name");
+            DateTime? lastModifiedDate = GetOrcidDateTime(nameElement, "last-modified-date");
+            DateTime? createdDate = GetOrcidDateTime(nameElement, "created-date");
 
             JsonElement givenNamesElement;
             // Check if name element is null
             if (nameElement.ValueKind == JsonValueKind.Null)
             {
-                return new OrcidGivenNames("");
+                return new OrcidGivenNames("", lastModifiedDate, createdDate);
             }
             else
             {
@@ -248,12 +250,14 @@ namespace api.Services
             if (givenNamesElement.ValueKind != JsonValueKind.Null && givenNamesElement.TryGetProperty("value", out JsonElement valueElement))
             {
                 return new OrcidGivenNames(
-                    valueElement.GetString()
+                    valueElement.GetString(),
+                    lastModifiedDate,
+                    createdDate
                 );
             }
             else
             {
-                return new OrcidGivenNames("");
+                return new OrcidGivenNames("", lastModifiedDate, createdDate);
             }
         }
 
@@ -268,12 +272,14 @@ namespace api.Services
             JsonElement nameElement = IsFullRecord(document)
                 ? document.RootElement.GetProperty("person").GetProperty("name")
                 : document.RootElement.GetProperty("name");
+            DateTime? lastModifiedDate = GetOrcidDateTime(nameElement, "last-modified-date");
+            DateTime? createdDate = GetOrcidDateTime(nameElement, "created-date");
 
             JsonElement familyNameElement;
             // Check if name element is null
             if (nameElement.ValueKind == JsonValueKind.Null)
             {
-                return new OrcidFamilyName("");
+                return new OrcidFamilyName("", lastModifiedDate, createdDate);
             }
             else
             {
@@ -284,12 +290,14 @@ namespace api.Services
             if (familyNameElement.ValueKind != JsonValueKind.Null && familyNameElement.TryGetProperty("value", out JsonElement valueElement))
             {
                 return new OrcidFamilyName(
-                    valueElement.GetString()
+                    valueElement.GetString(),
+                    lastModifiedDate,
+                    createdDate
                 );
             }
             else
             {
-                return new OrcidFamilyName("");
+                return new OrcidFamilyName("", lastModifiedDate, createdDate);
             }
         }
 
@@ -304,12 +312,14 @@ namespace api.Services
             JsonElement nameElement = IsFullRecord(document)
                 ? document.RootElement.GetProperty("person").GetProperty("name")
                 : document.RootElement.GetProperty("name");
+            DateTime? lastModifiedDate = GetOrcidDateTime(nameElement, "last-modified-date");
+            DateTime? createdDate = GetOrcidDateTime(nameElement, "created-date");
 
             JsonElement creditNameElement;
             // Check if name element is null
             if (nameElement.ValueKind == JsonValueKind.Null)
             {
-                return new OrcidCreditName("");
+                return new OrcidCreditName("", lastModifiedDate, createdDate);
             }
             else
             {
@@ -320,12 +330,14 @@ namespace api.Services
             if (creditNameElement.ValueKind != JsonValueKind.Null && creditNameElement.TryGetProperty("value", out JsonElement valueElement))
             {
                 return new OrcidCreditName(
-                    valueElement.GetString()
+                    valueElement.GetString(),
+                    lastModifiedDate,
+                    createdDate
                 );
             }
             else
             {
-                return new OrcidCreditName("");
+                return new OrcidCreditName("", lastModifiedDate, createdDate);
             }
         }
 
@@ -346,7 +358,11 @@ namespace api.Services
                     string value = element.GetProperty("content").GetString();
                     OrcidPutCode putCode = this.GetOrcidPutCode(element);
                     otherNames.Add(
-                        new OrcidOtherName(value, putCode)
+                        new OrcidOtherName(
+                            value,
+                            putCode,
+                            GetOrcidDateTime(element, "last-modified-date"),
+                            GetOrcidDateTime(element, "created-date"))
                     );
                 }
             }
@@ -379,7 +395,9 @@ namespace api.Services
                 else
                 {
                     return new OrcidBiography(
-                        value: contentElement.GetString()
+                        value: contentElement.GetString(),
+                        lastModifiedDate: GetOrcidDateTime(biographyElement, "last-modified-date"),
+                        createdDate: GetOrcidDateTime(biographyElement, "created-date")
                     );
                 }
             }
@@ -399,7 +417,9 @@ namespace api.Services
                         new OrcidResearcherUrl(
                             urlName: element.GetProperty("url-name").GetString(),
                             url: element.GetProperty("url").GetProperty("value").GetString(),
-                            putCode: this.GetOrcidPutCode(element)
+                            putCode: this.GetOrcidPutCode(element),
+                            lastModifiedDate: GetOrcidDateTime(element, "last-modified-date"),
+                            createdDate: GetOrcidDateTime(element, "created-date")
                         )
                     );
                 }
@@ -420,7 +440,9 @@ namespace api.Services
                     emails.Add(
                         new OrcidEmail(
                             value: element.GetProperty("email").GetString(),
-                            putCode: this.GetOrcidPutCode(element)
+                            putCode: this.GetOrcidPutCode(element),
+                            lastModifiedDate: GetOrcidDateTime(element, "last-modified-date"),
+                            createdDate: GetOrcidDateTime(element, "created-date")
                         )
                     );
                 }
@@ -431,7 +453,8 @@ namespace api.Services
         // Returns null when the field is absent or null; converts milliseconds to UTC DateTime.
         internal static DateTime? GetOrcidDateTime(JsonElement element, string propertyName)
         {
-            if (!element.TryGetProperty(propertyName, out JsonElement dateElement) ||
+            if (element.ValueKind != JsonValueKind.Object ||
+                !element.TryGetProperty(propertyName, out JsonElement dateElement) ||
                 dateElement.ValueKind == JsonValueKind.Null)
                 return null;
 
@@ -480,7 +503,9 @@ namespace api.Services
                             externalIdType: element.GetProperty("external-id-type").GetString(),
                             externalIdValue: element.GetProperty("external-id-value").GetString(),
                             externalIdUrl: element.GetProperty("external-id-url").GetProperty("value").GetString(),
-                            putCode: this.GetOrcidPutCode(element)
+                            putCode: this.GetOrcidPutCode(element),
+                            lastModifiedDate: GetOrcidDateTime(element, "last-modified-date"),
+                            createdDate: GetOrcidDateTime(element, "created-date")
                         )
                     );
                 }
@@ -527,7 +552,9 @@ namespace api.Services
                                             roleTitle: educationSummaryElement.GetProperty("role-title").GetString(),
                                             startDate: GetOrcidDate(educationSummaryElement.GetProperty("start-date")),
                                             endDate: GetOrcidDate(educationSummaryElement.GetProperty("end-date")),
-                                            putCode: this.GetOrcidPutCode(educationSummaryElement)
+                                            putCode: this.GetOrcidPutCode(educationSummaryElement),
+                                            lastModifiedDate: GetOrcidDateTime(educationSummaryElement, "last-modified-date"),
+                                            createdDate: GetOrcidDateTime(educationSummaryElement, "created-date")
                                         )
                                     );
                                 }
@@ -580,7 +607,9 @@ namespace api.Services
                                           roleTitle: employmentSummaryElement.GetProperty("role-title").GetString(),
                                           startDate: GetOrcidDate(employmentSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(employmentSummaryElement.GetProperty("end-date")),
-                                          putCode: this.GetOrcidPutCode(employmentSummaryElement)
+                                          putCode: this.GetOrcidPutCode(employmentSummaryElement),
+                                          lastModifiedDate: GetOrcidDateTime(employmentSummaryElement, "last-modified-date"),
+                                          createdDate: GetOrcidDateTime(employmentSummaryElement, "created-date")
                                       )
                                   );
                                 }
@@ -641,7 +670,9 @@ namespace api.Services
                                             Doi = DOI,
                                             PublicationYear = this.GetPublicationYear(workElement),
                                             Type = orcidWorkType,
-                                            PutCode = this.GetOrcidPutCode(workElement)
+                                            PutCode = this.GetOrcidPutCode(workElement),
+                                            LastModifiedDate = GetOrcidDateTime(workElement, "last-modified-date"),
+                                            CreatedDate = GetOrcidDateTime(workElement, "created-date")
                                         }
                                     );
 
@@ -666,7 +697,9 @@ namespace api.Services
                                             DatasetDate = GetOrcidDate(workElement.GetProperty("publication-date")),
                                             Type = orcidWorkType,
                                             PutCode = this.GetOrcidPutCode(workElement),
-                                            Url = url
+                                            Url = url,
+                                            LastModifiedDate = GetOrcidDateTime(workElement, "last-modified-date"),
+                                            CreatedDate = GetOrcidDateTime(workElement, "created-date")
                                         }
                                     );
 
@@ -699,7 +732,9 @@ namespace api.Services
                                           startDate: GetOrcidDate(workElement.GetProperty("publication-date")),
                                           endDate: new OrcidDate(),
                                           putCode: this.GetOrcidPutCode(workElement),
-                                          url: url
+                                          url: url,
+                                          lastModifiedDate: GetOrcidDateTime(workElement, "last-modified-date"),
+                                          createdDate: GetOrcidDateTime(workElement, "created-date")
                                         )
                                     );
                                     break;
@@ -765,7 +800,9 @@ namespace api.Services
                                           startDate: GetOrcidDate(distinctionSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(distinctionSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(distinctionSummaryElement),
-                                          url: url
+                                          url: url,
+                                          lastModifiedDate: GetOrcidDateTime(distinctionSummaryElement, "last-modified-date"),
+                                          createdDate: GetOrcidDateTime(distinctionSummaryElement, "created-date")
                                       )
                                    );
                                 }
@@ -816,7 +853,9 @@ namespace api.Services
                                           startDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(invitedPositionsSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(invitedPositionsSummaryElement),
-                                          url: url
+                                          url: url,
+                                          lastModifiedDate: GetOrcidDateTime(invitedPositionsSummaryElement, "last-modified-date"),
+                                          createdDate: GetOrcidDateTime(invitedPositionsSummaryElement, "created-date")
                                       )
                                   );
                                 }
@@ -867,7 +906,9 @@ namespace api.Services
                                           startDate: GetOrcidDate(membershipSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(membershipSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(membershipSummaryElement),
-                                          url: url
+                                          url: url,
+                                          lastModifiedDate: GetOrcidDateTime(membershipSummaryElement, "last-modified-date"),
+                                          createdDate: GetOrcidDateTime(membershipSummaryElement, "created-date")
                                       )
                                   );
                                 }
@@ -919,7 +960,9 @@ namespace api.Services
                                                   startDate: GetOrcidDate(peerReviewSummaryElement.GetProperty("completion-date")),
                                                   endDate: new OrcidDate(),
                                                   putCode: this.GetOrcidPutCode(peerReviewSummaryElement),
-                                                  url: url
+                                                  url: url,
+                                                  lastModifiedDate: GetOrcidDateTime(peerReviewSummaryElement, "last-modified-date"),
+                                                  createdDate: GetOrcidDateTime(peerReviewSummaryElement, "created-date")
                                               )
                                           );
                                     }
@@ -971,7 +1014,9 @@ namespace api.Services
                                           startDate: GetOrcidDate(qualificationSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(qualificationSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(qualificationSummaryElement),
-                                          url: url
+                                          url: url,
+                                          lastModifiedDate: GetOrcidDateTime(qualificationSummaryElement, "last-modified-date"),
+                                          createdDate: GetOrcidDateTime(qualificationSummaryElement, "created-date")
                                       )
                                   );
                                 }
@@ -1022,7 +1067,9 @@ namespace api.Services
                                           startDate: GetOrcidDate(serviceSummaryElement.GetProperty("start-date")),
                                           endDate: GetOrcidDate(serviceSummaryElement.GetProperty("end-date")),
                                           putCode: this.GetOrcidPutCode(serviceSummaryElement),
-                                          url: url
+                                          url: url,
+                                          lastModifiedDate: GetOrcidDateTime(serviceSummaryElement, "last-modified-date"),
+                                          createdDate: GetOrcidDateTime(serviceSummaryElement, "created-date")
                                       )
                                   );
                                 }
@@ -1123,7 +1170,9 @@ namespace api.Services
                 endDate: GetOrcidDate(fundingElement.GetProperty("end-date")),
                 putCode: this.GetOrcidPutCode(fundingElement),
                 url: url,
-                path: fundingElement.GetProperty("path").GetString()
+                path: fundingElement.GetProperty("path").GetString(),
+                lastModifiedDate: GetOrcidDateTime(fundingElement, "last-modified-date"),
+                createdDate: GetOrcidDateTime(fundingElement, "created-date")
             );
         }
 

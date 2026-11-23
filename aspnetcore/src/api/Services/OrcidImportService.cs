@@ -321,6 +321,17 @@ namespace api.Services
             return Truncate(url, 511);
         }
 
+        private static void SetOrcidTimestamps(
+            FactFieldValue factFieldValue,
+            DateTime? createdDate,
+            DateTime? lastModifiedDate,
+            DateTime currentDateTime,
+            bool isNew = false)
+        {
+            factFieldValue.Created = createdDate ?? (isNew ? currentDateTime : factFieldValue.Created ?? currentDateTime);
+            factFieldValue.Modified = lastModifiedDate ?? (isNew ? createdDate ?? currentDateTime : currentDateTime);
+        }
+
         /*
          * Helper method, add DimWebLink
          */
@@ -452,15 +463,17 @@ namespace api.Services
             FactFieldValue factFieldValuesName =
                 dimUserProfile.FactFieldValues.FirstOrDefault(
                     ffv => ffv.DimFieldDisplaySettings.Id == dimFieldDisplaySettingsName.Id && ffv.DimRegisteredDataSourceId == orcidRegisteredDataSourceId);
+            OrcidGivenNames orcidGivenNames = _orcidJsonParserService.GetGivenNames(orcidRecordJson);
+            OrcidFamilyName orcidFamilyName = _orcidJsonParserService.GetFamilyName(orcidRecordJson);
             if (factFieldValuesName != null)
             {
                 // Update existing DimName
                 DimName dimName = factFieldValuesName.DimName;
-                dimName.LastName = Truncate(_orcidJsonParserService.GetFamilyName(orcidRecordJson).Value, 255);
-                dimName.FirstNames = Truncate(_orcidJsonParserService.GetGivenNames(orcidRecordJson).Value, 255);
+                dimName.LastName = Truncate(orcidFamilyName.Value, 255);
+                dimName.FirstNames = Truncate(orcidGivenNames.Value, 255);
                 dimName.Modified = currentDateTime;
                 // Update existing FactFieldValue
-                factFieldValuesName.Modified = currentDateTime;
+                SetOrcidTimestamps(factFieldValuesName, orcidGivenNames.CreatedDate, orcidGivenNames.LastModifiedDate, currentDateTime);
                 // Mark as processed
                 orcidImportHelper.dimNameIds.Add(factFieldValuesName.DimName.Id);
             }
@@ -469,8 +482,8 @@ namespace api.Services
                 // Create new DimName
                 DimName dimName = new()
                 {
-                    LastName = Truncate(_orcidJsonParserService.GetFamilyName(orcidRecordJson).Value, 255),
-                    FirstNames = Truncate(_orcidJsonParserService.GetGivenNames(orcidRecordJson).Value, 255),
+                    LastName = Truncate(orcidFamilyName.Value, 255),
+                    FirstNames = Truncate(orcidGivenNames.Value, 255),
                     DimKnownPersonIdConfirmedIdentity = dimUserProfile.DimKnownPersonId,
                     DimRegisteredDataSourceId = orcidRegisteredDataSourceId,
                     SourceId = Constants.SourceIdentifiers.PROFILE_API,
@@ -485,6 +498,7 @@ namespace api.Services
                 factFieldValuesName.DimFieldDisplaySettings = dimFieldDisplaySettingsName;
                 factFieldValuesName.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                 factFieldValuesName.DimName = dimName;
+                SetOrcidTimestamps(factFieldValuesName, orcidGivenNames.CreatedDate, orcidGivenNames.LastModifiedDate, currentDateTime, isNew: true);
                 factFieldValuesName.Show = true; // ORCID name is selected by default.
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
             }
@@ -528,7 +542,7 @@ namespace api.Services
                     dimName_otherName.FullName = Truncate(otherName.Value, 255);
                     dimName_otherName.Modified = currentDateTime;
                     // Update existing FactFieldValue
-                    factFieldValuesOtherName.Modified = currentDateTime;
+                    SetOrcidTimestamps(factFieldValuesOtherName, otherName.CreatedDate, otherName.LastModifiedDate, currentDateTime);
                     // Mark as processed
                     orcidImportHelper.dimNameIds.Add(factFieldValuesOtherName.DimName.Id);
                 }
@@ -562,6 +576,7 @@ namespace api.Services
                     factFieldValuesOtherName.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesOtherName.DimName = dimName_otherName;
                     factFieldValuesOtherName.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeOtherName;
+                    SetOrcidTimestamps(factFieldValuesOtherName, otherName.CreatedDate, otherName.LastModifiedDate, currentDateTime, isNew: true);
                     factFieldValuesOtherName.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_OTHER_NAMES, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesOtherName);
                 }
@@ -609,7 +624,7 @@ namespace api.Services
                     dimWebLink.LinkLabel = Truncate(researchUrl.UrlName, 255);
                     dimWebLink.Modified = currentDateTime;
                     // Update existing FactFieldValue
-                    factFieldValuesWebLink.Modified = currentDateTime;
+                    SetOrcidTimestamps(factFieldValuesWebLink, researchUrl.CreatedDate, researchUrl.LastModifiedDate, currentDateTime);
                     // Mark as processed
                     orcidImportHelper.dimWebLinkIds.Add(factFieldValuesWebLink.DimWebLink.Id);
                 }
@@ -638,6 +653,7 @@ namespace api.Services
                     factFieldValuesWebLink.DimWebLink = dimWebLink;
                     factFieldValuesWebLink.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesWebLink.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeWebLink;
+                    SetOrcidTimestamps(factFieldValuesWebLink, researchUrl.CreatedDate, researchUrl.LastModifiedDate, currentDateTime, isNew: true);
                     factFieldValuesWebLink.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_WEB_LINK, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesWebLink);
                 }
@@ -683,7 +699,7 @@ namespace api.Services
                     factFieldValuesResearcherDescription.DimResearcherDescription.ResearchDescriptionEn = biography.Value;
                     factFieldValuesResearcherDescription.DimResearcherDescription.Modified = currentDateTime;
                     // Update existing FactFieldValue
-                    factFieldValuesResearcherDescription.Modified = currentDateTime;
+                    SetOrcidTimestamps(factFieldValuesResearcherDescription, biography.CreatedDate, biography.LastModifiedDate, currentDateTime);
                     // Mark as processed
                     orcidImportHelper.dimResearcherDescriptionIds.Add(factFieldValuesResearcherDescription.DimResearcherDescription.Id);
                 }
@@ -709,6 +725,7 @@ namespace api.Services
                     factFieldValuesResearcherDescription.DimFieldDisplaySettings = dimFieldDisplaySettingsResearcherDescription;
                     factFieldValuesResearcherDescription.DimResearcherDescription = dimResearcherDescription;
                     factFieldValuesResearcherDescription.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
+                    SetOrcidTimestamps(factFieldValuesResearcherDescription, biography.CreatedDate, biography.LastModifiedDate, currentDateTime, isNew: true);
                     factFieldValuesResearcherDescription.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
                 }
@@ -754,7 +771,7 @@ namespace api.Services
                     // Email address is matched by value, so no modification is made here.
 
                     // Update existing FactFieldValue
-                    factFieldValuesEmail.Modified = currentDateTime;
+                    SetOrcidTimestamps(factFieldValuesEmail, email.CreatedDate, email.LastModifiedDate, currentDateTime);
                     // Mark as processed
                     orcidImportHelper.dimEmailAddressIds.Add(factFieldValuesEmail.DimEmailAddrressId);
                 }
@@ -780,6 +797,7 @@ namespace api.Services
                     factFieldValuesEmail.DimFieldDisplaySettings = dimFieldDisplaySettingsEmailAddress;
                     factFieldValuesEmail.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesEmail.DimEmailAddrress = dimEmailAddress;
+                    SetOrcidTimestamps(factFieldValuesEmail, email.CreatedDate, email.LastModifiedDate, currentDateTime, isNew: true);
 
                     // Add email address ORCID put code into DimPid.
                     // In ORCID data the email has field put code, but it seems to be always null.
@@ -834,8 +852,6 @@ namespace api.Services
                         ffv.DimPidIdOrcidPutCode > 0 &&
                         ffv.DimPidIdOrcidPutCodeNavigation.PidContent == keyword.PutCode.Value.ToString());
 
-                DateTime keywordModified = keyword.LastModifiedDate ?? currentDateTime;
-                DateTime keywordCreated  = keyword.CreatedDate      ?? currentDateTime;
                 if (factFieldValuesKeyword != null)
                 {
                     // Update existing DimKeyword
@@ -843,8 +859,7 @@ namespace api.Services
                     dimKeyword.Keyword = Truncate(keyword.Value, 255);
                     dimKeyword.Modified = currentDateTime;
                     // Update existing FactFieldValue
-                    factFieldValuesKeyword.Modified = keywordModified;
-                    factFieldValuesKeyword.Created = keywordCreated;
+                    SetOrcidTimestamps(factFieldValuesKeyword, keyword.CreatedDate, keyword.LastModifiedDate, currentDateTime);
                     // Mark as processed
                     orcidImportHelper.dimKeywordIds.Add(factFieldValuesKeyword.DimKeywordId);
                 }
@@ -877,8 +892,7 @@ namespace api.Services
                     factFieldValuesKeyword.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesKeyword.DimKeyword = dimKeyword;
                     factFieldValuesKeyword.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeKeyword;
-                    factFieldValuesKeyword.Modified = keywordModified;
-                    factFieldValuesKeyword.Created = keywordCreated;
+                    SetOrcidTimestamps(factFieldValuesKeyword, keyword.CreatedDate, keyword.LastModifiedDate, currentDateTime, isNew: true);
                     factFieldValuesKeyword.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_KEYWORD, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
                 }
@@ -926,7 +940,7 @@ namespace api.Services
                     dimPid.PidType = Truncate(externalIdentifier.ExternalIdType, 255);
                     dimPid.Modified = currentDateTime;
                     // Update existing FactFieldValue
-                    factFieldValuesExternalIdentifier.Modified = currentDateTime;
+                    SetOrcidTimestamps(factFieldValuesExternalIdentifier, externalIdentifier.CreatedDate, externalIdentifier.LastModifiedDate, currentDateTime);
                     // Mark as processed
                     orcidImportHelper.dimPidIds.Add(factFieldValuesExternalIdentifier.DimPidId);
                 }
@@ -955,6 +969,7 @@ namespace api.Services
                     factFieldValuesExternalIdentifier.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesExternalIdentifier.DimPid = dimPid;
                     factFieldValuesExternalIdentifier.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeExternalIdentifier;
+                    SetOrcidTimestamps(factFieldValuesExternalIdentifier, externalIdentifier.CreatedDate, externalIdentifier.LastModifiedDate, currentDateTime, isNew: true);
                     factFieldValuesExternalIdentifier.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesExternalIdentifier);
                 }
@@ -1012,7 +1027,7 @@ namespace api.Services
                     dimEducation.DimEndDateNavigation = educationEndDate;
                     dimEducation.Modified = currentDateTime;
                     // Update existing FactFieldValue
-                    factFieldValuesEducation.Modified = currentDateTime;
+                    SetOrcidTimestamps(factFieldValuesEducation, education.CreatedDate, education.LastModifiedDate, currentDateTime);
                     // Mark as processed
                     orcidImportHelper.dimEducationIds.Add(factFieldValuesEducation.DimEducationId);
                 }
@@ -1049,6 +1064,7 @@ namespace api.Services
                     factFieldValuesEducation.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesEducation.DimEducation = dimEducation;
                     factFieldValuesEducation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeEducation;
+                    SetOrcidTimestamps(factFieldValuesEducation, education.CreatedDate, education.LastModifiedDate, currentDateTime, isNew: true);
                     factFieldValuesEducation.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_EDUCATION, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesEducation);
                 }
@@ -1123,6 +1139,7 @@ namespace api.Services
                  */
                 if (factFieldValuesAffiliation != null)
                 {
+                    SetOrcidTimestamps(factFieldValuesAffiliation, employment.CreatedDate, employment.LastModifiedDate, currentDateTime);
                     /*
                      * Affiliation already exists in profile, update.
                      */
@@ -1158,6 +1175,8 @@ namespace api.Services
                             factFieldValuesAffiliationNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation;
                             factFieldValuesAffiliationNew.Show = factFieldValuesAffiliation.Show;
                             factFieldValuesAffiliationNew.PrimaryValue = factFieldValuesAffiliation.PrimaryValue;
+                            factFieldValuesAffiliationNew.Created = factFieldValuesAffiliation.Created;
+                            factFieldValuesAffiliationNew.Modified = factFieldValuesAffiliation.Modified;
                             factFieldValuesAffiliationNew.SourceId = factFieldValuesAffiliation.SourceId;
                             factFieldValuesAffiliationNew.SourceDescription = factFieldValuesAffiliation.SourceDescription;
                             _ttvContext.Add(factFieldValuesAffiliationNew);
@@ -1212,6 +1231,8 @@ namespace api.Services
                             factFieldValuesAffiliationNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation;
                             factFieldValuesAffiliationNew.Show = factFieldValuesAffiliation.Show;
                             factFieldValuesAffiliationNew.PrimaryValue = factFieldValuesAffiliation.PrimaryValue;
+                            factFieldValuesAffiliationNew.Created = factFieldValuesAffiliation.Created;
+                            factFieldValuesAffiliationNew.Modified = factFieldValuesAffiliation.Modified;
                             factFieldValuesAffiliationNew.SourceId = factFieldValuesAffiliation.SourceId;
                             factFieldValuesAffiliationNew.SourceDescription = factFieldValuesAffiliation.SourceDescription;
 
@@ -1219,9 +1240,6 @@ namespace api.Services
                             _ttvContext.FactFieldValues.Remove(factFieldValuesAffiliation);
                         }
                     }
-
-                    // Update modified timestamp in FactFieldValue
-                    factFieldValuesAffiliation.Modified = currentDateTime;
 
                     // Mark as processed
                     orcidImportHelper.dimAffiliationIds.Add(factFieldValuesAffiliation.DimAffiliationId);
@@ -1270,6 +1288,7 @@ namespace api.Services
                     factFieldValuesAffiliation.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesAffiliation.DimAffiliation = dimAffiliation_new;
                     factFieldValuesAffiliation.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeAffiliation;
+                    SetOrcidTimestamps(factFieldValuesAffiliation, employment.CreatedDate, employment.LastModifiedDate, currentDateTime, isNew: true);
                     factFieldValuesAffiliation.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_AFFILIATION, logUserIdentification);
 
                     // If organization was not found, add organization_name into DimIdentifierlessData
@@ -1350,7 +1369,7 @@ namespace api.Services
                         dimProfileOnlyPublication.DoiHandle = orcidPublication.Doi;
                         dimProfileOnlyPublication.Modified = currentDateTime;
                         // Update existing FactFieldValue
-                        factFieldValuesPublication.Modified = currentDateTime;
+                        SetOrcidTimestamps(factFieldValuesPublication, orcidPublication.CreatedDate, orcidPublication.LastModifiedDate, currentDateTime);
                         // Mark as processed
                         orcidImportHelper.dimProfileOnlyPublicationIds.Add(factFieldValuesPublication.DimProfileOnlyPublicationId);
                     }
@@ -1382,6 +1401,7 @@ namespace api.Services
                         factFieldValuesPublication.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                         factFieldValuesPublication.DimProfileOnlyPublication = dimProfileOnlyPublication;
                         factFieldValuesPublication.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
+                        SetOrcidTimestamps(factFieldValuesPublication, orcidPublication.CreatedDate, orcidPublication.LastModifiedDate, currentDateTime, isNew: true);
                         factFieldValuesPublication.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
                     }
@@ -1431,7 +1451,7 @@ namespace api.Services
                         dimProfileOnlyDataset.DatasetCreated = datasetCreated;
                         dimProfileOnlyDataset.Modified = currentDateTime;
                         // Update existing FactFieldValue
-                        dimProfileOnlyDataset.Modified = currentDateTime;
+                        SetOrcidTimestamps(factFieldValuesProfileOnlyDataset, orcidDataset.CreatedDate, orcidDataset.LastModifiedDate, currentDateTime);
                         // Related DimWebLink
                         if (!string.IsNullOrWhiteSpace(orcidDataset.Url))
                         {
@@ -1506,6 +1526,7 @@ namespace api.Services
                         factFieldValuesProfileOnlyDataset.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                         factFieldValuesProfileOnlyDataset.DimProfileOnlyDataset = dimProfileOnlyDataset;
                         factFieldValuesProfileOnlyDataset.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeDataset;
+                        SetOrcidTimestamps(factFieldValuesProfileOnlyDataset, orcidDataset.CreatedDate, orcidDataset.LastModifiedDate, currentDateTime, isNew: true);
                         factFieldValuesProfileOnlyDataset.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValuesProfileOnlyDataset);
                     }
@@ -1577,6 +1598,7 @@ namespace api.Services
 
                 if (factFieldValuesProfileOnlyFundingDecision != null)
                 {
+                    SetOrcidTimestamps(factFieldValuesProfileOnlyFundingDecision, orcidFunding.CreatedDate, orcidFunding.LastModifiedDate, currentDateTime);
                     // Update existing DimProfileOnlyFundingDecision
                     DimProfileOnlyFundingDecision dimProfileOnlyFundingDecision_existing = factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision;
                     dimProfileOnlyFundingDecision_existing.NameEn = orcidFunding.Name;
@@ -1642,6 +1664,8 @@ namespace api.Services
                             factFieldValuesProfileOnlyFundingDecisionNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesProfileOnlyFundingDecision.DimPidIdOrcidPutCodeNavigation;
                             factFieldValuesProfileOnlyFundingDecisionNew.Show = factFieldValuesProfileOnlyFundingDecision.Show;
                             factFieldValuesProfileOnlyFundingDecisionNew.PrimaryValue = factFieldValuesProfileOnlyFundingDecision.PrimaryValue;
+                            factFieldValuesProfileOnlyFundingDecisionNew.Created = factFieldValuesProfileOnlyFundingDecision.Created;
+                            factFieldValuesProfileOnlyFundingDecisionNew.Modified = factFieldValuesProfileOnlyFundingDecision.Modified;
                             factFieldValuesProfileOnlyFundingDecisionNew.SourceId = factFieldValuesProfileOnlyFundingDecision.SourceId;
                             factFieldValuesProfileOnlyFundingDecisionNew.SourceDescription = factFieldValuesProfileOnlyFundingDecision.SourceDescription;
                             _ttvContext.Add(factFieldValuesProfileOnlyFundingDecisionNew);
@@ -1695,6 +1719,8 @@ namespace api.Services
                             factFieldValuesDimProfileOnlyFundingDecisionNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesProfileOnlyFundingDecision.DimPidIdOrcidPutCodeNavigation;
                             factFieldValuesDimProfileOnlyFundingDecisionNew.Show = factFieldValuesProfileOnlyFundingDecision.Show;
                             factFieldValuesDimProfileOnlyFundingDecisionNew.PrimaryValue = factFieldValuesProfileOnlyFundingDecision.PrimaryValue;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.Created = factFieldValuesProfileOnlyFundingDecision.Created;
+                            factFieldValuesDimProfileOnlyFundingDecisionNew.Modified = factFieldValuesProfileOnlyFundingDecision.Modified;
                             factFieldValuesDimProfileOnlyFundingDecisionNew.SourceId = factFieldValuesProfileOnlyFundingDecision.SourceId;
                             factFieldValuesDimProfileOnlyFundingDecisionNew.SourceDescription = factFieldValuesProfileOnlyFundingDecision.SourceDescription;
 
@@ -1704,8 +1730,6 @@ namespace api.Services
                     }
 
                     dimProfileOnlyFundingDecision_existing.Modified = currentDateTime;
-                    // Update existing FactFieldValue
-                    factFieldValuesProfileOnlyFundingDecision.Modified = currentDateTime;
                     // Mark as processed
                     orcidImportHelper.dimProfileOnlyFundingDecisionIds.Add(factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecisionId);
                 }
@@ -1754,6 +1778,7 @@ namespace api.Services
                     factFieldValuesProfileOnlyFundingDecision.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecision = dimProfileOnlyFundingDecision_new;
                     factFieldValuesProfileOnlyFundingDecision.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodePublication;
+                    SetOrcidTimestamps(factFieldValuesProfileOnlyFundingDecision, orcidFunding.CreatedDate, orcidFunding.LastModifiedDate, currentDateTime, isNew: true);
                     factFieldValuesProfileOnlyFundingDecision.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION, logUserIdentification);
 
                     // Set correct DimReferenceDatum based on ORCID funding type
@@ -1842,6 +1867,7 @@ namespace api.Services
 
                 if (factFieldValuesDimProfileOnlyResearchActivity != null)
                 {
+                    SetOrcidTimestamps(factFieldValuesDimProfileOnlyResearchActivity, orcidResearchActivity.CreatedDate, orcidResearchActivity.LastModifiedDate, currentDateTime);
                     // Update existing DimProfileOnlyResearchActivity
                     DimProfileOnlyResearchActivity dimProfileOnlyResearchActivity_existing = factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity;
                     dimProfileOnlyResearchActivity_existing.DimDateIdStartNavigation = researchActivityStartDate;
@@ -1906,6 +1932,8 @@ namespace api.Services
                             factFieldValuesDimProfileOnlyResearchActivityNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesDimProfileOnlyResearchActivity.DimPidIdOrcidPutCodeNavigation;
                             factFieldValuesDimProfileOnlyResearchActivityNew.Show = factFieldValuesDimProfileOnlyResearchActivity.Show;
                             factFieldValuesDimProfileOnlyResearchActivityNew.PrimaryValue = factFieldValuesDimProfileOnlyResearchActivity.PrimaryValue;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.Created = factFieldValuesDimProfileOnlyResearchActivity.Created;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.Modified = factFieldValuesDimProfileOnlyResearchActivity.Modified;
                             factFieldValuesDimProfileOnlyResearchActivityNew.SourceId = factFieldValuesDimProfileOnlyResearchActivity.SourceId;
                             factFieldValuesDimProfileOnlyResearchActivityNew.SourceDescription = factFieldValuesDimProfileOnlyResearchActivity.SourceDescription;
                             _ttvContext.Add(factFieldValuesDimProfileOnlyResearchActivityNew);
@@ -1959,6 +1987,8 @@ namespace api.Services
                             factFieldValuesDimProfileOnlyResearchActivityNew.DimPidIdOrcidPutCodeNavigation = factFieldValuesDimProfileOnlyResearchActivity.DimPidIdOrcidPutCodeNavigation;
                             factFieldValuesDimProfileOnlyResearchActivityNew.Show = factFieldValuesDimProfileOnlyResearchActivity.Show;
                             factFieldValuesDimProfileOnlyResearchActivityNew.PrimaryValue = factFieldValuesDimProfileOnlyResearchActivity.PrimaryValue;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.Created = factFieldValuesDimProfileOnlyResearchActivity.Created;
+                            factFieldValuesDimProfileOnlyResearchActivityNew.Modified = factFieldValuesDimProfileOnlyResearchActivity.Modified;
                             factFieldValuesDimProfileOnlyResearchActivityNew.SourceId = factFieldValuesDimProfileOnlyResearchActivity.SourceId;
                             factFieldValuesDimProfileOnlyResearchActivityNew.SourceDescription = factFieldValuesDimProfileOnlyResearchActivity.SourceDescription;
 
@@ -1968,8 +1998,6 @@ namespace api.Services
                     }
 
                     dimProfileOnlyResearchActivity_existing.Modified = currentDateTime;
-                    // Update existing FactFieldValue
-                    factFieldValuesDimProfileOnlyResearchActivity.Modified = currentDateTime;
                     // Mark as processed
                     orcidImportHelper.dimProfileOnlyResearchActivityIds.Add(factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivityId);
                 }
@@ -2018,6 +2046,7 @@ namespace api.Services
                     factFieldValuesDimProfileOnlyResearchActivity.DimRegisteredDataSourceId = orcidRegisteredDataSourceId;
                     factFieldValuesDimProfileOnlyResearchActivity.DimProfileOnlyResearchActivity = dimProfileOnlyResearchActivity_new;
                     factFieldValuesDimProfileOnlyResearchActivity.DimPidIdOrcidPutCodeNavigation = dimPidOrcidPutCodeResearchActivity;
+                    SetOrcidTimestamps(factFieldValuesDimProfileOnlyResearchActivity, orcidResearchActivity.CreatedDate, orcidResearchActivity.LastModifiedDate, currentDateTime, isNew: true);
                     factFieldValuesDimProfileOnlyResearchActivity.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_RESEARCH_ACTIVITY, logUserIdentification);
                     // Set correct DimReferenceDatum based on ORCID activity type
                     DimReferencedatum dimReferencedata = await _ttvContext.DimReferencedata.Where(
