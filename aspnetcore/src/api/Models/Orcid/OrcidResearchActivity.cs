@@ -1,4 +1,5 @@
-﻿using static api.Models.Common.Constants;
+﻿using System;
+using static api.Models.Common.Constants;
 
 namespace api.Models.Orcid
 {
@@ -14,7 +15,9 @@ namespace api.Models.Orcid
             OrcidDate startDate,
             OrcidDate endDate,
             OrcidPutCode putCode,
-            string url)
+            string url,
+            DateTime? lastModifiedDate = null,
+            DateTime? createdDate = null)
         {
             DimReferencedataCodeValue = dimReferencedataCodeValue;
             WorkType = workType;
@@ -27,6 +30,8 @@ namespace api.Models.Orcid
             EndDate = endDate;
             PutCode = putCode;
             Url = url;
+            LastModifiedDate = lastModifiedDate;
+            CreatedDate = createdDate;
         }
 
         public string DimReferencedataCodeValue { get; set; }
@@ -40,5 +45,7 @@ namespace api.Models.Orcid
         public OrcidDate EndDate { get; set; }
         public OrcidPutCode PutCode { get; set; }
         public string Url { get; set; }
+        public DateTime? LastModifiedDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
     }
 }

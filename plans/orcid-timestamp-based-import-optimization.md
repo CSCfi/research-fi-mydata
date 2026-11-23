@@ -1,4 +1,4 @@
-Status: Draft
+Status: In Progress
 Date: 2026-11-23
 
 # ORCID Timestamp-Based Import Optimization Plan
@@ -146,6 +146,12 @@ structural refactor is implemented.
 Do not combine a type's timestamp rollout with unrelated import refactoring.
 
 ## Phase 0 - Populate and Verify Timestamps for Every ORCID Item
+
+Implementation note (2026-11-23): Parser timestamp propagation and
+`FactFieldValue` timestamp population are implemented, including the dataset
+update correction and timestamp preservation when organization changes recreate
+rows. Parser/import regression tests pass. Production import and data-audit
+verification remain pending; do not begin Phase 1 until the gate below is met.
 
 ### Scope
 

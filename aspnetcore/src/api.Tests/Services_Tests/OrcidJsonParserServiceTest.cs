@@ -357,6 +357,76 @@ namespace api.Tests
             Assert.Null(keywords[0].CreatedDate);
         }
 
+        [Fact(DisplayName = "ORCID item parsers expose timestamps from their own item nodes")]
+        public void TestOrcidItemTimestamps()
+        {
+            var parser = new OrcidJsonParserService();
+            string json = getOrcidJsonRecord();
+            DateTime Timestamp(long milliseconds) => DateTimeOffset.FromUnixTimeMilliseconds(milliseconds).UtcDateTime;
+
+            var givenNames = parser.GetGivenNames(json);
+            Assert.Equal(Timestamp(1460669280210), givenNames.CreatedDate);
+            Assert.Equal(Timestamp(1486594670761), givenNames.LastModifiedDate);
+            Assert.Equal(givenNames.CreatedDate, parser.GetFamilyName(json).CreatedDate);
+            Assert.Equal(givenNames.LastModifiedDate, parser.GetCreditName(json).LastModifiedDate);
+
+            var biography = parser.GetBiography(json);
+            Assert.Equal(Timestamp(1460669280211), biography.CreatedDate);
+            Assert.Equal(Timestamp(1460669280211), biography.LastModifiedDate);
+
+            var otherName = parser.GetOtherNames(json)[0];
+            Assert.Equal(Timestamp(1461170250190), otherName.CreatedDate);
+            Assert.Equal(Timestamp(1461170250190), otherName.LastModifiedDate);
+
+            var researcherUrl = parser.GetResearcherUrls(json)[0];
+            Assert.Equal(Timestamp(1477423573347), researcherUrl.CreatedDate);
+            Assert.Equal(Timestamp(1477423579805), researcherUrl.LastModifiedDate);
+
+            var email = parser.GetEmails(json)[0];
+            Assert.Equal(Timestamp(1477501385707), email.CreatedDate);
+            Assert.Equal(Timestamp(1512136401301), email.LastModifiedDate);
+
+            Assert.NotNull(parser.GetExternalIdentifiers(json)[0].CreatedDate);
+            Assert.NotNull(parser.GetExternalIdentifiers(json)[0].LastModifiedDate);
+            Assert.NotNull(parser.GetEducations(json)[0].CreatedDate);
+            Assert.NotNull(parser.GetEducations(json)[0].LastModifiedDate);
+            Assert.NotNull(parser.GetEmployments(json)[0].CreatedDate);
+            Assert.NotNull(parser.GetEmployments(json)[0].LastModifiedDate);
+
+            var works = parser.GetWorks(json);
+            Assert.NotNull(works.Publications[0].CreatedDate);
+            Assert.NotNull(works.Publications[0].LastModifiedDate);
+            Assert.NotNull(works.Datasets[0].CreatedDate);
+            Assert.NotNull(works.Datasets[0].LastModifiedDate);
+            Assert.NotNull(works.ResearchActivities[0].CreatedDate);
+            Assert.NotNull(works.ResearchActivities[0].LastModifiedDate);
+            Assert.NotNull(parser.GetFundings(json)[0].CreatedDate);
+            Assert.NotNull(parser.GetFundings(json)[0].LastModifiedDate);
+            Assert.NotNull(parser.GetProfileOnlyResearchActivityItems(json)[0].CreatedDate);
+            Assert.NotNull(parser.GetProfileOnlyResearchActivityItems(json)[0].LastModifiedDate);
+        }
+
+        [Fact(DisplayName = "ORCID item parsers leave absent timestamps null")]
+        public void TestOrcidItemTimestamps_Missing()
+        {
+            var parser = new OrcidJsonParserService();
+            const string json = """
+                {
+                  "person": {
+                    "keywords": {
+                      "keyword": [
+                        { "content": "test", "put-code": 1 }
+                      ]
+                    }
+                  }
+                }
+                """;
+
+            var keyword = Assert.Single(parser.GetKeywords(json));
+            Assert.Null(keyword.CreatedDate);
+            Assert.Null(keyword.LastModifiedDate);
+        }
+
         [Fact(DisplayName = "Get external identifiers")]
         public void TestGetExternalIdentifiers()
         {

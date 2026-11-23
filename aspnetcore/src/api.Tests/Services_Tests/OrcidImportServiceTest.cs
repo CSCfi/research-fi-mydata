@@ -478,6 +478,45 @@ namespace api.Tests
         private static string Long(char c) => new string(c, 300);
         private static string Max(char c) => new string(c, 255);
 
+        [Fact(DisplayName = "Name: ORCID timestamps populate and update FactFieldValue timestamps")]
+        public async Task Name_OrcidTimestamps_Persist()
+        {
+            using var context = CreateContext(nameof(Name_OrcidTimestamps_Persist));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string json = LoadFixture("name.json").Replace(
+                "\"name\": {",
+                "\"name\": { \"created-date\": { \"value\": 1000000000000 }, \"last-modified-date\": { \"value\": 1000000001000 },");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            var factFieldValue = Assert.Single(context.FactFieldValues.Where(ffv => ffv.DimNameId > 0));
+            var createdDate = DateTimeOffset.FromUnixTimeMilliseconds(1000000000000).UtcDateTime;
+            var modifiedDate = DateTimeOffset.FromUnixTimeMilliseconds(1000000001000).UtcDateTime;
+            Assert.Equal(createdDate, factFieldValue.Created);
+            Assert.Equal(modifiedDate, factFieldValue.Modified);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+            factFieldValue = Assert.Single(context.FactFieldValues.Where(ffv => ffv.DimNameId > 0));
+            Assert.Equal(createdDate, factFieldValue.Created);
+            Assert.True(factFieldValue.Modified > modifiedDate);
+        }
+
+        [Fact(DisplayName = "Name: missing ORCID timestamps use the import clock")]
+        public async Task Name_MissingOrcidTimestamps_UseImportClock()
+        {
+            using var context = CreateContext(nameof(Name_MissingOrcidTimestamps_UseImportClock));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            DateTime beforeImport = DateTime.UtcNow;
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+
+            DateTime afterImport = DateTime.UtcNow;
+            var factFieldValue = Assert.Single(context.FactFieldValues.Where(ffv => ffv.DimNameId > 0));
+            Assert.InRange(factFieldValue.Created.Value, beforeImport, afterImport);
+            Assert.Equal(factFieldValue.Created, factFieldValue.Modified);
+        }
+
         [Fact(DisplayName = "Name: over-long first/last name truncated to 255 on insert and update")]
         public async Task Name_LongValues_TruncatedTo255()
         {

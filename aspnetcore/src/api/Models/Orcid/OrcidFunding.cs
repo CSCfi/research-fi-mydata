@@ -1,4 +1,6 @@
-﻿namespace api.Models.Orcid
+﻿using System;
+
+namespace api.Models.Orcid
 {
     public partial class OrcidFunding {
         public OrcidFunding(
@@ -14,7 +16,9 @@
             OrcidDate endDate,
             OrcidPutCode putCode,
             string url,
-            string path
+            string path,
+            DateTime? lastModifiedDate = null,
+            DateTime? createdDate = null
             )
         {
             Type = type;
@@ -30,6 +34,8 @@
             PutCode = putCode;
             Url = url;
             Path = path;
+            LastModifiedDate = lastModifiedDate;
+            CreatedDate = createdDate;
         }
 
         public string Type { get; set; }
@@ -45,5 +51,7 @@
         public OrcidPutCode PutCode { get; set; }
         public string Url { get; set; }
         public string Path { get; set; }
+        public DateTime? LastModifiedDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
     }
 }

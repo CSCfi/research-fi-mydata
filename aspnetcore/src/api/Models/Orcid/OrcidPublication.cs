@@ -1,4 +1,6 @@
-﻿namespace api.Models.Orcid
+﻿using System;
+
+namespace api.Models.Orcid
 {
     public partial class OrcidPublication {
         public OrcidPublication()
@@ -15,5 +17,7 @@
         public string Doi { get; set; }
         public string Type { get; set; }
         public OrcidPutCode PutCode { get; set; }
+        public DateTime? LastModifiedDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
     }
 }
