@@ -232,8 +232,7 @@ implemented. Production verification was confirmed by the user on 2026-11-24.
 Apply timestamp comparison to the researcher-description item.
 
 Implementation note (2026-11-24): Timestamp comparison and regression tests are
-implemented. Production rollout and verification remain pending before
-proceeding to Phase 3.
+implemented and verified in production.
 
 - Preserve the current behavior when biography is null or absent, including
   removal through the existing processed-ID mechanism.
@@ -244,6 +243,10 @@ proceeding to Phase 3.
 ## Phase 3 - Other Names
 
 Apply comparison independently to each other-name item by ORCID put code.
+
+Implementation note (2026-11-24): Timestamp comparison and regression tests are
+implemented. Production rollout and verification remain pending before
+proceeding to Phase 4.
 
 - Mark every unchanged match as processed.
 - Preserve deletion of names no longer returned by ORCID.
