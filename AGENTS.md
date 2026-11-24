@@ -57,6 +57,12 @@ Deployment templates for OpenShift (Rahti2) live under `aspnetcore/openshift/` a
 - JSON fixtures for ORCID import tests live in `aspnetcore/src/api.Tests/Infrastructure/orcid_fixtures/`.
 - After changing dedup/merge logic (e.g. publication DOI matching), add/extend regression tests
   in the corresponding `Services_Tests` file rather than only manual verification.
+- ORCID `FactFieldValue` timestamps are persisted in SQL Server `datetime` columns, which round
+  to 1/300-second precision while ORCID supplies milliseconds and SQLite tests retain them.
+  Timestamp skip comparisons must normalize both incoming and stored values through the shared
+  SQL `datetime` precision helper before using `<=`; otherwise equal values can round down on
+  reload and cause repeated domain writes. Regression tests must simulate the rounded stored
+  value rather than relying only on SQLite's millisecond-preserving round trip.
 
 ## CI
 
