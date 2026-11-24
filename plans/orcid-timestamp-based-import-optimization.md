@@ -1,5 +1,5 @@
 Status: In Progress
-Date: 2026-11-23
+Date: 2026-11-24
 
 # ORCID Timestamp-Based Import Optimization Plan
 
@@ -216,8 +216,7 @@ permission to skip that item based on a runtime-generated value.
 Apply timestamp comparison to the existing primary name `FactFieldValue`.
 
 Implementation note (2026-11-23): Timestamp comparison and regression tests are
-implemented. Production rollout and verification remain pending before
-proceeding to Phase 2.
+implemented. Production verification was confirmed by the user on 2026-11-24.
 
 - Parse the timestamp of the ORCID name object once and reuse it for given and
   family name handling.
@@ -231,6 +230,10 @@ proceeding to Phase 2.
 ## Phase 2 - Biography
 
 Apply timestamp comparison to the researcher-description item.
+
+Implementation note (2026-11-24): Timestamp comparison and regression tests are
+implemented. Production rollout and verification remain pending before
+proceeding to Phase 3.
 
 - Preserve the current behavior when biography is null or absent, including
   removal through the existing processed-ID mechanism.

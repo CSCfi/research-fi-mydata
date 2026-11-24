@@ -705,13 +705,17 @@ namespace api.Services
 
                 if (factFieldValuesResearcherDescription != null)
                 {
-                    // Update existing DimResearcherDescription
-                    factFieldValuesResearcherDescription.DimResearcherDescription.ResearchDescriptionEn = biography.Value;
-                    factFieldValuesResearcherDescription.DimResearcherDescription.Modified = currentDateTime;
-                    // Update existing FactFieldValue
-                    SetOrcidTimestamps(factFieldValuesResearcherDescription, biography.CreatedDate, biography.LastModifiedDate, currentDateTime);
                     // Mark as processed
                     orcidImportHelper.dimResearcherDescriptionIds.Add(factFieldValuesResearcherDescription.DimResearcherDescription.Id);
+
+                    if (!IsOrcidTimestampUnchanged(factFieldValuesResearcherDescription, biography.LastModifiedDate))
+                    {
+                        // Update existing DimResearcherDescription
+                        factFieldValuesResearcherDescription.DimResearcherDescription.ResearchDescriptionEn = biography.Value;
+                        factFieldValuesResearcherDescription.DimResearcherDescription.Modified = currentDateTime;
+                        // Update existing FactFieldValue
+                        SetOrcidTimestamps(factFieldValuesResearcherDescription, biography.CreatedDate, biography.LastModifiedDate, currentDateTime);
+                    }
                 }
                 else
                 {   // Create new DimResearcherDescription

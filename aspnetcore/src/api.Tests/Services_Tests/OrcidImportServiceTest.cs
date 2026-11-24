@@ -737,12 +737,17 @@ namespace api.Tests
             Assert.Equal("Test researcher biography content.", biography.ResearchDescriptionEn);
             Assert.Equal(KnownPersonId, biography.DimKnownPersonId);
             Assert.Equal(OrcidDataSourceId, biography.DimRegisteredDataSourceId);
+            var factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimResearcherDescriptionId > 0);
+            DateTime? biographyModified = biography.Modified;
+            DateTime? factFieldValueModified = factFieldValue.Modified;
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimResearcherDescriptions.Count(e => e.Id > 0);
 
             Assert.Equal(1, countAfterFirst);
             Assert.Equal(countAfterFirst, countAfterSecond);
+            Assert.Equal(biographyModified, context.DimResearcherDescriptions.Single(e => e.Id > 0).Modified);
+            Assert.Equal(factFieldValueModified, context.FactFieldValues.Single(ffv => ffv.DimResearcherDescriptionId > 0).Modified);
         }
 
         // -------------------------------------------------------------------------
@@ -1157,10 +1162,65 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("biography.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("biography_updated.json"), LogId);
+            string newerBiography = LoadFixture("biography_updated.json").Replace(
+                "\"last-modified-date\": { \"value\": 1000000000000 },",
+                "\"last-modified-date\": { \"value\": 1000000001000 },");
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, newerBiography, LogId);
 
             Assert.Equal(1, context.DimResearcherDescriptions.Count(e => e.Id > 0));
             Assert.Equal("Updated biography text.", context.DimResearcherDescriptions.Single(e => e.Id > 0).ResearchDescriptionEn);
+            Assert.Equal(
+                DateTimeOffset.FromUnixTimeMilliseconds(1000000001000).UtcDateTime,
+                context.FactFieldValues.Single(ffv => ffv.DimResearcherDescriptionId > 0).Modified);
+        }
+
+        [Fact(DisplayName = "Biography: equal timestamp skips writes but keeps item processed")]
+        public async Task Biography_EqualTimestamp_SkipsWritesAndRemainsPresent()
+        {
+            using var context = CreateContext(nameof(Biography_EqualTimestamp_SkipsWritesAndRemainsPresent));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("biography.json"), LogId);
+            var biography = context.DimResearcherDescriptions.Single(e => e.Id > 0);
+            var factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimResearcherDescriptionId > 0);
+            string originalText = biography.ResearchDescriptionEn;
+            DateTime? domainModified = biography.Modified;
+            DateTime? factFieldValueModified = factFieldValue.Modified;
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("biography_updated.json"), LogId);
+
+            biography = context.DimResearcherDescriptions.Single(e => e.Id > 0);
+            factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimResearcherDescriptionId > 0);
+            Assert.Equal(originalText, biography.ResearchDescriptionEn);
+            Assert.Equal(domainModified, biography.Modified);
+            Assert.Equal(factFieldValueModified, factFieldValue.Modified);
+            Assert.Single(context.DimResearcherDescriptions.Where(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Biography: missing timestamps process the incoming value")]
+        public async Task Biography_MissingTimestamp_FullProcesses()
+        {
+            using var context = CreateContext(nameof(Biography_MissingTimestamp_FullProcesses));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("biography.json"), LogId);
+            var biography = context.DimResearcherDescriptions.Single(e => e.Id > 0);
+            var factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimResearcherDescriptionId > 0);
+            DateTime? createdDate = factFieldValue.Created;
+            DateTime? oldModifiedDate = factFieldValue.Modified;
+            string missingTimestamps = LoadFixture("biography_updated.json")
+                .Replace("\"created-date\": { \"value\": 1000000000000 },", "")
+                .Replace("\"last-modified-date\": { \"value\": 1000000000000 },", "");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, missingTimestamps, LogId);
+
+            biography = context.DimResearcherDescriptions.Single(e => e.Id > 0);
+            factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimResearcherDescriptionId > 0);
+            Assert.Equal("Updated biography text.", biography.ResearchDescriptionEn);
+            Assert.Equal(createdDate, factFieldValue.Created);
+            Assert.True(factFieldValue.Modified > oldModifiedDate);
         }
 
         [Fact(DisplayName = "Researcher URL: updated when changed in ORCID")]
