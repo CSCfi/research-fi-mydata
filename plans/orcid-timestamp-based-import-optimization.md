@@ -113,7 +113,12 @@ On a full update, set:
 On optimization phases, only skip a domain update when both stored and incoming
 `last-modified-date` values are valid and:
 
-- `incoming LastModifiedDate <= existing FactFieldValue.Modified`
+- `incoming LastModifiedDate <= existing FactFieldValue.Modified`, after
+  converting both values to the `datetime` precision used by the persisted
+  column so SQL Server's 1/300-second rounding does not turn equal values into
+  apparent updates. All skip-enabled phases use the shared comparator in
+  `OrcidImportService`, including primary name, biography, other names, and
+  researcher URLs.
 
 An incoming value older than or equal to stored metadata is considered already
 represented. This makes imports idempotent and protects against stale ORCID
@@ -245,8 +250,7 @@ implemented and verified in production.
 Apply comparison independently to each other-name item by ORCID put code.
 
 Implementation note (2026-11-24): Timestamp comparison and regression tests are
-implemented. Production rollout and verification remain pending before
-proceeding to Phase 4.
+implemented and verified in production.
 
 - Mark every unchanged match as processed.
 - Preserve deletion of names no longer returned by ORCID.
@@ -257,6 +261,10 @@ proceeding to Phase 4.
 ## Phase 4 - Researcher URLs
 
 Apply comparison independently to each researcher URL by ORCID put code.
+
+Implementation note (2026-11-24): Timestamp comparison and regression tests are
+implemented, including a regression for SQL Server `datetime` round-tripping.
+Production rollout and verification remain pending before proceeding to Phase 5.
 
 - Skip URL and label writes for safely unchanged items.
 - Preserve current URL truncation and validation behavior for processed items.

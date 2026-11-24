@@ -13,6 +13,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
@@ -554,6 +555,38 @@ namespace api.Tests
             Assert.Equal(factFieldValue.Created, factFieldValue.Modified);
         }
 
+        [Fact(DisplayName = "Name: SQL datetime rounding does not cause repeated writes")]
+        public async Task Name_SqlDateTimeRounding_SkipsWrites()
+        {
+            using var context = CreateContext(nameof(Name_SqlDateTimeRounding_SkipsWrites));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            const long timestamp = 1757656106614;
+            DateTime incomingTimestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestamp).UtcDateTime;
+            JsonObject json = JsonNode.Parse(LoadFixture("name.json")).AsObject();
+            JsonObject nameJson = json["person"].AsObject()["name"].AsObject();
+            nameJson["created-date"] = new JsonObject { ["value"] = timestamp };
+            nameJson["last-modified-date"] = new JsonObject { ["value"] = timestamp };
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimNameId > 0);
+            DateTime storedTimestamp = new SqlDateTime(incomingTimestamp).Value;
+            Assert.True(storedTimestamp < incomingTimestamp);
+            factFieldValue.Modified = storedTimestamp;
+            var name = context.DimNames.Single(e => e.Id == factFieldValue.DimNameId);
+            DateTime originalDomainModified = new(2000, 1, 1);
+            name.Modified = originalDomainModified;
+            await context.SaveChangesAsync();
+
+            nameJson["given-names"]["value"] = "Stale Alice";
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            name = context.DimNames.Single(e => e.Id == factFieldValue.DimNameId);
+            Assert.Equal("Alice", name.FirstNames);
+            Assert.Equal(originalDomainModified, name.Modified);
+            Assert.Equal(storedTimestamp, context.FactFieldValues.Single(ffv => ffv.DimNameId > 0).Modified);
+        }
+
         [Fact(DisplayName = "Name: over-long first/last name truncated to 255 on insert and update")]
         public async Task Name_LongValues_TruncatedTo255()
         {
@@ -605,7 +638,10 @@ namespace api.Tests
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('a'), LogId);
             Assert.Equal(Max('a'), context.DimWebLinks.Single(e => e.Id > 0).LinkLabel);
 
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('b'), LogId);
+            JsonObject updatedJson = JsonNode.Parse(Fixture('b')).AsObject();
+            JsonArray researcherUrls = updatedJson["person"].AsObject()["researcher-urls"].AsObject()["researcher-url"].AsArray();
+            researcherUrls[0].AsObject()["last-modified-date"].AsObject()["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
             Assert.Equal(Max('b'), context.DimWebLinks.Single(e => e.Id > 0).LinkLabel);
         }
 
@@ -760,6 +796,38 @@ namespace api.Tests
             Assert.Equal(2, context.DimNames.Count(name => name.Id > 0 && name.FullName != null));
         }
 
+        [Fact(DisplayName = "Other names: SQL datetime rounding does not cause repeated writes")]
+        public async Task OtherNames_SqlDateTimeRounding_SkipsWrites()
+        {
+            using var context = CreateContext(nameof(OtherNames_SqlDateTimeRounding_SkipsWrites));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            const long timestamp = 1757656106614;
+            DateTime incomingTimestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestamp).UtcDateTime;
+            JsonObject json = JsonNode.Parse(LoadFixture("other_names.json")).AsObject();
+            JsonArray otherNamesJson = json["person"].AsObject()["other-names"].AsObject()["other-name"].AsArray();
+            JsonObject firstOtherName = otherNamesJson[0].AsObject();
+            firstOtherName["last-modified-date"]["value"] = JsonValue.Create(timestamp);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var name = context.DimNames.Single(e => e.FullName == "Alice S.");
+            var factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimNameId == name.Id);
+            DateTime storedTimestamp = new SqlDateTime(incomingTimestamp).Value;
+            Assert.True(storedTimestamp < incomingTimestamp);
+            factFieldValue.Modified = storedTimestamp;
+            DateTime originalDomainModified = new(2000, 1, 1);
+            name.Modified = originalDomainModified;
+            await context.SaveChangesAsync();
+
+            firstOtherName["content"] = "Stale Alice";
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            name = context.DimNames.Single(e => e.Id == name.Id);
+            Assert.Equal("Alice S.", name.FullName);
+            Assert.Equal(originalDomainModified, name.Modified);
+            Assert.Equal(storedTimestamp, context.FactFieldValues.Single(ffv => ffv.DimNameId == name.Id).Modified);
+        }
+
         [Fact(DisplayName = "Other names: duplicate put codes do not qualify for timestamp skipping")]
         public async Task OtherNames_DuplicateIncomingPutCode_FullProcessesMatches()
         {
@@ -883,12 +951,16 @@ namespace api.Tests
             var webLink = context.DimWebLinks.Single(e => e.Id > 0);
             Assert.Equal("https://example.com/profile", webLink.Url);
             Assert.Equal("Homepage", webLink.LinkLabel);
+            DateTime? webLinkModified = webLink.Modified;
+            DateTime? factFieldValueModified = context.FactFieldValues.Single(ffv => ffv.DimWebLinkId == webLink.Id).Modified;
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
             int countAfterSecond = context.DimWebLinks.Count(e => e.Id > 0);
 
             Assert.Equal(1, countAfterFirst);
             Assert.Equal(countAfterFirst, countAfterSecond);
+            Assert.Equal(webLinkModified, context.DimWebLinks.Single(e => e.Id > 0).Modified);
+            Assert.Equal(factFieldValueModified, context.FactFieldValues.Single(ffv => ffv.DimWebLinkId == webLink.Id).Modified);
         }
 
         // -------------------------------------------------------------------------
@@ -1337,6 +1409,39 @@ namespace api.Tests
             Assert.True(factFieldValue.Modified > oldModifiedDate);
         }
 
+        [Fact(DisplayName = "Biography: SQL datetime rounding does not cause repeated writes")]
+        public async Task Biography_SqlDateTimeRounding_SkipsWrites()
+        {
+            using var context = CreateContext(nameof(Biography_SqlDateTimeRounding_SkipsWrites));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            const long timestamp = 1757656106614;
+            DateTime incomingTimestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestamp).UtcDateTime;
+            JsonObject json = JsonNode.Parse(LoadFixture("biography.json")).AsObject();
+            JsonObject biographyJson = json["person"].AsObject()["biography"].AsObject();
+            biographyJson["last-modified-date"]["value"] = JsonValue.Create(timestamp);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimResearcherDescriptionId > 0);
+            DateTime storedTimestamp = new SqlDateTime(incomingTimestamp).Value;
+            Assert.True(storedTimestamp < incomingTimestamp);
+            factFieldValue.Modified = storedTimestamp;
+            var biography = context.DimResearcherDescriptions.Single(e => e.Id == factFieldValue.DimResearcherDescriptionId);
+            DateTime originalDomainModified = new(2000, 1, 1);
+            biography.Modified = originalDomainModified;
+            await context.SaveChangesAsync();
+
+            biographyJson["content"] = "Stale biography";
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            biography = context.DimResearcherDescriptions.Single(e => e.Id == factFieldValue.DimResearcherDescriptionId);
+            Assert.Equal("Test researcher biography content.", biography.ResearchDescriptionEn);
+            Assert.Equal(originalDomainModified, biography.Modified);
+            Assert.Equal(
+                storedTimestamp,
+                context.FactFieldValues.Single(ffv => ffv.DimResearcherDescriptionId > 0).Modified);
+        }
+
         [Fact(DisplayName = "Researcher URL: updated when changed in ORCID")]
         public async Task ResearcherUrl_Updated_WhenChangedInOrcid()
         {
@@ -1346,12 +1451,166 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url_updated.json"), LogId);
+            JsonObject updatedJson = JsonNode.Parse(LoadFixture("researcher_url_updated.json")).AsObject();
+            JsonArray researcherUrls = updatedJson["person"].AsObject()["researcher-urls"].AsObject()["researcher-url"].AsArray();
+            researcherUrls[0].AsObject()["last-modified-date"].AsObject()["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
 
             Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
             var webLink = context.DimWebLinks.Single(e => e.Id > 0);
             Assert.Equal("https://example.com/updated", webLink.Url);
             Assert.Equal("Updated Homepage", webLink.LinkLabel);
+            Assert.Equal(
+                DateTimeOffset.FromUnixTimeMilliseconds(1000000001000).UtcDateTime,
+                context.FactFieldValues.Single(ffv => ffv.DimWebLinkId == webLink.Id).Modified);
+        }
+
+        [Fact(DisplayName = "Researcher URL: label-only change updates label")]
+        public async Task ResearcherUrl_LabelOnlyChange_UpdatesLabel()
+        {
+            using var context = CreateContext(nameof(ResearcherUrl_LabelOnlyChange_UpdatesLabel));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url.json"), LogId);
+
+            var originalWebLink = context.DimWebLinks.Single(e => e.Id > 0);
+            var originalId = originalWebLink.Id;
+            DateTime? originalModified = originalWebLink.Modified;
+            JsonObject updatedJson = JsonNode.Parse(LoadFixture("researcher_url.json")).AsObject();
+            JsonArray researcherUrls = updatedJson["person"].AsObject()["researcher-urls"].AsObject()["researcher-url"].AsArray();
+            researcherUrls[0].AsObject()["url-name"] = "Updated Homepage";
+            researcherUrls[0].AsObject()["last-modified-date"].AsObject()["value"] = JsonValue.Create(1000000001000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
+
+            var updatedWebLink = context.DimWebLinks.Single(e => e.Id == originalId);
+            Assert.Equal("https://example.com/profile", updatedWebLink.Url);
+            Assert.Equal("Updated Homepage", updatedWebLink.LinkLabel);
+            Assert.NotEqual(originalModified, updatedWebLink.Modified);
+        }
+
+        [Fact(DisplayName = "Researcher URL: equal timestamp skips writes and keeps item processed")]
+        public async Task ResearcherUrl_EqualTimestamp_SkipsWritesAndRemainsPresent()
+        {
+            using var context = CreateContext(nameof(ResearcherUrl_EqualTimestamp_SkipsWritesAndRemainsPresent));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url.json"), LogId);
+
+            var originalWebLink = context.DimWebLinks.Single(e => e.Id > 0);
+            var originalId = originalWebLink.Id;
+            DateTime? originalModified = originalWebLink.Modified;
+            var originalFactFieldValue = context.FactFieldValues.Single(ffv => ffv.DimWebLinkId == originalId);
+            DateTime? originalFactFieldValueModified = originalFactFieldValue.Modified;
+            JsonObject staleJson = JsonNode.Parse(LoadFixture("researcher_url.json")).AsObject();
+            JsonArray researcherUrls = staleJson["person"].AsObject()["researcher-urls"].AsObject()["researcher-url"].AsArray();
+            researcherUrls[0].AsObject()["url"]["value"] = "https://example.com/stale";
+            researcherUrls[0].AsObject()["url-name"] = "Stale Homepage";
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, staleJson.ToJsonString(), LogId);
+
+            var webLink = context.DimWebLinks.Single(e => e.Id == originalId);
+            var factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimWebLinkId == originalId);
+            Assert.Equal("https://example.com/profile", webLink.Url);
+            Assert.Equal("Homepage", webLink.LinkLabel);
+            Assert.Equal(originalModified, webLink.Modified);
+            Assert.Equal(originalFactFieldValueModified, factFieldValue.Modified);
+            Assert.Single(context.DimWebLinks.Where(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Researcher URL: SQL datetime rounding does not cause repeated writes")]
+        public async Task ResearcherUrl_SqlDateTimeRounding_SkipsWrites()
+        {
+            using var context = CreateContext(nameof(ResearcherUrl_SqlDateTimeRounding_SkipsWrites));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            const long timestamp = 1757656106614;
+            DateTime incomingTimestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestamp).UtcDateTime;
+            JsonObject json = JsonNode.Parse(LoadFixture("researcher_url.json")).AsObject();
+            JsonArray researcherUrls = json["person"].AsObject()["researcher-urls"].AsObject()["researcher-url"].AsArray();
+            researcherUrls[0].AsObject()["last-modified-date"].AsObject()["value"] = JsonValue.Create(timestamp);
+            string unchangedJson = json.ToJsonString();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, unchangedJson, LogId);
+
+            var factFieldValue = context.FactFieldValues.Single(ffv => ffv.DimWebLinkId > 0);
+            DateTime storedTimestamp = new SqlDateTime(incomingTimestamp).Value;
+            Assert.True(storedTimestamp < incomingTimestamp);
+            factFieldValue.Modified = storedTimestamp;
+            var webLink = context.DimWebLinks.Single(e => e.Id > 0);
+            DateTime originalWebLinkModified = new(2000, 1, 1);
+            webLink.Modified = originalWebLinkModified;
+            await context.SaveChangesAsync();
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, unchangedJson, LogId);
+
+            Assert.Equal(originalWebLinkModified, context.DimWebLinks.Single(e => e.Id > 0).Modified);
+            Assert.Equal(storedTimestamp, context.FactFieldValues.Single(ffv => ffv.DimWebLinkId > 0).Modified);
+        }
+
+        [Fact(DisplayName = "Researcher URL: missing put code is fully processed")]
+        public async Task ResearcherUrl_MissingPutCode_FullProcessesItem()
+        {
+            using var context = CreateContext(nameof(ResearcherUrl_MissingPutCode_FullProcessesItem));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url.json"), LogId);
+
+            JsonObject missingPutCodeJson = JsonNode.Parse(LoadFixture("researcher_url.json")).AsObject();
+            JsonArray researcherUrls = missingPutCodeJson["person"].AsObject()["researcher-urls"].AsObject()["researcher-url"].AsArray();
+            researcherUrls[0].AsObject().Remove("put-code");
+            researcherUrls[0].AsObject()["url"]["value"] = "https://example.com/no-put-code";
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, missingPutCodeJson.ToJsonString(), LogId);
+
+            var webLink = context.DimWebLinks.Single(e => e.Id > 0);
+            Assert.Equal("https://example.com/no-put-code", webLink.Url);
+            var factFieldValue = context.FactFieldValues
+                .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
+                .Single(ffv => ffv.DimWebLinkId == webLink.Id);
+            Assert.Equal("-1", factFieldValue.DimPidIdOrcidPutCodeNavigation.PidContent);
+        }
+
+        [Fact(DisplayName = "Researcher URL: duplicate put codes do not qualify for timestamp skipping")]
+        public async Task ResearcherUrl_DuplicateIncomingPutCode_FullProcessesMatches()
+        {
+            using var context = CreateContext(nameof(ResearcherUrl_DuplicateIncomingPutCode_FullProcessesMatches));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url.json"), LogId);
+
+            JsonObject duplicatePutCodeJson = JsonNode.Parse(LoadFixture("researcher_url.json")).AsObject();
+            JsonArray researcherUrls = duplicatePutCodeJson["person"].AsObject()["researcher-urls"].AsObject()["researcher-url"].AsArray();
+            JsonObject secondUrl = JsonNode.Parse(researcherUrls[0].ToJsonString()).AsObject();
+            researcherUrls[0].AsObject()["url"]["value"] = "https://example.com/first-collision";
+            researcherUrls[0].AsObject()["url-name"] = "First collision";
+            secondUrl["url"]["value"] = "https://example.com/second-collision";
+            secondUrl["url-name"] = "Second collision";
+            researcherUrls.Add(secondUrl);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, duplicatePutCodeJson.ToJsonString(), LogId);
+
+            var webLink = Assert.Single(context.DimWebLinks.Where(e => e.Id > 0));
+            Assert.Equal("https://example.com/second-collision", webLink.Url);
+            Assert.Equal("Second collision", webLink.LinkLabel);
+        }
+
+        [Fact(DisplayName = "Researcher URL: URL truncation is preserved on update")]
+        public async Task ResearcherUrl_LongUrl_TruncatedTo511OnUpdate()
+        {
+            using var context = CreateContext(nameof(ResearcherUrl_LongUrl_TruncatedTo511OnUpdate));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("researcher_url.json"), LogId);
+
+            string longUrl = $"https://example.com/{new string('a', 600)}";
+            JsonObject updatedJson = JsonNode.Parse(LoadFixture("researcher_url.json")).AsObject();
+            JsonArray researcherUrls = updatedJson["person"].AsObject()["researcher-urls"].AsObject()["researcher-url"].AsArray();
+            researcherUrls[0].AsObject()["url"]["value"] = longUrl;
+            researcherUrls[0].AsObject()["last-modified-date"].AsObject()["value"] = JsonValue.Create(1000000001000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
+
+            Assert.Equal(longUrl.Substring(0, 511), context.DimWebLinks.Single(e => e.Id > 0).Url);
         }
 
         [Fact(DisplayName = "Keywords: updated when changed in ORCID")]

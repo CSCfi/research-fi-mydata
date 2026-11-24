@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Models.Log;
@@ -336,7 +337,23 @@ namespace api.Services
         {
             return lastModifiedDate.HasValue &&
                 factFieldValue.Modified.HasValue &&
-                lastModifiedDate.Value <= factFieldValue.Modified.Value;
+                TryGetSqlDateTimeValue(lastModifiedDate.Value, out DateTime incomingSqlDateTime) &&
+                TryGetSqlDateTimeValue(factFieldValue.Modified.Value, out DateTime storedSqlDateTime) &&
+                incomingSqlDateTime <= storedSqlDateTime;
+        }
+
+        private static bool TryGetSqlDateTimeValue(DateTime value, out DateTime sqlDateTimeValue)
+        {
+            try
+            {
+                sqlDateTimeValue = new SqlDateTime(value).Value;
+                return true;
+            }
+            catch (SqlTypeException)
+            {
+                sqlDateTimeValue = default;
+                return false;
+            }
         }
 
         /*
@@ -632,18 +649,34 @@ namespace api.Services
             // Get DimFieldDisplaySettings for weblink
             DimFieldDisplaySetting dimFieldDisplaySettingsWebLink =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsWebLink => dfdsWebLink.FieldIdentifier == Constants.FieldIdentifiers.PERSON_WEB_LINK);
+            Dictionary<int, int> researcherUrlPutCodeCounts = researcherUrls
+                .Where(researchUrl => researchUrl.PutCode?.Value.HasValue == true)
+                .GroupBy(researchUrl => researchUrl.PutCode.Value.Value)
+                .ToDictionary(group => group.Key, group => group.Count());
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidResearcherUrl researchUrl in researcherUrls)
             {
-                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
-                FactFieldValue factFieldValuesWebLink =
-                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                int? putCode = researchUrl.PutCode?.Value;
+                List<FactFieldValue> matchingResearcherUrlFactFieldValues = putCode.HasValue
+                    ? dimUserProfile.FactFieldValues.Where(ffv =>
                         ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsWebLink &&
                         ffv.DimPidIdOrcidPutCode > 0 &&
-                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == researchUrl.PutCode.Value.ToString());
+                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == putCode.Value.ToString()).ToList()
+                    : new List<FactFieldValue>();
+                FactFieldValue factFieldValuesWebLink = matchingResearcherUrlFactFieldValues.FirstOrDefault();
 
                 if (factFieldValuesWebLink != null)
                 {
+                    bool hasUniquePutCodeMatch =
+                        putCode.HasValue &&
+                        researcherUrlPutCodeCounts[putCode.Value] == 1 &&
+                        matchingResearcherUrlFactFieldValues.Count == 1;
+                    if (hasUniquePutCodeMatch && IsOrcidTimestampUnchanged(factFieldValuesWebLink, researchUrl.LastModifiedDate))
+                    {
+                        orcidImportHelper.dimWebLinkIds.Add(factFieldValuesWebLink.DimWebLink.Id);
+                        continue;
+                    }
+
                     // Update existing DimWebLink
                     DimWebLink dimWebLink = factFieldValuesWebLink.DimWebLink;
                     dimWebLink.Url = TruncateUrl(researchUrl.Url);
