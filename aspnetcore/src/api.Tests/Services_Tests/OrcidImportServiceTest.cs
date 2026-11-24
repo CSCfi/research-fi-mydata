@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -585,7 +586,10 @@ namespace api.Tests
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('a'), LogId);
             Assert.Single(context.DimNames, n => n.Id > 0 && n.FullName == Max('a'));
 
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('b'), LogId);
+            JsonObject updatedJson = JsonNode.Parse(Fixture('b')).AsObject();
+            JsonArray otherNames = updatedJson["person"].AsObject()["other-names"].AsObject()["other-name"].AsArray();
+            otherNames[0].AsObject()["last-modified-date"].AsObject()["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
             Assert.Single(context.DimNames, n => n.Id > 0 && n.FullName == Max('b'));
             Assert.DoesNotContain(context.DimNames, n => n.FullName == Max('a'));
         }
@@ -715,6 +719,116 @@ namespace api.Tests
 
             Assert.Equal(3, countAfterFirst);
             Assert.Equal(countAfterFirst, countAfterSecond);
+        }
+
+        [Fact(DisplayName = "Other names: unchanged items skip writes while changed items update")]
+        public async Task OtherNames_MixedChangedAndUnchanged_SkipOnlyUnchangedWrites()
+        {
+            using var context = CreateContext(nameof(OtherNames_MixedChangedAndUnchanged_SkipOnlyUnchangedWrites));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("other_names.json"), LogId);
+
+            var unchangedNameBefore = context.DimNames.Single(name => name.FullName == "Alice S.");
+            var unchangedFactFieldValueBefore = context.FactFieldValues.Single(ffv => ffv.DimNameId == unchangedNameBefore.Id);
+            var unchangedNameId = unchangedNameBefore.Id;
+            DateTime? unchangedNameModified = unchangedNameBefore.Modified;
+            DateTime? unchangedFactFieldValueModified = unchangedFactFieldValueBefore.Modified;
+            var changedNameBefore = context.DimNames.Single(name => name.FullName == "A. Smith");
+            var changedNameId = changedNameBefore.Id;
+
+            JsonObject updatedJson = JsonNode.Parse(LoadFixture("other_names.json")).AsObject();
+            JsonArray otherNames = updatedJson["person"].AsObject()["other-names"].AsObject()["other-name"].AsArray();
+            otherNames[0].AsObject()["content"] = "Stale Alice S.";
+            otherNames[1].AsObject()["content"] = "Updated A. Smith";
+            otherNames[1].AsObject()["last-modified-date"].AsObject()["value"] = JsonValue.Create(1000000001000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
+
+            var unchangedNameAfter = context.DimNames.Single(name => name.Id == unchangedNameId);
+            var unchangedFactFieldValueAfter = context.FactFieldValues.Single(ffv => ffv.DimNameId == unchangedNameId);
+            Assert.Equal("Alice S.", unchangedNameAfter.FullName);
+            Assert.Equal(unchangedNameModified, unchangedNameAfter.Modified);
+            Assert.Equal(unchangedFactFieldValueModified, unchangedFactFieldValueAfter.Modified);
+
+            var changedNameAfter = context.DimNames.Single(name => name.Id == changedNameId);
+            var changedFactFieldValueAfter = context.FactFieldValues.Single(ffv => ffv.DimNameId == changedNameId);
+            Assert.Equal("Updated A. Smith", changedNameAfter.FullName);
+            Assert.Equal(
+                DateTimeOffset.FromUnixTimeMilliseconds(1000000001000).UtcDateTime,
+                changedFactFieldValueAfter.Modified);
+            Assert.Equal(2, context.DimNames.Count(name => name.Id > 0 && name.FullName != null));
+        }
+
+        [Fact(DisplayName = "Other names: duplicate put codes do not qualify for timestamp skipping")]
+        public async Task OtherNames_DuplicateIncomingPutCode_FullProcessesMatches()
+        {
+            using var context = CreateContext(nameof(OtherNames_DuplicateIncomingPutCode_FullProcessesMatches));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("other_names.json"), LogId);
+
+            JsonObject duplicatePutCodeJson = JsonNode.Parse(LoadFixture("other_names.json")).AsObject();
+            JsonArray otherNames = duplicatePutCodeJson["person"].AsObject()["other-names"].AsObject()["other-name"].AsArray();
+            otherNames[0].AsObject()["content"] = "First collision name";
+            otherNames[1].AsObject()["content"] = "Second collision name";
+            otherNames[1].AsObject()["put-code"] = JsonValue.Create(1001);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, duplicatePutCodeJson.ToJsonString(), LogId);
+
+            Assert.Equal(1, context.DimNames.Count(name => name.Id > 0 && name.FullName != null));
+            Assert.Equal("Second collision name", context.DimNames.Single(name => name.Id > 0 && name.FullName != null).FullName);
+        }
+
+        [Fact(DisplayName = "Other names: multiple stored matches do not qualify for timestamp skipping")]
+        public async Task OtherNames_MultipleStoredPutCodeMatches_FullProcessesMatch()
+        {
+            using var context = CreateContext(nameof(OtherNames_MultipleStoredPutCodeMatches_FullProcessesMatch));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("other_names.json"), LogId);
+
+            var secondNameFactFieldValue = context.FactFieldValues
+                .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
+                .Single(ffv => ffv.DimName.FullName == "A. Smith");
+            secondNameFactFieldValue.DimPidIdOrcidPutCodeNavigation.PidContent = "1001";
+            await context.SaveChangesAsync();
+
+            JsonObject singleOtherNameJson = JsonNode.Parse(LoadFixture("other_names.json")).AsObject();
+            JsonArray otherNames = singleOtherNameJson["person"].AsObject()["other-names"].AsObject()["other-name"].AsArray();
+            otherNames[0].AsObject()["content"] = "Updated after stored collision";
+            otherNames.RemoveAt(1);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, singleOtherNameJson.ToJsonString(), LogId);
+
+            Assert.Equal(1, context.DimNames.Count(name => name.Id > 0 && name.FullName != null));
+            Assert.Equal(
+                "Updated after stored collision",
+                context.DimNames.Single(name => name.Id > 0 && name.FullName != null).FullName);
+        }
+
+        [Fact(DisplayName = "Other names: missing put code is fully processed")]
+        public async Task OtherNames_MissingPutCode_FullProcessesItem()
+        {
+            using var context = CreateContext(nameof(OtherNames_MissingPutCode_FullProcessesItem));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("other_names.json"), LogId);
+
+            JsonObject missingPutCodeJson = JsonNode.Parse(LoadFixture("other_names.json")).AsObject();
+            JsonArray otherNames = missingPutCodeJson["person"].AsObject()["other-names"].AsObject()["other-name"].AsArray();
+            otherNames[0].AsObject().Remove("put-code");
+            otherNames[0].AsObject()["content"] = "Alice without put code";
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, missingPutCodeJson.ToJsonString(), LogId);
+
+            Assert.Equal(2, context.DimNames.Count(name => name.Id > 0 && name.FullName != null));
+            Assert.Contains(context.DimNames, name => name.FullName == "Alice without put code");
+            var missingPutCodeFactFieldValue = context.FactFieldValues
+                .Include(ffv => ffv.DimName)
+                .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
+                .Single(ffv => ffv.DimName.FullName == "Alice without put code");
+            Assert.Equal("-1", missingPutCodeFactFieldValue.DimPidIdOrcidPutCodeNavigation.PidContent);
         }
 
         // -------------------------------------------------------------------------

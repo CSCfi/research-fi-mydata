@@ -535,18 +535,34 @@ namespace api.Services
             // Get DimFieldDisplaySettings for other name
             DimFieldDisplaySetting dimFieldDisplaySettingsOtherName =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsOtherName => dfdsOtherName.FieldIdentifier == Constants.FieldIdentifiers.PERSON_OTHER_NAMES);
+            Dictionary<int, int> otherNamePutCodeCounts = otherNames
+                .Where(otherName => otherName.PutCode?.Value.HasValue == true)
+                .GroupBy(otherName => otherName.PutCode.Value.Value)
+                .ToDictionary(group => group.Key, group => group.Count());
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidOtherName otherName in otherNames)
             {
-                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
-                FactFieldValue factFieldValuesOtherName =
-                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                int? putCode = otherName.PutCode?.Value;
+                List<FactFieldValue> matchingOtherNameFactFieldValues = putCode.HasValue
+                    ? dimUserProfile.FactFieldValues.Where(ffv =>
                         ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsOtherName &&
                         ffv.DimPidIdOrcidPutCode > 0 &&
-                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == otherName.PutCode.Value.ToString());
+                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == putCode.Value.ToString()).ToList()
+                    : new List<FactFieldValue>();
+                FactFieldValue factFieldValuesOtherName = matchingOtherNameFactFieldValues.FirstOrDefault();
 
                 if (factFieldValuesOtherName != null)
                 {
+                    bool hasUniquePutCodeMatch =
+                        putCode.HasValue &&
+                        otherNamePutCodeCounts[putCode.Value] == 1 &&
+                        matchingOtherNameFactFieldValues.Count == 1;
+                    if (hasUniquePutCodeMatch && IsOrcidTimestampUnchanged(factFieldValuesOtherName, otherName.LastModifiedDate))
+                    {
+                        orcidImportHelper.dimNameIds.Add(factFieldValuesOtherName.DimName.Id);
+                        continue;
+                    }
+
                     // Update existing DimName
                     DimName dimName_otherName = factFieldValuesOtherName.DimName;
                     dimName_otherName.FullName = Truncate(otherName.Value, 255);
