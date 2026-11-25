@@ -1,22 +1,6 @@
 # Mydata API application
 This application implements API functionality for Researchfi Mydata.
 
-## ORCID import logs
-
-The completion messages for the main and additional ORCID imports use space-separated
-`key=value` fields: `seconds`, `items`, `unchanged`, `failed`, `db_insert`, `db_update`,
-and `db_delete`. Seconds are rounded to the nearest integer. `items` counts parsed input items (funding
-details for the additional import); `unchanged` counts successfully processed items with no
-changes to their associated entities. `failed` counts funding details that could not be
-parsed; main-record section parsing errors are logged separately.
-
-The database counts are EF-tracked entity changes saved during that import, including date
-rows in the main import. They are not item counts and exclude database-side cascades and
-triggers, so they need not add up to `items`. Items deleted from the profile are counted in
-`db_delete`, not in `items`. The additional-import duration includes loading and saving its
-funding details; the main-import duration excludes retrieving the record and linking TTV
-publications.
-
 # Environment variables
 
 Following table lists the environment variables used by the application.
