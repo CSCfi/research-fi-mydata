@@ -438,11 +438,14 @@ namespace api.Services
             {
                 foreach (JsonElement element in document.RootElement.GetProperty("person").GetProperty("external-identifiers").GetProperty("external-identifier").EnumerateArray())
                 {
+                    JsonElement externalIdUrl = element.GetProperty("external-id-url");
                     externalIdentifiers.Add(
                         new OrcidExternalIdentifier(
                             externalIdType: element.GetProperty("external-id-type").GetString(),
                             externalIdValue: element.GetProperty("external-id-value").GetString(),
-                            externalIdUrl: element.GetProperty("external-id-url").GetProperty("value").GetString(),
+                            externalIdUrl: externalIdUrl.ValueKind == JsonValueKind.Null
+                                ? null
+                                : externalIdUrl.GetProperty("value").GetString(),
                             putCode: this.GetOrcidPutCode(element),
                             lastModifiedDate: GetOrcidDateTime(element, "last-modified-date"),
                             createdDate: GetOrcidDateTime(element, "created-date")
