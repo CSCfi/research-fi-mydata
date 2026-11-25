@@ -831,20 +831,38 @@ namespace api.Services
             {
                 string emailValue = Truncate(email.Value, 255);
 
-                // Check if email already exists
-                FactFieldValue factFieldValuesEmail =
-                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                List<FactFieldValue> matchingEmails =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
                         ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsEmailAddress &&
-                        ffv.DimEmailAddrress.Email == emailValue);
+                        ffv.DimEmailAddrressId > 0 &&
+                        ffv.DimEmailAddrress.Email == emailValue).ToList();
+                bool ambiguousEmail = string.IsNullOrEmpty(emailValue) ||
+                    emails.Count(otherEmail => Truncate(otherEmail.Value, 255) == emailValue) > 1 ||
+                    matchingEmails.Count > 1 ||
+                    (matchingEmails.Count == 1 && email.Value != emailValue);
+
+                if (ambiguousEmail)
+                {
+                    _logger.LogWarning(
+                        "ORCID email import could not identify an email uniquely for user profile {UserProfileId}; timestamp metadata was not applied.",
+                        userprofileId);
+                    foreach (FactFieldValue match in matchingEmails)
+                    {
+                        orcidImportHelper.dimEmailAddressIds.Add(match.DimEmailAddrressId);
+                    }
+                    statistics.TrackFailedItem();
+                    continue;
+                }
+
+                FactFieldValue factFieldValuesEmail = matchingEmails.FirstOrDefault();
 
                 if (factFieldValuesEmail != null)
                 {
-                    // Email address is matched by value, so no modification is made here.
-
-                    // Update existing FactFieldValue
-                    SetOrcidTimestamps(factFieldValuesEmail, email.CreatedDate, email.LastModifiedDate, currentDateTime);
-                    // Mark as processed
                     orcidImportHelper.dimEmailAddressIds.Add(factFieldValuesEmail.DimEmailAddrressId);
+                    if (!IsOrcidTimestampUnchanged(factFieldValuesEmail, email.LastModifiedDate))
+                    {
+                        SetOrcidTimestamps(factFieldValuesEmail, email.CreatedDate, email.LastModifiedDate, currentDateTime);
+                    }
                 }
                 else
                 {
