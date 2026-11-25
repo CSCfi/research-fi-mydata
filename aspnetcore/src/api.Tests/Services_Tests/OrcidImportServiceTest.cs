@@ -1179,6 +1179,214 @@ namespace api.Tests
             Assert.Equal(countAfterFirst, countAfterSecond);
         }
 
+        [Theory(DisplayName = "Email: unchanged value skips timestamp writes with or without a put code")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Email_Unchanged_SkipsTimestampWrites(bool hasPutCode)
+        {
+            using var context = CreateContext(nameof(Email_Unchanged_SkipsTimestampWrites) + hasPutCode);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("email.json")).AsObject();
+            JsonObject email = json["person"]["emails"]["email"][0].AsObject();
+            if (!hasPutCode)
+                email["put-code"] = null;
+            const long timestamp = 1757656106614;
+            email["last-modified-date"]["value"] = JsonValue.Create(timestamp);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            int emailId = ffv.DimEmailAddrressId;
+            DateTime roundedTimestamp = new SqlDateTime(DateTimeOffset.FromUnixTimeMilliseconds(timestamp).UtcDateTime).Value;
+            ffv.Modified = roundedTimestamp;
+            DateTime originalCreated = new(2000, 1, 1);
+            ffv.Created = originalCreated;
+            ffv.Show = false;
+            await context.SaveChangesAsync();
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            Assert.Equal(emailId, ffv.DimEmailAddrressId);
+            Assert.Equal(originalCreated, ffv.Created);
+            Assert.Equal(roundedTimestamp, ffv.Modified);
+            Assert.False(ffv.Show);
+            Assert.Single(context.DimEmailAddrresses.Where(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Email: missing stored timestamp is backfilled without duplication")]
+        public async Task Email_MissingStoredTimestamp_BackfillsExistingRow()
+        {
+            using var context = CreateContext(nameof(Email_MissingStoredTimestamp_BackfillsExistingRow));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("email.json")).AsObject();
+            json["person"]["emails"]["email"][0]["put-code"] = null;
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            var ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            int emailId = ffv.DimEmailAddrressId;
+            ffv.Created = null;
+            ffv.Modified = null;
+            await context.SaveChangesAsync();
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            var expected = DateTimeOffset.FromUnixTimeMilliseconds(1000000000000).UtcDateTime;
+            Assert.Equal(emailId, ffv.DimEmailAddrressId);
+            Assert.Equal(expected, ffv.Created);
+            Assert.Equal(expected, ffv.Modified);
+            Assert.Single(context.DimEmailAddrresses.Where(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Email: missing incoming timestamp follows the full update path")]
+        public async Task Email_MissingIncomingTimestamp_UpdatesExistingRow()
+        {
+            using var context = CreateContext(nameof(Email_MissingIncomingTimestamp_UpdatesExistingRow));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("email.json")).AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            var ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            int emailId = ffv.DimEmailAddrressId;
+            DateTime? oldModified = ffv.Modified;
+            json["person"]["emails"]["email"][0].AsObject().Remove("last-modified-date");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            Assert.Equal(emailId, ffv.DimEmailAddrressId);
+            Assert.True(ffv.Modified > oldModified);
+        }
+
+        [Fact(DisplayName = "Email: newer timestamp updates metadata and older timestamp does not overwrite it")]
+        public async Task Email_NewerAndOlderTimestamps_UpdateOnlyNewer()
+        {
+            using var context = CreateContext(nameof(Email_NewerAndOlderTimestamps_UpdateOnlyNewer));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("email.json")).AsObject();
+            JsonObject email = json["person"]["emails"]["email"][0].AsObject();
+            email["put-code"] = null;
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int emailId = context.DimEmailAddrresses.Single(e => e.Id > 0).Id;
+            email["last-modified-date"]["value"] = JsonValue.Create(1000000002000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            var ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            DateTime newerTimestamp = DateTimeOffset.FromUnixTimeMilliseconds(1000000002000).UtcDateTime;
+            Assert.Equal(newerTimestamp, ffv.Modified);
+            Assert.Equal(emailId, ffv.DimEmailAddrressId);
+
+            email["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            Assert.Equal(newerTimestamp, ffv.Modified);
+            Assert.Equal(emailId, ffv.DimEmailAddrressId);
+        }
+
+        [Theory(DisplayName = "Email: changed address replaces the old row regardless of put code")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Email_ChangedValue_ReplacesExistingRow(bool hasPutCode)
+        {
+            using var context = CreateContext(nameof(Email_ChangedValue_ReplacesExistingRow) + hasPutCode);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("email.json")).AsObject();
+            JsonObject email = json["person"]["emails"]["email"][0].AsObject();
+            if (!hasPutCode)
+                email["put-code"] = null;
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int previousId = context.DimEmailAddrresses.Single(e => e.Id > 0).Id;
+            email["email"] = "new@example.com";
+            email["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var updated = Assert.Single(context.DimEmailAddrresses.Where(e => e.Id > 0));
+            Assert.NotEqual(previousId, updated.Id);
+            Assert.Equal("new@example.com", updated.Email);
+            Assert.Equal(updated.Id, context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0).DimEmailAddrressId);
+        }
+
+        [Fact(DisplayName = "Email: duplicate incoming addresses do not overwrite ambiguous timestamps")]
+        public async Task Email_DuplicateIncomingValues_PreservesExistingMetadata()
+        {
+            using var context = CreateContext(nameof(Email_DuplicateIncomingValues_PreservesExistingMetadata));
+            await SeedRequiredData(context);
+            var logger = new Mock<ILogger<OrcidImportService>>();
+            var service = CreateService(context, logger: logger.Object);
+            JsonObject json = JsonNode.Parse(LoadFixture("email.json")).AsObject();
+            JsonArray emails = json["person"]["emails"]["email"].AsArray();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            var ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            int emailId = ffv.DimEmailAddrressId;
+            DateTime? modified = ffv.Modified;
+            JsonObject duplicate = emails[0].DeepClone().AsObject();
+            duplicate["last-modified-date"]["value"] = JsonValue.Create(1000000002000L);
+            emails.Add(duplicate);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            ffv = context.FactFieldValues.Single(f => f.DimEmailAddrressId > 0);
+            Assert.Equal(emailId, ffv.DimEmailAddrressId);
+            Assert.Equal(modified, ffv.Modified);
+            Assert.Single(context.DimEmailAddrresses.Where(e => e.Id > 0));
+            Assert.Contains(logger.Invocations, invocation =>
+                invocation.Method.Name == nameof(ILogger.Log) &&
+                (LogLevel)invocation.Arguments[0] == LogLevel.Warning);
+        }
+
+        [Fact(DisplayName = "Email: ambiguous new addresses are not inserted while distinct addresses import")]
+        public async Task Email_DuplicateNewValues_ImportsOnlyDistinctAddress()
+        {
+            using var context = CreateContext(nameof(Email_DuplicateNewValues_ImportsOnlyDistinctAddress));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("email.json")).AsObject();
+            JsonArray emails = json["person"]["emails"]["email"].AsArray();
+            emails.Add(emails[0].DeepClone());
+            JsonObject distinctEmail = emails[0].DeepClone().AsObject();
+            distinctEmail["email"] = "distinct@example.com";
+            distinctEmail["put-code"] = JsonValue.Create(3002);
+            emails.Add(distinctEmail);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var storedEmail = Assert.Single(context.DimEmailAddrresses.Where(e => e.Id > 0));
+            Assert.Equal("distinct@example.com", storedEmail.Email);
+            Assert.Single(context.FactFieldValues.Where(f => f.DimEmailAddrressId > 0));
+        }
+
+        [Fact(DisplayName = "Email: duplicate stored addresses are retained without assigning timestamps")]
+        public async Task Email_DuplicateStoredValues_PreservesBothRows()
+        {
+            using var context = CreateContext(nameof(Email_DuplicateStoredValues_PreservesBothRows));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("email.json")).AsObject();
+            JsonArray emails = json["person"]["emails"]["email"].AsArray();
+            JsonObject secondEmail = emails[0].DeepClone().AsObject();
+            secondEmail["email"] = "second@example.com";
+            secondEmail["put-code"] = JsonValue.Create(3002);
+            emails.Add(secondEmail);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var secondStoredEmail = context.DimEmailAddrresses.Single(e => e.Email == "second@example.com");
+            secondStoredEmail.Email = "alice@example.com";
+            await context.SaveChangesAsync();
+            emails.RemoveAt(1);
+            emails[0]["last-modified-date"]["value"] = JsonValue.Create(1000000002000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal(2, context.DimEmailAddrresses.Count(e => e.Id > 0 && e.Email == "alice@example.com"));
+            var originalTimestamp = DateTimeOffset.FromUnixTimeMilliseconds(1000000000000).UtcDateTime;
+            Assert.All(context.FactFieldValues.Where(f => f.DimEmailAddrressId > 0),
+                ffv => Assert.Equal(originalTimestamp, ffv.Modified));
+        }
+
         // -------------------------------------------------------------------------
         // Section: person / keywords  (2 entries)
         // -------------------------------------------------------------------------

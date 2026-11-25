@@ -264,7 +264,7 @@ Apply comparison independently to each researcher URL by ORCID put code.
 
 Implementation note (2026-11-24): Timestamp comparison and regression tests are
 implemented, including a regression for SQL Server `datetime` round-tripping.
-Production rollout and verification remain pending before proceeding to Phase 5.
+Production verification was confirmed on 2026-11-25.
 
 - Skip URL and label writes for safely unchanged items.
 - Preserve current URL truncation and validation behavior for processed items.
@@ -273,6 +273,13 @@ Production rollout and verification remain pending before proceeding to Phase 5.
 ## Phase 5 - Email Addresses
 
 Apply timestamp comparison to email items.
+
+Implementation note (2026-11-25): Email identity remains the exact stored
+address, independent of put code; a changed address is removed and reinserted.
+Only a unique incoming and stored, untruncated address match qualifies for
+timestamp comparison. Ambiguous inputs are logged, existing matching rows are
+retained without timestamp updates, and ambiguous new rows are not inserted.
+Production verification remains pending before proceeding to Phase 6.
 
 - First solve the stable matching strategy when ORCID put code is null, since
   current matching is by email value.
