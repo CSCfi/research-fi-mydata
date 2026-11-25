@@ -47,7 +47,7 @@ namespace api.Services
          * For performance improvements, Entity Framework change tracker is disabled when adding new entities in foreach loop.
          *    _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
          */
-        public async Task AddDimDates(string orcidRecordJson, DateTime currentDateTime, LogUserIdentification logUserIdentification)
+        public async Task AddDimDates(string orcidRecordJson, DateTime currentDateTime, LogUserIdentification logUserIdentification, OrcidImportStatistics statistics = null)
         {
             // Education DimDates
             List<OrcidEducation> educations = new();
@@ -308,6 +308,7 @@ namespace api.Services
                     }
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
+            statistics?.CaptureChanges(_ttvContext, countItems: false);
             await _ttvContext.SaveChangesAsync();
         }
 
@@ -392,11 +393,12 @@ namespace api.Services
          * For performance improvements, Entity Framework change tracker is disabled when adding new entities in foreach loop.
          *    _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
          */
-        public async Task<bool> ImportOrcidRecordJsonIntoUserProfile(int userprofileId, string orcidRecordJson, LogUserIdentification logUserIdentification)
+        public async Task<OrcidImportStatistics> ImportOrcidRecordJsonIntoUserProfile(int userprofileId, string orcidRecordJson, LogUserIdentification logUserIdentification)
         {
+            OrcidImportStatistics statistics = new();
             // Add DimDates.
             DateTime currentDateTime = _utilityService.GetCurrentDateTime();
-            await AddDimDates(orcidRecordJson, currentDateTime, logUserIdentification);
+            await AddDimDates(orcidRecordJson, currentDateTime, logUserIdentification, statistics);
             _ttvContext.ChangeTracker.Clear(); // Detach tracked DimDate entities to free memory
 
             // Get ORCID registered data source id.
@@ -529,6 +531,7 @@ namespace api.Services
                 factFieldValuesName.Show = true; // ORCID name is selected by default.
                 _ttvContext.FactFieldValues.Add(factFieldValuesName);
             }
+            statistics.TrackItem(factFieldValuesName);
 
 
 
@@ -577,6 +580,7 @@ namespace api.Services
                     if (hasUniquePutCodeMatch && IsOrcidTimestampUnchanged(factFieldValuesOtherName, otherName.LastModifiedDate))
                     {
                         orcidImportHelper.dimNameIds.Add(factFieldValuesOtherName.DimName.Id);
+                        statistics.TrackItem(factFieldValuesOtherName);
                         continue;
                     }
 
@@ -623,6 +627,7 @@ namespace api.Services
                     factFieldValuesOtherName.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_OTHER_NAMES, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesOtherName);
                 }
+                statistics.TrackItem(factFieldValuesOtherName);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             otherNames = null;
@@ -674,6 +679,7 @@ namespace api.Services
                     if (hasUniquePutCodeMatch && IsOrcidTimestampUnchanged(factFieldValuesWebLink, researchUrl.LastModifiedDate))
                     {
                         orcidImportHelper.dimWebLinkIds.Add(factFieldValuesWebLink.DimWebLink.Id);
+                        statistics.TrackItem(factFieldValuesWebLink);
                         continue;
                     }
 
@@ -716,6 +722,7 @@ namespace api.Services
                     factFieldValuesWebLink.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_WEB_LINK, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesWebLink);
                 }
+                statistics.TrackItem(factFieldValuesWebLink);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             researcherUrls = null;
@@ -792,6 +799,7 @@ namespace api.Services
                     factFieldValuesResearcherDescription.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_RESEARCHER_DESCRIPTION, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesResearcherDescription);
                 }
+                statistics.TrackItem(factFieldValuesResearcherDescription);
             }
             biography = null;
 
@@ -879,6 +887,7 @@ namespace api.Services
 
                     _ttvContext.FactFieldValues.Add(factFieldValuesEmail);
                 }
+                statistics.TrackItem(factFieldValuesEmail);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             emails = null;
@@ -959,6 +968,7 @@ namespace api.Services
                     factFieldValuesKeyword.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_KEYWORD, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesKeyword);
                 }
+                statistics.TrackItem(factFieldValuesKeyword);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             keywords = null;
@@ -1036,6 +1046,7 @@ namespace api.Services
                     factFieldValuesExternalIdentifier.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesExternalIdentifier);
                 }
+                statistics.TrackItem(factFieldValuesExternalIdentifier);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             externalIdentifiers = null;
@@ -1131,6 +1142,7 @@ namespace api.Services
                     factFieldValuesEducation.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_EDUCATION, logUserIdentification);
                     _ttvContext.FactFieldValues.Add(factFieldValuesEducation);
                 }
+                statistics.TrackItem(factFieldValuesEducation);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             educations = null;
@@ -1382,6 +1394,7 @@ namespace api.Services
                         departmentNameEn: employment.DepartmentName,
                         departmentNameSv: "");
                 }
+                statistics.TrackItem(factFieldValuesAffiliation);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             employments = null;
@@ -1468,6 +1481,7 @@ namespace api.Services
                         factFieldValuesPublication.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValuesPublication);
                     }
+                    statistics.TrackItem(factFieldValuesPublication);
                 }
                 _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             }
@@ -1593,6 +1607,7 @@ namespace api.Services
                         factFieldValuesProfileOnlyDataset.Show = _userProfileService.SetFactFieldValuesShow(dimUserProfile, Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET, logUserIdentification);
                         _ttvContext.FactFieldValues.Add(factFieldValuesProfileOnlyDataset);
                     }
+                    statistics.TrackItem(factFieldValuesProfileOnlyDataset);
                 }
                 _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             }
@@ -1876,6 +1891,7 @@ namespace api.Services
                         factFieldValuesProfileOnlyFundingDecision.DimIdentifierlessData = dimIdentifierlessData_oganizationName;
                     }
                 }
+                statistics.TrackItem(factFieldValuesProfileOnlyFundingDecision);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             orcidFundings = null;
@@ -2144,6 +2160,7 @@ namespace api.Services
                         departmentNameEn: orcidResearchActivity.DepartmentName,
                         departmentNameSv: "");
                 }
+                statistics.TrackItem(factFieldValuesDimProfileOnlyResearchActivity);
             }
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             orcidResearchActivities = null;
@@ -2369,9 +2386,10 @@ namespace api.Services
                 _ttvContext.ChangeTracker.AutoDetectChangesEnabled = true;
             }
 
+            statistics.CaptureChanges(_ttvContext);
             await _ttvContext.SaveChangesAsync();
 
-            return true;
+            return statistics;
         }
 
 
@@ -2385,8 +2403,9 @@ namespace api.Services
          * Implemented for:
          *   - fundings
          */
-        public async Task<bool> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken, LogUserIdentification logUserIdentification, bool useOrcidPublicApi=false)
+        public async Task<OrcidImportStatistics> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken, LogUserIdentification logUserIdentification, bool useOrcidPublicApi=false)
         {
+            OrcidImportStatistics statistics = new();
             foreach (FactFieldValue ffv in factFieldValues)
             {
                 if (ffv.DimProfileOnlyFundingDecisionId > 0)
@@ -2415,9 +2434,11 @@ namespace api.Services
                         {
                             ffv.DimProfileOnlyFundingDecision.AmountInEur = (decimal)ffv.DimProfileOnlyFundingDecision.AmountInFundingDecisionCurrency;
                         }
+                        statistics.TrackItem(ffv);
                     }
                     catch (Exception ex)
                     {
+                        statistics.TrackFailedItem();
                         _logger.LogError(
                             LogContent.MESSAGE_TEMPLATE,
                             logUserIdentification,
@@ -2430,7 +2451,7 @@ namespace api.Services
                 }
             }
 
-            return false;
+            return statistics;
         }
     }
 }

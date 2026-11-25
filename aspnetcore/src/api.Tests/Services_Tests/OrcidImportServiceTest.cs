@@ -1,5 +1,6 @@
 using Xunit;
 using api.Services;
+using api.Controllers;
 using api.Models.Common;
 using api.Models.Ttv;
 using api.Models.Log;
@@ -9,13 +10,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlTypes;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
@@ -352,7 +360,8 @@ namespace api.Tests
         private OrcidImportService CreateService(
             TtvContext context,
             IOrcidJsonParserService parser = null,
-            ILogger<OrcidImportService> logger = null)
+            ILogger<OrcidImportService> logger = null,
+            IOrcidApiService orcidApiService = null)
         {
             var utilityService = new UtilityService();
             var userProfileService = new UserProfileService(
@@ -364,7 +373,7 @@ namespace api.Tests
             return new OrcidImportService(
                 ttvContext: context,
                 userProfileService: userProfileService,
-                orcidApiService: null,
+                orcidApiService: orcidApiService,
                 orcidJsonParserService: parser ?? new OrcidJsonParserService(),
                 organizationHandlerService: organizationHandlerService,
                 utilityService: utilityService,
@@ -479,6 +488,185 @@ namespace api.Tests
 
         private static string Long(char c) => new string(c, 300);
         private static string Max(char c) => new string(c, 255);
+
+        [Fact]
+        public async Task ImportStatistics_CountItemsAndDatabaseChanges()
+        {
+            using var context = CreateContext(nameof(ImportStatistics_CountItemsAndDatabaseChanges));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string json = LoadFixture("other_names.json").Replace(
+                "\"name\": {",
+                "\"name\": { \"last-modified-date\": { \"value\": 1000000001000 },");
+
+            var inserted = await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            Assert.Equal(3, inserted.Items);
+            Assert.Equal(0, inserted.Unchanged);
+            Assert.Equal(8, inserted.Inserts);
+            Assert.Equal(0, inserted.Updates);
+            Assert.Equal(0, inserted.Deletes);
+
+            var unchanged = await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+            Assert.Equal(3, unchanged.Items);
+            Assert.Equal(3, unchanged.Unchanged);
+            Assert.Equal(0, unchanged.Inserts + unchanged.Updates + unchanged.Deletes);
+
+            var updatedJson = JsonNode.Parse(json).AsObject();
+            var otherNames = updatedJson["person"]["other-names"]["other-name"].AsArray();
+            otherNames[0]["last-modified-date"]["value"] = 1000000002000L;
+            otherNames[0]["content"] = "Updated name";
+            otherNames.RemoveAt(1);
+            var updated = await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
+            Assert.Equal(2, updated.Items);
+            Assert.Equal(1, updated.Unchanged);
+            Assert.Equal(0, updated.Inserts);
+            Assert.Equal(2, updated.Updates);
+            Assert.Equal(3, updated.Deletes);
+
+            var oldCulture = CultureInfo.CurrentCulture;
+            try
+            {
+                CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("fi-FI");
+                Assert.Equal("seconds=1 items=2 unchanged=1 failed=0 db_insert=0 db_update=2 db_delete=3",
+                    updated.ToMessage(TimeSpan.FromMilliseconds(1250)));
+                Assert.StartsWith("seconds=2 ", updated.ToMessage(TimeSpan.FromMilliseconds(1750)));
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = oldCulture;
+            }
+        }
+
+        [Fact]
+        public async Task ImportStatistics_CountsUnchangedEmailAndDateInserts()
+        {
+            using var context = CreateContext(nameof(ImportStatistics_CountsUnchangedEmailAndDateInserts));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string emailJson = LoadFixture("email.json").Replace(
+                "\"name\": {",
+                "\"name\": { \"last-modified-date\": { \"value\": 1000000001000 },");
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, emailJson, LogId);
+
+            var unchanged = await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, emailJson, LogId);
+            Assert.Equal(2, unchanged.Items);
+            Assert.Equal(2, unchanged.Unchanged);
+            Assert.Equal(0, unchanged.Inserts + unchanged.Updates + unchanged.Deletes);
+
+            int datesBefore = await context.DimDates.CountAsync();
+            var education = await service.ImportOrcidRecordJsonIntoUserProfile(
+                UserProfileId, LoadFixture("education.json"), LogId);
+            Assert.Equal(2, await context.DimDates.CountAsync() - datesBefore);
+            Assert.Equal(5, education.Inserts);
+            Assert.Equal(3, education.Deletes);
+        }
+
+        [Fact]
+        public async Task AdditionalImportStatistics_CountUpdatesUnchangedAndFailedItems()
+        {
+            using var context = CreateContext(nameof(AdditionalImportStatistics_CountUpdatesUnchangedAndFailedItems));
+            await SeedRequiredData(context);
+            await CreateService(context).ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding.json"), LogId);
+            var ffv = await context.FactFieldValues
+                .Include(value => value.DimProfileOnlyFundingDecision)
+                .SingleAsync(value => value.DimUserProfileId == UserProfileId && value.DimProfileOnlyFundingDecisionId > 0);
+
+            var api = new Mock<IOrcidApiService>();
+            api.Setup(service => service.GetDataFromMemberApi(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync("detail");
+            var parser = new Mock<IOrcidJsonParserService>();
+            parser.Setup(service => service.GetFundingDetail("detail")).Returns(new OrcidFunding(
+                type: "grant", name: "Detailed funding", description: "Description", amount: "123",
+                currencyCode: "EUR", disambiguatedOrganizationIdentifier: null, disambiguationSource: null,
+                organizationName: null, startDate: null, endDate: null, putCode: null, url: null, path: null));
+            var service = CreateService(context, parser.Object, orcidApiService: api.Object);
+
+            var updated = await service.ImportAdditionalData(new() { ffv }, "token", LogId);
+            updated.CaptureChanges(context);
+            await context.SaveChangesAsync();
+            Assert.Equal(1, updated.Items);
+            Assert.Equal(0, updated.Unchanged);
+            Assert.Equal(1, updated.Updates);
+            Assert.Equal(0, updated.Inserts + updated.Deletes);
+
+            var unchanged = await service.ImportAdditionalData(new() { ffv }, "token", LogId);
+            unchanged.CaptureChanges(context);
+            await context.SaveChangesAsync();
+            Assert.Equal(1, unchanged.Items);
+            Assert.Equal(1, unchanged.Unchanged);
+            Assert.Equal(0, unchanged.Inserts + unchanged.Updates + unchanged.Deletes);
+
+            parser.Setup(service => service.GetFundingDetail("detail")).Throws(new FormatException("Invalid detail"));
+            var failed = await service.ImportAdditionalData(new() { ffv }, "token", LogId);
+            failed.CaptureChanges(context);
+            Assert.Equal(1, failed.Items);
+            Assert.Equal(1, failed.Failed);
+            Assert.Equal(0, failed.Unchanged);
+        }
+
+        [Fact]
+        public async Task OrcidController_LogsBothImportsAndSavesAdditionalDataInBackgroundScope()
+        {
+            string dbName = nameof(OrcidController_LogsBothImportsAndSavesAdditionalDataInBackgroundScope);
+            using var context = CreateContext(dbName);
+            await SeedRequiredData(context);
+            var api = new Mock<IOrcidApiService>();
+            api.Setup(service => service.GetRecordFromPublicApi(It.IsAny<string>()))
+                .ReturnsAsync(LoadFixture("funding.json"));
+            api.Setup(service => service.GetDataFromPublicApi(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync("detail");
+            var parser = new Mock<IOrcidJsonParserService>();
+            parser.Setup(service => service.GetFundingDetail("detail")).Returns(new OrcidFunding(
+                type: "grant", name: "Background detail", description: "Description", amount: "123",
+                currencyCode: "EUR", disambiguatedOrganizationIdentifier: null, disambiguationSource: null,
+                organizationName: null, startDate: null, endDate: null, putCode: null, url: null, path: null));
+            using var provider = new ServiceCollection()
+                .AddScoped(_ => CreateContext(dbName))
+                .AddScoped<IOrcidImportService>(services => CreateService(
+                    services.GetRequiredService<TtvContext>(), parser.Object, orcidApiService: api.Object))
+                .BuildServiceProvider();
+            var userProfile = new Mock<IUserProfileService>();
+            userProfile.Setup(service => service.GetUserprofileIdForOrcidId(It.IsAny<string>()))
+                .ReturnsAsync((true, UserProfileId));
+            var environment = new Mock<IWebHostEnvironment>();
+            environment.SetupGet(env => env.EnvironmentName).Returns("Development");
+            var logger = new Mock<ILogger<OrcidController>>();
+            var queue = new BackgroundTaskQueue();
+            using var cache = new MemoryCache(new MemoryCacheOptions());
+            var controller = new OrcidController(userProfile.Object, api.Object, CreateService(context),
+                logger.Object, Mock.Of<ITokenService>(), environment.Object, cache, queue,
+                provider.GetRequiredService<IServiceScopeFactory>())
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                        {
+                            new Claim("orcid", "0000-0001-0001-0001"),
+                            new Claim("use_orcid_public_api", "true")
+                        }))
+                    }
+                }
+            };
+
+            Assert.IsType<OkObjectResult>(await controller.Get());
+            var workItem = await queue.DequeueAsync(CancellationToken.None);
+            await workItem(CancellationToken.None);
+
+            var completions = logger.Invocations
+                .Where(invocation => invocation.Method.Name == nameof(ILogger.Log))
+                .SelectMany(invocation => ((IReadOnlyList<KeyValuePair<string, object>>)invocation.Arguments[2])
+                    .Select(pair => pair.Value).OfType<LogApiInfo>())
+                .Where(info => info.State == LogContent.ActionState.COMPLETE).ToList();
+            var main = Assert.Single(completions, info => info.Action == LogContent.Action.ORCID_RECORD_IMPORT);
+            var additional = Assert.Single(completions, info => info.Action == LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL);
+            Assert.Matches(@"^seconds=\d+ items=2 unchanged=0 failed=0 db_insert=\d+ db_update=\d+ db_delete=\d+$", main.Message);
+            Assert.Matches(@"^seconds=\d+ items=1 unchanged=0 failed=0 db_insert=0 db_update=1 db_delete=0$", additional.Message);
+            context.ChangeTracker.Clear();
+            Assert.Equal("Background detail", (await context.DimProfileOnlyFundingDecisions.SingleAsync(
+                funding => funding.Id > 0)).NameEn);
+        }
 
         [Fact(DisplayName = "Name: ORCID timestamps populate and update FactFieldValue timestamps")]
         public async Task Name_OrcidTimestamps_Persist()

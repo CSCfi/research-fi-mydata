@@ -44,6 +44,23 @@ Deployment templates for OpenShift (Rahti2) live under `aspnetcore/openshift/` a
 - `Background/` — hosted background task queue used for async work (e.g. ORCID sync).
 - `ElasticsearchMapper/` — maps TTV entities to Elasticsearch documents.
 
+### ORCID import logging
+
+The main and additional ORCID import completion messages use space-separated `key=value`
+fields: `seconds`, `items`, `unchanged`, `failed`, `db_insert`, `db_update`, and `db_delete`.
+Seconds are rounded to the nearest integer. `items` counts parsed input items (funding details
+for the additional import); `unchanged` counts successfully processed items with no changes to
+their associated entities. `failed` counts funding details that could not be parsed;
+main-record section parsing errors are logged separately.
+
+Database counts are EF-tracked entity changes saved during the import, including date rows in
+the main import. They are not item counts and exclude database-side cascades and triggers, so
+they need not add up to `items`. Items deleted from the profile count in `db_delete`, not
+`items`. Additional-import duration includes loading and saving funding details; main-import
+duration excludes fetching the record and linking TTV publications. Keep both
+`OrcidController` and `WebhookController` completion logs consistent with
+[`OrcidImportStatistics`](aspnetcore/src/api/Models/Orcid/OrcidImportStatistics.cs).
+
 ### Testing conventions
 
 - Tests live in `aspnetcore/src/api.Tests/Services_Tests/`, mirroring the `Services/` structure
