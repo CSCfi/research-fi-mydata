@@ -879,7 +879,10 @@ namespace api.Tests
             Assert.Equal(Max('a'), pid.PidContent);
             Assert.Equal(Max('a'), pid.PidType);
 
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, Fixture('b'), LogId);
+            JsonObject updatedJson = JsonNode.Parse(Fixture('b')).AsObject();
+            JsonArray externalIdentifiers = updatedJson["person"]["external-identifiers"]["external-identifier"].AsArray();
+            externalIdentifiers[0]["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
             pid = context.DimPids.Single(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE);
             Assert.Equal(Max('b'), pid.PidContent);
             Assert.Equal(Max('b'), pid.PidType);
@@ -1564,6 +1567,240 @@ namespace api.Tests
             Assert.Equal(countAfterFirst, countAfterSecond);
         }
 
+        [Fact(DisplayName = "External identifiers: mixed changes retain unchanged items and update changed types and values")]
+        public async Task ExternalIdentifier_MixedChanges_OnlyUpdatesChangedItem()
+        {
+            using var context = CreateContext(nameof(ExternalIdentifier_MixedChanges_OnlyUpdatesChangedItem));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("external_identifier.json")).AsObject();
+            JsonArray identifiers = json["person"]["external-identifiers"]["external-identifier"].AsArray();
+            identifiers[0]["last-modified-date"]["value"] = JsonValue.Create(1757656106614L);
+            JsonObject secondIdentifier = identifiers[0].DeepClone().AsObject();
+            secondIdentifier["put-code"] = JsonValue.Create(5002);
+            secondIdentifier["external-id-value"] = "second-id";
+            identifiers.Add(secondIdentifier);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var firstPid = context.DimPids.Single(p => p.PidContent == "99999");
+            var secondPid = context.DimPids.Single(p => p.PidContent == "second-id");
+            int firstId = firstPid.Id;
+            int secondId = secondPid.Id;
+            DateTime originalModified = new(2000, 1, 1);
+            firstPid.Modified = originalModified;
+            var firstFfv = context.FactFieldValues.Single(ffv => ffv.DimPidId == firstId);
+            DateTime roundedTimestamp = new SqlDateTime(DateTimeOffset.FromUnixTimeMilliseconds(1757656106614L).UtcDateTime).Value;
+            firstFfv.Modified = roundedTimestamp;
+            firstFfv.Show = false;
+            await context.SaveChangesAsync();
+
+            identifiers[0]["external-id-value"] = "stale-id";
+            identifiers[0]["external-id-type"] = "stale-type";
+            identifiers[1]["external-id-value"] = "updated-id";
+            identifiers[1]["external-id-type"] = "updated-type";
+            identifiers[1]["last-modified-date"]["value"] = JsonValue.Create(1757656107614L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            firstPid = context.DimPids.Single(p => p.Id == firstId);
+            secondPid = context.DimPids.Single(p => p.Id == secondId);
+            firstFfv = context.FactFieldValues.Single(ffv => ffv.DimPidId == firstId);
+            Assert.Equal("99999", firstPid.PidContent);
+            Assert.Equal("Loop profile", firstPid.PidType);
+            Assert.Equal(originalModified, firstPid.Modified);
+            Assert.Equal(roundedTimestamp, firstFfv.Modified);
+            Assert.False(firstFfv.Show);
+            Assert.Equal("updated-id", secondPid.PidContent);
+            Assert.Equal("updated-type", secondPid.PidType);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1757656107614L).UtcDateTime,
+                context.FactFieldValues.Single(ffv => ffv.DimPidId == secondId).Modified);
+
+            identifiers[0]["last-modified-date"]["value"] = JsonValue.Create(1757656105614L);
+            identifiers.RemoveAt(1);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            firstPid = context.DimPids.Single(p => p.Id == firstId);
+            Assert.Equal("99999", firstPid.PidContent);
+            Assert.Equal(originalModified, firstPid.Modified);
+            Assert.False(context.DimPids.Any(p => p.Id == secondId));
+        }
+
+        [Theory(DisplayName = "External identifier: null or empty URL does not delete the identifier")]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        public async Task ExternalIdentifier_NullOrEmptyUrl_RemainsPresent(int urlShape)
+        {
+            using var context = CreateContext(nameof(ExternalIdentifier_NullOrEmptyUrl_RemainsPresent) + urlShape);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("external_identifier.json")).AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            var pid = context.DimPids.Single(p => p.Id > 0 && p.PidType == "Loop profile");
+            int pidId = pid.Id;
+            JsonObject identifier = json["person"]["external-identifiers"]["external-identifier"][0].AsObject();
+            identifier["external-id-url"] = urlShape == 0 ? null
+                : new JsonObject { ["value"] = urlShape == 1 ? null : "" };
+            identifier["external-id-value"] = "changed";
+            identifier["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            pid = context.DimPids.Single(p => p.Id == pidId);
+            Assert.Equal("changed", pid.PidContent);
+            Assert.Single(context.FactFieldValues.Where(ffv => ffv.DimPidId == pidId));
+        }
+
+        [Theory(DisplayName = "External identifier: missing incoming or stored timestamp performs full processing")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ExternalIdentifier_MissingTimestamp_FullProcesses(bool missingIncoming)
+        {
+            using var context = CreateContext(nameof(ExternalIdentifier_MissingTimestamp_FullProcesses) + missingIncoming);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("external_identifier.json")).AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            var pid = context.DimPids.Single(p => p.Id > 0 && p.PidType == "Loop profile");
+            int pidId = pid.Id;
+            JsonObject identifier = json["person"]["external-identifiers"]["external-identifier"][0].AsObject();
+            identifier["external-id-value"] = "updated";
+            if (missingIncoming)
+                identifier.Remove("last-modified-date");
+            else
+            {
+                var ffv = context.FactFieldValues.Single(f => f.DimPidId == pidId);
+                ffv.Modified = null;
+                await context.SaveChangesAsync();
+            }
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal("updated", context.DimPids.Single(p => p.Id == pidId).PidContent);
+            Assert.NotNull(context.FactFieldValues.Single(f => f.DimPidId == pidId).Modified);
+        }
+
+        [Fact(DisplayName = "External identifier: duplicate incoming put codes do not skip updates")]
+        public async Task ExternalIdentifier_DuplicateIncomingPutCode_FullProcesses()
+        {
+            using var context = CreateContext(nameof(ExternalIdentifier_DuplicateIncomingPutCode_FullProcesses));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("external_identifier.json")).AsObject();
+            JsonArray identifiers = json["person"]["external-identifiers"]["external-identifier"].AsArray();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            JsonObject secondIdentifier = identifiers[0].DeepClone().AsObject();
+            identifiers[0]["external-id-value"] = "first";
+            secondIdentifier["external-id-value"] = "second";
+            identifiers.Add(secondIdentifier);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var pid = Assert.Single(context.DimPids.Where(p => p.Id > 0 && p.PidType == "Loop profile"));
+            Assert.Equal("second", pid.PidContent);
+        }
+
+        [Fact(DisplayName = "External identifier: duplicate stored put codes do not skip updates")]
+        public async Task ExternalIdentifier_DuplicateStoredPutCode_FullProcesses()
+        {
+            using var context = CreateContext(nameof(ExternalIdentifier_DuplicateStoredPutCode_FullProcesses));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("external_identifier.json")).AsObject();
+            JsonArray identifiers = json["person"]["external-identifiers"]["external-identifier"].AsArray();
+            JsonObject secondIdentifier = identifiers[0].DeepClone().AsObject();
+            secondIdentifier["put-code"] = JsonValue.Create(5002);
+            secondIdentifier["external-id-value"] = "second";
+            identifiers.Add(secondIdentifier);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            var secondFfv = context.FactFieldValues
+                .Include(ffv => ffv.DimPid)
+                .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation)
+                .Single(ffv => ffv.DimPid.PidContent == "second");
+            secondFfv.DimPidIdOrcidPutCodeNavigation.PidContent = "5001";
+            await context.SaveChangesAsync();
+
+            identifiers.RemoveAt(1);
+            identifiers[0]["external-id-value"] = "updated";
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var pid = Assert.Single(context.DimPids.Where(p => p.Id > 0 && p.PidType == "Loop profile"));
+            Assert.Equal("updated", pid.PidContent);
+        }
+
+        [Fact(DisplayName = "External identifier: sentinel put code cannot qualify for timestamp skipping")]
+        public async Task ExternalIdentifier_SentinelPutCode_FullProcesses()
+        {
+            using var context = CreateContext(nameof(ExternalIdentifier_SentinelPutCode_FullProcesses));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("external_identifier.json")).AsObject();
+            JsonObject identifier = json["person"]["external-identifiers"]["external-identifier"][0].AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int pidId = context.DimPids.Single(p => p.Id > 0 && p.PidType == "Loop profile").Id;
+            var ffv = context.FactFieldValues
+                .Include(f => f.DimPidIdOrcidPutCodeNavigation)
+                .Single(f => f.DimPidId == pidId);
+            ffv.DimPidIdOrcidPutCodeNavigation.PidContent = (-1).ToString();
+            await context.SaveChangesAsync();
+
+            identifier["put-code"] = JsonValue.Create(-1);
+            identifier["external-id-value"] = "updated";
+            Assert.Equal(-1, Assert.Single(new OrcidJsonParserService().GetExternalIdentifiers(json.ToJsonString())).PutCode.Value);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var resultingPid = Assert.Single(context.DimPids.Where(p => p.Id > 0 && p.PidType == "Loop profile"));
+            Assert.Equal(pidId, resultingPid.Id);
+            Assert.Equal("updated", resultingPid.PidContent);
+        }
+
+        [Fact(DisplayName = "External identifier: matching put code in another field does not cause a collision")]
+        public async Task ExternalIdentifier_PutCodeInAnotherField_SkipsOnlyExternalIdentifier()
+        {
+            using var context = CreateContext(nameof(ExternalIdentifier_PutCodeInAnotherField_SkipsOnlyExternalIdentifier));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("external_identifier.json")).AsObject();
+            JsonObject namesJson = JsonNode.Parse(LoadFixture("other_names.json")).AsObject();
+            JsonArray otherNames = namesJson["person"]["other-names"]["other-name"].AsArray();
+            otherNames.RemoveAt(1);
+            otherNames[0]["put-code"] = JsonValue.Create(5001);
+            json["person"]["other-names"] = namesJson["person"]["other-names"].DeepClone();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            var pid = context.DimPids.Single(p => p.Id > 0 && p.PidType == "Loop profile");
+            int pidId = pid.Id;
+            DateTime originalModified = new(2000, 1, 1);
+            pid.Modified = originalModified;
+            await context.SaveChangesAsync();
+
+            json["person"]["external-identifiers"]["external-identifier"][0]["external-id-value"] = "stale";
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            pid = context.DimPids.Single(p => p.Id == pidId);
+            Assert.Equal("99999", pid.PidContent);
+            Assert.Equal(originalModified, pid.Modified);
+            Assert.Single(context.DimNames.Where(name => name.FullName == "Alice S."));
+        }
+
+        [Fact(DisplayName = "External identifier: missing put code cannot skip processing")]
+        public async Task ExternalIdentifier_MissingPutCode_ImportsIncomingValue()
+        {
+            using var context = CreateContext(nameof(ExternalIdentifier_MissingPutCode_ImportsIncomingValue));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("external_identifier.json")).AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int previousId = context.DimPids.Single(p => p.Id > 0 && p.PidType == "Loop profile").Id;
+            JsonObject identifier = json["person"]["external-identifiers"]["external-identifier"][0].AsObject();
+            identifier.Remove("put-code");
+            identifier["external-id-value"] = "updated";
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var pid = Assert.Single(context.DimPids.Where(p => p.Id > 0 && p.PidType == "Loop profile"));
+            Assert.NotEqual(previousId, pid.Id);
+            Assert.Equal("updated", pid.PidContent);
+        }
+
         // -------------------------------------------------------------------------
         // Section: activities / educations  (1 entry)
         // -------------------------------------------------------------------------
@@ -2044,7 +2281,9 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("external_identifier.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("external_identifier_updated.json"), LogId);
+            JsonObject updatedJson = JsonNode.Parse(LoadFixture("external_identifier_updated.json")).AsObject();
+            updatedJson["person"]["external-identifiers"]["external-identifier"][0]["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
 
             var externalId = context.DimPids.Single(p => p.Id > 0 && p.PidType != Constants.PidTypes.ORCID_PUT_CODE);
             Assert.Equal("88888", externalId.PidContent);

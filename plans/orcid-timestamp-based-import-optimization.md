@@ -279,7 +279,7 @@ address, independent of put code; a changed address is removed and reinserted.
 Only a unique incoming and stored, untruncated address match qualifies for
 timestamp comparison. Ambiguous inputs are logged, existing matching rows are
 retained without timestamp updates, and ambiguous new rows are not inserted.
-Production verification remains pending before proceeding to Phase 6.
+Production verification was confirmed on 2026-11-25.
 
 - First solve the stable matching strategy when ORCID put code is null, since
   current matching is by email value.
@@ -293,6 +293,10 @@ Production verification remains pending before proceeding to Phase 6.
 ## Phase 6 - External Identifiers
 
 Apply comparison independently to external-identifier items.
+
+Implementation note (2026-11-25): Timestamp comparison uses unique put-code and
+field-setting matches, with regression tests for mixed items and null URLs.
+Production verification remains pending before proceeding to Phase 7.
 
 - Match by the established ORCID put code and field display setting.
 - Skip `DimPid` rewrites for unchanged items.

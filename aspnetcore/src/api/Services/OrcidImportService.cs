@@ -1010,30 +1010,40 @@ namespace api.Services
                         error: true,
                         message: ex.ToString()));
             }
-            // Get DimFieldDisplaySettings for keyword
+            // Get DimFieldDisplaySettings for external identifier
             DimFieldDisplaySetting dimFieldDisplaySettingsExternalIdentifier =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsKeyword => dfdsKeyword.FieldIdentifier == Constants.FieldIdentifiers.PERSON_EXTERNAL_IDENTIFIER);
+            Dictionary<int, int> externalIdentifierPutCodeCounts = externalIdentifiers
+                .Where(externalIdentifier => externalIdentifier.PutCode?.Value.HasValue == true)
+                .GroupBy(externalIdentifier => externalIdentifier.PutCode.Value.Value)
+                .ToDictionary(group => group.Key, group => group.Count());
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidExternalIdentifier externalIdentifier in externalIdentifiers)
             {
-                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimPid
-                FactFieldValue factFieldValuesExternalIdentifier =
-                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                int? putCode = externalIdentifier.PutCode?.Value;
+                List<FactFieldValue> matchingExternalIdentifiers = putCode.HasValue
+                    ? dimUserProfile.FactFieldValues.Where(ffv =>
                         ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsExternalIdentifier &&
                         ffv.DimPidIdOrcidPutCode > 0 &&
-                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == externalIdentifier.PutCode.Value.ToString());
+                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == putCode.Value.ToString()).ToList()
+                    : new List<FactFieldValue>();
+                FactFieldValue factFieldValuesExternalIdentifier = matchingExternalIdentifiers.FirstOrDefault();
 
                 if (factFieldValuesExternalIdentifier != null)
                 {
-                    // Update existing DimPid
-                    DimPid dimPid = factFieldValuesExternalIdentifier.DimPid;
-                    dimPid.PidContent = Truncate(externalIdentifier.ExternalIdValue, 255);
-                    dimPid.PidType = Truncate(externalIdentifier.ExternalIdType, 255);
-                    dimPid.Modified = currentDateTime;
-                    // Update existing FactFieldValue
-                    SetOrcidTimestamps(factFieldValuesExternalIdentifier, externalIdentifier.CreatedDate, externalIdentifier.LastModifiedDate, currentDateTime);
-                    // Mark as processed
                     orcidImportHelper.dimPidIds.Add(factFieldValuesExternalIdentifier.DimPidId);
+                    bool hasUniquePutCodeMatch =
+                        putCode > 0 &&
+                        externalIdentifierPutCodeCounts[putCode.Value] == 1 &&
+                        matchingExternalIdentifiers.Count == 1;
+                    if (!hasUniquePutCodeMatch || !IsOrcidTimestampUnchanged(factFieldValuesExternalIdentifier, externalIdentifier.LastModifiedDate))
+                    {
+                        DimPid dimPid = factFieldValuesExternalIdentifier.DimPid;
+                        dimPid.PidContent = Truncate(externalIdentifier.ExternalIdValue, 255);
+                        dimPid.PidType = Truncate(externalIdentifier.ExternalIdType, 255);
+                        dimPid.Modified = currentDateTime;
+                        SetOrcidTimestamps(factFieldValuesExternalIdentifier, externalIdentifier.CreatedDate, externalIdentifier.LastModifiedDate, currentDateTime);
+                    }
                 }
                 else
                 {

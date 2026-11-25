@@ -464,6 +464,20 @@ namespace api.Tests
             Assert.Equal(expectedExternalIdentifiers[1].PutCode.Value, actualExternalIdentifiers[1].PutCode.Value);
         }
 
+        [Theory(DisplayName = "Get external identifiers with null or empty URL")]
+        [InlineData("null", null)]
+        [InlineData("{\"value\":null}", null)]
+        [InlineData("{\"value\":\"\"}", "")]
+        public void GetExternalIdentifiers_NullOrEmptyUrl(string urlJson, string expectedUrl)
+        {
+            string json = "{\"person\":{\"external-identifiers\":{\"external-identifier\":[{" +
+                "\"external-id-type\":\"type\",\"external-id-value\":\"id\",\"external-id-url\":" +
+                urlJson + ",\"put-code\":1}]}}}";
+            var identifier = Assert.Single(new OrcidJsonParserService().GetExternalIdentifiers(json));
+            Assert.Equal(expectedUrl, identifier.ExternalIdUrl);
+            Assert.Equal("id", identifier.ExternalIdValue);
+        }
+
         [Fact(DisplayName = "Get educations")]
         public void TestGetEducations()
         {
