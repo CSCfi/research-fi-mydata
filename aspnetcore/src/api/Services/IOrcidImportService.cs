@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using api.Models.Log;
 using api.Models.Ttv;
+using api.Models.Orcid;
 
 namespace api.Services
 {
     public interface IOrcidImportService
     {
-        Task<bool> ImportOrcidRecordJsonIntoUserProfile(int userprofileId, string json, LogUserIdentification logUserIdentification);
-        Task<bool> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken, LogUserIdentification logUserIdentification, bool useOrcidPublicApi = false);
+        Task<OrcidImportStatistics> ImportOrcidRecordJsonIntoUserProfile(int userprofileId, string json, LogUserIdentification logUserIdentification);
+        Task<OrcidImportStatistics> ImportAdditionalData(List<FactFieldValue> factFieldValues, String orcidAccessToken, LogUserIdentification logUserIdentification, bool useOrcidPublicApi = false);
     }
 }

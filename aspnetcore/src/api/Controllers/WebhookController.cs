@@ -10,6 +10,7 @@ using api.Models.Log;
 using api.Models.Orcid;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers
@@ -159,6 +160,7 @@ namespace api.Controllers
                 {
                     try
                     {
+                        var importTimer = Stopwatch.StartNew();
                         _logger.LogInformation(
                             LogContent.MESSAGE_TEMPLATE,
                             logUserIdentification,
@@ -166,14 +168,16 @@ namespace api.Controllers
                                 action: LogContent.Action.ORCID_RECORD_IMPORT,
                                 state: LogContent.ActionState.START));
 
-                        importSuccess = await localOrcidImportService.ImportOrcidRecordJsonIntoUserProfile(dimUserprofileId, orcidRecordJson, logUserIdentification);
+                        OrcidImportStatistics statistics = await localOrcidImportService.ImportOrcidRecordJsonIntoUserProfile(dimUserprofileId, orcidRecordJson, logUserIdentification);
+                        importSuccess = true;
 
                         _logger.LogInformation(
                             LogContent.MESSAGE_TEMPLATE,
                             logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ORCID_RECORD_IMPORT,
-                                state: LogContent.ActionState.COMPLETE));
+                                state: LogContent.ActionState.COMPLETE,
+                                message: statistics.ToMessage(importTimer.Elapsed)));
                     }
                     catch (Exception ex)
                     {
@@ -199,6 +203,7 @@ namespace api.Controllers
                 {
                     try
                     {
+                        var importTimer = Stopwatch.StartNew();
                         _logger.LogInformation(
                             LogContent.MESSAGE_TEMPLATE,
                             logUserIdentification,
@@ -215,7 +220,8 @@ namespace api.Controllers
                             .Include(ffv => ffv.DimProfileOnlyFundingDecision)
                             .Include(ffv => ffv.DimPidIdOrcidPutCodeNavigation).ToListAsync();
 
-                        await localOrcidImportService.ImportAdditionalData(factFieldValues: ffvs, orcidAccessToken: orcidAccessToken, logUserIdentification: logUserIdentification);
+                        OrcidImportStatistics statistics = await localOrcidImportService.ImportAdditionalData(factFieldValues: ffvs, orcidAccessToken: orcidAccessToken, logUserIdentification: logUserIdentification);
+                        statistics.CaptureChanges(localTtvContext);
                         await localTtvContext.SaveChangesAsync();
 
                         _logger.LogInformation(
@@ -223,7 +229,8 @@ namespace api.Controllers
                             logUserIdentification,
                             new LogApiInfo(
                                 action: LogContent.Action.ORCID_RECORD_IMPORT_ADDITIONAL,
-                                state: LogContent.ActionState.COMPLETE));
+                                state: LogContent.ActionState.COMPLETE,
+                                message: statistics.ToMessage(importTimer.Elapsed)));
                     }
                     catch (Exception ex)
                     {
