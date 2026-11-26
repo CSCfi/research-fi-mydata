@@ -464,10 +464,24 @@ namespace api.Tests
         private static JsonObject PublicationSummary(JsonObject json) =>
             PublicationGroup(json)["work-summary"][0].AsObject();
 
+        private static JsonObject DatasetGroup(JsonObject json) =>
+            json["activities-summary"]["works"]["group"].AsArray()
+                .First(group => group["work-summary"]?[0]?["type"]?.GetValue<string>() == "data-set").AsObject();
+
+        private static JsonObject DatasetSummary(JsonObject json) =>
+            DatasetGroup(json)["work-summary"][0].AsObject();
+
         private string UpdatedPublicationWorksFixture()
         {
             JsonObject json = JsonNode.Parse(LoadFixture("works_updated.json")).AsObject();
             PublicationSummary(json)["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            return json.ToJsonString();
+        }
+
+        private string UpdatedDatasetWorksFixture(string fileName = "works_updated.json")
+        {
+            JsonObject json = JsonNode.Parse(LoadFixture(fileName)).AsObject();
+            DatasetSummary(json)["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
             return json.ToJsonString();
         }
 
@@ -3126,10 +3140,194 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedPublicationWorksFixture(), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedDatasetWorksFixture(), LogId);
 
             Assert.Equal(1, context.DimProfileOnlyDatasets.Count(e => e.Id > 0));
             Assert.Equal("Updated Dataset", context.DimProfileOnlyDatasets.Single(e => e.Id > 0).NameEn);
+        }
+
+        [Fact(DisplayName = "Dataset: unchanged timestamp skips dataset and web-link updates")]
+        public async Task Dataset_UnchangedTimestamp_SkipsWrites()
+        {
+            using var context = CreateContext(nameof(Dataset_UnchangedTimestamp_SkipsWrites));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("dataset_with_url.json")).AsObject();
+            JsonObject summary = DatasetSummary(json);
+            summary["last-modified-date"]["value"] = JsonValue.Create(1757656106614L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var dataset = context.DimProfileOnlyDatasets.Single(d => d.Id > 0);
+            int datasetId = dataset.Id;
+            DateTime originalModified = new(2000, 1, 1);
+            dataset.Modified = originalModified;
+            var ffv = context.FactFieldValues.Single(f => f.DimProfileOnlyDatasetId == datasetId);
+            DateTime roundedTimestamp = new SqlDateTime(DateTimeOffset.FromUnixTimeMilliseconds(1757656106614L).UtcDateTime).Value;
+            ffv.Modified = roundedTimestamp;
+            ffv.Show = false;
+            ffv.PrimaryValue = true;
+            var webLink = context.DimWebLinks.Single(w => w.Id > 0);
+            int webLinkId = webLink.Id;
+            webLink.Modified = originalModified;
+            await context.SaveChangesAsync();
+
+            summary["title"]["title"]["value"] = "stale dataset";
+            summary["publication-date"] = new JsonObject
+            {
+                ["year"] = new JsonObject { ["value"] = "1999" },
+                ["month"] = null,
+                ["day"] = null
+            };
+            summary["url"] = null;
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            dataset = context.DimProfileOnlyDatasets.Single(d => d.Id == datasetId);
+            ffv = context.FactFieldValues.Single(f => f.DimProfileOnlyDatasetId == datasetId);
+            webLink = context.DimWebLinks.Single(w => w.Id == webLinkId);
+            Assert.Equal("Test Dataset", dataset.NameEn);
+            Assert.Null(dataset.DatasetCreated);
+            Assert.Equal(originalModified, dataset.Modified);
+            Assert.Equal(roundedTimestamp, ffv.Modified);
+            Assert.False(ffv.Show);
+            Assert.True(ffv.PrimaryValue);
+            Assert.Equal("https://dataset.example.com", webLink.Url);
+            Assert.Equal(originalModified, webLink.Modified);
+
+            summary["last-modified-date"]["value"] = JsonValue.Create(1757656105614L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            Assert.Equal(originalModified, context.DimProfileOnlyDatasets.Single(d => d.Id == datasetId).Modified);
+            Assert.Equal("https://dataset.example.com", context.DimWebLinks.Single(w => w.Id == webLinkId).Url);
+        }
+
+        [Fact(DisplayName = "Dataset: changed publication date and details update without changing URL")]
+        public async Task Dataset_ChangedFieldsAndDate_Updates()
+        {
+            using var context = CreateContext(nameof(Dataset_ChangedFieldsAndDate_Updates));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("dataset_with_url.json")).AsObject();
+            JsonObject summary = DatasetSummary(json);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            summary["title"]["title"]["value"] = "Updated Dataset";
+            summary["publication-date"] = new JsonObject
+            {
+                ["year"] = new JsonObject { ["value"] = "2018" },
+                ["month"] = new JsonObject { ["value"] = "03" },
+                ["day"] = null
+            };
+            summary["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var dataset = Assert.Single(context.DimProfileOnlyDatasets.Where(d => d.Id > 0));
+            Assert.Equal("Updated Dataset", dataset.NameEn);
+            Assert.Equal(new DateTime(2018, 3, 1), dataset.DatasetCreated);
+            Assert.Equal("https://dataset.example.com", context.DimWebLinks.Single(w => w.Id > 0).Url);
+        }
+
+        [Fact(DisplayName = "Dataset: URL-only change reconciles the related web link")]
+        public async Task Dataset_UrlOnlyChange_UpdatesWebLink()
+        {
+            using var context = CreateContext(nameof(Dataset_UrlOnlyChange_UpdatesWebLink));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("dataset_with_url.json")).AsObject();
+            JsonObject summary = DatasetSummary(json);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int datasetId = context.DimProfileOnlyDatasets.Single(d => d.Id > 0).Id;
+            int webLinkId = context.DimWebLinks.Single(w => w.Id > 0).Id;
+
+            summary["url"]["value"] = "https://dataset-updated.example.com";
+            summary["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal("Test Dataset", context.DimProfileOnlyDatasets.Single(d => d.Id == datasetId).NameEn);
+            Assert.Equal(webLinkId, Assert.Single(context.DimWebLinks.Where(w => w.Id > 0)).Id);
+            Assert.Equal("https://dataset-updated.example.com", context.DimWebLinks.Single(w => w.Id == webLinkId).Url);
+        }
+
+        [Theory(DisplayName = "Dataset: duplicate incoming or stored put codes do not skip")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Dataset_DuplicatePutCode_FullProcesses(bool duplicateIncoming)
+        {
+            using var context = CreateContext(nameof(Dataset_DuplicatePutCode_FullProcesses) + duplicateIncoming);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("dataset_with_url.json")).AsObject();
+            JsonArray groups = json["activities-summary"]["works"]["group"].AsArray();
+            JsonObject firstGroup = DatasetGroup(json);
+            JsonObject secondGroup = firstGroup.DeepClone().AsObject();
+            JsonObject secondSummary = secondGroup["work-summary"][0].AsObject();
+            secondSummary["put-code"] = JsonValue.Create(8003);
+            secondSummary["title"]["title"]["value"] = "Second dataset";
+            if (!duplicateIncoming)
+                groups.Insert(groups.IndexOf(firstGroup) + 1, secondGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            JsonObject firstSummary = firstGroup["work-summary"][0].AsObject();
+            firstSummary["title"]["title"]["value"] = "Updated dataset";
+            if (duplicateIncoming)
+            {
+                secondSummary["put-code"] = JsonValue.Create(8002);
+                secondSummary["title"]["title"]["value"] = "Final dataset";
+                groups.Insert(groups.IndexOf(firstGroup) + 1, secondGroup);
+            }
+            else
+            {
+                var secondFfv = context.FactFieldValues.Include(f => f.DimProfileOnlyDataset)
+                    .Include(f => f.DimPidIdOrcidPutCodeNavigation)
+                    .Single(f => f.DimProfileOnlyDataset.NameEn == "Second dataset");
+                secondFfv.DimPidIdOrcidPutCodeNavigation.PidContent = "8002";
+                await context.SaveChangesAsync();
+                groups.Remove(secondGroup);
+            }
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal(duplicateIncoming ? "Final dataset" : "Updated dataset",
+                context.DimProfileOnlyDatasets.Single(d => d.Id > 0).NameEn);
+        }
+
+        [Fact(DisplayName = "Dataset: skipped item is retained and absent item is deleted")]
+        public async Task Dataset_UnchangedAndDeletedItems_AreHandled()
+        {
+            using var context = CreateContext(nameof(Dataset_UnchangedAndDeletedItems_AreHandled));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("dataset_with_url.json")).AsObject();
+            JsonArray groups = json["activities-summary"]["works"]["group"].AsArray();
+            JsonObject firstGroup = DatasetGroup(json);
+            JsonObject removedGroup = firstGroup.DeepClone().AsObject();
+            removedGroup["work-summary"][0]["put-code"] = JsonValue.Create(8003);
+            removedGroup["work-summary"][0]["title"]["title"]["value"] = "Removed dataset";
+            groups.Insert(groups.IndexOf(firstGroup) + 1, removedGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int retainedId = context.DimProfileOnlyDatasets.Single(d => d.NameEn == "Test Dataset").Id;
+            int removedId = context.DimProfileOnlyDatasets.Single(d => d.NameEn == "Removed dataset").Id;
+
+            groups.Remove(removedGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal(retainedId, Assert.Single(context.DimProfileOnlyDatasets.Where(d => d.Id > 0)).Id);
+            Assert.False(context.FactFieldValues.Any(f => f.DimProfileOnlyDatasetId == removedId));
+            Assert.Single(context.DimWebLinks.Where(w => w.Id > 0));
+        }
+
+        [Fact(DisplayName = "Dataset: missing timestamp performs full processing")]
+        public async Task Dataset_MissingTimestamp_FullProcesses()
+        {
+            using var context = CreateContext(nameof(Dataset_MissingTimestamp_FullProcesses));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("dataset_with_url.json")).AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            JsonObject summary = DatasetSummary(json);
+            summary["title"]["title"]["value"] = "Updated without timestamp";
+            summary.Remove("last-modified-date");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal("Updated without timestamp", context.DimProfileOnlyDatasets.Single(d => d.Id > 0).NameEn);
         }
 
         [Fact(DisplayName = "Funding: updated when changed in ORCID")]
@@ -3380,7 +3578,7 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("dataset_with_url.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("dataset_url_updated.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedDatasetWorksFixture("dataset_url_updated.json"), LogId);
 
             Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
             Assert.Equal("https://dataset-updated.example.com", context.DimWebLinks.Single(e => e.Id > 0).Url);
@@ -3399,7 +3597,7 @@ namespace api.Tests
             Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
 
             // Second import: same put-code 8002, url=null (works.json)
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedDatasetWorksFixture("works.json"), LogId);
 
             Assert.Equal(0, context.DimWebLinks.Count(e => e.Id > 0));
             Assert.Equal(1, context.DimProfileOnlyDatasets.Count(e => e.Id > 0)); // dataset row still present

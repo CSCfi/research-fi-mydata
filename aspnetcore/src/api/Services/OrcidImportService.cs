@@ -1592,15 +1592,33 @@ namespace api.Services
                 // Get DimFieldDisplaySettings for orcid dataset
                 DimFieldDisplaySetting dimFieldDisplaySettingsProfileOnlyDataset =
                     dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_RESEARCH_DATASET);
+                Dictionary<int, int> datasetPutCodeCounts = orcidWorks.Datasets
+                    .Where(dataset => dataset.PutCode?.Value.HasValue == true)
+                    .GroupBy(dataset => dataset.PutCode.Value.Value)
+                    .ToDictionary(group => group.Key, group => group.Count());
                 _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
                 foreach (OrcidDataset orcidDataset in orcidWorks.Datasets)
                 {
                     // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyDataset
-                    FactFieldValue factFieldValuesProfileOnlyDataset =
-                        dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                    int? putCode = orcidDataset.PutCode?.Value;
+                    string putCodeValue = orcidDataset.PutCode?.Value.ToString() ?? string.Empty;
+                    List<FactFieldValue> matchingDatasets =
+                        dimUserProfile.FactFieldValues.Where(ffv =>
                             ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsProfileOnlyDataset &&
                             ffv.DimPidIdOrcidPutCode > 0 &&
-                            ffv.DimPidIdOrcidPutCodeNavigation.PidContent == orcidDataset.PutCode.Value.ToString());
+                            ffv.DimPidIdOrcidPutCodeNavigation.PidContent == putCodeValue).ToList();
+                    FactFieldValue factFieldValuesProfileOnlyDataset = matchingDatasets.FirstOrDefault();
+
+                    if (factFieldValuesProfileOnlyDataset != null &&
+                        putCode > 0 &&
+                        datasetPutCodeCounts[putCode.Value] == 1 &&
+                        matchingDatasets.Count == 1 &&
+                        IsOrcidTimestampUnchanged(factFieldValuesProfileOnlyDataset, orcidDataset.LastModifiedDate))
+                    {
+                        orcidImportHelper.dimProfileOnlyDatasetIds.Add(factFieldValuesProfileOnlyDataset.DimProfileOnlyDatasetId);
+                        statistics.TrackItem(factFieldValuesProfileOnlyDataset);
+                        continue;
+                    }
 
                     DateTime? datasetCreated;
                     // Data set created
