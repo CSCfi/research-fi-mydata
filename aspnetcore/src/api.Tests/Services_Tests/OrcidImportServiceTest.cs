@@ -471,6 +471,12 @@ namespace api.Tests
         private static JsonObject DatasetSummary(JsonObject json) =>
             DatasetGroup(json)["work-summary"][0].AsObject();
 
+        private static JsonObject FundingGroup(JsonObject json) =>
+            json["activities-summary"]["fundings"]["group"][0].AsObject();
+
+        private static JsonObject FundingSummary(JsonObject json) =>
+            FundingGroup(json)["funding-summary"][0].AsObject();
+
         private string UpdatedPublicationWorksFixture()
         {
             JsonObject json = JsonNode.Parse(LoadFixture("works_updated.json")).AsObject();
@@ -482,6 +488,13 @@ namespace api.Tests
         {
             JsonObject json = JsonNode.Parse(LoadFixture(fileName)).AsObject();
             DatasetSummary(json)["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            return json.ToJsonString();
+        }
+
+        private string UpdatedFundingFixture(string fileName = "funding_updated.json")
+        {
+            JsonObject json = JsonNode.Parse(LoadFixture(fileName)).AsObject();
+            FundingSummary(json)["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
             return json.ToJsonString();
         }
 
@@ -620,6 +633,10 @@ namespace api.Tests
             using var context = CreateContext(nameof(AdditionalImportStatistics_CountUpdatesUnchangedAndFailedItems));
             await SeedRequiredData(context);
             await CreateService(context).ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding.json"), LogId);
+            var service = CreateService(context);
+            var summaryResult = await service.ImportOrcidRecordJsonIntoUserProfile(
+                UserProfileId, LoadFixture("funding.json"), LogId);
+            Assert.Equal(1, summaryResult.Unchanged);
             var ffv = await context.FactFieldValues
                 .Include(value => value.DimProfileOnlyFundingDecision)
                 .SingleAsync(value => value.DimUserProfileId == UserProfileId && value.DimProfileOnlyFundingDecisionId > 0);
@@ -632,7 +649,7 @@ namespace api.Tests
                 type: "grant", name: "Detailed funding", description: "Description", amount: "123",
                 currencyCode: "EUR", disambiguatedOrganizationIdentifier: null, disambiguationSource: null,
                 organizationName: null, startDate: null, endDate: null, putCode: null, url: null, path: null));
-            var service = CreateService(context, parser.Object, orcidApiService: api.Object);
+            service = CreateService(context, parser.Object, orcidApiService: api.Object);
 
             var updated = await service.ImportAdditionalData(new() { ffv }, "token", LogId);
             updated.CaptureChanges(context);
@@ -3339,10 +3356,54 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_updated.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedFundingFixture(), LogId);
 
             Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
             Assert.Equal("Updated Grant", context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).NameEn);
+        }
+
+        [Fact(DisplayName = "Funding: unchanged summary skips updates but remains processed")]
+        public async Task Funding_UnchangedSummary_SkipsUpdatesAndRemainsProcessed()
+        {
+            using var context = CreateContext(nameof(Funding_UnchangedSummary_SkipsUpdatesAndRemainsProcessed));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            string json = LoadFixture("funding_with_url.json");
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+
+            var funding = context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0);
+            var factFieldValue = context.FactFieldValues.Single(e => e.DimProfileOnlyFundingDecisionId == funding.Id);
+            DateTime? fundingModified = funding.Modified;
+            DateTime? relationModified = factFieldValue.Modified;
+            DateTime? webLinkModified = context.DimWebLinks.Single(e => e.Id > 0).Modified;
+
+            var result = await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json, LogId);
+
+            Assert.Equal(1, result.Unchanged);
+            Assert.Equal(fundingModified, funding.Modified);
+            Assert.Equal(relationModified, factFieldValue.Modified);
+            Assert.Equal(webLinkModified, context.DimWebLinks.Single(e => e.Id > 0).Modified);
+            Assert.Single(context.DimProfileOnlyFundingDecisions.Where(e => e.Id > 0));
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("name.json"), LogId);
+            Assert.Empty(context.DimProfileOnlyFundingDecisions.Where(e => e.Id > 0));
+        }
+
+        [Fact(DisplayName = "Funding: missing timestamp performs full processing")]
+        public async Task Funding_MissingTimestamp_FullProcesses()
+        {
+            using var context = CreateContext(nameof(Funding_MissingTimestamp_FullProcesses));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("funding_with_url.json")).AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            JsonObject summary = FundingSummary(json);
+            summary["title"]["title"]["value"] = "Updated without timestamp";
+            summary.Remove("last-modified-date");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal("Updated without timestamp", context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).NameEn);
         }
 
         [Fact(DisplayName = "Distinction (research activity): updated when changed in ORCID")]
@@ -3629,7 +3690,7 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_url.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_url_updated.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedFundingFixture("funding_url_updated.json"), LogId);
 
             Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
             Assert.Equal("https://funding-updated.example.com", context.DimWebLinks.Single(e => e.Id > 0).Url);
@@ -3648,7 +3709,7 @@ namespace api.Tests
             Assert.Equal(1, context.DimWebLinks.Count(e => e.Id > 0));
 
             // Second import: same put-code 9001, url=null (funding.json)
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedFundingFixture("funding.json"), LogId);
 
             Assert.Equal(0, context.DimWebLinks.Count(e => e.Id > 0));
             Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0)); // funding still present
@@ -3840,7 +3901,7 @@ namespace api.Tests
             await SeedOrgWithRinggoldId(context);
 
             // 2nd import: org found → FK updated, identifierless data removed
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_ringgold.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedFundingFixture("funding_with_ringgold.json"), LogId);
             Assert.Equal(TestOrgId, context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
             Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
             Assert.Equal(1, context.DimProfileOnlyFundingDecisions.Count(e => e.Id > 0));
@@ -3860,7 +3921,7 @@ namespace api.Tests
             Assert.Equal(TestOrgId, context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
 
             // 2nd import: unknown RINGGOLD → identifierless data created
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("funding_with_unknown_ringgold.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedFundingFixture("funding_with_unknown_ringgold.json"), LogId);
             // Service sets DimOrganizationIdFunder = -1 in the OrgToIdentifierless transition
             Assert.NotEqual(TestOrgId, context.DimProfileOnlyFundingDecisions.Single(e => e.Id > 0).DimOrganizationIdFunder);
             Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));

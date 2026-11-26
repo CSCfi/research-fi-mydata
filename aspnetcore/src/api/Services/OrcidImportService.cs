@@ -1752,28 +1752,39 @@ namespace api.Services
             // Get DimFieldDisplaySettings for orcid publication
             DimFieldDisplaySetting dimFieldDisplaySettingsOrcidFunding =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_FUNDING_DECISION);
-            // Reference data
-            var fundingRefData = await _ttvContext.DimReferencedata
-                .Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_FUNDING && (
-                    dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.AWARD ||
-                    dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.CONTRACT ||
-                    dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.GRANT ||
-                    dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.SALARY_AWARD))
-                .AsNoTracking()
-                .ToListAsync();
-            DimReferencedatum dimReferencedata_award       = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.AWARD);
-            DimReferencedatum dimReferencedata_contract    = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.CONTRACT);
-            DimReferencedatum dimReferencedata_grant       = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.GRANT);
-            DimReferencedatum dimReferencedata_salaryAward = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.SALARY_AWARD);
+            Dictionary<int, int> fundingPutCodeCounts = orcidFundings
+                .Where(funding => funding.PutCode?.Value.HasValue == true)
+                .GroupBy(funding => funding.PutCode.Value.Value)
+                .ToDictionary(group => group.Key, group => group.Count());
+            DimReferencedatum dimReferencedata_award = null;
+            DimReferencedatum dimReferencedata_contract = null;
+            DimReferencedatum dimReferencedata_grant = null;
+            DimReferencedatum dimReferencedata_salaryAward = null;
+            bool fundingReferenceDataLoaded = false;
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidFunding orcidFunding in orcidFundings)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyFundingDecision
-                FactFieldValue factFieldValuesProfileOnlyFundingDecision =
-                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                int? putCode = orcidFunding.PutCode?.Value;
+                string putCodeValue = orcidFunding.PutCode?.Value.ToString() ?? string.Empty;
+                List<FactFieldValue> matchingFundings =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
                         ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsOrcidFunding &&
                         ffv.DimPidIdOrcidPutCode > 0 &&
-                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == orcidFunding.PutCode.Value.ToString());
+                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == putCodeValue).ToList();
+                FactFieldValue factFieldValuesProfileOnlyFundingDecision = matchingFundings.FirstOrDefault();
+
+                if (factFieldValuesProfileOnlyFundingDecision != null &&
+                    putCode > 0 &&
+                    fundingPutCodeCounts[putCode.Value] == 1 &&
+                    matchingFundings.Count == 1 &&
+                    IsOrcidTimestampUnchanged(factFieldValuesProfileOnlyFundingDecision, orcidFunding.LastModifiedDate))
+                {
+                    orcidImportHelper.dimProfileOnlyFundingDecisionIds.Add(
+                        factFieldValuesProfileOnlyFundingDecision.DimProfileOnlyFundingDecisionId);
+                    statistics.TrackItem(factFieldValuesProfileOnlyFundingDecision);
+                    continue;
+                }
 
                 // Search organization identifier from DimPid based on ORCID's disambiguated-organization-identifier data.
                 int? dimOrganization_id_funding = await _organizationHandlerService.FindOrganizationIdByOrcidDisambiguationIdentifier(
@@ -1928,6 +1939,23 @@ namespace api.Services
                 }
                 else
                 {
+                    if (!fundingReferenceDataLoaded)
+                    {
+                        var fundingRefData = await _ttvContext.DimReferencedata
+                            .Where(dr => dr.CodeScheme == Constants.ReferenceDataCodeSchemes.ORCID_FUNDING && (
+                                dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.AWARD ||
+                                dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.CONTRACT ||
+                                dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.GRANT ||
+                                dr.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.SALARY_AWARD))
+                            .AsNoTracking()
+                            .ToListAsync();
+                        dimReferencedata_award = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.AWARD);
+                        dimReferencedata_contract = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.CONTRACT);
+                        dimReferencedata_grant = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.GRANT);
+                        dimReferencedata_salaryAward = fundingRefData.FirstOrDefault(r => r.CodeValue == Constants.OrcidFundingType_To_ReferenceDataCodeValue.SALARY_AWARD);
+                        fundingReferenceDataLoaded = true;
+                    }
+
                     // Create new DimProfileOnlyFundingDecision
                     DimProfileOnlyFundingDecision dimProfileOnlyFundingDecision_new = _userProfileService.GetEmptyDimProfileOnlyFundingDecision();
                     dimProfileOnlyFundingDecision_new.NameEn = orcidFunding.Name;
