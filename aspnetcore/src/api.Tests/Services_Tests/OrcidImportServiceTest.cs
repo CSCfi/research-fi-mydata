@@ -53,6 +53,20 @@ namespace api.Tests
             }
         }
 
+        private sealed class DateQueryInterceptor : DbCommandInterceptor
+        {
+            public int Count { get; set; }
+
+            public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+                DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result,
+                CancellationToken cancellationToken = default)
+            {
+                if (command.CommandText.Contains("FROM \"dim_date\"", StringComparison.OrdinalIgnoreCase))
+                    Count++;
+                return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
+            }
+        }
+
         private const int OrcidDataSourceId = 1;
         private const int UserProfileId = 1;
         private const int KnownPersonId = 1;
@@ -70,7 +84,7 @@ namespace api.Tests
         // is always visible to the next query — even after ChangeTracker.Clear().
         private readonly Dictionary<string, SqliteConnection> _connections = new();
 
-        private TtvContext CreateContext(string dbName)
+        private TtvContext CreateContext(string dbName, DbCommandInterceptor interceptor = null)
         {
             if (!_connections.TryGetValue(dbName, out var conn))
             {
@@ -82,10 +96,10 @@ namespace api.Tests
                 cmd.ExecuteNonQuery();
                 _connections[dbName] = conn;
             }
-            var options = new DbContextOptionsBuilder<TtvContext>()
-                .UseSqlite(conn)
-                .Options;
-            var context = new TtvContext(options);
+            var options = new DbContextOptionsBuilder<TtvContext>().UseSqlite(conn);
+            if (interceptor != null)
+                options.AddInterceptors(interceptor);
+            var context = new TtvContext(options.Options);
             context.Database.EnsureCreated();
             return context;
         }
@@ -1830,6 +1844,242 @@ namespace api.Tests
             Assert.Equal(countAfterFirst, countAfterSecond);
         }
 
+        [Fact(DisplayName = "Education: unchanged item skips education date lookups and preserves user state")]
+        public async Task Education_Unchanged_SkipsUpdatesAndDateLookups()
+        {
+            var interceptor = new DateQueryInterceptor();
+            using var context = CreateContext(nameof(Education_Unchanged_SkipsUpdatesAndDateLookups), interceptor);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("education.json")).AsObject();
+            JsonObject summary = json["activities-summary"]["educations"]["affiliation-group"][0]["summaries"][0]["education-summary"].AsObject();
+            summary["last-modified-date"]["value"] = JsonValue.Create(1757656106614L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var education = context.DimEducations.Single(e => e.Id > 0);
+            int educationId = education.Id;
+            int? startDateId = education.DimStartDate;
+            int? endDateId = education.DimEndDate;
+            DateTime originalModified = new(2000, 1, 1);
+            education.Modified = originalModified;
+            var ffv = context.FactFieldValues.Single(f => f.DimEducationId == educationId);
+            DateTime roundedTimestamp = new SqlDateTime(DateTimeOffset.FromUnixTimeMilliseconds(1757656106614L).UtcDateTime).Value;
+            ffv.Modified = roundedTimestamp;
+            ffv.Show = false;
+            ffv.PrimaryValue = true;
+            await context.SaveChangesAsync();
+
+            summary["role-title"] = "stale role";
+            summary["organization"]["name"] = "stale institution";
+            summary["start-date"]["year"]["value"] = "1999";
+            interceptor.Count = 0;
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal(2, interceptor.Count); // The shared AddDimDates pass still performs two lookups.
+            education = context.DimEducations.Single(e => e.Id == educationId);
+            ffv = context.FactFieldValues.Single(f => f.DimEducationId == educationId);
+            Assert.Equal("BSc", education.NameEn);
+            Assert.Equal("Test University", education.DegreeGrantingInstitutionName);
+            Assert.Equal(startDateId, education.DimStartDate);
+            Assert.Equal(endDateId, education.DimEndDate);
+            Assert.Equal(originalModified, education.Modified);
+            Assert.Equal(roundedTimestamp, ffv.Modified);
+            Assert.False(ffv.Show);
+            Assert.True(ffv.PrimaryValue);
+
+            summary["last-modified-date"]["value"] = JsonValue.Create(1757656105614L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            Assert.Equal(originalModified, context.DimEducations.Single(e => e.Id == educationId).Modified);
+            Assert.Equal(roundedTimestamp, context.FactFieldValues.Single(f => f.DimEducationId == educationId).Modified);
+        }
+
+        [Fact(DisplayName = "Education: changed dates and institution update without losing user state")]
+        public async Task Education_ChangedDatesAndDetails_Update()
+        {
+            using var context = CreateContext(nameof(Education_ChangedDatesAndDetails_Update));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("education.json")).AsObject();
+            JsonObject summary = json["activities-summary"]["educations"]["affiliation-group"][0]["summaries"][0]["education-summary"].AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            var education = context.DimEducations.Single(e => e.Id > 0);
+            int educationId = education.Id;
+            var ffv = context.FactFieldValues.Single(f => f.DimEducationId == educationId);
+            ffv.Show = true;
+            ffv.PrimaryValue = true;
+            await context.SaveChangesAsync();
+
+            summary["start-date"]["year"]["value"] = "2001";
+            summary["end-date"]["year"]["value"] = "2005";
+            summary["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            education = context.DimEducations.Include(e => e.DimStartDateNavigation)
+                .Include(e => e.DimEndDateNavigation).Single(e => e.Id == educationId);
+            Assert.Equal(2001, education.DimStartDateNavigation.Year);
+            Assert.Equal(2005, education.DimEndDateNavigation.Year);
+            Assert.Equal("BSc", education.NameEn);
+
+            summary["role-title"] = "MSc";
+            summary["organization"]["name"] = "Updated University";
+            summary["department-name"] = "Updated Department";
+            summary["last-modified-date"]["value"] = JsonValue.Create(1000000002000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            education = context.DimEducations.Single(e => e.Id == educationId);
+            ffv = context.FactFieldValues.Single(f => f.DimEducationId == educationId);
+            Assert.Equal("MSc", education.NameEn);
+            Assert.Equal("Updated University", education.DegreeGrantingInstitutionName);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1000000002000L).UtcDateTime, ffv.Modified);
+            Assert.True(ffv.Show);
+            Assert.True(ffv.PrimaryValue);
+        }
+
+        [Fact(DisplayName = "Education: deletion retains an unchanged education")]
+        public async Task Education_DeletedWhileOtherUnchanged_RetainsExisting()
+        {
+            using var context = CreateContext(nameof(Education_DeletedWhileOtherUnchanged_RetainsExisting));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("education.json")).AsObject();
+            JsonArray groups = json["activities-summary"]["educations"]["affiliation-group"].AsArray();
+            JsonObject secondGroup = groups[0].DeepClone().AsObject();
+            JsonObject second = secondGroup["summaries"][0]["education-summary"].AsObject();
+            second["put-code"] = JsonValue.Create(6002);
+            second["role-title"] = "Second";
+            second["start-date"]["year"]["value"] = "2010";
+            second["end-date"]["year"]["value"] = "2014";
+            groups.Add(secondGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int retainedId = context.DimEducations.Single(e => e.NameEn == "BSc").Id;
+            int removedId = context.DimEducations.Single(e => e.NameEn == "Second").Id;
+            DateTime originalModified = new(2000, 1, 1);
+            context.DimEducations.Single(e => e.Id == retainedId).Modified = originalModified;
+            await context.SaveChangesAsync();
+
+            second["role-title"] = "Second updated";
+            second["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            Assert.Equal(originalModified, context.DimEducations.Single(e => e.Id == retainedId).Modified);
+            Assert.Equal("Second updated", context.DimEducations.Single(e => e.Id == removedId).NameEn);
+
+            groups.RemoveAt(1);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal(retainedId, Assert.Single(context.DimEducations.Where(e => e.Id > 0)).Id);
+            Assert.False(context.FactFieldValues.Any(f => f.DimEducationId == removedId));
+        }
+
+        [Theory(DisplayName = "Education: missing incoming or stored timestamp performs full processing")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Education_MissingTimestamp_FullProcesses(bool missingIncoming)
+        {
+            using var context = CreateContext(nameof(Education_MissingTimestamp_FullProcesses) + missingIncoming);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("education.json")).AsObject();
+            JsonObject summary = json["activities-summary"]["educations"]["affiliation-group"][0]["summaries"][0]["education-summary"].AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int educationId = context.DimEducations.Single(e => e.Id > 0).Id;
+            summary["role-title"] = "Updated";
+            if (missingIncoming)
+                summary.Remove("last-modified-date");
+            else
+            {
+                context.FactFieldValues.Single(f => f.DimEducationId == educationId).Modified = null;
+                await context.SaveChangesAsync();
+            }
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal("Updated", context.DimEducations.Single(e => e.Id == educationId).NameEn);
+            Assert.NotNull(context.FactFieldValues.Single(f => f.DimEducationId == educationId).Modified);
+        }
+
+        [Theory(DisplayName = "Education: duplicate incoming or stored put code cannot skip updates")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Education_DuplicatePutCode_FullProcesses(bool duplicateIncoming)
+        {
+            using var context = CreateContext(nameof(Education_DuplicatePutCode_FullProcesses) + duplicateIncoming);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("education.json")).AsObject();
+            JsonArray groups = json["activities-summary"]["educations"]["affiliation-group"].AsArray();
+            JsonObject first = groups[0]["summaries"][0]["education-summary"].AsObject();
+            JsonObject secondGroup = groups[0].DeepClone().AsObject();
+            JsonObject second = secondGroup["summaries"][0]["education-summary"].AsObject();
+            second["put-code"] = JsonValue.Create(6002);
+            second["role-title"] = "Second";
+            second["start-date"]["year"]["value"] = "2010";
+            second["end-date"]["year"]["value"] = "2014";
+            if (!duplicateIncoming)
+                groups.Add(secondGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            first["role-title"] = "Updated";
+            if (duplicateIncoming)
+            {
+                second["put-code"] = JsonValue.Create(6001);
+                second["role-title"] = "Final";
+                groups.Add(secondGroup);
+            }
+            else
+            {
+                var secondFfv = context.FactFieldValues.Include(f => f.DimEducation)
+                    .Include(f => f.DimPidIdOrcidPutCodeNavigation)
+                    .Single(f => f.DimEducation.NameEn == "Second");
+                secondFfv.DimPidIdOrcidPutCodeNavigation.PidContent = 6001.ToString();
+                await context.SaveChangesAsync();
+                groups.RemoveAt(1);
+            }
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var education = Assert.Single(context.DimEducations.Where(e => e.Id > 0));
+            Assert.Equal(duplicateIncoming ? "Final" : "Updated", education.NameEn);
+        }
+
+        [Fact(DisplayName = "Education: sentinel put code cannot qualify for timestamp skipping")]
+        public async Task Education_SentinelPutCode_FullProcesses()
+        {
+            using var context = CreateContext(nameof(Education_SentinelPutCode_FullProcesses));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("education.json")).AsObject();
+            JsonObject summary = json["activities-summary"]["educations"]["affiliation-group"][0]["summaries"][0]["education-summary"].AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int educationId = context.DimEducations.Single(e => e.Id > 0).Id;
+            var ffv = context.FactFieldValues.Include(f => f.DimPidIdOrcidPutCodeNavigation)
+                .Single(f => f.DimEducationId == educationId);
+            ffv.DimPidIdOrcidPutCodeNavigation.PidContent = (-1).ToString();
+            await context.SaveChangesAsync();
+
+            summary["put-code"] = JsonValue.Create(-1);
+            summary["role-title"] = "Updated";
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal("Updated", context.DimEducations.Single(e => e.Id == educationId).NameEn);
+        }
+
+        [Fact(DisplayName = "Education: missing put code imports rather than skipping")]
+        public async Task Education_MissingPutCode_ImportsIncomingValue()
+        {
+            using var context = CreateContext(nameof(Education_MissingPutCode_ImportsIncomingValue));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("education.json")).AsObject();
+            JsonObject summary = json["activities-summary"]["educations"]["affiliation-group"][0]["summaries"][0]["education-summary"].AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int previousId = context.DimEducations.Single(e => e.Id > 0).Id;
+
+            summary.Remove("put-code");
+            summary["role-title"] = "Updated";
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var education = Assert.Single(context.DimEducations.Where(e => e.Id > 0));
+            Assert.NotEqual(previousId, education.Id);
+            Assert.Equal("Updated", education.NameEn);
+        }
+
         // -------------------------------------------------------------------------
         // Section: activities / employments  (1 entry, no disambiguated org)
         // -------------------------------------------------------------------------
@@ -2299,7 +2549,9 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("education.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("education_updated.json"), LogId);
+            JsonObject updatedJson = JsonNode.Parse(LoadFixture("education_updated.json")).AsObject();
+            updatedJson["activities-summary"]["educations"]["affiliation-group"][0]["summaries"][0]["education-summary"]["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, updatedJson.ToJsonString(), LogId);
 
             Assert.Equal(1, context.DimEducations.Count(e => e.Id > 0));
             var education = context.DimEducations.Single(e => e.Id > 0);

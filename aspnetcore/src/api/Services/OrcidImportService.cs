@@ -1101,15 +1101,33 @@ namespace api.Services
             // Get DimFieldDisplaySettings for education
             DimFieldDisplaySetting dimFieldDisplaySettingsEducation =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsEducation => dfdsEducation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_EDUCATION);
+            Dictionary<int, int> educationPutCodeCounts = educations
+                .Where(education => education.PutCode?.Value.HasValue == true)
+                .GroupBy(education => education.PutCode.Value.Value)
+                .ToDictionary(group => group.Key, group => group.Count());
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidEducation education in educations)
             {
                 // Check if FactFieldValues contains entry, which points to ORCID put code value in DimEducation
-                FactFieldValue factFieldValuesEducation =
-                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                int? putCode = education.PutCode?.Value;
+                string putCodeValue = education.PutCode?.Value.ToString() ?? string.Empty;
+                List<FactFieldValue> matchingEducations =
+                    dimUserProfile.FactFieldValues.Where(ffv =>
                         ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsEducation &&
                         ffv.DimPidIdOrcidPutCode > 0 &&
-                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == education.PutCode.Value.ToString());
+                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == putCodeValue).ToList();
+                FactFieldValue factFieldValuesEducation = matchingEducations.FirstOrDefault();
+
+                if (factFieldValuesEducation != null &&
+                    putCode > 0 &&
+                    educationPutCodeCounts[putCode.Value] == 1 &&
+                    matchingEducations.Count == 1 &&
+                    IsOrcidTimestampUnchanged(factFieldValuesEducation, education.LastModifiedDate))
+                {
+                    orcidImportHelper.dimEducationIds.Add(factFieldValuesEducation.DimEducationId);
+                    statistics.TrackItem(factFieldValuesEducation);
+                    continue;
+                }
 
                 // Start date
                 DimDate educationStartDate = await _ttvContext.DimDates
