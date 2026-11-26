@@ -296,7 +296,7 @@ Apply comparison independently to external-identifier items.
 
 Implementation note (2026-11-25): Timestamp comparison uses unique put-code and
 field-setting matches, with regression tests for mixed items and null URLs.
-Production verification remains pending before proceeding to Phase 7.
+Phase 6 was confirmed by the user on 2026-11-26.
 
 - Match by the established ORCID put code and field display setting.
 - Skip `DimPid` rewrites for unchanged items.
@@ -307,6 +307,11 @@ Production verification remains pending before proceeding to Phase 7.
 ## Phase 7 - Education
 
 Apply comparison to each education item before date lookups and entity updates.
+
+Implementation note (2026-11-26): Unchanged educations with unique positive
+put codes skip education-specific date lookups and updates. The shared
+`AddDimDates` preparation pass still runs before profile loading. Verification
+is pending before proceeding to Phase 8.
 
 - Move start/end `DimDate` lookups after the unchanged fast path.
 - Mark skipped items processed so unchanged educations are retained.
