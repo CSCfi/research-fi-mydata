@@ -457,6 +457,20 @@ namespace api.Tests
         private static JsonObject EmploymentSummary(JsonObject json) =>
             json["activities-summary"]["employments"]["affiliation-group"][0]["summaries"][0]["employment-summary"].AsObject();
 
+        private static JsonObject PublicationGroup(JsonObject json) =>
+            json["activities-summary"]["works"]["group"].AsArray()
+                .First(group => group["work-summary"]?[0]?["type"]?.GetValue<string>() == "journal-article").AsObject();
+
+        private static JsonObject PublicationSummary(JsonObject json) =>
+            PublicationGroup(json)["work-summary"][0].AsObject();
+
+        private string UpdatedPublicationWorksFixture()
+        {
+            JsonObject json = JsonNode.Parse(LoadFixture("works_updated.json")).AsObject();
+            PublicationSummary(json)["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            return json.ToJsonString();
+        }
+
         private string UpdatedEmploymentFixture(string fileName)
         {
             JsonObject json = JsonNode.Parse(LoadFixture(fileName)).AsObject();
@@ -2459,6 +2473,205 @@ namespace api.Tests
             Assert.Equal(dsCountAfterFirst, dsCountAfterSecond);
         }
 
+        [Fact(DisplayName = "Publication: unchanged and older summaries skip publication writes")]
+        public async Task Publication_UnchangedTimestamp_SkipsWrites()
+        {
+            using var context = CreateContext(nameof(Publication_UnchangedTimestamp_SkipsWrites));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("works.json")).AsObject();
+            JsonObject group = PublicationGroup(json);
+            JsonObject summary = PublicationSummary(json);
+            summary["last-modified-date"]["value"] = JsonValue.Create(1757656106614L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var publication = context.DimProfileOnlyPublications.Single(p => p.Id > 0);
+            int publicationId = publication.Id;
+            DateTime originalModified = new(2000, 1, 1);
+            publication.Modified = originalModified;
+            var ffv = context.FactFieldValues.Single(f => f.DimProfileOnlyPublicationId == publicationId);
+            DateTime roundedTimestamp = new SqlDateTime(DateTimeOffset.FromUnixTimeMilliseconds(1757656106614L).UtcDateTime).Value;
+            ffv.Modified = roundedTimestamp;
+            ffv.Show = false;
+            ffv.PrimaryValue = true;
+            await context.SaveChangesAsync();
+
+            summary["title"]["title"]["value"] = "stale title";
+            summary["publication-date"]["year"]["value"] = "1999";
+            summary["type"] = "book";
+            group["external-ids"]["external-id"][0]["external-id-value"] = "10.1000/stale";
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            publication = context.DimProfileOnlyPublications.Single(p => p.Id == publicationId);
+            ffv = context.FactFieldValues.Single(f => f.DimProfileOnlyPublicationId == publicationId);
+            Assert.Equal("Test Publication", publication.PublicationName);
+            Assert.Equal(2020, publication.PublicationYear);
+            Assert.Equal("journal-article", publication.OrcidWorkType);
+            Assert.Equal("10.1000/test1", publication.DoiHandle);
+            Assert.Equal(originalModified, publication.Modified);
+            Assert.Equal(roundedTimestamp, ffv.Modified);
+            Assert.False(ffv.Show);
+            Assert.True(ffv.PrimaryValue);
+
+            summary["last-modified-date"]["value"] = JsonValue.Create(1757656105614L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            Assert.Equal(originalModified, context.DimProfileOnlyPublications.Single(p => p.Id == publicationId).Modified);
+        }
+
+        [Fact(DisplayName = "Publication: DOI-only change with newer timestamp is applied")]
+        public async Task Publication_DoiOnlyChange_Updates()
+        {
+            using var context = CreateContext(nameof(Publication_DoiOnlyChange_Updates));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("works.json")).AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            JsonObject group = PublicationGroup(json);
+            group["external-ids"]["external-id"][0]["external-id-value"] = "10.1000/doi-only";
+            PublicationSummary(json)["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var publication = Assert.Single(context.DimProfileOnlyPublications.Where(p => p.Id > 0));
+            Assert.Equal("Test Publication", publication.PublicationName);
+            Assert.Equal("10.1000/doi-only", publication.DoiHandle);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1000000001000L).UtcDateTime,
+                context.FactFieldValues.Single(f => f.DimProfileOnlyPublicationId == publication.Id).Modified);
+        }
+
+        [Fact(DisplayName = "Publication: changed title, year, and type with newer timestamp are applied")]
+        public async Task Publication_ChangedSummaryFields_Updates()
+        {
+            using var context = CreateContext(nameof(Publication_ChangedSummaryFields_Updates));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("works.json")).AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            JsonObject summary = PublicationSummary(json);
+            summary["title"]["title"]["value"] = "Updated title";
+            summary["publication-date"]["year"]["value"] = "2024";
+            summary["type"] = "book";
+            summary["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var publication = Assert.Single(context.DimProfileOnlyPublications.Where(p => p.Id > 0));
+            Assert.Equal("Updated title", publication.PublicationName);
+            Assert.Equal(2024, publication.PublicationYear);
+            Assert.Equal("book", publication.OrcidWorkType);
+        }
+
+        [Fact(DisplayName = "Publication: duplicate summaries keep selected summary fields and group DOI aligned")]
+        public async Task Publication_DuplicateSummaries_UsesSelectedSummary()
+        {
+            using var context = CreateContext(nameof(Publication_DuplicateSummaries_UsesSelectedSummary));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("works.json")).AsObject();
+            JsonObject group = PublicationGroup(json);
+            JsonObject selectedSummary = group["work-summary"][0].AsObject();
+            JsonObject duplicateSummary = selectedSummary.DeepClone().AsObject();
+            duplicateSummary["put-code"] = JsonValue.Create(8003);
+            duplicateSummary["title"]["title"]["value"] = "Duplicate summary";
+            duplicateSummary["last-modified-date"]["value"] = JsonValue.Create(2000000000000L);
+            group["work-summary"].AsArray().Add(duplicateSummary);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var publication = Assert.Single(context.DimProfileOnlyPublications.Where(p => p.Id > 0));
+            var ffv = context.FactFieldValues.Include(f => f.DimPidIdOrcidPutCodeNavigation)
+                .Single(f => f.DimProfileOnlyPublicationId == publication.Id);
+            Assert.Equal("Test Publication", publication.PublicationName);
+            Assert.Equal("journal-article", publication.OrcidWorkType);
+            Assert.Equal("10.1000/test1", publication.DoiHandle);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1000000000000L).UtcDateTime, ffv.Modified);
+            Assert.Equal("8001", ffv.DimPidIdOrcidPutCodeNavigation.PidContent);
+        }
+
+        [Theory(DisplayName = "Publication: incoming duplicate or stored duplicate put codes cannot skip")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Publication_DuplicatePutCode_FullProcesses(bool duplicateIncoming)
+        {
+            using var context = CreateContext(nameof(Publication_DuplicatePutCode_FullProcesses) + duplicateIncoming);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("works.json")).AsObject();
+            JsonArray groups = json["activities-summary"]["works"]["group"].AsArray();
+            JsonObject firstGroup = PublicationGroup(json);
+            JsonObject secondGroup = firstGroup.DeepClone().AsObject();
+            JsonObject secondSummary = secondGroup["work-summary"][0].AsObject();
+            secondSummary["put-code"] = JsonValue.Create(8003);
+            secondSummary["title"]["title"]["value"] = "Second publication";
+            if (!duplicateIncoming)
+                groups.Insert(groups.IndexOf(firstGroup) + 1, secondGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            JsonObject firstSummary = firstGroup["work-summary"][0].AsObject();
+            firstSummary["title"]["title"]["value"] = "Updated first";
+            if (duplicateIncoming)
+            {
+                secondSummary["put-code"] = JsonValue.Create(8001);
+                secondSummary["title"]["title"]["value"] = "Final title";
+                groups.Insert(groups.IndexOf(firstGroup) + 1, secondGroup);
+            }
+            else
+            {
+                var secondFfv = context.FactFieldValues.Include(f => f.DimProfileOnlyPublication)
+                    .Include(f => f.DimPidIdOrcidPutCodeNavigation)
+                    .Single(f => f.DimProfileOnlyPublication.PublicationName == "Second publication");
+                secondFfv.DimPidIdOrcidPutCodeNavigation.PidContent = "8001";
+                await context.SaveChangesAsync();
+                groups.Remove(secondGroup);
+            }
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal(duplicateIncoming ? "Final title" : "Updated first",
+                context.DimProfileOnlyPublications.Single(p => p.Id > 0).PublicationName);
+        }
+
+        [Fact(DisplayName = "Publication: skipped item is retained and absent item is deleted")]
+        public async Task Publication_UnchangedAndDeletedItems_AreHandled()
+        {
+            using var context = CreateContext(nameof(Publication_UnchangedAndDeletedItems_AreHandled));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("works.json")).AsObject();
+            JsonArray groups = json["activities-summary"]["works"]["group"].AsArray();
+            JsonObject firstGroup = PublicationGroup(json);
+            JsonObject removedGroup = firstGroup.DeepClone().AsObject();
+            removedGroup["work-summary"][0]["put-code"] = JsonValue.Create(8003);
+            removedGroup["work-summary"][0]["title"]["title"]["value"] = "Removed publication";
+            groups.Insert(groups.IndexOf(firstGroup) + 1, removedGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int retainedId = context.DimProfileOnlyPublications.Single(p => p.PublicationName == "Test Publication").Id;
+            int removedId = context.DimProfileOnlyPublications.Single(p => p.PublicationName == "Removed publication").Id;
+
+            groups.Remove(removedGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal(retainedId, Assert.Single(context.DimProfileOnlyPublications.Where(p => p.Id > 0)).Id);
+            Assert.False(context.FactFieldValues.Any(f => f.DimProfileOnlyPublicationId == removedId));
+        }
+
+        [Fact(DisplayName = "Publication: missing incoming timestamp performs full processing")]
+        public async Task Publication_MissingTimestamp_FullProcesses()
+        {
+            using var context = CreateContext(nameof(Publication_MissingTimestamp_FullProcesses));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("works.json")).AsObject();
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            JsonObject summary = PublicationSummary(json);
+            summary["title"]["title"]["value"] = "Updated without timestamp";
+            summary.Remove("last-modified-date");
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal("Updated without timestamp",
+                context.DimProfileOnlyPublications.Single(p => p.Id > 0).PublicationName);
+        }
+
         // -------------------------------------------------------------------------
         // Section: activities / fundings  (1 entry)
         // -------------------------------------------------------------------------
@@ -2896,7 +3109,7 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works_updated.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedPublicationWorksFixture(), LogId);
 
             Assert.Equal(1, context.DimProfileOnlyPublications.Count(e => e.Id > 0));
             var publication = context.DimProfileOnlyPublications.Single(e => e.Id > 0);
@@ -2913,7 +3126,7 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("works_updated.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedPublicationWorksFixture(), LogId);
 
             Assert.Equal(1, context.DimProfileOnlyDatasets.Count(e => e.Id > 0));
             Assert.Equal("Updated Dataset", context.DimProfileOnlyDatasets.Single(e => e.Id > 0).NameEn);
