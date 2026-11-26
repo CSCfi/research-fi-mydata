@@ -1505,18 +1505,35 @@ namespace api.Services
                 // Get DimFieldDisplaySettings for orcid publication
                 DimFieldDisplaySetting dimFieldDisplaySettingsOrcidPublication =
                     dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsPublication => dfdsPublication.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_PUBLICATION_PROFILE_ONLY);
+                Dictionary<int, int> publicationPutCodeCounts = orcidWorks.Publications
+                    .Where(publication => publication.PutCode?.Value.HasValue == true)
+                    .GroupBy(publication => publication.PutCode.Value.Value)
+                    .ToDictionary(group => group.Key, group => group.Count());
                 _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
                 foreach (OrcidPublication orcidPublication in orcidWorks.Publications)
                 {
                     // Check if FactFieldValues contains entry, which points to ORCID put code value in DimProfileOnlyPublication
-                    FactFieldValue factFieldValuesPublication =
-                        dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
+                    int? putCode = orcidPublication.PutCode?.Value;
+                    string putCodeValue = orcidPublication.PutCode?.Value.ToString() ?? string.Empty;
+                    List<FactFieldValue> matchingPublications =
+                        dimUserProfile.FactFieldValues.Where(ffv =>
                             ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsOrcidPublication &&
                             ffv.DimPidIdOrcidPutCode > 0 &&
-                            ffv.DimPidIdOrcidPutCodeNavigation.PidContent == orcidPublication.PutCode.Value.ToString());
+                            ffv.DimPidIdOrcidPutCodeNavigation.PidContent == putCodeValue).ToList();
+                    FactFieldValue factFieldValuesPublication = matchingPublications.FirstOrDefault();
 
                     if (factFieldValuesPublication != null)
                     {
+                        if (putCode > 0 &&
+                            publicationPutCodeCounts[putCode.Value] == 1 &&
+                            matchingPublications.Count == 1 &&
+                            IsOrcidTimestampUnchanged(factFieldValuesPublication, orcidPublication.LastModifiedDate))
+                        {
+                            orcidImportHelper.dimProfileOnlyPublicationIds.Add(factFieldValuesPublication.DimProfileOnlyPublicationId);
+                            statistics.TrackItem(factFieldValuesPublication);
+                            continue;
+                        }
+
                         // Update existing DimProfileOnlyPublication
                         DimProfileOnlyPublication dimProfileOnlyPublication = factFieldValuesPublication.DimProfileOnlyPublication;
                         dimProfileOnlyPublication.OrcidWorkType = orcidPublication.Type;

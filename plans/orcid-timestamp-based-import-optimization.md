@@ -329,7 +329,7 @@ Implementation note (2026-11-26): Unchanged employments with unique positive
 put codes skip affiliation-specific lookups and updates. The shared
 `AddDimDates` preparation pass remains in place. Changed organization
 transitions preserve department data on the replacement relation. Verification
-is pending before proceeding to Phase 9.
+was confirmed by the user on 2026-11-26.
 
 - A changed item retains the full existing organization-to-identifierless
   transition behavior.
@@ -343,6 +343,11 @@ is pending before proceeding to Phase 9.
 
 Apply comparison to publication summaries after the existing group/DOI
 selection.
+
+Implementation note (2026-11-26): Publication items with a unique positive
+put-code match and unchanged summary timestamp skip `DimProfileOnlyPublication`
+updates. Existing work-group DOI selection is unchanged. Verification is
+pending before proceeding to Phase 10.
 
 - The selected summary's identity, content, DOI, and timestamps must remain
   aligned.
