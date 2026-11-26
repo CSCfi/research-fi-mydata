@@ -362,7 +362,7 @@ Apply comparison before updating the dataset or its related web link.
 
 Implementation note (2026-11-26): Unchanged datasets with a unique positive
 put-code match skip both dataset updates and related web-link reconciliation.
-Verification is pending before proceeding to Phase 11.
+The user confirmed Phase 10 in production on 2026-11-26.
 
 - Ensure the related `DimWebLink` is only reconciled when the parent ORCID
   dataset item is processed as changed.
@@ -375,6 +375,15 @@ Verification is pending before proceeding to Phase 11.
 
 Apply comparison before organization disambiguation, reference-data use, date
 lookups, URL reconciliation, and `FactFieldValue` recreation.
+
+Implementation note: The funding summary path now skips unchanged items only
+when the put-code match is unique and positive, while still marking the item
+processed. Reference data is loaded lazily for new funding items. Regression
+coverage includes unchanged summaries, missing timestamps, retained deletion
+tracking, URL clearing, organization transitions, and the independent detail
+import. Targeted funding tests and the full solution suite pass (505 tests).
+This optimization does not replace or skip the separate `ImportAdditionalData`
+detail import; production verification remains pending.
 
 - Preserve the existing organization and identifierless transitions.
 - Preserve behavior of the funding-detail import initiated by
