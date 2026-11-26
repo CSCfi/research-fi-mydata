@@ -311,7 +311,7 @@ Apply comparison to each education item before date lookups and entity updates.
 Implementation note (2026-11-26): Unchanged educations with unique positive
 put codes skip education-specific date lookups and updates. The shared
 `AddDimDates` preparation pass still runs before profile loading. Verification
-is pending before proceeding to Phase 8.
+was confirmed by the user on 2026-11-26.
 
 - Move start/end `DimDate` lookups after the unchanged fast path.
 - Mark skipped items processed so unchanged educations are retained.
@@ -324,6 +324,12 @@ is pending before proceeding to Phase 8.
 
 Apply comparison before organization disambiguation, date lookups, department
 handling, and `FactFieldValue` recreation.
+
+Implementation note (2026-11-26): Unchanged employments with unique positive
+put codes skip affiliation-specific lookups and updates. The shared
+`AddDimDates` preparation pass remains in place. Changed organization
+transitions preserve department data on the replacement relation. Verification
+is pending before proceeding to Phase 9.
 
 - A changed item retains the full existing organization-to-identifierless
   transition behavior.
