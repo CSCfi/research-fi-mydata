@@ -375,13 +375,14 @@ namespace api.Tests
             TtvContext context,
             IOrcidJsonParserService parser = null,
             ILogger<OrcidImportService> logger = null,
-            IOrcidApiService orcidApiService = null)
+            IOrcidApiService orcidApiService = null,
+            IOrganizationHandlerService organizationHandler = null)
         {
             var utilityService = new UtilityService();
             var userProfileService = new UserProfileService(
                 utilityService: utilityService,
                 logger: new NullLogger<UserProfileService>());
-            var organizationHandlerService = new OrganizationHandlerService(
+            var organizationHandlerService = organizationHandler ?? new OrganizationHandlerService(
                 ttvContext: context,
                 utilityService: utilityService);
             return new OrcidImportService(
@@ -451,6 +452,16 @@ namespace api.Tests
                 Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName,
                 "Infrastructure", "orcid_fixtures");
             return File.ReadAllText(Path.Combine(dir, fileName));
+        }
+
+        private static JsonObject EmploymentSummary(JsonObject json) =>
+            json["activities-summary"]["employments"]["affiliation-group"][0]["summaries"][0]["employment-summary"].AsObject();
+
+        private string UpdatedEmploymentFixture(string fileName)
+        {
+            JsonObject json = JsonNode.Parse(LoadFixture(fileName)).AsObject();
+            EmploymentSummary(json)["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            return json.ToJsonString();
         }
 
         private LogUserIdentification LogId => new("0000-0001-0001-0001");
@@ -2108,6 +2119,308 @@ namespace api.Tests
             Assert.Equal(countAfterFirst, countAfterSecond);
         }
 
+        [Theory(DisplayName = "Employment: unchanged item skips organization and date lookups")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Employment_Unchanged_SkipsLookupsAndPreservesRelations(bool linked)
+        {
+            var interceptor = new DateQueryInterceptor();
+            using var context = CreateContext(nameof(Employment_Unchanged_SkipsLookupsAndPreservesRelations) + linked, interceptor);
+            await SeedRequiredData(context);
+            if (linked)
+                await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("employment_ringgold_dept.json")).AsObject();
+            JsonObject summary = EmploymentSummary(json);
+            summary["last-modified-date"]["value"] = JsonValue.Create(1757656106614L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var affiliation = context.DimAffiliations.Single(a => a.Id > 0);
+            int affiliationId = affiliation.Id;
+            int? startDateId = affiliation.StartDate;
+            int? endDateId = affiliation.EndDate;
+            DateTime originalModified = new(2000, 1, 1);
+            affiliation.Modified = originalModified;
+            var ffv = context.FactFieldValues.Single(f => f.DimAffiliationId == affiliationId);
+            int identifierlessId = ffv.DimIdentifierlessDataId;
+            ffv.Show = true;
+            ffv.PrimaryValue = true;
+            DateTime roundedTimestamp = new SqlDateTime(DateTimeOffset.FromUnixTimeMilliseconds(1757656106614L).UtcDateTime).Value;
+            ffv.Modified = roundedTimestamp;
+            var unit = context.DimIdentifierlessData.Single(d => d.Id > 0 && d.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT);
+            int unitId = unit.Id;
+            unit.Modified = originalModified;
+            await context.SaveChangesAsync();
+
+            summary["role-title"] = "stale role";
+            summary["department-name"] = "stale department";
+            summary["organization"]["name"] = "stale organization";
+            summary["start-date"]["year"]["value"] = "1999";
+            var organizationHandler = new Mock<IOrganizationHandlerService>(MockBehavior.Strict);
+            var unchangedService = CreateService(context, organizationHandler: organizationHandler.Object);
+            interceptor.Count = 0;
+            await unchangedService.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal(2, interceptor.Count); // Shared AddDimDates preparation still runs.
+            organizationHandler.VerifyNoOtherCalls();
+            affiliation = context.DimAffiliations.Single(a => a.Id == affiliationId);
+            ffv = context.FactFieldValues.Single(f => f.DimAffiliationId == affiliationId);
+            unit = context.DimIdentifierlessData.Single(d => d.Id == unitId);
+            Assert.Equal(linked ? TestOrgId : -1, affiliation.DimOrganizationId);
+            Assert.Equal("Researcher", affiliation.PositionNameEn);
+            Assert.Equal(originalModified, affiliation.Modified);
+            Assert.Equal(startDateId, affiliation.StartDate);
+            Assert.Equal(endDateId, affiliation.EndDate);
+            Assert.Equal(identifierlessId, ffv.DimIdentifierlessDataId);
+            Assert.Equal(roundedTimestamp, ffv.Modified);
+            Assert.True(ffv.Show);
+            Assert.True(ffv.PrimaryValue);
+            Assert.Equal("R&D Department", unit.ValueEn);
+            Assert.Equal(originalModified, unit.Modified);
+
+            summary["last-modified-date"]["value"] = JsonValue.Create(1757656105614L);
+            await unchangedService.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            Assert.Equal(originalModified, context.DimAffiliations.Single(a => a.Id == affiliationId).Modified);
+        }
+
+        [Theory(DisplayName = "Employment: changed dates and department are processed")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Employment_ChangedDatesAndDepartment_Update(bool linked)
+        {
+            using var context = CreateContext(nameof(Employment_ChangedDatesAndDepartment_Update) + linked);
+            await SeedRequiredData(context);
+            if (linked)
+                await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("employment_ringgold_dept.json")).AsObject();
+            JsonObject summary = EmploymentSummary(json);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int affiliationId = context.DimAffiliations.Single(a => a.Id > 0).Id;
+            summary["start-date"]["year"]["value"] = "2010";
+            summary["end-date"] = new JsonObject
+            {
+                ["year"] = new JsonObject { ["value"] = "2015" },
+                ["month"] = new JsonObject { ["value"] = "06" },
+                ["day"] = null
+            };
+            summary["department-name"] = "New Department";
+            summary["role-title"] = "Senior Researcher";
+            summary["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var affiliation = context.DimAffiliations.Include(a => a.StartDateNavigation)
+                .Include(a => a.EndDateNavigation).Single(a => a.Id == affiliationId);
+            Assert.Equal(2010, affiliation.StartDateNavigation.Year);
+            Assert.Equal(2015, affiliation.EndDateNavigation.Year);
+            Assert.Equal("Senior Researcher", affiliation.PositionNameEn);
+            Assert.Equal("New Department", context.DimIdentifierlessData.Single(d => d.Id > 0 &&
+                d.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT).ValueEn);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1000000001000L).UtcDateTime,
+                context.FactFieldValues.Single(f => f.DimAffiliationId == affiliationId).Modified);
+        }
+
+        [Theory(DisplayName = "Employment: changed organization transition preserves department and metadata")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Employment_OrganizationTransition_PreservesDepartmentAndTimestamps(bool linkedInitially)
+        {
+            using var context = CreateContext(nameof(Employment_OrganizationTransition_PreservesDepartmentAndTimestamps) + linkedInitially);
+            await SeedRequiredData(context);
+            if (linkedInitially)
+                await SeedOrgWithRinggoldId(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("employment_ringgold_dept.json")).AsObject();
+            JsonObject summary = EmploymentSummary(json);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int affiliationId = context.DimAffiliations.Single(a => a.Id > 0).Id;
+            var ffv = context.FactFieldValues.Single(f => f.DimAffiliationId == affiliationId);
+            ffv.Show = true;
+            ffv.PrimaryValue = true;
+            await context.SaveChangesAsync();
+
+            if (linkedInitially)
+                summary["organization"]["disambiguated-organization"]["disambiguated-organization-identifier"] = "99999";
+            else
+                await SeedOrgWithRinggoldId(context);
+            summary["department-name"] = "Updated Department";
+            summary["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var affiliation = context.DimAffiliations.Single(a => a.Id == affiliationId);
+            ffv = context.FactFieldValues.Include(f => f.DimIdentifierlessData)
+                .ThenInclude(d => d.InverseDimIdentifierlessData).Single(f => f.DimAffiliationId == affiliationId);
+            Assert.Equal(linkedInitially ? -1 : TestOrgId, affiliation.DimOrganizationId);
+            Assert.True(ffv.Show);
+            Assert.True(ffv.PrimaryValue);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1000000000000L).UtcDateTime, ffv.Created);
+            Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1000000001000L).UtcDateTime, ffv.Modified);
+            if (linkedInitially)
+            {
+                Assert.Equal(Constants.IdentifierlessDataTypes.ORGANIZATION_NAME, ffv.DimIdentifierlessData.Type);
+                var unit = Assert.Single(ffv.DimIdentifierlessData.InverseDimIdentifierlessData);
+                Assert.Equal("Updated Department", unit.ValueEn);
+            }
+            else
+            {
+                Assert.Equal(Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT, ffv.DimIdentifierlessData.Type);
+                Assert.Equal("Updated Department", ffv.DimIdentifierlessData.ValueEn);
+            }
+            Assert.Single(context.DimIdentifierlessData.Where(d => d.Id > 0 &&
+                d.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT));
+
+            int identifierlessId = ffv.DimIdentifierlessDataId;
+            var strictHandler = new Mock<IOrganizationHandlerService>(MockBehavior.Strict);
+            await CreateService(context, organizationHandler: strictHandler.Object)
+                .ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            strictHandler.VerifyNoOtherCalls();
+            Assert.Equal(identifierlessId, context.FactFieldValues.Single(f => f.DimAffiliationId == affiliationId).DimIdentifierlessDataId);
+        }
+
+        [Theory(DisplayName = "Employment: missing timestamp performs full processing")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Employment_MissingTimestamp_FullProcesses(bool missingIncoming)
+        {
+            using var context = CreateContext(nameof(Employment_MissingTimestamp_FullProcesses) + missingIncoming);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("employment.json")).AsObject();
+            JsonObject summary = EmploymentSummary(json);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int affiliationId = context.DimAffiliations.Single(a => a.Id > 0).Id;
+            summary["role-title"] = "Updated";
+            if (missingIncoming)
+                summary.Remove("last-modified-date");
+            else
+            {
+                context.FactFieldValues.Single(f => f.DimAffiliationId == affiliationId).Modified = null;
+                await context.SaveChangesAsync();
+            }
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal("Updated", context.DimAffiliations.Single(a => a.Id == affiliationId).PositionNameEn);
+            Assert.NotNull(context.FactFieldValues.Single(f => f.DimAffiliationId == affiliationId).Modified);
+        }
+
+        [Theory(DisplayName = "Employment: duplicate incoming or stored put code cannot skip")]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Employment_DuplicatePutCode_FullProcesses(bool duplicateIncoming)
+        {
+            using var context = CreateContext(nameof(Employment_DuplicatePutCode_FullProcesses) + duplicateIncoming);
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("employment_with_ringgold.json")).AsObject();
+            JsonArray groups = json["activities-summary"]["employments"]["affiliation-group"].AsArray();
+            JsonObject first = EmploymentSummary(json);
+            JsonObject secondGroup = groups[0].DeepClone().AsObject();
+            JsonObject second = secondGroup["summaries"][0]["employment-summary"].AsObject();
+            second["put-code"] = JsonValue.Create(7002);
+            second["role-title"] = "Second";
+            second["start-date"]["year"]["value"] = "2010";
+            if (!duplicateIncoming)
+                groups.Add(secondGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            first["role-title"] = "Updated";
+            if (duplicateIncoming)
+            {
+                second["put-code"] = JsonValue.Create(7001);
+                second["role-title"] = "Final";
+                groups.Add(secondGroup);
+            }
+            else
+            {
+                var secondFfv = context.FactFieldValues.Include(f => f.DimAffiliation)
+                    .Include(f => f.DimPidIdOrcidPutCodeNavigation)
+                    .Single(f => f.DimAffiliation.PositionNameEn == "Second");
+                secondFfv.DimPidIdOrcidPutCodeNavigation.PidContent = 7001.ToString();
+                await context.SaveChangesAsync();
+                groups.RemoveAt(1);
+            }
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var affiliation = Assert.Single(context.DimAffiliations.Where(a => a.Id > 0));
+            Assert.Equal(duplicateIncoming ? "Final" : "Updated", affiliation.PositionNameEn);
+        }
+
+        [Fact(DisplayName = "Employment: sentinel put code cannot qualify for timestamp skipping")]
+        public async Task Employment_SentinelPutCode_FullProcesses()
+        {
+            using var context = CreateContext(nameof(Employment_SentinelPutCode_FullProcesses));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("employment.json")).AsObject();
+            JsonObject summary = EmploymentSummary(json);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int affiliationId = context.DimAffiliations.Single(a => a.Id > 0).Id;
+            var ffv = context.FactFieldValues.Include(f => f.DimPidIdOrcidPutCodeNavigation)
+                .Single(f => f.DimAffiliationId == affiliationId);
+            ffv.DimPidIdOrcidPutCodeNavigation.PidContent = (-1).ToString();
+            await context.SaveChangesAsync();
+            summary["put-code"] = JsonValue.Create(-1);
+            summary["role-title"] = "Updated";
+
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal("Updated", context.DimAffiliations.Single(a => a.Id == affiliationId).PositionNameEn);
+        }
+
+        [Fact(DisplayName = "Employment: missing put code imports rather than skipping")]
+        public async Task Employment_MissingPutCode_ImportsIncomingValue()
+        {
+            using var context = CreateContext(nameof(Employment_MissingPutCode_ImportsIncomingValue));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("employment.json")).AsObject();
+            JsonObject summary = EmploymentSummary(json);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int previousId = context.DimAffiliations.Single(a => a.Id > 0).Id;
+
+            summary.Remove("put-code");
+            summary["role-title"] = "Updated";
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            var affiliation = Assert.Single(context.DimAffiliations.Where(a => a.Id > 0));
+            Assert.NotEqual(previousId, affiliation.Id);
+            Assert.Equal("Updated", affiliation.PositionNameEn);
+        }
+
+        [Fact(DisplayName = "Employment: changed and removed items do not delete an unchanged item")]
+        public async Task Employment_MixedChangesAndDeletion_RetainsUnchanged()
+        {
+            using var context = CreateContext(nameof(Employment_MixedChangesAndDeletion_RetainsUnchanged));
+            await SeedRequiredData(context);
+            var service = CreateService(context);
+            JsonObject json = JsonNode.Parse(LoadFixture("employment_with_ringgold.json")).AsObject();
+            JsonArray groups = json["activities-summary"]["employments"]["affiliation-group"].AsArray();
+            JsonObject secondGroup = groups[0].DeepClone().AsObject();
+            JsonObject second = secondGroup["summaries"][0]["employment-summary"].AsObject();
+            second["put-code"] = JsonValue.Create(7002);
+            second["role-title"] = "Second";
+            second["start-date"]["year"]["value"] = "2010";
+            groups.Add(secondGroup);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            int retainedId = context.DimAffiliations.Single(a => a.PositionNameEn == "Researcher").Id;
+            int removedId = context.DimAffiliations.Single(a => a.PositionNameEn == "Second").Id;
+            DateTime originalModified = new(2000, 1, 1);
+            context.DimAffiliations.Single(a => a.Id == retainedId).Modified = originalModified;
+            await context.SaveChangesAsync();
+
+            second["role-title"] = "Second updated";
+            second["last-modified-date"]["value"] = JsonValue.Create(1000000001000L);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+            Assert.Equal(originalModified, context.DimAffiliations.Single(a => a.Id == retainedId).Modified);
+            Assert.Equal("Second updated", context.DimAffiliations.Single(a => a.Id == removedId).PositionNameEn);
+            groups.RemoveAt(1);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, json.ToJsonString(), LogId);
+
+            Assert.Equal(retainedId, Assert.Single(context.DimAffiliations.Where(a => a.Id > 0)).Id);
+            Assert.False(context.FactFieldValues.Any(f => f.DimAffiliationId == removedId));
+        }
+
         // -------------------------------------------------------------------------
         // Section: activities / works  (1 journal-article + 1 data-set)
         // -------------------------------------------------------------------------
@@ -2568,7 +2881,7 @@ namespace api.Tests
             var service = CreateService(context);
 
             await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment.json"), LogId);
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_updated.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedEmploymentFixture("employment_updated.json"), LogId);
 
             Assert.Equal(1, context.DimAffiliations.Count(e => e.Id > 0));
             Assert.Equal("Senior Researcher", context.DimAffiliations.Single(e => e.Id > 0).PositionNameEn);
@@ -3041,7 +3354,7 @@ namespace api.Tests
             await SeedOrgWithRinggoldId(context);
 
             // 2nd import: org now found → FK updated, identifierless data removed
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_ringgold.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedEmploymentFixture("employment_with_ringgold.json"), LogId);
             Assert.Equal(TestOrgId, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
             Assert.Equal(0, context.DimIdentifierlessData.Count(e => e.Id > 0));
             Assert.Equal(1, context.DimAffiliations.Count(e => e.Id > 0)); // no duplicate affiliation
@@ -3061,7 +3374,7 @@ namespace api.Tests
             Assert.Equal(TestOrgId, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
 
             // 2nd import: RINGGOLD "99999" has no match → identifierless data created
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_with_unknown_ringgold.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedEmploymentFixture("employment_with_unknown_ringgold.json"), LogId);
             Assert.Equal(-1, context.DimAffiliations.Single(e => e.Id > 0).DimOrganizationId);
             Assert.Equal(1, context.DimIdentifierlessData.Count(e => e.Id > 0));
             Assert.Equal(1, context.DimAffiliations.Count(e => e.Id > 0)); // no duplicate affiliation
@@ -3281,7 +3594,7 @@ namespace api.Tests
             Assert.Equal("Research", context.DimIdentifierlessData.Single(e => e.Id > 0 && e.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT).ValueEn);
 
             // Second import: same put-code, dept "Engineering"
-            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, LoadFixture("employment_dept_updated.json"), LogId);
+            await service.ImportOrcidRecordJsonIntoUserProfile(UserProfileId, UpdatedEmploymentFixture("employment_dept_updated.json"), LogId);
 
             // Row count unchanged; org_unit value updated
             Assert.Equal(2, context.DimIdentifierlessData.Count(e => e.Id > 0));

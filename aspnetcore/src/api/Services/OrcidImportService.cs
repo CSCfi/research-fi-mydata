@@ -1215,9 +1215,32 @@ namespace api.Services
             // Get DimFieldDisplaySettings for affiliation
             DimFieldDisplaySetting dimFieldDisplaySettingsAffiliation =
                 dimUserProfile.DimFieldDisplaySettings.FirstOrDefault(dfdsAffiliation => dfdsAffiliation.FieldIdentifier == Constants.FieldIdentifiers.ACTIVITY_AFFILIATION);
+            Dictionary<int, int> employmentPutCodeCounts = employments
+                .Where(employment => employment.PutCode?.Value.HasValue == true)
+                .GroupBy(employment => employment.PutCode.Value.Value)
+                .ToDictionary(group => group.Key, group => group.Count());
             _ttvContext.ChangeTracker.AutoDetectChangesEnabled = false;
             foreach (OrcidEmployment employment in employments)
             {
+                int? putCode = employment.PutCode?.Value;
+                string putCodeValue = employment.PutCode?.Value.ToString() ?? string.Empty;
+                List<FactFieldValue> matchingAffiliations = dimUserProfile.FactFieldValues.Where(ffv =>
+                    ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsAffiliation &&
+                    ffv.DimPidIdOrcidPutCode > 0 &&
+                    ffv.DimPidIdOrcidPutCodeNavigation.PidContent == putCodeValue).ToList();
+                FactFieldValue factFieldValuesAffiliation = matchingAffiliations.FirstOrDefault();
+
+                if (factFieldValuesAffiliation != null &&
+                    putCode > 0 &&
+                    employmentPutCodeCounts[putCode.Value] == 1 &&
+                    matchingAffiliations.Count == 1 &&
+                    IsOrcidTimestampUnchanged(factFieldValuesAffiliation, employment.LastModifiedDate))
+                {
+                    orcidImportHelper.dimAffiliationIds.Add(factFieldValuesAffiliation.DimAffiliationId);
+                    statistics.TrackItem(factFieldValuesAffiliation);
+                    continue;
+                }
+
                 // Trim position name to max 255 characters to prevent DB error
                 if (employment.RoleTitle != null && employment.RoleTitle.Length > 255)
                 {
@@ -1233,13 +1256,6 @@ namespace api.Services
                  * Department name handling.
                  * ORCID employment may contain 'department-name'. Add deparment-name into DimIdentifierlessData as type 'organization_unit'.
                  */
-
-                // Check if FactFieldValues contains entry, which points to ORCID put code value in DimAffiliation
-                FactFieldValue factFieldValuesAffiliation =
-                    dimUserProfile.FactFieldValues.FirstOrDefault(ffv =>
-                        ffv.DimFieldDisplaySettings == dimFieldDisplaySettingsAffiliation &&
-                        ffv.DimPidIdOrcidPutCode > 0 &&
-                        ffv.DimPidIdOrcidPutCodeNavigation.PidContent == employment.PutCode.Value.ToString());
 
                 // Search organization identifier from DimPid based on ORCID's disambiguated-organization-identifier data.
                 int? dimOrganization_id_affiliation = await _organizationHandlerService.FindOrganizationIdByOrcidDisambiguationIdentifier(
@@ -1258,8 +1274,10 @@ namespace api.Services
                 /*
                  * Check if affiliation already exists in profile.
                  */
+                bool departmentHandled = false;
                 if (factFieldValuesAffiliation != null)
                 {
+                    orcidImportHelper.dimAffiliationIds.Add(factFieldValuesAffiliation.DimAffiliationId);
                     SetOrcidTimestamps(factFieldValuesAffiliation, employment.CreatedDate, employment.LastModifiedDate, currentDateTime);
                     /*
                      * Affiliation already exists in profile, update.
@@ -1300,9 +1318,22 @@ namespace api.Services
                             factFieldValuesAffiliationNew.Modified = factFieldValuesAffiliation.Modified;
                             factFieldValuesAffiliationNew.SourceId = factFieldValuesAffiliation.SourceId;
                             factFieldValuesAffiliationNew.SourceDescription = factFieldValuesAffiliation.SourceDescription;
+                            if (!string.IsNullOrWhiteSpace(employment.DepartmentName))
+                            {
+                                DimIdentifierlessDatum department = _organizationHandlerService.CreateIdentifierlessData_OrganizationUnit(
+                                    parentDimIdentifierlessData: null,
+                                    nameFi: "",
+                                    nameEn: employment.DepartmentName,
+                                    nameSv: "");
+                                _ttvContext.DimIdentifierlessData.Add(department);
+                                factFieldValuesAffiliationNew.DimIdentifierlessData = department;
+                                departmentHandled = true;
+                            }
                             _ttvContext.Add(factFieldValuesAffiliationNew);
                             _ttvContext.FactFieldValues.Remove(factFieldValuesAffiliation);
+                            _ttvContext.DimIdentifierlessData.RemoveRange(factFieldValuesAffiliation.DimIdentifierlessData.InverseDimIdentifierlessData);
                             _ttvContext.DimIdentifierlessData.Remove(factFieldValuesAffiliation.DimIdentifierlessData);
+                            factFieldValuesAffiliation = factFieldValuesAffiliationNew;
                         }
                     }
                     else
@@ -1359,11 +1390,14 @@ namespace api.Services
 
                             _ttvContext.Add(factFieldValuesAffiliationNew);
                             _ttvContext.FactFieldValues.Remove(factFieldValuesAffiliation);
+                            if (factFieldValuesAffiliation.DimIdentifierlessDataId > 0 &&
+                                factFieldValuesAffiliation.DimIdentifierlessData.Type == Constants.IdentifierlessDataTypes.ORGANIZATION_UNIT)
+                            {
+                                _ttvContext.DimIdentifierlessData.Remove(factFieldValuesAffiliation.DimIdentifierlessData);
+                            }
+                            factFieldValuesAffiliation = factFieldValuesAffiliationNew;
                         }
                     }
-
-                    // Mark as processed
-                    orcidImportHelper.dimAffiliationIds.Add(factFieldValuesAffiliation.DimAffiliationId);
                 }
                 else
                 {
@@ -1432,7 +1466,7 @@ namespace api.Services
                 /*
                  * Affiliation department name handling
                  */
-                if (!string.IsNullOrWhiteSpace(employment.DepartmentName))
+                if (!departmentHandled && !string.IsNullOrWhiteSpace(employment.DepartmentName))
                 {
                     _organizationHandlerService.DepartmentNameHandling(
                         ffv: factFieldValuesAffiliation,
