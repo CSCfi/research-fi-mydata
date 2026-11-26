@@ -346,8 +346,8 @@ selection.
 
 Implementation note (2026-11-26): Publication items with a unique positive
 put-code match and unchanged summary timestamp skip `DimProfileOnlyPublication`
-updates. Existing work-group DOI selection is unchanged. Verification is
-pending before proceeding to Phase 10.
+updates. Existing work-group DOI selection is unchanged. Phase 9 was confirmed
+by the user on 2026-11-26.
 
 - The selected summary's identity, content, DOI, and timestamps must remain
   aligned.
@@ -359,6 +359,10 @@ pending before proceeding to Phase 10.
 ## Phase 10 - Datasets from ORCID Works
 
 Apply comparison before updating the dataset or its related web link.
+
+Implementation note (2026-11-26): Unchanged datasets with a unique positive
+put-code match skip both dataset updates and related web-link reconciliation.
+Verification is pending before proceeding to Phase 11.
 
 - Ensure the related `DimWebLink` is only reconciled when the parent ORCID
   dataset item is processed as changed.
