@@ -18,7 +18,7 @@ namespace ResearchFi.ProfilePublicApi
 
         /// <summary>Identifiers, for example DOI, ISBN, URN or Handle.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<Identifier> WrittenPublicationIsIdentifiedBy { get; set; }
+        public List<Identifier> WrittenPublicationIdentifier { get; set; }
 
         /// <summary>Parent publication.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -27,6 +27,10 @@ namespace ResearchFi.ProfilePublicApi
         /// <summary>Publication name.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string PublicationName { get; set; }
+
+        /// <summary>Publication classification.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ReferenceData PublicationClassification { get; set; }
 
         /// <summary>Authors as listed in the original publication.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -10,7 +10,8 @@ namespace ResearchFi.ProfilePublicApi
     {
         /// <summary>Identifiers, for example DOI or URN.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<Identifier> AVPublicationIsIdentifiedBy { get; set; }
+        [JsonPropertyName("AVPublicationIdentifier")]
+        public List<Identifier> AVPublicationIdentifier { get; set; }
 
         /// <summary>Channel the publication was published on.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -23,6 +24,10 @@ namespace ResearchFi.ProfilePublicApi
         /// <summary>Publication name.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string PublicationName { get; set; }
+
+        /// <summary>Publication classification.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ReferenceData PublicationClassification { get; set; }
 
         /// <summary>Authors as listed in the original publication.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

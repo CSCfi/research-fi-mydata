@@ -97,7 +97,7 @@ namespace api.Controllers
             }
 
             ProfileDataResponse response = await _publicApiService.GetProfileDataForPublicApi(request);
-            Identifier responseIdentifier = response?.ProfileData?.PersonIsIdentifiedBy;
+            Identifier responseIdentifier = response?.ProfileData?.PersonIdentifier;
             string orcid = string.Equals(responseIdentifier?.PidType, "ORCID", System.StringComparison.OrdinalIgnoreCase)
                 ? responseIdentifier.PidContent
                 : request.PersonIdentifiers

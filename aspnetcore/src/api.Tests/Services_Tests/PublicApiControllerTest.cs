@@ -160,7 +160,7 @@ namespace api.Tests
             {
                 ProfileData = responseOrcid == null ? null : new PersonProfileData
                 {
-                    PersonIsIdentifiedBy = new Identifier { PidType = "ORCID", PidContent = responseOrcid }
+                    PersonIdentifier = new Identifier { PidType = "ORCID", PidContent = responseOrcid }
                 }
             });
 

@@ -12,6 +12,7 @@ namespace ResearchFi.ProfilePublicApi
         public LanguageVariant CodeLabel { get; set; }
 
         /// <summary>Code value.</summary>
-        public int CodeValue { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string CodeValue { get; set; }
     }
 }

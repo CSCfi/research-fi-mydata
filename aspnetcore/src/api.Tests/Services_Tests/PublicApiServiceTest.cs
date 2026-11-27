@@ -117,7 +117,7 @@ namespace api.Tests
                         }
                     }
                 },
-                CollaborationInterests = new List<ReferenceData> { new ReferenceData { CodeValue = 0 } },
+                CollaborationInterests = new List<ReferenceData> { new ReferenceData { CodeValue = "0" } },
                 HasGrantedFunding = new List<GrantedFunding>()
             };
             var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
@@ -133,9 +133,84 @@ namespace api.Tests
             Assert.Equal("Article", publication.PublicationName);
             Assert.Equal(2021, publication.PublicationYear);
             Assert.Equal("Publisher", publication.PublishedOn.IsPublishedBy.PublisherName);
-            Assert.Equal(0, Assert.Single(deserialized.CollaborationInterests).CodeValue);
+            Assert.Equal("0", Assert.Single(deserialized.CollaborationInterests).CodeValue);
             Assert.NotNull(deserialized.HasGrantedFunding);
             Assert.Empty(deserialized.HasGrantedFunding);
+        }
+
+        [Fact]
+        public void Contracts_SerializeUsingSchema106NamesAndStringReferenceCodes()
+        {
+            var identifier = new Identifier { PidType = "DOI", PidContent = "10.1234/example" };
+            var data = new PersonProfileData
+            {
+                PersonIdentifier = identifier,
+                IsReachableFrom = new ContactInformation
+                {
+                    PhoneNumber = new List<string> { "+358401234567" },
+                    Email = new List<string> { "person@example.com" },
+                    Homepage = new List<WebLink> { new WebLink { WeblinkLabel = "Home", WeblinkURL = "https://example.com" } }
+                },
+                Affiliations = new List<Affiliation>
+                {
+                    new Affiliation
+                    {
+                        AffiliationOrganization = new Organization
+                        {
+                            OrganizationIdentifier = new List<Identifier> { identifier }
+                        }
+                    }
+                },
+                ContributesToOutput = new List<Output>
+                {
+                    new Output
+                    {
+                        ContributesToApplication = new List<Software>
+                        {
+                            new Software { SoftwareIdentifier = new List<Identifier> { identifier } }
+                        },
+                        ContributesToAudiovisualPublication = new List<AudiovisualPublication>
+                        {
+                            new AudiovisualPublication { AVPublicationIdentifier = new List<Identifier> { identifier } }
+                        },
+                        ContributesToWrittenPublication = new List<WrittenPublication>
+                        {
+                            new WrittenPublication
+                            {
+                                WrittenPublicationIdentifier = new List<Identifier> { identifier },
+                                PublicationClassification = new ReferenceData { CodeValue = "A1" }
+                            }
+                        },
+                        ContributesToArtpublication = new List<ArtPublication>
+                        {
+                            new ArtPublication { ArtPublicationIdentifier = new List<Identifier> { identifier } }
+                        },
+                        ContributesToDataset = new List<ResearchDataset>
+                        {
+                            new ResearchDataset { DatasetIdentifier = new List<Identifier> { identifier } }
+                        }
+                    }
+                }
+            };
+
+            using JsonDocument document = JsonDocument.Parse(
+                JsonSerializer.Serialize(data, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            JsonElement root = document.RootElement;
+            JsonElement output = root.GetProperty("contributesToOutput")[0];
+
+            Assert.True(root.TryGetProperty("personIdentifier", out _));
+            Assert.Equal(JsonValueKind.String, root.GetProperty("isReachableFrom").GetProperty("phoneNumber")[0].ValueKind);
+            Assert.Equal(JsonValueKind.String, root.GetProperty("isReachableFrom").GetProperty("email")[0].ValueKind);
+            Assert.True(root.GetProperty("isReachableFrom").GetProperty("homepage")[0].TryGetProperty("weblinkLabel", out _));
+            Assert.True(root.GetProperty("isReachableFrom").GetProperty("homepage")[0].TryGetProperty("weblinkURL", out _));
+            Assert.True(root.GetProperty("affiliations")[0].GetProperty("affiliationOrganization").TryGetProperty("organizationIdentifier", out _));
+            Assert.True(output.GetProperty("contributesToApplication")[0].TryGetProperty("softwareIdentifier", out _));
+            Assert.True(output.GetProperty("contributesToAudiovisualPublication")[0].TryGetProperty("AVPublicationIdentifier", out _));
+            Assert.True(output.GetProperty("contributesToWrittenPublication")[0].TryGetProperty("writtenPublicationIdentifier", out _));
+            Assert.Equal("A1", output.GetProperty("contributesToWrittenPublication")[0]
+                .GetProperty("publicationClassification").GetProperty("codeValue").GetString());
+            Assert.True(output.GetProperty("contributesToArtpublication")[0].TryGetProperty("artPublicationIdentifier", out _));
+            Assert.True(output.GetProperty("contributesToDataset")[0].TryGetProperty("datasetIdentifier", out _));
         }
 
         [Fact(DisplayName = "Get username from national identification number")]
@@ -177,6 +252,7 @@ namespace api.Tests
                         new ProfileEditorAffiliation
                         {
                             OrganizationNameEn = "University",
+                            DepartmentNameEn = "Faculty",
                             PositionNameEn = "Professor",
                             StartDate = new ProfileEditorDate { Year = 2020, Month = 3 },
                             EndDate = new ProfileEditorDate { Year = 2024, Month = 6, Day = 5 }
@@ -188,7 +264,7 @@ namespace api.Tests
                     },
                     publications = new List<ProfileEditorPublication>
                     {
-                        new ProfileEditorPublication { PublicationName = "Article", AuthorsText = "Virtanen M", PublicationYear = 2021, Doi = "10.1234/abc", JournalName = "Journal" }
+                        new ProfileEditorPublication { PublicationName = "Article", AuthorsText = "Virtanen M", PublicationYear = 2021, Doi = "10.1234/abc", JournalName = "Journal", PublicationTypeCode = "A1" }
                     },
                     fundingDecisions = new List<ProfileEditorFundingDecision>
                     {
@@ -375,6 +451,16 @@ namespace api.Tests
                     Id = 2, DimUserProfileId = 1, UserChoiceValue = false, SourceId = "s",
                     DimReferencedataIdAsUserChoiceLabelNavigation = new DimReferencedatum { CodeScheme = "Kiinnostuksen_ilmaiseminen", CodeValue = "3", NameEn = "Interest 3", Order = 3, SourceId = "s", SourceDescription = "s" }
                 });
+            context.DimReferencedata.Add(new DimReferencedatum
+            {
+                CodeScheme = "julkaisutyyppiluokitus",
+                CodeValue = "A1",
+                NameFi = "Tieteellinen artikkeli",
+                NameSv = "Vetenskaplig artikel",
+                NameEn = "Scientific article",
+                SourceId = "s",
+                SourceDescription = "s"
+            });
             AddController(context);
             AddConsent(context);
             await context.SaveChangesAsync();
@@ -393,17 +479,18 @@ namespace api.Tests
             PersonProfileData data = response.ProfileData;
             Assert.Equal("Matti", data.IsNamedBy.FirstName);
             Assert.Equal("Virtanen", data.IsNamedBy.LastName);
-            Assert.Equal("0000-0000-0000-0001", data.PersonIsIdentifiedBy.PidContent);
-            Assert.Equal("ORCID", data.PersonIsIdentifiedBy.PidType);
+            Assert.Equal("0000-0000-0000-0001", data.PersonIdentifier.PidContent);
+            Assert.Equal("ORCID", data.PersonIdentifier.PidType);
             Assert.Equal("Description", data.DescriptionOfActivities.En);
             Assert.Equal("Kuvaus", data.DescriptionOfActivities.Fi);
             Assert.Null(data.DescriptionOfActivities.Sv);
             Assert.Equal("matti@example.com", Assert.Single(data.IsReachableFrom.Email));
             Assert.Equal("+358401234567", Assert.Single(data.IsReachableFrom.PhoneNumber));
-            Assert.Equal("https://example.com", Assert.Single(data.IsReachableFrom.Homepage).LinkURL);
+            Assert.Equal("https://example.com", Assert.Single(data.IsReachableFrom.Homepage).WeblinkURL);
 
             Affiliation affiliation = Assert.Single(data.Affiliations);
-            Assert.Equal("University", affiliation.AffiliationOrganization.OrganizationName.En);
+            Assert.Equal("Faculty", affiliation.AffiliationOrganization.OrganizationName.En);
+            Assert.Equal("University", affiliation.AffiliationOrganization.IsPartOfOrganization.OrganizationName.En);
             Assert.Equal("Professor", affiliation.Position.En);
             Assert.Equal(2020, affiliation.AffiliationStartsOn.Year);
             Assert.Equal(3, affiliation.AffiliationStartsOn.Month);
@@ -429,16 +516,18 @@ namespace api.Tests
             Assert.Equal("Article", publication.PublicationName);
             Assert.Equal("Virtanen M", publication.ListOfAuthors);
             Assert.Equal(2021, publication.PublicationYear);
-            Assert.Equal("10.1234/abc", Assert.Single(publication.WrittenPublicationIsIdentifiedBy).PidContent);
+            Assert.Equal("10.1234/abc", Assert.Single(publication.WrittenPublicationIdentifier).PidContent);
+            Assert.Equal("A1", publication.PublicationClassification.CodeValue);
+            Assert.Equal("Scientific article", publication.PublicationClassification.CodeLabel.En);
             Assert.Equal("Journal", publication.PublishedOn.IsPublishedInSerie.JournalName);
             ResearchDataset dataset = Assert.Single(output.ContributesToDataset);
             Assert.Equal("Dataset", Assert.Single(dataset.DatasetTitle).DescriptiveContent);
             Assert.Equal(2022, dataset.DatasetCreatedDate.Year);
-            Assert.Equal(2, Assert.Single(dataset.RoleInDataset).CodeValue);
-            Assert.Equal("10.1234/ds", Assert.Single(dataset.DatasetIsIdentifiedBy).PidContent);
+            Assert.Equal("2", Assert.Single(dataset.RoleInDataset).CodeValue);
+            Assert.Equal("10.1234/ds", Assert.Single(dataset.DatasetIdentifier).PidContent);
 
             ReferenceData interest = Assert.Single(data.CollaborationInterests);
-            Assert.Equal(2, interest.CodeValue);
+            Assert.Equal("2", interest.CodeValue);
             Assert.Equal("Interest 2", interest.CodeLabel.En);
         }
 
@@ -453,7 +542,7 @@ namespace api.Tests
             PersonProfileData data = await service.GetPersonProfileData(1, "0000-0000-0000-0001");
 
             Assert.Equal("Matti", data.IsNamedBy.FirstName);
-            Assert.Equal("0000-0000-0000-0001", data.PersonIsIdentifiedBy.PidContent);
+            Assert.Equal("0000-0000-0000-0001", data.PersonIdentifier.PidContent);
             Assert.Equal("Article", Assert.Single(Assert.Single(data.ContributesToOutput).ContributesToWrittenPublication).PublicationName);
             userProfileServiceMock.Verify(s => s.GetProfileData(1, It.IsAny<LogUserIdentification>(), true), Times.Once);
             userProfileServiceMock.Verify(s => s.GetUserprofile(It.IsAny<string>()), Times.Never);

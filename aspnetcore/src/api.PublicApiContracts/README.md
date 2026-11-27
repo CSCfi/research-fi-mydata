@@ -5,12 +5,12 @@ Request/response contract types for the Research.fi Mydata Public API integratio
 this package only carries the plain data types, with no dependency on EF Core, ASP.NET Core, or
 any other part of the Mydata API.
 
-## Current contents (mockup phase)
+## Profile data contract
 
-- `PublicApiHelloRequest` — `{ "username": "..." }`
-- `PublicApiHelloResponse` — `{ "message": "Hello ..." }`
-
-The real, `DimUserProfile`-derived contract will replace/extend these types in a later phase.
+The public profile response models follow schema version 1.0.6, included in
+`JsonSchema/Research.fi - profile API end point.schema.json`. This version renames identifier and
+weblink properties and represents reference-data `codeValue` values as strings. The package
+version is 0.1.0 because these are breaking contract changes.
 
 ## Consuming this package
 

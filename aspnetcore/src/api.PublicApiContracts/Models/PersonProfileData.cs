@@ -12,7 +12,7 @@ namespace ResearchFi.ProfilePublicApi
         /// Person's identifier, pidType = 'ORCID'.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public Identifier PersonIsIdentifiedBy { get; set; }
+        public Identifier PersonIdentifier { get; set; }
 
         /// <summary>
         /// Person's name.

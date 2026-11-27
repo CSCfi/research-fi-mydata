@@ -26,6 +26,6 @@ namespace ResearchFi.ProfilePublicApi
 
         /// <summary>Persistent identifiers, for example DOI, URN or URL.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<Identifier> DatasetIsIdentifiedBy { get; set; }
+        public List<Identifier> DatasetIdentifier { get; set; }
     }
 }

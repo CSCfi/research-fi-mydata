@@ -9,10 +9,10 @@ namespace ResearchFi.ProfilePublicApi
     {
         /// <summary>Link description.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string LinkLabel { get; set; }
+        public string WeblinkLabel { get; set; }
 
         /// <summary>Link URL.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string LinkURL { get; set; }
+        public string WeblinkURL { get; set; }
     }
 }

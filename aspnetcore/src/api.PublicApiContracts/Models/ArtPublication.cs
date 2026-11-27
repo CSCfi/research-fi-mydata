@@ -10,7 +10,7 @@ namespace ResearchFi.ProfilePublicApi
     {
         /// <summary>Identifiers of the art publication.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<Identifier> ArtPublicationIsIdentifiedBy { get; set; }
+        public List<Identifier> ArtPublicationIdentifier { get; set; }
 
         /// <summary>Publication year.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -23,6 +23,10 @@ namespace ResearchFi.ProfilePublicApi
         /// <summary>Publication name.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string PublicationName { get; set; }
+
+        /// <summary>Publication classification.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ReferenceData PublicationClassification { get; set; }
 
         /// <summary>Authors as listed in the original publication.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

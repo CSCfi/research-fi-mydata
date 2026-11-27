@@ -22,6 +22,7 @@ namespace api.Services
     public class PublicApiService : IPublicApiService
     {
         private const string ConsentManagementPath = "/mydata/account-settings?login=1";
+        private const string PublicationTypeCodeScheme = "julkaisutyyppiluokitus";
         private readonly TtvContext _ttvContext;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<PublicApiService> _logger;
@@ -92,6 +93,7 @@ namespace api.Services
                 userprofileId: userProfileId,
                 logUserIdentification: new LogUserIdentification(),
                 forElasticsearch: true);
+            Dictionary<string, ReferenceData> publicationClassifications = await GetPublicationClassifications(profileData.activity.publications);
 
             return new PersonProfileData
             {
@@ -103,7 +105,9 @@ namespace api.Services
                 {
                     new Output
                     {
-                        ContributesToWrittenPublication = profileData.activity.publications.Select(ToWrittenPublication).ToList(),
+                        ContributesToWrittenPublication = profileData.activity.publications
+                            .Select(publication => ToWrittenPublication(publication, publicationClassifications))
+                            .ToList(),
                         ContributesToDataset = profileData.activity.researchDatasets.Select(ToResearchDataset).ToList(),
                         ContributesToApplication = new List<Software>(),
                         ContributesToAudiovisualPublication = new List<AudiovisualPublication>(),
@@ -111,7 +115,7 @@ namespace api.Services
                     }
                 },
                 Affiliations = profileData.activity.affiliations.Select(ToAffiliation).ToList(),
-                PersonIsIdentifiedBy = new Identifier { PidType = api.Models.Common.Constants.PidTypes.ORCID, PidContent = orcidId },
+                PersonIdentifier = new Identifier { PidType = api.Models.Common.Constants.PidTypes.ORCID, PidContent = orcidId },
                 CollaborationInterests = await GetCollaborationInterests(userProfileId),
                 HasEducations = profileData.activity.educations.Select(ToEducation).ToList()
             };
@@ -183,12 +187,53 @@ namespace api.Services
                 }).AsNoTracking().ToListAsync();
 
             return choices
-                .Where(c => int.TryParse(c.CodeValue, out _))
+                .Where(c => !string.IsNullOrWhiteSpace(c.CodeValue))
                 .Select(c => new ReferenceData
                 {
-                    CodeValue = int.Parse(c.CodeValue),
+                    CodeValue = c.CodeValue,
                     CodeLabel = ToLanguageVariant(c.NameFi, c.NameSv, c.NameEn)
                 }).ToList();
+        }
+
+        private async Task<Dictionary<string, ReferenceData>> GetPublicationClassifications(
+            IEnumerable<ProfileEditorPublication> publications)
+        {
+            List<string> codeValues = publications
+                .Select(publication => publication.PublicationTypeCode)
+                .Where(codeValue => !string.IsNullOrWhiteSpace(codeValue))
+                .Distinct()
+                .ToList();
+
+            if (codeValues.Count == 0)
+            {
+                return new Dictionary<string, ReferenceData>();
+            }
+
+            var classifications = await _ttvContext.DimReferencedata
+                .Where(referenceData => referenceData.CodeScheme == PublicationTypeCodeScheme
+                    && codeValues.Contains(referenceData.CodeValue))
+                .Select(referenceData => new
+                {
+                    referenceData.CodeValue,
+                    referenceData.NameFi,
+                    referenceData.NameSv,
+                    referenceData.NameEn
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            return classifications
+                .GroupBy(classification => classification.CodeValue)
+                .ToDictionary(
+                    group => group.Key,
+                    group => new ReferenceData
+                    {
+                        CodeValue = group.Key,
+                        CodeLabel = ToLanguageVariant(
+                            group.First().NameFi,
+                            group.First().NameSv,
+                            group.First().NameEn)
+                    });
         }
 
         private static string NullIfBlank(string value)
@@ -254,18 +299,17 @@ namespace api.Services
             return description == null ? null : ToLanguageVariant(description.ResearchDescriptionFi, description.ResearchDescriptionSv, description.ResearchDescriptionEn);
         }
 
-        // TODO: not handled yet: phone numbers and emails are untyped objects in the contract, plain strings are used for now.
         private static ContactInformation ToContactInformation(ProfileEditorDataPersonal personal)
         {
             return new ContactInformation
             {
-                PhoneNumber = personal.telephoneNumbers.Select(t => (object)t.Value).ToList(),
-                Email = personal.emails.Select(e => (object)e.Value).ToList(),
-                Homepage = personal.webLinks.Select(w => new WebLink { LinkLabel = w.LinkLabel, LinkURL = w.Url }).ToList()
+                PhoneNumber = personal.telephoneNumbers.Select(t => t.Value).ToList(),
+                Email = personal.emails.Select(e => e.Value).ToList(),
+                Homepage = personal.webLinks.Select(w => new WebLink { WeblinkLabel = w.LinkLabel, WeblinkURL = w.Url }).ToList()
             };
         }
 
-        // TODO: not handled yet: Organization identifiers (OrganizationIsIdentifiedBy) of the funder.
+        // TODO: not handled yet: Organization identifiers (OrganizationIdentifier) of the funder.
         private static GrantedFunding ToGrantedFunding(ProfileEditorFundingDecision funding)
         {
             return new GrantedFunding
@@ -274,16 +318,24 @@ namespace api.Services
                 FundingEndsOn = ToPartialDate(funding.FundingEndYear),
                 IsFundedBy = new Organization
                 {
-                    OrganizationIsIdentifiedBy = new List<Identifier>(),
+                    OrganizationIdentifier = new List<Identifier>(),
                     OrganizationName = ToLanguageVariant(funding.FunderNameFi, funding.FunderNameSv, funding.FunderNameEn)
                 },
                 GrantedFundingName = ToLanguageVariant(funding.ProjectNameFi, funding.ProjectNameSv, funding.ProjectNameEn)
             };
         }
 
-        // TODO: not handled yet: department name, organization identifiers, parent organization and organization sector.
+        // TODO: not handled yet: organization identifiers and organization sector.
         private static Affiliation ToAffiliation(ProfileEditorAffiliation affiliation)
         {
+            bool hasDepartmentName = !string.IsNullOrWhiteSpace(affiliation.DepartmentNameFi)
+                || !string.IsNullOrWhiteSpace(affiliation.DepartmentNameSv)
+                || !string.IsNullOrWhiteSpace(affiliation.DepartmentNameEn);
+            LanguageVariant organizationName = ToLanguageVariant(
+                affiliation.OrganizationNameFi,
+                affiliation.OrganizationNameSv,
+                affiliation.OrganizationNameEn);
+
             return new Affiliation
             {
                 AffiliationStartsOn = ToPartialDate(affiliation.StartDate),
@@ -291,8 +343,13 @@ namespace api.Services
                 AffiliationType = ToLanguageVariant(affiliation.AffiliationTypeFi, affiliation.AffiliationTypeSv, affiliation.AffiliationTypeEn),
                 AffiliationOrganization = new Organization
                 {
-                    OrganizationIsIdentifiedBy = new List<Identifier>(),
-                    OrganizationName = ToLanguageVariant(affiliation.OrganizationNameFi, affiliation.OrganizationNameSv, affiliation.OrganizationNameEn)
+                    OrganizationIdentifier = new List<Identifier>(),
+                    OrganizationName = hasDepartmentName
+                        ? ToLanguageVariant(affiliation.DepartmentNameFi, affiliation.DepartmentNameSv, affiliation.DepartmentNameEn)
+                        : organizationName,
+                    IsPartOfOrganization = hasDepartmentName
+                        ? new Organization { OrganizationName = organizationName }
+                        : null
                 },
                 Position = ToLanguageVariant(affiliation.PositionNameFi, affiliation.PositionNameSv, affiliation.PositionNameEn)
             };
@@ -310,7 +367,9 @@ namespace api.Services
         }
 
         // TODO: not handled yet: identifiers other than DOI, JuFo ids, ISSN, parent publication issue number.
-        private static WrittenPublication ToWrittenPublication(ProfileEditorPublication publication)
+        private static WrittenPublication ToWrittenPublication(
+            ProfileEditorPublication publication,
+            Dictionary<string, ReferenceData> publicationClassifications)
         {
             List<Identifier> identifiers = new();
             if (!string.IsNullOrWhiteSpace(publication.Doi))
@@ -341,9 +400,13 @@ namespace api.Services
             {
                 PublicationYear = publication.PublicationYear,
                 PublishedOn = channel,
-                WrittenPublicationIsIdentifiedBy = identifiers,
+                WrittenPublicationIdentifier = identifiers,
                 WrittenPublicationIsPartOfParentPublication = parentPublication,
                 PublicationName = publication.PublicationName,
+                PublicationClassification = !string.IsNullOrWhiteSpace(publication.PublicationTypeCode)
+                    && publicationClassifications.TryGetValue(publication.PublicationTypeCode, out ReferenceData classification)
+                        ? classification
+                        : null,
                 ListOfAuthors = publication.AuthorsText
             };
         }
@@ -357,10 +420,10 @@ namespace api.Services
                 DatasetCreatedDate = ToPartialDate(dataset.DatasetCreated),
                 RoleInDataset = dataset.Actor.Select(a => new ReferenceData
                 {
-                    CodeValue = a.actorRole,
+                    CodeValue = a.actorRole.ToString(CultureInfo.InvariantCulture),
                     CodeLabel = ToLanguageVariant(a.actorRoleNameFi, a.actorRoleNameSv, a.actorRoleNameEn)
                 }).ToList(),
-                DatasetIsIdentifiedBy = dataset.PreferredIdentifiers.Select(p => new Identifier { PidContent = p.PidContent, PidType = p.PidType }).ToList()
+                DatasetIdentifier = dataset.PreferredIdentifiers.Select(p => new Identifier { PidContent = p.PidContent, PidType = p.PidType }).ToList()
             };
         }
 

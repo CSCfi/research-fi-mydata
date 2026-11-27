@@ -10,7 +10,7 @@ namespace ResearchFi.ProfilePublicApi
     {
         /// <summary>Organization identifiers, for example business ID or PIC.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<Identifier> OrganizationIsIdentifiedBy { get; set; }
+        public List<Identifier> OrganizationIdentifier { get; set; }
 
         /// <summary>Parent organization.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

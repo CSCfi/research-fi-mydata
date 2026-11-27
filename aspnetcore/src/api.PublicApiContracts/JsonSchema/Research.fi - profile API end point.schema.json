@@ -1,6 +1,6 @@
 {
     "description": "",
-    "id": "https://iri.suomi.fi/model/researchfi_publicapi_person/1.0.4/",
+    "id": "https://iri.suomi.fi/model/researchfi_publicapi_person/1.0.6/",
     "type": "object",
     "title": "Research.fi - profile API end point",
     "properties": {
@@ -21,7 +21,7 @@
                     "title": "year"
                 },
                 "datePartial": {
-                    "description": "",
+                    "description": "Year, Month, Day: YYYY-MM-DD : \"2025-11-20\"\nYear, Month: YYYY-MM: \"1955-07\"\nYear Only: YYYY: \"1066\"",
                     "type": "string",
                     "title": "datePartial"
                 },
@@ -85,36 +85,41 @@
             "type": "object",
             "title": "software",
             "required": [
-                "softwareIsIdentifiedBy",
+                "publicationName",
                 "listOfAuthors",
-                "publicationName"
+                "softwareIdentifier"
             ],
             "properties": {
+                "publicationYear": {
+                    "description": "",
+                    "type": "number",
+                    "title": "publicationYear"
+                },
                 "publishedOn": {
                     "description": "",
                     "title": "publishedOn",
                     "$ref": "#/properties/publication_channel"
                 },
-                "publicationYear": {
-                    "description": "",
-                    "type": "number",
-                    "title": "publicationYear"
+                "softwareIdentifier": {
+                    "minItems": 1,
+                    "description": "?",
+                    "type": "array",
+                    "title": "softwareIdentifier",
+                    "items": [{
+                        "description": "?",
+                        "title": "softwareIdentifier",
+                        "$ref": "#/properties/identifier"
+                    }]
                 },
                 "publicationName": {
                     "description": "",
                     "type": "string",
                     "title": "publicationName"
                 },
-                "softwareIsIdentifiedBy": {
-                    "minItems": 1,
-                    "description": "?",
-                    "type": "array",
-                    "title": "softwareIsIdentifiedBy",
-                    "items": [{
-                        "description": "?",
-                        "title": "softwareIsIdentifiedBy",
-                        "$ref": "#/properties/identifier"
-                    }]
+                "publicationClassification": {
+                    "description": "code_scheme='julkaisutyyppiluokitus'",
+                    "title": "publicationClassification",
+                    "$ref": "#/properties/reference_data"
                 },
                 "listOfAuthors": {
                     "description": "",
@@ -132,13 +137,13 @@
                     "description": "",
                     "type": "array",
                     "title": "phoneNumber",
-                    "items": {"type": "object"}
+                    "items": {"type": "string"}
                 },
                 "email": {
                     "description": "",
                     "type": "array",
                     "title": "email",
-                    "items": {"type": "object"}
+                    "items": {"type": "string"}
                 },
                 "homepage": {
                     "description": "",
@@ -193,36 +198,41 @@
             "type": "object",
             "title": "audiovisualPublication",
             "required": [
-                "AVPublicationIsIdentifiedBy",
+                "publicationName",
                 "listOfAuthors",
-                "publicationName"
+                "AVPublicationIdentifier"
             ],
             "properties": {
-                "AVPublicationIsIdentifiedBy": {
+                "AVPublicationIdentifier": {
                     "minItems": 1,
                     "description": "'DOI', 'URN'",
                     "type": "array",
-                    "title": "AVPublicationIsIdentifiedBy",
+                    "title": "AVPublicationIdentifier",
                     "items": [{
                         "description": "'DOI', 'URN'",
-                        "title": "AVPublicationIsIdentifiedBy",
+                        "title": "AVPublicationIdentifier",
                         "$ref": "#/properties/identifier"
                     }]
-                },
-                "publishedOn": {
-                    "description": "",
-                    "title": "publishedOn",
-                    "$ref": "#/properties/publication_channel"
                 },
                 "publicationYear": {
                     "description": "",
                     "type": "number",
                     "title": "publicationYear"
                 },
+                "publishedOn": {
+                    "description": "",
+                    "title": "publishedOn",
+                    "$ref": "#/properties/publication_channel"
+                },
                 "publicationName": {
                     "description": "",
                     "type": "string",
                     "title": "publicationName"
+                },
+                "publicationClassification": {
+                    "description": "code_scheme='julkaisutyyppiluokitus'",
+                    "title": "publicationClassification",
+                    "$ref": "#/properties/reference_data"
                 },
                 "listOfAuthors": {
                     "description": "",
@@ -294,10 +304,21 @@
             "title": "Written publication",
             "required": [
                 "publicationName",
-                "writtenPublicationIsIdentifiedBy",
-                "listOfAuthors"
+                "listOfAuthors",
+                "writtenPublicationIdentifier"
             ],
             "properties": {
+                "writtenPublicationIdentifier": {
+                    "minItems": 1,
+                    "description": "pid_type in ('DOI', 'ISBN', 'URN', 'Handle', )",
+                    "type": "array",
+                    "title": "writtenPublicationIdentifier",
+                    "items": [{
+                        "description": "pid_type in ('DOI', 'ISBN', 'URN', 'Handle', )",
+                        "title": "writtenPublicationIdentifier",
+                        "$ref": "#/properties/identifier"
+                    }]
+                },
                 "publicationYear": {
                     "description": "",
                     "type": "number",
@@ -308,17 +329,6 @@
                     "title": "publishedOn",
                     "$ref": "#/properties/publication_channel"
                 },
-                "writtenPublicationIsIdentifiedBy": {
-                    "minItems": 1,
-                    "description": "pid_type in ('DOI', 'ISBN', 'URN', 'Handle', )",
-                    "type": "array",
-                    "title": "writtenPublicationIsIdentifiedBy",
-                    "items": [{
-                        "description": "pid_type in ('DOI', 'ISBN', 'URN', 'Handle', )",
-                        "title": "writtenPublicationIsIdentifiedBy",
-                        "$ref": "#/properties/identifier"
-                    }]
-                },
                 "writtenPublicationIsPartOfParentPublication": {
                     "description": "",
                     "title": "writtenPublicationIsPartOfParent",
@@ -328,6 +338,11 @@
                     "description": "",
                     "type": "string",
                     "title": "publicationName"
+                },
+                "publicationClassification": {
+                    "description": "code_scheme='julkaisutyyppiluokitus'",
+                    "title": "publicationClassification",
+                    "$ref": "#/properties/reference_data"
                 },
                 "listOfAuthors": {
                     "description": "",
@@ -439,6 +454,16 @@
                         "$ref": "#/properties/descriptive_item"
                     }]
                 },
+                "datasetIdentifier": {
+                    "description": "pidType in ('DOI', 'URN', 'URL')",
+                    "type": "array",
+                    "title": "datasetIdentifier",
+                    "items": [{
+                        "description": "pidType in ('DOI', 'URN', 'URL')",
+                        "title": "datasetIdentifier",
+                        "$ref": "#/properties/identifier"
+                    }]
+                },
                 "datasetDescription": {
                     "description": "",
                     "type": "array",
@@ -462,16 +487,6 @@
                         "description": "",
                         "title": "roleInDataset",
                         "$ref": "#/properties/reference_data"
-                    }]
-                },
-                "datasetIsIdentifiedBy": {
-                    "description": "pidType in ('DOI', 'URN', 'URL')",
-                    "type": "array",
-                    "title": "datasetIsIdentifiedBy",
-                    "items": [{
-                        "description": "pidType in ('DOI', 'URN', 'URL')",
-                        "title": "datasetIsIdentifiedBy",
-                        "$ref": "#/properties/identifier"
                     }]
                 }
             }
@@ -581,7 +596,7 @@
                 },
                 "codeValue": {
                     "description": "",
-                    "type": "number",
+                    "type": "string",
                     "title": "codeValue"
                 }
             }
@@ -591,8 +606,8 @@
             "type": "object",
             "title": "Profile",
             "required": [
-                "isNamedBy",
-                "personIsIdentifiedBy"
+                "personIdentifier",
+                "isNamedBy"
             ],
             "properties": {
                 "hasGrantedFunding": {
@@ -640,9 +655,9 @@
                         "$ref": "#/properties/affiliation"
                     }]
                 },
-                "personIsIdentifiedBy": {
+                "personIdentifier": {
                     "description": "pidType = 'ORCID'",
-                    "title": "personIsIdentifiedBy",
+                    "title": "personIdentifier",
                     "$ref": "#/properties/identifier"
                 },
                 "collaborationInterests": {
@@ -725,21 +740,10 @@
             "type": "object",
             "title": "Organization",
             "required": [
-                "organizationIsIdentifiedBy",
+                "organizationIdentifier",
                 "organizationName"
             ],
             "properties": {
-                "organizationIsIdentifiedBy": {
-                    "minItems": 1,
-                    "description": "Oppilaitoskoodi,\nY-tunnus,\nPIC,\nURN",
-                    "type": "array",
-                    "title": "organizationIsIdentifiedBy",
-                    "items": [{
-                        "description": "Oppilaitoskoodi,\nY-tunnus,\nPIC,\nURN",
-                        "title": "organizationIsIdentifiedBy",
-                        "$ref": "#/properties/identifier"
-                    }]
-                },
                 "isPartOfOrganization": {
                     "description": "",
                     "title": "isPartOfOrganization",
@@ -754,6 +758,17 @@
                     "description": "",
                     "title": "organizationSector",
                     "$ref": "#/properties/reference_data"
+                },
+                "organizationIdentifier": {
+                    "minItems": 1,
+                    "description": "Oppilaitoskoodi,\nY-tunnus,\nPIC,\nURN",
+                    "type": "array",
+                    "title": "organizationIdentifier",
+                    "items": [{
+                        "description": "Oppilaitoskoodi,\nY-tunnus,\nPIC,\nURN",
+                        "title": "organizationIdentifier",
+                        "$ref": "#/properties/identifier"
+                    }]
                 }
             }
         },
@@ -762,16 +777,16 @@
             "type": "object",
             "title": "Weblink",
             "required": [
-                "linkLabel",
-                "linkURL"
+                "weblinkLabel",
+                "weblinkURL"
             ],
             "properties": {
-                "linkLabel": {
+                "weblinkLabel": {
                     "description": "",
                     "type": "string",
                     "title": "linkLabel"
                 },
-                "linkURL": {
+                "weblinkURL": {
                     "description": "",
                     "type": "string",
                     "title": "linkURL"
@@ -803,20 +818,9 @@
             "required": [
                 "publicationName",
                 "listOfAuthors",
-                "artPublicationIsIdentifiedBy"
+                "artPublicationIdentifier"
             ],
             "properties": {
-                "artPublicationIsIdentifiedBy": {
-                    "minItems": 1,
-                    "description": "?",
-                    "type": "array",
-                    "title": "artPublicationIsIdentifiedBy",
-                    "items": [{
-                        "description": "?",
-                        "title": "artPublicationIsIdentifiedBy",
-                        "$ref": "#/properties/identifier"
-                    }]
-                },
                 "publicationYear": {
                     "description": "",
                     "type": "number",
@@ -827,10 +831,26 @@
                     "title": "publishedOn",
                     "$ref": "#/properties/publication_channel"
                 },
+                "artPublicationIdentifier": {
+                    "minItems": 1,
+                    "description": "?",
+                    "type": "array",
+                    "title": "artPublicationIdentifier",
+                    "items": [{
+                        "description": "?",
+                        "title": "artPublicationIdentifier",
+                        "$ref": "#/properties/identifier"
+                    }]
+                },
                 "publicationName": {
                     "description": "",
                     "type": "string",
                     "title": "publicationName"
+                },
+                "publicationClassification": {
+                    "description": "code_scheme='julkaisutyyppiluokitus'",
+                    "title": "publicationClassification",
+                    "$ref": "#/properties/reference_data"
                 },
                 "listOfAuthors": {
                     "description": "",

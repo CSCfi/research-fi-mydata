@@ -10,11 +10,11 @@ namespace ResearchFi.ProfilePublicApi
     {
         /// <summary>Phone numbers.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<object> PhoneNumber { get; set; }
+        public List<string> PhoneNumber { get; set; }
 
         /// <summary>Email addresses.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<object> Email { get; set; }
+        public List<string> Email { get; set; }
 
         /// <summary>Homepages.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -22,7 +22,11 @@ namespace ResearchFi.ProfilePublicApi
 
         /// <summary>Identifiers of the software.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<Identifier> SoftwareIsIdentifiedBy { get; set; }
+        public List<Identifier> SoftwareIdentifier { get; set; }
+
+        /// <summary>Publication classification.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ReferenceData PublicationClassification { get; set; }
 
         /// <summary>Authors as listed in the original publication.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
